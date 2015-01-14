@@ -1,0 +1,139 @@
+/*
+ *
+ *  License Terms
+ *
+ *  Copyright (c) 2015, California Institute of Technology ("Caltech").
+ *  U.S. Government sponsorship acknowledged.
+ *
+ *  All rights reserved.
+ *
+ *  Redistribution and use in source and binary forms, with or without
+ *  modification, are permitted provided that the following conditions are
+ *  met:
+ *
+ *
+ *   *   Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *
+ *   *   Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the
+ *       distribution.
+ *
+ *   *   Neither the name of Caltech nor its operating division, the Jet
+ *       Propulsion Laboratory, nor the names of its contributors may be
+ *       used to endorse or promote products derived from this software
+ *       without specific prior written permission.
+ *
+ *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
+ *  IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+ *  TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
+ *  PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER
+ *  OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ *  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ *  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ *  PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ *  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+package gov.nasa.jpl.omf.scala.binding.owlapi
+
+import org.semanticweb.owlapi.model.OWLOntologyIRIMapper
+import org.apache.xml.resolver.CatalogManager
+import org.apache.xml.resolver.tools.CatalogResolver
+import org.apache.xml.resolver.Catalog
+import java.net.URI
+import scala.util.Try
+import scala.util.Success
+import java.io.IOException
+import scala.util.Failure
+import org.semanticweb.owlapi.model.IRI
+import java.net.URL
+import java.net.MalformedURLException
+import java.io.File
+
+case class CatalogIRIMapper( catalogManager: CatalogManager, catalogResolver: CatalogResolver, catalog: Catalog ) extends OWLOntologyIRIMapper {
+
+  def this( catalogManager: CatalogManager, catalogResolver: CatalogResolver ) = this( catalogManager, catalogResolver, catalogResolver.getCatalog )
+
+  def this( catalogManager: CatalogManager ) = this( catalogManager, new CatalogResolver( catalogManager ) )
+
+  def parseCatalog( catalogURI: URI ): Try[Unit] =
+    try {
+      catalog.parseCatalog( catalogURI.toURL() )
+      Success( Unit )
+    }
+    catch {
+      case e: IOException => Failure( e )
+    }
+
+  def getDocumentIRI( ontologyIRI: IRI ): IRI =
+    resolveIRI( ontologyIRI, loadResolutionStrategy ) match {
+      case null        => ontologyIRI
+      case resolvedIRI => resolvedIRI
+    }
+
+  def loadResolutionStrategy( resolved: String ): Option[IRI] = {
+    val normalized = new URI( resolved )
+    val normalizedPath = normalized.toString()
+
+    val f1 = new URL( normalizedPath )
+    val f2 = if ( normalizedPath.endsWith( ".owl" ) ) f1 else new URL( normalizedPath + ".owl" )
+    try {
+      val is = f1.openStream()
+      if ( null != is && is.available() > 0 ) {
+        is.close()
+        return Some( IRI.create( f1.toString() ) )
+      }
+    }
+    catch {
+      case e: IOException => ()
+      // try another variant.
+    }
+    try {
+      val is = f2.openStream()
+      if ( null != is && is.available() > 0 ) {
+        is.close()
+        return Some( IRI.create( f2.toString() ) )
+      }
+    }
+    catch {
+      case e: IOException => ()
+      // try another variant.
+    }
+    None
+  }
+
+  def saveResolutionStrategy( resolved: String ): Option[IRI] = {
+    val normalized = new URI( resolved )
+    val normalizedPath = normalized.toString
+    val f1 = new URL( normalizedPath )
+    val outputFile = if ( resolved.startsWith( "file:" ) ) new File( resolved.substring( 5 ) ) else new File( resolved )
+    val outputDir = outputFile.getParentFile()
+    if ( null != outputDir && outputDir.exists && outputDir.isDirectory && outputDir.canWrite )
+      Some( IRI.create( f1.toString ) )
+    else
+      None
+  }
+
+  def resolveIRI( iri: IRI, resolutionStrategy: ( String ) => Option[IRI] ): IRI = {
+    val rawPath = iri.toURI.toString
+    val iriPath = if ( rawPath.endsWith( "#" ) ) rawPath.substring( 0, rawPath.length() - 1 ) else rawPath
+    try {
+      catalog.resolveURI( iriPath ) match {
+        case null =>
+          iri
+        case resolved =>
+          resolutionStrategy( resolved ) match {
+            case None                => iri
+            case Some( resolvedIRI ) => resolvedIRI
+          }
+      }
+    }
+    catch {
+      case e: MalformedURLException => iri
+      case e: IOException           => iri
+    }
+  }
+}
