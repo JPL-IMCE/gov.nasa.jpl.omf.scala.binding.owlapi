@@ -33,6 +33,7 @@ object OMFScalaBindingOWLAPI extends Build {
        removeExistingHeaderBlock := true,
        scalaSource in Compile := baseDirectory.value / "src",
        scalaSource in Test := baseDirectory.value / "test",
+       resourceDirectory in Test := baseDirectory.value / "test/resources",
        shellPrompt := { state => Project.extract(state).currentRef.project + " @ " + Project.extract(state).get( GitKeys.gitCurrentBranch ) + "> " }
        )
      ) dependsOn ( 

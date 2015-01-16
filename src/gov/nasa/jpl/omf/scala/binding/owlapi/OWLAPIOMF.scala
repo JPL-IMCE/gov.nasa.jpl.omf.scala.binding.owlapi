@@ -62,9 +62,11 @@ trait OWLAPIOMF extends OMF {
   type ModelScalarDataType = types.ModelScalarDataType
   type ModelStructuredDataType = types.ModelStructuredDataType
   
-  type ModelStructuredDataRelationship = types.ModelStructuredDataRelationship
-  
-  type ModelEntityDataRelationship = types.ModelEntityDataRelationship
+  type ModelDataRelationship = types.ModelDataRelationship
+  type ModelDataRelationshipFromEntityToScalar = types.ModelDataRelationshipFromEntityToScalar
+  type ModelDataRelationshipFromEntityToStructure = types.ModelDataRelationshipFromEntityToStructure
+  type ModelDataRelationshipFromStructureToScalar = types.ModelDataRelationshipFromStructureToScalar
+  type ModelDataRelationshipFromStructureToStructure = types.ModelDataRelationshipFromStructureToStructure
   
   type ModelTermAxiom = types.ModelTermAxiom
    
@@ -90,10 +92,9 @@ trait OWLAPIOMF extends OMF {
   type ModelInstanceDataLiteral = instances.ModelInstanceDataLiteral
   type ModelInstanceDataStructure = instances.ModelInstanceDataStructure
   
-  type ModelInstanceProperty = instances.ModelInstanceProperty
-  
-  type ModelStructuredDataProperty = instances.ModelStructuredDataProperty
-  
-  type ModelEntityDataProperty = instances.ModelEntityDataProperty
-  
+  type ModelInstanceDataRelationshipFromEntityToScalar = instances.ModelInstanceDataRelationshipFromEntityToScalar
+  type ModelInstanceDataRelationshipFromEntityToStructure = instances.ModelInstanceDataRelationshipFromEntityToStructure
+  type ModelInstanceDataRelationshipFromStructureToScalar = instances.ModelInstanceDataRelationshipFromStructureToScalar
+  type ModelInstanceDataRelationshipFromStructureToStructure = instances.ModelInstanceDataRelationshipFromStructureToStructure
+    
 }

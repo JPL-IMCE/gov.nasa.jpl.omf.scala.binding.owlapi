@@ -39,20 +39,24 @@
  */
 package gov.nasa.jpl.omf.scala.binding.owlapi
 
-import org.semanticweb.owlapi.model.OWLOntologyIRIMapper
+import java.io.File
+import java.io.IOException
+import java.net.MalformedURLException
+import java.net.URI
+import java.net.URL
+
+import scala.util.Failure
+import scala.util.Success
+import scala.util.Try
+
+import org.apache.xml.resolver.Catalog
 import org.apache.xml.resolver.CatalogManager
 import org.apache.xml.resolver.tools.CatalogResolver
-import org.apache.xml.resolver.Catalog
-import java.net.URI
-import scala.util.Try
-import scala.util.Success
-import java.io.IOException
-import scala.util.Failure
+import org.semanticweb.owlapi.annotations.HasPriority
 import org.semanticweb.owlapi.model.IRI
-import java.net.URL
-import java.net.MalformedURLException
-import java.io.File
+import org.semanticweb.owlapi.model.OWLOntologyIRIMapper
 
+@HasPriority( 0 )
 case class CatalogIRIMapper( catalogManager: CatalogManager, catalogResolver: CatalogResolver, catalog: Catalog ) extends OWLOntologyIRIMapper {
 
   def this( catalogManager: CatalogManager, catalogResolver: CatalogResolver ) = this( catalogManager, catalogResolver, catalogResolver.getCatalog )

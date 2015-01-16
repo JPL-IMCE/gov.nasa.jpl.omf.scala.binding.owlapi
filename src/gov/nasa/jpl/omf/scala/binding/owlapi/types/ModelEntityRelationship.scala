@@ -44,6 +44,9 @@ import gov.nasa.jpl.omf.scala.binding.owlapi._
 
 case class ModelEntityRelationship(
     override val iri: OWLAPIOMF#IRI,
+    val unreifiedIRI: OWLAPIOMF#IRI,
+    val inverseIRI: Option[OWLAPIOMF#IRI],
     val source: ModelEntityDefinition,
     val target: ModelEntityDefinition,
-    val characteristics: Iterable[RelationshipCharacteristics]) extends ModelEntityDefinition(iri)
+    val characteristics: Iterable[RelationshipCharacteristics],
+    val isAbstract: Boolean) extends ModelEntityDefinition(iri)

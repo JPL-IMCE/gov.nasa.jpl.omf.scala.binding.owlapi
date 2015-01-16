@@ -59,18 +59,31 @@ class OWLAPIOMFOps extends OMFOps[OWLAPIOMF] {
 
   override def makeIRI( s: String ) = org.semanticweb.owlapi.model.IRI.create( s )
 
+  def withFragment( iri: IRI, fragment: Option[String] ): Try[Option[IRI]] =
+    fragment match {
+      case None => Success( None )
+      case Some( _fragment ) => withFragment( iri, _fragment ) match {
+        case Success( _iri ) => Success( Some( _iri ) )
+        case Failure( t )    => Failure( t )
+      }
+    }
+
   override def withFragment( iri: IRI, fragment: String ) = {
     val u = iri.toURI
     val f = u.getFragment
-    if ( f != null || f.nonEmpty ) Failure( new IllegalArgumentException( s" withFragment(iri, fragment) -- the iri must not have a fragment: ${iri}" ) )
-    else Success( org.semanticweb.owlapi.model.IRI.create( iri.toURI.resolve( "#" + fragment ) ) )
+    if ( f != null && f.nonEmpty )
+      Failure( new IllegalArgumentException( s" withFragment(iri, fragment) -- the iri must not have a fragment: ${iri}" ) )
+    else
+      Success( org.semanticweb.owlapi.model.IRI.create( iri.toURI.resolve( "#" + fragment ) ) )
   }
 
   override def splitIRI( iri: IRI ) = {
     val u = iri.toURI
     val f = u.getFragment
-    if ( f == null || f.isEmpty() ) ( iri, None )
-    else ( org.semanticweb.owlapi.model.IRI.create( new URI( u.getScheme, u.getSchemeSpecificPart, null ) ), Some( f ) )
+    if ( f == null || f.isEmpty() )
+      ( iri, None )
+    else
+      ( org.semanticweb.owlapi.model.IRI.create( new URI( u.getScheme, u.getSchemeSpecificPart, null ) ), Some( f ) )
   }
 
   override def fromIRI( iri: IRI ) = iri.toString
@@ -156,15 +169,27 @@ class OWLAPIOMFOps extends OMFOps[OWLAPIOMF] {
       case _                                        => None
     }
 
-  override def lookupStructuredDataRelationship( graph: types.ModelTerminologyGraph, iri: IRI ) =
+  override def lookupEntityDataRelationshipFromEntityToScalar( graph: types.ModelTerminologyGraph, iri: IRI ) =
     lookupTypeTerm( graph, iri ) match {
-      case Some( t: types.ModelStructuredDataRelationship ) => Some( t )
+      case Some( t: types.ModelDataRelationshipFromEntityToScalar ) => Some( t )
       case _ => None
     }
 
-  override def lookupEntityDataRelationship( graph: types.ModelTerminologyGraph, iri: IRI ) =
+  override def lookupEntityDataRelationshipFromEntityToStructure( graph: types.ModelTerminologyGraph, iri: IRI ) =
     lookupTypeTerm( graph, iri ) match {
-      case Some( t: types.ModelEntityDataRelationship ) => Some( t )
+      case Some( t: types.ModelDataRelationshipFromEntityToStructure ) => Some( t )
+      case _ => None
+    }
+
+  override def lookupEntityDataRelationshipFromStructureToScalar( graph: types.ModelTerminologyGraph, iri: IRI ) =
+    lookupTypeTerm( graph, iri ) match {
+      case Some( t: types.ModelDataRelationshipFromStructureToScalar ) => Some( t )
+      case _ => None
+    }
+
+  override def lookupEntityDataRelationshipFromStructureToStructure( graph: types.ModelTerminologyGraph, iri: IRI ) =
+    lookupTypeTerm( graph, iri ) match {
+      case Some( t: types.ModelDataRelationshipFromStructureToStructure ) => Some( t )
       case _ => None
     }
 
@@ -176,14 +201,18 @@ class OWLAPIOMFOps extends OMFOps[OWLAPIOMF] {
     funEntityRelationship: types.ModelEntityRelationship => T,
     funScalarDataType: types.ModelScalarDataType => T,
     funStructuredDataType: types.ModelStructuredDataType => T,
-    funStructuredDataRelationship: types.ModelStructuredDataRelationship => T,
-    funEntityDataRelationship: types.ModelEntityDataRelationship => T ): T = t match {
+    funDataRelationshipFromEntityToScalar: types.ModelDataRelationshipFromEntityToScalar => T,
+    funDataRelationshipFromEntityToStructure: types.ModelDataRelationshipFromEntityToStructure => T,
+    funDataRelationshipFromStructureToScalar: types.ModelDataRelationshipFromStructureToScalar => T,
+    funDataRelationshipFromStructureToStructure: types.ModelDataRelationshipFromStructureToStructure => T ): T = t match {
     case et: types.ModelEntityConcept               => funEntityConcept( et )
     case et: types.ModelEntityRelationship          => funEntityRelationship( et )
     case ed: types.ModelScalarDataType              => funScalarDataType( ed )
     case ed: types.ModelStructuredDataType          => funStructuredDataType( ed )
-    case sdr: types.ModelStructuredDataRelationship => funStructuredDataRelationship( sdr )
-    case edr: types.ModelEntityDataRelationship     => funEntityDataRelationship( edr )
+    case esc: types.ModelDataRelationshipFromEntityToScalar        => funDataRelationshipFromEntityToScalar( esc )
+    case est: types.ModelDataRelationshipFromEntityToStructure     => funDataRelationshipFromEntityToStructure( est )
+    case ssc: types.ModelDataRelationshipFromStructureToScalar     => funDataRelationshipFromStructureToScalar( ssc )
+    case sst: types.ModelDataRelationshipFromStructureToStructure  => funDataRelationshipFromStructureToStructure( sst )
   }
 
   override def fromEntityDefinition( e: types.ModelEntityDefinition ) = e match {
@@ -192,17 +221,23 @@ class OWLAPIOMFOps extends OMFOps[OWLAPIOMF] {
   }
 
   // type facet
-  
-  override def addEntityAspect(graph: types.ModelTerminologyGraph, facetName: String)(implicit store: OWLAPIOMFStore): Try[types.ModelEntityAspect] =
-    store.addEntityAspect( graph, facetName )
-    
-  override def fromEntityAspect( f: types.ModelEntityAspect ): IRI = 
+
+  override def addEntityAspect( graph: types.ModelTerminologyGraph, aspectName: String )( implicit store: OWLAPIOMFStore ): Try[types.ModelEntityAspect] =
+    for {
+      aspectIRI <- withFragment( graph.iri, aspectName )
+      aspect <- graph.addEntityAspect( aspectIRI )
+    } yield aspect
+
+  override def fromEntityAspect( f: types.ModelEntityAspect ): IRI =
     f.iri
-  
+
   // entity concept
 
   override def addEntityConcept( graph: types.ModelTerminologyGraph, conceptName: String, isAbstract: Boolean = false )( implicit store: OWLAPIOMFStore ) =
-    store.addEntityConcept( graph, conceptName, isAbstract )
+    for {
+      conceptIRI <- withFragment( graph.iri, conceptName )
+      concept <- graph.addEntityConcept( conceptIRI, isAbstract )
+    } yield concept
 
   override def fromEntityConcept( c: types.ModelEntityConcept ) =
     c.iri
@@ -218,7 +253,12 @@ class OWLAPIOMFOps extends OMFOps[OWLAPIOMF] {
     unreifiedRelationshipName: String,
     unreifiedInverseRelationshipName: Option[String],
     isAbstract: Boolean = false )( implicit store: OWLAPIOMFStore ) =
-    store.addEntityRelationship( graph, source, target, characteristics, reifiedRelationshipName, unreifiedRelationshipName, unreifiedInverseRelationshipName, isAbstract )
+    for {
+      rIRI <- withFragment( graph.iri, reifiedRelationshipName )
+      uIRI <- withFragment( graph.iri, unreifiedRelationshipName )
+      uiIRI <- withFragment( graph.iri, unreifiedInverseRelationshipName )
+      r <- graph.addEntityRelationship( rIRI, uIRI, uiIRI, source, target, characteristics, isAbstract )
+    } yield r
 
   override def fromEntityRelationship( r: types.ModelEntityRelationship ) = {
     import r._
@@ -234,8 +274,11 @@ class OWLAPIOMFOps extends OMFOps[OWLAPIOMF] {
 
   override def addScalarDataType(
     graph: types.ModelTerminologyGraph,
-    fragment: String )( implicit store: OWLAPIOMFStore ) =
-    store.addScalarDataType( graph, fragment )
+    scalarName: String )( implicit store: OWLAPIOMFStore ) =
+    for {
+      scalarIRI <- withFragment( graph.iri, scalarName )
+      scalar <- graph.addScalarDataType( scalarIRI )
+    } yield scalar
 
   override def fromScalarDataType( dt: types.ModelScalarDataType ) = dt.iri
 
@@ -248,56 +291,96 @@ class OWLAPIOMFOps extends OMFOps[OWLAPIOMF] {
 
   override def fromStructuredDataType( dt: types.ModelStructuredDataType ): IRI = dt.iri
 
-  // structured data relationship
+  // data relationship from entity to scalar
 
-  override def addStructuredDataRelationship(
+  override def addDataRelationshipFromEntityToScalar(
     graph: types.ModelTerminologyGraph,
-    source: types.ModelStructuredDataType,
-    target: types.ModelDataTypeDefinition,
-    fragment: String )( implicit store: OWLAPIOMFStore ) =
-    store.addStructuredDataRelationship( graph, source, target, fragment )
+    source: types.ModelEntityDefinition,
+    target: types.ModelScalarDataType,
+    dataRelationshipName: String )( implicit store: OWLAPIOMFStore ) =      
+    for {
+      dIRI <- withFragment( graph.iri, dataRelationshipName )
+      d <- graph.addDataRelationshipFromEntityToScalar( dIRI, source, target )
+    } yield d
 
-  override def fromStructuredDataRelationship( sd: types.ModelStructuredDataRelationship ) = {
-    import sd._
+  override def fromDataRelationshipFromEntityToScalar( esc: types.ModelDataRelationshipFromEntityToScalar ) = {
+    import esc._
     ( iri, source, target )
   }
 
-  // entity data relationship
+  // data relationship from entity to structure
 
-  override def addEntityDataRelationship(
+  override def addDataRelationshipFromEntityToStructure(
     graph: types.ModelTerminologyGraph,
     source: types.ModelEntityDefinition,
-    target: types.ModelDataTypeDefinition,
-    fragment: String )( implicit store: OWLAPIOMFStore ) =
-    store.addEntityDataRelationship( graph, source, target, fragment )
+    target: types.ModelStructuredDataType,
+    dataRelationshipName: String )( implicit store: OWLAPIOMFStore ) =      
+    for {
+      dIRI <- withFragment( graph.iri, dataRelationshipName )
+      d <- graph.addDataRelationshipFromEntityToStructure( dIRI, source, target )
+    } yield d
 
-  override def fromEntityDataRelationship( ed: types.ModelEntityDataRelationship ) = {
-    import ed._
+  override def fromDataRelationshipFromEntityToStructure( est: types.ModelDataRelationshipFromEntityToStructure ) = {
+    import est._
+    ( iri, source, target )
+  }
+
+  // data relationship from structure to scalar
+
+  override def addDataRelationshipFromStructureToScalar(
+    graph: types.ModelTerminologyGraph,
+    source: types.ModelStructuredDataType,
+    target: types.ModelScalarDataType,
+    dataRelationshipName: String )( implicit store: OWLAPIOMFStore ) =      
+    for {
+      dIRI <- withFragment( graph.iri, dataRelationshipName )
+      d <- graph.addDataRelationshipFromStructureToScalar( dIRI, source, target )
+    } yield d
+
+  override def fromDataRelationshipFromStructureToScalar( ssc: types.ModelDataRelationshipFromStructureToScalar ) = {
+    import ssc._
+    ( iri, source, target )
+  }
+
+  // data relationship from structure to structure
+
+  override def addDataRelationshipFromStructureToStructure(
+    graph: types.ModelTerminologyGraph,
+    source: types.ModelStructuredDataType,
+    target: types.ModelStructuredDataType,
+    dataRelationshipName: String )( implicit store: OWLAPIOMFStore ) =      
+    for {
+      dIRI <- withFragment( graph.iri, dataRelationshipName )
+      d <- graph.addDataRelationshipFromStructureToStructure( dIRI, source, target )
+    } yield d
+
+  override def fromDataRelationshipFromStructureToStructure( sst: types.ModelDataRelationshipFromStructureToStructure ) = {
+    import sst._
     ( iri, source, target )
   }
 
   // model term axioms
-  
+
   // entity definition aspect subclass axiom
-  
+
   override def addEntityDefinitionAspectSubClassAxiom(
-      graph: types.ModelTerminologyGraph,
-      sub: types.ModelEntityDefinition,
-      sup: types.ModelEntityAspect)(implicit store: OWLAPIOMFStore): Try[types.EntityDefinitionAspectSubClassAxiom] = 
-    store.addEntityDefinitionAspectSubClassAxiom( graph, sub, sup )
-  
-  override def fromEntityDefinitionAspectSubClassAxiom(ax: types.EntityDefinitionAspectSubClassAxiom): (types.ModelEntityDefinition, types.ModelEntityAspect) = {
+    graph: types.ModelTerminologyGraph,
+    sub: types.ModelEntityDefinition,
+    sup: types.ModelEntityAspect )( implicit store: OWLAPIOMFStore ): Try[types.EntityDefinitionAspectSubClassAxiom] =
+    graph.addEntityDefinitionAspectSubClassAxiom( sub, sup )
+
+  override def fromEntityDefinitionAspectSubClassAxiom( ax: types.EntityDefinitionAspectSubClassAxiom ): ( types.ModelEntityDefinition, types.ModelEntityAspect ) = {
     import ax._
     ( sub, sup )
   }
-      
+
   // entity concept subclass axiom
 
   override def addEntityConceptSubClassAxiom(
     graph: types.ModelTerminologyGraph,
     sub: types.ModelEntityConcept,
     sup: types.ModelEntityConcept )( implicit store: OWLAPIOMFStore ) =
-    store.addEntityConceptSubClassAxiom( graph, sub, sup )
+    graph.addEntityConceptSubClassAxiom( sub, sup )
 
   override def fromEntityConceptSubClassAxiom( ax: types.EntityConceptSubClassAxiom ) = {
     import ax._
@@ -357,9 +440,9 @@ class OWLAPIOMFOps extends OMFOps[OWLAPIOMF] {
   }
 
   // instance graph
-  
-  override def loadInstanceGraph( iri: IRI)(implicit store: OWLAPIOMFStore): Try[instances.ModelInstanceGraph] =
-    store.loadInstanceGraph(iri)
+
+  override def loadInstanceGraph( iri: IRI )( implicit store: OWLAPIOMFStore ): Try[instances.ModelInstanceGraph] =
+    store.loadInstanceGraph( iri )
 
   override def makeInstanceGraph(
     iri: IRI,
@@ -371,7 +454,7 @@ class OWLAPIOMFOps extends OMFOps[OWLAPIOMF] {
 
   override def fromInstanceGraph( graph: instances.ModelInstanceGraph ) = {
     import graph._
-    ( iri, t, i, c, r, dl, ic, sdp, edp )
+    ( iri, t, i, c, r, dl, ic, edc, eds, sdc, sds )
   }
 
   // instance object
@@ -428,31 +511,55 @@ class OWLAPIOMFOps extends OMFOps[OWLAPIOMF] {
     ( iri, datatype )
   }
 
-  // structured data property
+  // data property from entity to scalar
 
-  override def addStructuredDataProperty(
+  override def addInstanceDataRelationshipFromEntityToScalar(
     graph: instances.ModelInstanceGraph,
-    ds: instances.ModelInstanceDataStructure,
-    structuredDataRelationshipType: types.ModelStructuredDataRelationship,
-    value: instances.ModelDataInstance )( implicit store: OWLAPIOMFStore ) =
-    store.addStructuredDataProperty( graph, ds, structuredDataRelationshipType, value )
+    ei: instances.ModelEntityInstance,
+    e2sc: types.ModelDataRelationshipFromEntityToScalar,
+    value: instances.ModelInstanceDataLiteral )( implicit store: OWLAPIOMFStore ) = ???
 
-  override def fromStructuredDataProperty( sdp: instances.ModelStructuredDataProperty ) = {
-    import sdp._
-    ( ds, structuredDataRelationshipType, value )
+  override def fromInstanceDataRelationshipFromEntityToScalar( e2sc: instances.ModelInstanceDataRelationshipFromEntityToScalar ) = {
+    import e2sc._
+    ( ei, dataRelationship, value )
   }
 
-  // entity data property
+  // data property from entity to structure
 
-  override def addEntityDataProperty(
+  override def addInstanceDataRelationshipFromEntityToStructure(
     graph: instances.ModelInstanceGraph,
-    e: instances.ModelEntityInstance,
-    entityDataRelationshipType: types.ModelEntityDataRelationship,
-    value: instances.ModelDataInstance )( implicit store: OWLAPIOMFStore ) =
-    store.addEntityDataProperty( graph, e, entityDataRelationshipType, value )
+    ei: instances.ModelEntityInstance,
+    e2st: types.ModelDataRelationshipFromEntityToStructure,
+    value: instances.ModelInstanceDataStructure )( implicit store: OWLAPIOMFStore ) = ???
 
-  override def fromEntityDataProperty( edp: instances.ModelEntityDataProperty ) = {
-    import edp._
-    ( e, entityDataRelationshipType, value )
+  override def fromInstanceDataRelationshipFromEntityToStructure( e2st: instances.ModelInstanceDataRelationshipFromEntityToStructure ) = {
+    import e2st._
+    ( ei, dataRelationship, value )
+  }
+  
+  // data property from structure to scalar
+
+  override def addInstanceDataRelationshipFromStructureToScalar(
+    graph: instances.ModelInstanceGraph,
+    di: instances.ModelInstanceDataStructure,
+    e2sc: types.ModelDataRelationshipFromStructureToScalar,
+    value: instances.ModelInstanceDataLiteral )( implicit store: OWLAPIOMFStore ) = ???
+
+  override def fromInstanceDataRelationshipFromStructureToScalar( s2sc: instances.ModelInstanceDataRelationshipFromStructureToScalar ) = {
+    import s2sc._
+    ( di, dataRelationship, value )
+  }
+
+  // data property from structure to structure
+
+  override def addInstanceDataRelationshipFromStructureToStructure(
+    graph: instances.ModelInstanceGraph,
+    di: instances.ModelInstanceDataStructure,
+    e2st: types.ModelDataRelationshipFromStructureToStructure,
+    value: instances.ModelInstanceDataStructure )( implicit store: OWLAPIOMFStore ) = ???
+
+  override def fromInstanceDataRelationshipFromStructureToStructure( s2st: instances.ModelInstanceDataRelationshipFromStructureToStructure ) = {
+    import s2st._
+    ( di, dataRelationship, value )
   }
 }

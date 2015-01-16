@@ -39,4 +39,9 @@
  */
 package gov.nasa.jpl.omf.scala.binding.owlapi.instances
 
-trait ModelInstanceProperty extends ModelInstanceAssertion
+import gov.nasa.jpl.omf.scala.binding.owlapi._
+
+case class ModelInstanceDataRelationshipFromStructureToScalar(
+    val di: ModelInstanceDataStructure, 
+    val dataRelationship: types.ModelDataRelationshipFromStructureToScalar,
+    val value: ModelInstanceDataLiteral) extends ModelInstanceAssertion

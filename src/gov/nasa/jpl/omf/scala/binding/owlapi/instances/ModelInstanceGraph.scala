@@ -50,8 +50,10 @@ case class ModelInstanceGraph(
     val r: Iterable[ModelInstanceRelation],
     val dl: Iterable[ModelInstanceDataLiteral],
     val ic: Iterable[ModelInstanceDataStructure],
-    val sdp: Iterable[ModelStructuredDataProperty],
-    val edp: Iterable[ModelEntityDataProperty] ) {
+    val edc: Iterable[ModelInstanceDataRelationshipFromEntityToScalar],
+    val eds: Iterable[ModelInstanceDataRelationshipFromEntityToStructure],
+    val sdc: Iterable[ModelInstanceDataRelationshipFromStructureToScalar],
+    val sds: Iterable[ModelInstanceDataRelationshipFromStructureToStructure] ) {
   val iri2namedIndividual: Map[OWLAPIOMF#IRI, ModelNamedIndividual] =
     (c.map (t => (t.iri -> t))).toMap ++
     (r.map (t => (t.iri -> t))).toMap ++

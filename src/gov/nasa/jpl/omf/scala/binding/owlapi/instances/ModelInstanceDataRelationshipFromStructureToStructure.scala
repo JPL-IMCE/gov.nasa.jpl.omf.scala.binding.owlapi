@@ -37,8 +37,11 @@
  *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package gov.nasa.jpl.omf.scala.binding.owlapi.types
+package gov.nasa.jpl.omf.scala.binding.owlapi.instances
 
 import gov.nasa.jpl.omf.scala.binding.owlapi._
 
-case class ModelEntityConcept(override val iri: OWLAPIOMF#IRI, val isAbstract: Boolean) extends ModelEntityDefinition(iri)
+case class ModelInstanceDataRelationshipFromStructureToStructure(
+    val di: ModelInstanceDataStructure, 
+    val dataRelationship: types.ModelDataRelationshipFromStructureToStructure,
+    val value: ModelInstanceDataStructure) extends ModelInstanceAssertion

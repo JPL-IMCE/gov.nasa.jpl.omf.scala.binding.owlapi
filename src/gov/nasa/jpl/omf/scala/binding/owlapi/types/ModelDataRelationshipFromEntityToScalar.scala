@@ -41,4 +41,7 @@ package gov.nasa.jpl.omf.scala.binding.owlapi.types
 
 import gov.nasa.jpl.omf.scala.binding.owlapi._
 
-case class ModelEntityConcept(override val iri: OWLAPIOMF#IRI, val isAbstract: Boolean) extends ModelEntityDefinition(iri)
+case class ModelDataRelationshipFromEntityToScalar(
+    override val iri: OWLAPIOMF#IRI,
+    val source: ModelEntityDefinition,
+    val target: ModelScalarDataType) extends ModelDataRelationship(iri)

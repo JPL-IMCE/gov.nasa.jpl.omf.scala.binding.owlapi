@@ -37,8 +37,43 @@
  *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package gov.nasa.jpl.omf.scala.binding.owlapi.types
+package test.gov.nasa.jpl.omf.scala.binding.owlapi
 
+import org.semanticweb.owlapi.apibinding.OWLManager
 import gov.nasa.jpl.omf.scala.binding.owlapi._
+import test.gov.nasa.jpl.omf.scala.core.{ functionalAPI => testFunctionalAPI }
+import org.apache.xml.resolver.CatalogManager
+import scala.util.Failure
+import scala.util.Success
 
-case class ModelEntityConcept(override val iri: OWLAPIOMF#IRI, val isAbstract: Boolean) extends ModelEntityDefinition(iri)
+abstract class OMFVocabularyTest( val store: OWLAPIOMFStore )
+  extends testFunctionalAPI.OMFVocabularyTest[OWLAPIOMF]()( store.omfModule.ops, store )
+
+class OWLVocabularyTestLocalCatalog
+  extends OMFVocabularyTest( {
+    val catalogManager = new CatalogManager()    
+    val store = OWLAPIOMFStore(
+      OWLAPIOMFModule( Some( catalogManager ) ),
+      OWLManager.createOWLOntologyManager() )   
+    store 
+  } ) {
+  
+   store.catalogIRIMapper match {
+      case None => 
+        throw new IllegalArgumentException("There should be a catalog IRI mapper since the store was constructed with a catalog manager")
+      
+      case Some( catalogIRImapper ) =>
+        this.getClass.getResource("/resources/test.catalog.xml") match {
+          case null => 
+            throw new IllegalArgumentException("There should be a 'test.catalog.xml' resource on the classpath")
+          case testCatalogURL =>
+            catalogIRImapper.parseCatalog( testCatalogURL.toURI ) match {
+              case Failure( t ) => 
+                throw new IllegalArgumentException(s"Cannot parse the test catalog: '${testCatalogURL}'", t )
+              case Success( _ ) =>
+                ()              
+            }
+        }
+        
+    }
+}

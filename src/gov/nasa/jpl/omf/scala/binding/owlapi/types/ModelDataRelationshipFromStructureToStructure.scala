@@ -41,7 +41,7 @@ package gov.nasa.jpl.omf.scala.binding.owlapi.types
 
 import gov.nasa.jpl.omf.scala.binding.owlapi._
 
-case class ModelStructuredDataRelationship(
+case class ModelDataRelationshipFromStructureToStructure(
     override val iri: OWLAPIOMF#IRI,
     val source: ModelStructuredDataType,
-    val target: ModelDataTypeDefinition) extends ModelTypeTerm(iri)
+    val target: ModelStructuredDataType) extends ModelDataRelationship(iri)

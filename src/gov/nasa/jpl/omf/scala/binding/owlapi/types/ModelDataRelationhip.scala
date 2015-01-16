@@ -41,4 +41,4 @@ package gov.nasa.jpl.omf.scala.binding.owlapi.types
 
 import gov.nasa.jpl.omf.scala.binding.owlapi._
 
-case class ModelEntityConcept(override val iri: OWLAPIOMF#IRI, val isAbstract: Boolean) extends ModelEntityDefinition(iri)
+abstract class ModelDataRelationship(override val iri: OWLAPIOMF#IRI) extends ModelTypeTerm(iri)

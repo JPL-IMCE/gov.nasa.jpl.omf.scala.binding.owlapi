@@ -39,101 +39,103 @@
  */
 package gov.nasa.jpl.omf.scala.binding.owlapi
 
-import gov.nasa.jpl.omf.scala.binding.owlapi._
-import org.semanticweb.owlapi.model.IRI
-import org.semanticweb.owlapi.model.OWLOntology
-import scala.util.Try
-import scala.util.Success
-import gov.nasa.jpl.omf.scala.core.ConstrainingFacet
-import gov.nasa.jpl.omf.scala.core.RelationshipCharacteristics._
-import org.semanticweb.owlapi.model.OWLOntologyManager
-import org.semanticweb.owlapi.model.OWLOntologyIRIMapper
+import scala.Iterable
+import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
 import scala.util.Failure
+import scala.util.Success
+import scala.util.Try
+
 import org.semanticweb.owlapi.model.AddImport
+import org.semanticweb.owlapi.model.IRI
+import org.semanticweb.owlapi.model.OWLOntology
+import org.semanticweb.owlapi.model.OWLOntologyAlreadyExistsException
+import org.semanticweb.owlapi.model.OWLOntologyCreationException
+import org.semanticweb.owlapi.model.OWLOntologyIRIMapper
+import org.semanticweb.owlapi.model.OWLOntologyManager
+
+import gov.nasa.jpl.omf.scala.core._
+import gov.nasa.jpl.omf.scala.core.RelationshipCharacteristics._
 
 case class OWLAPIOMFStore( val omfModule: OWLAPIOMFModule, val ontManager: OWLOntologyManager ) {
 
-  omfModule.catalogManager match {
-    case None => ()
-    case Some( catalogManager ) =>
-      val mapper: Iterable[OWLOntologyIRIMapper] = Iterable( new CatalogIRIMapper( catalogManager ) )
-      ontManager.getIRIMappers.add( mapper.asJava )
-  }
+  val catalogIRIMapper: Option[CatalogIRIMapper] =
+    for {
+      catalogManager <- omfModule.catalogManager
+    } yield {
+      val mapper = new CatalogIRIMapper( catalogManager )
+      ontManager.getIRIMappers.add( Iterable[OWLOntologyIRIMapper]( mapper ).asJava )
+      mapper
+    }
 
   val tboxGraphs = scala.collection.mutable.HashMap[IRI, types.ModelTerminologyGraph]()
 
-  def loadTerminologyGraph( iri: IRI ): Try[types.ModelTerminologyGraph] = ???
-  
+  protected def registerOntologyAsTerminologyGraph(
+    o: OWLOntology,
+    extendedTGraphs: Iterable[types.ModelTerminologyGraph] = Nil ): Try[types.ModelTerminologyGraph] = {
+    val iri = o.getOntologyID.getOntologyIRI
+    if ( !iri.isPresent )
+      Failure( new IllegalArgumentException( "An ontology must have an OntologyID with an Ontology IRI" ) )
+    else
+      tboxGraphs.get( iri.get ) match {
+        case Some( g ) =>
+          // already registered.
+          Success( g )
+
+        case None =>
+          // not yet registered.
+
+          var importedOrExtendedTGraphs = scala.collection.mutable.HashSet[types.ModelTerminologyGraph]()
+
+          o.getDirectImports foreach ( registerOntologyAsTerminologyGraph( _ ) match {
+            case Failure( t ) =>
+              return Failure( t )
+
+            case Success( ig ) =>
+              importedOrExtendedTGraphs.add( ig )
+          } )
+
+          extendedTGraphs.foreach { tg =>
+            tboxGraphs.get( tg.iri ) match {
+              case None => return Failure( new IllegalArgumentException(
+                s"Cannot create an ontology with iri='${iri.get}' extending a foreign terminology graph, '${tg.iri}' not managed by this ontology manager" ) )
+              case Some( eg ) =>
+                importedOrExtendedTGraphs.add( eg )
+                val decl = ontManager.getOWLDataFactory.getOWLImportsDeclaration( tg.iri )
+                ontManager.applyChange( new AddImport( o, decl ) )
+            }
+          }
+
+          val g = new types.ModelTerminologyGraph( importedOrExtendedTGraphs, o )
+          tboxGraphs.put( iri.get, g )
+          Success( g )
+      }
+  }
+
+  def loadTerminologyGraph( iri: IRI ): Try[types.ModelTerminologyGraph] =
+    try {
+      val o = ontManager.loadOntology( iri )
+      registerOntologyAsTerminologyGraph( o )
+    }
+    catch {
+      case t: OWLOntologyCreationException =>
+        Failure( t.fillInStackTrace )
+    }
+
   def makeTerminologyGraph(
     iri: IRI,
     extendedTGraphs: Iterable[types.ModelTerminologyGraph] ): Try[types.ModelTerminologyGraph] =
-    if ( ontManager.contains( iri ) ) 
+    if ( ontManager.contains( iri ) )
       Failure( new IllegalArgumentException( s"An ontology with iri='${iri}' already exists" ) )
-    else {
-      val foreignTGraphs = extendedTGraphs filter { tg => ! tboxGraphs.contains( tg.iri ) }
-      if (foreignTGraphs.nonEmpty) 
-        Failure( new IllegalArgumentException( 
-          s"Cannot create an ontology with iri='${iri}' extending ${foreignTGraphs.size} foreign terminology graphs (i.e., not managed by this ontology mananger)"
-          ) )
-      val o = ontManager.createOntology( iri )
-      
-      extendedTGraphs.foreach { tg =>       
-        val decl = ontManager.getOWLDataFactory.getOWLImportsDeclaration(tg.iri)
-        ontManager.applyChange(new AddImport(o, decl))
-      }
-      
-      val g = new types.ModelTerminologyGraph( o )
-      tboxGraphs.put( iri, g )
-      Success( g )
-    }
-  
-  def addEntityAspect(graph: types.ModelTerminologyGraph, facetName: String): Try[types.ModelEntityAspect] = ??? 
-      
-  def addEntityConcept(
-    graph: types.ModelTerminologyGraph,
-    conceptName: String, 
-    isAbstract: Boolean = false ): Try[types.ModelEntityConcept] = ???
-
-  def addEntityRelationship(
-    graph: types.ModelTerminologyGraph,
-    source: types.ModelEntityDefinition,
-    target: types.ModelEntityDefinition,
-    characteristics: Iterable[RelationshipCharacteristics],
-    reifiedRelationshipName: String,
-    unreifiedRelationshipName: String,
-    unreifiedInverseRelationshipName: Option[String],
-    isAbstract: Boolean = false ): Try[types.ModelEntityRelationship] = ???
-
-  def addScalarDataType(
-    graph: types.ModelTerminologyGraph,
-    fragment: String ): Try[types.ModelScalarDataType] = ???
+    else
+      for {
+        b <- Backbone.createBackbone( ontManager.createOntology( iri ), omfModule.ops )
+        g <- registerOntologyAsTerminologyGraph( b.ont, extendedTGraphs )
+      } yield g
 
   def addStructuredDataType(
     graph: types.ModelTerminologyGraph,
     fragment: String ): Try[types.ModelStructuredDataType] = ???
-
-  def addStructuredDataRelationship(
-    graph: types.ModelTerminologyGraph,
-    source: types.ModelStructuredDataType,
-    target: types.ModelDataTypeDefinition,
-    fragment: String ): Try[types.ModelStructuredDataRelationship] = ???
-
-  def addEntityDataRelationship(
-    graph: types.ModelTerminologyGraph,
-    source: types.ModelEntityDefinition,
-    target: types.ModelDataTypeDefinition,
-    fragment: String ): Try[types.ModelEntityDataRelationship] = ???
-
-  def addEntityDefinitionAspectSubClassAxiom(
-      graph: types.ModelTerminologyGraph,
-      sub: types.ModelEntityDefinition,
-      sup: types.ModelEntityAspect): Try[types.EntityDefinitionAspectSubClassAxiom] = ???
-      
-  def addEntityConceptSubClassAxiom(
-    graph: types.ModelTerminologyGraph,
-    sub: types.ModelEntityConcept,
-    sup: types.ModelEntityConcept ): Try[types.EntityConceptSubClassAxiom] = ???
 
   def addEntityConceptRestrictionAxiom(
     graph: types.ModelTerminologyGraph,
@@ -152,7 +154,7 @@ case class OWLAPIOMFStore( val omfModule: OWLAPIOMFModule, val ontManager: OWLOn
     sup: types.ModelScalarDataType,
     restrictions: Iterable[ConstrainingFacet] ): Try[types.ScalarDataTypeFacetRestriction] = ???
 
-  def loadInstanceGraph(iri: IRI): Try[instances.ModelInstanceGraph] = ???
+  def loadInstanceGraph( iri: IRI ): Try[instances.ModelInstanceGraph] = ???
 
   def makeInstanceGraph(
     iri: IRI,
@@ -181,15 +183,4 @@ case class OWLAPIOMFStore( val omfModule: OWLAPIOMFModule, val ontManager: OWLOn
     datatype: types.ModelStructuredDataType,
     fragment: String ): Try[instances.ModelInstanceDataStructure] = ???
 
-  def addStructuredDataProperty(
-    graph: instances.ModelInstanceGraph,
-    ds: instances.ModelInstanceDataStructure,
-    structuredDataRelationshipType: types.ModelStructuredDataRelationship,
-    value: instances.ModelDataInstance ): Try[instances.ModelStructuredDataProperty] = ???
-
-  def addEntityDataProperty(
-    graph: instances.ModelInstanceGraph,
-    e: instances.ModelEntityInstance,
-    entityDataRelationshipType: types.ModelEntityDataRelationship,
-    value: instances.ModelDataInstance ): Try[instances.ModelEntityDataProperty] = ???
 }
