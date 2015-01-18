@@ -46,19 +46,20 @@ import org.apache.xml.resolver.CatalogManager
 import scala.util.Failure
 import scala.util.Success
 
-abstract class OMFVocabularyTest( val store: OWLAPIOMFStore )
-  extends testFunctionalAPI.OMFVocabularyTest[OWLAPIOMF]()( store.omfModule.ops, store )
+abstract class OMFVocabularyTest( val saveStore: OWLAPIOMFStore, val loadStore: OWLAPIOMFStore )
+  extends testFunctionalAPI.OMFVocabularyTest[OWLAPIOMF]( 
+      saveStore, saveStore.omfModule.ops,
+      loadStore, loadStore.omfModule.ops )
+      
+abstract class OMFVocabularyCatalogTest( val catalogManager: CatalogManager )
+  extends OMFVocabularyTest(
+      saveStore = OWLAPIOMFStore( OWLAPIOMFModule(Some(catalogManager)), OWLManager.createOWLOntologyManager() ),      
+      loadStore = OWLAPIOMFStore( OWLAPIOMFModule(Some(catalogManager)), OWLManager.createOWLOntologyManager() ) )
 
 class OWLVocabularyTestLocalCatalog
-  extends OMFVocabularyTest( {
-    val catalogManager = new CatalogManager()    
-    val store = OWLAPIOMFStore(
-      OWLAPIOMFModule( Some( catalogManager ) ),
-      OWLManager.createOWLOntologyManager() )   
-    store 
-  } ) {
+  extends OMFVocabularyCatalogTest( catalogManager = new CatalogManager() ) {
   
-   store.catalogIRIMapper match {
+  saveStore.catalogIRIMapper match {
       case None => 
         throw new IllegalArgumentException("There should be a catalog IRI mapper since the store was constructed with a catalog manager")
       
@@ -73,7 +74,24 @@ class OWLVocabularyTestLocalCatalog
               case Success( _ ) =>
                 ()              
             }
-        }
-        
+        }       
+    }
+    
+  loadStore.catalogIRIMapper match {
+      case None => 
+        throw new IllegalArgumentException("There should be a catalog IRI mapper since the store was constructed with a catalog manager")
+      
+      case Some( catalogIRImapper ) =>
+        this.getClass.getResource("/resources/test.catalog.xml") match {
+          case null => 
+            throw new IllegalArgumentException("There should be a 'test.catalog.xml' resource on the classpath")
+          case testCatalogURL =>
+            catalogIRImapper.parseCatalog( testCatalogURL.toURI ) match {
+              case Failure( t ) => 
+                throw new IllegalArgumentException(s"Cannot parse the test catalog: '${testCatalogURL}'", t )
+              case Success( _ ) =>
+                ()              
+            }
+        }       
     }
 }

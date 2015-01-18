@@ -41,21 +41,49 @@ package gov.nasa.jpl.omf.scala.binding.owlapi.instances
 
 import gov.nasa.jpl.omf.scala.binding._
 import gov.nasa.jpl.omf.scala.binding.owlapi._
+import org.semanticweb.owlapi.model.OWLOntology
+import org.semanticweb.owlapi.model.IRI
+import scala.util.Try
+import gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelTerminologyGraph
 
 case class ModelInstanceGraph(
-    val iri: OWLAPIOMF#IRI,
-    val t: Iterable[types.ModelTerminologyGraph],
-    val i: Iterable[ModelInstanceGraph],
-    val c: Iterable[ModelInstanceObject],
-    val r: Iterable[ModelInstanceRelation],
-    val dl: Iterable[ModelInstanceDataLiteral],
-    val ic: Iterable[ModelInstanceDataStructure],
-    val edc: Iterable[ModelInstanceDataRelationshipFromEntityToScalar],
-    val eds: Iterable[ModelInstanceDataRelationshipFromEntityToStructure],
-    val sdc: Iterable[ModelInstanceDataRelationshipFromStructureToScalar],
-    val sds: Iterable[ModelInstanceDataRelationshipFromStructureToStructure] ) {
-  val iri2namedIndividual: Map[OWLAPIOMF#IRI, ModelNamedIndividual] =
-    (c.map (t => (t.iri -> t))).toMap ++
-    (r.map (t => (t.iri -> t))).toMap ++
-    (ic.map (t => (t.iri -> t))).toMap
+    val tboxes: Iterable[types.ModelTerminologyGraph],
+    val imports: Iterable[ModelInstanceGraph], 
+    protected val ont: OWLOntology ) {
+    
+  protected val objects = scala.collection.mutable.ListBuffer[ModelInstanceObject]()
+  protected val relations = scala.collection.mutable.ListBuffer[ModelInstanceRelation]()
+  protected val dataLiterals = scala.collection.mutable.ListBuffer[ModelInstanceDataLiteral]()
+  protected val dataObjects = scala.collection.mutable.ListBuffer[ModelInstanceDataStructure]()
+  protected val e2sc = scala.collection.mutable.ListBuffer[ModelInstanceDataRelationshipFromEntityToScalar]()
+  protected val e2st = scala.collection.mutable.ListBuffer[ModelInstanceDataRelationshipFromEntityToStructure]()
+  protected val s2sc = scala.collection.mutable.ListBuffer[ModelInstanceDataRelationshipFromStructureToScalar]()
+  protected val s2st = scala.collection.mutable.ListBuffer[ModelInstanceDataRelationshipFromStructureToStructure]()
+    
+  val ontManager = ont.getOWLOntologyManager
+  val owlDataFactory = ontManager.getOWLDataFactory
+    
+  protected val iri2namedIndividual = scala.collection.mutable.HashMap[IRI, ModelNamedIndividual]()
+  
+  val iri = ont.getOntologyID.getOntologyIRI.get
+  
+  def fromInstanceGraph: ( 
+      IRI, 
+      Iterable[ModelTerminologyGraph], 
+      Iterable[ModelInstanceGraph], 
+      Iterable[ModelInstanceObject], 
+      Iterable[ModelInstanceRelation], 
+      Iterable[ModelInstanceDataLiteral], 
+      Iterable[ModelInstanceDataStructure], 
+      Iterable[ModelInstanceDataRelationshipFromEntityToScalar],
+      Iterable[ModelInstanceDataRelationshipFromEntityToStructure],
+      Iterable[ModelInstanceDataRelationshipFromStructureToScalar],
+      Iterable[ModelInstanceDataRelationshipFromStructureToStructure]) =
+    ( iri, tboxes, imports,
+        objects, relations, dataLiterals, dataObjects, 
+        e2sc, e2st, s2sc, s2st )
+
+  def save: Try[Unit] = Try {
+    ontManager.saveOntology(ont)
+  }    
 }

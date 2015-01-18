@@ -1,3 +1,13 @@
+Version 0.3: January 18, 2015
+
+OWLVocabularyTest success (for OMF core v0.6)
+
+Refactored the ModelTerminologyGraph to separate:
+- loading an ImmutableTerminologyGraph 
+- making a MutableTerminologyGraph
+A similar refactoring needs to be done for ModelInstanceGraph
+Refactored OWLAPIOMF construction-related operations (add*) delegating to a graph instead of a store
+
 Version 0.2: January 15, 2015
 
 OWLVocabularyTest success (for OMF core v0.5)

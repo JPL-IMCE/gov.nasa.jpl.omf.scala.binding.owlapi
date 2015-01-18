@@ -1,6 +1,6 @@
 .cache
 bin
-coreLibs
+owlapiLibs
 project/project
 project/target
 target

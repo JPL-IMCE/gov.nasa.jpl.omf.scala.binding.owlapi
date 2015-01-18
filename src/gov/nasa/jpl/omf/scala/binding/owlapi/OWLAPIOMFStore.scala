@@ -70,9 +70,9 @@ case class OWLAPIOMFStore( val omfModule: OWLAPIOMFModule, val ontManager: OWLOn
 
   val tboxGraphs = scala.collection.mutable.HashMap[IRI, types.ModelTerminologyGraph]()
 
-  protected def registerOntologyAsTerminologyGraph(
+  protected def registerImmutableOntologyAsTerminologyGraph(
     o: OWLOntology,
-    extendedTGraphs: Iterable[types.ModelTerminologyGraph] = Nil ): Try[types.ModelTerminologyGraph] = {
+    extendedTGraphs: Iterable[types.ModelTerminologyGraph] = Nil )( implicit ops: OWLAPIOMFOps ): Try[types.ModelTerminologyGraph] = {
     val iri = o.getOntologyID.getOntologyIRI
     if ( !iri.isPresent )
       Failure( new IllegalArgumentException( "An ontology must have an OntologyID with an Ontology IRI" ) )
@@ -87,7 +87,7 @@ case class OWLAPIOMFStore( val omfModule: OWLAPIOMFModule, val ontManager: OWLOn
 
           var importedOrExtendedTGraphs = scala.collection.mutable.HashSet[types.ModelTerminologyGraph]()
 
-          o.getDirectImports foreach ( registerOntologyAsTerminologyGraph( _ ) match {
+          o.getDirectImports foreach ( registerImmutableOntologyAsTerminologyGraph( _ ) match {
             case Failure( t ) =>
               return Failure( t )
 
@@ -106,16 +106,61 @@ case class OWLAPIOMFStore( val omfModule: OWLAPIOMFModule, val ontManager: OWLOn
             }
           }
 
-          val g = new types.ModelTerminologyGraph( importedOrExtendedTGraphs, o )
+          for {
+            g <- types.ImmutableModelTerminologyGraph.resolve(importedOrExtendedTGraphs, o)
+          } yield {
+            tboxGraphs.put( iri.get, g )
+            g
+          }
+      }
+  }
+  
+  protected def registerMutableOntologyAsTerminologyGraph(
+    o: OWLOntology,
+    extendedTGraphs: Iterable[types.ModelTerminologyGraph] = Nil )( implicit ops: OWLAPIOMFOps ): Try[types.ModelTerminologyGraph] = {
+    val iri = o.getOntologyID.getOntologyIRI
+    if ( !iri.isPresent )
+      Failure( new IllegalArgumentException( "An ontology must have an OntologyID with an Ontology IRI" ) )
+    else
+      tboxGraphs.get( iri.get ) match {
+        case Some( g ) =>
+          // already registered.
+          Success( g )
+
+        case None =>
+          // not yet registered.
+
+          var importedOrExtendedTGraphs = scala.collection.mutable.HashSet[types.ModelTerminologyGraph]()
+
+          extendedTGraphs.foreach { tg =>
+            tboxGraphs.get( tg.iri ) match {
+              case None => return Failure( new IllegalArgumentException(
+                s"Cannot create an ontology with iri='${iri.get}' extending a foreign terminology graph, '${tg.iri}' not managed by this ontology manager" ) )
+              case Some( eg ) =>
+                importedOrExtendedTGraphs.add( eg )
+                val decl = ontManager.getOWLDataFactory.getOWLImportsDeclaration( tg.iri )
+                ontManager.applyChange( new AddImport( o, decl ) )
+            }
+          }
+
+          val g = new types.MutableModelTerminologyGraph( importedOrExtendedTGraphs, o )
           tboxGraphs.put( iri.get, g )
           Success( g )
       }
   }
-
-  def loadTerminologyGraph( iri: IRI ): Try[types.ModelTerminologyGraph] =
+  
+  def saveTerminologyGraph( g: types.ModelTerminologyGraph )( implicit ops: OWLAPIOMFOps ): Try[Unit] = 
+    catalogIRIMapper match {
+    case None => Failure( new IllegalArgumentException( s"Cannot save a terminology graph without a catalog IRI mapper"))
+    case Some( iriMapper ) =>
+      val iri = iriMapper.resolveIRI( g.iri, iriMapper.saveResolutionStrategy(_) )
+      g.save( iri )
+  }
+  
+  def loadTerminologyGraph( iri: IRI )( implicit ops: OWLAPIOMFOps ): Try[types.ModelTerminologyGraph] =
     try {
       val o = ontManager.loadOntology( iri )
-      registerOntologyAsTerminologyGraph( o )
+      registerImmutableOntologyAsTerminologyGraph( o )
     }
     catch {
       case t: OWLOntologyCreationException =>
@@ -124,63 +169,21 @@ case class OWLAPIOMFStore( val omfModule: OWLAPIOMFModule, val ontManager: OWLOn
 
   def makeTerminologyGraph(
     iri: IRI,
-    extendedTGraphs: Iterable[types.ModelTerminologyGraph] ): Try[types.ModelTerminologyGraph] =
+    extendedTGraphs: Iterable[types.ModelTerminologyGraph] )( implicit ops: OWLAPIOMFOps ): Try[types.ModelTerminologyGraph] =
     if ( ontManager.contains( iri ) )
       Failure( new IllegalArgumentException( s"An ontology with iri='${iri}' already exists" ) )
     else
       for {
         b <- Backbone.createBackbone( ontManager.createOntology( iri ), omfModule.ops )
-        g <- registerOntologyAsTerminologyGraph( b.ont, extendedTGraphs )
+        g <- registerMutableOntologyAsTerminologyGraph( b.ont, extendedTGraphs )
       } yield g
 
-  def addStructuredDataType(
-    graph: types.ModelTerminologyGraph,
-    fragment: String ): Try[types.ModelStructuredDataType] = ???
-
-  def addEntityConceptRestrictionAxiom(
-    graph: types.ModelTerminologyGraph,
-    sub: types.ModelEntityConcept,
-    rel: types.ModelEntityRelationship,
-    range: types.ModelEntityDefinition ): Try[types.EntityConceptRestrictionAxiom] = ???
-
-  def addEntityRelationshipSubClassAxiom(
-    graph: types.ModelTerminologyGraph,
-    sub: types.ModelEntityRelationship,
-    sup: types.ModelEntityRelationship ): Try[types.EntityRelationshipSubClassAxiom] = ???
-
-  def addScalarDataTypeFacetRestriction(
-    graph: types.ModelTerminologyGraph,
-    sub: types.ModelScalarDataType,
-    sup: types.ModelScalarDataType,
-    restrictions: Iterable[ConstrainingFacet] ): Try[types.ScalarDataTypeFacetRestriction] = ???
-
+    
   def loadInstanceGraph( iri: IRI ): Try[instances.ModelInstanceGraph] = ???
 
   def makeInstanceGraph(
     iri: IRI,
     instantiatedTGraphs: Iterable[types.ModelTerminologyGraph],
     extendedIGraphs: Iterable[instances.ModelInstanceGraph] ): Try[instances.ModelInstanceGraph] = ???
-
-  def addInstanceObject(
-    graph: instances.ModelInstanceGraph,
-    conceptType: types.ModelEntityConcept,
-    fragment: String ): Try[instances.ModelInstanceObject] = ???
-
-  def addInstanceRelation(
-    graph: instances.ModelInstanceGraph,
-    relationshipType: types.ModelEntityRelationship,
-    source: instances.ModelEntityInstance,
-    target: instances.ModelEntityInstance,
-    fragment: String ): Try[instances.ModelInstanceRelation] = ???
-
-  def addDataLiteral(
-    graph: instances.ModelInstanceGraph,
-    datatype: types.ModelScalarDataType,
-    lexicalForm: String ): Try[instances.ModelInstanceDataLiteral] = ???
-
-  def addDataStructure(
-    graph: instances.ModelInstanceGraph,
-    datatype: types.ModelStructuredDataType,
-    fragment: String ): Try[instances.ModelInstanceDataStructure] = ???
 
 }

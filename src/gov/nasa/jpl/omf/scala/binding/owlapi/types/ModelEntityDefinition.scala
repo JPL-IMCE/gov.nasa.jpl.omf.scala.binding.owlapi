@@ -40,5 +40,6 @@
 package gov.nasa.jpl.omf.scala.binding.owlapi.types
 
 import gov.nasa.jpl.omf.scala.binding.owlapi._
+import org.semanticweb.owlapi.model.OWLClass
 
-abstract class ModelEntityDefinition(override val iri: OWLAPIOMF#IRI) extends ModelTypeTerm(iri)
+abstract class ModelEntityDefinition(override val iri: OWLAPIOMF#IRI, val c: OWLClass) extends ModelTypeTerm(iri)

@@ -115,8 +115,15 @@ case class CatalogIRIMapper( catalogManager: CatalogManager, catalogResolver: Ca
     val f1 = new URL( normalizedPath )
     val outputFile = if ( resolved.startsWith( "file:" ) ) new File( resolved.substring( 5 ) ) else new File( resolved )
     val outputDir = outputFile.getParentFile()
-    if ( null != outputDir && outputDir.exists && outputDir.isDirectory && outputDir.canWrite )
-      Some( IRI.create( f1.toString ) )
+    if ( null != outputDir ) {
+      if ( !outputDir.exists ) 
+        outputDir.mkdirs
+        
+      if ( outputDir.exists && outputDir.isDirectory && outputDir.canWrite )
+        Some( IRI.create( f1.toString ) )
+      else
+        None
+    }
     else
       None
   }
