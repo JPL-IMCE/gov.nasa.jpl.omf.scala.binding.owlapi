@@ -2,7 +2,10 @@ import com.banno.license.Plugin.LicenseKeys._
 
 name := "gov.nasa.jpl.omf.scala.binding.owlapi"
 
-version := "0.3"
+version in ThisBuild := "0.3.1"
+
+version <<= version in ThisBuild
+version in "owlapiLibs" <<= version in ThisBuild
 
 organization := "JPL, Caltech"
 

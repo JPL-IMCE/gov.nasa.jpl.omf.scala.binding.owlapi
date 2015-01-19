@@ -25,7 +25,7 @@ object OMFScalaBindingOWLAPI extends Build {
         ( mappings in pack ) := { extraPackFun.value } )
       )
       
-  lazy val core = RootProject(file("../gov.nasa.jpl.omf.scala.core"))
+  lazy val core = ProjectRef(uri("https://rouquett@secae-fn.jpl.nasa.gov/stash/scm/omf/gov.nasa.jpl.omf.scala.core.git"), "omf-scala-core")
 
   lazy val root = Project( "omf-scala-binding-owlapi", file("."), 
      settings = Defaults.coreDefaultSettings ++ Defaults.runnerSettings ++ Defaults.baseTasks ++ com.banno.license.Plugin.licenseSettings ++ Seq(            
@@ -33,7 +33,7 @@ object OMFScalaBindingOWLAPI extends Build {
        removeExistingHeaderBlock := true,
        scalaSource in Compile := baseDirectory.value / "src",
        scalaSource in Test := baseDirectory.value / "test",
-       resourceDirectory in Test := baseDirectory.value / "test/resources",
+       resourceDirectory in Test := baseDirectory.value / "test",
        shellPrompt := { state => Project.extract(state).currentRef.project + " @ " + Project.extract(state).get( GitKeys.gitCurrentBranch ) + "> " }
        )
      ) dependsOn ( 
