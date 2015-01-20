@@ -102,7 +102,7 @@ case class MutableModelTerminologyGraph(
       val aspectC = owlDataFactory.getOWLClass( aspectIRI )
       val aspectTerm = createModelEntityAspect( aspectC )
       ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLDeclarationAxiom( aspectC ) ) )
-      ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLSubClassOfAxiom( aspectC, backbone.ThingC.get )))
+      ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLSubClassOfAxiom( aspectC, backbone.ThingC )))
       Success( aspectTerm )
 
     case Some( term ) =>
@@ -122,7 +122,7 @@ case class MutableModelTerminologyGraph(
       val conceptTerm = createModelEntityConcept( conceptC, isAbstract )
       ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLDeclarationAxiom( conceptC ) ) )           
       ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLAnnotationAssertionAxiom( isAbstractAP, conceptIRI, owlDataFactory.getOWLLiteral(isAbstract))))
-      ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLSubClassOfAxiom( conceptC, backbone.EntityC.get )))
+      ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLSubClassOfAxiom( conceptC, backbone.EntityC )))
       Success( conceptTerm )
 
     case Some( term ) =>
@@ -168,22 +168,22 @@ case class MutableModelTerminologyGraph(
               
               ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLDeclarationAxiom( r ) ) )              
               ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLAnnotationAssertionAxiom( isAbstractAP, rIRI, owlDataFactory.getOWLLiteral(isAbstract))))
-              ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLSubClassOfAxiom( r, backbone.ReifiedObjectPropertyC.get )))
+              ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLSubClassOfAxiom( r, backbone.ReifiedObjectPropertyC )))
               
               ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLDeclarationAxiom( rSource ) ) )              
-              ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLSubObjectPropertyOfAxiom( rSource, backbone.topReifiedObjectPropertySourceOP.get )))
+              ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLSubObjectPropertyOfAxiom( rSource, backbone.topReifiedObjectPropertySourceOP )))
               ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLObjectPropertyDomainAxiom( rSource, r )))
               ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLObjectPropertyRangeAxiom( rSource, sourceC )))
               ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLFunctionalObjectPropertyAxiom( rSource )))
               
               ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLDeclarationAxiom( rTarget ) ) )              
-              ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLSubObjectPropertyOfAxiom( rTarget, backbone.topReifiedObjectPropertyTargetOP.get )))
+              ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLSubObjectPropertyOfAxiom( rTarget, backbone.topReifiedObjectPropertyTargetOP )))
               ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLObjectPropertyDomainAxiom( rTarget, r )))
               ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLObjectPropertyRangeAxiom( rTarget, targetC )))
               ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLFunctionalObjectPropertyAxiom( rTarget )))
                                         
               ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLDeclarationAxiom( u ) ) )
-              ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLSubObjectPropertyOfAxiom( u, backbone.topReifiedObjectPropertyOP.get )))
+              ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLSubObjectPropertyOfAxiom( u, backbone.topReifiedObjectPropertyOP )))
               ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLObjectPropertyDomainAxiom( u, sourceC )))
               ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLObjectPropertyRangeAxiom( u, targetC )))
               ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLSubPropertyChainOfAxiom( List( owlDataFactory.getOWLObjectInverseOf( rSource ), rTarget ), u )))
@@ -191,7 +191,7 @@ case class MutableModelTerminologyGraph(
               if ( ui.isDefined ) {
                 ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLDeclarationAxiom( ui.get ) ) )
                 ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLAnnotationAssertionAxiom( isDerivedAP, ui.get.getIRI, owlDataFactory.getOWLLiteral(true))))
-                ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLSubObjectPropertyOfAxiom( ui.get, backbone.topReifiedObjectPropertyOP.get )))
+                ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLSubObjectPropertyOfAxiom( ui.get, backbone.topReifiedObjectPropertyOP )))
                 ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLObjectPropertyDomainAxiom( ui.get, targetC )))
                 ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLObjectPropertyRangeAxiom( ui.get, sourceC )))
                 ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLSubPropertyChainOfAxiom( List( owlDataFactory.getOWLObjectInverseOf( rTarget ), rSource ), ui.get )))
@@ -259,7 +259,7 @@ case class MutableModelTerminologyGraph(
           val escDP = owlDataFactory.getOWLDataProperty( dIRI )
           val escTerm = createDataRelationshipFromEntityToScalar( escDP, source, target )
           ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLDeclarationAxiom( escDP ) ) )
-          ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLSubDataPropertyOfAxiom(escDP, backbone.topDataPropertyDP.get )))
+          ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLSubDataPropertyOfAxiom(escDP, backbone.topDataPropertyDP )))
           ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLDataPropertyDomainAxiom( escDP, source.c )))
           ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLDataPropertyRangeAxiom( escDP, owlDataFactory.getOWLDatatype( target.iri ))))
           Success( escTerm )

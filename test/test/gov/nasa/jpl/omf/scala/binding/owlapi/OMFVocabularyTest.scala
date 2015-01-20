@@ -51,7 +51,7 @@ abstract class OMFVocabularyTest( val saveStore: OWLAPIOMFStore, val loadStore: 
       saveStore, saveStore.omfModule.ops,
       loadStore, loadStore.omfModule.ops )
       
-abstract class OMFVocabularyCatalogTest( val catalogManager: CatalogManager )
+abstract class OMFVocabularyCatalogTest( @transient val catalogManager: CatalogManager )
   extends OMFVocabularyTest(
       saveStore = OWLAPIOMFStore( OWLAPIOMFModule(Some(catalogManager)), OWLManager.createOWLOntologyManager() ),      
       loadStore = OWLAPIOMFStore( OWLAPIOMFModule(Some(catalogManager)), OWLManager.createOWLOntologyManager() ) )
@@ -64,7 +64,7 @@ class OWLVocabularyTestLocalCatalog
         throw new IllegalArgumentException("There should be a catalog IRI mapper since the store was constructed with a catalog manager")
       
       case Some( catalogIRImapper ) =>
-        this.getClass.getResource("/resources/test.catalog.xml") match {
+        classOf[OWLVocabularyTestLocalCatalog].getResource("/resources/test.catalog.xml") match {
           case null => 
             throw new IllegalArgumentException("There should be a 'test.catalog.xml' resource on the classpath")
           case testCatalogURL =>
@@ -82,7 +82,7 @@ class OWLVocabularyTestLocalCatalog
         throw new IllegalArgumentException("There should be a catalog IRI mapper since the store was constructed with a catalog manager")
       
       case Some( catalogIRImapper ) =>
-        this.getClass.getResource("/resources/test.catalog.xml") match {
+        classOf[OWLVocabularyTestLocalCatalog].getResource("/resources/test.catalog.xml") match {
           case null => 
             throw new IllegalArgumentException("There should be a 'test.catalog.xml' resource on the classpath")
           case testCatalogURL =>

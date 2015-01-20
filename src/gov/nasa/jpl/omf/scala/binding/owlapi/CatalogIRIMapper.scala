@@ -92,7 +92,7 @@ case class CatalogIRIMapper( catalogManager: CatalogManager, catalogResolver: Ca
       }
     }
     catch {
-      case e: IOException => ()
+      case _: IOException => ()
       // try another variant.
     }
     try {
@@ -103,7 +103,7 @@ case class CatalogIRIMapper( catalogManager: CatalogManager, catalogResolver: Ca
       }
     }
     catch {
-      case e: IOException => ()
+      case _: IOException => ()
       // try another variant.
     }
     None
@@ -143,8 +143,8 @@ case class CatalogIRIMapper( catalogManager: CatalogManager, catalogResolver: Ca
       }
     }
     catch {
-      case e: MalformedURLException => iri
-      case e: IOException           => iri
+      case _: MalformedURLException => iri
+      case _: IOException           => iri
     }
   }
 }

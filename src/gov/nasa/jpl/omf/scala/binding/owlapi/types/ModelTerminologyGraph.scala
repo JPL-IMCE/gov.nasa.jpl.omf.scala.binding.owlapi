@@ -54,12 +54,12 @@ import org.semanticweb.owlapi.model.OWLClass
 import gov.nasa.jpl.omf.scala.core.RelationshipCharacteristics._
 import org.semanticweb.owlapi.model.OWLObjectProperty
 
-abstract class ModelTerminologyGraph( 
-    val imports: Iterable[ModelTerminologyGraph], 
-    protected val ont: OWLOntology )( implicit val ops: OWLAPIOMFOps ) {
+abstract class ModelTerminologyGraph(
+  val imports: Iterable[ModelTerminologyGraph],
+  protected val ont: OWLOntology )( implicit val ops: OWLAPIOMFOps ) {
 
   import ops._
-  
+
   val ontManager = ont.getOWLOntologyManager
   val owlDataFactory = ontManager.getOWLDataFactory
 
@@ -79,8 +79,7 @@ abstract class ModelTerminologyGraph(
   def isTypeTermDefined( t: ModelTypeTerm ): Boolean = iri2typeTerm.values.contains( t )
 
   def isTypeTermDefinedRecursively( t: ModelTypeTerm ): Boolean =
-    isTypeTermDefined( t ) ||
-      { ( ( imports.view flatMap { case i if ( i.isTypeTermDefinedRecursively( t ) ) => Some( true ) } ) ++ Some( false ) ) head }
+    isTypeTermDefined( t ) || imports.exists ( _.isTypeTermDefinedRecursively( t ) )
 
   def lookupTypeTerm( iri: IRI ): Option[ModelTypeTerm] = iri2typeTerm.get( iri )
 
@@ -102,24 +101,24 @@ abstract class ModelTerminologyGraph(
   val iri = ont.getOntologyID.getOntologyIRI.get
 
   def getEntityDefinitionMap: Map[OWLClass, ModelEntityDefinition]
-    
+
   def getTerms: ( IRI, Iterable[ModelTypeTerm] ) = ( iri, iri2typeTerm.values )
 
   def fromTerminologyGraph: ( IRI, Iterable[ModelTerminologyGraph], Iterable[ModelEntityAspect], Iterable[ModelEntityConcept], Iterable[ModelEntityRelationship], Iterable[ModelScalarDataType], Iterable[ModelStructuredDataType], Iterable[ModelDataRelationshipFromEntityToScalar], Iterable[ModelDataRelationshipFromEntityToStructure], Iterable[ModelDataRelationshipFromStructureToScalar], Iterable[ModelDataRelationshipFromStructureToStructure], Iterable[ModelTermAxiom] ) =
     ( iri, imports, aspects, concepts, relationships, sc, st, e2sc, e2st, s2sc, s2st, ax )
 
-  def save( saveIRI: IRI ): Try[Unit] 
-      
+  def save( saveIRI: IRI ): Try[Unit]
+
   def addEntityAspect( aspectIRI: IRI ): Try[types.ModelEntityAspect]
 
   def addEntityConcept( conceptIRI: IRI, isAbstract: Boolean ): Try[types.ModelEntityConcept]
-    
+
   def addEntityRelationship(
-    rIRI: IRI, rIRISource: IRI, rIRITarget: IRI, 
+    rIRI: IRI, rIRISource: IRI, rIRITarget: IRI,
     uIRI: IRI, uiIRI: Option[IRI],
     source: ModelEntityDefinition, target: ModelEntityDefinition,
     characteristics: Iterable[RelationshipCharacteristics], isAbstract: Boolean ): Try[types.ModelEntityRelationship]
-    
+
   def addScalarDataType( scalarIRI: IRI ): Try[types.ModelScalarDataType]
 
   def addDataRelationshipFromEntityToScalar(

@@ -152,13 +152,47 @@ object ImmutableModelTerminologyGraph {
 
     import ops._
 
-    val importedEntityDefinitionMaps = imports flatMap ( _.getEntityDefinitionMap ) toMap
-
     val DTs = ont.getDatatypesInSignature( Imports.EXCLUDED ) map ( dt => ( dt -> ModelScalarDataType( dt.getIRI ) ) ) toMap
 
     val ( bCs, tCs ) = ont.getClassesInSignature( Imports.EXCLUDED ) partition { c => isBackboneIRI( c.getIRI ) }
     val ( bOPs, tOPs ) = ont.getObjectPropertiesInSignature( Imports.EXCLUDED ) partition { c => isBackboneIRI( c.getIRI ) }
     val ( bDPs, tDPs ) = ont.getDataPropertiesInSignature( Imports.EXCLUDED ) partition { c => isBackboneIRI( c.getIRI ) }
+
+    Backbone.resolveBackbone( ont, bCs.toSet, bOPs.toSet, bDPs.toSet, ops ) match {
+      case Failure( t ) => Failure( t )
+      case Success( _: NoBackbone ) =>
+        Success( ImmutableModelTerminologyGraph(
+          imports, ont,
+          aspects = Nil,
+          concepts = Nil,
+          relationships = Nil,
+          sc = DTs.values.toList,
+          st = Nil,
+          e2sc = Nil,
+          e2st = Nil,
+          s2sc = Nil,
+          s2st = Nil,
+          ax = Nil )( ops ) )
+      case Success( backbone: OMFBackbone ) =>
+        resolve( imports, ont, backbone, DTs, bCs.toSet, tCs.toSet, bOPs.toSet, tOPs.toSet, bDPs.toSet, tDPs.toSet )
+    }
+  }
+
+  def resolve(
+    imports: Iterable[ModelTerminologyGraph],
+    ont: OWLOntology,
+    backbone: OMFBackbone,
+    DTs: Map[OWLDatatype, ModelScalarDataType],
+    bCs: Set[OWLClass],
+    tCs: Set[OWLClass],
+    bOPs: Set[OWLObjectProperty],
+    tOPs: Set[OWLObjectProperty],
+    bDPs: Set[OWLDataProperty],
+    tDPs: Set[OWLDataProperty] )( implicit ops: OWLAPIOMFOps ): Try[ImmutableModelTerminologyGraph] = {
+
+    import ops._
+
+    val importedEntityDefinitionMaps = imports flatMap ( _.getEntityDefinitionMap ) toMap
 
     def isAnnotatedAbstract( iri: IRI ): Boolean = {
       for {
@@ -242,32 +276,32 @@ object ImmutableModelTerminologyGraph {
     // ------
 
     type DOPInfo = ( IRI, OWLDataProperty, OWLClass, OWLDatatype )
-    
+
     def resolveDataRelationshipsFromEntity2Scalars(
-        entityDefinitions: Map[OWLClass, ModelEntityDefinition],
-        dataPropertyDPIRIs: Iterable[DOPInfo],
-        DTs: Map[OWLDatatype, ModelScalarDataType]): Try[List[ModelDataRelationshipFromEntityToScalar]] = {
+      entityDefinitions: Map[OWLClass, ModelEntityDefinition],
+      dataPropertyDPIRIs: Iterable[DOPInfo],
+      DTs: Map[OWLDatatype, ModelScalarDataType] ): Try[List[ModelDataRelationshipFromEntityToScalar]] = {
       val remainingDataPropertyDPIRIs = scala.collection.mutable.ListBuffer[DOPInfo]()
       remainingDataPropertyDPIRIs ++= dataPropertyDPIRIs
-      
+
       val e2sc = for {
-         remainingDataPropertyDPIRI <- remainingDataPropertyDPIRIs
-         ( e2sc_iri, e2sc_dp, e2sc_source, e2sc_target ) = remainingDataPropertyDPIRI
-         e2sc_sourceDef <- entityDefinitions.get( e2sc_source )
-         e2sc_targetDef <- DTs.get( e2sc_target )
+        remainingDataPropertyDPIRI <- remainingDataPropertyDPIRIs
+        ( e2sc_iri, e2sc_dp, e2sc_source, e2sc_target ) = remainingDataPropertyDPIRI
+        e2sc_sourceDef <- entityDefinitions.get( e2sc_source )
+        e2sc_targetDef <- DTs.get( e2sc_target )
       } yield {
         remainingDataPropertyDPIRIs -= remainingDataPropertyDPIRI
         ModelDataRelationshipFromEntityToScalar( e2sc_iri, e2sc_sourceDef, e2sc_targetDef )
       }
-      
+
       if ( remainingDataPropertyDPIRIs.isEmpty )
         Success( e2sc.toList )
       else
-        Failure( new IllegalArgumentException("... esc ..."))
+        Failure( new IllegalArgumentException( "... esc ..." ) )
     }
-    
+
     type ROPInfo = ( IRI, OWLObjectProperty, OWLClass, OWLClass )
-        
+
     def resolveEntityDefinitionsForRelationships(
       entityDefinitions: Map[OWLClass, ModelEntityDefinition],
       RCs: Map[IRI, OWLClass],
@@ -300,15 +334,15 @@ object ImmutableModelTerminologyGraph {
 
       val m = for {
         ( r_iri, r_op, r_source, r_target ) <- resolvableROPs
-        if ( ! isAnnotatedDerived( r_iri ) )
+        if ( !isAnnotatedDerived( r_iri ) )
         ( s_iri, s_op, s_source, s_target ) <- resolvableSourceROPs filter ( _._4 == r_source )
         ( t_iri, t_op, t_source, t_target ) <- resolvableTargetROPs filter ( _._4 == r_target )
 
         if ( s_source == t_source )
 
         inverseInfo = resolvableROPs find ( _rop => isAnnotatedDerived( _rop._1 ) && _rop._3 == r_target && _rop._4 == r_source )
-        inverseROP = if (inverseInfo.isDefined) Some( inverseInfo.get._2) else None
-        
+        inverseROP = if ( inverseInfo.isDefined ) Some( inverseInfo.get._2 ) else None
+
         r_sourceDef <- entityDefinitions.get( r_source )
         r_targetDef <- entityDefinitions.get( r_target )
 
@@ -319,14 +353,14 @@ object ImmutableModelTerminologyGraph {
         resolvedTargetROP = ( t_iri, t_op, t_source, t_target )
 
         rop = ModelEntityRelationship(
-          iri=rc.getIRI,
-          c=rc,
-          unreified=r_op,
-          inverse=inverseROP,
-          source=r_sourceDef, rSource=s_op,
-          target=r_targetDef, rTarget=t_op,
-          characteristics=Nil,
-          isAbstract=isAnnotatedAbstract( rc.getIRI ) )
+          iri = rc.getIRI,
+          c = rc,
+          unreified = r_op,
+          inverse = inverseROP,
+          source = r_sourceDef, rSource = s_op,
+          target = r_targetDef, rTarget = t_op,
+          characteristics = Nil,
+          isAbstract = isAnnotatedAbstract( rc.getIRI ) )
       } yield {
         remainingROPs -= resolvedROP
         if ( inverseInfo.isDefined ) remainingROPs -= inverseInfo.get
@@ -357,166 +391,149 @@ object ImmutableModelTerminologyGraph {
     }
 
     // ------
+
+    val reasonerFactory = new StructuralReasonerFactory()
+    val reasoner = reasonerFactory.createReasoner( ont )
+
+    val thingSubClasses = reasoner.getSubClasses( backbone.ThingC, false )
+    val entitySubClasses = reasoner.getSubClasses( backbone.EntityC, false )
+    val reifiedObjectPropertySubClasses = reasoner.getSubClasses( backbone.ReifiedObjectPropertyC, false )
+    val structuredDatatypeSubClasses = reasoner.getSubClasses( backbone.StructuredDatatypeC, false )
+    val reifiedStructuredDataPropertySubClasses = reasoner.getSubClasses( backbone.ReifiedStructuredDataPropertyC, false )
+
+    val thingCIRIs = ( for {
+      thingN <- thingSubClasses
+      if ( !thingN.isBottomNode )
+      thingC = thingN.getRepresentativeElement
+      if ( tCs.contains( thingC ) )
+      thingIRI = thingC.getIRI
+    } yield ( thingIRI -> thingC ) ).toMap;
+
+    val conceptCIRIs = ( for {
+      conceptN <- entitySubClasses
+      if ( !conceptN.isBottomNode )
+      conceptC = conceptN.getRepresentativeElement
+      if ( tCs.contains( conceptC ) )
+      conceptIRI = conceptC.getIRI
+    } yield ( conceptIRI -> conceptC ) ).toMap;
+
+    val reifiedObjectPropertyCIRIs = ( for {
+      reifiedObjectPropertyN <- reifiedObjectPropertySubClasses
+      if ( !reifiedObjectPropertyN.isBottomNode )
+      reifiedObjectPropertyC = reifiedObjectPropertyN.getRepresentativeElement
+      if ( tCs.contains( reifiedObjectPropertyC ) )
+      reifiedObjectPropertyCIRI = reifiedObjectPropertyC.getIRI
+    } yield ( reifiedObjectPropertyCIRI -> reifiedObjectPropertyC ) ).toMap;
+
+    val reifiedStructuredDataPropertyCIRIs = ( for {
+      reifiedStructuredDataPropertyN <- reifiedStructuredDataPropertySubClasses
+      if ( !reifiedStructuredDataPropertyN.isBottomNode )
+      reifiedStructuredDataPropertyC = reifiedStructuredDataPropertyN.getRepresentativeElement
+      if ( tCs.contains( reifiedStructuredDataPropertyC ) )
+      reifiedStructuredDataPropertyCIRI = reifiedStructuredDataPropertyC.getIRI
+    } yield ( reifiedStructuredDataPropertyCIRI -> reifiedStructuredDataPropertyC ) ).toMap;
+
+    val structuredDatatypeCIRIs = ( for {
+      structuredDatatypeN <- structuredDatatypeSubClasses
+      if ( !structuredDatatypeN.isBottomNode )
+      structuredDatatypeC = structuredDatatypeN.getRepresentativeElement
+      if ( tCs.contains( structuredDatatypeC ) )
+      structuredDatatypeCIRI = structuredDatatypeC.getIRI
+    } yield ( structuredDatatypeCIRI -> structuredDatatypeC ) ).toMap;
+
+    val nonAspectIRIs = conceptCIRIs.keys ++ reifiedObjectPropertyCIRIs.keys ++ reifiedStructuredDataPropertyCIRIs.keys ++ structuredDatatypeCIRIs.keys
+    val aspectCIRIs = thingCIRIs -- nonAspectIRIs
+
+    val aspectCMs = ( for {
+      ( aspectIRI, aspectC ) <- aspectCIRIs
+      aspectM = ModelEntityAspect( aspectIRI, aspectC )
+    } yield ( aspectC -> aspectM ) ).toMap;
+
+    val conceptCMs = ( for {
+      ( conceptIRI, conceptC ) <- conceptCIRIs
+      conceptM = ModelEntityConcept( conceptIRI, conceptC, isAbstract = isAnnotatedAbstract( conceptIRI ) )
+    } yield ( conceptC -> conceptM ) ).toMap;
+
+    val conceptSubClassAxs = for {
+      ( subC, subM ) <- conceptCMs
+      supN <- reasoner.getSuperClasses( subC, true )
+      supC = supN.getRepresentativeElement
+      if ( supC != backbone.EntityC )
+      supM <- findEntityConcept( supC.getIRI, conceptCMs )
+    } yield EntityConceptSubClassAxiom( subM, null )
+
+    val topReifiedObjectPropertySubOPs = reasoner.getSubObjectProperties( backbone.topReifiedObjectPropertyOP, false )
+    val reifiedObjectPropertyOPIRIs = ( for {
+      reifiedObjectPropertyN <- topReifiedObjectPropertySubOPs
+      reifiedObjectPropertyOP <- reifiedObjectPropertyN flatMap { case op: OWLObjectProperty => Some( op ) }
+      if ( tOPs.contains( reifiedObjectPropertyOP ) )
+      reifiedObjectPropertyDomain <- reasoner.getObjectPropertyDomains( reifiedObjectPropertyOP, true ).getFlattened
+      reifiedObjectPropertyRange <- reasoner.getObjectPropertyRanges( reifiedObjectPropertyOP, true ).getFlattened
+    } yield (
+      reifiedObjectPropertyOP.getIRI,
+      reifiedObjectPropertyOP,
+      reifiedObjectPropertyDomain,
+      reifiedObjectPropertyRange ) )
+
+    val topReifiedObjectPropertySourceSubOPs = reasoner.getSubObjectProperties( backbone.topReifiedObjectPropertySourceOP, false )
+    val reifiedObjectPropertySourceOPIRIs = ( for {
+      reifiedObjectPropertySourceN <- topReifiedObjectPropertySourceSubOPs
+      reifiedObjectPropertySourceOP <- reifiedObjectPropertySourceN flatMap { case op: OWLObjectProperty => Some( op ) }
+      if ( tOPs.contains( reifiedObjectPropertySourceOP ) )
+      reifiedObjectPropertySourceDomain <- reasoner.getObjectPropertyDomains( reifiedObjectPropertySourceOP, true ).getFlattened
+      reifiedObjectPropertySourceRange <- reasoner.getObjectPropertyRanges( reifiedObjectPropertySourceOP, true ).getFlattened
+    } yield (
+      reifiedObjectPropertySourceOP.getIRI,
+      reifiedObjectPropertySourceOP,
+      reifiedObjectPropertySourceDomain,
+      reifiedObjectPropertySourceRange ) )
+
+    val topReifiedObjectPropertyTargetSubOPs = reasoner.getSubObjectProperties( backbone.topReifiedObjectPropertyTargetOP, false )
+    val reifiedObjectPropertyTargetOPIRIs = ( for {
+      reifiedObjectPropertyTargetN <- topReifiedObjectPropertyTargetSubOPs
+      reifiedObjectPropertyTargetOP <- reifiedObjectPropertyTargetN flatMap { case op: OWLObjectProperty => Some( op ) }
+      if ( tOPs.contains( reifiedObjectPropertyTargetOP ) )
+      reifiedObjectPropertyTargetDomain <- reasoner.getObjectPropertyDomains( reifiedObjectPropertyTargetOP, true ).getFlattened
+      reifiedObjectPropertyTargetRange <- reasoner.getObjectPropertyRanges( reifiedObjectPropertyTargetOP, true ).getFlattened
+    } yield (
+      reifiedObjectPropertyTargetOP.getIRI,
+      reifiedObjectPropertyTargetOP,
+      reifiedObjectPropertyTargetDomain,
+      reifiedObjectPropertyTargetRange ) )
+
+    val topDataPropertySubDPs = reasoner.getSubDataProperties( backbone.topDataPropertyDP, false )
+    val dataPropertyDPIRIs = ( for {
+      dataPropertyN <- topDataPropertySubDPs
+      dataPropertyDP <- dataPropertyN flatMap { case dp: OWLDataProperty => Some( dp ) }
+      if ( tDPs.contains( dataPropertyDP ) )
+      dataPropertyDomain <- reasoner.getDataPropertyDomains( dataPropertyDP, true ).getFlattened
+      dataPropertyRange <- ont.getDataPropertyRangeAxioms( dataPropertyDP )
+      dataPropertyType = dataPropertyRange.getRange.asOWLDatatype
+    } yield ( dataPropertyDP.getIRI, dataPropertyDP, dataPropertyDomain, dataPropertyType ) )
+
+    val allEntityDefinitionsExceptRelationships = importedEntityDefinitionMaps ++ aspectCMs ++ conceptCMs
     for {
-      backbone <- Backbone.resolveBackbone( ont, bCs.toSet, bOPs.toSet, bDPs.toSet, ops )
-      hasBackbone = backbone.isBackboneDefined
-      g <- if ( !hasBackbone )
-        Success( ImmutableModelTerminologyGraph(
-          imports, ont,
-          aspects = Nil,
-          concepts = Nil,
-          relationships = Nil,
-          sc = DTs.values.toList,
-          st = Nil,
-          e2sc = Nil,
-          e2st = Nil,
-          s2sc = Nil,
-          s2st = Nil,
-          ax = Nil )( ops ) )
-      else {
-        val reasonerFactory = new StructuralReasonerFactory()
-        val reasoner = reasonerFactory.createReasoner( ont )
+      entityRelationshipCMs <- resolveEntityDefinitionsForRelationships(
+        allEntityDefinitionsExceptRelationships,
+        reifiedObjectPropertyCIRIs,
+        reifiedObjectPropertyOPIRIs,
+        reifiedObjectPropertySourceOPIRIs,
+        reifiedObjectPropertyTargetOPIRIs,
+        Map() )
+      allEntityDefinitions = allEntityDefinitionsExceptRelationships ++ entityRelationshipCMs
+      dataRelationshipsFromEntity2Scalars <- resolveDataRelationshipsFromEntity2Scalars( allEntityDefinitions, dataPropertyDPIRIs, DTs )
+    } yield ImmutableModelTerminologyGraph(
+      imports, ont,
+      aspects = aspectCMs.values.toList,
+      concepts = conceptCMs.values.toList,
+      relationships = entityRelationshipCMs.values.toList,
+      sc = DTs.values.toList,
+      st = Nil,
+      e2sc = dataRelationshipsFromEntity2Scalars,
+      e2st = Nil,
+      s2sc = Nil,
+      s2st = Nil,
+      ax = conceptSubClassAxs.toList )( ops )
 
-        val thingSubClasses = reasoner.getSubClasses( backbone.ThingC.get, false )
-        val entitySubClasses = reasoner.getSubClasses( backbone.EntityC.get, false )
-        val reifiedObjectPropertySubClasses = reasoner.getSubClasses( backbone.ReifiedObjectPropertyC.get, false )
-        val structuredDatatypeSubClasses = reasoner.getSubClasses( backbone.StructuredDatatypeC.get, false )
-        val reifiedStructuredDataPropertySubClasses = reasoner.getSubClasses( backbone.ReifiedStructuredDataPropertyC.get, false )
-
-        val thingCIRIs = ( for {
-          thingN <- thingSubClasses
-          if ( !thingN.isBottomNode )
-          thingC = thingN.getRepresentativeElement
-          if ( tCs.contains( thingC ) )
-          thingIRI = thingC.getIRI
-        } yield ( thingIRI -> thingC ) ).toMap;
-
-        val conceptCIRIs = ( for {
-          conceptN <- entitySubClasses
-          if ( !conceptN.isBottomNode )
-          conceptC = conceptN.getRepresentativeElement
-          if ( tCs.contains( conceptC ) )
-          conceptIRI = conceptC.getIRI
-        } yield ( conceptIRI -> conceptC ) ).toMap;
-
-        val reifiedObjectPropertyCIRIs = ( for {
-          reifiedObjectPropertyN <- reifiedObjectPropertySubClasses
-          if ( !reifiedObjectPropertyN.isBottomNode )
-          reifiedObjectPropertyC = reifiedObjectPropertyN.getRepresentativeElement
-          if ( tCs.contains( reifiedObjectPropertyC ) )
-          reifiedObjectPropertyCIRI = reifiedObjectPropertyC.getIRI
-        } yield ( reifiedObjectPropertyCIRI -> reifiedObjectPropertyC ) ).toMap;
-
-        val reifiedStructuredDataPropertyCIRIs = ( for {
-          reifiedStructuredDataPropertyN <- reifiedStructuredDataPropertySubClasses
-          if ( !reifiedStructuredDataPropertyN.isBottomNode )
-          reifiedStructuredDataPropertyC = reifiedStructuredDataPropertyN.getRepresentativeElement
-          if ( tCs.contains( reifiedStructuredDataPropertyC ) )
-          reifiedStructuredDataPropertyCIRI = reifiedStructuredDataPropertyC.getIRI
-        } yield ( reifiedStructuredDataPropertyCIRI -> reifiedStructuredDataPropertyC ) ).toMap;
-
-        val structuredDatatypeCIRIs = ( for {
-          structuredDatatypeN <- structuredDatatypeSubClasses
-          if ( !structuredDatatypeN.isBottomNode )
-          structuredDatatypeC = structuredDatatypeN.getRepresentativeElement
-          if ( tCs.contains( structuredDatatypeC ) )
-          structuredDatatypeCIRI = structuredDatatypeC.getIRI
-        } yield ( structuredDatatypeCIRI -> structuredDatatypeC ) ).toMap;
-
-        val nonAspectIRIs = conceptCIRIs.keys ++ reifiedObjectPropertyCIRIs.keys ++ reifiedStructuredDataPropertyCIRIs.keys ++ structuredDatatypeCIRIs.keys
-        val aspectCIRIs = thingCIRIs -- nonAspectIRIs
-
-        val aspectCMs = ( for {
-          ( aspectIRI, aspectC ) <- aspectCIRIs
-          aspectM = ModelEntityAspect( aspectIRI, aspectC )
-        } yield ( aspectC -> aspectM ) ).toMap;
-
-        val conceptCMs = ( for {
-          ( conceptIRI, conceptC ) <- conceptCIRIs
-          conceptM = ModelEntityConcept( conceptIRI, conceptC, isAbstract = isAnnotatedAbstract( conceptIRI ) )
-        } yield ( conceptC -> conceptM ) ).toMap;
-
-        val conceptSubClassAxs = for {
-          ( subC, subM ) <- conceptCMs
-          supN <- reasoner.getSuperClasses( subC, true )
-          supC = supN.getRepresentativeElement
-          if ( supC != backbone.EntityC.get )
-          supM <- findEntityConcept( supC.getIRI, conceptCMs )
-        } yield EntityConceptSubClassAxiom( subM, null )
-
-        val topReifiedObjectPropertySubOPs = reasoner.getSubObjectProperties( backbone.topReifiedObjectPropertyOP.get, false )
-        val reifiedObjectPropertyOPIRIs = ( for {
-          reifiedObjectPropertyN <- topReifiedObjectPropertySubOPs
-          reifiedObjectPropertyOP <- reifiedObjectPropertyN flatMap { case op: OWLObjectProperty => Some( op ) }
-          if ( tOPs.contains( reifiedObjectPropertyOP ) )
-          reifiedObjectPropertyDomain <- reasoner.getObjectPropertyDomains( reifiedObjectPropertyOP, true ).getFlattened
-          reifiedObjectPropertyRange <- reasoner.getObjectPropertyRanges( reifiedObjectPropertyOP, true ).getFlattened
-        } yield (
-          reifiedObjectPropertyOP.getIRI,
-          reifiedObjectPropertyOP,
-          reifiedObjectPropertyDomain,
-          reifiedObjectPropertyRange ) )
-
-        val topReifiedObjectPropertySourceSubOPs = reasoner.getSubObjectProperties( backbone.topReifiedObjectPropertySourceOP.get, false )
-        val reifiedObjectPropertySourceOPIRIs = ( for {
-          reifiedObjectPropertySourceN <- topReifiedObjectPropertySourceSubOPs
-          reifiedObjectPropertySourceOP <- reifiedObjectPropertySourceN flatMap { case op: OWLObjectProperty => Some( op ) }
-          if ( tOPs.contains( reifiedObjectPropertySourceOP ) )
-          reifiedObjectPropertySourceDomain <- reasoner.getObjectPropertyDomains( reifiedObjectPropertySourceOP, true ).getFlattened
-          reifiedObjectPropertySourceRange <- reasoner.getObjectPropertyRanges( reifiedObjectPropertySourceOP, true ).getFlattened
-        } yield (
-          reifiedObjectPropertySourceOP.getIRI,
-          reifiedObjectPropertySourceOP,
-          reifiedObjectPropertySourceDomain,
-          reifiedObjectPropertySourceRange ) )
-
-        val topReifiedObjectPropertyTargetSubOPs = reasoner.getSubObjectProperties( backbone.topReifiedObjectPropertyTargetOP.get, false )
-        val reifiedObjectPropertyTargetOPIRIs = ( for {
-          reifiedObjectPropertyTargetN <- topReifiedObjectPropertyTargetSubOPs
-          reifiedObjectPropertyTargetOP <- reifiedObjectPropertyTargetN flatMap { case op: OWLObjectProperty => Some( op ) }
-          if ( tOPs.contains( reifiedObjectPropertyTargetOP ) )
-          reifiedObjectPropertyTargetDomain <- reasoner.getObjectPropertyDomains( reifiedObjectPropertyTargetOP, true ).getFlattened
-          reifiedObjectPropertyTargetRange <- reasoner.getObjectPropertyRanges( reifiedObjectPropertyTargetOP, true ).getFlattened
-        } yield (
-          reifiedObjectPropertyTargetOP.getIRI,
-          reifiedObjectPropertyTargetOP,
-          reifiedObjectPropertyTargetDomain,
-          reifiedObjectPropertyTargetRange ) )
-
-        val topDataPropertySubDPs = reasoner.getSubDataProperties( backbone.topDataPropertyDP.get, false )
-        val dataPropertyDPIRIs = ( for {
-          dataPropertyN <- topDataPropertySubDPs
-          dataPropertyDP <- dataPropertyN flatMap { case dp: OWLDataProperty => Some( dp ) }
-          if ( tDPs.contains( dataPropertyDP ) )
-          dataPropertyDomain <- reasoner.getDataPropertyDomains( dataPropertyDP, true ).getFlattened
-          dataPropertyRange <- ont.getDataPropertyRangeAxioms( dataPropertyDP )
-          dataPropertyType = dataPropertyRange.getRange.asOWLDatatype
-        } yield ( dataPropertyDP.getIRI, dataPropertyDP, dataPropertyDomain, dataPropertyType ) )
-
-        val allEntityDefinitionsExceptRelationships = importedEntityDefinitionMaps ++ aspectCMs ++ conceptCMs
-        for {
-          entityRelationshipCMs <- resolveEntityDefinitionsForRelationships(
-            allEntityDefinitionsExceptRelationships,
-            reifiedObjectPropertyCIRIs,
-            reifiedObjectPropertyOPIRIs,
-            reifiedObjectPropertySourceOPIRIs,
-            reifiedObjectPropertyTargetOPIRIs,
-            Map() )
-          allEntityDefinitions = allEntityDefinitionsExceptRelationships ++ entityRelationshipCMs
-          dataRelationshipsFromEntity2Scalars <- resolveDataRelationshipsFromEntity2Scalars( allEntityDefinitions, dataPropertyDPIRIs, DTs )
-        } yield ImmutableModelTerminologyGraph(
-          imports, ont,
-          aspects = aspectCMs.values.toList,
-          concepts = conceptCMs.values.toList,
-          relationships = entityRelationshipCMs.values.toList,
-          sc = DTs.values.toList,
-          st = Nil,
-          e2sc = dataRelationshipsFromEntity2Scalars,
-          e2st = Nil,
-          s2sc = Nil,
-          s2st = Nil,
-          ax = conceptSubClassAxs.toList )( ops )
-      }
-    } yield g
   }
 }

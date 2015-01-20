@@ -10,6 +10,7 @@ object OMFScalaBindingOWLAPI extends Build {
     val scala = "2.11.4"
     val owlapi = "4.0.1"
     val xmlResolver = "1.2"
+    var omf_scala_core = "0.6"
   }
   
   lazy val owlapiLibs = Project(
@@ -25,8 +26,10 @@ object OMFScalaBindingOWLAPI extends Build {
         ( mappings in pack ) := { extraPackFun.value } )
       )
       
-  lazy val core = ProjectRef(uri("https://rouquett@secae-fn.jpl.nasa.gov/stash/scm/omf/gov.nasa.jpl.omf.scala.core.git"), "omf-scala-core")
-
+  lazy val core = ProjectRef(
+      uri(s"https://rouquett@secae-fn.jpl.nasa.gov/stash/scm/omf/gov.nasa.jpl.omf.scala.core.git#${Versions.omf_scala_core}"),
+      "omf-scala-core")
+  
   lazy val root = Project( "omf-scala-binding-owlapi", file("."), 
      settings = Defaults.coreDefaultSettings ++ Defaults.runnerSettings ++ Defaults.baseTasks ++ com.banno.license.Plugin.licenseSettings ++ Seq(            
        scalaVersion := Versions.scala,
