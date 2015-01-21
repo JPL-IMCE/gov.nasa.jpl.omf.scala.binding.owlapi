@@ -56,7 +56,7 @@ import org.semanticweb.owlapi.model.OWLObjectProperty
 
 abstract class ModelTerminologyGraph(
   val imports: Iterable[ModelTerminologyGraph],
-  protected val ont: OWLOntology )( implicit val ops: OWLAPIOMFOps ) {
+  val ont: OWLOntology )( implicit val ops: OWLAPIOMFOps ) {
 
   import ops._
 

@@ -79,31 +79,38 @@ case class CatalogIRIMapper( catalogManager: CatalogManager, catalogResolver: Ca
     }
 
   def loadResolutionStrategy( resolved: String ): Option[IRI] = {
+
+    def ignore( e: Exception ) = {}
+
     val normalized = new URI( resolved )
     val normalizedPath = normalized.toString()
 
     val f1 = new URL( normalizedPath )
     val f2 = if ( normalizedPath.endsWith( ".owl" ) ) f1 else new URL( normalizedPath + ".owl" )
     try {
-      val is = f1.openStream()
-      if ( null != is && is.available() > 0 ) {
+      for {
+        is <- Option.apply( f1.openStream )
+        if ( is.available() > 0 )
+      } {
         is.close()
         return Some( IRI.create( f1.toString() ) )
       }
     }
     catch {
-      case _: IOException => ()
+      case e: IOException => ignore( e )
       // try another variant.
     }
     try {
-      val is = f2.openStream()
-      if ( null != is && is.available() > 0 ) {
+      for {
+        is <- Option.apply( f2.openStream() )
+        if ( is.available() > 0 )
+      } {
         is.close()
         return Some( IRI.create( f2.toString() ) )
       }
     }
     catch {
-      case _: IOException => ()
+      case e: IOException => ignore( e )
       // try another variant.
     }
     None
@@ -114,21 +121,23 @@ case class CatalogIRIMapper( catalogManager: CatalogManager, catalogResolver: Ca
     val normalizedPath = normalized.toString
     val f1 = new URL( normalizedPath )
     val outputFile = if ( resolved.startsWith( "file:" ) ) new File( resolved.substring( 5 ) ) else new File( resolved )
-    val outputDir = outputFile.getParentFile()
-    if ( null != outputDir ) {
-      if ( !outputDir.exists ) 
-        outputDir.mkdirs
-        
-      if ( outputDir.exists && outputDir.isDirectory && outputDir.canWrite )
-        Some( IRI.create( f1.toString ) )
-      else
-        None
+    outputFile.getParentFile() match {
+      case null => None
+      case outputDir =>
+        if ( !outputDir.exists )
+          outputDir.mkdirs
+
+        if ( outputDir.exists && outputDir.isDirectory && outputDir.canWrite )
+          Some( IRI.create( f1.toString ) )
+        else
+          None
     }
-    else
-      None
   }
 
   def resolveIRI( iri: IRI, resolutionStrategy: ( String ) => Option[IRI] ): IRI = {
+
+    def ignore( e: Exception ) = {}
+
     val rawPath = iri.toURI.toString
     val iriPath = if ( rawPath.endsWith( "#" ) ) rawPath.substring( 0, rawPath.length() - 1 ) else rawPath
     try {
@@ -143,8 +152,9 @@ case class CatalogIRIMapper( catalogManager: CatalogManager, catalogResolver: Ca
       }
     }
     catch {
-      case _: MalformedURLException => iri
-      case _: IOException           => iri
+      case e: MalformedURLException =>
+        ignore( e ); iri
+      case e: IOException           => ignore( e ); iri
     }
   }
 }

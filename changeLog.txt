@@ -1,3 +1,8 @@
+Version 0.4: January 21, 2015
+
+Propagated the mutable vs. immutable OMFOps API to OWLAPI
+OWLVocabularyTest success (for OMF core v0.7)
+
 Version 0.3.2: January 19, 2015
 
 Fix Semmle ODASA static analysis warnings/errors

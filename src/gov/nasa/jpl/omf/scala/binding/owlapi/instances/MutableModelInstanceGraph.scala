@@ -37,18 +37,33 @@
  *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package test.gov.nasa.jpl.omf.scala.binding.owlapi
+package gov.nasa.jpl.omf.scala.binding.owlapi.instances
 
-import org.semanticweb.owlapi.apibinding.OWLManager
+import gov.nasa.jpl.omf.scala.binding._
 import gov.nasa.jpl.omf.scala.binding.owlapi._
-import test.gov.nasa.jpl.omf.scala.core.{ functionalAPI => testFunctionalAPI }
-import org.apache.xml.resolver.CatalogManager
+import org.semanticweb.owlapi.model.OWLOntology
+import org.semanticweb.owlapi.model.IRI
+import scala.util.Try
+import gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelTerminologyGraph
 
-abstract class IMCEMissionDomainTBoxOWLAPIExample( val store: OWLAPIOMFGraphStore ) 
-extends testFunctionalAPI.IMCEMissionDomainTBoxExample[OWLAPIOMF]()( store.omfModule.ops, store )
-
-class IMCEMissionDomainTBoxOWLAPIExampleNoCatalog
-extends IMCEMissionDomainTBoxOWLAPIExample( 
-    OWLAPIOMFGraphStore( 
-        OWLAPIOMFModule( None ), 
-        OWLManager.createOWLOntologyManager() ) )
+case class MutableModelInstanceGraph(
+    override val tboxes: Iterable[types.ImmutableModelTerminologyGraph],
+    override val imports: Iterable[ImmutableModelInstanceGraph], 
+    override protected val ont: OWLOntology ) 
+    extends ModelInstanceGraph( tboxes, imports, ont ) {
+    
+  override protected val objects = scala.collection.mutable.ListBuffer[ModelInstanceObject]()
+   override protected val relations = scala.collection.mutable.ListBuffer[ModelInstanceRelation]()
+   override protected val dataLiterals = scala.collection.mutable.ListBuffer[ModelInstanceDataLiteral]()
+   override protected val dataObjects = scala.collection.mutable.ListBuffer[ModelInstanceDataStructure]()
+   override protected val e2sc = scala.collection.mutable.ListBuffer[ModelInstanceDataRelationshipFromEntityToScalar]()
+   override protected val e2st = scala.collection.mutable.ListBuffer[ModelInstanceDataRelationshipFromEntityToStructure]()
+   override protected val s2sc = scala.collection.mutable.ListBuffer[ModelInstanceDataRelationshipFromStructureToScalar]()
+   override protected val s2st = scala.collection.mutable.ListBuffer[ModelInstanceDataRelationshipFromStructureToStructure]()
+    
+  protected val iri2namedIndividual = scala.collection.mutable.HashMap[IRI, ModelNamedIndividual]()
+  
+  def save: Try[Unit] = Try {
+    ontManager.saveOntology(ont)
+  }    
+}

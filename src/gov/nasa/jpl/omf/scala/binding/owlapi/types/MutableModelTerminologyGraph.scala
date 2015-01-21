@@ -55,16 +55,60 @@ import gov.nasa.jpl.omf.scala.core.RelationshipCharacteristics._
 import org.semanticweb.owlapi.model.OWLObjectProperty
 import org.semanticweb.owlapi.model.OWLDataProperty
 
-case class MutableModelTerminologyGraph( 
-    override val imports: Iterable[ModelTerminologyGraph], 
-    override protected val ont: OWLOntology )( override implicit val ops: OWLAPIOMFOps ) 
- extends ModelTerminologyGraph( imports, ont )( ops ) {
+object EntityExceptionKind extends Enumeration {
+    type EntityExceptionKind = Value
+    val EntityAspect, EntityConcept, EntityRelationship, DataRelationshipFromEntityToScalar, ScalarDataType = Value
+}
 
-  import ops._  
-  
+import EntityExceptionKind._
+
+object RelationshipScopeAccessKind extends Enumeration {
+    type RelationshipScopeAccessKind = Value
+    val Source, Target = Value
+}
+
+import RelationshipScopeAccessKind._
+
+object AxiomExceptionKind extends Enumeration {
+    type AxiomExceptionKind = Value
+    val AspectSubclassAxiom, ConceptSubclassAxiom = Value
+}
+
+import AxiomExceptionKind._
+
+object AxiomScopeAccessKind extends Enumeration {
+    type AxiomScopeAccessKind = Value
+    val Sub, Sup = Value
+}
+
+import AxiomScopeAccessKind._
+
+sealed abstract class MutableModelTerminologyGraphException( val message: String ) extends IllegalArgumentException( message )
+
+case class EntityConflictException( kind: EntityExceptionKind, iri: IRI, conflictingTerm: ModelTypeTerm )
+  extends MutableModelTerminologyGraphException( s"Cannot create ${kind} with IRI='${iri}' because this IRI refers to: ${conflictingTerm}" )
+
+case class EntityScopeException( kind: EntityExceptionKind, iri: IRI, unaccessibleTerms: Map[RelationshipScopeAccessKind, ModelTypeTerm] )
+  extends MutableModelTerminologyGraphException(
+    s"Cannot create ${kind} with IRI='${iri}' because there are ${unaccessibleTerms.size} terms out of scope of the graph: " +
+      unaccessibleTerms.map { case ( kind, term ) => s"${kind}: ${term}" } mkString ( ", " ) )
+
+case class AxiomScopeException( kind: AxiomExceptionKind, unaccessibleTerms: Map[AxiomScopeAccessKind, ModelTypeTerm] )
+  extends MutableModelTerminologyGraphException(
+    s"Cannot create ${kind} because there are ${unaccessibleTerms.size} terms out of scope of the graph: " +
+      unaccessibleTerms.map { case ( kind, term ) => s"${kind}: ${term}" } mkString ( ", " ) )
+
+case class MutableModelTerminologyGraph(
+  override val imports: Iterable[ModelTerminologyGraph],
+  override val ont: OWLOntology )( override implicit val ops: OWLAPIOMFOps )
+  extends ModelTerminologyGraph( imports, ont )( ops ) {
+
+  import ops._
+  import EntityConflictException._
+
   val isAbstractAP = owlDataFactory.getOWLAnnotationProperty( AnnotationIsAbstract )
   val isDerivedAP = owlDataFactory.getOWLAnnotationProperty( AnnotationIsDerived )
-  
+
   override protected val aspects = scala.collection.mutable.ListBuffer[ModelEntityAspect]()
   override protected val concepts = scala.collection.mutable.ListBuffer[ModelEntityConcept]()
   override protected val relationships = scala.collection.mutable.ListBuffer[ModelEntityRelationship]()
@@ -79,19 +123,18 @@ case class MutableModelTerminologyGraph(
   override def getEntityDefinitionMap: Map[OWLClass, ModelEntityDefinition] =
     ( ( aspects map ( a => ( a.c -> a ) ) ) ++
       ( concepts map ( c => ( c.c -> c ) ) ) ++
-      ( relationships map ( r => ( r.c -> r ) ) ) 
-      ) toMap
+      ( relationships map ( r => ( r.c -> r ) ) ) ) toMap
 
   override protected val iri2typeTerm = scala.collection.mutable.HashMap[IRI, ModelTypeTerm]()
 
   def save( saveIRI: IRI ): Try[Unit] = Try {
-    ontManager.saveOntology(ont, saveIRI)
+    ontManager.saveOntology( ont, saveIRI )
   }
-  
-  val backbone = Backbone.createBackbone( ont, ops).get
- 
+
+  val backbone = Backbone.createBackbone( ont, ops ).get
+
   protected def createModelEntityAspect( a: OWLClass ): ModelEntityAspect = {
-    val _a = ModelEntityAspect( a.getIRI, a )
+    val _a = ModelEntityAspect( a )
     aspects += _a
     iri2typeTerm += a.getIRI -> _a
     _a
@@ -102,15 +145,15 @@ case class MutableModelTerminologyGraph(
       val aspectC = owlDataFactory.getOWLClass( aspectIRI )
       val aspectTerm = createModelEntityAspect( aspectC )
       ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLDeclarationAxiom( aspectC ) ) )
-      ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLSubClassOfAxiom( aspectC, backbone.ThingC )))
+      ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLSubClassOfAxiom( aspectC, backbone.ThingC ) ) )
       Success( aspectTerm )
 
     case Some( term ) =>
-      Failure( new IllegalArgumentException( s"Cannot create an entity aspect with IRI='${aspectIRI}' because this IRI is a ${term}" ) )
+      Failure( EntityConflictException( EntityAspect, aspectIRI, term ) )
   }
 
   protected def createModelEntityConcept( c: OWLClass, isAbstract: Boolean ): ModelEntityConcept = {
-    val _c = ModelEntityConcept( c.getIRI, c, isAbstract )
+    val _c = ModelEntityConcept( c, isAbstract )
     concepts += _c
     iri2typeTerm += c.getIRI -> _c
     _c
@@ -120,13 +163,13 @@ case class MutableModelTerminologyGraph(
     case None =>
       val conceptC = owlDataFactory.getOWLClass( conceptIRI )
       val conceptTerm = createModelEntityConcept( conceptC, isAbstract )
-      ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLDeclarationAxiom( conceptC ) ) )           
-      ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLAnnotationAssertionAxiom( isAbstractAP, conceptIRI, owlDataFactory.getOWLLiteral(isAbstract))))
-      ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLSubClassOfAxiom( conceptC, backbone.EntityC )))
+      ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLDeclarationAxiom( conceptC ) ) )
+      ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLAnnotationAssertionAxiom( isAbstractAP, conceptIRI, owlDataFactory.getOWLLiteral( isAbstract ) ) ) )
+      ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLSubClassOfAxiom( conceptC, backbone.EntityC ) ) )
       Success( conceptTerm )
 
     case Some( term ) =>
-      Failure( new IllegalArgumentException( s"Cannot create an entity concept with IRI='${conceptIRI}' because this IRI is a ${term}" ) )
+      Failure( EntityConflictException( EntityConcept, conceptIRI, term ) )
   }
 
   protected def createEntityRelationship(
@@ -135,13 +178,61 @@ case class MutableModelTerminologyGraph(
     target: ModelEntityDefinition, rTarget: OWLObjectProperty,
     characteristics: Iterable[RelationshipCharacteristics], isAbstract: Boolean ): types.ModelEntityRelationship = {
     val _term = ModelEntityRelationship(
-      r.getIRI, r, u, ui,
-      source, rSource, 
-      target, rTarget, 
+      r, u, ui,
+      source, rSource,
+      target, rTarget,
       characteristics, isAbstract )
     relationships += _term
     iri2typeTerm += r.getIRI -> _term
     _term
+  }
+
+  protected def makeEntityRelationship(
+    rIRI: IRI, rIRISource: IRI, rIRITarget: IRI,
+    uIRI: IRI, uiIRI: Option[IRI],
+    source: ModelEntityDefinition, target: ModelEntityDefinition,
+    characteristics: Iterable[RelationshipCharacteristics], isAbstract: Boolean ): Try[types.ModelEntityRelationship] = {
+
+    val sourceC = owlDataFactory.getOWLClass( source.iri )
+    val targetC = owlDataFactory.getOWLClass( target.iri )
+    val r = owlDataFactory.getOWLClass( rIRI )
+    val rSource = owlDataFactory.getOWLObjectProperty( rIRISource )
+    val rTarget = owlDataFactory.getOWLObjectProperty( rIRITarget )
+    val u = owlDataFactory.getOWLObjectProperty( uIRI )
+    val ui = if ( uiIRI.isEmpty ) None else Some( owlDataFactory.getOWLObjectProperty( uiIRI.get ) )
+    val term = createEntityRelationship( r, u, ui, source, rSource, target, rTarget, characteristics, isAbstract )
+
+    ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLDeclarationAxiom( r ) ) )
+    ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLAnnotationAssertionAxiom( isAbstractAP, rIRI, owlDataFactory.getOWLLiteral( isAbstract ) ) ) )
+    ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLSubClassOfAxiom( r, backbone.ReifiedObjectPropertyC ) ) )
+
+    ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLDeclarationAxiom( rSource ) ) )
+    ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLSubObjectPropertyOfAxiom( rSource, backbone.topReifiedObjectPropertySourceOP ) ) )
+    ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLObjectPropertyDomainAxiom( rSource, r ) ) )
+    ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLObjectPropertyRangeAxiom( rSource, sourceC ) ) )
+    ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLFunctionalObjectPropertyAxiom( rSource ) ) )
+
+    ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLDeclarationAxiom( rTarget ) ) )
+    ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLSubObjectPropertyOfAxiom( rTarget, backbone.topReifiedObjectPropertyTargetOP ) ) )
+    ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLObjectPropertyDomainAxiom( rTarget, r ) ) )
+    ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLObjectPropertyRangeAxiom( rTarget, targetC ) ) )
+    ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLFunctionalObjectPropertyAxiom( rTarget ) ) )
+
+    ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLDeclarationAxiom( u ) ) )
+    ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLSubObjectPropertyOfAxiom( u, backbone.topReifiedObjectPropertyOP ) ) )
+    ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLObjectPropertyDomainAxiom( u, sourceC ) ) )
+    ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLObjectPropertyRangeAxiom( u, targetC ) ) )
+    ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLSubPropertyChainOfAxiom( List( owlDataFactory.getOWLObjectInverseOf( rSource ), rTarget ), u ) ) )
+
+    if ( ui.isDefined ) {
+      ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLDeclarationAxiom( ui.get ) ) )
+      ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLAnnotationAssertionAxiom( isDerivedAP, ui.get.getIRI, owlDataFactory.getOWLLiteral( true ) ) ) )
+      ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLSubObjectPropertyOfAxiom( ui.get, backbone.topReifiedObjectPropertyOP ) ) )
+      ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLObjectPropertyDomainAxiom( ui.get, targetC ) ) )
+      ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLObjectPropertyRangeAxiom( ui.get, sourceC ) ) )
+      ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLSubPropertyChainOfAxiom( List( owlDataFactory.getOWLObjectInverseOf( rTarget ), rSource ), ui.get ) ) )
+    }
+    Success( term )
   }
 
   def addEntityRelationship(
@@ -157,72 +248,33 @@ case class MutableModelTerminologyGraph(
         case ( None, None, None, None, None ) =>
           ( isTypeTermDefinedRecursively( source ), isTypeTermDefinedRecursively( target ) ) match {
             case ( true, true ) =>
-              val sourceC = owlDataFactory.getOWLClass( source.iri )
-              val targetC = owlDataFactory.getOWLClass( target.iri )
-              val r = owlDataFactory.getOWLClass( rIRI )
-              val rSource = owlDataFactory.getOWLObjectProperty( rIRISource )
-              val rTarget = owlDataFactory.getOWLObjectProperty( rIRITarget )
-              val u = owlDataFactory.getOWLObjectProperty( uIRI )
-              val ui = if ( uiIRI.isEmpty ) None else Some( owlDataFactory.getOWLObjectProperty( uiIRI.get ) )
-              val term = createEntityRelationship( r, u, ui, source, rSource, target, rTarget, characteristics, isAbstract )
-              
-              ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLDeclarationAxiom( r ) ) )              
-              ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLAnnotationAssertionAxiom( isAbstractAP, rIRI, owlDataFactory.getOWLLiteral(isAbstract))))
-              ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLSubClassOfAxiom( r, backbone.ReifiedObjectPropertyC )))
-              
-              ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLDeclarationAxiom( rSource ) ) )              
-              ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLSubObjectPropertyOfAxiom( rSource, backbone.topReifiedObjectPropertySourceOP )))
-              ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLObjectPropertyDomainAxiom( rSource, r )))
-              ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLObjectPropertyRangeAxiom( rSource, sourceC )))
-              ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLFunctionalObjectPropertyAxiom( rSource )))
-              
-              ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLDeclarationAxiom( rTarget ) ) )              
-              ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLSubObjectPropertyOfAxiom( rTarget, backbone.topReifiedObjectPropertyTargetOP )))
-              ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLObjectPropertyDomainAxiom( rTarget, r )))
-              ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLObjectPropertyRangeAxiom( rTarget, targetC )))
-              ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLFunctionalObjectPropertyAxiom( rTarget )))
-                                        
-              ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLDeclarationAxiom( u ) ) )
-              ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLSubObjectPropertyOfAxiom( u, backbone.topReifiedObjectPropertyOP )))
-              ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLObjectPropertyDomainAxiom( u, sourceC )))
-              ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLObjectPropertyRangeAxiom( u, targetC )))
-              ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLSubPropertyChainOfAxiom( List( owlDataFactory.getOWLObjectInverseOf( rSource ), rTarget ), u )))
-              
-              if ( ui.isDefined ) {
-                ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLDeclarationAxiom( ui.get ) ) )
-                ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLAnnotationAssertionAxiom( isDerivedAP, ui.get.getIRI, owlDataFactory.getOWLLiteral(true))))
-                ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLSubObjectPropertyOfAxiom( ui.get, backbone.topReifiedObjectPropertyOP )))
-                ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLObjectPropertyDomainAxiom( ui.get, targetC )))
-                ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLObjectPropertyRangeAxiom( ui.get, sourceC )))
-                ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLSubPropertyChainOfAxiom( List( owlDataFactory.getOWLObjectInverseOf( rTarget ), rSource ), ui.get )))
-              }
-              Success( term )
-
+              makeEntityRelationship( rIRI, rIRISource, rIRITarget, uIRI, uiIRI, source, target, characteristics, isAbstract )
             case ( false, true ) =>
-              Failure( new IllegalArgumentException( s"Cannot create a entity relationship with IRI='${rIRI}' because the source, '${source}', is out of scope of the graph" ) )
+              Failure( EntityScopeException( EntityRelationship, rIRI, Map( Source -> source ) ) )
 
             case ( true, false ) =>
-              Failure( new IllegalArgumentException( s"Cannot create a entity relationship with IRI='${rIRI}' because the target, '${target}', is out of scope of the graph" ) )
+              Failure( EntityScopeException( EntityRelationship, rIRI, Map( Target -> target ) ) )
 
             case ( false, false ) =>
-              Failure( new IllegalArgumentException( s"Cannot create a entity relationship with IRI='${rIRI}' because the source, '${source}', and target, '${target}', are out of scope of the graph" ) )
+              Failure( EntityScopeException( EntityRelationship, rIRI, Map( Source -> source, Target -> target ) ) )
           }
 
         case ( Some( t ), _, _, _, _ ) =>
-          Failure( new IllegalArgumentException( s"Cannot create a entity relationship with IRI='${rIRI}' because this IRI is a ${t}" ) )
+          Failure( EntityConflictException( EntityRelationship, rIRI, t ) )
 
         case ( _, Some( t ), _, _, _ ) =>
-          Failure( new IllegalArgumentException( s"Cannot create a entity relationship with IRI='${uIRI}' because this IRI is a ${t}" ) )
+          Failure( EntityConflictException( EntityRelationship, rIRISource, t ) )
 
         case ( _, _, Some( t ), _, _ ) =>
-          Failure( new IllegalArgumentException( s"Cannot create a entity relationship with IRI='${uiIRI.get}' because this IRI is a ${t}" ) )
+          Failure( EntityConflictException( EntityRelationship, rIRITarget, t ) )
 
         case ( _, _, _, Some( t ), _ ) =>
-          Failure( new IllegalArgumentException( s"Cannot create a entity relationship with IRI='${uiIRI.get}' because this IRI is a ${t}" ) )
+          Failure( EntityConflictException( EntityRelationship, uIRI, t ) )
 
         case ( _, _, _, _, Some( t ) ) =>
-          Failure( new IllegalArgumentException( s"Cannot create a entity relationship with IRI='${uiIRI.get}' because this IRI is a ${t}" ) )
-    }
+          require( uiIRI.isDefined )
+          Failure( EntityConflictException( EntityRelationship, uiIRI.get, t ) )
+      }
 
   protected def createModelScalarDataType( dt: OWLDatatype ): ModelScalarDataType = {
     val _dt = ModelScalarDataType( dt.getIRI )
@@ -239,14 +291,27 @@ case class MutableModelTerminologyGraph(
       Success( scalarTerm )
 
     case Some( term ) =>
-      Failure( new IllegalArgumentException( s"Cannot create a scalar datatype with IRI='${scalarIRI}' because this IRI is a ${term}" ) )
+      Failure( EntityConflictException( ScalarDataType, scalarIRI, term ) )
   }
 
   def createDataRelationshipFromEntityToScalar( esc: OWLDataProperty, source: ModelEntityDefinition, target: ModelScalarDataType ): ModelDataRelationshipFromEntityToScalar = {
-    val _esc = ModelDataRelationshipFromEntityToScalar( esc.getIRI, source, target )
+    val _esc = ModelDataRelationshipFromEntityToScalar( esc, source, target )
     e2sc += _esc
     iri2typeTerm += esc.getIRI -> _esc
     _esc
+  }
+
+  protected def makeDataRelationshipFromEntityToScalar(
+    dIRI: IRI,
+    source: types.ModelEntityDefinition,
+    target: types.ModelScalarDataType ): Try[types.ModelDataRelationshipFromEntityToScalar] = {
+    val escDP = owlDataFactory.getOWLDataProperty( dIRI )
+    val escTerm = createDataRelationshipFromEntityToScalar( escDP, source, target )
+    ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLDeclarationAxiom( escDP ) ) )
+    ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLSubDataPropertyOfAxiom( escDP, backbone.topDataPropertyDP ) ) )
+    ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLDataPropertyDomainAxiom( escDP, source.c ) ) )
+    ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLDataPropertyRangeAxiom( escDP, owlDataFactory.getOWLDatatype( target.iri ) ) ) )
+    Success( escTerm )
   }
 
   def addDataRelationshipFromEntityToScalar(
@@ -256,26 +321,19 @@ case class MutableModelTerminologyGraph(
     case None =>
       ( isTypeTermDefinedRecursively( source ), isTypeTermDefinedRecursively( target ) ) match {
         case ( true, true ) =>
-          val escDP = owlDataFactory.getOWLDataProperty( dIRI )
-          val escTerm = createDataRelationshipFromEntityToScalar( escDP, source, target )
-          ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLDeclarationAxiom( escDP ) ) )
-          ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLSubDataPropertyOfAxiom(escDP, backbone.topDataPropertyDP )))
-          ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLDataPropertyDomainAxiom( escDP, source.c )))
-          ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLDataPropertyRangeAxiom( escDP, owlDataFactory.getOWLDatatype( target.iri ))))
-          Success( escTerm )
-
+          makeDataRelationshipFromEntityToScalar( dIRI, source, target )
         case ( false, true ) =>
-          Failure( new IllegalArgumentException( s"Cannot create a data relationship from entity to scalar with IRI='${dIRI}' because the source, '${source}', is out of scope of the graph" ) )
+          Failure( EntityScopeException( DataRelationshipFromEntityToScalar, dIRI, Map( Source -> source ) ) )
 
         case ( true, false ) =>
-          Failure( new IllegalArgumentException( s"Cannot create a data relationship from entity to scalar with IRI='${dIRI}' because the target, '${target}', is out of scope of the graph" ) )
+          Failure( EntityScopeException( DataRelationshipFromEntityToScalar, dIRI, Map( Target -> target ) ) )
 
         case ( false, false ) =>
-          Failure( new IllegalArgumentException( s"Cannot create a data relationship from entity to scalar with IRI='${dIRI}' because the source, '${source}', and target, '${target}', are out of scope of the graph" ) )
+          Failure( EntityScopeException( DataRelationshipFromEntityToScalar, dIRI, Map( Source -> source, Target -> target ) ) )
       }
 
     case Some( term ) =>
-      Failure( new IllegalArgumentException( s"Cannot create a data relationship from entity to scalar with IRI='${dIRI}' because this IRI is a ${term}" ) )
+      Failure( EntityConflictException( DataRelationshipFromEntityToScalar, dIRI, term ) )
   }
 
   def addDataRelationshipFromEntityToStructure(
@@ -295,7 +353,7 @@ case class MutableModelTerminologyGraph(
 
   def addEntityConceptSubClassAxiom(
     sub: types.ModelEntityConcept,
-    sup: types.ModelEntityConcept ): Try[types.EntityConceptSubClassAxiom] = 
+    sup: types.ModelEntityConcept ): Try[types.EntityConceptSubClassAxiom] =
     ( isTypeTermDefinedRecursively( sub ), isTypeTermDefinedRecursively( sup ) ) match {
       case ( true, true ) =>
         val subC = owlDataFactory.getOWLClass( sub.iri )
@@ -305,13 +363,13 @@ case class MutableModelTerminologyGraph(
         Success( ax )
 
       case ( false, true ) =>
-        Failure( new IllegalArgumentException( s"Cannot create an entity concept subclass axiom because the sub, '${sub}', is out of scope of the graph" ) )
+        Failure( AxiomScopeException( ConceptSubclassAxiom, Map( Sub -> sub ) ) )
 
       case ( true, false ) =>
-        Failure( new IllegalArgumentException( s"Cannot create an entity concept subclass axiom because the sup, '${sup}', is out of scope of the graph" ) )
+        Failure( AxiomScopeException( ConceptSubclassAxiom, Map( Sup -> sup ) ) )
 
       case ( false, false ) =>
-        Failure( new IllegalArgumentException( s"Cannot create an entity concept subclass axiom because the sub, '${sub}', and sup, '${sup}', are out of scope of the graph" ) )
+        Failure( AxiomScopeException( ConceptSubclassAxiom, Map( Sub -> sub, Sup -> sup ) ) )
     }
 
   def addEntityDefinitionAspectSubClassAxiom(
@@ -326,13 +384,13 @@ case class MutableModelTerminologyGraph(
         Success( ax )
 
       case ( false, true ) =>
-        Failure( new IllegalArgumentException( s"Cannot create an entity definition aspect subclass axiom because the sub, '${sub}', is out of scope of the graph" ) )
+        Failure( AxiomScopeException( AspectSubclassAxiom, Map( Sub -> sub ) ) )
 
       case ( true, false ) =>
-        Failure( new IllegalArgumentException( s"Cannot create an entity definition aspect subclass axiom because the sup, '${sup}', is out of scope of the graph" ) )
+        Failure( AxiomScopeException( AspectSubclassAxiom, Map( Sup -> sub ) ) )
 
       case ( false, false ) =>
-        Failure( new IllegalArgumentException( s"Cannot create an entity definition aspect subclass axiom because the sub, '${sub}', and sup, '${sup}', are out of scope of the graph" ) )
+        Failure( AxiomScopeException( AspectSubclassAxiom, Map( Sub -> sub, Sup -> sub ) ) )
     }
 
 }

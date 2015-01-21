@@ -37,18 +37,25 @@
  *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package test.gov.nasa.jpl.omf.scala.binding.owlapi
+package gov.nasa.jpl.omf.scala.binding.owlapi.instances
 
-import org.semanticweb.owlapi.apibinding.OWLManager
+import gov.nasa.jpl.omf.scala.binding._
 import gov.nasa.jpl.omf.scala.binding.owlapi._
-import test.gov.nasa.jpl.omf.scala.core.{ functionalAPI => testFunctionalAPI }
-import org.apache.xml.resolver.CatalogManager
+import org.semanticweb.owlapi.model.OWLOntology
+import org.semanticweb.owlapi.model.IRI
+import scala.util.Try
+import gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelTerminologyGraph
 
-abstract class IMCEMissionDomainTBoxOWLAPIExample( val store: OWLAPIOMFGraphStore ) 
-extends testFunctionalAPI.IMCEMissionDomainTBoxExample[OWLAPIOMF]()( store.omfModule.ops, store )
-
-class IMCEMissionDomainTBoxOWLAPIExampleNoCatalog
-extends IMCEMissionDomainTBoxOWLAPIExample( 
-    OWLAPIOMFGraphStore( 
-        OWLAPIOMFModule( None ), 
-        OWLManager.createOWLOntologyManager() ) )
+case class ImmutableModelInstanceGraph(
+  override val tboxes: Iterable[types.ImmutableModelTerminologyGraph],
+  override val imports: Iterable[ImmutableModelInstanceGraph],
+  override protected val ont: OWLOntology,
+  override protected val objects: List[ModelInstanceObject],
+  override protected val relations: List[ModelInstanceRelation],
+  override protected val dataLiterals: List[ModelInstanceDataLiteral],
+  override protected val dataObjects: List[ModelInstanceDataStructure],
+  override protected val e2sc: List[ModelInstanceDataRelationshipFromEntityToScalar],
+  override protected val e2st: List[ModelInstanceDataRelationshipFromEntityToStructure],
+  override protected val s2sc: List[ModelInstanceDataRelationshipFromStructureToScalar],
+  override protected val s2st: List[ModelInstanceDataRelationshipFromStructureToStructure] )
+  extends ModelInstanceGraph( tboxes, imports, ont )

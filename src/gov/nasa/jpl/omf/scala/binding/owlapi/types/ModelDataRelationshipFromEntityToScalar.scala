@@ -40,8 +40,9 @@
 package gov.nasa.jpl.omf.scala.binding.owlapi.types
 
 import gov.nasa.jpl.omf.scala.binding.owlapi._
+import org.semanticweb.owlapi.model.OWLDataProperty
 
 case class ModelDataRelationshipFromEntityToScalar(
-    override val iri: OWLAPIOMF#IRI,
+    val dp: OWLDataProperty,
     val source: ModelEntityDefinition,
-    val target: ModelScalarDataType) extends ModelDataRelationship(iri)
+    val target: ModelScalarDataType) extends ModelDataRelationship(dp.getIRI)

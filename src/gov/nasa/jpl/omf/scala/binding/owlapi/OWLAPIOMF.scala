@@ -43,13 +43,25 @@ import gov.nasa.jpl.omf.scala.core._
 import gov.nasa.jpl.omf.scala.binding._
 import org.semanticweb.owlapi.model.OWLOntologyManager
 
-trait OWLAPIOMF extends OMF {
+trait OWLAPIOMF extends OMF with OWLAPIOMFstore with OWLAPIOMFiri with OWLAPIOMFtbox with OWLAPIOMFabox
 
-  type Store = OWLAPIOMFStore
+trait OWLAPIOMFstore extends OMFstore {
+  
+  type Store = OWLAPIOMFGraphStore
+  
+}
+
+trait OWLAPIOMFiri extends OMFiri {
   
   type IRI = org.semanticweb.owlapi.model.IRI
   
+}
+
+trait OWLAPIOMFtbox extends OMFtbox {
+  
   type ModelTerminologyGraph = types.ModelTerminologyGraph
+  type ImmutableModelTerminologyGraph = types.ImmutableModelTerminologyGraph
+  type MutableModelTerminologyGraph = types.MutableModelTerminologyGraph
   
   type ModelTypeTerm = types.ModelTypeTerm
     
@@ -70,15 +82,19 @@ trait OWLAPIOMF extends OMF {
   
   type ModelTermAxiom = types.ModelTermAxiom
    
-  type EntityDefinitionAspectSubClassAxiom = types.EntityDefinitionAspectSubClassAxiom
- 
+  type EntityDefinitionAspectSubClassAxiom = types.EntityDefinitionAspectSubClassAxiom 
   type EntityConceptSubClassAxiom = types.EntityConceptSubClassAxiom
   type EntityConceptRestrictionAxiom = types.EntityConceptRestrictionAxiom
-  type EntityRelationshipSubClassAxiom = types.EntityRelationshipSubClassAxiom
-  
+  type EntityRelationshipSubClassAxiom = types.EntityRelationshipSubClassAxiom  
   type ScalarDataTypeFacetRestriction = types.ScalarDataTypeFacetRestriction
   
+}
+
+trait OWLAPIOMFabox extends OMFabox {
+  
   type ModelInstanceGraph = instances.ModelInstanceGraph
+  type ImmutableModelInstanceGraph = instances.ImmutableModelInstanceGraph
+  type MutableModelInstanceGraph = instances.MutableModelInstanceGraph
   
   type ModelInstanceAssertion = instances.ModelInstanceAssertion
   

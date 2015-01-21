@@ -10,7 +10,7 @@ object OMFScalaBindingOWLAPI extends Build {
     val scala = "2.11.4"
     val owlapi = "4.0.1"
     val xmlResolver = "1.2"
-    var omf_scala_core = "0.6"
+    var omf_scala_core = "0.7"
   }
   
   lazy val owlapiLibs = Project(

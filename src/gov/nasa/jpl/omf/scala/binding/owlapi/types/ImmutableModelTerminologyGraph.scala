@@ -56,10 +56,29 @@ import org.semanticweb.owlapi.model.OWLObjectProperty
 import org.semanticweb.owlapi.reasoner.structural.StructuralReasonerFactory
 import org.semanticweb.owlapi.model.OWLLiteral
 import org.semanticweb.owlapi.model.OWLDataProperty
+import org.semanticweb.owlapi.reasoner.NodeSet
+import org.semanticweb.owlapi.model.OWLObjectPropertyExpression
+import org.semanticweb.owlapi.reasoner.OWLReasoner
+
+object ImmutableOperation extends Enumeration {
+    type ImmutableOperation = Value
+    val Save, 
+    AddEntityAspect, AddEntityConcept, AddEntityRelationship, AddScalarDataType,
+    AddDataRelationshipFromEntityToScalar, AddDataRelationshipFromEntityToStructure,
+    AddDataRelationshipFromStructureToScalar, AddDataRelationshipFromStructureToStructure,
+    AddEntityConceptSubClassAxiom, AddEntityDefinitionAspectSubClassAxiom = Value
+}
+
+import ImmutableOperation._
+
+sealed abstract class ImmutableModelTerminologyGraphException( val message: String ) extends IllegalArgumentException( message )
+
+case class ReadOnlyImmutableTerminologyGraphException( val operation: ImmutableOperation )
+  extends ImmutableModelTerminologyGraphException( s"Operation '${operation}' is illegal on an read-only ImmutableTerminologyGraph" )
 
 case class ImmutableModelTerminologyGraph(
   override val imports: Iterable[ModelTerminologyGraph],
-  override protected val ont: OWLOntology,
+  override val ont: OWLOntology,
   override protected val aspects: List[ModelEntityAspect],
   override protected val concepts: List[ModelEntityConcept],
   override protected val relationships: List[ModelEntityRelationship],
@@ -92,66 +111,349 @@ case class ImmutableModelTerminologyGraph(
   }
 
   def save( saveIRI: IRI ): Try[Unit] =
-    Failure( new IllegalArgumentException( "Read-Only" ) )
+    Failure( ReadOnlyImmutableTerminologyGraphException( Save ) )
 
   def addEntityAspect( aspectIRI: IRI ): Try[types.ModelEntityAspect] =
-    Failure( new IllegalArgumentException( "Read-Only" ) )
+    Failure( ReadOnlyImmutableTerminologyGraphException( AddEntityAspect ) )
 
   def addEntityConcept( conceptIRI: IRI, isAbstract: Boolean ): Try[types.ModelEntityConcept] =
-    Failure( new IllegalArgumentException( "Read-Only" ) )
+    Failure( ReadOnlyImmutableTerminologyGraphException( AddEntityConcept ) )
 
   def addEntityRelationship(
     rIRI: IRI, rIRISource: IRI, rIRITarget: IRI,
     uIRI: IRI, uiIRI: Option[IRI],
     source: ModelEntityDefinition, target: ModelEntityDefinition,
     characteristics: Iterable[RelationshipCharacteristics], isAbstract: Boolean ): Try[types.ModelEntityRelationship] =
-    Failure( new IllegalArgumentException( "Read-Only" ) )
+    Failure( ReadOnlyImmutableTerminologyGraphException( AddEntityRelationship ) )
 
   def addScalarDataType( scalarIRI: IRI ): Try[types.ModelScalarDataType] =
-    Failure( new IllegalArgumentException( "Read-Only" ) )
+    Failure( ReadOnlyImmutableTerminologyGraphException( AddScalarDataType ) )
 
   def addDataRelationshipFromEntityToScalar(
     dIRI: IRI,
     source: types.ModelEntityDefinition,
     target: types.ModelScalarDataType ): Try[types.ModelDataRelationshipFromEntityToScalar] =
-    Failure( new IllegalArgumentException( "Read-Only" ) )
+    Failure( ReadOnlyImmutableTerminologyGraphException( AddDataRelationshipFromEntityToScalar ) )
 
   def addDataRelationshipFromEntityToStructure(
     dIRI: IRI,
     source: types.ModelEntityDefinition,
     target: types.ModelStructuredDataType ): Try[types.ModelDataRelationshipFromEntityToStructure] =
-    Failure( new IllegalArgumentException( "Read-Only" ) )
+    Failure( ReadOnlyImmutableTerminologyGraphException( AddDataRelationshipFromEntityToStructure ) )
 
   def addDataRelationshipFromStructureToScalar(
     dIRI: IRI,
     source: types.ModelStructuredDataType,
     target: types.ModelScalarDataType ): Try[types.ModelDataRelationshipFromStructureToScalar] =
-    Failure( new IllegalArgumentException( "Read-Only" ) )
+    Failure( ReadOnlyImmutableTerminologyGraphException( AddDataRelationshipFromStructureToScalar ) )
 
   def addDataRelationshipFromStructureToStructure(
     dIRI: IRI,
     source: types.ModelStructuredDataType,
     target: types.ModelStructuredDataType ): Try[types.ModelDataRelationshipFromStructureToStructure] =
-    Failure( new IllegalArgumentException( "Read-Only" ) )
+    Failure( ReadOnlyImmutableTerminologyGraphException( AddDataRelationshipFromStructureToStructure ) )
 
   def addEntityConceptSubClassAxiom(
     sub: types.ModelEntityConcept,
     sup: types.ModelEntityConcept ): Try[types.EntityConceptSubClassAxiom] =
-    Failure( new IllegalArgumentException( "Read-Only" ) )
+    Failure( ReadOnlyImmutableTerminologyGraphException( AddEntityConceptSubClassAxiom ) )
 
   def addEntityDefinitionAspectSubClassAxiom(
     sub: types.ModelEntityDefinition,
     sup: types.ModelEntityAspect ): Try[types.EntityDefinitionAspectSubClassAxiom] =
-    Failure( new IllegalArgumentException( "Read-Only" ) )
+    Failure( ReadOnlyImmutableTerminologyGraphException( AddEntityDefinitionAspectSubClassAxiom ) )
 
 }
 
-object ImmutableModelTerminologyGraph {
+case class ResolverHelper(
+    val imports: Iterable[ModelTerminologyGraph], 
+    val ont: OWLOntology, 
+    val ops: OWLAPIOMFOps ) {
+  
+  import ops._
+  
+  def isAnnotatedAbstract( iri: IRI ): Boolean = {
+    for {
+      aaa <- ont.getAnnotationAssertionAxioms( iri )
+      if ( aaa.getProperty.getIRI == AnnotationIsAbstract )
+    } {
+      aaa.getValue match {
+        case l: OWLLiteral if ( l.isBoolean ) => return l.parseBoolean
+        case _                                => ()
+      }
+    }
 
-  def resolve( imports: Iterable[ModelTerminologyGraph], ont: OWLOntology )( implicit ops: OWLAPIOMFOps ): Try[ImmutableModelTerminologyGraph] = {
+    false
+  }
 
+  def isAnnotatedDerived( iri: IRI ): Boolean = {
+    for {
+      aaa <- ont.getAnnotationAssertionAxioms( iri )
+      if ( aaa.getProperty.getIRI == AnnotationIsDerived )
+    } {
+      aaa.getValue match {
+        case l: OWLLiteral if ( l.isBoolean ) => return l.parseBoolean
+        case _                                => ()
+      }
+    }
+
+    false
+  }
+  
+  // Lookup of entity aspects
+
+  def findDirectEntityAspect( iri: IRI, aspects: Map[OWLClass, ModelEntityAspect] ): Option[ModelEntityAspect] =
+    ( for {
+      ( aspectC, aspectM ) <- aspects
+      if ( iri == aspectC.getIRI )
+    } yield aspectM ) headOption
+
+  def findImportedEntityAspect( iri: IRI ): Option[ModelEntityAspect] =
+    ( for {
+      g <- imports
+      aspectM <- ops.lookupEntityAspect( g, iri )
+    } yield aspectM ) headOption
+
+  def findEntityAspect( iri: IRI, aspects: Map[OWLClass, ModelEntityAspect] ): Option[ModelEntityAspect] =
+    findDirectEntityAspect( iri, aspects ) orElse findImportedEntityAspect( iri )
+
+  // Lookup of entity concepts
+
+  def findDirectEntityConcept( iri: IRI, concepts: Map[OWLClass, ModelEntityConcept] ): Option[ModelEntityConcept] =
+    ( for {
+      ( conceptC, conceptM ) <- concepts
+      if ( iri == conceptC.getIRI )
+    } yield conceptM ) headOption
+
+  def findImportedEntityConcept( iri: IRI ): Option[ModelEntityConcept] =
+    ( for {
+      g <- imports
+      conceptM <- ops.lookupEntityConcept( g, iri )
+    } yield conceptM ) headOption
+
+  def findEntityConcept( iri: IRI, concepts: Map[OWLClass, ModelEntityConcept] ): Option[ModelEntityConcept] =
+    findDirectEntityConcept( iri, concepts ) orElse findImportedEntityConcept( iri )
+
+  // Lookup of entity relationships
+
+  def findDirectEntityRelationship( iri: IRI, relationships: Map[OWLClass, ModelEntityRelationship] ): Option[ModelEntityRelationship] =
+    ( for {
+      ( conceptC, conceptM ) <- relationships
+      if ( iri == conceptC.getIRI )
+    } yield conceptM ) headOption
+
+  def findImportedEntityRelationship( iri: IRI ): Option[ModelEntityRelationship] =
+    ( for {
+      g <- imports
+      conceptM <- ops.lookupEntityRelationship( g, iri )
+    } yield conceptM ) headOption
+
+  def findEntityRelationship( iri: IRI, relationships: Map[OWLClass, ModelEntityRelationship] ): Option[ModelEntityRelationship] =
+    findDirectEntityRelationship( iri, relationships ) orElse findImportedEntityRelationship( iri )
+
+
+  // ------
+
+  type DOPInfo = ( OWLDataProperty, OWLClass, OWLDatatype )
+
+  def resolveDataPropertyDPIRIs( subDPs: NodeSet[OWLDataProperty], tDPs: Set[OWLDataProperty] )( implicit reasoner: OWLReasoner ): Iterable[DOPInfo] =
+    ( for {
+      dataPropertyN <- subDPs
+      dataPropertyDP <- dataPropertyN flatMap { case dp: OWLDataProperty => Some( dp ) }
+      if ( tDPs.contains( dataPropertyDP ) )
+      dataPropertyDomain <- reasoner.getDataPropertyDomains( dataPropertyDP, true ).getFlattened
+      dataPropertyRange <- ont.getDataPropertyRangeAxioms( dataPropertyDP )
+      dataPropertyType = dataPropertyRange.getRange.asOWLDatatype
+    } yield ( dataPropertyDP, dataPropertyDomain, dataPropertyType ) )
+    
+  def resolveDataRelationshipsFromEntity2Scalars(
+    entityDefinitions: Map[OWLClass, ModelEntityDefinition],
+    dataPropertyDPIRIs: Iterable[DOPInfo],
+    DTs: Map[OWLDatatype, ModelScalarDataType] ): Try[List[ModelDataRelationshipFromEntityToScalar]] = {
+    val remainingDataPropertyDPIRIs = scala.collection.mutable.ListBuffer[DOPInfo]()
+    remainingDataPropertyDPIRIs ++= dataPropertyDPIRIs
+
+    val e2sc = for {
+      remainingDataPropertyDPIRI <- remainingDataPropertyDPIRIs
+      ( e2sc_dp, e2sc_source, e2sc_target ) = remainingDataPropertyDPIRI
+      e2sc_sourceDef <- entityDefinitions.get( e2sc_source )
+      e2sc_targetDef <- DTs.get( e2sc_target )
+    } yield {
+      remainingDataPropertyDPIRIs -= remainingDataPropertyDPIRI
+      ModelDataRelationshipFromEntityToScalar( e2sc_dp, e2sc_sourceDef, e2sc_targetDef )
+    }
+
+    if ( remainingDataPropertyDPIRIs.isEmpty )
+      Success( e2sc.toList )
+    else
+      Failure( new IllegalArgumentException( "... esc ..." ) )
+  }
+
+  // ----------
+
+  type ROPInfo = ( IRI, OWLObjectProperty, OWLClass, OWLClass )
+
+  def resolveEntityDefinitionsForRelationships(
+    entityDefinitions: Map[OWLClass, ModelEntityDefinition],
+    RCs: Map[IRI, OWLClass],
+    ROPs: Iterable[ROPInfo],
+    sourceROPs: Iterable[ROPInfo],
+    targetROPs: Iterable[ROPInfo],
+    entityRelationships: Map[OWLClass, ModelEntityRelationship] ): Try[Map[OWLClass, ModelEntityRelationship]] = {
     import ops._
 
+    val rcs = RCs.values.toSet
+    val ( resolvableROPs, unresolvedROPs ) = ROPs.partition {
+      case ( iri, op, source, target ) =>
+        entityDefinitions.contains( source ) && entityDefinitions.contains( target )
+    }
+    val ( resolvableSourceROPs, unresolvableSourceROPs ) = sourceROPs.partition {
+      case ( iri, op, source, target ) =>
+        rcs.contains( source ) && entityDefinitions.contains( target )
+    }
+    val ( resolvableTargetROPs, unresolvableTargetROPs ) = targetROPs.partition {
+      case ( iri, op, source, target ) =>
+        rcs.contains( source ) && entityDefinitions.contains( target )
+    }
+
+    val remainingROPs = scala.collection.mutable.HashSet[ROPInfo]()
+    remainingROPs ++= resolvableROPs
+
+    val remainingSourceROPs = scala.collection.mutable.HashSet[ROPInfo]()
+    remainingSourceROPs ++= resolvableSourceROPs
+
+    val remainingTargetROPs = scala.collection.mutable.HashSet[ROPInfo]()
+    remainingTargetROPs ++= resolvableTargetROPs
+
+    val m = for {
+      ( r_iri, r_op, r_source, r_target ) <- resolvableROPs
+      if ( !isAnnotatedDerived( r_iri ) )
+      ( s_iri, s_op, s_source, s_target ) <- resolvableSourceROPs filter ( _._4 == r_source )
+      ( t_iri, t_op, t_source, t_target ) <- resolvableTargetROPs filter ( _._4 == r_target )
+
+      if ( s_source == t_source )
+
+      inverseInfo = resolvableROPs find ( _rop => isAnnotatedDerived( _rop._1 ) && _rop._3 == r_target && _rop._4 == r_source )
+      inverseROP = if ( inverseInfo.isDefined ) Some( inverseInfo.get._2 ) else None
+
+      r_sourceDef <- entityDefinitions.get( r_source )
+      r_targetDef <- entityDefinitions.get( r_target )
+
+      rc = s_source
+
+      resolvedROP = ( r_iri, r_op, r_source, r_target )
+      resolvedSourceROP = ( s_iri, s_op, s_source, s_target )
+      resolvedTargetROP = ( t_iri, t_op, t_source, t_target )
+
+      rop = ModelEntityRelationship(
+        c = rc,
+        unreified = r_op,
+        inverse = inverseROP,
+        source = r_sourceDef, rSource = s_op,
+        target = r_targetDef, rTarget = t_op,
+        characteristics = Nil,
+        isAbstract = isAnnotatedAbstract( rc.getIRI ) )
+    } yield {
+      remainingROPs -= resolvedROP
+      if ( inverseInfo.isDefined ) remainingROPs -= inverseInfo.get
+      remainingSourceROPs -= resolvedSourceROP
+      remainingTargetROPs -= resolvedTargetROP
+      ( rc -> rop )
+    }
+
+    if ( ( remainingROPs.isEmpty && ( remainingSourceROPs.nonEmpty || remainingTargetROPs.nonEmpty ) ) ||
+      ( remainingSourceROPs.isEmpty && ( remainingROPs.nonEmpty || remainingTargetROPs.nonEmpty ) ) ||
+      ( remainingTargetROPs.isEmpty && ( remainingROPs.nonEmpty || remainingSourceROPs.nonEmpty ) ) ||
+      remainingROPs.size != remainingSourceROPs.size ||
+      remainingROPs.size != remainingTargetROPs.size )
+      Failure( new IllegalArgumentException( "..." ) )
+
+    else if ( remainingROPs.isEmpty && remainingSourceROPs.isEmpty && remainingTargetROPs.isEmpty &&
+      unresolvedROPs.isEmpty && unresolvableSourceROPs.isEmpty && unresolvableTargetROPs.isEmpty )
+      Success( m.toMap )
+
+    else
+      resolveEntityDefinitionsForRelationships(
+        entityDefinitions ++ m.toMap,
+        RCs ++ ( m map { case ( rc, rcDef ) => ( rc.getIRI -> rc ) } ).toMap,
+        unresolvedROPs ++ remainingROPs,
+        unresolvableSourceROPs ++ remainingSourceROPs,
+        unresolvableTargetROPs ++ remainingTargetROPs,
+        m.toMap )
+  }
+
+  // ---------
+
+  def resolveThingCIRIs( thingSubClasses: NodeSet[OWLClass], tCs: Set[OWLClass]): Map[IRI, OWLClass] = 
+    ( for {
+      thingN <- thingSubClasses
+      if ( !thingN.isBottomNode )
+      thingC = thingN.getRepresentativeElement
+      if ( tCs.contains( thingC ) )
+      thingIRI = thingC.getIRI
+    } yield ( thingIRI -> thingC ) ).toMap
+  
+  def resolveConceptCIRIs( entitySubClasses: NodeSet[OWLClass], tCs: Set[OWLClass]): Map[IRI, OWLClass] = 
+    ( for {
+      conceptN <- entitySubClasses
+      if ( !conceptN.isBottomNode )
+      conceptC = conceptN.getRepresentativeElement
+      if ( tCs.contains( conceptC ) )
+      conceptIRI = conceptC.getIRI
+    } yield ( conceptIRI -> conceptC ) ).toMap
+      
+  def resolveReifiedObjectPropertyCIRIs( reifiedObjectPropertySubClasses: NodeSet[OWLClass], tCs: Set[OWLClass]): Map[IRI, OWLClass] = 
+    ( for {
+      reifiedObjectPropertyN <- reifiedObjectPropertySubClasses
+      if ( !reifiedObjectPropertyN.isBottomNode )
+      reifiedObjectPropertyC = reifiedObjectPropertyN.getRepresentativeElement
+      if ( tCs.contains( reifiedObjectPropertyC ) )
+      reifiedObjectPropertyCIRI = reifiedObjectPropertyC.getIRI
+    } yield ( reifiedObjectPropertyCIRI -> reifiedObjectPropertyC ) ).toMap
+    
+  def resolveReifiedStructuredDataPropertyCIRIs( reifiedStructuredDataPropertySubClasses: NodeSet[OWLClass], tCs: Set[OWLClass]): Map[IRI, OWLClass] = 
+    ( for {
+      reifiedStructuredDataPropertyN <- reifiedStructuredDataPropertySubClasses
+      if ( !reifiedStructuredDataPropertyN.isBottomNode )
+      reifiedStructuredDataPropertyC = reifiedStructuredDataPropertyN.getRepresentativeElement
+      if ( tCs.contains( reifiedStructuredDataPropertyC ) )
+      reifiedStructuredDataPropertyCIRI = reifiedStructuredDataPropertyC.getIRI
+    } yield ( reifiedStructuredDataPropertyCIRI -> reifiedStructuredDataPropertyC ) ).toMap
+        
+  def resolveStructuredDatatypeCIRIs( structuredDatatypeSubClasses: NodeSet[OWLClass], tCs: Set[OWLClass]): Map[IRI, OWLClass] =
+    ( for {
+      structuredDatatypeN <- structuredDatatypeSubClasses
+      if ( !structuredDatatypeN.isBottomNode )
+      structuredDatatypeC = structuredDatatypeN.getRepresentativeElement
+      if ( tCs.contains( structuredDatatypeC ) )
+      structuredDatatypeCIRI = structuredDatatypeC.getIRI
+    } yield ( structuredDatatypeCIRI -> structuredDatatypeC ) ).toMap
+    
+  def resolveDomainRangeForObjectProperties( subOPs: NodeSet[OWLObjectPropertyExpression], tOPs: Set[OWLObjectProperty])( implicit reasoner: OWLReasoner ): Iterable[ROPInfo] =
+    ( for {
+      N <- subOPs
+      OP <- N flatMap { case op: OWLObjectProperty => Some( op ) }
+      if ( tOPs.contains( OP ) )
+      D <- reasoner.getObjectPropertyDomains( OP, true ).getFlattened
+      R <- reasoner.getObjectPropertyRanges( OP, true ).getFlattened
+    } yield ( OP.getIRI, OP, D, R ) )
+     
+  def resolveConceptSubClassAxioms( conceptCMs: Map[OWLClass, ModelEntityConcept])( implicit reasoner: OWLReasoner, backbone: OMFBackbone ): Iterable[EntityConceptSubClassAxiom] =
+    for {
+      ( subC, subM ) <- conceptCMs
+      supN <- reasoner.getSuperClasses( subC, true )
+      supC = supN.getRepresentativeElement
+      if ( supC != backbone.EntityC )
+      supM <- findEntityConcept( supC.getIRI, conceptCMs )
+    } yield EntityConceptSubClassAxiom( subM, null )
+}
+    
+case class ImmutableModelTerminologyGraphResolver( resolver: ResolverHelper ) {
+
+  import resolver._
+  import resolver.ops._
+
+  def resolve: Try[ImmutableModelTerminologyGraph] = {
     val DTs = ont.getDatatypesInSignature( Imports.EXCLUDED ) map ( dt => ( dt -> ModelScalarDataType( dt.getIRI ) ) ) toMap
 
     val ( bCs, tCs ) = ont.getClassesInSignature( Imports.EXCLUDED ) partition { c => isBackboneIRI( c.getIRI ) }
@@ -174,342 +476,57 @@ object ImmutableModelTerminologyGraph {
           s2st = Nil,
           ax = Nil )( ops ) )
       case Success( backbone: OMFBackbone ) =>
-        resolve( imports, ont, backbone, DTs, bCs.toSet, tCs.toSet, bOPs.toSet, tOPs.toSet, bDPs.toSet, tDPs.toSet )
+        resolve( backbone, DTs, tCs.toSet, tOPs.toSet, tDPs.toSet )
     }
   }
 
   def resolve(
-    imports: Iterable[ModelTerminologyGraph],
-    ont: OWLOntology,
     backbone: OMFBackbone,
     DTs: Map[OWLDatatype, ModelScalarDataType],
-    bCs: Set[OWLClass],
     tCs: Set[OWLClass],
-    bOPs: Set[OWLObjectProperty],
     tOPs: Set[OWLObjectProperty],
-    bDPs: Set[OWLDataProperty],
-    tDPs: Set[OWLDataProperty] )( implicit ops: OWLAPIOMFOps ): Try[ImmutableModelTerminologyGraph] = {
+    tDPs: Set[OWLDataProperty] ): Try[ImmutableModelTerminologyGraph] = {
 
     import ops._
 
+    implicit val _backbone = backbone
+    
     val importedEntityDefinitionMaps = imports flatMap ( _.getEntityDefinitionMap ) toMap
 
-    def isAnnotatedAbstract( iri: IRI ): Boolean = {
-      for {
-        aaa <- ont.getAnnotationAssertionAxioms( iri )
-        if ( aaa.getProperty.getIRI == AnnotationIsAbstract )
-      } {
-        aaa.getValue match {
-          case l: OWLLiteral if ( l.isBoolean ) => return l.parseBoolean
-          case _                                => ()
-        }
-      }
-
-      false
-    }
-
-    def isAnnotatedDerived( iri: IRI ): Boolean = {
-      for {
-        aaa <- ont.getAnnotationAssertionAxioms( iri )
-        if ( aaa.getProperty.getIRI == AnnotationIsDerived )
-      } {
-        aaa.getValue match {
-          case l: OWLLiteral if ( l.isBoolean ) => return l.parseBoolean
-          case _                                => ()
-        }
-      }
-
-      false
-    }
-
-    // Lookup of entity aspects
-
-    def findDirectEntityAspect( iri: IRI, aspects: Map[OWLClass, ModelEntityAspect] ): Option[ModelEntityAspect] =
-      ( for {
-        ( aspectC, aspectM ) <- aspects
-        if ( iri == aspectC.getIRI )
-      } yield aspectM ) headOption
-
-    def findImportedEntityAspect( iri: IRI ): Option[ModelEntityAspect] =
-      ( for {
-        g <- imports
-        aspectM <- lookupEntityAspect( g, iri )
-      } yield aspectM ) headOption
-
-    def findEntityAspect( iri: IRI, aspects: Map[OWLClass, ModelEntityAspect] ): Option[ModelEntityAspect] =
-      findDirectEntityAspect( iri, aspects ) orElse findImportedEntityAspect( iri )
-
-    // Lookup of entity concepts
-
-    def findDirectEntityConcept( iri: IRI, concepts: Map[OWLClass, ModelEntityConcept] ): Option[ModelEntityConcept] =
-      ( for {
-        ( conceptC, conceptM ) <- concepts
-        if ( iri == conceptC.getIRI )
-      } yield conceptM ) headOption
-
-    def findImportedEntityConcept( iri: IRI ): Option[ModelEntityConcept] =
-      ( for {
-        g <- imports
-        conceptM <- lookupEntityConcept( g, iri )
-      } yield conceptM ) headOption
-
-    def findEntityConcept( iri: IRI, concepts: Map[OWLClass, ModelEntityConcept] ): Option[ModelEntityConcept] =
-      findDirectEntityConcept( iri, concepts ) orElse findImportedEntityConcept( iri )
-
-    // Lookup of entity relationships
-
-    def findDirectEntityRelationship( iri: IRI, relationships: Map[OWLClass, ModelEntityRelationship] ): Option[ModelEntityRelationship] =
-      ( for {
-        ( conceptC, conceptM ) <- relationships
-        if ( iri == conceptC.getIRI )
-      } yield conceptM ) headOption
-
-    def findImportedEntityRelationship( iri: IRI ): Option[ModelEntityRelationship] =
-      ( for {
-        g <- imports
-        conceptM <- lookupEntityRelationship( g, iri )
-      } yield conceptM ) headOption
-
-    def findEntityRelationship( iri: IRI, relationships: Map[OWLClass, ModelEntityRelationship] ): Option[ModelEntityRelationship] =
-      findDirectEntityRelationship( iri, relationships ) orElse findImportedEntityRelationship( iri )
-
-    // ------
-
-    type DOPInfo = ( IRI, OWLDataProperty, OWLClass, OWLDatatype )
-
-    def resolveDataRelationshipsFromEntity2Scalars(
-      entityDefinitions: Map[OWLClass, ModelEntityDefinition],
-      dataPropertyDPIRIs: Iterable[DOPInfo],
-      DTs: Map[OWLDatatype, ModelScalarDataType] ): Try[List[ModelDataRelationshipFromEntityToScalar]] = {
-      val remainingDataPropertyDPIRIs = scala.collection.mutable.ListBuffer[DOPInfo]()
-      remainingDataPropertyDPIRIs ++= dataPropertyDPIRIs
-
-      val e2sc = for {
-        remainingDataPropertyDPIRI <- remainingDataPropertyDPIRIs
-        ( e2sc_iri, e2sc_dp, e2sc_source, e2sc_target ) = remainingDataPropertyDPIRI
-        e2sc_sourceDef <- entityDefinitions.get( e2sc_source )
-        e2sc_targetDef <- DTs.get( e2sc_target )
-      } yield {
-        remainingDataPropertyDPIRIs -= remainingDataPropertyDPIRI
-        ModelDataRelationshipFromEntityToScalar( e2sc_iri, e2sc_sourceDef, e2sc_targetDef )
-      }
-
-      if ( remainingDataPropertyDPIRIs.isEmpty )
-        Success( e2sc.toList )
-      else
-        Failure( new IllegalArgumentException( "... esc ..." ) )
-    }
-
-    type ROPInfo = ( IRI, OWLObjectProperty, OWLClass, OWLClass )
-
-    def resolveEntityDefinitionsForRelationships(
-      entityDefinitions: Map[OWLClass, ModelEntityDefinition],
-      RCs: Map[IRI, OWLClass],
-      ROPs: Iterable[ROPInfo],
-      sourceROPs: Iterable[ROPInfo],
-      targetROPs: Iterable[ROPInfo],
-      entityRelationships: Map[OWLClass, ModelEntityRelationship] ): Try[Map[OWLClass, ModelEntityRelationship]] = {
-      val rcs = RCs.values.toSet
-      val ( resolvableROPs, unresolvedROPs ) = ROPs.partition {
-        case ( iri, op, source, target ) =>
-          entityDefinitions.contains( source ) && entityDefinitions.contains( target )
-      }
-      val ( resolvableSourceROPs, unresolvableSourceROPs ) = sourceROPs.partition {
-        case ( iri, op, source, target ) =>
-          rcs.contains( source ) && entityDefinitions.contains( target )
-      }
-      val ( resolvableTargetROPs, unresolvableTargetROPs ) = targetROPs.partition {
-        case ( iri, op, source, target ) =>
-          rcs.contains( source ) && entityDefinitions.contains( target )
-      }
-
-      val remainingROPs = scala.collection.mutable.HashSet[ROPInfo]()
-      remainingROPs ++= resolvableROPs
-
-      val remainingSourceROPs = scala.collection.mutable.HashSet[ROPInfo]()
-      remainingSourceROPs ++= resolvableSourceROPs
-
-      val remainingTargetROPs = scala.collection.mutable.HashSet[ROPInfo]()
-      remainingTargetROPs ++= resolvableTargetROPs
-
-      val m = for {
-        ( r_iri, r_op, r_source, r_target ) <- resolvableROPs
-        if ( !isAnnotatedDerived( r_iri ) )
-        ( s_iri, s_op, s_source, s_target ) <- resolvableSourceROPs filter ( _._4 == r_source )
-        ( t_iri, t_op, t_source, t_target ) <- resolvableTargetROPs filter ( _._4 == r_target )
-
-        if ( s_source == t_source )
-
-        inverseInfo = resolvableROPs find ( _rop => isAnnotatedDerived( _rop._1 ) && _rop._3 == r_target && _rop._4 == r_source )
-        inverseROP = if ( inverseInfo.isDefined ) Some( inverseInfo.get._2 ) else None
-
-        r_sourceDef <- entityDefinitions.get( r_source )
-        r_targetDef <- entityDefinitions.get( r_target )
-
-        rc = s_source
-
-        resolvedROP = ( r_iri, r_op, r_source, r_target )
-        resolvedSourceROP = ( s_iri, s_op, s_source, s_target )
-        resolvedTargetROP = ( t_iri, t_op, t_source, t_target )
-
-        rop = ModelEntityRelationship(
-          iri = rc.getIRI,
-          c = rc,
-          unreified = r_op,
-          inverse = inverseROP,
-          source = r_sourceDef, rSource = s_op,
-          target = r_targetDef, rTarget = t_op,
-          characteristics = Nil,
-          isAbstract = isAnnotatedAbstract( rc.getIRI ) )
-      } yield {
-        remainingROPs -= resolvedROP
-        if ( inverseInfo.isDefined ) remainingROPs -= inverseInfo.get
-        remainingSourceROPs -= resolvedSourceROP
-        remainingTargetROPs -= resolvedTargetROP
-        ( rc -> rop )
-      }
-
-      if ( ( remainingROPs.isEmpty && ( remainingSourceROPs.nonEmpty || remainingTargetROPs.nonEmpty ) ) ||
-        ( remainingSourceROPs.isEmpty && ( remainingROPs.nonEmpty || remainingTargetROPs.nonEmpty ) ) ||
-        ( remainingTargetROPs.isEmpty && ( remainingROPs.nonEmpty || remainingSourceROPs.nonEmpty ) ) ||
-        remainingROPs.size != remainingSourceROPs.size ||
-        remainingROPs.size != remainingTargetROPs.size )
-        Failure( new IllegalArgumentException( "..." ) )
-
-      else if ( remainingROPs.isEmpty && remainingSourceROPs.isEmpty && remainingTargetROPs.isEmpty &&
-        unresolvedROPs.isEmpty && unresolvableSourceROPs.isEmpty && unresolvableTargetROPs.isEmpty )
-        Success( m.toMap )
-
-      else
-        resolveEntityDefinitionsForRelationships(
-          entityDefinitions ++ m.toMap,
-          RCs ++ ( m map { case ( rc, rcDef ) => ( rc.getIRI -> rc ) } ).toMap,
-          unresolvedROPs ++ remainingROPs,
-          unresolvableSourceROPs ++ remainingSourceROPs,
-          unresolvableTargetROPs ++ remainingTargetROPs,
-          m.toMap )
-    }
-
-    // ------
-
     val reasonerFactory = new StructuralReasonerFactory()
-    val reasoner = reasonerFactory.createReasoner( ont )
+    implicit val reasoner = reasonerFactory.createReasoner( ont )
 
-    val thingSubClasses = reasoner.getSubClasses( backbone.ThingC, false )
-    val entitySubClasses = reasoner.getSubClasses( backbone.EntityC, false )
-    val reifiedObjectPropertySubClasses = reasoner.getSubClasses( backbone.ReifiedObjectPropertyC, false )
-    val structuredDatatypeSubClasses = reasoner.getSubClasses( backbone.StructuredDatatypeC, false )
-    val reifiedStructuredDataPropertySubClasses = reasoner.getSubClasses( backbone.ReifiedStructuredDataPropertyC, false )
-
-    val thingCIRIs = ( for {
-      thingN <- thingSubClasses
-      if ( !thingN.isBottomNode )
-      thingC = thingN.getRepresentativeElement
-      if ( tCs.contains( thingC ) )
-      thingIRI = thingC.getIRI
-    } yield ( thingIRI -> thingC ) ).toMap;
-
-    val conceptCIRIs = ( for {
-      conceptN <- entitySubClasses
-      if ( !conceptN.isBottomNode )
-      conceptC = conceptN.getRepresentativeElement
-      if ( tCs.contains( conceptC ) )
-      conceptIRI = conceptC.getIRI
-    } yield ( conceptIRI -> conceptC ) ).toMap;
-
-    val reifiedObjectPropertyCIRIs = ( for {
-      reifiedObjectPropertyN <- reifiedObjectPropertySubClasses
-      if ( !reifiedObjectPropertyN.isBottomNode )
-      reifiedObjectPropertyC = reifiedObjectPropertyN.getRepresentativeElement
-      if ( tCs.contains( reifiedObjectPropertyC ) )
-      reifiedObjectPropertyCIRI = reifiedObjectPropertyC.getIRI
-    } yield ( reifiedObjectPropertyCIRI -> reifiedObjectPropertyC ) ).toMap;
-
-    val reifiedStructuredDataPropertyCIRIs = ( for {
-      reifiedStructuredDataPropertyN <- reifiedStructuredDataPropertySubClasses
-      if ( !reifiedStructuredDataPropertyN.isBottomNode )
-      reifiedStructuredDataPropertyC = reifiedStructuredDataPropertyN.getRepresentativeElement
-      if ( tCs.contains( reifiedStructuredDataPropertyC ) )
-      reifiedStructuredDataPropertyCIRI = reifiedStructuredDataPropertyC.getIRI
-    } yield ( reifiedStructuredDataPropertyCIRI -> reifiedStructuredDataPropertyC ) ).toMap;
-
-    val structuredDatatypeCIRIs = ( for {
-      structuredDatatypeN <- structuredDatatypeSubClasses
-      if ( !structuredDatatypeN.isBottomNode )
-      structuredDatatypeC = structuredDatatypeN.getRepresentativeElement
-      if ( tCs.contains( structuredDatatypeC ) )
-      structuredDatatypeCIRI = structuredDatatypeC.getIRI
-    } yield ( structuredDatatypeCIRI -> structuredDatatypeC ) ).toMap;
+    val thingCIRIs = resolveThingCIRIs( reasoner.getSubClasses( backbone.ThingC, false ), tCs )
+    val conceptCIRIs = resolveConceptCIRIs( reasoner.getSubClasses( backbone.EntityC, false ), tCs )
+    val reifiedObjectPropertyCIRIs = resolveReifiedObjectPropertyCIRIs( reasoner.getSubClasses( backbone.ReifiedObjectPropertyC, false ), tCs )
+    val reifiedStructuredDataPropertyCIRIs = resolveReifiedStructuredDataPropertyCIRIs( reasoner.getSubClasses( backbone.ReifiedStructuredDataPropertyC, false ), tCs )
+    val structuredDatatypeCIRIs = resolveStructuredDatatypeCIRIs( reasoner.getSubClasses( backbone.StructuredDatatypeC, false ), tCs )
 
     val nonAspectIRIs = conceptCIRIs.keys ++ reifiedObjectPropertyCIRIs.keys ++ reifiedStructuredDataPropertyCIRIs.keys ++ structuredDatatypeCIRIs.keys
     val aspectCIRIs = thingCIRIs -- nonAspectIRIs
 
     val aspectCMs = ( for {
-      ( aspectIRI, aspectC ) <- aspectCIRIs
-      aspectM = ModelEntityAspect( aspectIRI, aspectC )
+      ( _, aspectC ) <- aspectCIRIs
+      aspectM = ModelEntityAspect( aspectC )
     } yield ( aspectC -> aspectM ) ).toMap;
 
     val conceptCMs = ( for {
       ( conceptIRI, conceptC ) <- conceptCIRIs
-      conceptM = ModelEntityConcept( conceptIRI, conceptC, isAbstract = isAnnotatedAbstract( conceptIRI ) )
+      conceptM = ModelEntityConcept( conceptC, isAbstract = isAnnotatedAbstract( conceptIRI ) )
     } yield ( conceptC -> conceptM ) ).toMap;
 
-    val conceptSubClassAxs = for {
-      ( subC, subM ) <- conceptCMs
-      supN <- reasoner.getSuperClasses( subC, true )
-      supC = supN.getRepresentativeElement
-      if ( supC != backbone.EntityC )
-      supM <- findEntityConcept( supC.getIRI, conceptCMs )
-    } yield EntityConceptSubClassAxiom( subM, null )
+    val conceptSubClassAxs = resolveConceptSubClassAxioms( conceptCMs )
 
     val topReifiedObjectPropertySubOPs = reasoner.getSubObjectProperties( backbone.topReifiedObjectPropertyOP, false )
-    val reifiedObjectPropertyOPIRIs = ( for {
-      reifiedObjectPropertyN <- topReifiedObjectPropertySubOPs
-      reifiedObjectPropertyOP <- reifiedObjectPropertyN flatMap { case op: OWLObjectProperty => Some( op ) }
-      if ( tOPs.contains( reifiedObjectPropertyOP ) )
-      reifiedObjectPropertyDomain <- reasoner.getObjectPropertyDomains( reifiedObjectPropertyOP, true ).getFlattened
-      reifiedObjectPropertyRange <- reasoner.getObjectPropertyRanges( reifiedObjectPropertyOP, true ).getFlattened
-    } yield (
-      reifiedObjectPropertyOP.getIRI,
-      reifiedObjectPropertyOP,
-      reifiedObjectPropertyDomain,
-      reifiedObjectPropertyRange ) )
+    val reifiedObjectPropertyOPIRIs = resolveDomainRangeForObjectProperties( topReifiedObjectPropertySubOPs, tOPs )
 
     val topReifiedObjectPropertySourceSubOPs = reasoner.getSubObjectProperties( backbone.topReifiedObjectPropertySourceOP, false )
-    val reifiedObjectPropertySourceOPIRIs = ( for {
-      reifiedObjectPropertySourceN <- topReifiedObjectPropertySourceSubOPs
-      reifiedObjectPropertySourceOP <- reifiedObjectPropertySourceN flatMap { case op: OWLObjectProperty => Some( op ) }
-      if ( tOPs.contains( reifiedObjectPropertySourceOP ) )
-      reifiedObjectPropertySourceDomain <- reasoner.getObjectPropertyDomains( reifiedObjectPropertySourceOP, true ).getFlattened
-      reifiedObjectPropertySourceRange <- reasoner.getObjectPropertyRanges( reifiedObjectPropertySourceOP, true ).getFlattened
-    } yield (
-      reifiedObjectPropertySourceOP.getIRI,
-      reifiedObjectPropertySourceOP,
-      reifiedObjectPropertySourceDomain,
-      reifiedObjectPropertySourceRange ) )
+    val reifiedObjectPropertySourceOPIRIs = resolveDomainRangeForObjectProperties( topReifiedObjectPropertySourceSubOPs, tOPs )
 
     val topReifiedObjectPropertyTargetSubOPs = reasoner.getSubObjectProperties( backbone.topReifiedObjectPropertyTargetOP, false )
-    val reifiedObjectPropertyTargetOPIRIs = ( for {
-      reifiedObjectPropertyTargetN <- topReifiedObjectPropertyTargetSubOPs
-      reifiedObjectPropertyTargetOP <- reifiedObjectPropertyTargetN flatMap { case op: OWLObjectProperty => Some( op ) }
-      if ( tOPs.contains( reifiedObjectPropertyTargetOP ) )
-      reifiedObjectPropertyTargetDomain <- reasoner.getObjectPropertyDomains( reifiedObjectPropertyTargetOP, true ).getFlattened
-      reifiedObjectPropertyTargetRange <- reasoner.getObjectPropertyRanges( reifiedObjectPropertyTargetOP, true ).getFlattened
-    } yield (
-      reifiedObjectPropertyTargetOP.getIRI,
-      reifiedObjectPropertyTargetOP,
-      reifiedObjectPropertyTargetDomain,
-      reifiedObjectPropertyTargetRange ) )
+    val reifiedObjectPropertyTargetOPIRIs = resolveDomainRangeForObjectProperties( topReifiedObjectPropertyTargetSubOPs, tOPs )
 
-    val topDataPropertySubDPs = reasoner.getSubDataProperties( backbone.topDataPropertyDP, false )
-    val dataPropertyDPIRIs = ( for {
-      dataPropertyN <- topDataPropertySubDPs
-      dataPropertyDP <- dataPropertyN flatMap { case dp: OWLDataProperty => Some( dp ) }
-      if ( tDPs.contains( dataPropertyDP ) )
-      dataPropertyDomain <- reasoner.getDataPropertyDomains( dataPropertyDP, true ).getFlattened
-      dataPropertyRange <- ont.getDataPropertyRangeAxioms( dataPropertyDP )
-      dataPropertyType = dataPropertyRange.getRange.asOWLDatatype
-    } yield ( dataPropertyDP.getIRI, dataPropertyDP, dataPropertyDomain, dataPropertyType ) )
+    val dataPropertyDPIRIs = resolveDataPropertyDPIRIs( reasoner.getSubDataProperties( backbone.topDataPropertyDP, false ), tDPs )
 
     val allEntityDefinitionsExceptRelationships = importedEntityDefinitionMaps ++ aspectCMs ++ conceptCMs
     for {
@@ -534,6 +551,5 @@ object ImmutableModelTerminologyGraph {
       s2sc = Nil,
       s2st = Nil,
       ax = conceptSubClassAxs.toList )( ops )
-
   }
 }

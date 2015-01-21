@@ -45,7 +45,6 @@ import scala.collection.JavaConverters._
 import scala.util.Failure
 import scala.util.Success
 import scala.util.Try
-
 import org.semanticweb.owlapi.model.AddImport
 import org.semanticweb.owlapi.model.IRI
 import org.semanticweb.owlapi.model.OWLOntology
@@ -53,11 +52,11 @@ import org.semanticweb.owlapi.model.OWLOntologyAlreadyExistsException
 import org.semanticweb.owlapi.model.OWLOntologyCreationException
 import org.semanticweb.owlapi.model.OWLOntologyIRIMapper
 import org.semanticweb.owlapi.model.OWLOntologyManager
-
 import gov.nasa.jpl.omf.scala.core._
 import gov.nasa.jpl.omf.scala.core.RelationshipCharacteristics._
+import gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper
 
-case class OWLAPIOMFStore( val omfModule: OWLAPIOMFModule, val ontManager: OWLOntologyManager ) {
+case class OWLAPIOMFGraphStore( val omfModule: OWLAPIOMFModule, val ontManager: OWLOntologyManager ) {
 
   val catalogIRIMapper: Option[CatalogIRIMapper] =
     for {
@@ -68,16 +67,34 @@ case class OWLAPIOMFStore( val omfModule: OWLAPIOMFModule, val ontManager: OWLOn
       mapper
     }
 
-  val tboxGraphs = scala.collection.mutable.HashMap[IRI, types.ModelTerminologyGraph]()
+  val immutableTBoxGraphs = scala.collection.mutable.HashMap[IRI, types.ImmutableModelTerminologyGraph]()
+  val mutableTBoxGraphs = scala.collection.mutable.HashMap[IRI, types.MutableModelTerminologyGraph]()
+
+  def asImmutableTerminologyGraph( g: types.MutableModelTerminologyGraph ): Try[types.ImmutableModelTerminologyGraph] = {
+    import g.ops._
+    val ( iri, _i, _a, _c, _r, _sc, _st, _esc, _est, _ssc, _sst, _ax ) = fromTerminologyGraph( g )
+    if ( immutableTBoxGraphs.contains( iri ) )
+      Failure( new IllegalArgumentException( s"There is already an immutable terminology graph with IRI='${iri}'" ) )
+    else {
+      val ig = types.ImmutableModelTerminologyGraph(
+        _i.toList, g.ont,
+        _a.toList, _c.toList, _r.toList,
+        _sc.toList, _st.toList,
+        _esc.toList, _est.toList, _ssc.toList, _sst.toList,
+        _ax.toList )( g.ops )
+      immutableTBoxGraphs.put( iri, ig )
+      Success( ig )
+    }
+  }
 
   protected def registerImmutableOntologyAsTerminologyGraph(
     o: OWLOntology,
-    extendedTGraphs: Iterable[types.ModelTerminologyGraph] = Nil )( implicit ops: OWLAPIOMFOps ): Try[types.ModelTerminologyGraph] = {
+    extendedTGraphs: Iterable[types.ImmutableModelTerminologyGraph] = Nil )( implicit ops: OWLAPIOMFOps ): Try[types.ImmutableModelTerminologyGraph] = {
     val iri = o.getOntologyID.getOntologyIRI
     if ( !iri.isPresent )
       Failure( new IllegalArgumentException( "An ontology must have an OntologyID with an Ontology IRI" ) )
     else
-      tboxGraphs.get( iri.get ) match {
+      immutableTBoxGraphs.get( iri.get ) match {
         case Some( g ) =>
           // already registered.
           Success( g )
@@ -85,7 +102,7 @@ case class OWLAPIOMFStore( val omfModule: OWLAPIOMFModule, val ontManager: OWLOn
         case None =>
           // not yet registered.
 
-          var importedOrExtendedTGraphs = scala.collection.mutable.HashSet[types.ModelTerminologyGraph]()
+          val importedOrExtendedTGraphs = scala.collection.mutable.HashSet[types.ModelTerminologyGraph]()
 
           o.getDirectImports foreach ( registerImmutableOntologyAsTerminologyGraph( _ ) match {
             case Failure( t ) =>
@@ -96,7 +113,7 @@ case class OWLAPIOMFStore( val omfModule: OWLAPIOMFModule, val ontManager: OWLOn
           } )
 
           extendedTGraphs.foreach { tg =>
-            tboxGraphs.get( tg.iri ) match {
+            immutableTBoxGraphs.get( tg.iri ) match {
               case None => return Failure( new IllegalArgumentException(
                 s"Cannot create an ontology with iri='${iri.get}' extending a foreign terminology graph, '${tg.iri}' not managed by this ontology manager" ) )
               case Some( eg ) =>
@@ -107,22 +124,22 @@ case class OWLAPIOMFStore( val omfModule: OWLAPIOMFModule, val ontManager: OWLOn
           }
 
           for {
-            g <- types.ImmutableModelTerminologyGraph.resolve(importedOrExtendedTGraphs, o)
+            g <- types.ImmutableModelTerminologyGraphResolver( ResolverHelper( importedOrExtendedTGraphs, o, ops ) ).resolve
           } yield {
-            tboxGraphs.put( iri.get, g )
+            immutableTBoxGraphs.put( iri.get, g )
             g
           }
       }
   }
-  
+
   protected def registerMutableOntologyAsTerminologyGraph(
     o: OWLOntology,
-    extendedTGraphs: Iterable[types.ModelTerminologyGraph] = Nil )( implicit ops: OWLAPIOMFOps ): Try[types.ModelTerminologyGraph] = {
+    extendedTGraphs: Iterable[types.ImmutableModelTerminologyGraph] = Nil )( implicit ops: OWLAPIOMFOps ): Try[types.MutableModelTerminologyGraph] = {
     val iri = o.getOntologyID.getOntologyIRI
     if ( !iri.isPresent )
       Failure( new IllegalArgumentException( "An ontology must have an OntologyID with an Ontology IRI" ) )
     else
-      tboxGraphs.get( iri.get ) match {
+      mutableTBoxGraphs.get( iri.get ) match {
         case Some( g ) =>
           // already registered.
           Success( g )
@@ -130,10 +147,10 @@ case class OWLAPIOMFStore( val omfModule: OWLAPIOMFModule, val ontManager: OWLOn
         case None =>
           // not yet registered.
 
-          var importedOrExtendedTGraphs = scala.collection.mutable.HashSet[types.ModelTerminologyGraph]()
+          val importedOrExtendedTGraphs = scala.collection.mutable.HashSet[types.ModelTerminologyGraph]()
 
           extendedTGraphs.foreach { tg =>
-            tboxGraphs.get( tg.iri ) match {
+            immutableTBoxGraphs.get( tg.iri ) match {
               case None => return Failure( new IllegalArgumentException(
                 s"Cannot create an ontology with iri='${iri.get}' extending a foreign terminology graph, '${tg.iri}' not managed by this ontology manager" ) )
               case Some( eg ) =>
@@ -144,20 +161,20 @@ case class OWLAPIOMFStore( val omfModule: OWLAPIOMFModule, val ontManager: OWLOn
           }
 
           val g = new types.MutableModelTerminologyGraph( importedOrExtendedTGraphs, o )
-          tboxGraphs.put( iri.get, g )
+          mutableTBoxGraphs.put( iri.get, g )
           Success( g )
       }
   }
-  
-  def saveTerminologyGraph( g: types.ModelTerminologyGraph )( implicit ops: OWLAPIOMFOps ): Try[Unit] = 
+
+  def saveTerminologyGraph( g: types.MutableModelTerminologyGraph )( implicit ops: OWLAPIOMFOps ): Try[Unit] =
     catalogIRIMapper match {
-    case None => Failure( new IllegalArgumentException( s"Cannot save a terminology graph without a catalog IRI mapper"))
-    case Some( iriMapper ) =>
-      val iri = iriMapper.resolveIRI( g.iri, iriMapper.saveResolutionStrategy(_) )
-      g.save( iri )
-  }
-  
-  def loadTerminologyGraph( iri: IRI )( implicit ops: OWLAPIOMFOps ): Try[types.ModelTerminologyGraph] =
+      case None => Failure( new IllegalArgumentException( s"Cannot save a terminology graph without a catalog IRI mapper" ) )
+      case Some( iriMapper ) =>
+        val iri = iriMapper.resolveIRI( g.iri, iriMapper.saveResolutionStrategy( _ ) )
+        g.save( iri )
+    }
+
+  def loadTerminologyGraph( iri: IRI )( implicit ops: OWLAPIOMFOps ): Try[types.ImmutableModelTerminologyGraph] =
     try {
       val o = ontManager.loadOntology( iri )
       registerImmutableOntologyAsTerminologyGraph( o )
@@ -169,7 +186,7 @@ case class OWLAPIOMFStore( val omfModule: OWLAPIOMFModule, val ontManager: OWLOn
 
   def makeTerminologyGraph(
     iri: IRI,
-    extendedTGraphs: Iterable[types.ModelTerminologyGraph] )( implicit ops: OWLAPIOMFOps ): Try[types.ModelTerminologyGraph] =
+    extendedTGraphs: Iterable[types.ImmutableModelTerminologyGraph] )( implicit ops: OWLAPIOMFOps ): Try[types.MutableModelTerminologyGraph] =
     if ( ontManager.contains( iri ) )
       Failure( new IllegalArgumentException( s"An ontology with iri='${iri}' already exists" ) )
     else
@@ -178,12 +195,13 @@ case class OWLAPIOMFStore( val omfModule: OWLAPIOMFModule, val ontManager: OWLOn
         g <- registerMutableOntologyAsTerminologyGraph( b.ont, extendedTGraphs )
       } yield g
 
-    
-  def loadInstanceGraph( iri: IRI ): Try[instances.ModelInstanceGraph] = ???
+  def loadInstanceGraph( iri: IRI ): Try[instances.ImmutableModelInstanceGraph] = ???
+
+  def asImmutableInstanceGraph( g: instances.MutableModelInstanceGraph ): Try[instances.ImmutableModelInstanceGraph] = ???
 
   def makeInstanceGraph(
     iri: IRI,
-    instantiatedTGraphs: Iterable[types.ModelTerminologyGraph],
-    extendedIGraphs: Iterable[instances.ModelInstanceGraph] ): Try[instances.ModelInstanceGraph] = ???
+    instantiatedTGraphs: Iterable[types.ImmutableModelTerminologyGraph],
+    extendedIGraphs: Iterable[instances.ImmutableModelInstanceGraph] ): Try[instances.MutableModelInstanceGraph] = ???
 
 }

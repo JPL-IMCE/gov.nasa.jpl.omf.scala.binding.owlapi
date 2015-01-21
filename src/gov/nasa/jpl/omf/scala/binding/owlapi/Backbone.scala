@@ -172,7 +172,6 @@ object Backbone {
     import ops._
 
     val om = ont.getOWLOntologyManager
-    val df = om.getOWLDataFactory
     val bIRI = toBackboneIRI( ont.getOntologyID.getOntologyIRI.get )
 
     for {

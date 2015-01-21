@@ -45,32 +45,31 @@ import org.semanticweb.owlapi.model.OWLOntology
 import org.semanticweb.owlapi.model.IRI
 import scala.util.Try
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelTerminologyGraph
+import gov.nasa.jpl.omf.scala.binding.owlapi.types.ImmutableModelTerminologyGraph
 
-case class ModelInstanceGraph(
-    val tboxes: Iterable[types.ModelTerminologyGraph],
-    val imports: Iterable[ModelInstanceGraph], 
+abstract class ModelInstanceGraph(
+    val tboxes: Iterable[types.ImmutableModelTerminologyGraph],
+    val imports: Iterable[ImmutableModelInstanceGraph], 
     protected val ont: OWLOntology ) {
     
-  protected val objects = scala.collection.mutable.ListBuffer[ModelInstanceObject]()
-  protected val relations = scala.collection.mutable.ListBuffer[ModelInstanceRelation]()
-  protected val dataLiterals = scala.collection.mutable.ListBuffer[ModelInstanceDataLiteral]()
-  protected val dataObjects = scala.collection.mutable.ListBuffer[ModelInstanceDataStructure]()
-  protected val e2sc = scala.collection.mutable.ListBuffer[ModelInstanceDataRelationshipFromEntityToScalar]()
-  protected val e2st = scala.collection.mutable.ListBuffer[ModelInstanceDataRelationshipFromEntityToStructure]()
-  protected val s2sc = scala.collection.mutable.ListBuffer[ModelInstanceDataRelationshipFromStructureToScalar]()
-  protected val s2st = scala.collection.mutable.ListBuffer[ModelInstanceDataRelationshipFromStructureToStructure]()
+  protected val objects: scala.collection.Seq[ModelInstanceObject]
+  protected val relations: scala.collection.Seq[ModelInstanceRelation]
+  protected val dataLiterals: scala.collection.Seq[ModelInstanceDataLiteral]
+  protected val dataObjects: scala.collection.Seq[ModelInstanceDataStructure]
+  protected val e2sc: scala.collection.Seq[ModelInstanceDataRelationshipFromEntityToScalar]
+  protected val e2st: scala.collection.Seq[ModelInstanceDataRelationshipFromEntityToStructure]
+  protected val s2sc: scala.collection.Seq[ModelInstanceDataRelationshipFromStructureToScalar]
+  protected val s2st: scala.collection.Seq[ModelInstanceDataRelationshipFromStructureToStructure]
     
   val ontManager = ont.getOWLOntologyManager
   val owlDataFactory = ontManager.getOWLDataFactory
     
-  protected val iri2namedIndividual = scala.collection.mutable.HashMap[IRI, ModelNamedIndividual]()
-  
   val iri = ont.getOntologyID.getOntologyIRI.get
   
   def fromInstanceGraph: ( 
       IRI, 
-      Iterable[ModelTerminologyGraph], 
-      Iterable[ModelInstanceGraph], 
+      Iterable[ImmutableModelTerminologyGraph], 
+      Iterable[ImmutableModelInstanceGraph], 
       Iterable[ModelInstanceObject], 
       Iterable[ModelInstanceRelation], 
       Iterable[ModelInstanceDataLiteral], 
@@ -83,7 +82,4 @@ case class ModelInstanceGraph(
         objects, relations, dataLiterals, dataObjects, 
         e2sc, e2st, s2sc, s2st )
 
-  def save: Try[Unit] = Try {
-    ontManager.saveOntology(ont)
-  }    
 }
