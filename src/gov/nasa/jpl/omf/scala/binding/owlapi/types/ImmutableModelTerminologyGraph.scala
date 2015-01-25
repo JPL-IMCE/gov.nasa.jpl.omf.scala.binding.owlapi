@@ -59,14 +59,11 @@ import org.semanticweb.owlapi.model.OWLDataProperty
 import org.semanticweb.owlapi.reasoner.NodeSet
 import org.semanticweb.owlapi.model.OWLObjectPropertyExpression
 import org.semanticweb.owlapi.reasoner.OWLReasoner
+import org.semanticweb.owlapi.model.OWLObjectInverseOf
 
 object ImmutableOperation extends Enumeration {
-    type ImmutableOperation = Value
-    val Save, 
-    AddEntityAspect, AddEntityConcept, AddEntityRelationship, AddScalarDataType,
-    AddDataRelationshipFromEntityToScalar, AddDataRelationshipFromEntityToStructure,
-    AddDataRelationshipFromStructureToScalar, AddDataRelationshipFromStructureToStructure,
-    AddEntityConceptSubClassAxiom, AddEntityDefinitionAspectSubClassAxiom = Value
+  type ImmutableOperation = Value
+  val Save, AddEntityAspect, AddEntityConcept, AddEntityRelationship, AddScalarDataType, AddDataRelationshipFromEntityToScalar, AddDataRelationshipFromEntityToStructure, AddDataRelationshipFromStructureToScalar, AddDataRelationshipFromStructureToStructure, AddEntityConceptSubClassAxiom, AddEntityDefinitionAspectSubClassAxiom = Value
 }
 
 import ImmutableOperation._
@@ -166,12 +163,12 @@ case class ImmutableModelTerminologyGraph(
 }
 
 case class ResolverHelper(
-    val imports: Iterable[ModelTerminologyGraph], 
-    val ont: OWLOntology, 
-    val ops: OWLAPIOMFOps ) {
-  
+  val imports: Iterable[ModelTerminologyGraph],
+  val ont: OWLOntology,
+  val ops: OWLAPIOMFOps ) {
+
   import ops._
-  
+
   def isAnnotatedAbstract( iri: IRI ): Boolean = {
     for {
       aaa <- ont.getAnnotationAssertionAxioms( iri )
@@ -192,14 +189,16 @@ case class ResolverHelper(
       if ( aaa.getProperty.getIRI == AnnotationIsDerived )
     } {
       aaa.getValue match {
-        case l: OWLLiteral if ( l.isBoolean ) => return l.parseBoolean
-        case _                                => ()
+        case l: OWLLiteral if ( l.isBoolean ) => 
+          return l.parseBoolean
+        case _                                => 
+          ()
       }
     }
 
     false
   }
-  
+
   // Lookup of entity aspects
 
   def findDirectEntityAspect( iri: IRI, aspects: Map[OWLClass, ModelEntityAspect] ): Option[ModelEntityAspect] =
@@ -251,7 +250,6 @@ case class ResolverHelper(
   def findEntityRelationship( iri: IRI, relationships: Map[OWLClass, ModelEntityRelationship] ): Option[ModelEntityRelationship] =
     findDirectEntityRelationship( iri, relationships ) orElse findImportedEntityRelationship( iri )
 
-
   // ------
 
   type DOPInfo = ( OWLDataProperty, OWLClass, OWLDatatype )
@@ -265,7 +263,7 @@ case class ResolverHelper(
       dataPropertyRange <- ont.getDataPropertyRangeAxioms( dataPropertyDP )
       dataPropertyType = dataPropertyRange.getRange.asOWLDatatype
     } yield ( dataPropertyDP, dataPropertyDomain, dataPropertyType ) )
-    
+
   def resolveDataRelationshipsFromEntity2Scalars(
     entityDefinitions: Map[OWLClass, ModelEntityDefinition],
     dataPropertyDPIRIs: Iterable[DOPInfo],
@@ -291,7 +289,7 @@ case class ResolverHelper(
 
   // ----------
 
-  type ROPInfo = ( IRI, OWLObjectProperty, OWLClass, OWLClass )
+  type ROPInfo = ( IRI, OWLObjectProperty, OWLClass, OWLClass, Option[OWLObjectProperty] )
 
   def resolveEntityDefinitionsForRelationships(
     entityDefinitions: Map[OWLClass, ModelEntityDefinition],
@@ -304,15 +302,15 @@ case class ResolverHelper(
 
     val rcs = RCs.values.toSet
     val ( resolvableROPs, unresolvedROPs ) = ROPs.partition {
-      case ( iri, op, source, target ) =>
+      case ( _, op, source, target, _ ) =>
         entityDefinitions.contains( source ) && entityDefinitions.contains( target )
     }
     val ( resolvableSourceROPs, unresolvableSourceROPs ) = sourceROPs.partition {
-      case ( iri, op, source, target ) =>
+      case ( _, op, source, target, _ ) =>
         rcs.contains( source ) && entityDefinitions.contains( target )
     }
     val ( resolvableTargetROPs, unresolvableTargetROPs ) = targetROPs.partition {
-      case ( iri, op, source, target ) =>
+      case ( _, op, source, target, _ ) =>
         rcs.contains( source ) && entityDefinitions.contains( target )
     }
 
@@ -326,36 +324,31 @@ case class ResolverHelper(
     remainingTargetROPs ++= resolvableTargetROPs
 
     val m = for {
-      ( r_iri, r_op, r_source, r_target ) <- resolvableROPs
-      if ( !isAnnotatedDerived( r_iri ) )
-      ( s_iri, s_op, s_source, s_target ) <- resolvableSourceROPs filter ( _._4 == r_source )
-      ( t_iri, t_op, t_source, t_target ) <- resolvableTargetROPs filter ( _._4 == r_target )
+      ( r_iri, r_op, r_source, r_target, r_inv_op ) <- resolvableROPs
+      ( s_iri, s_op, s_source, s_target, s_inv_op ) <- resolvableSourceROPs filter ( _._4 == r_source )
+      ( t_iri, t_op, t_source, t_target, t_inv_op ) <- resolvableTargetROPs filter ( _._4 == r_target )
 
       if ( s_source == t_source )
-
-      inverseInfo = resolvableROPs find ( _rop => isAnnotatedDerived( _rop._1 ) && _rop._3 == r_target && _rop._4 == r_source )
-      inverseROP = if ( inverseInfo.isDefined ) Some( inverseInfo.get._2 ) else None
 
       r_sourceDef <- entityDefinitions.get( r_source )
       r_targetDef <- entityDefinitions.get( r_target )
 
       rc = s_source
 
-      resolvedROP = ( r_iri, r_op, r_source, r_target )
-      resolvedSourceROP = ( s_iri, s_op, s_source, s_target )
-      resolvedTargetROP = ( t_iri, t_op, t_source, t_target )
+      resolvedROP = ( r_iri, r_op, r_source, r_target, r_inv_op )
+      resolvedSourceROP = ( s_iri, s_op, s_source, s_target, s_inv_op )
+      resolvedTargetROP = ( t_iri, t_op, t_source, t_target, t_inv_op )
 
       rop = ModelEntityRelationship(
         c = rc,
         unreified = r_op,
-        inverse = inverseROP,
+        inverse = None,
         source = r_sourceDef, rSource = s_op,
         target = r_targetDef, rTarget = t_op,
         characteristics = Nil,
         isAbstract = isAnnotatedAbstract( rc.getIRI ) )
     } yield {
       remainingROPs -= resolvedROP
-      if ( inverseInfo.isDefined ) remainingROPs -= inverseInfo.get
       remainingSourceROPs -= resolvedSourceROP
       remainingTargetROPs -= resolvedTargetROP
       ( rc -> rop )
@@ -384,7 +377,7 @@ case class ResolverHelper(
 
   // ---------
 
-  def resolveThingCIRIs( thingSubClasses: NodeSet[OWLClass], tCs: Set[OWLClass]): Map[IRI, OWLClass] = 
+  def resolveThingCIRIs( thingSubClasses: NodeSet[OWLClass], tCs: Set[OWLClass] ): Map[IRI, OWLClass] =
     ( for {
       thingN <- thingSubClasses
       if ( !thingN.isBottomNode )
@@ -392,8 +385,8 @@ case class ResolverHelper(
       if ( tCs.contains( thingC ) )
       thingIRI = thingC.getIRI
     } yield ( thingIRI -> thingC ) ).toMap
-  
-  def resolveConceptCIRIs( entitySubClasses: NodeSet[OWLClass], tCs: Set[OWLClass]): Map[IRI, OWLClass] = 
+
+  def resolveConceptCIRIs( entitySubClasses: NodeSet[OWLClass], tCs: Set[OWLClass] ): Map[IRI, OWLClass] =
     ( for {
       conceptN <- entitySubClasses
       if ( !conceptN.isBottomNode )
@@ -401,8 +394,8 @@ case class ResolverHelper(
       if ( tCs.contains( conceptC ) )
       conceptIRI = conceptC.getIRI
     } yield ( conceptIRI -> conceptC ) ).toMap
-      
-  def resolveReifiedObjectPropertyCIRIs( reifiedObjectPropertySubClasses: NodeSet[OWLClass], tCs: Set[OWLClass]): Map[IRI, OWLClass] = 
+
+  def resolveReifiedObjectPropertyCIRIs( reifiedObjectPropertySubClasses: NodeSet[OWLClass], tCs: Set[OWLClass] ): Map[IRI, OWLClass] =
     ( for {
       reifiedObjectPropertyN <- reifiedObjectPropertySubClasses
       if ( !reifiedObjectPropertyN.isBottomNode )
@@ -410,8 +403,8 @@ case class ResolverHelper(
       if ( tCs.contains( reifiedObjectPropertyC ) )
       reifiedObjectPropertyCIRI = reifiedObjectPropertyC.getIRI
     } yield ( reifiedObjectPropertyCIRI -> reifiedObjectPropertyC ) ).toMap
-    
-  def resolveReifiedStructuredDataPropertyCIRIs( reifiedStructuredDataPropertySubClasses: NodeSet[OWLClass], tCs: Set[OWLClass]): Map[IRI, OWLClass] = 
+
+  def resolveReifiedStructuredDataPropertyCIRIs( reifiedStructuredDataPropertySubClasses: NodeSet[OWLClass], tCs: Set[OWLClass] ): Map[IRI, OWLClass] =
     ( for {
       reifiedStructuredDataPropertyN <- reifiedStructuredDataPropertySubClasses
       if ( !reifiedStructuredDataPropertyN.isBottomNode )
@@ -419,8 +412,8 @@ case class ResolverHelper(
       if ( tCs.contains( reifiedStructuredDataPropertyC ) )
       reifiedStructuredDataPropertyCIRI = reifiedStructuredDataPropertyC.getIRI
     } yield ( reifiedStructuredDataPropertyCIRI -> reifiedStructuredDataPropertyC ) ).toMap
-        
-  def resolveStructuredDatatypeCIRIs( structuredDatatypeSubClasses: NodeSet[OWLClass], tCs: Set[OWLClass]): Map[IRI, OWLClass] =
+
+  def resolveStructuredDatatypeCIRIs( structuredDatatypeSubClasses: NodeSet[OWLClass], tCs: Set[OWLClass] ): Map[IRI, OWLClass] =
     ( for {
       structuredDatatypeN <- structuredDatatypeSubClasses
       if ( !structuredDatatypeN.isBottomNode )
@@ -428,17 +421,39 @@ case class ResolverHelper(
       if ( tCs.contains( structuredDatatypeC ) )
       structuredDatatypeCIRI = structuredDatatypeC.getIRI
     } yield ( structuredDatatypeCIRI -> structuredDatatypeC ) ).toMap
-    
-  def resolveDomainRangeForObjectProperties( subOPs: NodeSet[OWLObjectPropertyExpression], tOPs: Set[OWLObjectProperty])( implicit reasoner: OWLReasoner ): Iterable[ROPInfo] =
+
+  def resolveDomainRangeForObjectProperties( subOPs: NodeSet[OWLObjectPropertyExpression], tOPs: Set[OWLObjectProperty] )( implicit reasoner: OWLReasoner ): Iterable[ROPInfo] =
     ( for {
       N <- subOPs
-      OP <- N flatMap { case op: OWLObjectProperty => Some( op ) }
-      if ( tOPs.contains( OP ) )
+      OP <- N flatMap {
+        case op: OWLObjectProperty =>
+          if ( tOPs.contains( op ) && !isAnnotatedDerived( op.getIRI ) ) Some( op ) else None
+        case inv: OWLObjectInverseOf =>
+          inv.getInverse match {
+            case op: OWLObjectProperty =>
+              if ( tOPs.contains( op ) && !isAnnotatedDerived( op.getIRI ) ) Some( op ) else None
+            case _ =>
+              None
+          }
+      }
       D <- reasoner.getObjectPropertyDomains( OP, true ).getFlattened
       R <- reasoner.getObjectPropertyRanges( OP, true ).getFlattened
-    } yield ( OP.getIRI, OP, D, R ) )
-     
-  def resolveConceptSubClassAxioms( conceptCMs: Map[OWLClass, ModelEntityConcept])( implicit reasoner: OWLReasoner, backbone: OMFBackbone ): Iterable[EntityConceptSubClassAxiom] =
+    } yield {
+      val INV = ( N flatMap {
+        case op: OWLObjectProperty =>
+          if ( tOPs.contains( op ) && isAnnotatedDerived( op.getIRI ) ) Some( op ) else None
+        case inv: OWLObjectInverseOf =>
+          inv.getInverse match {
+            case op: OWLObjectProperty =>
+              if ( tOPs.contains( op ) && isAnnotatedDerived( op.getIRI ) ) Some( op ) else None
+            case _ =>
+              None
+          }
+      } ).headOption
+      ( OP.getIRI, OP, D, R, INV )
+    } ).toSet
+
+  def resolveConceptSubClassAxioms( conceptCMs: Map[OWLClass, ModelEntityConcept] )( implicit reasoner: OWLReasoner, backbone: OMFBackbone ): Iterable[EntityConceptSubClassAxiom] =
     for {
       ( subC, subM ) <- conceptCMs
       supN <- reasoner.getSuperClasses( subC, true )
@@ -447,7 +462,7 @@ case class ResolverHelper(
       supM <- findEntityConcept( supC.getIRI, conceptCMs )
     } yield EntityConceptSubClassAxiom( subM, null )
 }
-    
+
 case class ImmutableModelTerminologyGraphResolver( resolver: ResolverHelper ) {
 
   import resolver._
@@ -490,7 +505,7 @@ case class ImmutableModelTerminologyGraphResolver( resolver: ResolverHelper ) {
     import ops._
 
     implicit val _backbone = backbone
-    
+
     val importedEntityDefinitionMaps = imports flatMap ( _.getEntityDefinitionMap ) toMap
 
     val reasonerFactory = new StructuralReasonerFactory()

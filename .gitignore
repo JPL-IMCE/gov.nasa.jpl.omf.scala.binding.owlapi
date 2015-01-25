@@ -4,4 +4,5 @@ owlapiLibs
 project/project
 project/target
 target
-
+omf-scala-core
+/sbt.staging/

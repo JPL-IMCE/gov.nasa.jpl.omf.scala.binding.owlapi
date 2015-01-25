@@ -1,0 +1,1942 @@
+<?xml version="1.0"?>
+
+
+<!DOCTYPE rdf:RDF [
+    <!ENTITY owl "http://www.w3.org/2002/07/owl#" >
+    <!ENTITY dc "http://purl.org/dc/elements/1.1/" >
+    <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#" >
+    <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#" >
+    <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
+    <!ENTITY base "http://imce.jpl.nasa.gov/foundation/base/base#" >
+    <!ENTITY mission "http://imce.jpl.nasa.gov/foundation/mission/mission#" >
+    <!ENTITY analysis "http://imce.jpl.nasa.gov/foundation/analysis/analysis#" >
+    <!ENTITY behavior "http://imce.jpl.nasa.gov/foundation/behavior/behavior#" >
+    <!ENTITY annotation "http://imce.jpl.nasa.gov/foundation/annotation/annotation#" >
+    <!ENTITY behavior-backbone "http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/behavior/behavior#" >
+]>
+
+
+<rdf:RDF xmlns="http://imce.jpl.nasa.gov/foundation/behavior/behavior#"
+     xml:base="http://imce.jpl.nasa.gov/foundation/behavior/behavior"
+     xmlns:dc="http://purl.org/dc/elements/1.1/"
+     xmlns:behavior-backbone="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/behavior/behavior#"
+     xmlns:annotation="http://imce.jpl.nasa.gov/foundation/annotation/annotation#"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     xmlns:mission="http://imce.jpl.nasa.gov/foundation/mission/mission#"
+     xmlns:behavior="http://imce.jpl.nasa.gov/foundation/behavior/behavior#"
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:base="http://imce.jpl.nasa.gov/foundation/base/base#"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:analysis="http://imce.jpl.nasa.gov/foundation/analysis/analysis#">
+    <owl:Ontology rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior">
+        <dc:date rdf:datatype="&xsd;string">$Date$</dc:date>
+        <owl:versionInfo rdf:datatype="&xsd;string">$Revision$</owl:versionInfo>
+        <dc:title rdf:datatype="&xsd;string">Behavior Ontology</dc:title>
+        <dc:rights rdf:datatype="&xsd;string">Copyright 2010-2014, by the California Institute of Technology. ALL RIGHTS RESERVED. United States Government Sponsorship acknowledged. Any commercial use must be negotiated with the Office of Technology Transfer at the California Institute of Technology.
+
+This software may be subject to U.S. export control laws. By accepting this software, the user agrees to comply with all applicable U.S. export laws and regulations. User has the responsibility to obtain export licenses,a or other export authority as may be required before exporting such information to foreign countries or providing access to foreign persons.</dc:rights>
+        <dc:creator rdf:datatype="&xsd;string">Flight Systems Engineering, Integration, &amp; Test Section</dc:creator>
+        <dc:type rdf:datatype="&xsd;string">Foundation</dc:type>
+        <dc:description rdf:datatype="&xsd;string">The Behavior Ontology defines concepts and properties for describing behavior. The complete documentation for this ontology is hosted on the MBSE CoP website at: https://mbse.jpl.nasa.gov/confluence/display/IMCECOP/Behavior+Pattern+-+V1.0.</dc:description>
+        <owl:imports rdf:resource="http://imce.jpl.nasa.gov/foundation/analysis/analysis"/>
+    </owl:Ontology>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Object Properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/behavior/behavior#topObjectProperty -->
+
+    <owl:ObjectProperty rdf:about="&behavior-backbone;topObjectProperty">
+        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
+        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/behavior/behavior#topReifiedObjectProperty -->
+
+    <owl:ObjectProperty rdf:about="&behavior-backbone;topReifiedObjectProperty">
+        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
+        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
+        <rdfs:subPropertyOf rdf:resource="&behavior-backbone;topObjectProperty"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/behavior/behavior#topReifiedObjectPropertySource -->
+
+    <owl:ObjectProperty rdf:about="&behavior-backbone;topReifiedObjectPropertySource">
+        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
+        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
+        <rdfs:subPropertyOf rdf:resource="&behavior-backbone;topObjectProperty"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/behavior/behavior#topReifiedObjectPropertyTarget -->
+
+    <owl:ObjectProperty rdf:about="&behavior-backbone;topReifiedObjectPropertyTarget">
+        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
+        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
+        <rdfs:subPropertyOf rdf:resource="&behavior-backbone;topObjectProperty"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/behavior/behavior#topReifiedStructuredDataProperty -->
+
+    <owl:ObjectProperty rdf:about="&behavior-backbone;topReifiedStructuredDataProperty">
+        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
+        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
+        <rdfs:subPropertyOf rdf:resource="&behavior-backbone;topObjectProperty"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/behavior/behavior#topReifiedStructuredDataPropertySource -->
+
+    <owl:ObjectProperty rdf:about="&behavior-backbone;topReifiedStructuredDataPropertySource">
+        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
+        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
+        <rdfs:subPropertyOf rdf:resource="&behavior-backbone;topObjectProperty"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/behavior/behavior#topReifiedStructuredDataPropertyTarget -->
+
+    <owl:ObjectProperty rdf:about="&behavior-backbone;topReifiedStructuredDataPropertyTarget">
+        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
+        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
+        <rdfs:subPropertyOf rdf:resource="&behavior-backbone;topObjectProperty"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/analysis/analysis#characterizes -->
+
+    <rdf:Description rdf:about="&analysis;characterizes">
+        <rdfs:label rdf:datatype="&xsd;string">characterizes</rdfs:label>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#constrains -->
+
+    <owl:ObjectProperty rdf:about="&behavior;constrains">
+        <rdf:type rdf:resource="&owl;InverseFunctionalProperty"/>
+        <rdfs:label rdf:datatype="&xsd;string">constrains</rdfs:label>
+        <rdfs:domain rdf:resource="&behavior;AttributeConstraint"/>
+        <rdfs:range rdf:resource="&behavior;StateVariableConstraintParticipant"/>
+        <rdfs:subPropertyOf rdf:resource="&behavior;unreferenceableReifiedObjectProperty"/>
+        <owl:propertyChainAxiom rdf:parseType="Collection">
+            <rdf:Description>
+                <owl:inverseOf rdf:resource="&behavior;hasConstrainsSource"/>
+            </rdf:Description>
+            <rdf:Description rdf:about="&behavior;hasConstrainsTarget"/>
+        </owl:propertyChainAxiom>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#exposes -->
+
+    <owl:ObjectProperty rdf:about="&behavior;exposes">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:label rdf:datatype="&xsd;string">exposes</rdfs:label>
+        <dc:description rdf:datatype="&xsd;string">A &lt;classname&gt;PropertySurrogate&lt;/classname&gt; &lt;replaceable&gt;s&lt;/replaceable&gt; &lt;property&gt;exposes&lt;/property&gt; a &lt;classname&gt;Property&lt;/classname&gt; &lt;replaceable&gt;p&lt;/replaceable&gt; if an only if &lt;replaceable&gt;s&lt;/replaceable&gt; represents &lt;replaceable&gt;p&lt;/replaceable&gt; in an &lt;classname&gt;Interaction&lt;/classname&gt;.</dc:description>
+        <rdfs:range rdf:resource="&behavior;Property"/>
+        <rdfs:domain rdf:resource="&behavior;PropertySurrogate"/>
+        <rdfs:subPropertyOf rdf:resource="&behavior;referenceableReifiedObjectProperty"/>
+        <owl:propertyChainAxiom rdf:parseType="Collection">
+            <rdf:Description>
+                <owl:inverseOf rdf:resource="&behavior;hasExposesSource"/>
+            </rdf:Description>
+            <rdf:Description rdf:about="&behavior;hasExposesTarget"/>
+        </owl:propertyChainAxiom>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#hasAttribute -->
+
+    <owl:ObjectProperty rdf:about="&behavior;hasAttribute">
+        <rdf:type rdf:resource="&owl;InverseFunctionalProperty"/>
+        <rdfs:label rdf:datatype="&xsd;string">has attribute</rdfs:label>
+        <rdfs:range rdf:resource="&behavior;Attribute"/>
+        <rdfs:domain rdf:resource="&behavior;AttributeGroup"/>
+        <rdfs:subPropertyOf rdf:resource="&behavior;unreferenceableReifiedObjectProperty"/>
+        <owl:propertyChainAxiom rdf:parseType="Collection">
+            <rdf:Description>
+                <owl:inverseOf rdf:resource="&behavior;hasHasAttributeSource"/>
+            </rdf:Description>
+            <rdf:Description rdf:about="&behavior;hasHasAttributeTarget"/>
+        </owl:propertyChainAxiom>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#hasAutomatonConstraint -->
+
+    <owl:ObjectProperty rdf:about="&behavior;hasAutomatonConstraint">
+        <rdf:type rdf:resource="&owl;InverseFunctionalProperty"/>
+        <rdfs:label rdf:datatype="&xsd;string">has automaton constraint</rdfs:label>
+        <rdfs:range rdf:resource="&behavior;AttributeAutomatonConstraint"/>
+        <rdfs:domain rdf:resource="&behavior;AttributeConstraintOwner"/>
+        <rdfs:subPropertyOf rdf:resource="&behavior;referenceableReifiedObjectProperty"/>
+        <owl:propertyChainAxiom rdf:parseType="Collection">
+            <rdf:Description>
+                <owl:inverseOf rdf:resource="&behavior;hasHasAutomatonConstraintSource"/>
+            </rdf:Description>
+            <rdf:Description rdf:about="&behavior;hasHasAutomatonConstraintTarget"/>
+        </owl:propertyChainAxiom>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#hasConstrainsSource -->
+
+    <owl:ObjectProperty rdf:about="&behavior;hasConstrainsSource">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:range rdf:resource="&behavior;AttributeConstraint"/>
+        <rdfs:domain rdf:resource="&behavior;Constrains"/>
+        <rdfs:subPropertyOf rdf:resource="&behavior;unreferenceableReifiedObjectPropertySource"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#hasConstrainsTarget -->
+
+    <owl:ObjectProperty rdf:about="&behavior;hasConstrainsTarget">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdf:type rdf:resource="&owl;InverseFunctionalProperty"/>
+        <rdfs:domain rdf:resource="&behavior;Constrains"/>
+        <rdfs:range rdf:resource="&behavior;StateVariableConstraintParticipant"/>
+        <rdfs:subPropertyOf rdf:resource="&behavior;unreferenceableReifiedObjectPropertyTarget"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#hasConstraint -->
+
+    <owl:ObjectProperty rdf:about="&behavior;hasConstraint">
+        <rdf:type rdf:resource="&owl;InverseFunctionalProperty"/>
+        <rdfs:label rdf:datatype="&xsd;string">has constraint</rdfs:label>
+        <rdfs:range rdf:resource="&behavior;AttributeConstraint"/>
+        <rdfs:domain rdf:resource="&behavior;AttributeConstraintOwner"/>
+        <rdfs:subPropertyOf rdf:resource="&behavior;referenceableReifiedObjectProperty"/>
+        <owl:propertyChainAxiom rdf:parseType="Collection">
+            <rdf:Description>
+                <owl:inverseOf rdf:resource="&behavior;hasHasConstraintSource"/>
+            </rdf:Description>
+            <rdf:Description rdf:about="&behavior;hasHasConstraintTarget"/>
+        </owl:propertyChainAxiom>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#hasExposesSource -->
+
+    <owl:ObjectProperty rdf:about="&behavior;hasExposesSource">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdf:type rdf:resource="&owl;InverseFunctionalProperty"/>
+        <rdfs:domain rdf:resource="&behavior;Exposes"/>
+        <rdfs:range rdf:resource="&behavior;PropertySurrogate"/>
+        <rdfs:subPropertyOf rdf:resource="&behavior;referenceableReifiedObjectPropertySource"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#hasExposesTarget -->
+
+    <owl:ObjectProperty rdf:about="&behavior;hasExposesTarget">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:domain rdf:resource="&behavior;Exposes"/>
+        <rdfs:range rdf:resource="&behavior;Property"/>
+        <rdfs:subPropertyOf rdf:resource="&behavior;referenceableReifiedObjectPropertyTarget"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#hasFeature -->
+
+    <owl:ObjectProperty rdf:about="&behavior;hasFeature">
+        <rdf:type rdf:resource="&owl;InverseFunctionalProperty"/>
+        <rdfs:label rdf:datatype="&xsd;string">has feature</rdfs:label>
+        <rdfs:range rdf:resource="&behavior;AbstractValueTypedFeature"/>
+        <rdfs:domain rdf:resource="&behavior;StateVariableValueType"/>
+        <rdfs:subPropertyOf rdf:resource="&behavior;unreferenceableReifiedObjectProperty"/>
+        <owl:propertyChainAxiom rdf:parseType="Collection">
+            <rdf:Description>
+                <owl:inverseOf rdf:resource="&behavior;hasHasFeatureSource"/>
+            </rdf:Description>
+            <rdf:Description rdf:about="&behavior;hasHasFeatureTarget"/>
+        </owl:propertyChainAxiom>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#hasHasAttributeSource -->
+
+    <owl:ObjectProperty rdf:about="&behavior;hasHasAttributeSource">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:range rdf:resource="&behavior;AttributeGroup"/>
+        <rdfs:domain rdf:resource="&behavior;HasAttribute"/>
+        <rdfs:subPropertyOf rdf:resource="&behavior;unreferenceableReifiedObjectPropertySource"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#hasHasAttributeTarget -->
+
+    <owl:ObjectProperty rdf:about="&behavior;hasHasAttributeTarget">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdf:type rdf:resource="&owl;InverseFunctionalProperty"/>
+        <rdfs:range rdf:resource="&behavior;Attribute"/>
+        <rdfs:domain rdf:resource="&behavior;HasAttribute"/>
+        <rdfs:subPropertyOf rdf:resource="&behavior;unreferenceableReifiedObjectPropertyTarget"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#hasHasAutomatonConstraintSource -->
+
+    <owl:ObjectProperty rdf:about="&behavior;hasHasAutomatonConstraintSource">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:range rdf:resource="&behavior;AttributeConstraintOwner"/>
+        <rdfs:domain rdf:resource="&behavior;HasAutomatonConstraint"/>
+        <rdfs:subPropertyOf rdf:resource="&behavior;referenceableReifiedObjectPropertySource"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#hasHasAutomatonConstraintTarget -->
+
+    <owl:ObjectProperty rdf:about="&behavior;hasHasAutomatonConstraintTarget">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdf:type rdf:resource="&owl;InverseFunctionalProperty"/>
+        <rdfs:range rdf:resource="&behavior;AttributeAutomatonConstraint"/>
+        <rdfs:domain rdf:resource="&behavior;HasAutomatonConstraint"/>
+        <rdfs:subPropertyOf rdf:resource="&behavior;referenceableReifiedObjectPropertyTarget"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#hasHasConstraintSource -->
+
+    <owl:ObjectProperty rdf:about="&behavior;hasHasConstraintSource">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:range rdf:resource="&behavior;AttributeConstraintOwner"/>
+        <rdfs:domain rdf:resource="&behavior;HasConstraint"/>
+        <rdfs:subPropertyOf rdf:resource="&behavior;referenceableReifiedObjectPropertySource"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#hasHasConstraintTarget -->
+
+    <owl:ObjectProperty rdf:about="&behavior;hasHasConstraintTarget">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdf:type rdf:resource="&owl;InverseFunctionalProperty"/>
+        <rdfs:range rdf:resource="&behavior;AttributeConstraint"/>
+        <rdfs:domain rdf:resource="&behavior;HasConstraint"/>
+        <rdfs:subPropertyOf rdf:resource="&behavior;referenceableReifiedObjectPropertyTarget"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#hasHasFeatureSource -->
+
+    <owl:ObjectProperty rdf:about="&behavior;hasHasFeatureSource">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:domain rdf:resource="&behavior;HasFeature"/>
+        <rdfs:range rdf:resource="&behavior;StateVariableValueType"/>
+        <rdfs:subPropertyOf rdf:resource="&behavior;unreferenceableReifiedObjectPropertySource"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#hasHasFeatureTarget -->
+
+    <owl:ObjectProperty rdf:about="&behavior;hasHasFeatureTarget">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdf:type rdf:resource="&owl;InverseFunctionalProperty"/>
+        <rdfs:range rdf:resource="&behavior;AbstractValueTypedFeature"/>
+        <rdfs:domain rdf:resource="&behavior;HasFeature"/>
+        <rdfs:subPropertyOf rdf:resource="&behavior;unreferenceableReifiedObjectPropertyTarget"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#hasHasRegionSource -->
+
+    <owl:ObjectProperty rdf:about="&behavior;hasHasRegionSource">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:range rdf:resource="&behavior;AttributeAutomatonConstraint"/>
+        <rdfs:domain rdf:resource="&behavior;HasRegion"/>
+        <rdfs:subPropertyOf rdf:resource="&behavior;unreferenceableReifiedObjectPropertySource"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#hasHasRegionTarget -->
+
+    <owl:ObjectProperty rdf:about="&behavior;hasHasRegionTarget">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdf:type rdf:resource="&owl;InverseFunctionalProperty"/>
+        <rdfs:range rdf:resource="&behavior;AutomatonRegion"/>
+        <rdfs:domain rdf:resource="&behavior;HasRegion"/>
+        <rdfs:subPropertyOf rdf:resource="&behavior;unreferenceableReifiedObjectPropertyTarget"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#hasHasStateSource -->
+
+    <owl:ObjectProperty rdf:about="&behavior;hasHasStateSource">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:range rdf:resource="&behavior;AutomatonRegion"/>
+        <rdfs:domain rdf:resource="&behavior;HasState"/>
+        <rdfs:subPropertyOf rdf:resource="&behavior;unreferenceableReifiedObjectPropertySource"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#hasHasStateTarget -->
+
+    <owl:ObjectProperty rdf:about="&behavior;hasHasStateTarget">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdf:type rdf:resource="&owl;InverseFunctionalProperty"/>
+        <rdfs:range rdf:resource="&behavior;AutomatonState"/>
+        <rdfs:domain rdf:resource="&behavior;HasState"/>
+        <rdfs:subPropertyOf rdf:resource="&behavior;unreferenceableReifiedObjectPropertyTarget"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#hasHasValueTypeSource -->
+
+    <owl:ObjectProperty rdf:about="&behavior;hasHasValueTypeSource">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdf:type rdf:resource="&owl;InverseFunctionalProperty"/>
+        <rdfs:range rdf:resource="&behavior;AbstractValueTypedAttribute"/>
+        <rdfs:domain rdf:resource="&behavior;HasValueType"/>
+        <rdfs:subPropertyOf rdf:resource="&behavior;unreferenceableReifiedObjectPropertySource"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#hasHasValueTypeTarget -->
+
+    <owl:ObjectProperty rdf:about="&behavior;hasHasValueTypeTarget">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:range rdf:resource="&behavior;AbstractValueType"/>
+        <rdfs:domain rdf:resource="&behavior;HasValueType"/>
+        <rdfs:subPropertyOf rdf:resource="&behavior;unreferenceableReifiedObjectPropertyTarget"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#hasJoinsSource -->
+
+    <owl:ObjectProperty rdf:about="&behavior;hasJoinsSource">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:range rdf:resource="&behavior;Interaction"/>
+        <rdfs:domain rdf:resource="&behavior;Joins"/>
+        <rdfs:subPropertyOf rdf:resource="&behavior;referenceableReifiedObjectPropertySource"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#hasJoinsTarget -->
+
+    <owl:ObjectProperty rdf:about="&behavior;hasJoinsTarget">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:range rdf:resource="&behavior;AttributeGroup"/>
+        <rdfs:domain rdf:resource="&behavior;Joins"/>
+        <rdfs:subPropertyOf rdf:resource="&behavior;referenceableReifiedObjectPropertyTarget"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#hasPlaysRoleOfSource -->
+
+    <owl:ObjectProperty rdf:about="&behavior;hasPlaysRoleOfSource">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdf:type rdf:resource="&owl;InverseFunctionalProperty"/>
+        <rdfs:range rdf:resource="&behavior;AttributeConstraintParticipant"/>
+        <rdfs:domain rdf:resource="&behavior;PlaysRoleOf"/>
+        <rdfs:subPropertyOf rdf:resource="&behavior;referenceableReifiedObjectPropertySource"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#hasPlaysRoleOfTarget -->
+
+    <owl:ObjectProperty rdf:about="&behavior;hasPlaysRoleOfTarget">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:range rdf:resource="&behavior;Attribute"/>
+        <rdfs:domain rdf:resource="&behavior;PlaysRoleOf"/>
+        <rdfs:subPropertyOf rdf:resource="&behavior;referenceableReifiedObjectPropertyTarget"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#hasPresentsSource -->
+
+    <owl:ObjectProperty rdf:about="&behavior;hasPresentsSource">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:domain rdf:resource="&behavior;Presents"/>
+        <rdfs:range rdf:resource="&behavior;PropertyGroup"/>
+        <rdfs:subPropertyOf rdf:resource="&behavior;referenceableReifiedObjectPropertySource"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#hasPresentsTarget -->
+
+    <owl:ObjectProperty rdf:about="&behavior;hasPresentsTarget">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:range rdf:resource="&behavior;InteractionTerminal"/>
+        <rdfs:domain rdf:resource="&behavior;Presents"/>
+        <rdfs:subPropertyOf rdf:resource="&behavior;referenceableReifiedObjectPropertyTarget"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#hasReferencesSource -->
+
+    <owl:ObjectProperty rdf:about="&behavior;hasReferencesSource">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:range rdf:resource="&behavior;ElementBehaviorCharacterization"/>
+        <rdfs:domain rdf:resource="&behavior;References"/>
+        <rdfs:subPropertyOf rdf:resource="&behavior;referenceableReifiedObjectPropertySource"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#hasReferencesTarget -->
+
+    <owl:ObjectProperty rdf:about="&behavior;hasReferencesTarget">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:range rdf:resource="&behavior;PropertyGroup"/>
+        <rdfs:domain rdf:resource="&behavior;References"/>
+        <rdfs:subPropertyOf rdf:resource="&behavior;referenceableReifiedObjectPropertyTarget"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#hasRegion -->
+
+    <owl:ObjectProperty rdf:about="&behavior;hasRegion">
+        <rdf:type rdf:resource="&owl;InverseFunctionalProperty"/>
+        <rdfs:label rdf:datatype="&xsd;string">has region</rdfs:label>
+        <rdfs:domain rdf:resource="&behavior;AttributeAutomatonConstraint"/>
+        <rdfs:range rdf:resource="&behavior;AutomatonRegion"/>
+        <rdfs:subPropertyOf rdf:resource="&behavior;unreferenceableReifiedObjectProperty"/>
+        <owl:propertyChainAxiom rdf:parseType="Collection">
+            <rdf:Description>
+                <owl:inverseOf rdf:resource="&behavior;hasHasRegionSource"/>
+            </rdf:Description>
+            <rdf:Description rdf:about="&behavior;hasHasRegionTarget"/>
+        </owl:propertyChainAxiom>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#hasState -->
+
+    <owl:ObjectProperty rdf:about="&behavior;hasState">
+        <rdf:type rdf:resource="&owl;InverseFunctionalProperty"/>
+        <rdfs:label rdf:datatype="&xsd;string">has state</rdfs:label>
+        <rdfs:domain rdf:resource="&behavior;AutomatonRegion"/>
+        <rdfs:range rdf:resource="&behavior;AutomatonState"/>
+        <rdfs:subPropertyOf rdf:resource="&behavior;unreferenceableReifiedObjectProperty"/>
+        <owl:propertyChainAxiom rdf:parseType="Collection">
+            <rdf:Description>
+                <owl:inverseOf rdf:resource="&behavior;hasHasStateSource"/>
+            </rdf:Description>
+            <rdf:Description rdf:about="&behavior;hasHasStateTarget"/>
+        </owl:propertyChainAxiom>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#hasUsesSource -->
+
+    <owl:ObjectProperty rdf:about="&behavior;hasUsesSource">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:range rdf:resource="&behavior;AttributeConstraint"/>
+        <rdfs:domain rdf:resource="&behavior;Uses"/>
+        <rdfs:subPropertyOf rdf:resource="&behavior;unreferenceableReifiedObjectPropertySource"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#hasUsesTarget -->
+
+    <owl:ObjectProperty rdf:about="&behavior;hasUsesTarget">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdf:type rdf:resource="&owl;InverseFunctionalProperty"/>
+        <rdfs:range rdf:resource="&behavior;ParameterConstraintParticipant"/>
+        <rdfs:domain rdf:resource="&behavior;Uses"/>
+        <rdfs:subPropertyOf rdf:resource="&behavior;unreferenceableReifiedObjectPropertyTarget"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#hasValueType -->
+
+    <owl:ObjectProperty rdf:about="&behavior;hasValueType">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:label rdf:datatype="&xsd;string">has value type</rdfs:label>
+        <rdfs:comment>has Value Type</rdfs:comment>
+        <rdfs:range rdf:resource="&behavior;AbstractValueType"/>
+        <rdfs:domain rdf:resource="&behavior;AbstractValueTypedAttribute"/>
+        <rdfs:subPropertyOf rdf:resource="&behavior;unreferenceableReifiedObjectProperty"/>
+        <owl:propertyChainAxiom rdf:parseType="Collection">
+            <rdf:Description>
+                <owl:inverseOf rdf:resource="&behavior;hasHasValueTypeSource"/>
+            </rdf:Description>
+            <rdf:Description rdf:about="&behavior;hasHasValueTypeTarget"/>
+        </owl:propertyChainAxiom>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#joins -->
+
+    <owl:ObjectProperty rdf:about="&behavior;joins">
+        <rdfs:label rdf:datatype="&xsd;string">joins</rdfs:label>
+        <dc:description rdf:datatype="&xsd;string">An &lt;classname&gt;Interaction&lt;/classname&gt; &lt;replaceable&gt;i&lt;/replaceable&gt; &lt;property&gt;joins&lt;/property&gt; an &lt;classname&gt;AttributeGroup&lt;/classname&gt; &lt;replaceable&gt;a&lt;/replaceable&gt; if an only if the &lt;classname&gt;BehavingElement&lt;/classname&gt;s associated with &lt;replaceable&gt;a&lt;/replaceable&gt; are involved in the interaction represented by &lt;replaceable&gt;i&lt;/replaceable&gt;.</dc:description>
+        <rdfs:range rdf:resource="&behavior;AttributeGroup"/>
+        <rdfs:domain rdf:resource="&behavior;Interaction"/>
+        <rdfs:subPropertyOf rdf:resource="&behavior;referenceableReifiedObjectProperty"/>
+        <owl:propertyChainAxiom rdf:parseType="Collection">
+            <rdf:Description>
+                <owl:inverseOf rdf:resource="&behavior;hasJoinsSource"/>
+            </rdf:Description>
+            <rdf:Description rdf:about="&behavior;hasJoinsTarget"/>
+        </owl:propertyChainAxiom>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#playsRoleOf -->
+
+    <owl:ObjectProperty rdf:about="&behavior;playsRoleOf">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:label rdf:datatype="&xsd;string">plays role of</rdfs:label>
+        <dc:description rdf:datatype="&xsd;string">An &lt;classname&gt;AttributeConstraintParticipant&lt;/classname&gt; &lt;replaceable&gt;p&lt;/replaceable&gt; &lt;property&gt;playsRoleOf&lt;/property&gt; an &lt;classname&gt;Attribute&lt;/classname&gt; &lt;replaceable&gt;a&lt;/replaceable&gt; if an only if it represents &lt;replaceable&gt;a&lt;/replaceable&gt; in an &lt;classname&gt;AttributeConstraint&lt;/classname&gt;.</dc:description>
+        <rdfs:range rdf:resource="&behavior;Attribute"/>
+        <rdfs:domain rdf:resource="&behavior;AttributeConstraintParticipant"/>
+        <rdfs:subPropertyOf rdf:resource="&behavior;referenceableReifiedObjectProperty"/>
+        <owl:propertyChainAxiom rdf:parseType="Collection">
+            <rdf:Description>
+                <owl:inverseOf rdf:resource="&behavior;hasPlaysRoleOfSource"/>
+            </rdf:Description>
+            <rdf:Description rdf:about="&behavior;hasPlaysRoleOfTarget"/>
+        </owl:propertyChainAxiom>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#presents -->
+
+    <owl:ObjectProperty rdf:about="&behavior;presents">
+        <rdfs:label rdf:datatype="&xsd;string">presents</rdfs:label>
+        <dc:description rdf:datatype="&xsd;string">A &lt;classname&gt;PropertyGroup&lt;/classname&gt; &lt;replaceable&gt;g&lt;/replaceable&gt; &lt;property&gt;presents&lt;/property&gt; an &lt;classname&gt;InteractionTerminal&lt;/classname&gt; &lt;replaceable&gt;i&lt;/replaceable&gt; if and only if &lt;classname&gt;Attribute&lt;/classname&gt;s of &lt;replaceable&gt;g&lt;/replaceable&gt; are directly influenced by &lt;classname&gt;Attribute&lt;/classname&gt;s of other &lt;classname&gt;BehavingElement&lt;/classname&gt;s.</dc:description>
+        <rdfs:range rdf:resource="&behavior;InteractionTerminal"/>
+        <rdfs:domain rdf:resource="&behavior;PropertyGroup"/>
+        <rdfs:subPropertyOf rdf:resource="&behavior;referenceableReifiedObjectProperty"/>
+        <owl:propertyChainAxiom rdf:parseType="Collection">
+            <rdf:Description>
+                <owl:inverseOf rdf:resource="&behavior;hasPresentsSource"/>
+            </rdf:Description>
+            <rdf:Description rdf:about="&behavior;hasPresentsTarget"/>
+        </owl:propertyChainAxiom>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#referenceableReifiedObjectProperty -->
+
+    <owl:ObjectProperty rdf:about="&behavior;referenceableReifiedObjectProperty">
+        <rdfs:label rdf:datatype="&xsd;string">referenceable reified object property</rdfs:label>
+        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
+        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
+        <rdfs:subPropertyOf rdf:resource="&behavior-backbone;topReifiedObjectProperty"/>
+        <owl:propertyChainAxiom rdf:parseType="Collection">
+            <rdf:Description>
+                <owl:inverseOf rdf:resource="&behavior;referenceableReifiedObjectPropertySource"/>
+            </rdf:Description>
+            <rdf:Description rdf:about="&behavior;referenceableReifiedObjectPropertyTarget"/>
+        </owl:propertyChainAxiom>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#referenceableReifiedObjectPropertySource -->
+
+    <owl:ObjectProperty rdf:about="&behavior;referenceableReifiedObjectPropertySource">
+        <rdfs:label rdf:datatype="&xsd;string">referenceable reified object property source</rdfs:label>
+        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
+        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
+        <rdfs:subPropertyOf rdf:resource="&behavior-backbone;topReifiedObjectPropertySource"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#referenceableReifiedObjectPropertyTarget -->
+
+    <owl:ObjectProperty rdf:about="&behavior;referenceableReifiedObjectPropertyTarget">
+        <rdfs:label rdf:datatype="&xsd;string">referenceable reified object property target</rdfs:label>
+        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
+        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
+        <rdfs:subPropertyOf rdf:resource="&behavior-backbone;topReifiedObjectPropertyTarget"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#references -->
+
+    <owl:ObjectProperty rdf:about="&behavior;references">
+        <rdfs:label rdf:datatype="&xsd;string">references</rdfs:label>
+        <dc:description rdf:datatype="&xsd;string">An &lt;classname&gt;ElementBehaviorCharacterization&lt;/classname&gt; &lt;replaceable&gt;c&lt;/replaceable&gt; &lt;property&gt;references&lt;/property&gt; a &lt;classname&gt;PropertyGroup&lt;/classname&gt; &lt;replaceable&gt;g&lt;/replaceable&gt; if an only if &lt;classname&gt;ElementBehaviorConstraint&lt;/classname&gt;s of &lt;replaceable&gt;c&lt;/replaceable&gt; constrain or use &lt;classname&gt;Propert&lt;/classname&gt;ies of &lt;replaceable&gt;g&lt;/replaceable&gt;.</dc:description>
+        <rdfs:domain rdf:resource="&behavior;ElementBehaviorCharacterization"/>
+        <rdfs:range rdf:resource="&behavior;PropertyGroup"/>
+        <rdfs:subPropertyOf rdf:resource="&behavior;referenceableReifiedObjectProperty"/>
+        <owl:propertyChainAxiom rdf:parseType="Collection">
+            <rdf:Description>
+                <owl:inverseOf rdf:resource="&behavior;hasReferencesSource"/>
+            </rdf:Description>
+            <rdf:Description rdf:about="&behavior;hasReferencesTarget"/>
+        </owl:propertyChainAxiom>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#unreferenceableReifiedObjectProperty -->
+
+    <owl:ObjectProperty rdf:about="&behavior;unreferenceableReifiedObjectProperty">
+        <rdfs:label rdf:datatype="&xsd;string">unreferenceable reified object property</rdfs:label>
+        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
+        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
+        <rdfs:subPropertyOf rdf:resource="&behavior-backbone;topReifiedObjectProperty"/>
+        <owl:propertyChainAxiom rdf:parseType="Collection">
+            <rdf:Description>
+                <owl:inverseOf rdf:resource="&behavior;unreferenceableReifiedObjectPropertySource"/>
+            </rdf:Description>
+            <rdf:Description rdf:about="&behavior;unreferenceableReifiedObjectPropertyTarget"/>
+        </owl:propertyChainAxiom>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#unreferenceableReifiedObjectPropertySource -->
+
+    <owl:ObjectProperty rdf:about="&behavior;unreferenceableReifiedObjectPropertySource">
+        <rdfs:label rdf:datatype="&xsd;string">unreferenceable reified object property source</rdfs:label>
+        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
+        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
+        <rdfs:subPropertyOf rdf:resource="&behavior-backbone;topReifiedObjectPropertySource"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#unreferenceableReifiedObjectPropertyTarget -->
+
+    <owl:ObjectProperty rdf:about="&behavior;unreferenceableReifiedObjectPropertyTarget">
+        <rdfs:label rdf:datatype="&xsd;string">unreferenceable reified object property target</rdfs:label>
+        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
+        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
+        <rdfs:subPropertyOf rdf:resource="&behavior-backbone;topReifiedObjectPropertyTarget"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#uses -->
+
+    <owl:ObjectProperty rdf:about="&behavior;uses">
+        <rdf:type rdf:resource="&owl;InverseFunctionalProperty"/>
+        <rdfs:label>uses</rdfs:label>
+        <rdfs:domain rdf:resource="&behavior;AttributeConstraint"/>
+        <rdfs:range rdf:resource="&behavior;ParameterConstraintParticipant"/>
+        <rdfs:subPropertyOf rdf:resource="&behavior;unreferenceableReifiedObjectProperty"/>
+        <owl:propertyChainAxiom rdf:parseType="Collection">
+            <rdf:Description>
+                <owl:inverseOf rdf:resource="&behavior;hasUsesSource"/>
+            </rdf:Description>
+            <rdf:Description rdf:about="&behavior;hasUsesTarget"/>
+        </owl:propertyChainAxiom>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Data properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/behavior/behavior#topDataProperty -->
+
+    <owl:DatatypeProperty rdf:about="&behavior-backbone;topDataProperty">
+        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
+        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Classes
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/behavior/behavior#Entity -->
+
+    <owl:Class rdf:about="&behavior-backbone;Entity">
+        <rdfs:subClassOf rdf:resource="&behavior-backbone;Thing"/>
+        <rdfs:subClassOf rdf:resource="&analysis;AnalyzedElement"/>
+        <rdfs:subClassOf rdf:resource="&analysis;CharacterizedElement"/>
+        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/behavior/behavior#ReifiedObjectProperty -->
+
+    <owl:Class rdf:about="&behavior-backbone;ReifiedObjectProperty">
+        <rdfs:subClassOf rdf:resource="&behavior-backbone;Thing"/>
+        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
+        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/behavior/behavior#ReifiedStructuredDataProperty -->
+
+    <owl:Class rdf:about="&behavior-backbone;ReifiedStructuredDataProperty">
+        <rdfs:subClassOf rdf:resource="&behavior-backbone;Thing"/>
+        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
+        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/behavior/behavior#StructuredDatatype -->
+
+    <owl:Class rdf:about="&behavior-backbone;StructuredDatatype">
+        <rdfs:subClassOf rdf:resource="&behavior-backbone;Thing"/>
+        <rdfs:subClassOf rdf:resource="&analysis;AnalyzedElement"/>
+        <rdfs:subClassOf rdf:resource="&analysis;CharacterizedElement"/>
+        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/behavior/behavior#Thing -->
+
+    <owl:Class rdf:about="&behavior-backbone;Thing">
+        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
+        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/analysis/analysis#Characterization -->
+
+    <rdf:Description rdf:about="&analysis;Characterization">
+        <rdfs:label rdf:datatype="&xsd;string">Characterization</rdfs:label>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#AbstractValueType -->
+
+    <owl:Class rdf:about="&behavior;AbstractValueType">
+        <rdfs:label rdf:datatype="&xsd;string">Abstract Value Type</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&behavior-backbone;StructuredDatatype"/>
+        <dc:description rdf:datatype="&xsd;string">&lt;classname&gt;AbstractValueType&lt;/classname&gt; is the abstract class that generalizes &lt;classname&gt;AttributeValueType&lt;/classname&gt;, &lt;classname&gt;TimeDomainValueType&lt;/classname&gt; and &lt;classname&gt;AttributeCodomainValueType&lt;/classname&gt;.</dc:description>
+        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#AbstractValueTypedAttribute -->
+
+    <owl:Class rdf:about="&behavior;AbstractValueTypedAttribute">
+        <rdfs:label rdf:datatype="&xsd;string">Abstract Value Typed Attribute</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&behavior-backbone;Entity"/>
+        <dc:description rdf:datatype="&xsd;string">An&lt;classname&gt;AbstractValueTypedAttribute&lt;/classname&gt; is an abstract class that represents the behavior attributes and features that can be typed by &lt;classname&gt;AbstractValueType&lt;/classname&gt; through the &lt;property&gt;hasValueType&lt;/property&gt;.</dc:description>
+        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#AbstractValueTypedFeature -->
+
+    <owl:Class rdf:about="&behavior;AbstractValueTypedFeature">
+        <rdfs:label rdf:datatype="&xsd;string">Abstract Value Typed Feature</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&behavior;AbstractValueTypedAttribute"/>
+        <dc:description rdf:datatype="&xsd;string">&lt;classname&gt;AbstractValueTypedFeature&lt;/classname&gt; is the abstract class that generalizes &lt;classname&gt;TimeDomain&lt;/classname&gt; and &lt;classname&gt;Codomain&lt;/classname&gt;.</dc:description>
+        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#Attribute -->
+
+    <owl:Class rdf:about="&behavior;Attribute">
+        <rdfs:label rdf:datatype="&xsd;string">Attribute</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&behavior;AbstractValueTypedAttribute"/>
+        <dc:description rdf:datatype="&xsd;string">&lt;classname&gt;Attribute&lt;/classname&gt; is the abstract class that generalizes &lt;classname&gt;Property&lt;/classname&gt; (&lt;classname&gt;StateVariable&lt;/classname&gt;s and &lt;classname&gt;Parameter&lt;/classname&gt;s) and &lt;classname&gt;PropertySurrogate&lt;/classname&gt;(&lt;classname&gt;StateVariableSurrogate&lt;/classname&gt;s and &lt;classname&gt;ParameterSurrogate&lt;/classname&gt;s).</dc:description>
+        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#AttributeAutomatonConstraint -->
+
+    <owl:Class rdf:about="&behavior;AttributeAutomatonConstraint">
+        <rdfs:label rdf:datatype="&xsd;string">Attribute Automaton Constraint</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&behavior;AttributeCodomainValueType"/>
+        <dc:description rdf:datatype="&xsd;string">An &lt;classname&gt;AttributeAutomatonConstraint&lt;/classname&gt; can be used to specify the &lt;classname&gt;Codomain&lt;/classname&gt; of a discrete &lt;classname&gt;StateVariable&lt;/classname&gt; using &lt;classname&gt;AutomatonState&lt;/classname&gt;s.
+It can also represents behavior constraints that are more amenable to an automata form.</dc:description>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#AttributeCodomainValueType -->
+
+    <owl:Class rdf:about="&behavior;AttributeCodomainValueType">
+        <rdfs:label rdf:datatype="&xsd;string">Attribute Codomain Value Type</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&behavior;AbstractValueType"/>
+        <dc:description rdf:datatype="&xsd;string">&lt;classname&gt;AttributeCodomainValueType&lt;/classname&gt; is the abstract class that generalizes &lt;classname&gt;CodomainValueType&lt;/classname&gt; and &lt;classname&gt;AttributeAutomatonConstraint&lt;/classname&gt;.</dc:description>
+        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#AttributeConstraint -->
+
+    <owl:Class rdf:about="&behavior;AttributeConstraint">
+        <rdfs:label rdf:datatype="&xsd;string">Attribute Constraint</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&behavior-backbone;Entity"/>
+        <rdfs:subClassOf rdf:resource="&analysis;Characterization"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&analysis;characterizes"/>
+                <owl:allValuesFrom rdf:resource="&behavior;AutomatonScope"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <dc:description rdf:datatype="&xsd;string">&lt;classname&gt;AttributeConstraint&lt;/classname&gt; is the abstract class that generalizes &lt;classname&gt;ElementBehaviorConstraint&lt;/classname&gt; and &lt;classname&gt;InteractionBehaviorConstraint&lt;/classname&gt;.</dc:description>
+        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#AttributeConstraintOwner -->
+
+    <owl:Class rdf:about="&behavior;AttributeConstraintOwner">
+        <rdfs:label rdf:datatype="&xsd;string">Attribute Constraint Owner</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&behavior-backbone;Entity"/>
+        <dc:description rdf:datatype="&xsd;string">&lt;classname&gt;AttributeConstraintOwner&lt;/classname&gt; is the abstract class that generalizes &lt;classname&gt;ElementBehaviorCharacterization&lt;/classname&gt; and &lt;classname&gt;Interaction&lt;/classname&gt;.</dc:description>
+        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#AttributeConstraintParticipant -->
+
+    <owl:Class rdf:about="&behavior;AttributeConstraintParticipant">
+        <rdfs:label rdf:datatype="&xsd;string">Attribute Constraint Participant</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&behavior;AbstractValueTypedAttribute"/>
+        <dc:description rdf:datatype="&xsd;string">&lt;classname&gt;AttributeConstraintParticipant&lt;/classname&gt; is the abstract class that generalizes &lt;classname&gt;StateVariableConstraintParticipant&lt;/classname&gt; and &lt;classname&gt;ParameterConstraintParticipant&lt;/classname&gt;.</dc:description>
+        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#AttributeGroup -->
+
+    <owl:Class rdf:about="&behavior;AttributeGroup">
+        <rdfs:label rdf:datatype="&xsd;string">Attribute Group</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&behavior-backbone;Entity"/>
+        <dc:description rdf:datatype="&xsd;string">&lt;classname&gt;AttributeGroup&lt;/classname&gt; is the abstract class that generalizes &lt;classname&gt;PropertyGroup&lt;/classname&gt; and &lt;classname&gt;InteractionTerminal&lt;/classname&gt;.</dc:description>
+        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#AttributeValueType -->
+
+    <owl:Class rdf:about="&behavior;AttributeValueType">
+        <rdfs:label rdf:datatype="&xsd;string">Attribute Value Type</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&behavior;AbstractValueType"/>
+        <dc:description rdf:datatype="&xsd;string">&lt;classname&gt;AttributeValueType&lt;/classname&gt; is the abstract class that generalizes &lt;classname&gt;StateVariableValueType&lt;/classname&gt; and &lt;classname&gt;ParameterValueType&lt;/classname&gt;.</dc:description>
+        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#AutomatonRegion -->
+
+    <owl:Class rdf:about="&behavior;AutomatonRegion">
+        <rdfs:label rdf:datatype="&xsd;string">Automaton Region</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&behavior;AutomatonScope"/>
+        <dc:description rdf:datatype="&xsd;string">An &lt;classname&gt;AutomatonRegion&lt;/classname&gt; groups &lt;classname&gt;AutomatonState&lt;/classname&gt;s of an &lt;classname&gt;AttributeAutomatonConstraint&lt;/classname&gt;.</dc:description>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#AutomatonScope -->
+
+    <owl:Class rdf:about="&behavior;AutomatonScope">
+        <rdfs:label rdf:datatype="&xsd;string">Automaton Scope</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&behavior-backbone;Entity"/>
+        <dc:description rdf:datatype="&xsd;string">&lt;classname&gt;AutomatonScope&lt;/classname&gt; is the abstract class that generalizes &lt;classname&gt;AutomatonRegion&lt;/classname&gt; and &lt;classname&gt;AutomatonState&lt;/classname&gt;.</dc:description>
+        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#AutomatonState -->
+
+    <owl:Class rdf:about="&behavior;AutomatonState">
+        <rdfs:label rdf:datatype="&xsd;string">Automaton State</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&behavior;AutomatonScope"/>
+        <dc:description rdf:datatype="&xsd;string">An &lt;classname&gt;AutomatonState&lt;/classname&gt; represents a state of a &lt;classname&gt;StateVariable&lt;/classname&gt;, i.e., a possible value of the quantity of a &lt;classname&gt;BehavingElement&lt;/classname&gt;, and in effect an element of the &lt;classname&gt;Codomain&lt;/classname&gt; of a &lt;classname&gt;StateVariable&lt;/classname&gt;.</dc:description>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#BehavingElement -->
+
+    <owl:Class rdf:about="&behavior;BehavingElement">
+        <rdfs:label rdf:datatype="&xsd;string">Behaving Element</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&behavior-backbone;Thing"/>
+        <dc:description rdf:datatype="&xsd;string">A &lt;classname&gt;BehavingElement&lt;/classname&gt; is an abstract classifier that specifies which system elements have some behavior characterization.</dc:description>
+        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#Codomain -->
+
+    <owl:Class rdf:about="&behavior;Codomain">
+        <rdfs:label rdf:datatype="&xsd;string">Codomain</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&behavior;AbstractValueTypedFeature"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&behavior;hasValueType"/>
+                <owl:allValuesFrom rdf:resource="&behavior;AttributeCodomainValueType"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <dc:description rdf:datatype="&xsd;string">A &lt;classname&gt;Codomain&lt;/classname&gt; is the set of possible values of a quantity represented by a &lt;classname&gt;StateVariable&lt;/classname&gt;.</dc:description>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#CodomainValueType -->
+
+    <owl:Class rdf:about="&behavior;CodomainValueType">
+        <rdfs:label rdf:datatype="&xsd;string">Codomain Value Type</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&behavior;AttributeCodomainValueType"/>
+        <dc:description rdf:datatype="&xsd;string">A &lt;classname&gt;CodomainValueType&lt;/classname&gt; defines the type of the quantity the associated &lt;classname&gt;Codomain&lt;/classname&gt; represents.</dc:description>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#Constrains -->
+
+    <owl:Class rdf:about="&behavior;Constrains">
+        <rdfs:label rdf:datatype="&xsd;string">Constrains</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&behavior;UnreferenceableReifiedObjectProperty"/>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#ElementBehaviorCharacterization -->
+
+    <owl:Class rdf:about="&behavior;ElementBehaviorCharacterization">
+        <rdfs:label rdf:datatype="&xsd;string">Element Behavior Characterization</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&analysis;Characterization"/>
+        <rdfs:subClassOf rdf:resource="&behavior;AttributeConstraintOwner"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&behavior;hasConstraint"/>
+                <owl:allValuesFrom rdf:resource="&behavior;ElementBehaviorConstraint"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&analysis;characterizes"/>
+                <owl:onClass rdf:resource="&behavior;BehavingElement"/>
+                <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <dc:description rdf:datatype="&xsd;string">An &lt;classname&gt;ElementBehaviorCharacterization&lt;/classname&gt; groups &lt;classname&gt;ElementBehaviorConstraint&lt;/classname&gt;s through the &lt;property&gt;hasConstraint&lt;/property&gt;. It also &lt;property&gt;references&lt;/property&gt; &lt;classname&gt;PropertyGroup&lt;/classname&gt;s of which the &lt;classname&gt;Attributes&lt;/classname&gt;s are of interest in the scope of the &lt;classname&gt;ElementBehaviorConstraint&lt;/classname&gt;s.</dc:description>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#ElementBehaviorConstraint -->
+
+    <owl:Class rdf:about="&behavior;ElementBehaviorConstraint">
+        <rdfs:label rdf:datatype="&xsd;string">Element Behavior Constraint</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&behavior;AttributeConstraint"/>
+        <dc:description rdf:datatype="&xsd;string">&lt;classname&gt;ElementBehaviorConstraint&lt;/classname&gt; specifies how the dynamic state of a &lt;classname&gt;BehavingElement&lt;/classname&gt; is allowed to evolve in time.
+It is expressed by &lt;property&gt;constrain&lt;/property&gt;ing &lt;classname&gt;StateVariableConstraintParticipant&lt;/classname&gt;s and &lt;property&gt;us&lt;/property&gt;ing &lt;classname&gt;ParameterConstraintParticipant&lt;/classname&gt;s.</dc:description>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#Exposes -->
+
+    <owl:Class rdf:about="&behavior;Exposes">
+        <rdfs:label rdf:datatype="&xsd;string">Exposes</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&behavior;ReferenceableReifiedObjectProperty"/>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#HasAttribute -->
+
+    <owl:Class rdf:about="&behavior;HasAttribute">
+        <rdfs:label rdf:datatype="&xsd;string">Has Attribute</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&behavior;UnreferenceableReifiedObjectProperty"/>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#HasAutomatonConstraint -->
+
+    <owl:Class rdf:about="&behavior;HasAutomatonConstraint">
+        <rdfs:label rdf:datatype="&xsd;string">Has Automaton Constraint</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&behavior;ReferenceableReifiedObjectProperty"/>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#HasConstraint -->
+
+    <owl:Class rdf:about="&behavior;HasConstraint">
+        <rdfs:label rdf:datatype="&xsd;string">Has Constraint</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&behavior;ReferenceableReifiedObjectProperty"/>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#HasFeature -->
+
+    <owl:Class rdf:about="&behavior;HasFeature">
+        <rdfs:label rdf:datatype="&xsd;string">Has Feature</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&behavior;UnreferenceableReifiedObjectProperty"/>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#HasRegion -->
+
+    <owl:Class rdf:about="&behavior;HasRegion">
+        <rdfs:label rdf:datatype="&xsd;string">Has Region</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&behavior;UnreferenceableReifiedObjectProperty"/>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#HasState -->
+
+    <owl:Class rdf:about="&behavior;HasState">
+        <rdfs:label rdf:datatype="&xsd;string">Has State</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&behavior;UnreferenceableReifiedObjectProperty"/>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#HasValueType -->
+
+    <owl:Class rdf:about="&behavior;HasValueType">
+        <rdfs:label rdf:datatype="&xsd;string">Has Value Type</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&behavior;UnreferenceableReifiedObjectProperty"/>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#Interaction -->
+
+    <owl:Class rdf:about="&behavior;Interaction">
+        <rdfs:label rdf:datatype="&xsd;string">Interaction</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&behavior;AttributeConstraintOwner"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&behavior;hasConstraint"/>
+                <owl:allValuesFrom rdf:resource="&behavior;InteractionBehaviorConstraint"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <dc:description rdf:datatype="&xsd;string">An &lt;classname&gt;Interaction&lt;/classname&gt; is a link that &lt;property&gt;joins&lt;/property&gt; &lt;classname&gt;InteractionTerminal&lt;/classname&gt;s, representing the context of the interaction among the associated &lt;classname&gt;BehavingElement&lt;/classname&gt;s.
+An &lt;classname&gt;Interaction&lt;/classname&gt; groups &lt;classname&gt;InteractionBehaviorConstraint&lt;/classname&gt;s through the &lt;property&gt;hasConstraint&lt;/property&gt;.</dc:description>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#InteractionBehaviorConstraint -->
+
+    <owl:Class rdf:about="&behavior;InteractionBehaviorConstraint">
+        <rdfs:label rdf:datatype="&xsd;string">Interaction Behavior Constraint</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&behavior;AttributeConstraint"/>
+        <dc:description rdf:datatype="&xsd;string">&lt;classname&gt;InteractionBehaviorConstraint&lt;/classname&gt; specifies how different &lt;classname&gt;BehavingElement&lt;/classname&gt;s interact with one another.
+It is expressed by &lt;property&gt;constrain&lt;/property&gt;ing &lt;classname&gt;StateVariableConstraintParticipant&lt;/classname&gt;s and &lt;property&gt;us&lt;/property&gt;ing &lt;classname&gt;ParameterConstraintParticipant&lt;/classname&gt;s.</dc:description>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#InteractionTerminal -->
+
+    <owl:Class rdf:about="&behavior;InteractionTerminal">
+        <rdfs:label rdf:datatype="&xsd;string">Interaction Terminal</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&behavior;AttributeGroup"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&behavior;hasAttribute"/>
+                <owl:allValuesFrom rdf:resource="&behavior;PropertySurrogate"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <dc:description rdf:datatype="&xsd;string">An &lt;classname&gt;InteractionTerminal&lt;/classname&gt; is a construct that acts as a filter for selecting the &lt;classname&gt;StateVariable&lt;/classname&gt;s and &lt;classname&gt;Parameter&lt;/classname&gt;s of one &lt;classname&gt;BehavingElement&lt;/classname&gt; involved in an interaction with other &lt;classname&gt;BehavingElement&lt;/classname&gt;s.</dc:description>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#Joins -->
+
+    <owl:Class rdf:about="&behavior;Joins">
+        <rdfs:label rdf:datatype="&xsd;string">Joins</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&behavior;ReferenceableReifiedObjectProperty"/>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#Parameter -->
+
+    <owl:Class rdf:about="&behavior;Parameter">
+        <rdfs:label rdf:datatype="&xsd;string">Parameter</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&behavior;Property"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&behavior;hasValueType"/>
+                <owl:allValuesFrom rdf:resource="&behavior;ParameterValueType"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <dc:description rdf:datatype="&xsd;string">A &lt;classname&gt;Parameter&lt;/classname&gt;is a quantity of a &lt;classname&gt;BehavingElement&lt;/classname&gt; that does not dynamically change in time.</dc:description>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#ParameterConstraintParticipant -->
+
+    <owl:Class rdf:about="&behavior;ParameterConstraintParticipant">
+        <rdfs:label rdf:datatype="&xsd;string">Parameter Constraint Participant</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&behavior;AttributeConstraintParticipant"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&behavior;hasValueType"/>
+                <owl:allValuesFrom rdf:resource="&behavior;ParameterValueType"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <dc:description rdf:datatype="&xsd;string">A &lt;classname&gt;ParameterConstraintParticipant&lt;/classname&gt; is a property &lt;property&gt;use&lt;/property&gt;d by an &lt;classname&gt;AttributeConstraint&lt;/classname&gt; (&lt;classname&gt;ElementBehaviorConstraint&lt;/classname&gt; or &lt;classname&gt;InteractionBehaviorConstraint&lt;/classname&gt;).
+When &lt;property&gt;use&lt;/property&gt;d by an &lt;classname&gt;ElementBehaviorConstraint&lt;/classname&gt;, it &lt;property&gt;playsRoleOf&lt;/property&gt; a &lt;classname&gt;Parameter&lt;/classname&gt;, and when &lt;property&gt;use&lt;/property&gt;d by an &lt;classname&gt;InteractionBehaviorConstraint&lt;/classname&gt;, it &lt;property&gt;playsRoleOf&lt;/property&gt; a &lt;classname&gt;ParameterSurrogate&lt;/classname&gt;.</dc:description>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#ParameterSurrogate -->
+
+    <owl:Class rdf:about="&behavior;ParameterSurrogate">
+        <rdfs:label rdf:datatype="&xsd;string">Parameter Surrogate</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&behavior;PropertySurrogate"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&behavior;hasValueType"/>
+                <owl:allValuesFrom rdf:resource="&behavior;ParameterValueType"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <dc:description rdf:datatype="&xsd;string">A &lt;classname&gt;ParameterSurrogate&lt;/classname&gt; is a property of an &lt;classname&gt;InteractionTerminal&lt;/classname&gt; and &lt;property&gt;exposes&lt;/property&gt; a &lt;classname&gt;Parameter&lt;/classname&gt; of the &lt;classname&gt;PropertyGroup&lt;/classname&gt; its &lt;classname&gt;InteractionTerminal&lt;/classname&gt; &lt;property&gt;presents&lt;/property&gt;.</dc:description>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#ParameterValueType -->
+
+    <owl:Class rdf:about="&behavior;ParameterValueType">
+        <rdfs:label rdf:datatype="&xsd;string">Parameter Value Type</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&behavior;AttributeValueType"/>
+        <dc:description rdf:datatype="&xsd;string">A &lt;classname&gt;ParameterValueType&lt;/classname&gt; defines the type of the quantity the associated &lt;classname&gt;Parameter&lt;/classname&gt; represents.</dc:description>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#PlaysRoleOf -->
+
+    <owl:Class rdf:about="&behavior;PlaysRoleOf">
+        <rdfs:label rdf:datatype="&xsd;string">Plays Role Of</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&behavior;ReferenceableReifiedObjectProperty"/>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#Presents -->
+
+    <owl:Class rdf:about="&behavior;Presents">
+        <rdfs:label rdf:datatype="&xsd;string">Presents</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&behavior;ReferenceableReifiedObjectProperty"/>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#Property -->
+
+    <owl:Class rdf:about="&behavior;Property">
+        <rdfs:label rdf:datatype="&xsd;string">Property</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&behavior;Attribute"/>
+        <dc:description rdf:datatype="&xsd;string">&lt;classname&gt;Property&lt;/classname&gt; is the abstract class that generalizes &lt;classname&gt;StateVariable&lt;/classname&gt; and &lt;classname&gt;Parameter&lt;/classname&gt;.</dc:description>
+        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#PropertyGroup -->
+
+    <owl:Class rdf:about="&behavior;PropertyGroup">
+        <rdfs:label rdf:datatype="&xsd;string">Property Group</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&analysis;Characterization"/>
+        <rdfs:subClassOf rdf:resource="&behavior;AttributeGroup"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&behavior;hasAttribute"/>
+                <owl:allValuesFrom rdf:resource="&behavior;Property"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&analysis;characterizes"/>
+                <owl:onClass rdf:resource="&behavior;BehavingElement"/>
+                <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <dc:description rdf:datatype="&xsd;string">An &lt;classname&gt;PropertyGroup&lt;/classname&gt; is a construct that acts as a grouping mechanism for &lt;classname&gt;StateVariale&lt;/classname&gt;s or &lt;classname&gt;Parameter&lt;/classname&gt;s. The meaning of the grouping is left to the modeler&apos;s intent.</dc:description>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#PropertySurrogate -->
+
+    <owl:Class rdf:about="&behavior;PropertySurrogate">
+        <rdfs:label rdf:datatype="&xsd;string">Property Surrogate</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&behavior;Attribute"/>
+        <dc:description rdf:datatype="&xsd;string">&lt;classname&gt;PropertySurrogate&lt;/classname&gt; is the abstract class that generalizes &lt;classname&gt;StateVariableSurrogate&lt;/classname&gt; and &lt;classname&gt;ParameterSurrogate&lt;/classname&gt;.</dc:description>
+        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#QuantityValueType -->
+
+    <owl:Class rdf:about="&behavior;QuantityValueType">
+        <rdfs:label rdf:datatype="&xsd;string">Quantity Value Type</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&behavior;CodomainValueType"/>
+        <rdfs:subClassOf rdf:resource="&behavior;ParameterValueType"/>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#ReferenceableReifiedObjectProperty -->
+
+    <owl:Class rdf:about="&behavior;ReferenceableReifiedObjectProperty">
+        <rdfs:label rdf:datatype="&xsd;string">Referenceable Reified Object Property</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&behavior-backbone;ReifiedObjectProperty"/>
+        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
+        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#References -->
+
+    <owl:Class rdf:about="&behavior;References">
+        <rdfs:label rdf:datatype="&xsd;string">References</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&behavior;ReferenceableReifiedObjectProperty"/>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#StateVariable -->
+
+    <owl:Class rdf:about="&behavior;StateVariable">
+        <rdfs:label rdf:datatype="&xsd;string">State Variable</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&behavior;Property"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&behavior;hasValueType"/>
+                <owl:allValuesFrom rdf:resource="&behavior;StateVariableValueType"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <dc:description rdf:datatype="&xsd;string">A &lt;classname&gt;StateVariable&lt;/classname&gt; is a variable that represents a particular quantity (as per ISO-80000) of a &lt;classname&gt;BeahvingElement&lt;/classname&gt; that changes with time.
+It is the Cartesian product of its &lt;classname&gt;TimeDomain&lt;/classname&gt; and &lt;classname&gt;Codomain&lt;/classname&gt;.</dc:description>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#StateVariableConstraintParticipant -->
+
+    <owl:Class rdf:about="&behavior;StateVariableConstraintParticipant">
+        <rdfs:label rdf:datatype="&xsd;string">State Variable Constraint Participant</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&behavior;AttributeConstraintParticipant"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&behavior;hasValueType"/>
+                <owl:allValuesFrom rdf:resource="&behavior;StateVariableValueType"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <dc:description rdf:datatype="&xsd;string">A &lt;classname&gt;StateVariableConstraintParticipant&lt;/classname&gt; is a property &lt;property&gt;constrain&lt;/property&gt;ed by an &lt;classname&gt;AttributeConstraint&lt;/classname&gt; (&lt;classname&gt;ElementBehaviorConstraint&lt;/classname&gt; or &lt;classname&gt;InteractionBehaviorConstraint&lt;/classname&gt;).
+When &lt;property&gt;constrain&lt;/property&gt;ed by an &lt;classname&gt;ElementBehaviorConstraint&lt;/classname&gt;, it &lt;property&gt;playsRoleOf&lt;/property&gt; a &lt;classname&gt;StateVariable&lt;/classname&gt;, and when &lt;property&gt;constrain&lt;/property&gt;ed by an &lt;classname&gt;InteractionBehaviorConstraint&lt;/classname&gt;, it &lt;property&gt;playsRoleOf&lt;/property&gt; a &lt;classname&gt;StateVariableSurrogate&lt;/classname&gt;.</dc:description>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#StateVariableSurrogate -->
+
+    <owl:Class rdf:about="&behavior;StateVariableSurrogate">
+        <rdfs:label rdf:datatype="&xsd;string">State Variable Surrogate</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&behavior;PropertySurrogate"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&behavior;hasValueType"/>
+                <owl:allValuesFrom rdf:resource="&behavior;StateVariableValueType"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <dc:description rdf:datatype="&xsd;string">A &lt;classname&gt;StateVariableSurrogate&lt;/classname&gt; is a property of an &lt;classname&gt;InteractionTerminal&lt;/classname&gt; and &lt;property&gt;exposes&lt;/property&gt; a &lt;classname&gt;StateVariable&lt;/classname&gt; of the &lt;classname&gt;PropertyGroup&lt;/classname&gt; its &lt;classname&gt;InteractionTerminal&lt;/classname&gt; &lt;property&gt;presents&lt;/property&gt;.</dc:description>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#StateVariableValueType -->
+
+    <owl:Class rdf:about="&behavior;StateVariableValueType">
+        <rdfs:label rdf:datatype="&xsd;string">State Variable Value Type</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&behavior;AttributeValueType"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&behavior;hasFeature"/>
+                <owl:onClass rdf:resource="&behavior;TimeDomain"/>
+                <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&behavior;hasFeature"/>
+                <owl:onClass rdf:resource="&behavior;Codomain"/>
+                <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <dc:description rdf:datatype="&xsd;string">A &lt;classname&gt;StateVariableValueType&lt;/classname&gt; defines the type of the its associated &lt;classname&gt;StateVariable&lt;/classname&gt;.</dc:description>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#TimeDomain -->
+
+    <owl:Class rdf:about="&behavior;TimeDomain">
+        <rdfs:label rdf:datatype="&xsd;string">Time Domain</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&behavior;AbstractValueTypedFeature"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&behavior;hasValueType"/>
+                <owl:allValuesFrom rdf:resource="&behavior;TimeDomainValueType"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <dc:description rdf:datatype="&xsd;string">A &lt;classname&gt;TimeDomain&lt;/classname&gt; is the set of possible times that belong to a particular &lt;classname&gt;StateVariable&lt;/classname&gt;.</dc:description>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#TimeDomainValueType -->
+
+    <owl:Class rdf:about="&behavior;TimeDomainValueType">
+        <rdfs:label rdf:datatype="&xsd;string">Time Domain Value Type</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&behavior;AbstractValueType"/>
+        <dc:description rdf:datatype="&xsd;string">A &lt;classname&gt;TimeDomainValueType&lt;/classname&gt; defines the type of the time quantity the associated &lt;classname&gt;TimeDomain&lt;/classname&gt; represents.</dc:description>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#UnreferenceableReifiedObjectProperty -->
+
+    <owl:Class rdf:about="&behavior;UnreferenceableReifiedObjectProperty">
+        <rdfs:label rdf:datatype="&xsd;string">Unreferenceable Reified Object Property</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&behavior-backbone;ReifiedObjectProperty"/>
+        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
+        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#Uses -->
+
+    <owl:Class rdf:about="&behavior;Uses">
+        <rdfs:label rdf:datatype="&xsd;string">Uses</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&behavior;UnreferenceableReifiedObjectProperty"/>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#Environment -->
+
+    <rdf:Description rdf:about="&mission;Environment">
+        <rdfs:label rdf:datatype="&xsd;string">Environment</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&behavior;BehavingElement"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#PerformingElement -->
+
+    <rdf:Description rdf:about="&mission;PerformingElement">
+        <rdfs:label rdf:datatype="&xsd;string">Performing Element</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&behavior;BehavingElement"/>
+    </rdf:Description>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Annotations
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    <rdf:Description rdf:about="&analysis;HasValue">
+        <rdfs:label rdf:datatype="&xsd;string">Has Value</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&base;ContainedElement">
+        <rdfs:label rdf:datatype="&xsd;string">Contained Element</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&mission;transfers">
+        <rdfs:label rdf:datatype="&xsd;string">transfers</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&mission;isPerformedBy">
+        <rdfs:label rdf:datatype="&xsd;string">is performed by</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&mission;invokes">
+        <rdfs:label rdf:datatype="&xsd;string">invokes</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&mission;isPursuedBy">
+        <rdfs:label rdf:datatype="&xsd;string">is pursued by</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&analysis;Analyzes">
+        <rdfs:label rdf:datatype="&xsd;string">Analyzes</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/time/time#precedes">
+        <rdfs:label rdf:datatype="&xsd;string">precedes</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&mission;Objective">
+        <rdfs:label rdf:datatype="&xsd;string">Objective</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&mission;induces">
+        <rdfs:label rdf:datatype="&xsd;string">induces</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&analysis;isAnalyzedBy">
+        <rdfs:label rdf:datatype="&xsd;string">is analyzed by</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&base;hasIdentifier">
+        <rdfs:label rdf:datatype="&xsd;string">has identifier</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&analysis;hasCriterion">
+        <rdfs:label rdf:datatype="&xsd;string">has criterion</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&mission;Item">
+        <rdfs:label rdf:datatype="&xsd;string">Item</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&mission;joins">
+        <rdfs:label rdf:datatype="&xsd;string">joins</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&mission;TransfersIn">
+        <rdfs:label rdf:datatype="&xsd;string">Transfers In</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&analysis;isCriterionFor">
+        <rdfs:label rdf:datatype="&xsd;string">is criterion for</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/time/time#HasEnd">
+        <rdfs:label rdf:datatype="&xsd;string">Has End</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&mission;Interface">
+        <rdfs:label rdf:datatype="&xsd;string">Interface</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&mission;Traverses">
+        <rdfs:label rdf:datatype="&xsd;string">Traverses</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&mission;Requirement">
+        <rdfs:label rdf:datatype="&xsd;string">Requirement</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&analysis;Explains">
+        <rdfs:label rdf:datatype="&xsd;string">Explains</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&mission;Specifies">
+        <rdfs:label rdf:datatype="&xsd;string">Specifies</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&analysis;HasCriterion">
+        <rdfs:label rdf:datatype="&xsd;string">Has Criterion</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&mission;SpecifiedElement">
+        <rdfs:label rdf:datatype="&xsd;string">Specified Element</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&mission;Joins2">
+        <rdfs:label rdf:datatype="&xsd;string">Joins2</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/time/time#Occurrence">
+        <rdfs:label rdf:datatype="&xsd;string">Occurrence</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&mission;Joins1">
+        <rdfs:label rdf:datatype="&xsd;string">Joins1</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&base;isContainedIn">
+        <rdfs:label rdf:datatype="&xsd;string">is contained in</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&mission;isInvokedBy">
+        <rdfs:label rdf:datatype="&xsd;string">is invoked by</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&mission;isEmittedBy">
+        <rdfs:label rdf:datatype="&xsd;string">is emitted by</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&mission;Influences">
+        <rdfs:label rdf:datatype="&xsd;string">Influences</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&mission;TransfersOut">
+        <rdfs:label rdf:datatype="&xsd;string">Transfers Out</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&base;hasDescription">
+        <rdfs:label rdf:datatype="&xsd;string">has description</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/time/time#Precedes">
+        <rdfs:label rdf:datatype="&xsd;string">Precedes</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&mission;isPresentedBy">
+        <rdfs:label rdf:datatype="&xsd;string">is presented by</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&base;Package">
+        <rdfs:label rdf:datatype="&xsd;string">Package</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&mission;Function">
+        <rdfs:label rdf:datatype="&xsd;string">Function</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&mission;isDeployedBy">
+        <rdfs:label rdf:datatype="&xsd;string">is deployed by</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&analysis;analyzes">
+        <rdfs:label rdf:datatype="&xsd;string">analyzes</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/time/time#hasStart">
+        <rdfs:label rdf:datatype="&xsd;string">has start</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&analysis;Analysis">
+        <rdfs:label rdf:datatype="&xsd;string">Analysis</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&base;Contains">
+        <rdfs:label rdf:datatype="&xsd;string">Contains</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&mission;isRefinedBy">
+        <rdfs:label rdf:datatype="&xsd;string">is refined by</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&mission;Pursues">
+        <rdfs:label rdf:datatype="&xsd;string">Pursues</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/time/time#hasEnd">
+        <rdfs:label rdf:datatype="&xsd;string">has end</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&mission;emits">
+        <rdfs:label rdf:datatype="&xsd;string">emits</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&mission;Performs">
+        <rdfs:label rdf:datatype="&xsd;string">Performs</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/time/time#HasStart">
+        <rdfs:label rdf:datatype="&xsd;string">Has Start</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&analysis;Metric">
+        <rdfs:label rdf:datatype="&xsd;string">Metric</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&base;Container">
+        <rdfs:label rdf:datatype="&xsd;string">Container</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&mission;Induces">
+        <rdfs:label rdf:datatype="&xsd;string">Induces</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/time/time#StartsAt">
+        <rdfs:label rdf:datatype="&xsd;string">Starts At</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&analysis;HasMetric">
+        <rdfs:label rdf:datatype="&xsd;string">Has Metric</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&base;hasShortName">
+        <rdfs:label rdf:datatype="&xsd;string">has short name</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&mission;isTraversedBy">
+        <rdfs:label rdf:datatype="&xsd;string">is traversed by</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&base;hasSortKey">
+        <rdfs:label rdf:datatype="&xsd;string">has sort key</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&mission;pursues">
+        <rdfs:label rdf:datatype="&xsd;string">pursues</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&mission;Deploys">
+        <rdfs:label rdf:datatype="&xsd;string">Deploys</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&mission;Refines">
+        <rdfs:label rdf:datatype="&xsd;string">Refines</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/time/time#Instant">
+        <rdfs:label rdf:datatype="&xsd;string">Instant</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/time/time#endsAt">
+        <rdfs:label rdf:datatype="&xsd;string">ends at</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&analysis;Assumption">
+        <rdfs:label rdf:datatype="&xsd;string">Assumption</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&mission;PresentingElement">
+        <rdfs:label rdf:datatype="&xsd;string">Presenting Element</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&analysis;Quantifies">
+        <rdfs:label rdf:datatype="&xsd;string">Quantifies</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&mission;Emits">
+        <rdfs:label rdf:datatype="&xsd;string">Emits</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&mission;Ingests">
+        <rdfs:label rdf:datatype="&xsd;string">Ingests</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&analysis;quantifies">
+        <rdfs:label rdf:datatype="&xsd;string">quantifies</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&base;isAggregatedIn">
+        <rdfs:label rdf:datatype="&xsd;string">is aggregated in</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&mission;Sends">
+        <rdfs:label rdf:datatype="&xsd;string">Sends</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&mission;specifies">
+        <rdfs:label rdf:datatype="&xsd;string">specifies</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&mission;Junction">
+        <rdfs:label rdf:datatype="&xsd;string">Junction</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&analysis;hasMetric">
+        <rdfs:label rdf:datatype="&xsd;string">has metric</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&analysis;Criterion">
+        <rdfs:label rdf:datatype="&xsd;string">Criterion</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&mission;isJoinedIn">
+        <rdfs:label rdf:datatype="&xsd;string">is joined in</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&mission;isIngestedBy">
+        <rdfs:label rdf:datatype="&xsd;string">is ingested by</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&analysis;isCharacterizedBy">
+        <rdfs:label rdf:datatype="&xsd;string">is characterized by</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&mission;ingests">
+        <rdfs:label rdf:datatype="&xsd;string">ingests</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&mission;Mission">
+        <rdfs:label rdf:datatype="&xsd;string">Mission</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&analysis;Limits">
+        <rdfs:label rdf:datatype="&xsd;string">Limits</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&mission;isInfluencedBy">
+        <rdfs:label rdf:datatype="&xsd;string">is influenced by</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&mission;Component">
+        <rdfs:label rdf:datatype="&xsd;string">Component</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&analysis;hasValue">
+        <rdfs:label rdf:datatype="&xsd;string">has value</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&analysis;QuantityValue">
+        <rdfs:label rdf:datatype="&xsd;string">Quantity Value</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&mission;hasRationale">
+        <rdfs:label rdf:datatype="&xsd;string">has rationale</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/time/time#EndsAt">
+        <rdfs:label rdf:datatype="&xsd;string">Ends At</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&base;hasIndexEntry">
+        <rdfs:label rdf:datatype="&xsd;string">has index entry</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&base;hasContainmentIndex">
+        <rdfs:label rdf:datatype="&xsd;string">has containment index</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&mission;Invokes">
+        <rdfs:label rdf:datatype="&xsd;string">Invokes</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&analysis;Quantity">
+        <rdfs:label rdf:datatype="&xsd;string">Quantity</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&analysis;CostEstimate">
+        <rdfs:label rdf:datatype="&xsd;string">Cost Estimate</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&mission;Message">
+        <rdfs:label rdf:datatype="&xsd;string">Message</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&mission;sends">
+        <rdfs:label rdf:datatype="&xsd;string">sends</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&analysis;TradeStudy">
+        <rdfs:label rdf:datatype="&xsd;string">Trade Study</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&mission;traverses">
+        <rdfs:label rdf:datatype="&xsd;string">traverses</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&mission;influences">
+        <rdfs:label rdf:datatype="&xsd;string">influences</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/time/time#follows">
+        <rdfs:label rdf:datatype="&xsd;string">follows</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&analysis;isQuantifiedBy">
+        <rdfs:label rdf:datatype="&xsd;string">is quantified by</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&mission;Receives">
+        <rdfs:label rdf:datatype="&xsd;string">Receives</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&base;Aggregates">
+        <rdfs:label rdf:datatype="&xsd;string">Aggregates</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&mission;TraversingElement">
+        <rdfs:label rdf:datatype="&xsd;string">Traversing Element</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&mission;isSentBy">
+        <rdfs:label rdf:datatype="&xsd;string">is sent by</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&mission;isInducedBy">
+        <rdfs:label rdf:datatype="&xsd;string">is induced by</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&base;contains">
+        <rdfs:label rdf:datatype="&xsd;string">contains</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&analysis;MeasuredElement">
+        <rdfs:label rdf:datatype="&xsd;string">Measured Element</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&mission;MaterialItem">
+        <rdfs:label rdf:datatype="&xsd;string">Material Item</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&analysis;Validates">
+        <rdfs:label rdf:datatype="&xsd;string">Validates</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&mission;performs">
+        <rdfs:label rdf:datatype="&xsd;string">performs</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&mission;Presents">
+        <rdfs:label rdf:datatype="&xsd;string">Presents</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&analysis;DrivingRequirementsAnalysis">
+        <rdfs:label rdf:datatype="&xsd;string">Driving Requirements Analysis</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/time/time#Interval">
+        <rdfs:label rdf:datatype="&xsd;string">Interval</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&analysis;Characterizes">
+        <rdfs:label rdf:datatype="&xsd;string">Characterizes</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&analysis;measures">
+        <rdfs:label rdf:datatype="&xsd;string">measures</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&base;AggregatedElement">
+        <rdfs:label rdf:datatype="&xsd;string">Aggregated Element</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&analysis;Fact">
+        <rdfs:label rdf:datatype="&xsd;string">Fact</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/time/time#startsAt">
+        <rdfs:label rdf:datatype="&xsd;string">starts at</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&mission;deploys">
+        <rdfs:label rdf:datatype="&xsd;string">deploys</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/time/time#PrecedesImmediately">
+        <rdfs:label rdf:datatype="&xsd;string">Precedes Immediately</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&base;hasCanonicalName">
+        <rdfs:label rdf:datatype="&xsd;string">has canonical name</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&mission;receives">
+        <rdfs:label rdf:datatype="&xsd;string">receives</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&analysis;KeyRequirementsAnalysis">
+        <rdfs:label rdf:datatype="&xsd;string">Key Requirements Analysis</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&mission;refines">
+        <rdfs:label rdf:datatype="&xsd;string">refines</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&analysis;isMeasuredBy">
+        <rdfs:label rdf:datatype="&xsd;string">is measured by</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&mission;presents">
+        <rdfs:label rdf:datatype="&xsd;string">presents</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&mission;Flow">
+        <rdfs:label rdf:datatype="&xsd;string">Flow</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&mission;isReceivedBy">
+        <rdfs:label rdf:datatype="&xsd;string">is received by</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&base;IdentifiedElement">
+        <rdfs:label rdf:datatype="&xsd;string">Identified Element</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&base;aggregates">
+        <rdfs:label rdf:datatype="&xsd;string">aggregates</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&mission;isSpecifiedBy">
+        <rdfs:label rdf:datatype="&xsd;string">is specified by</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&base;hasUuid">
+        <rdfs:label rdf:datatype="&xsd;string">has uuid</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&base;hasAlternateName">
+        <rdfs:label rdf:datatype="&xsd;string">has alternate name</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&analysis;Measures">
+        <rdfs:label rdf:datatype="&xsd;string">Measures</rdfs:label>
+    </rdf:Description>
+</rdf:RDF>
+
+
+
+<!-- Generated by the OWL API (version 3.4.5-SNAPSHOT) http://owlapi.sourceforge.net -->
+

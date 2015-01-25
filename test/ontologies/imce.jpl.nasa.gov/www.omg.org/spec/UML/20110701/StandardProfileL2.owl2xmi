@@ -1,0 +1,1102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<owl2:Ontology xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:owl2="http://gov.nasa.jpl.imce/OWL2/20110928" xmi:id="_0">
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.0">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.0-_subClassExpression" class="_axioms.163-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.0-_superClassExpression" class="_axioms.198-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.1">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.1-_subClassExpression" class="_axioms.97-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.1-_superClassExpression" class="_axioms.198-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.2">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.2-_subClassExpression" class="_axioms.78-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.2-_superClassExpression">
+      <class href="http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/UML#_axioms.6666-_entity"/>
+    </superClassExpression>
+  </axioms>
+  <axioms xsi:type="owl2:OWLDeclaration" xmi:id="_axioms.3">
+    <entity xsi:type="owl2:OWLClass" xmi:id="_axioms.3-_entity">
+      <entityIRI xmi:id="_axioms.3-_entity-_entityIRI" iri="&lt;http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#File.Executable>"/>
+    </entity>
+  </axioms>
+  <axioms xsi:type="owl2:OWLDeclaration" xmi:id="_axioms.4">
+    <entity xsi:type="owl2:OWLClass" xmi:id="_axioms.4-_entity">
+      <entityIRI xmi:id="_axioms.4-_entity-_entityIRI" iri="&lt;http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#Library>"/>
+    </entity>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.5">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.5-_subClassExpression" class="_axioms.70-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.5-_superClassExpression" class="_axioms.115-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.6">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.6-_subClassExpression" class="_axioms.10-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.6-_superClassExpression">
+      <class href="http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/UML#_axioms.21-_entity"/>
+    </superClassExpression>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.7">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.7-_subClassExpression" class="_axioms.68-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.7-_superClassExpression" class="_axioms.182-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLDeclaration" xmi:id="_axioms.8">
+    <entity xsi:type="owl2:OWLClass" xmi:id="_axioms.8-_entity">
+      <entityIRI xmi:id="_axioms.8-_entity-_entityIRI" iri="&lt;http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#Implement>"/>
+    </entity>
+  </axioms>
+  <axioms xsi:type="owl2:OWLDeclaration" xmi:id="_axioms.9">
+    <entity xsi:type="owl2:OWLClass" xmi:id="_axioms.9-_entity">
+      <entityIRI xmi:id="_axioms.9-_entity-_entityIRI" iri="&lt;http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#Script>"/>
+    </entity>
+  </axioms>
+  <axioms xsi:type="owl2:OWLDeclaration" xmi:id="_axioms.10">
+    <entity xsi:type="owl2:OWLClass" xmi:id="_axioms.10-_entity">
+      <entityIRI xmi:id="_axioms.10-_entity-_entityIRI" iri="&lt;http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#Usage.Instantiate>"/>
+    </entity>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.11">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.11-_subClassExpression" class="_axioms.16-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.11-_superClassExpression">
+      <class href="http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/UML#_axioms.6666-_entity"/>
+    </superClassExpression>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.12">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.12-_subClassExpression" class="_axioms.133-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.12-_superClassExpression">
+      <class href="http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/UML#_axioms.8235-_entity"/>
+    </superClassExpression>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.13">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.13-_subClassExpression" class="_axioms.77-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.13-_superClassExpression" class="_axioms.193-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.14">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.14-_subClassExpression" class="_axioms.105-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.14-_superClassExpression" class="_axioms.198-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.15">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.15-_subClassExpression" class="_axioms.19-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.15-_superClassExpression" class="_axioms.113-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLDeclaration" xmi:id="_axioms.16">
+    <entity xsi:type="owl2:OWLClass" xmi:id="_axioms.16-_entity">
+      <entityIRI xmi:id="_axioms.16-_entity-_entityIRI" iri="&lt;http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#Abstraction.Refine>"/>
+    </entity>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.17">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.17-_subClassExpression" class="_axioms.139-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.17-_superClassExpression" class="_axioms.4-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.18">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.18-_subClassExpression" class="_axioms.28-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.18-_superClassExpression">
+      <class href="http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/UML#_axioms.3971-_entity"/>
+    </superClassExpression>
+  </axioms>
+  <axioms xsi:type="owl2:OWLDeclaration" xmi:id="_axioms.19">
+    <entity xsi:type="owl2:OWLClass" xmi:id="_axioms.19-_entity">
+      <entityIRI xmi:id="_axioms.19-_entity-_entityIRI" iri="&lt;http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#File.Source>"/>
+    </entity>
+  </axioms>
+  <axioms xsi:type="owl2:OWLDeclaration" xmi:id="_axioms.20">
+    <entity xsi:type="owl2:OWLClass" xmi:id="_axioms.20-_entity">
+      <entityIRI xmi:id="_axioms.20-_entity-_entityIRI" iri="&lt;http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#Executable>"/>
+    </entity>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.21">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.21-_subClassExpression" class="_axioms.190-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.21-_superClassExpression" class="_axioms.84-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.22">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.22-_subClassExpression" class="_axioms.43-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.22-_superClassExpression">
+      <class href="http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/UML#_axioms.9395-_entity"/>
+    </superClassExpression>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubObjectPropertyOf" xmi:id="_axioms.23">
+    <subObjectPropertyExpression xsi:type="owl2:OWLObjectPropertyReference" xmi:id="_axioms.23-_subObjectPropertyExpression" objectProperty="_axioms.29-_entity"/>
+    <superObjectPropertyExpression xsi:type="owl2:OWLObjectPropertyReference" xmi:id="_axioms.23-_superObjectPropertyExpression" objectProperty="_axioms.175-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLDeclaration" xmi:id="_axioms.24">
+    <entity xsi:type="owl2:OWLClass" xmi:id="_axioms.24-_entity">
+      <entityIRI xmi:id="_axioms.24-_entity-_entityIRI" iri="&lt;http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#Responsibility>"/>
+    </entity>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.25">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.25-_subClassExpression" class="_axioms.80-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.25-_superClassExpression">
+      <class href="http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/UML#_axioms.3393-_entity"/>
+    </superClassExpression>
+  </axioms>
+  <axioms xsi:type="owl2:OWLDeclaration" xmi:id="_axioms.26">
+    <entity xsi:type="owl2:OWLClass" xmi:id="_axioms.26-_entity">
+      <entityIRI xmi:id="_axioms.26-_entity-_entityIRI" iri="&lt;http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#Instantiate>"/>
+    </entity>
+  </axioms>
+  <axioms xsi:type="owl2:OWLDeclaration" xmi:id="_axioms.27">
+    <entity xsi:type="owl2:OWLClass" xmi:id="_axioms.27-_entity">
+      <entityIRI xmi:id="_axioms.27-_entity-_entityIRI" iri="&lt;http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#Create>"/>
+    </entity>
+  </axioms>
+  <axioms xsi:type="owl2:OWLDeclaration" xmi:id="_axioms.28">
+    <entity xsi:type="owl2:OWLClass" xmi:id="_axioms.28-_entity">
+      <entityIRI xmi:id="_axioms.28-_entity-_entityIRI" iri="&lt;http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#BehavioralFeature.Create>"/>
+    </entity>
+  </axioms>
+  <axioms xsi:type="owl2:OWLDeclaration" xmi:id="_axioms.29">
+    <entity xsi:type="owl2:OWLObjectProperty" xmi:id="_axioms.29-_entity">
+      <entityIRI xmi:id="_axioms.29-_entity-_entityIRI" iri="&lt;http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#topStructuredDataProperty>"/>
+    </entity>
+  </axioms>
+  <axioms xsi:type="owl2:OWLDeclaration" xmi:id="_axioms.30">
+    <entity xsi:type="owl2:OWLClass" xmi:id="_axioms.30-_entity">
+      <entityIRI xmi:id="_axioms.30-_entity-_entityIRI" iri="&lt;http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#Classifier.Specification>"/>
+    </entity>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.31">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.31-_subClassExpression" class="_axioms.196-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.31-_superClassExpression" class="_axioms.110-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.32">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.32-_subClassExpression" class="_axioms.43-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.32-_superClassExpression" class="_axioms.197-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.33">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.33-_subClassExpression" class="_axioms.27-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.33-_superClassExpression" class="_axioms.198-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.34">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.34-_subClassExpression" class="_axioms.143-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.34-_superClassExpression">
+      <class href="http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/UML#_axioms.21-_entity"/>
+    </superClassExpression>
+  </axioms>
+  <axioms xsi:type="owl2:OWLAnnotationAssertion" xmi:id="_axioms.35">
+    <annotationProperty xmi:id="_axioms.35-_annotationProperty">
+      <annotationProperty href="http://imce.jpl.nasa.gov/foundation/annotation/annotation#_axioms.95-_entity"/>
+    </annotationProperty>
+    <annotationSubject xsi:type="owl2:IRI" xmi:id="_axioms.35-_annotationSubject" iri="&lt;http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#topDataProperty>"/>
+    <annotationValue xsi:type="owl2:OWLLiteral" xmi:id="_axioms.35-_annotationValue" languageTag="" lexicalForm="true">
+      <datatype xmi:id="_axioms.35-_annotationValue-_datatype" arity="1">
+        <dataType href="http://www.w3.org/2001/XMLSchema#_axioms.23-_entity"/>
+      </datatype>
+    </annotationValue>
+  </axioms>
+  <axioms xsi:type="owl2:OWLCharacteristicOfObjectProperty" xmi:id="_axioms.36">
+    <objectPropertyExpression xsi:type="owl2:OWLObjectPropertyReference" xmi:id="_axioms.36-_objectPropertyExpression" objectProperty="_axioms.157-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLDeclaration" xmi:id="_axioms.37">
+    <entity xsi:type="owl2:OWLObjectProperty" xmi:id="_axioms.37-_entity">
+      <entityIRI xmi:id="_axioms.37-_entity-_entityIRI" iri="&lt;http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#topReifiedObjectPropertySource>"/>
+    </entity>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.38">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.38-_subClassExpression" class="_axioms.111-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.38-_superClassExpression" class="_axioms.198-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLDeclaration" xmi:id="_axioms.39">
+    <entity xsi:type="owl2:OWLClass" xmi:id="_axioms.39-_entity">
+      <entityIRI xmi:id="_axioms.39-_entity-_entityIRI" iri="&lt;http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#Class.Auxiliary>"/>
+    </entity>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.40">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.40-_subClassExpression" class="_axioms.78-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.40-_superClassExpression" class="_axioms.162-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.41">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.41-_subClassExpression" class="_axioms.130-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.41-_superClassExpression">
+      <class href="http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/UML#_axioms.9395-_entity"/>
+    </superClassExpression>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubObjectPropertyOf" xmi:id="_axioms.42">
+    <subObjectPropertyExpression xsi:type="owl2:OWLObjectPropertyReference" xmi:id="_axioms.42-_subObjectPropertyExpression" objectProperty="_axioms.37-_entity"/>
+    <superObjectPropertyExpression xsi:type="owl2:OWLObjectPropertyReference" xmi:id="_axioms.42-_superObjectPropertyExpression" objectProperty="_axioms.175-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLDeclaration" xmi:id="_axioms.43">
+    <entity xsi:type="owl2:OWLClass" xmi:id="_axioms.43-_entity">
+      <entityIRI xmi:id="_axioms.43-_entity-_entityIRI" iri="&lt;http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#Component.Entity>"/>
+    </entity>
+  </axioms>
+  <axioms xsi:type="owl2:OWLDeclaration" xmi:id="_axioms.44">
+    <entity xsi:type="owl2:OWLClass" xmi:id="_axioms.44-_entity">
+      <entityIRI xmi:id="_axioms.44-_entity-_entityIRI" iri="&lt;http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#Component.Implement>"/>
+    </entity>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.45">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.45-_subClassExpression" class="_axioms.44-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.45-_superClassExpression" class="_axioms.8-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.46">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.46-_subClassExpression" class="_axioms.19-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.46-_superClassExpression" class="_axioms.182-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.47">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.47-_subClassExpression" class="_axioms.44-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.47-_superClassExpression">
+      <class href="http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/UML#_axioms.9395-_entity"/>
+    </superClassExpression>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.48">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.48-_subClassExpression" class="_axioms.9-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.48-_superClassExpression" class="_axioms.182-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.49">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.49-_subClassExpression" class="_axioms.136-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.49-_superClassExpression" class="_axioms.198-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.50">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.50-_subClassExpression" class="_axioms.196-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.50-_superClassExpression">
+      <class href="http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/UML#_axioms.21-_entity"/>
+    </superClassExpression>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.51">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.51-_subClassExpression" class="_axioms.39-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.51-_superClassExpression">
+      <class href="http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/UML#_axioms.3393-_entity"/>
+    </superClassExpression>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.52">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.52-_subClassExpression" class="_axioms.99-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.52-_superClassExpression" class="_axioms.198-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLAnnotationAssertion" xmi:id="_axioms.53">
+    <annotationProperty xmi:id="_axioms.53-_annotationProperty">
+      <annotationProperty href="http://imce.jpl.nasa.gov/foundation/annotation/annotation#_axioms.95-_entity"/>
+    </annotationProperty>
+    <annotationSubject xsi:type="owl2:IRI" xmi:id="_axioms.53-_annotationSubject" iri="&lt;http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#Entity>"/>
+    <annotationValue xsi:type="owl2:OWLLiteral" xmi:id="_axioms.53-_annotationValue" languageTag="" lexicalForm="true">
+      <datatype xmi:id="_axioms.53-_annotationValue-_datatype" arity="1">
+        <dataType href="http://www.w3.org/2001/XMLSchema#_axioms.23-_entity"/>
+      </datatype>
+    </annotationValue>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.54">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.54-_subClassExpression" class="_axioms.188-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.54-_superClassExpression">
+      <class href="http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/UML#_axioms.9395-_entity"/>
+    </superClassExpression>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.55">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.55-_subClassExpression" class="_axioms.181-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.55-_superClassExpression" class="_axioms.176-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLAnnotationAssertion" xmi:id="_axioms.56">
+    <annotationProperty xmi:id="_axioms.56-_annotationProperty">
+      <annotationProperty href="http://imce.jpl.nasa.gov/foundation/annotation/annotation#_axioms.95-_entity"/>
+    </annotationProperty>
+    <annotationSubject xsi:type="owl2:IRI" xmi:id="_axioms.56-_annotationSubject" iri="&lt;http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#ObjectPropertyDependentRangeType>"/>
+    <annotationValue xsi:type="owl2:OWLLiteral" xmi:id="_axioms.56-_annotationValue" languageTag="" lexicalForm="true">
+      <datatype xmi:id="_axioms.56-_annotationValue-_datatype" arity="1">
+        <dataType href="http://www.w3.org/2001/XMLSchema#_axioms.23-_entity"/>
+      </datatype>
+    </annotationValue>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.57">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.57-_subClassExpression" class="_axioms.197-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.57-_superClassExpression" class="_axioms.198-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLAnnotationAssertion" xmi:id="_axioms.58">
+    <annotationProperty xmi:id="_axioms.58-_annotationProperty">
+      <annotationProperty href="http://imce.jpl.nasa.gov/foundation/annotation/annotation#_axioms.95-_entity"/>
+    </annotationProperty>
+    <annotationSubject xsi:type="owl2:IRI" xmi:id="_axioms.58-_annotationSubject" iri="&lt;http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#topReifiedObjectPropertyTarget>"/>
+    <annotationValue xsi:type="owl2:OWLLiteral" xmi:id="_axioms.58-_annotationValue" languageTag="" lexicalForm="true">
+      <datatype xmi:id="_axioms.58-_annotationValue-_datatype" arity="1">
+        <dataType href="http://www.w3.org/2001/XMLSchema#_axioms.23-_entity"/>
+      </datatype>
+    </annotationValue>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.59">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.59-_subClassExpression" class="_axioms.140-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.59-_superClassExpression" class="_axioms.198-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLDeclaration" xmi:id="_axioms.60">
+    <entity xsi:type="owl2:OWLClass" xmi:id="_axioms.60-_entity">
+      <entityIRI xmi:id="_axioms.60-_entity-_entityIRI" iri="&lt;http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#Usage.Call>"/>
+    </entity>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.61">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.61-_subClassExpression" class="_axioms.26-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.61-_superClassExpression" class="_axioms.198-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.62">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.62-_subClassExpression" class="_axioms.20-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.62-_superClassExpression" class="_axioms.182-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.63">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.63-_subClassExpression" class="_axioms.72-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.63-_superClassExpression">
+      <class href="http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/UML#_axioms.21-_entity"/>
+    </superClassExpression>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.64">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.64-_subClassExpression" class="_axioms.95-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.64-_superClassExpression" class="_axioms.198-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLDeclaration" xmi:id="_axioms.65">
+    <entity xsi:type="owl2:OWLClass" xmi:id="_axioms.65-_entity">
+      <entityIRI xmi:id="_axioms.65-_entity-_entityIRI" iri="&lt;http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#StructuredDatatype>"/>
+    </entity>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.66">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.66-_subClassExpression" class="_axioms.143-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.66-_superClassExpression" class="_axioms.27-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.67">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.67-_subClassExpression" class="_axioms.198-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.67-_superClassExpression" class="_axioms.84-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLDeclaration" xmi:id="_axioms.68">
+    <entity xsi:type="owl2:OWLClass" xmi:id="_axioms.68-_entity">
+      <entityIRI xmi:id="_axioms.68-_entity-_entityIRI" iri="&lt;http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#File.Script>"/>
+    </entity>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.69">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.69-_subClassExpression" class="_axioms.3-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.69-_superClassExpression" class="_axioms.20-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLDeclaration" xmi:id="_axioms.70">
+    <entity xsi:type="owl2:OWLClass" xmi:id="_axioms.70-_entity">
+      <entityIRI xmi:id="_axioms.70-_entity-_entityIRI" iri="&lt;http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#Class.Utility>"/>
+    </entity>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubObjectPropertyOf" xmi:id="_axioms.71">
+    <subObjectPropertyExpression xsi:type="owl2:OWLObjectPropertyReference" xmi:id="_axioms.71-_subObjectPropertyExpression" objectProperty="_axioms.157-_entity"/>
+    <superObjectPropertyExpression xsi:type="owl2:OWLObjectPropertyReference" xmi:id="_axioms.71-_superObjectPropertyExpression" objectProperty="_axioms.175-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLDeclaration" xmi:id="_axioms.72">
+    <entity xsi:type="owl2:OWLClass" xmi:id="_axioms.72-_entity">
+      <entityIRI xmi:id="_axioms.72-_entity-_entityIRI" iri="&lt;http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#Usage.Responsibility>"/>
+    </entity>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.73">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.73-_subClassExpression" class="_axioms.70-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.73-_superClassExpression">
+      <class href="http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/UML#_axioms.3393-_entity"/>
+    </superClassExpression>
+  </axioms>
+  <axioms xsi:type="owl2:OWLDeclaration" xmi:id="_axioms.74">
+    <entity xsi:type="owl2:OWLClass" xmi:id="_axioms.74-_entity">
+      <entityIRI xmi:id="_axioms.74-_entity-_entityIRI" iri="&lt;http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#Auxiliary>"/>
+    </entity>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.75">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.75-_subClassExpression" class="_axioms.173-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.75-_superClassExpression" class="_axioms.198-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubObjectPropertyOf" xmi:id="_axioms.76">
+    <subObjectPropertyExpression xsi:type="owl2:OWLObjectPropertyReference" xmi:id="_axioms.76-_subObjectPropertyExpression" objectProperty="_axioms.170-_entity"/>
+    <superObjectPropertyExpression xsi:type="owl2:OWLObjectPropertyReference" xmi:id="_axioms.76-_superObjectPropertyExpression" objectProperty="_axioms.175-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLDeclaration" xmi:id="_axioms.77">
+    <entity xsi:type="owl2:OWLClass" xmi:id="_axioms.77-_entity">
+      <entityIRI xmi:id="_axioms.77-_entity-_entityIRI" iri="&lt;http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#File.Document>"/>
+    </entity>
+  </axioms>
+  <axioms xsi:type="owl2:OWLDeclaration" xmi:id="_axioms.78">
+    <entity xsi:type="owl2:OWLClass" xmi:id="_axioms.78-_entity">
+      <entityIRI xmi:id="_axioms.78-_entity-_entityIRI" iri="&lt;http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#Abstraction.Trace>"/>
+    </entity>
+  </axioms>
+  <axioms xsi:type="owl2:OWLDeclaration" xmi:id="_axioms.79">
+    <entity xsi:type="owl2:OWLClass" xmi:id="_axioms.79-_entity">
+      <entityIRI xmi:id="_axioms.79-_entity-_entityIRI" iri="&lt;http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#Class.Type>"/>
+    </entity>
+  </axioms>
+  <axioms xsi:type="owl2:OWLDeclaration" xmi:id="_axioms.80">
+    <entity xsi:type="owl2:OWLClass" xmi:id="_axioms.80-_entity">
+      <entityIRI xmi:id="_axioms.80-_entity-_entityIRI" iri="&lt;http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#Class.Focus>"/>
+    </entity>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.81">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.81-_subClassExpression" class="_axioms.60-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.81-_superClassExpression">
+      <class href="http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/UML#_axioms.21-_entity"/>
+    </superClassExpression>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.82">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.82-_subClassExpression" class="_axioms.28-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.82-_superClassExpression" class="_axioms.27-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.83">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.83-_subClassExpression" class="_axioms.195-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.83-_superClassExpression" class="_axioms.105-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLDeclaration" xmi:id="_axioms.84">
+    <entity xsi:type="owl2:OWLClass" xmi:id="_axioms.84-_entity">
+      <entityIRI xmi:id="_axioms.84-_entity-_entityIRI" iri="&lt;http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#Thing>"/>
+    </entity>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.85">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.85-_subClassExpression" class="_axioms.103-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.85-_superClassExpression" class="_axioms.125-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLAnnotationAssertion" xmi:id="_axioms.86">
+    <annotationProperty xmi:id="_axioms.86-_annotationProperty">
+      <annotationProperty href="http://imce.jpl.nasa.gov/foundation/annotation/annotation#_axioms.79-_entity"/>
+    </annotationProperty>
+    <annotationSubject xsi:type="owl2:IRI" xmi:id="_axioms.86-_annotationSubject" iri="&lt;http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#Thing>"/>
+    <annotationValue xsi:type="owl2:OWLLiteral" xmi:id="_axioms.86-_annotationValue" languageTag="" lexicalForm="true">
+      <datatype xmi:id="_axioms.86-_annotationValue-_datatype" arity="1">
+        <dataType href="http://www.w3.org/2001/XMLSchema#_axioms.23-_entity"/>
+      </datatype>
+    </annotationValue>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.87">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.87-_subClassExpression" class="_axioms.77-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.87-_superClassExpression" class="_axioms.182-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.88">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.88-_subClassExpression" class="_axioms.195-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.88-_superClassExpression">
+      <class href="http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/UML#_axioms.9395-_entity"/>
+    </superClassExpression>
+  </axioms>
+  <axioms xsi:type="owl2:OWLCharacteristicOfObjectProperty" xmi:id="_axioms.89" characteristic="inverseFunctional">
+    <objectPropertyExpression xsi:type="owl2:OWLObjectPropertyReference" xmi:id="_axioms.89-_objectPropertyExpression" objectProperty="_axioms.29-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.90">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.90-_subClassExpression" class="_axioms.156-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.90-_superClassExpression" class="_axioms.198-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.91">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.91-_subClassExpression" class="_axioms.192-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.91-_superClassExpression" class="_axioms.155-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLAnnotationAssertion" xmi:id="_axioms.92">
+    <annotationProperty xmi:id="_axioms.92-_annotationProperty">
+      <annotationProperty href="http://imce.jpl.nasa.gov/foundation/annotation/annotation#_axioms.79-_entity"/>
+    </annotationProperty>
+    <annotationSubject xsi:type="owl2:IRI" xmi:id="_axioms.92-_annotationSubject" iri="&lt;http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#StructuredDatatype>"/>
+    <annotationValue xsi:type="owl2:OWLLiteral" xmi:id="_axioms.92-_annotationValue" languageTag="" lexicalForm="true">
+      <datatype xmi:id="_axioms.92-_annotationValue-_datatype" arity="1">
+        <dataType href="http://www.w3.org/2001/XMLSchema#_axioms.23-_entity"/>
+      </datatype>
+    </annotationValue>
+  </axioms>
+  <axioms xsi:type="owl2:OWLDeclaration" xmi:id="_axioms.93">
+    <entity xsi:type="owl2:OWLDataProperty" xmi:id="_axioms.93-_entity">
+      <entityIRI xmi:id="_axioms.93-_entity-_entityIRI" iri="&lt;http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#topDataProperty>"/>
+    </entity>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.94">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.94-_subClassExpression" class="_axioms.4-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.94-_superClassExpression" class="_axioms.182-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLDeclaration" xmi:id="_axioms.95">
+    <entity xsi:type="owl2:OWLClass" xmi:id="_axioms.95-_entity">
+      <entityIRI xmi:id="_axioms.95-_entity-_entityIRI" iri="&lt;http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#ImplementationClass>"/>
+    </entity>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.96">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.96-_subClassExpression" class="_axioms.108-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.96-_superClassExpression" class="_axioms.182-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLDeclaration" xmi:id="_axioms.97">
+    <entity xsi:type="owl2:OWLClass" xmi:id="_axioms.97-_entity">
+      <entityIRI xmi:id="_axioms.97-_entity-_entityIRI" iri="&lt;http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#Type>"/>
+    </entity>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.98">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.98-_subClassExpression" class="_axioms.39-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.98-_superClassExpression" class="_axioms.74-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLDeclaration" xmi:id="_axioms.99">
+    <entity xsi:type="owl2:OWLClass" xmi:id="_axioms.99-_entity">
+      <entityIRI xmi:id="_axioms.99-_entity-_entityIRI" iri="&lt;http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#Specification>"/>
+    </entity>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.100">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.100-_subClassExpression" class="_axioms.68-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.100-_superClassExpression" class="_axioms.9-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLAnnotationAssertion" xmi:id="_axioms.101">
+    <annotationProperty xmi:id="_axioms.101-_annotationProperty">
+      <annotationProperty href="http://imce.jpl.nasa.gov/foundation/annotation/annotation#_axioms.79-_entity"/>
+    </annotationProperty>
+    <annotationSubject xsi:type="owl2:IRI" xmi:id="_axioms.101-_annotationSubject" iri="&lt;http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#Entity>"/>
+    <annotationValue xsi:type="owl2:OWLLiteral" xmi:id="_axioms.101-_annotationValue" languageTag="" lexicalForm="true">
+      <datatype xmi:id="_axioms.101-_annotationValue-_datatype" arity="1">
+        <dataType href="http://www.w3.org/2001/XMLSchema#_axioms.23-_entity"/>
+      </datatype>
+    </annotationValue>
+  </axioms>
+  <axioms xsi:type="owl2:OWLAnnotationAssertion" xmi:id="_axioms.102">
+    <annotationProperty xmi:id="_axioms.102-_annotationProperty">
+      <annotationProperty href="http://imce.jpl.nasa.gov/foundation/annotation/annotation#_axioms.95-_entity"/>
+    </annotationProperty>
+    <annotationSubject xsi:type="owl2:IRI" xmi:id="_axioms.102-_annotationSubject" iri="&lt;http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#ReifiedObjectProperty>"/>
+    <annotationValue xsi:type="owl2:OWLLiteral" xmi:id="_axioms.102-_annotationValue" languageTag="" lexicalForm="true">
+      <datatype xmi:id="_axioms.102-_annotationValue-_datatype" arity="1">
+        <dataType href="http://www.w3.org/2001/XMLSchema#_axioms.23-_entity"/>
+      </datatype>
+    </annotationValue>
+  </axioms>
+  <axioms xsi:type="owl2:OWLDeclaration" xmi:id="_axioms.103">
+    <entity xsi:type="owl2:OWLClass" xmi:id="_axioms.103-_entity">
+      <entityIRI xmi:id="_axioms.103-_entity-_entityIRI" iri="&lt;http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#Classifier.Realization>"/>
+    </entity>
+  </axioms>
+  <axioms xsi:type="owl2:OWLAnnotationAssertion" xmi:id="_axioms.104">
+    <annotationProperty xmi:id="_axioms.104-_annotationProperty">
+      <annotationProperty href="http://imce.jpl.nasa.gov/foundation/annotation/annotation#_axioms.79-_entity"/>
+    </annotationProperty>
+    <annotationSubject xsi:type="owl2:IRI" xmi:id="_axioms.104-_annotationSubject" iri="&lt;http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#topReifiedObjectProperty>"/>
+    <annotationValue xsi:type="owl2:OWLLiteral" xmi:id="_axioms.104-_annotationValue" languageTag="" lexicalForm="true">
+      <datatype xmi:id="_axioms.104-_annotationValue-_datatype" arity="1">
+        <dataType href="http://www.w3.org/2001/XMLSchema#_axioms.23-_entity"/>
+      </datatype>
+    </annotationValue>
+  </axioms>
+  <axioms xsi:type="owl2:OWLDeclaration" xmi:id="_axioms.105">
+    <entity xsi:type="owl2:OWLClass" xmi:id="_axioms.105-_entity">
+      <entityIRI xmi:id="_axioms.105-_entity-_entityIRI" iri="&lt;http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#Service>"/>
+    </entity>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.106">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.106-_subClassExpression" class="_axioms.103-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.106-_superClassExpression">
+      <class href="http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/UML#_axioms.7543-_entity"/>
+    </superClassExpression>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.107">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.107-_subClassExpression" class="_axioms.79-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.107-_superClassExpression">
+      <class href="http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/UML#_axioms.3393-_entity"/>
+    </superClassExpression>
+  </axioms>
+  <axioms xsi:type="owl2:OWLDeclaration" xmi:id="_axioms.108">
+    <entity xsi:type="owl2:OWLClass" xmi:id="_axioms.108-_entity">
+      <entityIRI xmi:id="_axioms.108-_entity-_entityIRI" iri="&lt;http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#Artifact.File>"/>
+    </entity>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.109">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.109-_subClassExpression" class="_axioms.115-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.109-_superClassExpression" class="_axioms.198-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLDeclaration" xmi:id="_axioms.110">
+    <entity xsi:type="owl2:OWLClass" xmi:id="_axioms.110-_entity">
+      <entityIRI xmi:id="_axioms.110-_entity-_entityIRI" iri="&lt;http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#Send>"/>
+    </entity>
+  </axioms>
+  <axioms xsi:type="owl2:OWLDeclaration" xmi:id="_axioms.111">
+    <entity xsi:type="owl2:OWLClass" xmi:id="_axioms.111-_entity">
+      <entityIRI xmi:id="_axioms.111-_entity-_entityIRI" iri="&lt;http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#Framework>"/>
+    </entity>
+  </axioms>
+  <axioms xsi:type="owl2:OWLAnnotationAssertion" xmi:id="_axioms.112">
+    <annotationProperty xmi:id="_axioms.112-_annotationProperty">
+      <annotationProperty href="http://imce.jpl.nasa.gov/foundation/annotation/annotation#_axioms.79-_entity"/>
+    </annotationProperty>
+    <annotationSubject xsi:type="owl2:IRI" xmi:id="_axioms.112-_annotationSubject" iri="&lt;http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#topObjectProperty>"/>
+    <annotationValue xsi:type="owl2:OWLLiteral" xmi:id="_axioms.112-_annotationValue" languageTag="" lexicalForm="true">
+      <datatype xmi:id="_axioms.112-_annotationValue-_datatype" arity="1">
+        <dataType href="http://www.w3.org/2001/XMLSchema#_axioms.23-_entity"/>
+      </datatype>
+    </annotationValue>
+  </axioms>
+  <axioms xsi:type="owl2:OWLDeclaration" xmi:id="_axioms.113">
+    <entity xsi:type="owl2:OWLClass" xmi:id="_axioms.113-_entity">
+      <entityIRI xmi:id="_axioms.113-_entity-_entityIRI" iri="&lt;http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#Source>"/>
+    </entity>
+  </axioms>
+  <axioms xsi:type="owl2:OWLDeclaration" xmi:id="_axioms.114">
+    <entity xsi:type="owl2:OWLClass" xmi:id="_axioms.114-_entity">
+      <entityIRI xmi:id="_axioms.114-_entity-_entityIRI" iri="&lt;http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#Metaclass>"/>
+    </entity>
+  </axioms>
+  <axioms xsi:type="owl2:OWLDeclaration" xmi:id="_axioms.115">
+    <entity xsi:type="owl2:OWLClass" xmi:id="_axioms.115-_entity">
+      <entityIRI xmi:id="_axioms.115-_entity-_entityIRI" iri="&lt;http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#Utility>"/>
+    </entity>
+  </axioms>
+  <axioms xsi:type="owl2:OWLAnnotationAssertion" xmi:id="_axioms.116">
+    <annotationProperty xmi:id="_axioms.116-_annotationProperty">
+      <annotationProperty href="http://imce.jpl.nasa.gov/foundation/annotation/annotation#_axioms.95-_entity"/>
+    </annotationProperty>
+    <annotationSubject xsi:type="owl2:IRI" xmi:id="_axioms.116-_annotationSubject" iri="&lt;http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#topStructuredDataProperty>"/>
+    <annotationValue xsi:type="owl2:OWLLiteral" xmi:id="_axioms.116-_annotationValue" languageTag="" lexicalForm="true">
+      <datatype xmi:id="_axioms.116-_annotationValue-_datatype" arity="1">
+        <dataType href="http://www.w3.org/2001/XMLSchema#_axioms.23-_entity"/>
+      </datatype>
+    </annotationValue>
+  </axioms>
+  <axioms xsi:type="owl2:OWLAnnotationAssertion" xmi:id="_axioms.117">
+    <annotationProperty xmi:id="_axioms.117-_annotationProperty">
+      <annotationProperty href="http://imce.jpl.nasa.gov/foundation/annotation/annotation#_axioms.79-_entity"/>
+    </annotationProperty>
+    <annotationSubject xsi:type="owl2:IRI" xmi:id="_axioms.117-_annotationSubject" iri="&lt;http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#ReifiedObjectProperty>"/>
+    <annotationValue xsi:type="owl2:OWLLiteral" xmi:id="_axioms.117-_annotationValue" languageTag="" lexicalForm="true">
+      <datatype xmi:id="_axioms.117-_annotationValue-_datatype" arity="1">
+        <dataType href="http://www.w3.org/2001/XMLSchema#_axioms.23-_entity"/>
+      </datatype>
+    </annotationValue>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.118">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.118-_subClassExpression" class="_axioms.162-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.118-_superClassExpression" class="_axioms.198-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLAnnotationAssertion" xmi:id="_axioms.119">
+    <annotationProperty xmi:id="_axioms.119-_annotationProperty">
+      <annotationProperty href="http://imce.jpl.nasa.gov/foundation/annotation/annotation#_axioms.95-_entity"/>
+    </annotationProperty>
+    <annotationSubject xsi:type="owl2:IRI" xmi:id="_axioms.119-_annotationSubject" iri="&lt;http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#Thing>"/>
+    <annotationValue xsi:type="owl2:OWLLiteral" xmi:id="_axioms.119-_annotationValue" languageTag="" lexicalForm="true">
+      <datatype xmi:id="_axioms.119-_annotationValue-_datatype" arity="1">
+        <dataType href="http://www.w3.org/2001/XMLSchema#_axioms.23-_entity"/>
+      </datatype>
+    </annotationValue>
+  </axioms>
+  <axioms xsi:type="owl2:OWLDeclaration" xmi:id="_axioms.120">
+    <entity xsi:type="owl2:OWLClass" xmi:id="_axioms.120-_entity">
+      <entityIRI xmi:id="_axioms.120-_entity-_entityIRI" iri="&lt;http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#ObjectPropertyDependentRangeType>"/>
+    </entity>
+  </axioms>
+  <axioms xsi:type="owl2:OWLDeclaration" xmi:id="_axioms.121">
+    <entity xsi:type="owl2:OWLClass" xmi:id="_axioms.121-_entity">
+      <entityIRI xmi:id="_axioms.121-_entity-_entityIRI" iri="&lt;http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#Call>"/>
+    </entity>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.122">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.122-_subClassExpression" class="_axioms.155-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.122-_superClassExpression" class="_axioms.198-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLAnnotationAssertion" xmi:id="_axioms.123">
+    <annotationProperty xmi:id="_axioms.123-_annotationProperty">
+      <annotationProperty href="http://imce.jpl.nasa.gov/foundation/annotation/annotation#_axioms.79-_entity"/>
+    </annotationProperty>
+    <annotationSubject xsi:type="owl2:IRI" xmi:id="_axioms.123-_annotationSubject" iri="&lt;http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#File>"/>
+    <annotationValue xsi:type="owl2:OWLLiteral" xmi:id="_axioms.123-_annotationValue" languageTag="" lexicalForm="true">
+      <datatype xmi:id="_axioms.123-_annotationValue-_datatype" arity="1">
+        <dataType href="http://www.w3.org/2001/XMLSchema#_axioms.23-_entity"/>
+      </datatype>
+    </annotationValue>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.124">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.124-_subClassExpression" class="_axioms.182-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.124-_superClassExpression" class="_axioms.198-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLDeclaration" xmi:id="_axioms.125">
+    <entity xsi:type="owl2:OWLClass" xmi:id="_axioms.125-_entity">
+      <entityIRI xmi:id="_axioms.125-_entity-_entityIRI" iri="&lt;http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#Realization>"/>
+    </entity>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.126">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.126-_subClassExpression" class="_axioms.110-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.126-_superClassExpression" class="_axioms.198-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLDeclaration" xmi:id="_axioms.127">
+    <entity xsi:type="owl2:OWLClass" xmi:id="_axioms.127-_entity">
+      <entityIRI xmi:id="_axioms.127-_entity-_entityIRI" iri="&lt;http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#Package.Framework>"/>
+    </entity>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.128">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.128-_subClassExpression" class="_axioms.65-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.128-_superClassExpression" class="_axioms.84-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLAnnotationAssertion" xmi:id="_axioms.129">
+    <annotationProperty xmi:id="_axioms.129-_annotationProperty">
+      <annotationProperty href="http://imce.jpl.nasa.gov/foundation/annotation/annotation#_axioms.95-_entity"/>
+    </annotationProperty>
+    <annotationSubject xsi:type="owl2:IRI" xmi:id="_axioms.129-_annotationSubject" iri="&lt;http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#File>"/>
+    <annotationValue xsi:type="owl2:OWLLiteral" xmi:id="_axioms.129-_annotationValue" languageTag="" lexicalForm="true">
+      <datatype xmi:id="_axioms.129-_annotationValue-_datatype" arity="1">
+        <dataType href="http://www.w3.org/2001/XMLSchema#_axioms.23-_entity"/>
+      </datatype>
+    </annotationValue>
+  </axioms>
+  <axioms xsi:type="owl2:OWLDeclaration" xmi:id="_axioms.130">
+    <entity xsi:type="owl2:OWLClass" xmi:id="_axioms.130-_entity">
+      <entityIRI xmi:id="_axioms.130-_entity-_entityIRI" iri="&lt;http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#Component.Process>"/>
+    </entity>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.131">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.131-_subClassExpression" class="_axioms.30-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.131-_superClassExpression" class="_axioms.99-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLAnnotationAssertion" xmi:id="_axioms.132">
+    <annotationProperty xmi:id="_axioms.132-_annotationProperty">
+      <annotationProperty href="http://imce.jpl.nasa.gov/foundation/annotation/annotation#_axioms.95-_entity"/>
+    </annotationProperty>
+    <annotationSubject xsi:type="owl2:IRI" xmi:id="_axioms.132-_annotationSubject" iri="&lt;http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#StructuredDatatype>"/>
+    <annotationValue xsi:type="owl2:OWLLiteral" xmi:id="_axioms.132-_annotationValue" languageTag="" lexicalForm="true">
+      <datatype xmi:id="_axioms.132-_annotationValue-_datatype" arity="1">
+        <dataType href="http://www.w3.org/2001/XMLSchema#_axioms.23-_entity"/>
+      </datatype>
+    </annotationValue>
+  </axioms>
+  <axioms xsi:type="owl2:OWLDeclaration" xmi:id="_axioms.133">
+    <entity xsi:type="owl2:OWLClass" xmi:id="_axioms.133-_entity">
+      <entityIRI xmi:id="_axioms.133-_entity-_entityIRI" iri="&lt;http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#Package.ModelLibrary>"/>
+    </entity>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.134">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.134-_subClassExpression" class="_axioms.16-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.134-_superClassExpression" class="_axioms.156-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.135">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.135-_subClassExpression" class="_axioms.120-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.135-_superClassExpression" class="_axioms.198-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLDeclaration" xmi:id="_axioms.136">
+    <entity xsi:type="owl2:OWLClass" xmi:id="_axioms.136-_entity">
+      <entityIRI xmi:id="_axioms.136-_entity-_entityIRI" iri="&lt;http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#ModelLibrary>"/>
+    </entity>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.137">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.137-_subClassExpression" class="_axioms.10-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.137-_superClassExpression" class="_axioms.26-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.138">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.138-_subClassExpression" class="_axioms.139-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.138-_superClassExpression" class="_axioms.182-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLDeclaration" xmi:id="_axioms.139">
+    <entity xsi:type="owl2:OWLClass" xmi:id="_axioms.139-_entity">
+      <entityIRI xmi:id="_axioms.139-_entity-_entityIRI" iri="&lt;http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#File.Library>"/>
+    </entity>
+  </axioms>
+  <axioms xsi:type="owl2:OWLDeclaration" xmi:id="_axioms.140">
+    <entity xsi:type="owl2:OWLClass" xmi:id="_axioms.140-_entity">
+      <entityIRI xmi:id="_axioms.140-_entity-_entityIRI" iri="&lt;http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#Subsystem>"/>
+    </entity>
+  </axioms>
+  <axioms xsi:type="owl2:OWLDeclaration" xmi:id="_axioms.141">
+    <entity xsi:type="owl2:OWLClass" xmi:id="_axioms.141-_entity">
+      <entityIRI xmi:id="_axioms.141-_entity-_entityIRI" iri="&lt;http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#Class.Metaclass>"/>
+    </entity>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.142">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.142-_subClassExpression" class="_axioms.74-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.142-_superClassExpression" class="_axioms.198-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLDeclaration" xmi:id="_axioms.143">
+    <entity xsi:type="owl2:OWLClass" xmi:id="_axioms.143-_entity">
+      <entityIRI xmi:id="_axioms.143-_entity-_entityIRI" iri="&lt;http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#Usage.Create>"/>
+    </entity>
+  </axioms>
+  <axioms xsi:type="owl2:OWLAnnotationAssertion" xmi:id="_axioms.144">
+    <annotationProperty xmi:id="_axioms.144-_annotationProperty">
+      <annotationProperty href="http://imce.jpl.nasa.gov/foundation/annotation/annotation#_axioms.79-_entity"/>
+    </annotationProperty>
+    <annotationSubject xsi:type="owl2:IRI" xmi:id="_axioms.144-_annotationSubject" iri="&lt;http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#topReifiedObjectPropertySource>"/>
+    <annotationValue xsi:type="owl2:OWLLiteral" xmi:id="_axioms.144-_annotationValue" languageTag="" lexicalForm="true">
+      <datatype xmi:id="_axioms.144-_annotationValue-_datatype" arity="1">
+        <dataType href="http://www.w3.org/2001/XMLSchema#_axioms.23-_entity"/>
+      </datatype>
+    </annotationValue>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.145">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.145-_subClassExpression" class="_axioms.188-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.145-_superClassExpression" class="_axioms.140-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.146">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.146-_subClassExpression" class="_axioms.127-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.146-_superClassExpression" class="_axioms.111-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.147">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.147-_subClassExpression" class="_axioms.60-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.147-_superClassExpression" class="_axioms.121-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.148">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.148-_subClassExpression" class="_axioms.130-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.148-_superClassExpression" class="_axioms.173-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.149">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.149-_subClassExpression" class="_axioms.141-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.149-_superClassExpression">
+      <class href="http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/UML#_axioms.3393-_entity"/>
+    </superClassExpression>
+  </axioms>
+  <axioms xsi:type="owl2:OWLAnnotationAssertion" xmi:id="_axioms.150">
+    <annotationProperty xmi:id="_axioms.150-_annotationProperty">
+      <annotationProperty href="http://imce.jpl.nasa.gov/foundation/annotation/annotation#_axioms.79-_entity"/>
+    </annotationProperty>
+    <annotationSubject xsi:type="owl2:IRI" xmi:id="_axioms.150-_annotationSubject" iri="&lt;http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#ObjectPropertyDependentRangeType>"/>
+    <annotationValue xsi:type="owl2:OWLLiteral" xmi:id="_axioms.150-_annotationValue" languageTag="" lexicalForm="true">
+      <datatype xmi:id="_axioms.150-_annotationValue-_datatype" arity="1">
+        <dataType href="http://www.w3.org/2001/XMLSchema#_axioms.23-_entity"/>
+      </datatype>
+    </annotationValue>
+  </axioms>
+  <axioms xsi:type="owl2:OWLAnnotationAssertion" xmi:id="_axioms.151">
+    <annotationProperty xmi:id="_axioms.151-_annotationProperty">
+      <annotationProperty href="http://imce.jpl.nasa.gov/foundation/annotation/annotation#_axioms.95-_entity"/>
+    </annotationProperty>
+    <annotationSubject xsi:type="owl2:IRI" xmi:id="_axioms.151-_annotationSubject" iri="&lt;http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#topReifiedObjectProperty>"/>
+    <annotationValue xsi:type="owl2:OWLLiteral" xmi:id="_axioms.151-_annotationValue" languageTag="" lexicalForm="true">
+      <datatype xmi:id="_axioms.151-_annotationValue-_datatype" arity="1">
+        <dataType href="http://www.w3.org/2001/XMLSchema#_axioms.23-_entity"/>
+      </datatype>
+    </annotationValue>
+  </axioms>
+  <axioms xsi:type="owl2:OWLAnnotationAssertion" xmi:id="_axioms.152">
+    <annotationProperty xmi:id="_axioms.152-_annotationProperty">
+      <annotationProperty href="http://imce.jpl.nasa.gov/foundation/annotation/annotation#_axioms.79-_entity"/>
+    </annotationProperty>
+    <annotationSubject xsi:type="owl2:IRI" xmi:id="_axioms.152-_annotationSubject" iri="&lt;http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#topStructuredDataProperty>"/>
+    <annotationValue xsi:type="owl2:OWLLiteral" xmi:id="_axioms.152-_annotationValue" languageTag="" lexicalForm="true">
+      <datatype xmi:id="_axioms.152-_annotationValue-_datatype" arity="1">
+        <dataType href="http://www.w3.org/2001/XMLSchema#_axioms.23-_entity"/>
+      </datatype>
+    </annotationValue>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.153">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.153-_subClassExpression" class="_axioms.80-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.153-_superClassExpression" class="_axioms.163-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.154">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.154-_subClassExpression" class="_axioms.30-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.154-_superClassExpression">
+      <class href="http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/UML#_axioms.7543-_entity"/>
+    </superClassExpression>
+  </axioms>
+  <axioms xsi:type="owl2:OWLDeclaration" xmi:id="_axioms.155">
+    <entity xsi:type="owl2:OWLClass" xmi:id="_axioms.155-_entity">
+      <entityIRI xmi:id="_axioms.155-_entity-_entityIRI" iri="&lt;http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#Derive>"/>
+    </entity>
+  </axioms>
+  <axioms xsi:type="owl2:OWLDeclaration" xmi:id="_axioms.156">
+    <entity xsi:type="owl2:OWLClass" xmi:id="_axioms.156-_entity">
+      <entityIRI xmi:id="_axioms.156-_entity-_entityIRI" iri="&lt;http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#Refine>"/>
+    </entity>
+  </axioms>
+  <axioms xsi:type="owl2:OWLDeclaration" xmi:id="_axioms.157">
+    <entity xsi:type="owl2:OWLObjectProperty" xmi:id="_axioms.157-_entity">
+      <entityIRI xmi:id="_axioms.157-_entity-_entityIRI" iri="&lt;http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#topReifiedObjectPropertyTarget>"/>
+    </entity>
+  </axioms>
+  <axioms xsi:type="owl2:OWLAnnotationAssertion" xmi:id="_axioms.158">
+    <annotationProperty xmi:id="_axioms.158-_annotationProperty">
+      <annotationProperty href="http://imce.jpl.nasa.gov/foundation/annotation/annotation#_axioms.79-_entity"/>
+    </annotationProperty>
+    <annotationSubject xsi:type="owl2:IRI" xmi:id="_axioms.158-_annotationSubject" iri="&lt;http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#topDataProperty>"/>
+    <annotationValue xsi:type="owl2:OWLLiteral" xmi:id="_axioms.158-_annotationValue" languageTag="" lexicalForm="true">
+      <datatype xmi:id="_axioms.158-_annotationValue-_datatype" arity="1">
+        <dataType href="http://www.w3.org/2001/XMLSchema#_axioms.23-_entity"/>
+      </datatype>
+    </annotationValue>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.159">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.159-_subClassExpression" class="_axioms.177-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.159-_superClassExpression">
+      <class href="http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/UML#_axioms.3393-_entity"/>
+    </superClassExpression>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.160">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.160-_subClassExpression" class="_axioms.181-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.160-_superClassExpression">
+      <class href="http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/UML#_axioms.3971-_entity"/>
+    </superClassExpression>
+  </axioms>
+  <axioms xsi:type="owl2:OWLAnnotationAssertion" xmi:id="_axioms.161">
+    <annotationProperty xmi:id="_axioms.161-_annotationProperty">
+      <annotationProperty href="http://imce.jpl.nasa.gov/foundation/annotation/annotation#_axioms.79-_entity"/>
+    </annotationProperty>
+    <annotationSubject xsi:type="owl2:IRI" xmi:id="_axioms.161-_annotationSubject" iri="&lt;http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#topReifiedObjectPropertyTarget>"/>
+    <annotationValue xsi:type="owl2:OWLLiteral" xmi:id="_axioms.161-_annotationValue" languageTag="" lexicalForm="true">
+      <datatype xmi:id="_axioms.161-_annotationValue-_datatype" arity="1">
+        <dataType href="http://www.w3.org/2001/XMLSchema#_axioms.23-_entity"/>
+      </datatype>
+    </annotationValue>
+  </axioms>
+  <axioms xsi:type="owl2:OWLDeclaration" xmi:id="_axioms.162">
+    <entity xsi:type="owl2:OWLClass" xmi:id="_axioms.162-_entity">
+      <entityIRI xmi:id="_axioms.162-_entity-_entityIRI" iri="&lt;http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#Trace>"/>
+    </entity>
+  </axioms>
+  <axioms xsi:type="owl2:OWLDeclaration" xmi:id="_axioms.163">
+    <entity xsi:type="owl2:OWLClass" xmi:id="_axioms.163-_entity">
+      <entityIRI xmi:id="_axioms.163-_entity-_entityIRI" iri="&lt;http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#Focus>"/>
+    </entity>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.164">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.164-_subClassExpression" class="_axioms.127-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.164-_superClassExpression">
+      <class href="http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/UML#_axioms.8235-_entity"/>
+    </superClassExpression>
+  </axioms>
+  <axioms xsi:type="owl2:OWLAnnotationAssertion" xmi:id="_axioms.165">
+    <annotationProperty xmi:id="_axioms.165-_annotationProperty">
+      <annotationProperty href="http://imce.jpl.nasa.gov/foundation/annotation/annotation#_axioms.95-_entity"/>
+    </annotationProperty>
+    <annotationSubject xsi:type="owl2:IRI" xmi:id="_axioms.165-_annotationSubject" iri="&lt;http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#topReifiedObjectPropertySource>"/>
+    <annotationValue xsi:type="owl2:OWLLiteral" xmi:id="_axioms.165-_annotationValue" languageTag="" lexicalForm="true">
+      <datatype xmi:id="_axioms.165-_annotationValue-_datatype" arity="1">
+        <dataType href="http://www.w3.org/2001/XMLSchema#_axioms.23-_entity"/>
+      </datatype>
+    </annotationValue>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.166">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.166-_subClassExpression" class="_axioms.8-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.166-_superClassExpression" class="_axioms.198-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.167">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.167-_subClassExpression" class="_axioms.79-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.167-_superClassExpression" class="_axioms.97-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.168">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.168-_subClassExpression" class="_axioms.125-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.168-_superClassExpression" class="_axioms.198-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLCharacteristicOfObjectProperty" xmi:id="_axioms.169">
+    <objectPropertyExpression xsi:type="owl2:OWLObjectPropertyReference" xmi:id="_axioms.169-_objectPropertyExpression" objectProperty="_axioms.37-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLDeclaration" xmi:id="_axioms.170">
+    <entity xsi:type="owl2:OWLObjectProperty" xmi:id="_axioms.170-_entity">
+      <entityIRI xmi:id="_axioms.170-_entity-_entityIRI" iri="&lt;http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#topReifiedObjectProperty>"/>
+    </entity>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.171">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.171-_subClassExpression" class="_axioms.121-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.171-_superClassExpression" class="_axioms.198-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.172">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.172-_subClassExpression" class="_axioms.108-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.172-_superClassExpression">
+      <class href="http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/UML#_axioms.9614-_entity"/>
+    </superClassExpression>
+  </axioms>
+  <axioms xsi:type="owl2:OWLDeclaration" xmi:id="_axioms.173">
+    <entity xsi:type="owl2:OWLClass" xmi:id="_axioms.173-_entity">
+      <entityIRI xmi:id="_axioms.173-_entity-_entityIRI" iri="&lt;http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#Process>"/>
+    </entity>
+  </axioms>
+  <axioms xsi:type="owl2:OWLAnnotationAssertion" xmi:id="_axioms.174">
+    <annotationProperty xmi:id="_axioms.174-_annotationProperty">
+      <annotationProperty href="http://imce.jpl.nasa.gov/foundation/annotation/annotation#_axioms.95-_entity"/>
+    </annotationProperty>
+    <annotationSubject xsi:type="owl2:IRI" xmi:id="_axioms.174-_annotationSubject" iri="&lt;http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#topObjectProperty>"/>
+    <annotationValue xsi:type="owl2:OWLLiteral" xmi:id="_axioms.174-_annotationValue" languageTag="" lexicalForm="true">
+      <datatype xmi:id="_axioms.174-_annotationValue-_datatype" arity="1">
+        <dataType href="http://www.w3.org/2001/XMLSchema#_axioms.23-_entity"/>
+      </datatype>
+    </annotationValue>
+  </axioms>
+  <axioms xsi:type="owl2:OWLDeclaration" xmi:id="_axioms.175">
+    <entity xsi:type="owl2:OWLObjectProperty" xmi:id="_axioms.175-_entity">
+      <entityIRI xmi:id="_axioms.175-_entity-_entityIRI" iri="&lt;http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#topObjectProperty>"/>
+    </entity>
+  </axioms>
+  <axioms xsi:type="owl2:OWLDeclaration" xmi:id="_axioms.176">
+    <entity xsi:type="owl2:OWLClass" xmi:id="_axioms.176-_entity">
+      <entityIRI xmi:id="_axioms.176-_entity-_entityIRI" iri="&lt;http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#Destroy>"/>
+    </entity>
+  </axioms>
+  <axioms xsi:type="owl2:OWLDeclaration" xmi:id="_axioms.177">
+    <entity xsi:type="owl2:OWLClass" xmi:id="_axioms.177-_entity">
+      <entityIRI xmi:id="_axioms.177-_entity-_entityIRI" iri="&lt;http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#Class.ImplementationClass>"/>
+    </entity>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.178">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.178-_subClassExpression" class="_axioms.141-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.178-_superClassExpression" class="_axioms.114-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.179">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.179-_subClassExpression" class="_axioms.3-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.179-_superClassExpression" class="_axioms.182-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.180">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.180-_subClassExpression" class="_axioms.176-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.180-_superClassExpression" class="_axioms.198-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLDeclaration" xmi:id="_axioms.181">
+    <entity xsi:type="owl2:OWLClass" xmi:id="_axioms.181-_entity">
+      <entityIRI xmi:id="_axioms.181-_entity-_entityIRI" iri="&lt;http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#BehavioralFeature.Destroy>"/>
+    </entity>
+  </axioms>
+  <axioms xsi:type="owl2:OWLDeclaration" xmi:id="_axioms.182">
+    <entity xsi:type="owl2:OWLClass" xmi:id="_axioms.182-_entity">
+      <entityIRI xmi:id="_axioms.182-_entity-_entityIRI" iri="&lt;http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#File>"/>
+    </entity>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.183">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.183-_subClassExpression" class="_axioms.24-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.183-_superClassExpression" class="_axioms.198-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.184">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.184-_subClassExpression" class="_axioms.113-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.184-_superClassExpression" class="_axioms.182-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.185">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.185-_subClassExpression" class="_axioms.193-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.185-_superClassExpression" class="_axioms.182-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.186">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.186-_subClassExpression" class="_axioms.177-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.186-_superClassExpression" class="_axioms.95-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.187">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.187-_subClassExpression" class="_axioms.133-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.187-_superClassExpression" class="_axioms.136-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLDeclaration" xmi:id="_axioms.188">
+    <entity xsi:type="owl2:OWLClass" xmi:id="_axioms.188-_entity">
+      <entityIRI xmi:id="_axioms.188-_entity-_entityIRI" iri="&lt;http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#Component.Subsystem>"/>
+    </entity>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.189">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.189-_subClassExpression" class="_axioms.114-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.189-_superClassExpression" class="_axioms.198-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLDeclaration" xmi:id="_axioms.190">
+    <entity xsi:type="owl2:OWLClass" xmi:id="_axioms.190-_entity">
+      <entityIRI xmi:id="_axioms.190-_entity-_entityIRI" iri="&lt;http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#ReifiedObjectProperty>"/>
+    </entity>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.191">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.191-_subClassExpression" class="_axioms.72-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.191-_superClassExpression" class="_axioms.24-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLDeclaration" xmi:id="_axioms.192">
+    <entity xsi:type="owl2:OWLClass" xmi:id="_axioms.192-_entity">
+      <entityIRI xmi:id="_axioms.192-_entity-_entityIRI" iri="&lt;http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#Abstraction.Derive>"/>
+    </entity>
+  </axioms>
+  <axioms xsi:type="owl2:OWLDeclaration" xmi:id="_axioms.193">
+    <entity xsi:type="owl2:OWLClass" xmi:id="_axioms.193-_entity">
+      <entityIRI xmi:id="_axioms.193-_entity-_entityIRI" iri="&lt;http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#Document>"/>
+    </entity>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.194">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.194-_subClassExpression" class="_axioms.192-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.194-_superClassExpression">
+      <class href="http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/UML#_axioms.6666-_entity"/>
+    </superClassExpression>
+  </axioms>
+  <axioms xsi:type="owl2:OWLDeclaration" xmi:id="_axioms.195">
+    <entity xsi:type="owl2:OWLClass" xmi:id="_axioms.195-_entity">
+      <entityIRI xmi:id="_axioms.195-_entity-_entityIRI" iri="&lt;http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#Component.Service>"/>
+    </entity>
+  </axioms>
+  <axioms xsi:type="owl2:OWLDeclaration" xmi:id="_axioms.196">
+    <entity xsi:type="owl2:OWLClass" xmi:id="_axioms.196-_entity">
+      <entityIRI xmi:id="_axioms.196-_entity-_entityIRI" iri="&lt;http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#Usage.Send>"/>
+    </entity>
+  </axioms>
+  <axioms xsi:type="owl2:OWLDeclaration" xmi:id="_axioms.197">
+    <entity xsi:type="owl2:OWLClass" xmi:id="_axioms.197-_entity">
+      <entityIRI xmi:id="_axioms.197-_entity-_entityIRI" iri="&lt;http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#Entity>"/>
+    </entity>
+  </axioms>
+  <axioms xsi:type="owl2:OWLDeclaration" xmi:id="_axioms.198">
+    <entity xsi:type="owl2:OWLClass" xmi:id="_axioms.198-_entity">
+      <entityIRI xmi:id="_axioms.198-_entity-_entityIRI" iri="&lt;http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#Entity>"/>
+    </entity>
+  </axioms>
+  <directlyImportsDocuments xmi:id="_directlyImportsDocuments.0" iri="&lt;http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/UML>"/>
+  <ontologyAnnotations xmi:id="_ontologyAnnotations.0">
+    <annotationProperty xmi:id="_ontologyAnnotations.0-_annotationProperty">
+      <annotationProperty href="http://imce.jpl.nasa.gov/foundation/annotation/annotation#_axioms.0-_entity"/>
+    </annotationProperty>
+    <annotationValue xsi:type="owl2:OWLLiteral" xmi:id="_ontologyAnnotations.0-_annotationValue" lexicalForm="true">
+      <datatype xmi:id="_ontologyAnnotations.0-_annotationValue-_datatype">
+        <dataType href="http://www.w3.org/2001/XMLSchema#_axioms.23-_entity"/>
+      </datatype>
+    </annotationValue>
+  </ontologyAnnotations>
+  <ontologyID xmi:id="_ontologyID">
+    <ontologyIRI xmi:id="_ontologyID-_ontologyIRI" iri="&lt;http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2>"/>
+  </ontologyID>
+</owl2:Ontology>

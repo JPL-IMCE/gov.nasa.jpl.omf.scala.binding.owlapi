@@ -1,0 +1,1763 @@
+<?xml version="1.0"?>
+
+
+<!DOCTYPE rdf:RDF [
+    <!ENTITY owl "http://www.w3.org/2002/07/owl#" >
+    <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#" >
+    <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#" >
+    <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
+]>
+
+
+<rdf:RDF xmlns="http://imce.jpl.nasa.gov/foundation/project/project-bundle#"
+     xml:base="http://imce.jpl.nasa.gov/foundation/project/project-bundle"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+    <owl:Ontology rdf:about="http://imce.jpl.nasa.gov/foundation/project/project-bundle">
+        <owl:imports rdf:resource="http://imce.jpl.nasa.gov/foundation/analysis/analysis"/>
+        <owl:imports rdf:resource="http://imce.jpl.nasa.gov/foundation/base/base"/>
+        <owl:imports rdf:resource="http://imce.jpl.nasa.gov/foundation/behavior/behavior"/>
+        <owl:imports rdf:resource="http://imce.jpl.nasa.gov/foundation/mission/mission"/>
+        <owl:imports rdf:resource="http://imce.jpl.nasa.gov/foundation/project/project"/>
+        <owl:imports rdf:resource="http://imce.jpl.nasa.gov/foundation/time/time"/>
+    </owl:Ontology>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Classes
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/analysis/analysis#Entity -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/analysis/analysis#Entity">
+        <owl:disjointUnionOf rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/analysis/analysis#Characterization"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/analysis/analysis#Criterion"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/analysis/analysis#Metric"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/analysis/analysis#QuantityValue"/>
+        </owl:disjointUnionOf>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/analysis/analysis#ReifiedObjectProperty -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/analysis/analysis#ReifiedObjectProperty">
+        <owl:disjointUnionOf rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/analysis/analysis#Analyzes"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/analysis/analysis#Characterizes"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/analysis/analysis#HasCriterion"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/analysis/analysis#HasMetric"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/analysis/analysis#HasValue"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/analysis/analysis#Measures"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/analysis/analysis#Quantifies"/>
+        </owl:disjointUnionOf>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/analysis/analysis#ReifiedStructuredDataProperty -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/analysis/analysis#ReifiedStructuredDataProperty"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/analysis/analysis#StructuredDatatype -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/analysis/analysis#StructuredDatatype"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/analysis/analysis#Thing -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/analysis/analysis#Thing">
+        <owl:disjointUnionOf rdf:parseType="Collection">
+            <owl:Class>
+                <owl:unionOf rdf:parseType="Collection">
+                    <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/analysis/analysis#AnalyzedElement"/>
+                    <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/analysis/analysis#CharacterizedElement"/>
+                    <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/analysis/analysis#MeasuredElement"/>
+                </owl:unionOf>
+            </owl:Class>
+        </owl:disjointUnionOf>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/base/base#Entity -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/base/base#Entity">
+        <owl:disjointUnionOf rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/base/base#Package"/>
+        </owl:disjointUnionOf>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/base/base#ReifiedObjectProperty -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/base/base#ReifiedObjectProperty">
+        <owl:disjointUnionOf rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/base/base#Aggregates"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/base/base#Contains"/>
+        </owl:disjointUnionOf>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/base/base#ReifiedStructuredDataProperty -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/base/base#ReifiedStructuredDataProperty"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/base/base#StructuredDatatype -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/base/base#StructuredDatatype"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/base/base#Thing -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/base/base#Thing">
+        <owl:disjointUnionOf rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/base/base#ReifiedObjectProperty"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/base/base#ReifiedStructuredDataProperty"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/base/base#StructuredDatatype"/>
+            <owl:Class>
+                <owl:unionOf rdf:parseType="Collection">
+                    <rdf:Description rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/base/base#Entity"/>
+                    <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/base/base#AggregatedElement"/>
+                    <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/base/base#ContainedElement"/>
+                    <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/base/base#Container"/>
+                    <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/base/base#IdentifiedElement"/>
+                </owl:unionOf>
+            </owl:Class>
+        </owl:disjointUnionOf>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/behavior/behavior#Entity -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/behavior/behavior#Entity">
+        <owl:disjointUnionOf rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#AbstractValueTypedAttribute"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#AttributeConstraint"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#AttributeConstraintOwner"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#AttributeGroup"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#AutomatonScope"/>
+        </owl:disjointUnionOf>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/behavior/behavior#ReifiedObjectProperty -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/behavior/behavior#ReifiedObjectProperty">
+        <owl:disjointUnionOf rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#ReferenceableReifiedObjectProperty"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#UnreferenceableReifiedObjectProperty"/>
+        </owl:disjointUnionOf>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/behavior/behavior#ReifiedStructuredDataProperty -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/behavior/behavior#ReifiedStructuredDataProperty"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/behavior/behavior#StructuredDatatype -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/behavior/behavior#StructuredDatatype">
+        <owl:disjointUnionOf rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#AbstractValueType"/>
+        </owl:disjointUnionOf>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/behavior/behavior#Thing -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/behavior/behavior#Thing">
+        <owl:disjointUnionOf rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/behavior/behavior#Entity"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/behavior/behavior#ReifiedObjectProperty"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/behavior/behavior#ReifiedStructuredDataProperty"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/behavior/behavior#StructuredDatatype"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#BehavingElement"/>
+        </owl:disjointUnionOf>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/mission/mission#Entity -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/mission/mission#Entity">
+        <owl:disjointUnionOf rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Component"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Environment"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Flow"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Function"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Interchange"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Interface"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Item"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Junction"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Mission"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Objective"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Requirement"/>
+        </owl:disjointUnionOf>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/mission/mission#ReifiedObjectProperty -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/mission/mission#ReifiedObjectProperty">
+        <owl:disjointUnionOf rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Deploys"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Emits"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#HasParticipant"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Induces"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Influences"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Ingests"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Invokes"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Involves1"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Involves2"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Joins1"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Joins2"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Performs"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Presents"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Pursues"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Receives"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Refines"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Sends"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Specifies"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#TransfersIn"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#TransfersOut"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Traverses"/>
+        </owl:disjointUnionOf>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/mission/mission#ReifiedStructuredDataProperty -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/mission/mission#ReifiedStructuredDataProperty"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/mission/mission#StructuredDatatype -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/mission/mission#StructuredDatatype"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/mission/mission#Thing -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/mission/mission#Thing">
+        <owl:disjointUnionOf rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/mission/mission#ReifiedStructuredDataProperty"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/mission/mission#StructuredDatatype"/>
+            <owl:Class>
+                <owl:unionOf rdf:parseType="Collection">
+                    <rdf:Description rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/mission/mission#Entity"/>
+                    <rdf:Description rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/mission/mission#ReifiedObjectProperty"/>
+                    <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#PerformingElement"/>
+                    <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#PresentingElement"/>
+                    <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#SpecifiedElement"/>
+                    <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#TraversingElement"/>
+                </owl:unionOf>
+            </owl:Class>
+        </owl:disjointUnionOf>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/project/project#Entity -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/project/project#Entity">
+        <owl:disjointUnionOf rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Authority"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Concern"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Deliverable"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Facility"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Interchange"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Organization"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Person"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Policy"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Process"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Product"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Role"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Stakeholder"/>
+        </owl:disjointUnionOf>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/project/project#ReifiedObjectProperty -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/project/project#ReifiedObjectProperty">
+        <owl:disjointUnionOf rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Authorizes"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#BelongsTo"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Binds"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#DelegatesTo"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Delivers"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Describes"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Executes"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#HasAssignment"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#HasParticipant"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#HasResponsibilityFor"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#HasRole"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Invokes"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Involves1"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Involves2"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Manifests"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Realizes"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Receives"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#ReliesOn"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Represents"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Supplies"/>
+        </owl:disjointUnionOf>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/project/project#ReifiedStructuredDataProperty -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/project/project#ReifiedStructuredDataProperty"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/project/project#StructuredDatatype -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/project/project#StructuredDatatype"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/project/project#Thing -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/project/project#Thing">
+        <owl:disjointUnionOf rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/project/project#ReifiedStructuredDataProperty"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/project/project#StructuredDatatype"/>
+            <owl:Class>
+                <owl:unionOf rdf:parseType="Collection">
+                    <rdf:Description rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/project/project#Entity"/>
+                    <rdf:Description rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/project/project#ReifiedObjectProperty"/>
+                    <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#AssignedElement"/>
+                    <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#RealizedElement"/>
+                    <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#SuppliedElement"/>
+                </owl:unionOf>
+            </owl:Class>
+        </owl:disjointUnionOf>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/time/time#Entity -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/time/time#Entity">
+        <owl:disjointUnionOf rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/time/time#Instant"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/time/time#Interval"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/time/time#Occurrence"/>
+        </owl:disjointUnionOf>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/time/time#ReifiedObjectProperty -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/time/time#ReifiedObjectProperty">
+        <owl:disjointUnionOf rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/time/time#EndsAt"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/time/time#HasEnd"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/time/time#HasStart"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/time/time#Precedes"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/time/time#StartsAt"/>
+        </owl:disjointUnionOf>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/time/time#ReifiedStructuredDataProperty -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/time/time#ReifiedStructuredDataProperty"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/time/time#StructuredDatatype -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/time/time#StructuredDatatype"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/time/time#Thing -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/time/time#Thing">
+        <owl:disjointUnionOf rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/time/time#Entity"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/time/time#ReifiedObjectProperty"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/time/time#ReifiedStructuredDataProperty"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/time/time#StructuredDatatype"/>
+        </owl:disjointUnionOf>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/analysis/analysis#Analysis -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/analysis/analysis#Analysis"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/analysis/analysis#AnalyzedElement -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/analysis/analysis#AnalyzedElement">
+        <owl:disjointUnionOf rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/analysis/analysis#ReifiedObjectProperty"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/analysis/analysis#ReifiedStructuredDataProperty"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/analysis/analysis#StructuredDatatype"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/base/base#ReifiedObjectProperty"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/base/base#StructuredDatatype"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/behavior/behavior#StructuredDatatype"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/mission/mission#ReifiedObjectProperty"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/mission/mission#StructuredDatatype"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/project/project#ReifiedObjectProperty"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/project/project#ReifiedStructuredDataProperty"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/project/project#StructuredDatatype"/>
+            <owl:Class>
+                <owl:unionOf rdf:parseType="Collection">
+                    <rdf:Description rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/analysis/analysis#Entity"/>
+                    <rdf:Description rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/behavior/behavior#Entity"/>
+                </owl:unionOf>
+            </owl:Class>
+            <owl:Class>
+                <owl:unionOf rdf:parseType="Collection">
+                    <rdf:Description rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/base/base#Entity"/>
+                    <rdf:Description rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/mission/mission#Entity"/>
+                    <rdf:Description rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/project/project#Entity"/>
+                </owl:unionOf>
+            </owl:Class>
+        </owl:disjointUnionOf>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/analysis/analysis#Analyzes -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/analysis/analysis#Analyzes"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/analysis/analysis#Assumption -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/analysis/analysis#Assumption"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/analysis/analysis#Characterization -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/analysis/analysis#Characterization"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/analysis/analysis#CharacterizedElement -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/analysis/analysis#CharacterizedElement">
+        <owl:disjointUnionOf rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/analysis/analysis#ReifiedObjectProperty"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/analysis/analysis#ReifiedStructuredDataProperty"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/analysis/analysis#StructuredDatatype"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/base/base#ReifiedObjectProperty"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/base/base#StructuredDatatype"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/behavior/behavior#StructuredDatatype"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/mission/mission#ReifiedObjectProperty"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/mission/mission#StructuredDatatype"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/project/project#ReifiedObjectProperty"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/project/project#ReifiedStructuredDataProperty"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/project/project#StructuredDatatype"/>
+            <owl:Class>
+                <owl:unionOf rdf:parseType="Collection">
+                    <rdf:Description rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/analysis/analysis#Entity"/>
+                    <rdf:Description rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/behavior/behavior#Entity"/>
+                </owl:unionOf>
+            </owl:Class>
+            <owl:Class>
+                <owl:unionOf rdf:parseType="Collection">
+                    <rdf:Description rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/base/base#Entity"/>
+                    <rdf:Description rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/mission/mission#Entity"/>
+                    <rdf:Description rdf:about="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/project/project#Entity"/>
+                </owl:unionOf>
+            </owl:Class>
+        </owl:disjointUnionOf>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/analysis/analysis#Characterizes -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/analysis/analysis#Characterizes"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/analysis/analysis#CostEstimate -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/analysis/analysis#CostEstimate"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/analysis/analysis#Criterion -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/analysis/analysis#Criterion"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/analysis/analysis#DrivingRequirementsAnalysis -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/analysis/analysis#DrivingRequirementsAnalysis"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/analysis/analysis#Explains -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/analysis/analysis#Explains">
+        <owl:disjointWith rdf:resource="http://imce.jpl.nasa.gov/foundation/analysis/analysis#Limits"/>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/analysis/analysis#HasCriterion -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/analysis/analysis#HasCriterion"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/analysis/analysis#HasMetric -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/analysis/analysis#HasMetric"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/analysis/analysis#HasValue -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/analysis/analysis#HasValue"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/analysis/analysis#KeyRequirementsAnalysis -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/analysis/analysis#KeyRequirementsAnalysis"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/analysis/analysis#Limits -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/analysis/analysis#Limits"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/analysis/analysis#MeasuredElement -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/analysis/analysis#MeasuredElement">
+        <owl:disjointUnionOf rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Requirement"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Concern"/>
+        </owl:disjointUnionOf>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/analysis/analysis#Measures -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/analysis/analysis#Measures"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/analysis/analysis#Metric -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/analysis/analysis#Metric"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/analysis/analysis#Quantifies -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/analysis/analysis#Quantifies"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/analysis/analysis#Quantity -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/analysis/analysis#Quantity"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/analysis/analysis#QuantityValue -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/analysis/analysis#QuantityValue"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/analysis/analysis#TradeStudy -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/analysis/analysis#TradeStudy"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/base/base#AggregatedElement -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/base/base#AggregatedElement">
+        <owl:disjointUnionOf rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/analysis/analysis#Analysis"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Environment"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Concern"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Product"/>
+        </owl:disjointUnionOf>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/base/base#Aggregates -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/base/base#Aggregates"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/base/base#ContainedElement -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/base/base#ContainedElement">
+        <owl:disjointUnionOf rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Component"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Flow"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Item"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Junction"/>
+        </owl:disjointUnionOf>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/base/base#Container -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/base/base#Container">
+        <owl:disjointUnionOf rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Component"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Flow"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Item"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Junction"/>
+        </owl:disjointUnionOf>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/base/base#Contains -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/base/base#Contains"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/base/base#IdentifiedElement -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/base/base#IdentifiedElement">
+        <owl:disjointUnionOf rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/analysis/analysis#Characterization"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/analysis/analysis#Criterion"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/analysis/analysis#Metric"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/base/base#Package"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Component"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Environment"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Flow"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Function"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Interchange"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Interface"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Item"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Junction"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Mission"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Requirement"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Concern"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Deliverable"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Facility"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Interchange"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Person"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Process"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Product"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Role"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Stakeholder"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/time/time#Instant"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/time/time#Interval"/>
+        </owl:disjointUnionOf>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/base/base#Package -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/base/base#Package"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#AbstractValueType -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#AbstractValueType">
+        <owl:disjointUnionOf rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#TimeDomainValueType"/>
+            <owl:Class>
+                <owl:unionOf rdf:parseType="Collection">
+                    <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#AttributeCodomainValueType"/>
+                    <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#AttributeValueType"/>
+                </owl:unionOf>
+            </owl:Class>
+        </owl:disjointUnionOf>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#AbstractValueTypedAttribute -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#AbstractValueTypedAttribute">
+        <owl:disjointUnionOf rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#AbstractValueTypedFeature"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#Attribute"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#AttributeConstraintParticipant"/>
+        </owl:disjointUnionOf>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#AbstractValueTypedFeature -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#AbstractValueTypedFeature">
+        <owl:disjointUnionOf rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#Codomain"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#TimeDomain"/>
+        </owl:disjointUnionOf>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#Attribute -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#Attribute">
+        <owl:disjointUnionOf rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#Property"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#PropertySurrogate"/>
+        </owl:disjointUnionOf>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#AttributeAutomatonConstraint -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#AttributeAutomatonConstraint"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#AttributeCodomainValueType -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#AttributeCodomainValueType">
+        <owl:disjointUnionOf rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#AttributeAutomatonConstraint"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#CodomainValueType"/>
+        </owl:disjointUnionOf>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#AttributeConstraint -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#AttributeConstraint">
+        <owl:disjointUnionOf rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#ElementBehaviorConstraint"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#InteractionBehaviorConstraint"/>
+        </owl:disjointUnionOf>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#AttributeConstraintOwner -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#AttributeConstraintOwner">
+        <owl:disjointUnionOf rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#ElementBehaviorCharacterization"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#Interaction"/>
+        </owl:disjointUnionOf>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#AttributeConstraintParticipant -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#AttributeConstraintParticipant">
+        <owl:disjointUnionOf rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#ParameterConstraintParticipant"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#StateVariableConstraintParticipant"/>
+        </owl:disjointUnionOf>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#AttributeGroup -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#AttributeGroup">
+        <owl:disjointUnionOf rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#InteractionTerminal"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#PropertyGroup"/>
+        </owl:disjointUnionOf>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#AttributeValueType -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#AttributeValueType">
+        <owl:disjointUnionOf rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#ParameterValueType"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#StateVariableValueType"/>
+        </owl:disjointUnionOf>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#AutomatonRegion -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#AutomatonRegion"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#AutomatonScope -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#AutomatonScope">
+        <owl:disjointUnionOf rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#AutomatonRegion"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#AutomatonState"/>
+        </owl:disjointUnionOf>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#AutomatonState -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#AutomatonState"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#BehavingElement -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#BehavingElement">
+        <owl:disjointUnionOf rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Environment"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#PerformingElement"/>
+        </owl:disjointUnionOf>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#Codomain -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#Codomain"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#CodomainValueType -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#CodomainValueType"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#Constrains -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#Constrains"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#ElementBehaviorCharacterization -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#ElementBehaviorCharacterization"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#ElementBehaviorConstraint -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#ElementBehaviorConstraint"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#Exposes -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#Exposes"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#HasAttribute -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#HasAttribute"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#HasAutomatonConstraint -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#HasAutomatonConstraint"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#HasConstraint -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#HasConstraint"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#HasFeature -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#HasFeature"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#HasRegion -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#HasRegion"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#HasState -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#HasState"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#HasValueType -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#HasValueType"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#Interaction -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#Interaction"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#InteractionBehaviorConstraint -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#InteractionBehaviorConstraint"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#InteractionTerminal -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#InteractionTerminal"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#Joins -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#Joins"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#Parameter -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#Parameter"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#ParameterConstraintParticipant -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#ParameterConstraintParticipant"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#ParameterSurrogate -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#ParameterSurrogate"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#ParameterValueType -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#ParameterValueType"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#PlaysRoleOf -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#PlaysRoleOf"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#Presents -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#Presents"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#Property -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#Property">
+        <owl:disjointUnionOf rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#Parameter"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#StateVariable"/>
+        </owl:disjointUnionOf>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#PropertyGroup -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#PropertyGroup"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#PropertySurrogate -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#PropertySurrogate">
+        <owl:disjointUnionOf rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#ParameterSurrogate"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#StateVariableSurrogate"/>
+        </owl:disjointUnionOf>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#ReferenceableReifiedObjectProperty -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#ReferenceableReifiedObjectProperty">
+        <owl:disjointUnionOf rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#Exposes"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#HasAutomatonConstraint"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#HasConstraint"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#Joins"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#PlaysRoleOf"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#Presents"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#References"/>
+        </owl:disjointUnionOf>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#References -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#References"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#StateVariable -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#StateVariable"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#StateVariableConstraintParticipant -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#StateVariableConstraintParticipant"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#StateVariableSurrogate -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#StateVariableSurrogate"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#StateVariableValueType -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#StateVariableValueType"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#TimeDomain -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#TimeDomain"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#TimeDomainValueType -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#TimeDomainValueType"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#UnreferenceableReifiedObjectProperty -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#UnreferenceableReifiedObjectProperty">
+        <owl:disjointUnionOf rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#Constrains"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#HasAttribute"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#HasFeature"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#HasRegion"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#HasState"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#HasValueType"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#Uses"/>
+        </owl:disjointUnionOf>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#Uses -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#Uses"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#Component -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Component"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#Deploys -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Deploys"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#Emits -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Emits"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#Environment -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Environment"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#Flow -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Flow"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#Function -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Function"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#HasParticipant -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#HasParticipant"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#Induces -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Induces"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#Influences -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Influences"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#Ingests -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Ingests"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#Interchange -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Interchange"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#Interface -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Interface"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#Invokes -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Invokes"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#Involves1 -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Involves1"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#Involves2 -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Involves2"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#Item -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Item">
+        <owl:disjointUnionOf rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#MaterialItem"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Message"/>
+        </owl:disjointUnionOf>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#Joins1 -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Joins1"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#Joins2 -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Joins2"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#Junction -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Junction"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#MaterialItem -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#MaterialItem"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#Message -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Message"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#Mission -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Mission"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#Objective -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Objective"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#PerformingElement -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#PerformingElement">
+        <owl:disjointUnionOf rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Component"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Mission"/>
+        </owl:disjointUnionOf>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#Performs -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Performs"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#PresentingElement -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#PresentingElement">
+        <owl:disjointUnionOf rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Component"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Interface"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Mission"/>
+        </owl:disjointUnionOf>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#Presents -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Presents"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#Pursues -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Pursues"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#Receives -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Receives"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#Refines -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Refines"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#Requirement -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Requirement"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#Sends -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Sends"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#SpecifiedElement -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#SpecifiedElement">
+        <owl:disjointUnionOf rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Component"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Mission"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Performs"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Presents"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#TransfersIn"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#TransfersOut"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Executes"/>
+        </owl:disjointUnionOf>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#Specifies -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Specifies"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#TransfersIn -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#TransfersIn"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#TransfersOut -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#TransfersOut"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#Traverses -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Traverses"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#TraversingElement -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#TraversingElement">
+        <owl:disjointUnionOf rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Flow"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Item"/>
+        </owl:disjointUnionOf>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/project/project#Accepts -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Accepts"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/project/project#Approves -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Approves"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/project/project#AssignedElement -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#AssignedElement">
+        <owl:disjointUnionOf rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Delivers"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#DevelopedElement"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Executes"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Process"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Receives"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#ReliesOn"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Supplies"/>
+        </owl:disjointUnionOf>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/project/project#Authority -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Authority"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/project/project#Authorizes -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Authorizes"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/project/project#BelongsTo -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#BelongsTo"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/project/project#Binds -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Binds"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/project/project#Concern -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Concern"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/project/project#Concurs -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Concurs"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/project/project#DelegatesTo -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#DelegatesTo"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/project/project#Deliverable -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Deliverable"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/project/project#Delivers -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Delivers"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/project/project#Describes -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Describes"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/project/project#DevelopedElement -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#DevelopedElement">
+        <owl:disjointUnionOf rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Component"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Interface"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Facility"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Product"/>
+        </owl:disjointUnionOf>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/project/project#Executes -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Executes"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/project/project#Facility -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Facility"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/project/project#HasAssignment -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#HasAssignment"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/project/project#HasParticipant -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#HasParticipant"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/project/project#HasResponsibilityFor -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#HasResponsibilityFor"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/project/project#HasRole -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#HasRole"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/project/project#Interchange -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Interchange"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/project/project#Invokes -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Invokes"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/project/project#Involves1 -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Involves1"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/project/project#Involves2 -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Involves2"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/project/project#Manifests -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Manifests"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/project/project#Organization -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Organization"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/project/project#Person -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Person"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/project/project#Policy -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Policy"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/project/project#Prepares -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Prepares"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/project/project#Process -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Process"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/project/project#Product -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Product"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/project/project#Program -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Program"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/project/project#Project -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Project"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/project/project#RealizedElement -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#RealizedElement">
+        <owl:disjointUnionOf rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Component"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Function"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Interface"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Junction"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Mission"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Process"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Project"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#WorkPackage"/>
+        </owl:disjointUnionOf>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/project/project#Realizes -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Realizes"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/project/project#Receives -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Receives"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/project/project#ReliesOn -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#ReliesOn"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/project/project#Represents -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Represents"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/project/project#Role -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Role"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/project/project#Stakeholder -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Stakeholder"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/project/project#SuppliedElement -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#SuppliedElement">
+        <owl:disjointUnionOf rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Component"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission#Mission"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Product"/>
+        </owl:disjointUnionOf>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/project/project#Supplies -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Supplies"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/project/project#WorkPackage -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#WorkPackage"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/time/time#EndsAt -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/time/time#EndsAt"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/time/time#HasEnd -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/time/time#HasEnd"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/time/time#HasStart -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/time/time#HasStart"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/time/time#Instant -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/time/time#Instant"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/time/time#Interval -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/time/time#Interval"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/time/time#Occurrence -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/time/time#Occurrence"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/time/time#Precedes -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/time/time#Precedes"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/time/time#StartsAt -->
+
+    <owl:Class rdf:about="http://imce.jpl.nasa.gov/foundation/time/time#StartsAt"/>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // General axioms
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDisjointClasses"/>
+        <owl:members rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Accepts"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Approves"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Concurs"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Prepares"/>
+        </owl:members>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDisjointClasses"/>
+        <owl:members rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/analysis/analysis#CostEstimate"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/analysis/analysis#DrivingRequirementsAnalysis"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/analysis/analysis#KeyRequirementsAnalysis"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/analysis/analysis#TradeStudy"/>
+        </owl:members>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDisjointClasses"/>
+        <owl:members rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/analysis/analysis#Analysis"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/analysis/analysis#Assumption"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/analysis/analysis#Quantity"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#AttributeConstraint"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#ElementBehaviorCharacterization"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior#PropertyGroup"/>
+        </owl:members>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDisjointClasses"/>
+        <owl:members rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Program"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#Project"/>
+            <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/project/project#WorkPackage"/>
+        </owl:members>
+    </rdf:Description>
+</rdf:RDF>
+
+
+
+<!-- Generated by the OWL API (version 3.4.5-SNAPSHOT) http://owlapi.sourceforge.net -->
+

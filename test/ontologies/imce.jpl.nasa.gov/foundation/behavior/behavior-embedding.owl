@@ -1,0 +1,703 @@
+<?xml version="1.0"?>
+
+
+<!DOCTYPE rdf:RDF [
+    <!ENTITY owl "http://www.w3.org/2002/07/owl#" >
+    <!ENTITY dc "http://purl.org/dc/elements/1.1/" >
+    <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#" >
+    <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#" >
+    <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
+    <!ENTITY behavior "http://imce.jpl.nasa.gov/foundation/behavior/behavior#" >
+    <!ENTITY annotation "http://imce.jpl.nasa.gov/foundation/annotation/annotation#" >
+    <!ENTITY behavior-embedding "http://imce.jpl.nasa.gov/foundation/behavior/behavior-embedding#" >
+    <!ENTITY behavior-backbone "http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/behavior/behavior#" >
+    <!ENTITY behavior-embedding-backbone "http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/behavior/behavior-embedding#" >
+]>
+
+
+<rdf:RDF xmlns="http://imce.jpl.nasa.gov/foundation/behavior/behavior-embedding#"
+     xml:base="http://imce.jpl.nasa.gov/foundation/behavior/behavior-embedding"
+     xmlns:dc="http://purl.org/dc/elements/1.1/"
+     xmlns:behavior-backbone="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/behavior/behavior#"
+     xmlns:annotation="http://imce.jpl.nasa.gov/foundation/annotation/annotation#"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     xmlns:behavior-embedding="http://imce.jpl.nasa.gov/foundation/behavior/behavior-embedding#"
+     xmlns:behavior-embedding-backbone="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/behavior/behavior-embedding#"
+     xmlns:behavior="http://imce.jpl.nasa.gov/foundation/behavior/behavior#"
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+    <owl:Ontology rdf:about="http://imce.jpl.nasa.gov/foundation/behavior/behavior-embedding">
+        <dc:date rdf:datatype="&xsd;string">$Date$</dc:date>
+        <owl:versionInfo rdf:datatype="&xsd;string">$Revision$</owl:versionInfo>
+        <dc:rights rdf:datatype="&xsd;string">Copyright 2010-2014, by the California Institute of Technology. ALL RIGHTS
+RESERVED. United States Government Sponsorship acknowledged. Any commercial
+use must be negotiated with the Office of Technology Transfer at the
+California Institute of Technology. This software may be subject to U.S.
+export control laws. By accepting this software, the user agrees to comply
+with all applicable U.S. export laws and regulations. User has the
+responsibility to obtain export licenses,a or other export authority as may
+be required before exporting such information to foreign countries or
+providing access to foreign persons.</dc:rights>
+        <owl:imports rdf:resource="http://imce.jpl.nasa.gov/foundation/analysis/analysis-embedding"/>
+        <owl:imports rdf:resource="http://imce.jpl.nasa.gov/foundation/behavior/behavior"/>
+    </owl:Ontology>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Annotation properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/annotation/annotation#isAbstract -->
+
+    <owl:AnnotationProperty rdf:about="&annotation;isAbstract"/>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/annotation/annotation#noMapping -->
+
+    <owl:AnnotationProperty rdf:about="&annotation;noMapping"/>
+    
+
+
+    <!-- http://purl.org/dc/elements/1.1/date -->
+
+    <owl:AnnotationProperty rdf:about="&dc;date"/>
+    
+
+
+    <!-- http://purl.org/dc/elements/1.1/rights -->
+
+    <owl:AnnotationProperty rdf:about="&dc;rights"/>
+    
+
+
+    <!-- http://www.w3.org/2002/07/owl#versionInfo -->
+
+    <owl:AnnotationProperty rdf:about="&owl;versionInfo"/>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Object Properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#constrains -->
+
+    <rdf:Description rdf:about="&behavior;constrains">
+        <rdfs:subPropertyOf rdf:resource="http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/UML#a_ownedAttribute_structuredClassifier"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#hasAttribute -->
+
+    <rdf:Description rdf:about="&behavior;hasAttribute">
+        <rdfs:subPropertyOf rdf:resource="http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/UML#a_ownedAttribute_class"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#hasConstrainsSource -->
+
+    <rdf:Description rdf:about="&behavior;hasConstrainsSource">
+        <rdfs:subPropertyOf rdf:resource="http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/UML#A_ownedAttribute_structuredClassifier.structuredClassifier"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#hasConstrainsTarget -->
+
+    <rdf:Description rdf:about="&behavior;hasConstrainsTarget">
+        <rdfs:subPropertyOf rdf:resource="http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/UML#A_ownedAttribute_structuredClassifier.ownedAttribute"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#hasExposesSource -->
+
+    <rdf:Description rdf:about="&behavior;hasExposesSource">
+        <rdfs:subPropertyOf rdf:resource="http://imce.jpl.nasa.gov/foundation/owl2-mof2/owl2-mof2#hasStructuralBindingRelationshipSource"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#hasExposesTarget -->
+
+    <rdf:Description rdf:about="&behavior;hasExposesTarget">
+        <rdfs:subPropertyOf rdf:resource="http://imce.jpl.nasa.gov/foundation/owl2-mof2/owl2-mof2#hasStructuralBindingRelationshipTarget"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#hasFeature -->
+
+    <rdf:Description rdf:about="&behavior;hasFeature">
+        <rdfs:subPropertyOf rdf:resource="http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/UML#a_ownedAttribute_datatype"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#hasHasAttributeSource -->
+
+    <rdf:Description rdf:about="&behavior;hasHasAttributeSource">
+        <rdfs:subPropertyOf rdf:resource="http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/UML#A_ownedAttribute_class.class"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#hasHasAttributeTarget -->
+
+    <rdf:Description rdf:about="&behavior;hasHasAttributeTarget">
+        <rdfs:subPropertyOf rdf:resource="http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/UML#A_ownedAttribute_class.ownedAttribute"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#hasHasAutomatonConstraintSource -->
+
+    <rdf:Description rdf:about="&behavior;hasHasAutomatonConstraintSource">
+        <rdfs:subPropertyOf rdf:resource="http://imce.jpl.nasa.gov/foundation/owl2-mof2/owl2-mof2#hasBinaryCompositeAssociationSource"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#hasHasAutomatonConstraintTarget -->
+
+    <rdf:Description rdf:about="&behavior;hasHasAutomatonConstraintTarget">
+        <rdfs:subPropertyOf rdf:resource="http://imce.jpl.nasa.gov/foundation/owl2-mof2/owl2-mof2#hasBinaryCompositeAssociationTarget"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#hasHasConstraintSource -->
+
+    <rdf:Description rdf:about="&behavior;hasHasConstraintSource">
+        <rdfs:subPropertyOf rdf:resource="http://imce.jpl.nasa.gov/foundation/owl2-mof2/owl2-mof2#hasBinaryCompositeAssociationSource"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#hasHasConstraintTarget -->
+
+    <rdf:Description rdf:about="&behavior;hasHasConstraintTarget">
+        <rdfs:subPropertyOf rdf:resource="http://imce.jpl.nasa.gov/foundation/owl2-mof2/owl2-mof2#hasBinaryCompositeAssociationTarget"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#hasHasFeatureSource -->
+
+    <rdf:Description rdf:about="&behavior;hasHasFeatureSource">
+        <rdfs:subPropertyOf rdf:resource="http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/UML#A_ownedAttribute_datatype.datatype"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#hasHasFeatureTarget -->
+
+    <rdf:Description rdf:about="&behavior;hasHasFeatureTarget">
+        <rdfs:subPropertyOf rdf:resource="http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/UML#A_ownedAttribute_datatype.ownedAttribute"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#hasHasRegionSource -->
+
+    <rdf:Description rdf:about="&behavior;hasHasRegionSource">
+        <rdfs:subPropertyOf rdf:resource="http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/UML#A_region_stateMachine.stateMachine"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#hasHasRegionTarget -->
+
+    <rdf:Description rdf:about="&behavior;hasHasRegionTarget">
+        <rdfs:subPropertyOf rdf:resource="http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/UML#A_region_stateMachine.region"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#hasHasStateSource -->
+
+    <rdf:Description rdf:about="&behavior;hasHasStateSource">
+        <rdfs:subPropertyOf rdf:resource="http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/UML#A_subvertex_container.container"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#hasHasStateTarget -->
+
+    <rdf:Description rdf:about="&behavior;hasHasStateTarget">
+        <rdfs:subPropertyOf rdf:resource="http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/UML#A_subvertex_container.subvertex"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#hasHasValueTypeSource -->
+
+    <rdf:Description rdf:about="&behavior;hasHasValueTypeSource">
+        <rdfs:subPropertyOf rdf:resource="http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/UML#A_type_typedElement.typedElement"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#hasHasValueTypeTarget -->
+
+    <rdf:Description rdf:about="&behavior;hasHasValueTypeTarget">
+        <rdfs:subPropertyOf rdf:resource="http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/UML#A_type_typedElement.type"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#hasJoinsSource -->
+
+    <rdf:Description rdf:about="&behavior;hasJoinsSource">
+        <rdfs:subPropertyOf rdf:resource="http://imce.jpl.nasa.gov/foundation/owl2-mof2/owl2-mof2#hasBinaryReferenceAssociationSource"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#hasJoinsTarget -->
+
+    <rdf:Description rdf:about="&behavior;hasJoinsTarget">
+        <rdfs:subPropertyOf rdf:resource="http://imce.jpl.nasa.gov/foundation/owl2-mof2/owl2-mof2#hasBinaryReferenceAssociationTarget"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#hasPlaysRoleOfSource -->
+
+    <rdf:Description rdf:about="&behavior;hasPlaysRoleOfSource">
+        <rdfs:subPropertyOf rdf:resource="http://imce.jpl.nasa.gov/foundation/owl2-mof2/owl2-mof2#hasStructuralBindingRelationshipSource"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#hasPlaysRoleOfTarget -->
+
+    <rdf:Description rdf:about="&behavior;hasPlaysRoleOfTarget">
+        <rdfs:subPropertyOf rdf:resource="http://imce.jpl.nasa.gov/foundation/owl2-mof2/owl2-mof2#hasStructuralBindingRelationshipTarget"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#hasPresentsSource -->
+
+    <rdf:Description rdf:about="&behavior;hasPresentsSource">
+        <rdfs:subPropertyOf rdf:resource="http://imce.jpl.nasa.gov/foundation/owl2-mof2/owl2-mof2#hasStructuralFullPortRelationshipSource"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#hasPresentsTarget -->
+
+    <rdf:Description rdf:about="&behavior;hasPresentsTarget">
+        <rdfs:subPropertyOf rdf:resource="http://imce.jpl.nasa.gov/foundation/owl2-mof2/owl2-mof2#hasStructuralFullPortRelationshipTarget"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#hasReferencesSource -->
+
+    <rdf:Description rdf:about="&behavior;hasReferencesSource">
+        <rdfs:subPropertyOf rdf:resource="http://imce.jpl.nasa.gov/foundation/owl2-mof2/owl2-mof2#hasBinaryReferenceAssociationSource"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#hasReferencesTarget -->
+
+    <rdf:Description rdf:about="&behavior;hasReferencesTarget">
+        <rdfs:subPropertyOf rdf:resource="http://imce.jpl.nasa.gov/foundation/owl2-mof2/owl2-mof2#hasBinaryReferenceAssociationTarget"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#hasRegion -->
+
+    <rdf:Description rdf:about="&behavior;hasRegion">
+        <rdfs:subPropertyOf rdf:resource="http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/UML#a_region_stateMachine"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#hasState -->
+
+    <rdf:Description rdf:about="&behavior;hasState">
+        <rdfs:subPropertyOf rdf:resource="http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/UML#a_subvertex_container"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#hasUsesSource -->
+
+    <rdf:Description rdf:about="&behavior;hasUsesSource">
+        <rdfs:subPropertyOf rdf:resource="http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/UML#A_ownedAttribute_structuredClassifier.structuredClassifier"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#hasUsesTarget -->
+
+    <rdf:Description rdf:about="&behavior;hasUsesTarget">
+        <rdfs:subPropertyOf rdf:resource="http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/UML#A_ownedAttribute_structuredClassifier.ownedAttribute"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#hasValueType -->
+
+    <rdf:Description rdf:about="&behavior;hasValueType">
+        <rdfs:subPropertyOf rdf:resource="http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/UML#a_type_typedElement"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#uses -->
+
+    <rdf:Description rdf:about="&behavior;uses">
+        <rdfs:subPropertyOf rdf:resource="http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/UML#a_ownedAttribute_structuredClassifier"/>
+    </rdf:Description>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Classes
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#AbstractValueType -->
+
+    <rdf:Description rdf:about="&behavior;AbstractValueType">
+        <rdfs:subClassOf rdf:resource="http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/UML#Classifier"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#AbstractValueTypedAttribute -->
+
+    <rdf:Description rdf:about="&behavior;AbstractValueTypedAttribute">
+        <rdfs:subClassOf rdf:resource="http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/UML#Property"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#AbstractValueTypedFeature -->
+
+    <rdf:Description rdf:about="&behavior;AbstractValueTypedFeature">
+        <rdfs:subClassOf rdf:resource="http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/UML#Property"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#Attribute -->
+
+    <rdf:Description rdf:about="&behavior;Attribute">
+        <rdfs:subClassOf rdf:resource="http://imce.jpl.nasa.gov/foundation/owl2-mof2/owl2-mof2#StructuralBindingEndType"/>
+        <rdfs:subClassOf rdf:resource="http://imce.jpl.nasa.gov/foundation/owl2-mof2/owl2-mof2#StructuralConnectionEndType"/>
+        <rdfs:subClassOf rdf:resource="http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/UML#Property"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#AttributeAutomatonConstraint -->
+
+    <rdf:Description rdf:about="&behavior;AttributeAutomatonConstraint">
+        <rdfs:subClassOf rdf:resource="http://imce.jpl.nasa.gov/foundation/owl2-mof2/owl2-mof2#BinaryAssociationEndType"/>
+        <rdfs:subClassOf rdf:resource="http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/UML-metamodel#StateMachine"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#AttributeConstraint -->
+
+    <rdf:Description rdf:about="&behavior;AttributeConstraint">
+        <rdfs:subClassOf rdf:resource="http://imce.jpl.nasa.gov/foundation/owl2-mof2/owl2-mof2#ComponentConstraintBlock"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#AttributeConstraintOwner -->
+
+    <rdf:Description rdf:about="&behavior;AttributeConstraintOwner">
+        <rdfs:subClassOf rdf:resource="http://imce.jpl.nasa.gov/foundation/owl2-mof2/owl2-mof2#BinaryAssociationEndType"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#AttributeConstraintParticipant -->
+
+    <rdf:Description rdf:about="&behavior;AttributeConstraintParticipant">
+        <rdfs:subClassOf rdf:resource="http://imce.jpl.nasa.gov/foundation/owl2-mof2/owl2-mof2#StructuralBindingEndType"/>
+        <rdfs:subClassOf rdf:resource="http://imce.jpl.nasa.gov/foundation/owl2-mof2/owl2-mof2#StructuralConnectionEndType"/>
+        <rdfs:subClassOf rdf:resource="http://imce.jpl.nasa.gov/foundation/owl2-mof2/owl2-mof2#StructuralConstraintParameter"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#AttributeGroup -->
+
+    <rdf:Description rdf:about="&behavior;AttributeGroup">
+        <rdfs:subClassOf rdf:resource="http://imce.jpl.nasa.gov/foundation/owl2-mof2/owl2-mof2#BinaryAssociationEndType"/>
+        <rdfs:subClassOf rdf:resource="http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/UML#Class"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#AttributeValueType -->
+
+    <rdf:Description rdf:about="&behavior;AttributeValueType">
+        <rdfs:subClassOf rdf:resource="http://imce.jpl.nasa.gov/www.omg.org/spec/SysML/20140311/SysML#DataType.ValueType"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#AutomatonRegion -->
+
+    <rdf:Description rdf:about="&behavior;AutomatonRegion">
+        <rdfs:subClassOf rdf:resource="http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/UML-metamodel#Region"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#AutomatonState -->
+
+    <rdf:Description rdf:about="&behavior;AutomatonState">
+        <rdfs:subClassOf rdf:resource="http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/UML-metamodel#State"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#BehavingElement -->
+
+    <rdf:Description rdf:about="&behavior;BehavingElement">
+        <rdfs:subClassOf rdf:resource="http://imce.jpl.nasa.gov/foundation/owl2-mof2/owl2-mof2#BinaryDependencyEndType"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#CodomainValueType -->
+
+    <rdf:Description rdf:about="&behavior;CodomainValueType">
+        <rdfs:subClassOf rdf:resource="http://imce.jpl.nasa.gov/www.omg.org/spec/SysML/20140311/SysML#DataType.ValueType"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#Constrains -->
+
+    <rdf:Description rdf:about="&behavior;Constrains">
+        <rdfs:subClassOf rdf:resource="http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/UML#A_ownedAttribute_structuredClassifier"/>
+        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#Exposes -->
+
+    <rdf:Description rdf:about="&behavior;Exposes">
+        <rdfs:subClassOf rdf:resource="http://imce.jpl.nasa.gov/foundation/owl2-mof2/owl2-mof2#StructuralBindingRelationship"/>
+        <rdfs:subClassOf rdf:resource="http://imce.jpl.nasa.gov/www.omg.org/spec/SysML/20140311/SysML-metamodel#Connector.BindingConnector"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#HasAttribute -->
+
+    <rdf:Description rdf:about="&behavior;HasAttribute">
+        <rdfs:subClassOf rdf:resource="http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/UML#A_ownedAttribute_class"/>
+        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#HasAutomatonConstraint -->
+
+    <rdf:Description rdf:about="&behavior;HasAutomatonConstraint">
+        <rdfs:subClassOf rdf:resource="http://imce.jpl.nasa.gov/foundation/owl2-mof2/owl2-mof2#BinaryCompositeAssociation"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#HasConstraint -->
+
+    <rdf:Description rdf:about="&behavior;HasConstraint">
+        <rdfs:subClassOf rdf:resource="http://imce.jpl.nasa.gov/foundation/owl2-mof2/owl2-mof2#BinaryCompositeAssociation"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#HasFeature -->
+
+    <rdf:Description rdf:about="&behavior;HasFeature">
+        <rdfs:subClassOf rdf:resource="http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/UML#A_ownedAttribute_datatype"/>
+        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#HasRegion -->
+
+    <rdf:Description rdf:about="&behavior;HasRegion">
+        <rdfs:subClassOf rdf:resource="http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/UML#A_region_stateMachine"/>
+        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#HasState -->
+
+    <rdf:Description rdf:about="&behavior;HasState">
+        <rdfs:subClassOf rdf:resource="http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/UML#A_subvertex_container"/>
+        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#HasValueType -->
+
+    <rdf:Description rdf:about="&behavior;HasValueType">
+        <rdfs:subClassOf rdf:resource="http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/UML#A_type_typedElement"/>
+        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#Interaction -->
+
+    <rdf:Description rdf:about="&behavior;Interaction">
+        <rdfs:subClassOf rdf:resource="http://imce.jpl.nasa.gov/www.omg.org/spec/SysML/20140311/SysML-metamodel#Component.Block"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#InteractionTerminal -->
+
+    <rdf:Description rdf:about="&behavior;InteractionTerminal">
+        <rdfs:subClassOf rdf:resource="http://imce.jpl.nasa.gov/foundation/owl2-mof2/owl2-mof2#BinaryAssociationEndType"/>
+        <rdfs:subClassOf rdf:resource="http://imce.jpl.nasa.gov/foundation/owl2-mof2/owl2-mof2#StructuralFullPortType"/>
+        <rdfs:subClassOf rdf:resource="http://imce.jpl.nasa.gov/www.omg.org/spec/SysML/20140311/SysML-metamodel#Class.Block.InterfaceBlock"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#Joins -->
+
+    <rdf:Description rdf:about="&behavior;Joins">
+        <rdfs:subClassOf rdf:resource="http://imce.jpl.nasa.gov/foundation/owl2-mof2/owl2-mof2#BinaryReferenceAssociation"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#PlaysRoleOf -->
+
+    <rdf:Description rdf:about="&behavior;PlaysRoleOf">
+        <rdfs:subClassOf rdf:resource="http://imce.jpl.nasa.gov/foundation/owl2-mof2/owl2-mof2#StructuralBindingRelationship"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#Presents -->
+
+    <rdf:Description rdf:about="&behavior;Presents">
+        <rdfs:subClassOf rdf:resource="http://imce.jpl.nasa.gov/foundation/owl2-mof2/owl2-mof2#StructuralFullPortRelationship"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#Property -->
+
+    <rdf:Description rdf:about="&behavior;Property">
+        <rdfs:subClassOf rdf:resource="http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/UML-metamodel#Property"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#PropertyGroup -->
+
+    <rdf:Description rdf:about="&behavior;PropertyGroup">
+        <rdfs:subClassOf rdf:resource="http://imce.jpl.nasa.gov/foundation/owl2-mof2/owl2-mof2#StructuralFullPortEncapsulatedClassifierType"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#PropertySurrogate -->
+
+    <rdf:Description rdf:about="&behavior;PropertySurrogate">
+        <rdfs:subClassOf rdf:resource="http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/UML-metamodel#Port"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#ReferenceableReifiedObjectProperty -->
+
+    <rdf:Description rdf:about="&behavior;ReferenceableReifiedObjectProperty">
+        <rdfs:subClassOf rdf:resource="http://imce.jpl.nasa.gov/foundation/owl2-mof2/owl2-mof2#BinaryDependencyEndType"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#References -->
+
+    <rdf:Description rdf:about="&behavior;References">
+        <rdfs:subClassOf rdf:resource="http://imce.jpl.nasa.gov/foundation/owl2-mof2/owl2-mof2#BinaryReferenceAssociation"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#TimeDomainValueType -->
+
+    <rdf:Description rdf:about="&behavior;TimeDomainValueType">
+        <rdfs:subClassOf rdf:resource="http://imce.jpl.nasa.gov/www.omg.org/spec/SysML/20140311/SysML#DataType.ValueType"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#Uses -->
+
+    <rdf:Description rdf:about="&behavior;Uses">
+        <rdfs:subClassOf rdf:resource="http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/UML#A_ownedAttribute_structuredClassifier"/>
+        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
+    </rdf:Description>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Annotations
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    <rdf:Description rdf:about="&behavior;UnreferenceableReifiedObjectProperty">
+        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
+    </rdf:Description>
+</rdf:RDF>
+
+
+
+<!-- Generated by the OWL API (version 3.4.2) http://owlapi.sourceforge.net -->
+

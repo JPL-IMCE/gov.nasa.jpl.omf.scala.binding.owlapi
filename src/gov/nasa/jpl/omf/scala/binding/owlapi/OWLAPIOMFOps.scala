@@ -89,23 +89,14 @@ trait OWLAPIIRIOps extends IRIOps[OWLAPIOMF] {
   override def isBackboneIRI( iri: IRI ) = {
     val u = iri.toURI
     import u._
-    getPath.startsWith( "/backbone" )
+    getHost == "imce.jpl.nasa.gov" && getPath.startsWith( "/backbone" )
   }
 
   override def toBackboneIRI( iri: IRI ) = {
     val u = iri.toURI
     import u._
-    org.semanticweb.owlapi.model.IRI.create( new URI( getScheme, getUserInfo, getHost, getPort, "/backbone" + getPath, getQuery, null ) )
+    org.semanticweb.owlapi.model.IRI.create( new URI( getScheme, getUserInfo, "imce.jpl.nasa.gov", getPort, "/backbone/" + getHost + getPath, getQuery, getFragment ) )
   }
-
-  override def toObjectPropertyIRI( iri: IRI ) =
-    splitIRI( iri ) match {
-      case ( iri, Some( f ) ) =>
-        val fragment = f( 0 ).toLower + f.drop( 1 )
-        org.semanticweb.owlapi.model.IRI.create( iri.toURI.resolve( "#" + fragment ) )
-      case ( iri, None ) =>
-        throw IRIObjectPropertyException( iri )
-    }
 
   override def toSourceIRI( iri: IRI ) =
     splitIRI( iri ) match {

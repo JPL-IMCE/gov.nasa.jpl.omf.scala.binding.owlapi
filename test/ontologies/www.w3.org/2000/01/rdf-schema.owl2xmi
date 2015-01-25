@@ -1,0 +1,540 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<owl2:Ontology xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:owl2="http://gov.nasa.jpl.imce/OWL2/20110928" xmi:id="_0">
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.0">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.0-_subClassExpression" class="_axioms.7-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.0-_superClassExpression" class="_axioms.5-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLObjectPropertyRange" xmi:id="_axioms.1">
+    <objectPropertyExpression xsi:type="owl2:OWLObjectPropertyReference" xmi:id="_axioms.1-_objectPropertyExpression" objectProperty="_implicitDeclaration.14-_entity"/>
+    <range xsi:type="owl2:OWLClassReference" xmi:id="_axioms.1-_range" class="_axioms.7-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLAnnotationAssertion" xmi:id="_axioms.2">
+    <annotationProperty xmi:id="_axioms.2-_annotationProperty" annotationProperty="_implicitDeclaration.6-_entity"/>
+    <annotationSubject xsi:type="owl2:IRI" xmi:id="_axioms.2-_annotationSubject" iri="&lt;http://www.w3.org/2000/01/rdf-schema#subClassOf>"/>
+    <annotationValue xsi:type="owl2:OWLLiteral" xmi:id="_axioms.2-_annotationValue" languageTag="" lexicalForm="The subject is a subclass of a class.">
+      <datatype xmi:id="_axioms.2-_annotationValue-_datatype" arity="1">
+        <dataType href="../../1999/02/22-rdf-syntax-ns#_axioms.65-_entity"/>
+      </datatype>
+    </annotationValue>
+  </axioms>
+  <axioms xsi:type="owl2:OWLAnnotationAssertion" xmi:id="_axioms.3">
+    <annotationProperty xmi:id="_axioms.3-_annotationProperty" annotationProperty="_implicitDeclaration.10-_entity"/>
+    <annotationSubject xsi:type="owl2:IRI" xmi:id="_axioms.3-_annotationSubject" iri="&lt;http://www.w3.org/2000/01/rdf-schema#subPropertyOf>"/>
+    <annotationValue xsi:type="owl2:IRI" xmi:id="_axioms.3-_annotationValue" iri="&lt;http://www.w3.org/2000/01/rdf-schema#>"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLAnnotationPropertyDomain" xmi:id="_axioms.4">
+    <annotationProperty xmi:id="_axioms.4-_annotationProperty" annotationProperty="_implicitDeclaration.0-_entity"/>
+    <domain xmi:id="_axioms.4-_domain" iri="&lt;http://www.w3.org/2000/01/rdf-schema#Class>"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLDeclaration" xmi:id="_axioms.5">
+    <entity xsi:type="owl2:OWLClass" xmi:id="_axioms.5-_entity">
+      <entityIRI xmi:id="_axioms.5-_entity-_entityIRI" iri="&lt;http://www.w3.org/2000/01/rdf-schema#Resource>"/>
+    </entity>
+  </axioms>
+  <axioms xsi:type="owl2:OWLAnnotationAssertion" xmi:id="_axioms.6">
+    <annotationProperty xmi:id="_axioms.6-_annotationProperty" annotationProperty="_implicitDeclaration.6-_entity"/>
+    <annotationSubject xsi:type="owl2:IRI" xmi:id="_axioms.6-_annotationSubject" iri="&lt;http://www.w3.org/2000/01/rdf-schema#Class>"/>
+    <annotationValue xsi:type="owl2:OWLLiteral" xmi:id="_axioms.6-_annotationValue" languageTag="" lexicalForm="The class of classes.">
+      <datatype xmi:id="_axioms.6-_annotationValue-_datatype" arity="1">
+        <dataType href="../../1999/02/22-rdf-syntax-ns#_axioms.65-_entity"/>
+      </datatype>
+    </annotationValue>
+  </axioms>
+  <axioms xsi:type="owl2:OWLDeclaration" xmi:id="_axioms.7">
+    <entity xsi:type="owl2:OWLClass" xmi:id="_axioms.7-_entity">
+      <entityIRI xmi:id="_axioms.7-_entity-_entityIRI" iri="&lt;http://www.w3.org/2000/01/rdf-schema#Class>"/>
+    </entity>
+  </axioms>
+  <axioms xsi:type="owl2:OWLAnnotationAssertion" xmi:id="_axioms.8">
+    <annotationProperty xmi:id="_axioms.8-_annotationProperty" annotationProperty="_implicitDeclaration.10-_entity"/>
+    <annotationSubject xsi:type="owl2:IRI" xmi:id="_axioms.8-_annotationSubject" iri="&lt;http://www.w3.org/2000/01/rdf-schema#isDefinedBy>"/>
+    <annotationValue xsi:type="owl2:IRI" xmi:id="_axioms.8-_annotationValue" iri="&lt;http://www.w3.org/2000/01/rdf-schema#>"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLAnnotationAssertion" xmi:id="_axioms.9">
+    <annotationProperty xmi:id="_axioms.9-_annotationProperty" annotationProperty="_implicitDeclaration.10-_entity"/>
+    <annotationSubject xsi:type="owl2:IRI" xmi:id="_axioms.9-_annotationSubject" iri="&lt;http://www.w3.org/2000/01/rdf-schema#ContainerMembershipProperty>"/>
+    <annotationValue xsi:type="owl2:IRI" xmi:id="_axioms.9-_annotationValue" iri="&lt;http://www.w3.org/2000/01/rdf-schema#>"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLAnnotationPropertyDomain" xmi:id="_axioms.10">
+    <annotationProperty xmi:id="_axioms.10-_annotationProperty" annotationProperty="_implicitDeclaration.2-_entity"/>
+    <domain xmi:id="_axioms.10-_domain" iri="&lt;http://www.w3.org/1999/02/22-rdf-syntax-ns#Property>"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLAnnotationAssertion" xmi:id="_axioms.11">
+    <annotationProperty xmi:id="_axioms.11-_annotationProperty" annotationProperty="_implicitDeclaration.8-_entity"/>
+    <annotationSubject xsi:type="owl2:IRI" xmi:id="_axioms.11-_annotationSubject" iri="&lt;http://www.w3.org/2000/01/rdf-schema#Literal>"/>
+    <annotationValue xsi:type="owl2:OWLLiteral" xmi:id="_axioms.11-_annotationValue" languageTag="" lexicalForm="Literal">
+      <datatype xmi:id="_axioms.11-_annotationValue-_datatype" arity="1">
+        <dataType href="../../1999/02/22-rdf-syntax-ns#_axioms.65-_entity"/>
+      </datatype>
+    </annotationValue>
+  </axioms>
+  <axioms xsi:type="owl2:OWLAnnotationAssertion" xmi:id="_axioms.12">
+    <annotationProperty xmi:id="_axioms.12-_annotationProperty" annotationProperty="_implicitDeclaration.8-_entity"/>
+    <annotationSubject xsi:type="owl2:IRI" xmi:id="_axioms.12-_annotationSubject" iri="&lt;http://www.w3.org/2000/01/rdf-schema#seeAlso>"/>
+    <annotationValue xsi:type="owl2:OWLLiteral" xmi:id="_axioms.12-_annotationValue" languageTag="" lexicalForm="seeAlso">
+      <datatype xmi:id="_axioms.12-_annotationValue-_datatype" arity="1">
+        <dataType href="../../1999/02/22-rdf-syntax-ns#_axioms.65-_entity"/>
+      </datatype>
+    </annotationValue>
+  </axioms>
+  <axioms xsi:type="owl2:OWLAnnotationPropertyDomain" xmi:id="_axioms.13">
+    <annotationProperty xmi:id="_axioms.13-_annotationProperty" annotationProperty="_implicitDeclaration.1-_entity"/>
+    <domain xmi:id="_axioms.13-_domain" iri="&lt;http://www.w3.org/1999/02/22-rdf-syntax-ns#Property>"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLAnnotationAssertion" xmi:id="_axioms.14">
+    <annotationProperty xmi:id="_axioms.14-_annotationProperty" annotationProperty="_implicitDeclaration.6-_entity"/>
+    <annotationSubject xsi:type="owl2:IRI" xmi:id="_axioms.14-_annotationSubject" iri="&lt;http://www.w3.org/2000/01/rdf-schema#Literal>"/>
+    <annotationValue xsi:type="owl2:OWLLiteral" xmi:id="_axioms.14-_annotationValue" languageTag="" lexicalForm="The class of literal values, eg. textual strings and integers.">
+      <datatype xmi:id="_axioms.14-_annotationValue-_datatype" arity="1">
+        <dataType href="../../1999/02/22-rdf-syntax-ns#_axioms.65-_entity"/>
+      </datatype>
+    </annotationValue>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.15">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.15-_subClassExpression" class="_axioms.56-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.15-_superClassExpression">
+      <class href="../../1999/02/22-rdf-syntax-ns#_axioms.29-_entity"/>
+    </superClassExpression>
+  </axioms>
+  <axioms xsi:type="owl2:OWLAnnotationAssertion" xmi:id="_axioms.16">
+    <annotationProperty xmi:id="_axioms.16-_annotationProperty" annotationProperty="_implicitDeclaration.6-_entity"/>
+    <annotationSubject xsi:type="owl2:IRI" xmi:id="_axioms.16-_annotationSubject" iri="&lt;http://www.w3.org/2000/01/rdf-schema#comment>"/>
+    <annotationValue xsi:type="owl2:OWLLiteral" xmi:id="_axioms.16-_annotationValue" languageTag="" lexicalForm="A description of the subject resource.">
+      <datatype xmi:id="_axioms.16-_annotationValue-_datatype" arity="1">
+        <dataType href="../../1999/02/22-rdf-syntax-ns#_axioms.65-_entity"/>
+      </datatype>
+    </annotationValue>
+  </axioms>
+  <axioms xsi:type="owl2:OWLAnnotationAssertion" xmi:id="_axioms.17">
+    <annotationProperty xmi:id="_axioms.17-_annotationProperty" annotationProperty="_implicitDeclaration.10-_entity"/>
+    <annotationSubject xsi:type="owl2:IRI" xmi:id="_axioms.17-_annotationSubject" iri="&lt;http://www.w3.org/2000/01/rdf-schema#label>"/>
+    <annotationValue xsi:type="owl2:IRI" xmi:id="_axioms.17-_annotationValue" iri="&lt;http://www.w3.org/2000/01/rdf-schema#>"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLObjectPropertyRange" xmi:id="_axioms.18">
+    <objectPropertyExpression xsi:type="owl2:OWLObjectPropertyReference" xmi:id="_axioms.18-_objectPropertyExpression" objectProperty="_implicitDeclaration.7-_entity"/>
+    <range xsi:type="owl2:OWLClassReference" xmi:id="_axioms.18-_range" class="_axioms.7-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLAnnotationAssertion" xmi:id="_axioms.19">
+    <annotationProperty xmi:id="_axioms.19-_annotationProperty" annotationProperty="_implicitDeclaration.6-_entity"/>
+    <annotationSubject xsi:type="owl2:IRI" xmi:id="_axioms.19-_annotationSubject" iri="&lt;http://www.w3.org/2000/01/rdf-schema#label>"/>
+    <annotationValue xsi:type="owl2:OWLLiteral" xmi:id="_axioms.19-_annotationValue" languageTag="" lexicalForm="A human-readable name for the subject.">
+      <datatype xmi:id="_axioms.19-_annotationValue-_datatype" arity="1">
+        <dataType href="../../1999/02/22-rdf-syntax-ns#_axioms.65-_entity"/>
+      </datatype>
+    </annotationValue>
+  </axioms>
+  <axioms xsi:type="owl2:OWLAnnotationAssertion" xmi:id="_axioms.20">
+    <annotationProperty xmi:id="_axioms.20-_annotationProperty" annotationProperty="_implicitDeclaration.8-_entity"/>
+    <annotationSubject xsi:type="owl2:IRI" xmi:id="_axioms.20-_annotationSubject" iri="&lt;http://www.w3.org/2000/01/rdf-schema#member>"/>
+    <annotationValue xsi:type="owl2:OWLLiteral" xmi:id="_axioms.20-_annotationValue" languageTag="" lexicalForm="member">
+      <datatype xmi:id="_axioms.20-_annotationValue-_datatype" arity="1">
+        <dataType href="../../1999/02/22-rdf-syntax-ns#_axioms.65-_entity"/>
+      </datatype>
+    </annotationValue>
+  </axioms>
+  <axioms xsi:type="owl2:OWLAnnotationAssertion" xmi:id="_axioms.21">
+    <annotationProperty xmi:id="_axioms.21-_annotationProperty" annotationProperty="_implicitDeclaration.8-_entity"/>
+    <annotationSubject xsi:type="owl2:IRI" xmi:id="_axioms.21-_annotationSubject" iri="&lt;http://www.w3.org/2000/01/rdf-schema#Datatype>"/>
+    <annotationValue xsi:type="owl2:OWLLiteral" xmi:id="_axioms.21-_annotationValue" languageTag="" lexicalForm="Datatype">
+      <datatype xmi:id="_axioms.21-_annotationValue-_datatype" arity="1">
+        <dataType href="../../1999/02/22-rdf-syntax-ns#_axioms.65-_entity"/>
+      </datatype>
+    </annotationValue>
+  </axioms>
+  <axioms xsi:type="owl2:OWLDeclaration" xmi:id="_axioms.22">
+    <entity xsi:type="owl2:OWLClass" xmi:id="_axioms.22-_entity">
+      <entityIRI xmi:id="_axioms.22-_entity-_entityIRI" iri="&lt;http://www.w3.org/2000/01/rdf-schema#Literal>"/>
+    </entity>
+  </axioms>
+  <axioms xsi:type="owl2:OWLAnnotationAssertion" xmi:id="_axioms.23">
+    <annotationProperty xmi:id="_axioms.23-_annotationProperty" annotationProperty="_implicitDeclaration.8-_entity"/>
+    <annotationSubject xsi:type="owl2:IRI" xmi:id="_axioms.23-_annotationSubject" iri="&lt;http://www.w3.org/2000/01/rdf-schema#range>"/>
+    <annotationValue xsi:type="owl2:OWLLiteral" xmi:id="_axioms.23-_annotationValue" languageTag="" lexicalForm="range">
+      <datatype xmi:id="_axioms.23-_annotationValue-_datatype" arity="1">
+        <dataType href="../../1999/02/22-rdf-syntax-ns#_axioms.65-_entity"/>
+      </datatype>
+    </annotationValue>
+  </axioms>
+  <axioms xsi:type="owl2:OWLAnnotationPropertyDomain" xmi:id="_axioms.24">
+    <annotationProperty xmi:id="_axioms.24-_annotationProperty" annotationProperty="_implicitDeclaration.5-_entity"/>
+    <domain xmi:id="_axioms.24-_domain" iri="&lt;http://www.w3.org/1999/02/22-rdf-syntax-ns#Property>"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLAnnotationAssertion" xmi:id="_axioms.25">
+    <annotationProperty xmi:id="_axioms.25-_annotationProperty" annotationProperty="_implicitDeclaration.6-_entity"/>
+    <annotationSubject xsi:type="owl2:IRI" xmi:id="_axioms.25-_annotationSubject" iri="&lt;http://www.w3.org/2000/01/rdf-schema#Datatype>"/>
+    <annotationValue xsi:type="owl2:OWLLiteral" xmi:id="_axioms.25-_annotationValue" languageTag="" lexicalForm="The class of RDF datatypes.">
+      <datatype xmi:id="_axioms.25-_annotationValue-_datatype" arity="1">
+        <dataType href="../../1999/02/22-rdf-syntax-ns#_axioms.65-_entity"/>
+      </datatype>
+    </annotationValue>
+  </axioms>
+  <axioms xsi:type="owl2:OWLObjectPropertyRange" xmi:id="_axioms.26">
+    <objectPropertyExpression xsi:type="owl2:OWLObjectPropertyReference" xmi:id="_axioms.26-_objectPropertyExpression" objectProperty="_implicitDeclaration.9-_entity"/>
+    <range xsi:type="owl2:OWLClassReference" xmi:id="_axioms.26-_range">
+      <class href="../../1999/02/22-rdf-syntax-ns#_axioms.29-_entity"/>
+    </range>
+  </axioms>
+  <axioms xsi:type="owl2:OWLAnnotationAssertion" xmi:id="_axioms.27">
+    <annotationProperty xmi:id="_axioms.27-_annotationProperty" annotationProperty="_implicitDeclaration.6-_entity"/>
+    <annotationSubject xsi:type="owl2:IRI" xmi:id="_axioms.27-_annotationSubject" iri="&lt;http://www.w3.org/2000/01/rdf-schema#isDefinedBy>"/>
+    <annotationValue xsi:type="owl2:OWLLiteral" xmi:id="_axioms.27-_annotationValue" languageTag="" lexicalForm="The defininition of the subject resource.">
+      <datatype xmi:id="_axioms.27-_annotationValue-_datatype" arity="1">
+        <dataType href="../../1999/02/22-rdf-syntax-ns#_axioms.65-_entity"/>
+      </datatype>
+    </annotationValue>
+  </axioms>
+  <axioms xsi:type="owl2:OWLAnnotationAssertion" xmi:id="_axioms.28">
+    <annotationProperty xmi:id="_axioms.28-_annotationProperty" annotationProperty="_implicitDeclaration.10-_entity"/>
+    <annotationSubject xsi:type="owl2:IRI" xmi:id="_axioms.28-_annotationSubject" iri="&lt;http://www.w3.org/2000/01/rdf-schema#range>"/>
+    <annotationValue xsi:type="owl2:IRI" xmi:id="_axioms.28-_annotationValue" iri="&lt;http://www.w3.org/2000/01/rdf-schema#>"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.29">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.29-_subClassExpression" class="_axioms.48-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.29-_superClassExpression" class="_axioms.7-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLAnnotationAssertion" xmi:id="_axioms.30">
+    <annotationProperty xmi:id="_axioms.30-_annotationProperty" annotationProperty="_implicitDeclaration.6-_entity"/>
+    <annotationSubject xsi:type="owl2:IRI" xmi:id="_axioms.30-_annotationSubject" iri="&lt;http://www.w3.org/2000/01/rdf-schema#seeAlso>"/>
+    <annotationValue xsi:type="owl2:OWLLiteral" xmi:id="_axioms.30-_annotationValue" languageTag="" lexicalForm="Further information about the subject resource.">
+      <datatype xmi:id="_axioms.30-_annotationValue-_datatype" arity="1">
+        <dataType href="../../1999/02/22-rdf-syntax-ns#_axioms.65-_entity"/>
+      </datatype>
+    </annotationValue>
+  </axioms>
+  <axioms xsi:type="owl2:OWLAnnotationAssertion" xmi:id="_axioms.31">
+    <annotationProperty xmi:id="_axioms.31-_annotationProperty" annotationProperty="_implicitDeclaration.6-_entity"/>
+    <annotationSubject xsi:type="owl2:IRI" xmi:id="_axioms.31-_annotationSubject" iri="&lt;http://www.w3.org/2000/01/rdf-schema#range>"/>
+    <annotationValue xsi:type="owl2:OWLLiteral" xmi:id="_axioms.31-_annotationValue" languageTag="" lexicalForm="A range of the subject property.">
+      <datatype xmi:id="_axioms.31-_annotationValue-_datatype" arity="1">
+        <dataType href="../../1999/02/22-rdf-syntax-ns#_axioms.65-_entity"/>
+      </datatype>
+    </annotationValue>
+  </axioms>
+  <axioms xsi:type="owl2:OWLAnnotationAssertion" xmi:id="_axioms.32">
+    <annotationProperty xmi:id="_axioms.32-_annotationProperty" annotationProperty="_implicitDeclaration.10-_entity"/>
+    <annotationSubject xsi:type="owl2:IRI" xmi:id="_axioms.32-_annotationSubject" iri="&lt;http://www.w3.org/2000/01/rdf-schema#domain>"/>
+    <annotationValue xsi:type="owl2:IRI" xmi:id="_axioms.32-_annotationValue" iri="&lt;http://www.w3.org/2000/01/rdf-schema#>"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLAnnotationAssertion" xmi:id="_axioms.33">
+    <annotationProperty xmi:id="_axioms.33-_annotationProperty" annotationProperty="_implicitDeclaration.8-_entity"/>
+    <annotationSubject xsi:type="owl2:IRI" xmi:id="_axioms.33-_annotationSubject" iri="&lt;http://www.w3.org/2000/01/rdf-schema#subClassOf>"/>
+    <annotationValue xsi:type="owl2:OWLLiteral" xmi:id="_axioms.33-_annotationValue" languageTag="" lexicalForm="subClassOf">
+      <datatype xmi:id="_axioms.33-_annotationValue-_datatype" arity="1">
+        <dataType href="../../1999/02/22-rdf-syntax-ns#_axioms.65-_entity"/>
+      </datatype>
+    </annotationValue>
+  </axioms>
+  <axioms xsi:type="owl2:OWLAnnotationAssertion" xmi:id="_axioms.34">
+    <annotationProperty xmi:id="_axioms.34-_annotationProperty" annotationProperty="_implicitDeclaration.10-_entity"/>
+    <annotationSubject xsi:type="owl2:IRI" xmi:id="_axioms.34-_annotationSubject" iri="&lt;http://www.w3.org/2000/01/rdf-schema#comment>"/>
+    <annotationValue xsi:type="owl2:IRI" xmi:id="_axioms.34-_annotationValue" iri="&lt;http://www.w3.org/2000/01/rdf-schema#>"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.35">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.35-_subClassExpression" class="_axioms.49-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.35-_superClassExpression" class="_axioms.5-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLAnnotationAssertion" xmi:id="_axioms.36">
+    <annotationProperty xmi:id="_axioms.36-_annotationProperty" annotationProperty="_implicitDeclaration.8-_entity"/>
+    <annotationSubject xsi:type="owl2:IRI" xmi:id="_axioms.36-_annotationSubject" iri="&lt;http://www.w3.org/2000/01/rdf-schema#ContainerMembershipProperty>"/>
+    <annotationValue xsi:type="owl2:OWLLiteral" xmi:id="_axioms.36-_annotationValue" languageTag="" lexicalForm="ContainerMembershipProperty">
+      <datatype xmi:id="_axioms.36-_annotationValue-_datatype" arity="1">
+        <dataType href="../../1999/02/22-rdf-syntax-ns#_axioms.65-_entity"/>
+      </datatype>
+    </annotationValue>
+  </axioms>
+  <axioms xsi:type="owl2:OWLAnnotationAssertion" xmi:id="_axioms.37">
+    <annotationProperty xmi:id="_axioms.37-_annotationProperty" annotationProperty="_implicitDeclaration.8-_entity"/>
+    <annotationSubject xsi:type="owl2:IRI" xmi:id="_axioms.37-_annotationSubject" iri="&lt;http://www.w3.org/2000/01/rdf-schema#domain>"/>
+    <annotationValue xsi:type="owl2:OWLLiteral" xmi:id="_axioms.37-_annotationValue" languageTag="" lexicalForm="domain">
+      <datatype xmi:id="_axioms.37-_annotationValue-_datatype" arity="1">
+        <dataType href="../../1999/02/22-rdf-syntax-ns#_axioms.65-_entity"/>
+      </datatype>
+    </annotationValue>
+  </axioms>
+  <axioms xsi:type="owl2:OWLAnnotationAssertion" xmi:id="_axioms.38">
+    <annotationProperty xmi:id="_axioms.38-_annotationProperty" annotationProperty="_implicitDeclaration.8-_entity"/>
+    <annotationSubject xsi:type="owl2:IRI" xmi:id="_axioms.38-_annotationSubject" iri="&lt;http://www.w3.org/2000/01/rdf-schema#Resource>"/>
+    <annotationValue xsi:type="owl2:OWLLiteral" xmi:id="_axioms.38-_annotationValue" languageTag="" lexicalForm="Resource">
+      <datatype xmi:id="_axioms.38-_annotationValue-_datatype" arity="1">
+        <dataType href="../../1999/02/22-rdf-syntax-ns#_axioms.65-_entity"/>
+      </datatype>
+    </annotationValue>
+  </axioms>
+  <axioms xsi:type="owl2:OWLAnnotationAssertion" xmi:id="_axioms.39">
+    <annotationProperty xmi:id="_axioms.39-_annotationProperty" annotationProperty="_implicitDeclaration.8-_entity"/>
+    <annotationSubject xsi:type="owl2:IRI" xmi:id="_axioms.39-_annotationSubject" iri="&lt;http://www.w3.org/2000/01/rdf-schema#Container>"/>
+    <annotationValue xsi:type="owl2:OWLLiteral" xmi:id="_axioms.39-_annotationValue" languageTag="" lexicalForm="Container">
+      <datatype xmi:id="_axioms.39-_annotationValue-_datatype" arity="1">
+        <dataType href="../../1999/02/22-rdf-syntax-ns#_axioms.65-_entity"/>
+      </datatype>
+    </annotationValue>
+  </axioms>
+  <axioms xsi:type="owl2:OWLAnnotationAssertion" xmi:id="_axioms.40">
+    <annotationProperty xmi:id="_axioms.40-_annotationProperty" annotationProperty="_implicitDeclaration.8-_entity"/>
+    <annotationSubject xsi:type="owl2:IRI" xmi:id="_axioms.40-_annotationSubject" iri="&lt;http://www.w3.org/2000/01/rdf-schema#subPropertyOf>"/>
+    <annotationValue xsi:type="owl2:OWLLiteral" xmi:id="_axioms.40-_annotationValue" languageTag="" lexicalForm="subPropertyOf">
+      <datatype xmi:id="_axioms.40-_annotationValue-_datatype" arity="1">
+        <dataType href="../../1999/02/22-rdf-syntax-ns#_axioms.65-_entity"/>
+      </datatype>
+    </annotationValue>
+  </axioms>
+  <axioms xsi:type="owl2:OWLAnnotationAssertion" xmi:id="_axioms.41">
+    <annotationProperty xmi:id="_axioms.41-_annotationProperty" annotationProperty="_implicitDeclaration.6-_entity"/>
+    <annotationSubject xsi:type="owl2:IRI" xmi:id="_axioms.41-_annotationSubject" iri="&lt;http://www.w3.org/2000/01/rdf-schema#member>"/>
+    <annotationValue xsi:type="owl2:OWLLiteral" xmi:id="_axioms.41-_annotationValue" languageTag="" lexicalForm="A member of the subject resource.">
+      <datatype xmi:id="_axioms.41-_annotationValue-_datatype" arity="1">
+        <dataType href="../../1999/02/22-rdf-syntax-ns#_axioms.65-_entity"/>
+      </datatype>
+    </annotationValue>
+  </axioms>
+  <axioms xsi:type="owl2:OWLAnnotationAssertion" xmi:id="_axioms.42">
+    <annotationProperty xmi:id="_axioms.42-_annotationProperty" annotationProperty="_implicitDeclaration.6-_entity"/>
+    <annotationSubject xsi:type="owl2:IRI" xmi:id="_axioms.42-_annotationSubject" iri="&lt;http://www.w3.org/2000/01/rdf-schema#ContainerMembershipProperty>"/>
+    <annotationValue xsi:type="owl2:OWLLiteral" xmi:id="_axioms.42-_annotationValue" languageTag="" lexicalForm="The class of container membership properties, rdf:_1, rdf:_2, ...,&#xA;                    all of which are sub-properties of 'member'.">
+      <datatype xmi:id="_axioms.42-_annotationValue-_datatype" arity="1">
+        <dataType href="../../1999/02/22-rdf-syntax-ns#_axioms.65-_entity"/>
+      </datatype>
+    </annotationValue>
+  </axioms>
+  <axioms xsi:type="owl2:OWLAnnotationAssertion" xmi:id="_axioms.43">
+    <annotationProperty xmi:id="_axioms.43-_annotationProperty" annotationProperty="_implicitDeclaration.10-_entity"/>
+    <annotationSubject xsi:type="owl2:IRI" xmi:id="_axioms.43-_annotationSubject" iri="&lt;http://www.w3.org/2000/01/rdf-schema#subClassOf>"/>
+    <annotationValue xsi:type="owl2:IRI" xmi:id="_axioms.43-_annotationValue" iri="&lt;http://www.w3.org/2000/01/rdf-schema#>"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLObjectPropertyRange" xmi:id="_axioms.44">
+    <objectPropertyExpression xsi:type="owl2:OWLObjectPropertyReference" xmi:id="_axioms.44-_objectPropertyExpression" objectProperty="_implicitDeclaration.11-_entity"/>
+    <range xsi:type="owl2:OWLClassReference" xmi:id="_axioms.44-_range" class="_axioms.5-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLObjectPropertyRange" xmi:id="_axioms.45">
+    <objectPropertyExpression xsi:type="owl2:OWLObjectPropertyReference" xmi:id="_axioms.45-_objectPropertyExpression" objectProperty="_implicitDeclaration.4-_entity"/>
+    <range xsi:type="owl2:OWLClassReference" xmi:id="_axioms.45-_range" class="_axioms.7-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubClassOf" xmi:id="_axioms.46">
+    <subClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.46-_subClassExpression" class="_axioms.22-_entity"/>
+    <superClassExpression xsi:type="owl2:OWLClassReference" xmi:id="_axioms.46-_superClassExpression" class="_axioms.5-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLAnnotationAssertion" xmi:id="_axioms.47">
+    <annotationProperty xmi:id="_axioms.47-_annotationProperty" annotationProperty="_implicitDeclaration.8-_entity"/>
+    <annotationSubject xsi:type="owl2:IRI" xmi:id="_axioms.47-_annotationSubject" iri="&lt;http://www.w3.org/2000/01/rdf-schema#label>"/>
+    <annotationValue xsi:type="owl2:OWLLiteral" xmi:id="_axioms.47-_annotationValue" languageTag="" lexicalForm="label">
+      <datatype xmi:id="_axioms.47-_annotationValue-_datatype" arity="1">
+        <dataType href="../../1999/02/22-rdf-syntax-ns#_axioms.65-_entity"/>
+      </datatype>
+    </annotationValue>
+  </axioms>
+  <axioms xsi:type="owl2:OWLDeclaration" xmi:id="_axioms.48">
+    <entity xsi:type="owl2:OWLClass" xmi:id="_axioms.48-_entity">
+      <entityIRI xmi:id="_axioms.48-_entity-_entityIRI" iri="&lt;http://www.w3.org/2000/01/rdf-schema#Datatype>"/>
+    </entity>
+  </axioms>
+  <axioms xsi:type="owl2:OWLDeclaration" xmi:id="_axioms.49">
+    <entity xsi:type="owl2:OWLClass" xmi:id="_axioms.49-_entity">
+      <entityIRI xmi:id="_axioms.49-_entity-_entityIRI" iri="&lt;http://www.w3.org/2000/01/rdf-schema#Container>"/>
+    </entity>
+  </axioms>
+  <axioms xsi:type="owl2:OWLAnnotationAssertion" xmi:id="_axioms.50">
+    <annotationProperty xmi:id="_axioms.50-_annotationProperty" annotationProperty="_implicitDeclaration.10-_entity"/>
+    <annotationSubject xsi:type="owl2:IRI" xmi:id="_axioms.50-_annotationSubject" iri="&lt;http://www.w3.org/2000/01/rdf-schema#Datatype>"/>
+    <annotationValue xsi:type="owl2:IRI" xmi:id="_axioms.50-_annotationValue" iri="&lt;http://www.w3.org/2000/01/rdf-schema#>"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLSubAnnotationPropertyOf" xmi:id="_axioms.51">
+    <subAnnotationProperty xmi:id="_axioms.51-_subAnnotationProperty" annotationProperty="_implicitDeclaration.10-_entity"/>
+    <superAnnotationProperty xmi:id="_axioms.51-_superAnnotationProperty" annotationProperty="_implicitDeclaration.13-_entity"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLAnnotationAssertion" xmi:id="_axioms.52">
+    <annotationProperty xmi:id="_axioms.52-_annotationProperty" annotationProperty="_implicitDeclaration.10-_entity"/>
+    <annotationSubject xsi:type="owl2:IRI" xmi:id="_axioms.52-_annotationSubject" iri="&lt;http://www.w3.org/2000/01/rdf-schema#Resource>"/>
+    <annotationValue xsi:type="owl2:IRI" xmi:id="_axioms.52-_annotationValue" iri="&lt;http://www.w3.org/2000/01/rdf-schema#>"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLAnnotationAssertion" xmi:id="_axioms.53">
+    <annotationProperty xmi:id="_axioms.53-_annotationProperty" annotationProperty="_implicitDeclaration.10-_entity"/>
+    <annotationSubject xsi:type="owl2:IRI" xmi:id="_axioms.53-_annotationSubject" iri="&lt;http://www.w3.org/2000/01/rdf-schema#Container>"/>
+    <annotationValue xsi:type="owl2:IRI" xmi:id="_axioms.53-_annotationValue" iri="&lt;http://www.w3.org/2000/01/rdf-schema#>"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLAnnotationAssertion" xmi:id="_axioms.54">
+    <annotationProperty xmi:id="_axioms.54-_annotationProperty" annotationProperty="_implicitDeclaration.10-_entity"/>
+    <annotationSubject xsi:type="owl2:IRI" xmi:id="_axioms.54-_annotationSubject" iri="&lt;http://www.w3.org/2000/01/rdf-schema#Class>"/>
+    <annotationValue xsi:type="owl2:IRI" xmi:id="_axioms.54-_annotationValue" iri="&lt;http://www.w3.org/2000/01/rdf-schema#>"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLAnnotationAssertion" xmi:id="_axioms.55">
+    <annotationProperty xmi:id="_axioms.55-_annotationProperty" annotationProperty="_implicitDeclaration.8-_entity"/>
+    <annotationSubject xsi:type="owl2:IRI" xmi:id="_axioms.55-_annotationSubject" iri="&lt;http://www.w3.org/2000/01/rdf-schema#comment>"/>
+    <annotationValue xsi:type="owl2:OWLLiteral" xmi:id="_axioms.55-_annotationValue" languageTag="" lexicalForm="comment">
+      <datatype xmi:id="_axioms.55-_annotationValue-_datatype" arity="1">
+        <dataType href="../../1999/02/22-rdf-syntax-ns#_axioms.65-_entity"/>
+      </datatype>
+    </annotationValue>
+  </axioms>
+  <axioms xsi:type="owl2:OWLDeclaration" xmi:id="_axioms.56">
+    <entity xsi:type="owl2:OWLClass" xmi:id="_axioms.56-_entity">
+      <entityIRI xmi:id="_axioms.56-_entity-_entityIRI" iri="&lt;http://www.w3.org/2000/01/rdf-schema#ContainerMembershipProperty>"/>
+    </entity>
+  </axioms>
+  <axioms xsi:type="owl2:OWLAnnotationAssertion" xmi:id="_axioms.57">
+    <annotationProperty xmi:id="_axioms.57-_annotationProperty" annotationProperty="_implicitDeclaration.8-_entity"/>
+    <annotationSubject xsi:type="owl2:IRI" xmi:id="_axioms.57-_annotationSubject" iri="&lt;http://www.w3.org/2000/01/rdf-schema#Class>"/>
+    <annotationValue xsi:type="owl2:OWLLiteral" xmi:id="_axioms.57-_annotationValue" languageTag="" lexicalForm="Class">
+      <datatype xmi:id="_axioms.57-_annotationValue-_datatype" arity="1">
+        <dataType href="../../1999/02/22-rdf-syntax-ns#_axioms.65-_entity"/>
+      </datatype>
+    </annotationValue>
+  </axioms>
+  <axioms xsi:type="owl2:OWLAnnotationAssertion" xmi:id="_axioms.58">
+    <annotationProperty xmi:id="_axioms.58-_annotationProperty" annotationProperty="_implicitDeclaration.6-_entity"/>
+    <annotationSubject xsi:type="owl2:IRI" xmi:id="_axioms.58-_annotationSubject" iri="&lt;http://www.w3.org/2000/01/rdf-schema#domain>"/>
+    <annotationValue xsi:type="owl2:OWLLiteral" xmi:id="_axioms.58-_annotationValue" languageTag="" lexicalForm="A domain of the subject property.">
+      <datatype xmi:id="_axioms.58-_annotationValue-_datatype" arity="1">
+        <dataType href="../../1999/02/22-rdf-syntax-ns#_axioms.65-_entity"/>
+      </datatype>
+    </annotationValue>
+  </axioms>
+  <axioms xsi:type="owl2:OWLAnnotationPropertyDomain" xmi:id="_axioms.59">
+    <annotationProperty xmi:id="_axioms.59-_annotationProperty" annotationProperty="_implicitDeclaration.12-_entity"/>
+    <domain xmi:id="_axioms.59-_domain" iri="&lt;http://www.w3.org/2000/01/rdf-schema#Resource>"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLAnnotationAssertion" xmi:id="_axioms.60">
+    <annotationProperty xmi:id="_axioms.60-_annotationProperty" annotationProperty="_implicitDeclaration.6-_entity"/>
+    <annotationSubject xsi:type="owl2:IRI" xmi:id="_axioms.60-_annotationSubject" iri="&lt;http://www.w3.org/2000/01/rdf-schema#Resource>"/>
+    <annotationValue xsi:type="owl2:OWLLiteral" xmi:id="_axioms.60-_annotationValue" languageTag="" lexicalForm="The class resource, everything.">
+      <datatype xmi:id="_axioms.60-_annotationValue-_datatype" arity="1">
+        <dataType href="../../1999/02/22-rdf-syntax-ns#_axioms.65-_entity"/>
+      </datatype>
+    </annotationValue>
+  </axioms>
+  <axioms xsi:type="owl2:OWLAnnotationAssertion" xmi:id="_axioms.61">
+    <annotationProperty xmi:id="_axioms.61-_annotationProperty" annotationProperty="_implicitDeclaration.6-_entity"/>
+    <annotationSubject xsi:type="owl2:IRI" xmi:id="_axioms.61-_annotationSubject" iri="&lt;http://www.w3.org/2000/01/rdf-schema#subPropertyOf>"/>
+    <annotationValue xsi:type="owl2:OWLLiteral" xmi:id="_axioms.61-_annotationValue" languageTag="" lexicalForm="The subject is a subproperty of a property.">
+      <datatype xmi:id="_axioms.61-_annotationValue-_datatype" arity="1">
+        <dataType href="../../1999/02/22-rdf-syntax-ns#_axioms.65-_entity"/>
+      </datatype>
+    </annotationValue>
+  </axioms>
+  <axioms xsi:type="owl2:OWLAnnotationAssertion" xmi:id="_axioms.62">
+    <annotationProperty xmi:id="_axioms.62-_annotationProperty" annotationProperty="_implicitDeclaration.10-_entity"/>
+    <annotationSubject xsi:type="owl2:IRI" xmi:id="_axioms.62-_annotationSubject" iri="&lt;http://www.w3.org/2000/01/rdf-schema#member>"/>
+    <annotationValue xsi:type="owl2:IRI" xmi:id="_axioms.62-_annotationValue" iri="&lt;http://www.w3.org/2000/01/rdf-schema#>"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLAnnotationAssertion" xmi:id="_axioms.63">
+    <annotationProperty xmi:id="_axioms.63-_annotationProperty" annotationProperty="_implicitDeclaration.10-_entity"/>
+    <annotationSubject xsi:type="owl2:IRI" xmi:id="_axioms.63-_annotationSubject" iri="&lt;http://www.w3.org/2000/01/rdf-schema#Literal>"/>
+    <annotationValue xsi:type="owl2:IRI" xmi:id="_axioms.63-_annotationValue" iri="&lt;http://www.w3.org/2000/01/rdf-schema#>"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLAnnotationAssertion" xmi:id="_axioms.64">
+    <annotationProperty xmi:id="_axioms.64-_annotationProperty" annotationProperty="_implicitDeclaration.10-_entity"/>
+    <annotationSubject xsi:type="owl2:IRI" xmi:id="_axioms.64-_annotationSubject" iri="&lt;http://www.w3.org/2000/01/rdf-schema#seeAlso>"/>
+    <annotationValue xsi:type="owl2:IRI" xmi:id="_axioms.64-_annotationValue" iri="&lt;http://www.w3.org/2000/01/rdf-schema#>"/>
+  </axioms>
+  <axioms xsi:type="owl2:OWLAnnotationAssertion" xmi:id="_axioms.65">
+    <annotationProperty xmi:id="_axioms.65-_annotationProperty" annotationProperty="_implicitDeclaration.6-_entity"/>
+    <annotationSubject xsi:type="owl2:IRI" xmi:id="_axioms.65-_annotationSubject" iri="&lt;http://www.w3.org/2000/01/rdf-schema#Container>"/>
+    <annotationValue xsi:type="owl2:OWLLiteral" xmi:id="_axioms.65-_annotationValue" languageTag="" lexicalForm="The class of RDF containers.">
+      <datatype xmi:id="_axioms.65-_annotationValue-_datatype" arity="1">
+        <dataType href="../../1999/02/22-rdf-syntax-ns#_axioms.65-_entity"/>
+      </datatype>
+    </annotationValue>
+  </axioms>
+  <axioms xsi:type="owl2:OWLAnnotationAssertion" xmi:id="_axioms.66">
+    <annotationProperty xmi:id="_axioms.66-_annotationProperty" annotationProperty="_implicitDeclaration.8-_entity"/>
+    <annotationSubject xsi:type="owl2:IRI" xmi:id="_axioms.66-_annotationSubject" iri="&lt;http://www.w3.org/2000/01/rdf-schema#isDefinedBy>"/>
+    <annotationValue xsi:type="owl2:OWLLiteral" xmi:id="_axioms.66-_annotationValue" languageTag="" lexicalForm="isDefinedBy">
+      <datatype xmi:id="_axioms.66-_annotationValue-_datatype" arity="1">
+        <dataType href="../../1999/02/22-rdf-syntax-ns#_axioms.65-_entity"/>
+      </datatype>
+    </annotationValue>
+  </axioms>
+  <directlyImportsDocuments xmi:id="_directlyImportsDocuments.0" iri="&lt;http://www.w3.org/1999/02/22-rdf-syntax-ns#>"/>
+  <directlyImportsDocuments xmi:id="_directlyImportsDocuments.1" iri="&lt;http://purl.org/dc/elements/1.1/>"/>
+  <implicitDeclaration xmi:id="_implicitDeclaration.0">
+    <entity xsi:type="owl2:OWLAnnotationProperty" xmi:id="_implicitDeclaration.0-_entity">
+      <entityIRI xmi:id="_implicitDeclaration.0-_entity-_entityIRI" iri="&lt;http://www.w3.org/2000/01/rdf-schema#subClassOf>"/>
+    </entity>
+  </implicitDeclaration>
+  <implicitDeclaration xmi:id="_implicitDeclaration.1">
+    <entity xsi:type="owl2:OWLAnnotationProperty" xmi:id="_implicitDeclaration.1-_entity">
+      <entityIRI xmi:id="_implicitDeclaration.1-_entity-_entityIRI" iri="&lt;http://www.w3.org/2000/01/rdf-schema#subPropertyOf>"/>
+    </entity>
+  </implicitDeclaration>
+  <implicitDeclaration xmi:id="_implicitDeclaration.2">
+    <entity xsi:type="owl2:OWLAnnotationProperty" xmi:id="_implicitDeclaration.2-_entity">
+      <entityIRI xmi:id="_implicitDeclaration.2-_entity-_entityIRI" iri="&lt;http://www.w3.org/2000/01/rdf-schema#range>"/>
+    </entity>
+  </implicitDeclaration>
+  <implicitDeclaration xmi:id="_implicitDeclaration.3">
+    <entity xsi:type="owl2:OWLDataType" xmi:id="_implicitDeclaration.3-_entity">
+      <entityIRI xmi:id="_implicitDeclaration.3-_entity-_entityIRI" iri="&lt;http://www.w3.org/2000/01/rdf-schema#Literal>"/>
+    </entity>
+  </implicitDeclaration>
+  <implicitDeclaration xmi:id="_implicitDeclaration.4">
+    <entity xsi:type="owl2:OWLObjectProperty" xmi:id="_implicitDeclaration.4-_entity">
+      <entityIRI xmi:id="_implicitDeclaration.4-_entity-_entityIRI" iri="&lt;http://www.w3.org/2000/01/rdf-schema#domain>"/>
+    </entity>
+  </implicitDeclaration>
+  <implicitDeclaration xmi:id="_implicitDeclaration.5">
+    <entity xsi:type="owl2:OWLAnnotationProperty" xmi:id="_implicitDeclaration.5-_entity">
+      <entityIRI xmi:id="_implicitDeclaration.5-_entity-_entityIRI" iri="&lt;http://www.w3.org/2000/01/rdf-schema#domain>"/>
+    </entity>
+  </implicitDeclaration>
+  <implicitDeclaration xmi:id="_implicitDeclaration.6">
+    <entity xsi:type="owl2:OWLAnnotationProperty" xmi:id="_implicitDeclaration.6-_entity">
+      <entityIRI xmi:id="_implicitDeclaration.6-_entity-_entityIRI" iri="&lt;http://www.w3.org/2000/01/rdf-schema#comment>"/>
+    </entity>
+  </implicitDeclaration>
+  <implicitDeclaration xmi:id="_implicitDeclaration.7">
+    <entity xsi:type="owl2:OWLObjectProperty" xmi:id="_implicitDeclaration.7-_entity">
+      <entityIRI xmi:id="_implicitDeclaration.7-_entity-_entityIRI" iri="&lt;http://www.w3.org/2000/01/rdf-schema#range>"/>
+    </entity>
+  </implicitDeclaration>
+  <implicitDeclaration xmi:id="_implicitDeclaration.8">
+    <entity xsi:type="owl2:OWLAnnotationProperty" xmi:id="_implicitDeclaration.8-_entity">
+      <entityIRI xmi:id="_implicitDeclaration.8-_entity-_entityIRI" iri="&lt;http://www.w3.org/2000/01/rdf-schema#label>"/>
+    </entity>
+  </implicitDeclaration>
+  <implicitDeclaration xmi:id="_implicitDeclaration.9">
+    <entity xsi:type="owl2:OWLObjectProperty" xmi:id="_implicitDeclaration.9-_entity">
+      <entityIRI xmi:id="_implicitDeclaration.9-_entity-_entityIRI" iri="&lt;http://www.w3.org/2000/01/rdf-schema#subPropertyOf>"/>
+    </entity>
+  </implicitDeclaration>
+  <implicitDeclaration xmi:id="_implicitDeclaration.10">
+    <entity xsi:type="owl2:OWLAnnotationProperty" xmi:id="_implicitDeclaration.10-_entity">
+      <entityIRI xmi:id="_implicitDeclaration.10-_entity-_entityIRI" iri="&lt;http://www.w3.org/2000/01/rdf-schema#isDefinedBy>"/>
+    </entity>
+  </implicitDeclaration>
+  <implicitDeclaration xmi:id="_implicitDeclaration.11">
+    <entity xsi:type="owl2:OWLObjectProperty" xmi:id="_implicitDeclaration.11-_entity">
+      <entityIRI xmi:id="_implicitDeclaration.11-_entity-_entityIRI" iri="&lt;http://www.w3.org/2000/01/rdf-schema#member>"/>
+    </entity>
+  </implicitDeclaration>
+  <implicitDeclaration xmi:id="_implicitDeclaration.12">
+    <entity xsi:type="owl2:OWLAnnotationProperty" xmi:id="_implicitDeclaration.12-_entity">
+      <entityIRI xmi:id="_implicitDeclaration.12-_entity-_entityIRI" iri="&lt;http://www.w3.org/2000/01/rdf-schema#member>"/>
+    </entity>
+  </implicitDeclaration>
+  <implicitDeclaration xmi:id="_implicitDeclaration.13">
+    <entity xsi:type="owl2:OWLAnnotationProperty" xmi:id="_implicitDeclaration.13-_entity">
+      <entityIRI xmi:id="_implicitDeclaration.13-_entity-_entityIRI" iri="&lt;http://www.w3.org/2000/01/rdf-schema#seeAlso>"/>
+    </entity>
+  </implicitDeclaration>
+  <implicitDeclaration xmi:id="_implicitDeclaration.14">
+    <entity xsi:type="owl2:OWLObjectProperty" xmi:id="_implicitDeclaration.14-_entity">
+      <entityIRI xmi:id="_implicitDeclaration.14-_entity-_entityIRI" iri="&lt;http://www.w3.org/2000/01/rdf-schema#subClassOf>"/>
+    </entity>
+  </implicitDeclaration>
+  <ontologyAnnotations xmi:id="_ontologyAnnotations.0">
+    <annotationProperty xmi:id="_ontologyAnnotations.0-_annotationProperty">
+      <annotationProperty href="http://purl.org/dc/elements/1.1/#_axioms.34-_entity"/>
+    </annotationProperty>
+    <annotationValue xsi:type="owl2:OWLLiteral" xmi:id="_ontologyAnnotations.0-_annotationValue" languageTag="" lexicalForm="The RDF Schema vocabulary (RDFS)">
+      <datatype xmi:id="_ontologyAnnotations.0-_annotationValue-_datatype" arity="1">
+        <dataType href="../../1999/02/22-rdf-syntax-ns#_axioms.65-_entity"/>
+      </datatype>
+    </annotationValue>
+  </ontologyAnnotations>
+  <ontologyAnnotations xmi:id="_ontologyAnnotations.1">
+    <annotationProperty xmi:id="_ontologyAnnotations.1-_annotationProperty" annotationProperty="_implicitDeclaration.13-_entity"/>
+    <annotationValue xsi:type="owl2:IRI" xmi:id="_ontologyAnnotations.1-_annotationValue" iri="&lt;http://www.w3.org/2000/01/rdf-schema-more>"/>
+  </ontologyAnnotations>
+  <ontologyID xmi:id="_ontologyID">
+    <ontologyIRI xmi:id="_ontologyID-_ontologyIRI" iri="&lt;http://www.w3.org/2000/01/rdf-schema#>"/>
+  </ontologyID>
+</owl2:Ontology>

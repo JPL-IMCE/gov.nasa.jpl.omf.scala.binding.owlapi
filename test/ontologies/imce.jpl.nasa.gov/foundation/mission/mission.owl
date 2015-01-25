@@ -1,0 +1,2737 @@
+<?xml version="1.0"?>
+
+
+<!DOCTYPE rdf:RDF [
+    <!ENTITY owl "http://www.w3.org/2002/07/owl#" >
+    <!ENTITY dc "http://purl.org/dc/elements/1.1/" >
+    <!ENTITY pbs "http://imce.jpl.nasa.gov/pbs/pbs#" >
+    <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#" >
+    <!ENTITY math "http://imce.jpl.nasa.gov/math/math#" >
+    <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#" >
+    <!ENTITY Blocks "http://imce.jpl.nasa.gov/Blocks/Blocks#" >
+    <!ENTITY pbs-embedding "http://imce.jpl.nasa.gov/pbs/pbs-embedding#" >
+    <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
+    <!ENTITY timeline "http://imce.jpl.nasa.gov/timeline/timeline#" >
+    <!ENTITY ieee-1471 "http://imce.jpl.nasa.gov/ieee-1471/ieee-1471#" >
+    <!ENTITY math-embedding "http://imce.jpl.nasa.gov/math/math-embedding#" >
+    <!ENTITY time "http://imce.jpl.nasa.gov/foundation/time/time#" >
+    <!ENTITY base "http://imce.jpl.nasa.gov/foundation/base/base#" >
+    <!ENTITY mechanical "http://imce.jpl.nasa.gov/mechanical/mechanical#" >
+    <!ENTITY vandv "http://imce.jpl.nasa.gov/discipline/vandv/vandv#" >
+    <!ENTITY Blocks-embedding "http://imce.jpl.nasa.gov/Blocks/Blocks-embedding#" >
+    <!ENTITY project "http://imce.jpl.nasa.gov/foundation/project/project#" >
+    <!ENTITY mission "http://imce.jpl.nasa.gov/foundation/mission/mission#" >
+    <!ENTITY timeline-embedding "http://imce.jpl.nasa.gov/timeline/timeline-embedding#" >
+    <!ENTITY f6-asda "http://imce.jpl.nasa.gov/application/f6-asda/f6-asda#" >
+    <!ENTITY base-mapping "http://imce.jpl.nasa.gov/foundation/base/base-mapping#" >
+    <!ENTITY analysis "http://imce.jpl.nasa.gov/foundation/analysis/analysis#" >
+    <!ENTITY ieee-1471-embedding "http://imce.jpl.nasa.gov/ieee-1471/ieee-1471-embedding#" >
+    <!ENTITY time-embedding "http://imce.jpl.nasa.gov/foundation/time/time-embedding#" >
+    <!ENTITY owl2-mof2 "http://imce.jpl.nasa.gov/foundation/owl2-mof2/owl2-mof2#" >
+    <!ENTITY base-embedding "http://imce.jpl.nasa.gov/foundation/base/base-embedding#" >
+    <!ENTITY mechanical-embedding "http://imce.jpl.nasa.gov/mechanical/mechanical-embedding#" >
+    <!ENTITY vandv-embedding "http://imce.jpl.nasa.gov/discipline/vandv/vandv-embedding#" >
+    <!ENTITY annotation "http://imce.jpl.nasa.gov/foundation/annotation/annotation#" >
+    <!ENTITY electrical "http://imce.jpl.nasa.gov/discipline/electrical/electrical#" >
+    <!ENTITY jeo-architecture "http://imce.jpl.nasa.gov/jeo-architecture/jeo-architecture#" >
+    <!ENTITY datatype-map "http://imce.jpl.nasa.gov/foundation/owl2-mof2/datatype-map#" >
+    <!ENTITY UML "http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/UML#" >
+    <!ENTITY mgss-service-embedding "http://imce.jpl.nasa.gov/mgss-service/mgss-service-embedding#" >
+    <!ENTITY mission-embedding "http://imce.jpl.nasa.gov/foundation/mission/mission-embedding#" >
+    <!ENTITY project-embedding "http://imce.jpl.nasa.gov/foundation/project/project-embedding#" >
+    <!ENTITY QUDV "http://imce.jpl.nasa.gov/www.omg.org/spec/SysML/20140311/QUDV#" >
+    <!ENTITY mgss-service "http://imce.jpl.nasa.gov/application/mgss-service/mgss-service#" >
+    <!ENTITY f6-asda-embedding "http://imce.jpl.nasa.gov/application/f6-asda/f6-asda-embedding#" >
+    <!ENTITY SysML "http://imce.jpl.nasa.gov/www.omg.org/spec/SysML/20140311/SysML#" >
+    <!ENTITY analysis-embedding "http://imce.jpl.nasa.gov/foundation/analysis/analysis-embedding#" >
+    <!ENTITY owl2-mof2-mapping "http://imce.jpl.nasa.gov/foundation/owl2-mof2/owl2-mof2-mapping#" >
+    <!ENTITY owl2-mof2-embedding "http://imce.jpl.nasa.gov/foundation/owl2-mof2/owl2-mof2-embedding#" >
+    <!ENTITY state-analysis "http://imce.jpl.nasa.gov/discipline/state-analysis/state-analysis#" >
+    <!ENTITY project-closure "http://imce.jpl.nasa.gov/foundation/project/project-bundle-closure#" >
+    <!ENTITY Metrology "http://imce.jpl.nasa.gov/www.omg.org/spec/SysML/20140311/Metrology#" >
+    <!ENTITY annotation-embedding "http://imce.jpl.nasa.gov/foundation/annotation/annotation-embedding#" >
+    <!ENTITY electrical-embedding "http://imce.jpl.nasa.gov/discipline/electrical/electrical-embedding#" >
+    <!ENTITY UML-metamodel "http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/UML-metamodel#" >
+    <!ENTITY UML-embedding "http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/UML-embedding#" >
+    <!ENTITY jeo-architecture-embedding "http://imce.jpl.nasa.gov/jeo-architecture/jeo-architecture-embedding#" >
+    <!ENTITY fault-management "http://imce.jpl.nasa.gov/discipline/fault-management/fault-management#" >
+    <!ENTITY QUDV-mapping "http://imce.jpl.nasa.gov/www.omg.org/spec/SysML/20140311/QUDV-mapping#" >
+    <!ENTITY QUDV-embedding "http://imce.jpl.nasa.gov/www.omg.org/spec/SysML/20140311/QUDV-embedding#" >
+    <!ENTITY QUDV-metamodel "http://imce.jpl.nasa.gov/www.omg.org/spec/SysML/20140311/QUDV-metamodel#" >
+    <!ENTITY StandardProfileL2 "http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#" >
+    <!ENTITY SysML-embedding "http://imce.jpl.nasa.gov/www.omg.org/spec/SysML/20140311/SysML-embedding#" >
+    <!ENTITY base-backbone "http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/base/base#" >
+    <!ENTITY SysML-metamodel "http://imce.jpl.nasa.gov/www.omg.org/spec/SysML/20140311/SysML-metamodel#" >
+    <!ENTITY time-backbone "http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/time/time#" >
+    <!ENTITY state-analysis-embedding "http://imce.jpl.nasa.gov/discipline/state-analysis/state-analysis-embedding#" >
+    <!ENTITY Metrology-embedding "http://imce.jpl.nasa.gov/www.omg.org/spec/SysML/20140311/Metrology-embedding#" >
+    <!ENTITY architectural-description "http://imce.jpl.nasa.gov/architectural-description/architectural-description#" >
+    <!ENTITY Metrology-metamodel "http://imce.jpl.nasa.gov/www.omg.org/spec/SysML/20140311/Metrology-metamodel#" >
+    <!ENTITY project-backbone "http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/project/project#" >
+    <!ENTITY mission-backbone "http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/mission/mission#" >
+    <!ENTITY architecture-framework "http://imce.jpl.nasa.gov/inactive/architecture-framework/architecture-framework#" >
+    <!ENTITY fault-management-embedding "http://imce.jpl.nasa.gov/discipline/fault-management/fault-management-embedding#" >
+    <!ENTITY state-analysis-closure "http://imce.jpl.nasa.gov/discipline/state-analysis/state-analysis-bundle-closure#" >
+    <!ENTITY StandardProfileL2-mapping "http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2-mapping#" >
+    <!ENTITY analysis-backbone "http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/analysis/analysis#" >
+    <!ENTITY Metrology-closure "http://imce.jpl.nasa.gov/www.omg.org/spec/SysML/20140311/Metrology-bundle-closure#" >
+    <!ENTITY base-embedding-backbone "http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/base/base-embedding#" >
+    <!ENTITY owl2-mof2-backbone "http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/owl2-mof2/owl2-mof2#" >
+    <!ENTITY StandardProfileL2-metamodel "http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2-metamodel#" >
+    <!ENTITY StandardProfileL2-embedding "http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2-embedding#" >
+    <!ENTITY time-embedding-backbone "http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/time/time-embedding#" >
+    <!ENTITY annotation-backbone "http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/annotation/annotation#" >
+    <!ENTITY UML-backbone "http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/UML#" >
+    <!ENTITY architectural-description-embedding "http://imce.jpl.nasa.gov/architectural-description/architectural-description-embedding#" >
+    <!ENTITY QUDV-backbone "http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/www.omg.org/spec/SysML/20140311/QUDV#" >
+    <!ENTITY mission-embedding-backbone "http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/mission/mission-embedding#" >
+    <!ENTITY project-embedding-backbone "http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/project/project-embedding#" >
+    <!ENTITY architecture-framework-embedding "http://imce.jpl.nasa.gov/inactive/architecture-framework/architecture-framework-embedding#" >
+    <!ENTITY SysML-backbone "http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/www.omg.org/spec/SysML/20140311/SysML#" >
+    <!ENTITY PrimitiveTypes-embedding "http://imce.jpl.nasa.gov/www.omg.org/spec/PrimitiveTypes/20110701/PrimitiveTypes-embedding#" >
+    <!ENTITY PrimitiveTypes-metamodel "http://imce.jpl.nasa.gov/www.omg.org/spec/PrimitiveTypes/20110701/PrimitiveTypes-metamodel#" >
+    <!ENTITY analysis-embedding-backbone "http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/analysis/analysis-embedding#" >
+    <!ENTITY state-analysis-backbone "http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/discipline/state-analysis/state-analysis#" >
+    <!ENTITY owl2-mof2-embedding-backbone "http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/owl2-mof2/owl2-mof2-embedding#" >
+    <!ENTITY Metrology-backbone "http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/www.omg.org/spec/SysML/20140311/Metrology#" >
+    <!ENTITY UML-metamodel-backbone "http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/UML-metamodel#" >
+    <!ENTITY state-analysis-implementation "http://imce.jpl.nasa.gov/discipline/state-analysis-implementation/state-analysis-implementation#" >
+    <!ENTITY QUDV-metamodel-backbone "http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/www.omg.org/spec/SysML/20140311/QUDV-metamodel#" >
+    <!ENTITY SysML-metamodel-backbone "http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/www.omg.org/spec/SysML/20140311/SysML-metamodel#" >
+    <!ENTITY StandardProfileL2-backbone "http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#" >
+    <!ENTITY state-analysis-functional-design "http://imce.jpl.nasa.gov/discipline/state-analysis-functional-design/state-analysis-functional-design#" >
+    <!ENTITY state-analysis-embedding-backbone "http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/discipline/state-analysis/state-analysis-embedding#" >
+    <!ENTITY Metrology-metamodel-backbone "http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/www.omg.org/spec/SysML/20140311/Metrology-metamodel#" >
+    <!ENTITY state-analysis-implementation-embedding "http://imce.jpl.nasa.gov/discipline/state-analysis-implementation/state-analysis-implementation-embedding#" >
+    <!ENTITY architecture-framework-backbone "http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/inactive/architecture-framework/architecture-framework#" >
+    <!ENTITY PrimitiveTypes-backbone "http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/www.omg.org/spec/PrimitiveTypes/20110701/PrimitiveTypes#" >
+    <!ENTITY StandardProfileL2-metamodel-backbone "http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2-metamodel#" >
+    <!ENTITY state-analysis-functional-design-embedding "http://imce.jpl.nasa.gov/discipline/state-analysis-functional-design/state-analysis-functional-design-embedding#" >
+    <!ENTITY architecture-framework-embedding-backbone "http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/inactive/architecture-framework/architecture-framework-embedding#" >
+    <!ENTITY PrimitiveTypes-metamodel-backbone "http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/www.omg.org/spec/PrimitiveTypes/20110701/PrimitiveTypes-metamodel#" >
+]>
+
+
+<rdf:RDF xmlns="http://imce.jpl.nasa.gov/www.omg.org/spec/PrimitiveTypes/20110701/PrimitiveTypes#"
+     xml:base="http://imce.jpl.nasa.gov/www.omg.org/spec/PrimitiveTypes/20110701/PrimitiveTypes"
+     xmlns:UML-metamodel-backbone="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/UML-metamodel#"
+     xmlns:StandardProfileL2-backbone="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#"
+     xmlns:mission-embedding="http://imce.jpl.nasa.gov/foundation/mission/mission-embedding#"
+     xmlns:QUDV-metamodel-backbone="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/www.omg.org/spec/SysML/20140311/QUDV-metamodel#"
+     xmlns:time-backbone="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/time/time#"
+     xmlns:Metrology-backbone="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/www.omg.org/spec/SysML/20140311/Metrology#"
+     xmlns:annotation-backbone="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/annotation/annotation#"
+     xmlns:state-analysis="http://imce.jpl.nasa.gov/discipline/state-analysis/state-analysis#"
+     xmlns:state-analysis-embedding-backbone="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/discipline/state-analysis/state-analysis-embedding#"
+     xmlns:Blocks-embedding="http://imce.jpl.nasa.gov/Blocks/Blocks-embedding#"
+     xmlns:annotation="http://imce.jpl.nasa.gov/foundation/annotation/annotation#"
+     xmlns:state-analysis-implementation="http://imce.jpl.nasa.gov/discipline/state-analysis-implementation/state-analysis-implementation#"
+     xmlns:time="http://imce.jpl.nasa.gov/foundation/time/time#"
+     xmlns:architecture-framework="http://imce.jpl.nasa.gov/inactive/architecture-framework/architecture-framework#"
+     xmlns:electrical-embedding="http://imce.jpl.nasa.gov/discipline/electrical/electrical-embedding#"
+     xmlns:mechanical="http://imce.jpl.nasa.gov/mechanical/mechanical#"
+     xmlns:analysis-backbone="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/analysis/analysis#"
+     xmlns:datatype-map="http://imce.jpl.nasa.gov/foundation/owl2-mof2/datatype-map#"
+     xmlns:QUDV-backbone="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/www.omg.org/spec/SysML/20140311/QUDV#"
+     xmlns:Blocks="http://imce.jpl.nasa.gov/Blocks/Blocks#"
+     xmlns:state-analysis-backbone="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/discipline/state-analysis/state-analysis#"
+     xmlns:f6-asda-embedding="http://imce.jpl.nasa.gov/application/f6-asda/f6-asda-embedding#"
+     xmlns:mechanical-embedding="http://imce.jpl.nasa.gov/mechanical/mechanical-embedding#"
+     xmlns:base-backbone="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/base/base#"
+     xmlns:jeo-architecture-embedding="http://imce.jpl.nasa.gov/jeo-architecture/jeo-architecture-embedding#"
+     xmlns:Metrology-metamodel="http://imce.jpl.nasa.gov/www.omg.org/spec/SysML/20140311/Metrology-metamodel#"
+     xmlns:StandardProfileL2-embedding="http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2-embedding#"
+     xmlns:project="http://imce.jpl.nasa.gov/foundation/project/project#"
+     xmlns:Metrology="http://imce.jpl.nasa.gov/www.omg.org/spec/SysML/20140311/Metrology#"
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:SysML-metamodel="http://imce.jpl.nasa.gov/www.omg.org/spec/SysML/20140311/SysML-metamodel#"
+     xmlns:timeline-embedding="http://imce.jpl.nasa.gov/timeline/timeline-embedding#"
+     xmlns:state-analysis-implementation-embedding="http://imce.jpl.nasa.gov/discipline/state-analysis-implementation/state-analysis-implementation-embedding#"
+     xmlns:Metrology-metamodel-backbone="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/www.omg.org/spec/SysML/20140311/Metrology-metamodel#"
+     xmlns:architecture-framework-embedding="http://imce.jpl.nasa.gov/inactive/architecture-framework/architecture-framework-embedding#"
+     xmlns:owl2-mof2-backbone="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/owl2-mof2/owl2-mof2#"
+     xmlns:mgss-service="http://imce.jpl.nasa.gov/application/mgss-service/mgss-service#"
+     xmlns:StandardProfileL2="http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2#"
+     xmlns:timeline="http://imce.jpl.nasa.gov/timeline/timeline#"
+     xmlns:SysML-metamodel-backbone="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/www.omg.org/spec/SysML/20140311/SysML-metamodel#"
+     xmlns:jeo-architecture="http://imce.jpl.nasa.gov/jeo-architecture/jeo-architecture#"
+     xmlns:state-analysis-closure="http://imce.jpl.nasa.gov/discipline/state-analysis/state-analysis-bundle-closure#"
+     xmlns:SysML-backbone="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/www.omg.org/spec/SysML/20140311/SysML#"
+     xmlns:owl2-mof2="http://imce.jpl.nasa.gov/foundation/owl2-mof2/owl2-mof2#"
+     xmlns:StandardProfileL2-metamodel="http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2-metamodel#"
+     xmlns:QUDV="http://imce.jpl.nasa.gov/www.omg.org/spec/SysML/20140311/QUDV#"
+     xmlns:analysis-embedding="http://imce.jpl.nasa.gov/foundation/analysis/analysis-embedding#"
+     xmlns:Metrology-closure="http://imce.jpl.nasa.gov/www.omg.org/spec/SysML/20140311/Metrology-bundle-closure#"
+     xmlns:vandv="http://imce.jpl.nasa.gov/discipline/vandv/vandv#"
+     xmlns:project-backbone="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/project/project#"
+     xmlns:time-embedding-backbone="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/time/time-embedding#"
+     xmlns:UML-embedding="http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/UML-embedding#"
+     xmlns:PrimitiveTypes-embedding="http://imce.jpl.nasa.gov/www.omg.org/spec/PrimitiveTypes/20110701/PrimitiveTypes-embedding#"
+     xmlns:state-analysis-functional-design-embedding="http://imce.jpl.nasa.gov/discipline/state-analysis-functional-design/state-analysis-functional-design-embedding#"
+     xmlns:math="http://imce.jpl.nasa.gov/math/math#"
+     xmlns:architectural-description-embedding="http://imce.jpl.nasa.gov/architectural-description/architectural-description-embedding#"
+     xmlns:state-analysis-embedding="http://imce.jpl.nasa.gov/discipline/state-analysis/state-analysis-embedding#"
+     xmlns:base="http://imce.jpl.nasa.gov/foundation/base/base#"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:QUDV-mapping="http://imce.jpl.nasa.gov/www.omg.org/spec/SysML/20140311/QUDV-mapping#"
+     xmlns:fault-management-embedding="http://imce.jpl.nasa.gov/discipline/fault-management/fault-management-embedding#"
+     xmlns:Metrology-embedding="http://imce.jpl.nasa.gov/www.omg.org/spec/SysML/20140311/Metrology-embedding#"
+     xmlns:mgss-service-embedding="http://imce.jpl.nasa.gov/mgss-service/mgss-service-embedding#"
+     xmlns:base-embedding="http://imce.jpl.nasa.gov/foundation/base/base-embedding#"
+     xmlns:SysML="http://imce.jpl.nasa.gov/www.omg.org/spec/SysML/20140311/SysML#"
+     xmlns:architecture-framework-backbone="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/inactive/architecture-framework/architecture-framework#"
+     xmlns:base-embedding-backbone="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/base/base-embedding#"
+     xmlns:owl2-mof2-embedding="http://imce.jpl.nasa.gov/foundation/owl2-mof2/owl2-mof2-embedding#"
+     xmlns:project-embedding="http://imce.jpl.nasa.gov/foundation/project/project-embedding#"
+     xmlns:StandardProfileL2-mapping="http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2-mapping#"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:ieee-1471-embedding="http://imce.jpl.nasa.gov/ieee-1471/ieee-1471-embedding#"
+     xmlns:dc="http://purl.org/dc/elements/1.1/"
+     xmlns:QUDV-metamodel="http://imce.jpl.nasa.gov/www.omg.org/spec/SysML/20140311/QUDV-metamodel#"
+     xmlns:PrimitiveTypes-backbone="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/www.omg.org/spec/PrimitiveTypes/20110701/PrimitiveTypes#"
+     xmlns:base-mapping="http://imce.jpl.nasa.gov/foundation/base/base-mapping#"
+     xmlns:pbs="http://imce.jpl.nasa.gov/pbs/pbs#"
+     xmlns:SysML-embedding="http://imce.jpl.nasa.gov/www.omg.org/spec/SysML/20140311/SysML-embedding#"
+     xmlns:UML="http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/UML#"
+     xmlns:architectural-description="http://imce.jpl.nasa.gov/architectural-description/architectural-description#"
+     xmlns:UML-backbone="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/UML#"
+     xmlns:ieee-1471="http://imce.jpl.nasa.gov/ieee-1471/ieee-1471#"
+     xmlns:project-closure="http://imce.jpl.nasa.gov/foundation/project/project-bundle-closure#"
+     xmlns:owl2-mof2-mapping="http://imce.jpl.nasa.gov/foundation/owl2-mof2/owl2-mof2-mapping#"
+     xmlns:analysis="http://imce.jpl.nasa.gov/foundation/analysis/analysis#"
+     xmlns:analysis-embedding-backbone="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/analysis/analysis-embedding#"
+     xmlns:math-embedding="http://imce.jpl.nasa.gov/math/math-embedding#"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     xmlns:mission-embedding-backbone="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/mission/mission-embedding#"
+     xmlns:QUDV-embedding="http://imce.jpl.nasa.gov/www.omg.org/spec/SysML/20140311/QUDV-embedding#"
+     xmlns:UML-metamodel="http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/UML-metamodel#"
+     xmlns:PrimitiveTypes-metamodel-backbone="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/www.omg.org/spec/PrimitiveTypes/20110701/PrimitiveTypes-metamodel#"
+     xmlns:f6-asda="http://imce.jpl.nasa.gov/application/f6-asda/f6-asda#"
+     xmlns:state-analysis-functional-design="http://imce.jpl.nasa.gov/discipline/state-analysis-functional-design/state-analysis-functional-design#"
+     xmlns:project-embedding-backbone="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/project/project-embedding#"
+     xmlns:architecture-framework-embedding-backbone="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/inactive/architecture-framework/architecture-framework-embedding#"
+     xmlns:electrical="http://imce.jpl.nasa.gov/discipline/electrical/electrical#"
+     xmlns:annotation-embedding="http://imce.jpl.nasa.gov/foundation/annotation/annotation-embedding#"
+     xmlns:time-embedding="http://imce.jpl.nasa.gov/foundation/time/time-embedding#"
+     xmlns:fault-management="http://imce.jpl.nasa.gov/discipline/fault-management/fault-management#"
+     xmlns:mission="http://imce.jpl.nasa.gov/foundation/mission/mission#"
+     xmlns:owl2-mof2-embedding-backbone="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/owl2-mof2/owl2-mof2-embedding#"
+     xmlns:pbs-embedding="http://imce.jpl.nasa.gov/pbs/pbs-embedding#"
+     xmlns:vandv-embedding="http://imce.jpl.nasa.gov/discipline/vandv/vandv-embedding#"
+     xmlns:mission-backbone="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/mission/mission#"
+     xmlns:PrimitiveTypes-metamodel="http://imce.jpl.nasa.gov/www.omg.org/spec/PrimitiveTypes/20110701/PrimitiveTypes-metamodel#"
+     xmlns:StandardProfileL2-metamodel-backbone="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/StandardProfileL2-metamodel#">
+    <owl:Ontology rdf:about="http://imce.jpl.nasa.gov/foundation/mission/mission">
+        <dc:date rdf:datatype="&xsd;string">$Date$</dc:date>
+        <owl:versionInfo rdf:datatype="&xsd;string">$Revision$</owl:versionInfo>
+        <dc:rights rdf:datatype="&xsd;string">Copyright 2010-2014, by the California Institute of Technology. ALL RIGHTS RESERVED. United States Government Sponsorship acknowledged. Any commercial use must be negotiated with the Office of Technology Transfer at the California Institute of Technology.
+
+This software may be subject to U.S. export control laws. By accepting this software, the user agrees to comply with all applicable U.S. export laws and regulations. User has the responsibility to obtain export licenses, or other export authority as may be required before exporting such information to foreign countries or providing access to foreign persons.</dc:rights>
+        <dc:type rdf:datatype="&xsd;string">Foundation</dc:type>
+        <dc:title rdf:datatype="&xsd;string">Mission Ontology</dc:title>
+        <dc:creator rdf:datatype="&xsd;string">Systems Engineering &amp; Formulation Division</dc:creator>
+        <dc:description rdf:datatype="&xsd;string">The Mission Ontology defines concepts and properties for describing missions in terms of their objectives, their constituent components, the functions those components perform, and the requirements that specify them.</dc:description>
+        <owl:imports rdf:resource="http://imce.jpl.nasa.gov/foundation/base/base"/>
+        <owl:imports rdf:resource="http://imce.jpl.nasa.gov/foundation/time/time"/>
+    </owl:Ontology>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Annotation properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://purl.org/dc/elements/1.1/creator -->
+
+    <owl:AnnotationProperty rdf:about="&dc;creator"/>
+    
+
+
+    <!-- http://purl.org/dc/elements/1.1/date -->
+
+    <owl:AnnotationProperty rdf:about="&dc;date"/>
+    
+
+
+    <!-- http://purl.org/dc/elements/1.1/description -->
+
+    <owl:AnnotationProperty rdf:about="&dc;description"/>
+    
+
+
+    <!-- http://purl.org/dc/elements/1.1/rights -->
+
+    <owl:AnnotationProperty rdf:about="&dc;rights"/>
+    
+
+
+    <!-- http://purl.org/dc/elements/1.1/title -->
+
+    <owl:AnnotationProperty rdf:about="&dc;title"/>
+    
+
+
+    <!-- http://purl.org/dc/elements/1.1/type -->
+
+    <owl:AnnotationProperty rdf:about="&dc;type"/>
+    
+
+
+    <!-- http://www.w3.org/2002/07/owl#versionInfo -->
+
+    <owl:AnnotationProperty rdf:about="&owl;versionInfo"/>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Object Properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/mission/mission#topObjectProperty -->
+
+    <owl:ObjectProperty rdf:about="&mission-backbone;topObjectProperty">
+        <dc:description rdf:datatype="&xsd;string">&lt;property&gt;topObjectProperty&lt;/property&gt; is a common superproperty of all object properties defined in the Mission Ontology.</dc:description>
+        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
+        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/mission/mission#topReifiedObjectProperty -->
+
+    <owl:ObjectProperty rdf:about="&mission-backbone;topReifiedObjectProperty">
+        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
+        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
+        <rdfs:subPropertyOf rdf:resource="&mission-backbone;topObjectProperty"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/mission/mission#topReifiedObjectPropertySource -->
+
+    <owl:ObjectProperty rdf:about="&mission-backbone;topReifiedObjectPropertySource">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
+        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
+        <rdfs:subPropertyOf rdf:resource="&mission-backbone;topObjectProperty"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/mission/mission#topReifiedObjectPropertyTarget -->
+
+    <owl:ObjectProperty rdf:about="&mission-backbone;topReifiedObjectPropertyTarget">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
+        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
+        <rdfs:subPropertyOf rdf:resource="&mission-backbone;topObjectProperty"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/mission/mission#topReifiedStructuredDataProperty -->
+
+    <owl:ObjectProperty rdf:about="&mission-backbone;topReifiedStructuredDataProperty">
+        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
+        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
+        <rdfs:subPropertyOf rdf:resource="&mission-backbone;topObjectProperty"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/mission/mission#topReifiedStructuredDataPropertySource -->
+
+    <owl:ObjectProperty rdf:about="&mission-backbone;topReifiedStructuredDataPropertySource">
+        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
+        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
+        <rdfs:subPropertyOf rdf:resource="&mission-backbone;topObjectProperty"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/mission/mission#topReifiedStructuredDataPropertyTarget -->
+
+    <owl:ObjectProperty rdf:about="&mission-backbone;topReifiedStructuredDataPropertyTarget">
+        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
+        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
+        <rdfs:subPropertyOf rdf:resource="&mission-backbone;topObjectProperty"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#deploys -->
+
+    <owl:ObjectProperty rdf:about="&mission;deploys">
+        <rdf:type rdf:resource="&owl;AsymmetricProperty"/>
+        <rdf:type rdf:resource="&owl;IrreflexiveProperty"/>
+        <rdfs:label rdf:datatype="&xsd;string">deploys</rdfs:label>
+        <dc:description rdf:datatype="&xsd;string">A
+a &lt;classname&gt;Mission&lt;/classname&gt; &lt;replaceable&gt;m&lt;/replaceable&gt; 
+&lt;property&gt;deploys&lt;/property&gt;
+&lt;classname&gt;Component&lt;/classname&gt; &lt;replaceable&gt;c&lt;/replaceable&gt;
+if and only if &lt;replaceable&gt;m&lt;/replaceable&gt; exploits or utilizes &lt;replaceable&gt;c&lt;/replaceable&gt; in pursuit of  &lt;classname&gt;Objective&lt;/classname&gt;s. Note that a given &lt;classname&gt;Mission&lt;/classname&gt; may not &lt;emphasis&gt;own&lt;/emphasis&gt; all the &lt;classname&gt;Component&lt;/classname&gt;s it &lt;property&gt;deploys&lt;/property&gt;; some &lt;classname&gt;Component&lt;/classname&gt;s (e.g., ground system assets) may be shared with multiple missions.</dc:description>
+        <rdfs:subPropertyOf rdf:resource="&mission-backbone;topReifiedObjectProperty"/>
+        <rdfs:range rdf:resource="&mission;Component"/>
+        <rdfs:domain rdf:resource="&mission;Mission"/>
+        <owl:inverseOf rdf:resource="&mission;isDeployedBy"/>
+        <owl:propertyChainAxiom rdf:parseType="Collection">
+            <rdf:Description>
+                <owl:inverseOf rdf:resource="&mission;hasDeploysSource"/>
+            </rdf:Description>
+            <rdf:Description rdf:about="&mission;hasDeploysTarget"/>
+        </owl:propertyChainAxiom>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#emits -->
+
+    <owl:ObjectProperty rdf:about="&mission;emits">
+        <rdf:type rdf:resource="&owl;AsymmetricProperty"/>
+        <rdf:type rdf:resource="&owl;InverseFunctionalProperty"/>
+        <rdf:type rdf:resource="&owl;IrreflexiveProperty"/>
+        <rdfs:label rdf:datatype="&xsd;string">emits</rdfs:label>
+        <dc:description rdf:datatype="&xsd;string">A &lt;classname&gt;Function&lt;/classname&gt; &lt;replaceable&gt;F&lt;/replaceable&gt;
+&lt;property&gt;emits&lt;/property&gt;
+a &lt;classname&gt;Flow&lt;/classname&gt; &lt;replaceable&gt;f&lt;/replaceable&gt;
+if and only if &lt;replaceable&gt;F&lt;/replaceable&gt; is the source of &lt;replaceable&gt;f&lt;/replaceable&gt;.</dc:description>
+        <rdfs:subPropertyOf rdf:resource="&mission-backbone;topReifiedObjectProperty"/>
+        <rdfs:range rdf:resource="&mission;Flow"/>
+        <rdfs:domain rdf:resource="&mission;Function"/>
+        <owl:propertyChainAxiom rdf:parseType="Collection">
+            <rdf:Description>
+                <owl:inverseOf rdf:resource="&mission;hasEmitsSource"/>
+            </rdf:Description>
+            <rdf:Description rdf:about="&mission;hasEmitsTarget"/>
+        </owl:propertyChainAxiom>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#hasDeploysSource -->
+
+    <owl:ObjectProperty rdf:about="&mission;hasDeploysSource">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&mission-backbone;topReifiedObjectPropertySource"/>
+        <rdfs:domain rdf:resource="&mission;Deploys"/>
+        <rdfs:range rdf:resource="&mission;Mission"/>
+    </owl:ObjectProperty>
+    <rdf:Description>
+        <owl:inverseOf rdf:resource="&mission;hasDeploysSource"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#hasDeploysTarget -->
+
+    <owl:ObjectProperty rdf:about="&mission;hasDeploysTarget">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&mission-backbone;topReifiedObjectPropertyTarget"/>
+        <rdfs:range rdf:resource="&mission;Component"/>
+        <rdfs:domain rdf:resource="&mission;Deploys"/>
+    </owl:ObjectProperty>
+    <rdf:Description>
+        <owl:inverseOf rdf:resource="&mission;hasDeploysTarget"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#hasEmitsSource -->
+
+    <owl:ObjectProperty rdf:about="&mission;hasEmitsSource">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&mission-backbone;topReifiedObjectPropertySource"/>
+        <rdfs:domain rdf:resource="&mission;Emits"/>
+        <rdfs:range rdf:resource="&mission;Function"/>
+    </owl:ObjectProperty>
+    <rdf:Description>
+        <owl:inverseOf rdf:resource="&mission;hasEmitsSource"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#hasEmitsTarget -->
+
+    <owl:ObjectProperty rdf:about="&mission;hasEmitsTarget">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdf:type rdf:resource="&owl;InverseFunctionalProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&mission-backbone;topReifiedObjectPropertyTarget"/>
+        <rdfs:domain rdf:resource="&mission;Emits"/>
+        <rdfs:range rdf:resource="&mission;Flow"/>
+    </owl:ObjectProperty>
+    <rdf:Description>
+        <owl:inverseOf rdf:resource="&mission;hasEmitsTarget"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#hasHasParticipantSource -->
+
+    <owl:ObjectProperty rdf:about="&mission;hasHasParticipantSource">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&mission-backbone;topReifiedObjectPropertySource"/>
+        <rdfs:domain rdf:resource="&mission;HasParticipant"/>
+        <rdfs:range rdf:resource="&mission;Interchange"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#hasHasParticipantTarget -->
+
+    <owl:ObjectProperty rdf:about="&mission;hasHasParticipantTarget">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&mission-backbone;topReifiedObjectPropertyTarget"/>
+        <rdfs:domain rdf:resource="&mission;HasParticipant"/>
+        <rdfs:range rdf:resource="&mission;TraversingElement"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#hasInducesSource -->
+
+    <owl:ObjectProperty rdf:about="&mission;hasInducesSource">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&mission-backbone;topReifiedObjectPropertySource"/>
+        <rdfs:range rdf:resource="&mission;Component"/>
+        <rdfs:domain rdf:resource="&mission;Induces"/>
+    </owl:ObjectProperty>
+    <rdf:Description>
+        <owl:inverseOf rdf:resource="&mission;hasInducesSource"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#hasInducesTarget -->
+
+    <owl:ObjectProperty rdf:about="&mission;hasInducesTarget">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&mission-backbone;topReifiedObjectPropertyTarget"/>
+        <rdfs:range rdf:resource="&mission;Environment"/>
+        <rdfs:domain rdf:resource="&mission;Induces"/>
+    </owl:ObjectProperty>
+    <rdf:Description>
+        <owl:inverseOf rdf:resource="&mission;hasInducesTarget"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#hasInfluencesSource -->
+
+    <owl:ObjectProperty rdf:about="&mission;hasInfluencesSource">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&mission-backbone;topReifiedObjectPropertySource"/>
+        <rdfs:range rdf:resource="&mission;Environment"/>
+        <rdfs:domain rdf:resource="&mission;Influences"/>
+    </owl:ObjectProperty>
+    <rdf:Description>
+        <owl:inverseOf rdf:resource="&mission;hasInfluencesSource"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#hasInfluencesTarget -->
+
+    <owl:ObjectProperty rdf:about="&mission;hasInfluencesTarget">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&mission-backbone;topReifiedObjectPropertyTarget"/>
+        <rdfs:range rdf:resource="&mission;Component"/>
+        <rdfs:domain rdf:resource="&mission;Influences"/>
+    </owl:ObjectProperty>
+    <rdf:Description>
+        <owl:inverseOf rdf:resource="&mission;hasInfluencesTarget"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#hasIngestsSource -->
+
+    <owl:ObjectProperty rdf:about="&mission;hasIngestsSource">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&mission-backbone;topReifiedObjectPropertySource"/>
+        <rdfs:range rdf:resource="&mission;Function"/>
+        <rdfs:domain rdf:resource="&mission;Ingests"/>
+    </owl:ObjectProperty>
+    <rdf:Description>
+        <owl:inverseOf rdf:resource="&mission;hasIngestsSource"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#hasIngestsTarget -->
+
+    <owl:ObjectProperty rdf:about="&mission;hasIngestsTarget">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdf:type rdf:resource="&owl;InverseFunctionalProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&mission-backbone;topReifiedObjectPropertyTarget"/>
+        <rdfs:range rdf:resource="&mission;Flow"/>
+        <rdfs:domain rdf:resource="&mission;Ingests"/>
+    </owl:ObjectProperty>
+    <rdf:Description>
+        <owl:inverseOf rdf:resource="&mission;hasIngestsTarget"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#hasInvokesSource -->
+
+    <owl:ObjectProperty rdf:about="&mission;hasInvokesSource">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&mission-backbone;topReifiedObjectPropertySource"/>
+        <rdfs:range rdf:resource="&mission;Function"/>
+        <rdfs:domain rdf:resource="&mission;Invokes"/>
+    </owl:ObjectProperty>
+    <rdf:Description>
+        <owl:inverseOf rdf:resource="&mission;hasInvokesSource"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#hasInvokesTarget -->
+
+    <owl:ObjectProperty rdf:about="&mission;hasInvokesTarget">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&mission-backbone;topReifiedObjectPropertyTarget"/>
+        <rdfs:range rdf:resource="&mission;Function"/>
+        <rdfs:domain rdf:resource="&mission;Invokes"/>
+    </owl:ObjectProperty>
+    <rdf:Description>
+        <owl:inverseOf rdf:resource="&mission;hasInvokesTarget"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#hasInvolves1Source -->
+  
+    <owl:ObjectProperty rdf:about="&mission;hasInvolvesSource">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdf:type rdf:resource="&owl;InverseFunctionalProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&mission-backbone;topReifiedObjectPropertySource"/>
+        <rdfs:range rdf:resource="&mission;Interchange"/>
+        <rdfs:domain rdf:resource="&mission;Involves"/>
+    </owl:ObjectProperty>
+    
+    <owl:ObjectProperty rdf:about="&mission;hasInvolves1Source">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdf:type rdf:resource="&owl;InverseFunctionalProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&mission;hasInvolvesSource"/>
+        <rdfs:range rdf:resource="&mission;Interchange"/>
+        <rdfs:domain rdf:resource="&mission;Involves1"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#hasInvolves1Target -->
+
+    <owl:ObjectProperty rdf:about="&mission;hasInvolvesTarget">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&mission-backbone;topReifiedObjectPropertyTarget"/>
+        <rdfs:range rdf:resource="&mission;Function"/>
+        <rdfs:domain rdf:resource="&mission;Involves"/>
+    </owl:ObjectProperty>
+    
+    <owl:ObjectProperty rdf:about="&mission;hasInvolves1Target">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&mission;hasInvolvesTarget"/>
+        <rdfs:range rdf:resource="&mission;Function"/>
+        <rdfs:domain rdf:resource="&mission;Involves1"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#hasInvolves2Source -->
+
+    <owl:ObjectProperty rdf:about="&mission;hasInvolves2Source">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdf:type rdf:resource="&owl;InverseFunctionalProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&mission;hasInvolvesSource"/>
+        <rdfs:range rdf:resource="&mission;Interchange"/>
+        <rdfs:domain rdf:resource="&mission;Involves2"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#hasInvolves2Target -->
+
+    <owl:ObjectProperty rdf:about="&mission;hasInvolves2Target">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&mission;hasInvolvesTarget"/>
+        <rdfs:range rdf:resource="&mission;Function"/>
+        <rdfs:domain rdf:resource="&mission;Involves2"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#hasIsTraversedBySource -->
+
+    <owl:ObjectProperty rdf:about="&mission;hasIsTraversedBySource">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&mission-backbone;topReifiedObjectPropertySource"/>
+        <rdfs:range rdf:resource="&mission;Junction"/>
+        <rdfs:domain rdf:resource="&mission;Traverses"/>
+    </owl:ObjectProperty>
+    <rdf:Description>
+        <owl:inverseOf rdf:resource="&mission;hasIsTraversedBySource"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#hasIsTraversedByTarget -->
+
+    <owl:ObjectProperty rdf:about="&mission;hasIsTraversedByTarget">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&mission-backbone;topReifiedObjectPropertyTarget"/>
+        <rdfs:domain rdf:resource="&mission;Traverses"/>
+        <rdfs:range rdf:resource="&mission;TraversingElement"/>
+    </owl:ObjectProperty>
+    <rdf:Description>
+        <owl:inverseOf rdf:resource="&mission;hasIsTraversedByTarget"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#hasJoins1Source -->
+
+    <owl:ObjectProperty rdf:about="&mission;hasJoinsSource">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdf:type rdf:resource="&owl;InverseFunctionalProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&mission-backbone;topReifiedObjectPropertySource"/>
+        <rdfs:domain rdf:resource="&mission;Joins"/>
+        <rdfs:range rdf:resource="&mission;Junction"/>
+    </owl:ObjectProperty>
+    
+    <owl:ObjectProperty rdf:about="&mission;hasJoins1Source">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdf:type rdf:resource="&owl;InverseFunctionalProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&mission;hasJoinsSource"/>
+        <rdfs:domain rdf:resource="&mission;Joins1"/>
+        <rdfs:range rdf:resource="&mission;Junction"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#hasJoins1Target -->
+
+    <owl:ObjectProperty rdf:about="&mission;hasJoinsTarget">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdf:type rdf:resource="&owl;InverseFunctionalProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&mission-backbone;topReifiedObjectPropertyTarget"/>
+        <rdfs:range rdf:resource="&mission;Interface"/>
+        <rdfs:domain rdf:resource="&mission;Joins"/>
+    </owl:ObjectProperty>
+    <owl:ObjectProperty rdf:about="&mission;hasJoins1Target">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdf:type rdf:resource="&owl;InverseFunctionalProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&mission;hasJoinsTarget"/>
+        <rdfs:range rdf:resource="&mission;Interface"/>
+        <rdfs:domain rdf:resource="&mission;Joins1"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#hasJoins2Source -->
+
+    <owl:ObjectProperty rdf:about="&mission;hasJoins2Source">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdf:type rdf:resource="&owl;InverseFunctionalProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&mission;hasJoinsSource"/>
+        <rdfs:domain rdf:resource="&mission;Joins2"/>
+        <rdfs:range rdf:resource="&mission;Junction"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#hasJoins2Target -->
+
+    <owl:ObjectProperty rdf:about="&mission;hasJoins2Target">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdf:type rdf:resource="&owl;InverseFunctionalProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&mission;hasJoinsTarget"/>
+        <rdfs:range rdf:resource="&mission;Interface"/>
+        <rdfs:domain rdf:resource="&mission;Joins2"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#hasParticipant -->
+
+    <owl:ObjectProperty rdf:about="&mission;hasParticipant">
+        <rdf:type rdf:resource="&owl;AsymmetricProperty"/>
+        <rdf:type rdf:resource="&owl;IrreflexiveProperty"/>
+        <rdfs:label rdf:datatype="&xsd;string">has participant</rdfs:label>
+        <rdfs:subPropertyOf rdf:resource="&mission-backbone;topReifiedObjectProperty"/>
+        <rdfs:domain rdf:resource="&mission;Interchange"/>
+        <rdfs:range rdf:resource="&mission;TraversingElement"/>
+        <owl:propertyChainAxiom rdf:parseType="Collection">
+            <rdf:Description>
+                <owl:inverseOf rdf:resource="&mission;hasHasParticipantSource"/>
+            </rdf:Description>
+            <rdf:Description rdf:about="&mission;hasHasParticipantTarget"/>
+        </owl:propertyChainAxiom>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#hasPerformsSource -->
+
+    <owl:ObjectProperty rdf:about="&mission;hasPerformsSource">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&mission-backbone;topReifiedObjectPropertySource"/>
+        <rdfs:range rdf:resource="&mission;PerformingElement"/>
+        <rdfs:domain rdf:resource="&mission;Performs"/>
+    </owl:ObjectProperty>
+    <rdf:Description>
+        <owl:inverseOf rdf:resource="&mission;hasPerformsSource"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#hasPerformsTarget -->
+
+    <owl:ObjectProperty rdf:about="&mission;hasPerformsTarget">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdf:type rdf:resource="&owl;InverseFunctionalProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&mission-backbone;topReifiedObjectPropertyTarget"/>
+        <rdfs:range rdf:resource="&mission;Function"/>
+        <rdfs:domain rdf:resource="&mission;Performs"/>
+    </owl:ObjectProperty>
+    <rdf:Description>
+        <owl:inverseOf rdf:resource="&mission;hasPerformsTarget"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#hasPresentsSource -->
+
+    <owl:ObjectProperty rdf:about="&mission;hasPresentsSource">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&mission-backbone;topReifiedObjectPropertySource"/>
+        <rdfs:range rdf:resource="&mission;PresentingElement"/>
+        <rdfs:domain rdf:resource="&mission;Presents"/>
+    </owl:ObjectProperty>
+    <rdf:Description>
+        <owl:inverseOf rdf:resource="&mission;hasPresentsSource"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#hasPresentsTarget -->
+
+    <owl:ObjectProperty rdf:about="&mission;hasPresentsTarget">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdf:type rdf:resource="&owl;InverseFunctionalProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&mission-backbone;topReifiedObjectPropertyTarget"/>
+        <rdfs:range rdf:resource="&mission;Interface"/>
+        <rdfs:domain rdf:resource="&mission;Presents"/>
+    </owl:ObjectProperty>
+    <rdf:Description>
+        <owl:inverseOf rdf:resource="&mission;hasPresentsTarget"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#hasPursuesSource -->
+
+    <owl:ObjectProperty rdf:about="&mission;hasPursuesSource">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&mission-backbone;topReifiedObjectPropertySource"/>
+        <rdfs:range rdf:resource="&mission;Mission"/>
+        <rdfs:domain rdf:resource="&mission;Pursues"/>
+    </owl:ObjectProperty>
+    <rdf:Description>
+        <owl:inverseOf rdf:resource="&mission;hasPursuesSource"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#hasPursuesTarget -->
+
+    <owl:ObjectProperty rdf:about="&mission;hasPursuesTarget">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&mission-backbone;topReifiedObjectPropertyTarget"/>
+        <rdfs:range rdf:resource="&mission;Objective"/>
+        <rdfs:domain rdf:resource="&mission;Pursues"/>
+    </owl:ObjectProperty>
+    <rdf:Description>
+        <owl:inverseOf rdf:resource="&mission;hasPursuesTarget"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#hasReceivesSource -->
+
+    <owl:ObjectProperty rdf:about="&mission;hasReceivesSource">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&mission-backbone;topReifiedObjectPropertySource"/>
+        <rdfs:range rdf:resource="&mission;Function"/>
+        <rdfs:domain rdf:resource="&mission;Receives"/>
+    </owl:ObjectProperty>
+    <rdf:Description>
+        <owl:inverseOf rdf:resource="&mission;hasReceivesSource"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#hasReceivesTarget -->
+
+    <owl:ObjectProperty rdf:about="&mission;hasReceivesTarget">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&mission-backbone;topReifiedObjectPropertyTarget"/>
+        <rdfs:range rdf:resource="&mission;Item"/>
+        <rdfs:domain rdf:resource="&mission;Receives"/>
+    </owl:ObjectProperty>
+    <rdf:Description>
+        <owl:inverseOf rdf:resource="&mission;hasReceivesTarget"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#hasRefinesSource -->
+
+    <owl:ObjectProperty rdf:about="&mission;hasRefinesSource">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&mission-backbone;topReifiedObjectPropertySource"/>
+        <rdfs:domain rdf:resource="&mission;Refines"/>
+        <rdfs:range rdf:resource="&mission;Requirement"/>
+    </owl:ObjectProperty>
+    <rdf:Description>
+        <owl:inverseOf rdf:resource="&mission;hasRefinesSource"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#hasRefinesTarget -->
+
+    <owl:ObjectProperty rdf:about="&mission;hasRefinesTarget">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&mission-backbone;topReifiedObjectPropertyTarget"/>
+        <rdfs:domain rdf:resource="&mission;Refines"/>
+        <rdfs:range rdf:resource="&mission;Requirement"/>
+    </owl:ObjectProperty>
+    <rdf:Description>
+        <owl:inverseOf rdf:resource="&mission;hasRefinesTarget"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#hasSendsSource -->
+
+    <owl:ObjectProperty rdf:about="&mission;hasSendsSource">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&mission-backbone;topReifiedObjectPropertySource"/>
+        <rdfs:range rdf:resource="&mission;Function"/>
+        <rdfs:domain rdf:resource="&mission;Sends"/>
+    </owl:ObjectProperty>
+    <rdf:Description>
+        <owl:inverseOf rdf:resource="&mission;hasSendsSource"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#hasSendsTarget -->
+
+    <owl:ObjectProperty rdf:about="&mission;hasSendsTarget">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdf:type rdf:resource="&owl;InverseFunctionalProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&mission-backbone;topReifiedObjectPropertyTarget"/>
+        <rdfs:range rdf:resource="&mission;Item"/>
+        <rdfs:domain rdf:resource="&mission;Sends"/>
+    </owl:ObjectProperty>
+    <rdf:Description>
+        <owl:inverseOf rdf:resource="&mission;hasSendsTarget"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#hasSpecifiesSource -->
+
+    <owl:ObjectProperty rdf:about="&mission;hasSpecifiesSource">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdf:type rdf:resource="&owl;InverseFunctionalProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&mission-backbone;topReifiedObjectPropertySource"/>
+        <rdfs:range rdf:resource="&mission;Requirement"/>
+        <rdfs:domain rdf:resource="&mission;Specifies"/>
+    </owl:ObjectProperty>
+    <rdf:Description>
+        <owl:inverseOf rdf:resource="&mission;hasSpecifiesSource"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#hasSpecifiesTarget -->
+
+    <owl:ObjectProperty rdf:about="&mission;hasSpecifiesTarget">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&mission-backbone;topReifiedObjectPropertyTarget"/>
+        <rdfs:range rdf:resource="&mission;SpecifiedElement"/>
+        <rdfs:domain rdf:resource="&mission;Specifies"/>
+    </owl:ObjectProperty>
+    <rdf:Description>
+        <owl:inverseOf rdf:resource="&mission;hasSpecifiesTarget"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#hasTransfersInSource -->
+
+    
+    <owl:ObjectProperty rdf:about="&mission;hasTransfersSource">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&mission-backbone;topReifiedObjectPropertySource"/>
+        <rdfs:range rdf:resource="&mission;Interface"/>
+        <rdfs:domain rdf:resource="&mission;Transfers"/>
+    </owl:ObjectProperty>
+    
+    <owl:ObjectProperty rdf:about="&mission;hasTransfersInSource">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&mission;hasTransfersSource"/>
+        <rdfs:range rdf:resource="&mission;Interface"/>
+        <rdfs:domain rdf:resource="&mission;TransfersIn"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#hasTransfersInTarget -->
+
+    <owl:ObjectProperty rdf:about="&mission;hasTransfersTarget">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&mission-backbone;topReifiedObjectPropertyTarget"/>
+        <rdfs:domain rdf:resource="&mission;Transfers"/>
+        <rdfs:range rdf:resource="&mission;TraversingElement"/>
+    </owl:ObjectProperty>
+    <owl:ObjectProperty rdf:about="&mission;hasTransfersInTarget">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&mission;hasTransfersTarget"/>
+        <rdfs:domain rdf:resource="&mission;TransfersIn"/>
+        <rdfs:range rdf:resource="&mission;TraversingElement"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#hasTransfersOutSource -->
+
+    <owl:ObjectProperty rdf:about="&mission;hasTransfersOutSource">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&mission-backbone;topReifiedObjectPropertySource"/>
+        <rdfs:range rdf:resource="&mission;Interface"/>
+        <rdfs:domain rdf:resource="&mission;TransfersOut"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#hasTransfersOutTarget -->
+
+    <owl:ObjectProperty rdf:about="&mission;hasTransfersOutTarget">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&mission-backbone;topReifiedObjectPropertyTarget"/>
+        <rdfs:domain rdf:resource="&mission;TransfersOut"/>
+        <rdfs:range rdf:resource="&mission;TraversingElement"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#induces -->
+
+    <owl:ObjectProperty rdf:about="&mission;induces">
+        <rdf:type rdf:resource="&owl;AsymmetricProperty"/>
+        <rdf:type rdf:resource="&owl;IrreflexiveProperty"/>
+        <rdfs:label rdf:datatype="&xsd;string">induces</rdfs:label>
+        <dc:description rdf:datatype="&xsd;string">A
+&lt;classname&gt;Component&lt;/classname&gt;
+&lt;replaceable&gt;c&lt;/replaceable&gt;
+&lt;property&gt;induces&lt;/property&gt;
+an
+&lt;classname&gt;Environment&lt;/classname&gt;
+&lt;replaceable&gt;e&lt;/replaceable&gt;
+if and only if
+&lt;replaceable&gt;c&lt;/replaceable&gt;
+generates or contributes to the conditions described in
+&lt;replaceable&gt;e&lt;/replaceable&gt;.</dc:description>
+        <rdfs:subPropertyOf rdf:resource="&mission-backbone;topReifiedObjectProperty"/>
+        <rdfs:domain rdf:resource="&mission;Component"/>
+        <rdfs:range rdf:resource="&mission;Environment"/>
+        <owl:propertyChainAxiom rdf:parseType="Collection">
+            <rdf:Description>
+                <owl:inverseOf rdf:resource="&mission;hasInducesSource"/>
+            </rdf:Description>
+            <rdf:Description rdf:about="&mission;hasInducesTarget"/>
+        </owl:propertyChainAxiom>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#influences -->
+
+    <owl:ObjectProperty rdf:about="&mission;influences">
+        <rdf:type rdf:resource="&owl;AsymmetricProperty"/>
+        <rdf:type rdf:resource="&owl;IrreflexiveProperty"/>
+        <rdfs:label rdf:datatype="&xsd;string">influences</rdfs:label>
+        <dc:description rdf:datatype="&xsd;string">An
+&lt;classname&gt;Environment&lt;/classname&gt;
+&lt;replaceable&gt;e&lt;/replaceable&gt;
+&lt;property&gt;influences&lt;/property&gt;
+a
+&lt;classname&gt;Component&lt;/classname&gt;
+&lt;replaceable&gt;c&lt;/replaceable&gt;
+if and only if
+&lt;replaceable&gt;c&lt;/replaceable&gt;
+is subject to the conditions that define
+&lt;replaceable&gt;e&lt;/replaceable&gt;.</dc:description>
+        <rdfs:subPropertyOf rdf:resource="&mission-backbone;topReifiedObjectProperty"/>
+        <rdfs:range rdf:resource="&mission;Component"/>
+        <rdfs:domain rdf:resource="&mission;Environment"/>
+        <owl:inverseOf rdf:resource="&mission;isInfluencedBy"/>
+        <owl:propertyChainAxiom rdf:parseType="Collection">
+            <rdf:Description>
+                <owl:inverseOf rdf:resource="&mission;hasInfluencesSource"/>
+            </rdf:Description>
+            <rdf:Description rdf:about="&mission;hasInfluencesTarget"/>
+        </owl:propertyChainAxiom>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#ingests -->
+
+    <owl:ObjectProperty rdf:about="&mission;ingests">
+        <rdf:type rdf:resource="&owl;AsymmetricProperty"/>
+        <rdf:type rdf:resource="&owl;InverseFunctionalProperty"/>
+        <rdf:type rdf:resource="&owl;IrreflexiveProperty"/>
+        <rdfs:label rdf:datatype="&xsd;string">ingests</rdfs:label>
+        <dc:description rdf:datatype="&xsd;string">An
+&lt;classname&gt;Function&lt;/classname&gt;
+&lt;replaceable&gt;F&lt;/replaceable&gt;
+&lt;property&gt;ingests&lt;/property&gt;
+a
+&lt;classname&gt;Flow&lt;/classname&gt;
+&lt;replaceable&gt;f&lt;/replaceable&gt;
+if and only if
+&lt;replaceable&gt;F&lt;/replaceable&gt;
+consumes or is otherwise the recipient of
+&lt;replaceable&gt;f&lt;/replaceable&gt;.</dc:description>
+        <rdfs:subPropertyOf rdf:resource="&mission-backbone;topReifiedObjectProperty"/>
+        <rdfs:range rdf:resource="&mission;Flow"/>
+        <rdfs:domain rdf:resource="&mission;Function"/>
+        <owl:propertyChainAxiom rdf:parseType="Collection">
+            <rdf:Description>
+                <owl:inverseOf rdf:resource="&mission;hasIngestsSource"/>
+            </rdf:Description>
+            <rdf:Description rdf:about="&mission;hasIngestsTarget"/>
+        </owl:propertyChainAxiom>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#invokes -->
+
+    <owl:ObjectProperty rdf:about="&mission;invokes">
+        <rdfs:label rdf:datatype="&xsd;string">invokes</rdfs:label>
+        <dc:description rdf:datatype="&xsd;string">A
+&lt;classname&gt;Function&lt;/classname&gt;
+&lt;replaceable&gt;f&lt;subscript&gt;1&lt;/subscript&gt;&lt;/replaceable&gt;
+&lt;property&gt;invokes&lt;/property&gt;
+a
+&lt;classname&gt;Function&lt;/classname&gt;
+&lt;replaceable&gt;f&lt;subscript&gt;2&lt;/subscript&gt;&lt;/replaceable&gt;
+if and only if execution of 
+&lt;replaceable&gt;f&lt;subscript&gt;1&lt;/subscript&gt;&lt;/replaceable&gt;
+may directly cause execution of
+&lt;replaceable&gt;f&lt;subscript&gt;2&lt;/subscript&gt;&lt;/replaceable&gt;.</dc:description>
+        <rdfs:subPropertyOf rdf:resource="&mission-backbone;topReifiedObjectProperty"/>
+        <rdfs:domain rdf:resource="&mission;Function"/>
+        <rdfs:range rdf:resource="&mission;Function"/>
+        <owl:inverseOf rdf:resource="&mission;isInvokedBy"/>
+        <owl:propertyChainAxiom rdf:parseType="Collection">
+            <rdf:Description>
+                <owl:inverseOf rdf:resource="&mission;hasInvokesSource"/>
+            </rdf:Description>
+            <rdf:Description rdf:about="&mission;hasInvokesTarget"/>
+        </owl:propertyChainAxiom>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#involves -->
+
+    <owl:ObjectProperty rdf:about="&mission;involves">
+        <rdf:type rdf:resource="&owl;AsymmetricProperty"/>
+        <rdf:type rdf:resource="&owl;IrreflexiveProperty"/>
+        <rdfs:label rdf:datatype="&xsd;string">involves</rdfs:label>
+        <dc:description rdf:datatype="&xsd;string">&lt;para&gt;
+An &lt;classname&gt;Interaction&lt;/classname&gt;
+&lt;replaceable&gt;i&lt;/replaceable&gt;
+&lt;property&gt;involves&lt;/property&gt;
+a pair of
+&lt;classname&gt;Function&lt;/classname&gt;s
+{&lt;replaceable&gt;f&lt;subscript&gt;1&lt;/subscript&gt;&lt;/replaceable&gt;}
+and
+{&lt;replaceable&gt;f&lt;subscript&gt;2&lt;/subscript&gt;&lt;/replaceable&gt;}
+if and only if
+{&lt;replaceable&gt;f&lt;subscript&gt;1&lt;/subscript&gt;&lt;/replaceable&gt;} 
+&lt;property&gt;emits&lt;/property&gt; a &lt;classname&gt;Flow&lt;/classname&gt; or
+&lt;property&gt;sends&lt;/property&gt; an &lt;classname&gt;Item&lt;/classname&gt;
+that
+{&lt;replaceable&gt;f&lt;subscript&gt;2&lt;/subscript&gt;&lt;/replaceable&gt;} 
+&lt;property&gt;ingests&lt;/property&gt; or
+&lt;property&gt;receives&lt;/property&gt;,
+&lt;/para&gt;</dc:description>
+        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
+        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
+        <rdfs:subPropertyOf rdf:resource="&mission-backbone;topReifiedObjectProperty"/>
+        <rdfs:range rdf:resource="&mission;Function"/>
+        <rdfs:domain rdf:resource="&mission;Interchange"/>
+        <owl:propertyChainAxiom rdf:parseType="Collection">
+            <rdf:Description>
+                <owl:inverseOf rdf:resource="&mission;hasInvolvesSource"/>
+            </rdf:Description>
+            <rdf:Description rdf:about="&mission;hasInvolvesTarget"/>
+        </owl:propertyChainAxiom>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#involves1 -->
+
+    <owl:ObjectProperty rdf:about="&mission;involves1">
+        <rdf:type rdf:resource="&owl;AsymmetricProperty"/>
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdf:type rdf:resource="&owl;IrreflexiveProperty"/>
+        <rdfs:label rdf:datatype="&xsd;string">involves1</rdfs:label>
+        <rdfs:range rdf:resource="&mission;Function"/>
+        <rdfs:domain rdf:resource="&mission;Interchange"/>
+        <rdfs:subPropertyOf rdf:resource="&mission;involves"/>
+        <owl:inverseOf rdf:resource="&mission;isInvolvedIn1"/>
+        <owl:propertyChainAxiom rdf:parseType="Collection">
+            <rdf:Description>
+                <owl:inverseOf rdf:resource="&mission;hasInvolves1Source"/>
+            </rdf:Description>
+            <rdf:Description rdf:about="&mission;hasInvolves1Target"/>
+        </owl:propertyChainAxiom>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#involves2 -->
+
+    <owl:ObjectProperty rdf:about="&mission;involves2">
+        <rdf:type rdf:resource="&owl;AsymmetricProperty"/>
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdf:type rdf:resource="&owl;IrreflexiveProperty"/>
+        <rdfs:label rdf:datatype="&xsd;string">involves2</rdfs:label>
+        <rdfs:range rdf:resource="&mission;Function"/>
+        <rdfs:domain rdf:resource="&mission;Interchange"/>
+        <rdfs:subPropertyOf rdf:resource="&mission;involves"/>
+        <owl:inverseOf rdf:resource="&mission;isInvolvedIn2"/>
+        <owl:propertyChainAxiom rdf:parseType="Collection">
+            <rdf:Description>
+                <owl:inverseOf rdf:resource="&mission;hasInvolves2Source"/>
+            </rdf:Description>
+            <rdf:Description rdf:about="&mission;hasInvolves2Target"/>
+        </owl:propertyChainAxiom>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#isDeployedBy -->
+
+    <owl:ObjectProperty rdf:about="&mission;isDeployedBy">
+        <rdf:type rdf:resource="&owl;AsymmetricProperty"/>
+        <rdf:type rdf:resource="&owl;IrreflexiveProperty"/>
+        <rdfs:label rdf:datatype="&xsd;string">is deployed by</rdfs:label>
+        <annotation:isDerived rdf:datatype="&xsd;boolean">true</annotation:isDerived>
+        <rdfs:subPropertyOf rdf:resource="&mission-backbone;topReifiedObjectProperty"/>
+        <rdfs:domain rdf:resource="&mission;Component"/>
+        <rdfs:range rdf:resource="&mission;Mission"/>
+        <owl:propertyChainAxiom rdf:parseType="Collection">
+            <rdf:Description>
+                <owl:inverseOf rdf:resource="&mission;hasDeploysTarget"/>
+            </rdf:Description>
+            <rdf:Description rdf:about="&mission;hasDeploysSource"/>
+        </owl:propertyChainAxiom>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#isEmittedBy -->
+
+    <owl:ObjectProperty rdf:about="&mission;isEmittedBy">
+        <rdf:type rdf:resource="&owl;AsymmetricProperty"/>
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdf:type rdf:resource="&owl;IrreflexiveProperty"/>
+        <rdfs:label rdf:datatype="&xsd;string">is emitted by</rdfs:label>
+        <annotation:isDerived rdf:datatype="&xsd;boolean">true</annotation:isDerived>
+        <rdfs:subPropertyOf rdf:resource="&mission-backbone;topReifiedObjectProperty"/>
+        <rdfs:domain rdf:resource="&mission;Flow"/>
+        <rdfs:range rdf:resource="&mission;Function"/>
+        <owl:inverseOf rdf:resource="&mission;emits"/>
+        <owl:propertyChainAxiom rdf:parseType="Collection">
+            <rdf:Description>
+                <owl:inverseOf rdf:resource="&mission;hasEmitsTarget"/>
+            </rdf:Description>
+            <rdf:Description rdf:about="&mission;hasEmitsSource"/>
+        </owl:propertyChainAxiom>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#isInducedBy -->
+
+    <owl:ObjectProperty rdf:about="&mission;isInducedBy">
+        <rdf:type rdf:resource="&owl;AsymmetricProperty"/>
+        <rdf:type rdf:resource="&owl;IrreflexiveProperty"/>
+        <rdfs:label rdf:datatype="&xsd;string">is induced by</rdfs:label>
+        <annotation:isDerived rdf:datatype="&xsd;boolean">true</annotation:isDerived>
+        <rdfs:subPropertyOf rdf:resource="&mission-backbone;topReifiedObjectProperty"/>
+        <rdfs:range rdf:resource="&mission;Component"/>
+        <rdfs:domain rdf:resource="&mission;Environment"/>
+        <owl:inverseOf rdf:resource="&mission;induces"/>
+        <owl:propertyChainAxiom rdf:parseType="Collection">
+            <rdf:Description>
+                <owl:inverseOf rdf:resource="&mission;hasInducesTarget"/>
+            </rdf:Description>
+            <rdf:Description rdf:about="&mission;hasInducesSource"/>
+        </owl:propertyChainAxiom>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#isInfluencedBy -->
+
+    <owl:ObjectProperty rdf:about="&mission;isInfluencedBy">
+        <rdf:type rdf:resource="&owl;AsymmetricProperty"/>
+        <rdf:type rdf:resource="&owl;IrreflexiveProperty"/>
+        <rdfs:label rdf:datatype="&xsd;string">is influenced by</rdfs:label>
+        <annotation:isDerived rdf:datatype="&xsd;boolean">true</annotation:isDerived>
+        <rdfs:subPropertyOf rdf:resource="&mission-backbone;topReifiedObjectProperty"/>
+        <rdfs:domain rdf:resource="&mission;Component"/>
+        <rdfs:range rdf:resource="&mission;Environment"/>
+        <owl:propertyChainAxiom rdf:parseType="Collection">
+            <rdf:Description>
+                <owl:inverseOf rdf:resource="&mission;hasInfluencesTarget"/>
+            </rdf:Description>
+            <rdf:Description rdf:about="&mission;hasInfluencesSource"/>
+        </owl:propertyChainAxiom>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#isIngestedBy -->
+
+    <owl:ObjectProperty rdf:about="&mission;isIngestedBy">
+        <rdf:type rdf:resource="&owl;AsymmetricProperty"/>
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdf:type rdf:resource="&owl;IrreflexiveProperty"/>
+        <rdfs:label rdf:datatype="&xsd;string">is ingested by</rdfs:label>
+        <annotation:isDerived rdf:datatype="&xsd;boolean">true</annotation:isDerived>
+        <rdfs:subPropertyOf rdf:resource="&mission-backbone;topReifiedObjectProperty"/>
+        <rdfs:domain rdf:resource="&mission;Flow"/>
+        <rdfs:range rdf:resource="&mission;Function"/>
+        <owl:inverseOf rdf:resource="&mission;ingests"/>
+        <owl:propertyChainAxiom rdf:parseType="Collection">
+            <rdf:Description>
+                <owl:inverseOf rdf:resource="&mission;hasIngestsTarget"/>
+            </rdf:Description>
+            <rdf:Description rdf:about="&mission;hasIngestsSource"/>
+        </owl:propertyChainAxiom>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#isInvokedBy -->
+
+    <owl:ObjectProperty rdf:about="&mission;isInvokedBy">
+        <rdfs:label rdf:datatype="&xsd;string">is invoked by</rdfs:label>
+        <annotation:isDerived rdf:datatype="&xsd;boolean">true</annotation:isDerived>
+        <rdfs:subPropertyOf rdf:resource="&mission-backbone;topReifiedObjectProperty"/>
+        <rdfs:range rdf:resource="&mission;Function"/>
+        <rdfs:domain rdf:resource="&mission;Function"/>
+        <owl:propertyChainAxiom rdf:parseType="Collection">
+            <rdf:Description>
+                <owl:inverseOf rdf:resource="&mission;hasInvokesTarget"/>
+            </rdf:Description>
+            <rdf:Description rdf:about="&mission;hasInvokesSource"/>
+        </owl:propertyChainAxiom>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#isInvolvedIn -->
+
+    <owl:ObjectProperty rdf:about="&mission;isInvolvedIn">
+        <rdf:type rdf:resource="&owl;AsymmetricProperty"/>
+        <rdf:type rdf:resource="&owl;IrreflexiveProperty"/>
+        <rdfs:label rdf:datatype="&xsd;string">is involved in</rdfs:label>
+        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
+        <annotation:isDerived rdf:datatype="&xsd;boolean">true</annotation:isDerived>
+        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
+        <rdfs:subPropertyOf rdf:resource="&mission-backbone;topReifiedObjectProperty"/>
+        <rdfs:domain rdf:resource="&mission;Function"/>
+        <rdfs:range rdf:resource="&mission;Interchange"/>
+        <owl:inverseOf rdf:resource="&mission;involves"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#isInvolvedIn1 -->
+
+    <owl:ObjectProperty rdf:about="&mission;isInvolvedIn1">
+        <rdf:type rdf:resource="&owl;AsymmetricProperty"/>
+        <rdf:type rdf:resource="&owl;InverseFunctionalProperty"/>
+        <rdf:type rdf:resource="&owl;IrreflexiveProperty"/>
+        <rdfs:label rdf:datatype="&xsd;string">is involved in1</rdfs:label>
+        <annotation:isDerived rdf:datatype="&xsd;boolean">true</annotation:isDerived>
+        <rdfs:domain rdf:resource="&mission;Function"/>
+        <rdfs:range rdf:resource="&mission;Interchange"/>
+        <rdfs:subPropertyOf rdf:resource="&mission;isInvolvedIn"/>
+        <owl:propertyChainAxiom rdf:parseType="Collection">
+            <rdf:Description>
+                <owl:inverseOf rdf:resource="&mission;hasInvolves1Target"/>
+            </rdf:Description>
+            <rdf:Description rdf:about="&mission;hasInvolves1Source"/>
+        </owl:propertyChainAxiom>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#isInvolvedIn2 -->
+
+    <owl:ObjectProperty rdf:about="&mission;isInvolvedIn2">
+        <rdf:type rdf:resource="&owl;AsymmetricProperty"/>
+        <rdf:type rdf:resource="&owl;InverseFunctionalProperty"/>
+        <rdf:type rdf:resource="&owl;IrreflexiveProperty"/>
+        <rdfs:label rdf:datatype="&xsd;string">is involved in2</rdfs:label>
+        <annotation:isDerived rdf:datatype="&xsd;boolean">true</annotation:isDerived>
+        <rdfs:domain rdf:resource="&mission;Function"/>
+        <rdfs:range rdf:resource="&mission;Interchange"/>
+        <rdfs:subPropertyOf rdf:resource="&mission;isInvolvedIn"/>
+        <owl:propertyChainAxiom rdf:parseType="Collection">
+            <rdf:Description>
+                <owl:inverseOf rdf:resource="&mission;hasInvolves2Target"/>
+            </rdf:Description>
+            <rdf:Description rdf:about="&mission;hasInvolves2Source"/>
+        </owl:propertyChainAxiom>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#isJoinedIn -->
+
+    <owl:ObjectProperty rdf:about="&mission;isJoinedIn">
+        <rdf:type rdf:resource="&owl;AsymmetricProperty"/>
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdf:type rdf:resource="&owl;IrreflexiveProperty"/>
+        <rdfs:label rdf:datatype="&xsd;string">is joined in</rdfs:label>
+        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
+        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
+        <annotation:isDerived rdf:datatype="&xsd;boolean">true</annotation:isDerived>
+        <rdfs:subPropertyOf rdf:resource="&mission-backbone;topReifiedObjectProperty"/>
+        <rdfs:domain rdf:resource="&mission;Interface"/>
+        <rdfs:range rdf:resource="&mission;Junction"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#isJoinedIn1 -->
+
+    <owl:ObjectProperty rdf:about="&mission;isJoinedIn1">
+        <rdf:type rdf:resource="&owl;AsymmetricProperty"/>
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdf:type rdf:resource="&owl;InverseFunctionalProperty"/>
+        <rdf:type rdf:resource="&owl;IrreflexiveProperty"/>
+        <rdfs:label rdf:datatype="&xsd;string">is joined in1</rdfs:label>
+        <annotation:isDerived rdf:datatype="&xsd;boolean">true</annotation:isDerived>
+        <rdfs:domain rdf:resource="&mission;Interface"/>
+        <rdfs:range rdf:resource="&mission;Junction"/>
+        <rdfs:subPropertyOf rdf:resource="&mission;isJoinedIn"/>
+        <owl:inverseOf rdf:resource="&mission;joins1"/>
+        <owl:propertyChainAxiom rdf:parseType="Collection">
+            <rdf:Description>
+                <owl:inverseOf rdf:resource="&mission;hasJoins1Target"/>
+            </rdf:Description>
+            <rdf:Description rdf:about="&mission;hasJoins1Source"/>
+        </owl:propertyChainAxiom>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#isJoinedIn2 -->
+
+    <owl:ObjectProperty rdf:about="&mission;isJoinedIn2">
+        <rdf:type rdf:resource="&owl;AsymmetricProperty"/>
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdf:type rdf:resource="&owl;InverseFunctionalProperty"/>
+        <rdf:type rdf:resource="&owl;IrreflexiveProperty"/>
+        <rdfs:label rdf:datatype="&xsd;string">is joined in2</rdfs:label>
+        <annotation:isDerived rdf:datatype="&xsd;boolean">true</annotation:isDerived>
+        <rdfs:domain rdf:resource="&mission;Interface"/>
+        <rdfs:range rdf:resource="&mission;Junction"/>
+        <rdfs:subPropertyOf rdf:resource="&mission;isJoinedIn"/>
+        <owl:inverseOf rdf:resource="&mission;joins2"/>
+        <owl:propertyChainAxiom rdf:parseType="Collection">
+            <rdf:Description>
+                <owl:inverseOf rdf:resource="&mission;hasJoins2Target"/>
+            </rdf:Description>
+            <rdf:Description rdf:about="&mission;hasJoins2Source"/>
+        </owl:propertyChainAxiom>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#isPerformedBy -->
+
+    <owl:ObjectProperty rdf:about="&mission;isPerformedBy">
+        <rdf:type rdf:resource="&owl;AsymmetricProperty"/>
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdf:type rdf:resource="&owl;IrreflexiveProperty"/>
+        <rdfs:label rdf:datatype="&xsd;string">is performed by</rdfs:label>
+        <annotation:isDerived rdf:datatype="&xsd;boolean">true</annotation:isDerived>
+        <rdfs:subPropertyOf rdf:resource="&mission-backbone;topReifiedObjectProperty"/>
+        <rdfs:domain rdf:resource="&mission;Function"/>
+        <rdfs:range rdf:resource="&mission;PerformingElement"/>
+        <owl:inverseOf rdf:resource="&mission;performs"/>
+        <owl:propertyChainAxiom rdf:parseType="Collection">
+            <rdf:Description>
+                <owl:inverseOf rdf:resource="&mission;hasPerformsTarget"/>
+            </rdf:Description>
+            <rdf:Description rdf:about="&mission;hasPerformsSource"/>
+        </owl:propertyChainAxiom>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#isPresentedBy -->
+
+    <owl:ObjectProperty rdf:about="&mission;isPresentedBy">
+        <rdf:type rdf:resource="&owl;AsymmetricProperty"/>
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdf:type rdf:resource="&owl;IrreflexiveProperty"/>
+        <rdfs:label rdf:datatype="&xsd;string">is presented by</rdfs:label>
+        <annotation:isDerived rdf:datatype="&xsd;boolean">true</annotation:isDerived>
+        <rdfs:subPropertyOf rdf:resource="&mission-backbone;topReifiedObjectProperty"/>
+        <rdfs:domain rdf:resource="&mission;Interface"/>
+        <rdfs:range rdf:resource="&mission;PresentingElement"/>
+        <owl:propertyChainAxiom rdf:parseType="Collection">
+            <rdf:Description>
+                <owl:inverseOf rdf:resource="&mission;hasPresentsTarget"/>
+            </rdf:Description>
+            <rdf:Description rdf:about="&mission;hasPresentsSource"/>
+        </owl:propertyChainAxiom>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#isPursuedBy -->
+
+    <owl:ObjectProperty rdf:about="&mission;isPursuedBy">
+        <rdf:type rdf:resource="&owl;AsymmetricProperty"/>
+        <rdf:type rdf:resource="&owl;IrreflexiveProperty"/>
+        <rdfs:label rdf:datatype="&xsd;string">is pursued by</rdfs:label>
+        <annotation:isDerived rdf:datatype="&xsd;boolean">true</annotation:isDerived>
+        <rdfs:subPropertyOf rdf:resource="&mission-backbone;topReifiedObjectProperty"/>
+        <rdfs:range rdf:resource="&mission;Mission"/>
+        <rdfs:domain rdf:resource="&mission;Objective"/>
+        <owl:propertyChainAxiom rdf:parseType="Collection">
+            <rdf:Description>
+                <owl:inverseOf rdf:resource="&mission;hasPursuesTarget"/>
+            </rdf:Description>
+            <rdf:Description rdf:about="&mission;hasPursuesSource"/>
+        </owl:propertyChainAxiom>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#isReceivedBy -->
+
+    <owl:ObjectProperty rdf:about="&mission;isReceivedBy">
+        <rdf:type rdf:resource="&owl;AsymmetricProperty"/>
+        <rdf:type rdf:resource="&owl;IrreflexiveProperty"/>
+        <rdfs:label rdf:datatype="&xsd;string">is received by</rdfs:label>
+        <annotation:isDerived rdf:datatype="&xsd;boolean">true</annotation:isDerived>
+        <rdfs:subPropertyOf rdf:resource="&mission-backbone;topReifiedObjectProperty"/>
+        <rdfs:range rdf:resource="&mission;Function"/>
+        <rdfs:domain rdf:resource="&mission;Item"/>
+        <owl:propertyChainAxiom rdf:parseType="Collection">
+            <rdf:Description>
+                <owl:inverseOf rdf:resource="&mission;hasReceivesTarget"/>
+            </rdf:Description>
+            <rdf:Description rdf:about="&mission;hasReceivesSource"/>
+        </owl:propertyChainAxiom>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#isRefinedBy -->
+
+    <owl:ObjectProperty rdf:about="&mission;isRefinedBy">
+        <rdf:type rdf:resource="&owl;AsymmetricProperty"/>
+        <rdf:type rdf:resource="&owl;IrreflexiveProperty"/>
+        <rdfs:label rdf:datatype="&xsd;string">is refined by</rdfs:label>
+        <annotation:isDerived rdf:datatype="&xsd;boolean">true</annotation:isDerived>
+        <rdfs:subPropertyOf rdf:resource="&mission-backbone;topReifiedObjectProperty"/>
+        <rdfs:range rdf:resource="&mission;Requirement"/>
+        <rdfs:domain rdf:resource="&mission;Requirement"/>
+        <owl:propertyChainAxiom rdf:parseType="Collection">
+            <rdf:Description>
+                <owl:inverseOf rdf:resource="&mission;hasRefinesTarget"/>
+            </rdf:Description>
+            <rdf:Description rdf:about="&mission;hasRefinesSource"/>
+        </owl:propertyChainAxiom>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#isSentBy -->
+
+    <owl:ObjectProperty rdf:about="&mission;isSentBy">
+        <rdf:type rdf:resource="&owl;AsymmetricProperty"/>
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdf:type rdf:resource="&owl;IrreflexiveProperty"/>
+        <rdfs:label rdf:datatype="&xsd;string">is sent by</rdfs:label>
+        <annotation:isDerived rdf:datatype="&xsd;boolean">true</annotation:isDerived>
+        <rdfs:subPropertyOf rdf:resource="&mission-backbone;topReifiedObjectProperty"/>
+        <rdfs:range rdf:resource="&mission;Function"/>
+        <rdfs:domain rdf:resource="&mission;Item"/>
+        <owl:propertyChainAxiom rdf:parseType="Collection">
+            <rdf:Description>
+                <owl:inverseOf rdf:resource="&mission;hasSendsTarget"/>
+            </rdf:Description>
+            <rdf:Description rdf:about="&mission;hasSendsSource"/>
+        </owl:propertyChainAxiom>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#isSpecifiedBy -->
+
+    <owl:ObjectProperty rdf:about="&mission;isSpecifiedBy">
+        <rdf:type rdf:resource="&owl;AsymmetricProperty"/>
+        <rdf:type rdf:resource="&owl;InverseFunctionalProperty"/>
+        <rdf:type rdf:resource="&owl;IrreflexiveProperty"/>
+        <rdfs:label rdf:datatype="&xsd;string">is specified by</rdfs:label>
+        <annotation:isDerived rdf:datatype="&xsd;boolean">true</annotation:isDerived>
+        <rdfs:subPropertyOf rdf:resource="&mission-backbone;topReifiedObjectProperty"/>
+        <rdfs:range rdf:resource="&mission;Requirement"/>
+        <rdfs:domain rdf:resource="&mission;SpecifiedElement"/>
+        <owl:propertyChainAxiom rdf:parseType="Collection">
+            <rdf:Description>
+                <owl:inverseOf rdf:resource="&mission;hasSpecifiesTarget"/>
+            </rdf:Description>
+            <rdf:Description rdf:about="&mission;hasSpecifiesSource"/>
+        </owl:propertyChainAxiom>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#isTraversedBy -->
+
+    <owl:ObjectProperty rdf:about="&mission;isTraversedBy">
+        <rdf:type rdf:resource="&owl;AsymmetricProperty"/>
+        <rdf:type rdf:resource="&owl;IrreflexiveProperty"/>
+        <rdfs:label rdf:datatype="&xsd;string">is traversed by</rdfs:label>
+        <rdfs:subPropertyOf rdf:resource="&mission-backbone;topReifiedObjectProperty"/>
+        <rdfs:domain rdf:resource="&mission;Junction"/>
+        <rdfs:range rdf:resource="&mission;TraversingElement"/>
+        <owl:propertyChainAxiom rdf:parseType="Collection">
+            <rdf:Description>
+                <owl:inverseOf rdf:resource="&mission;hasIsTraversedBySource"/>
+            </rdf:Description>
+            <rdf:Description rdf:about="&mission;hasIsTraversedByTarget"/>
+        </owl:propertyChainAxiom>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#joins -->
+
+    <owl:ObjectProperty rdf:about="&mission;joins">
+        <rdf:type rdf:resource="&owl;AsymmetricProperty"/>
+        <rdf:type rdf:resource="&owl;InverseFunctionalProperty"/>
+        <rdf:type rdf:resource="&owl;IrreflexiveProperty"/>
+        <rdfs:label rdf:datatype="&xsd;string">joins</rdfs:label>
+        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
+        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
+        <dc:description>&lt;para&gt;
+A &lt;classname&gt;Junction&lt;/classname&gt;
+&lt;replaceable&gt;j&lt;/replaceable&gt;
+&lt;property&gt;joins&lt;/property&gt;
+a pair of
+&lt;classname&gt;Interface&lt;/classname&gt;s
+{&lt;replaceable&gt;i&lt;subscript&gt;1&lt;/subscript&gt;&lt;/replaceable&gt;}
+and
+{&lt;replaceable&gt;i&lt;subscript&gt;2&lt;/subscript&gt;&lt;/replaceable&gt;}
+if and only if
+the set
+{&lt;replaceable&gt;i&lt;subscript&gt;k&lt;/subscript&gt;&lt;/replaceable&gt;} share some type of connection and
+&lt;replaceable&gt;j&lt;/replaceable&gt; represents properties common to all
+&lt;classname&gt;Interface&lt;/classname&gt;s in
+{&lt;replaceable&gt;i&lt;subscript&gt;k&lt;/subscript&gt;&lt;/replaceable&gt;} pertinent to that connection.
+&lt;/para&gt;</dc:description>
+        <rdfs:subPropertyOf rdf:resource="&mission-backbone;topReifiedObjectProperty"/>
+        <rdfs:range rdf:resource="&mission;Interface"/>
+        <rdfs:domain rdf:resource="&mission;Junction"/>
+        <owl:inverseOf rdf:resource="&mission;isJoinedIn"/>
+        <owl:propertyChainAxiom rdf:parseType="Collection">
+            <rdf:Description>
+                <owl:inverseOf rdf:resource="&mission;hasJoinsSource"/>
+            </rdf:Description>
+            <rdf:Description rdf:about="&mission;hasJoinsTarget"/>
+        </owl:propertyChainAxiom>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#joins1 -->
+
+    <owl:ObjectProperty rdf:about="&mission;joins1">
+        <rdf:type rdf:resource="&owl;AsymmetricProperty"/>
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdf:type rdf:resource="&owl;InverseFunctionalProperty"/>
+        <rdf:type rdf:resource="&owl;IrreflexiveProperty"/>
+        <rdfs:label rdf:datatype="&xsd;string">joins1</rdfs:label>
+        <rdfs:range rdf:resource="&mission;Interface"/>
+        <rdfs:domain rdf:resource="&mission;Junction"/>
+        <rdfs:subPropertyOf rdf:resource="&mission;joins"/>
+        <owl:propertyChainAxiom rdf:parseType="Collection">
+            <rdf:Description>
+                <owl:inverseOf rdf:resource="&mission;hasJoins1Source"/>
+            </rdf:Description>
+            <rdf:Description rdf:about="&mission;hasJoins1Target"/>
+        </owl:propertyChainAxiom>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#joins2 -->
+
+    <owl:ObjectProperty rdf:about="&mission;joins2">
+        <rdf:type rdf:resource="&owl;AsymmetricProperty"/>
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdf:type rdf:resource="&owl;InverseFunctionalProperty"/>
+        <rdf:type rdf:resource="&owl;IrreflexiveProperty"/>
+        <rdfs:label rdf:datatype="&xsd;string">joins2</rdfs:label>
+        <rdfs:range rdf:resource="&mission;Interface"/>
+        <rdfs:domain rdf:resource="&mission;Junction"/>
+        <rdfs:subPropertyOf rdf:resource="&mission;joins"/>
+        <owl:propertyChainAxiom rdf:parseType="Collection">
+            <rdf:Description>
+                <owl:inverseOf rdf:resource="&mission;hasJoins2Source"/>
+            </rdf:Description>
+            <rdf:Description rdf:about="&mission;hasJoins2Target"/>
+        </owl:propertyChainAxiom>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#participatesIn -->
+
+    <owl:ObjectProperty rdf:about="&mission;participatesIn">
+        <rdf:type rdf:resource="&owl;AsymmetricProperty"/>
+        <rdf:type rdf:resource="&owl;IrreflexiveProperty"/>
+        <rdfs:label rdf:datatype="&xsd;string">participates in</rdfs:label>
+        <annotation:isDerived rdf:datatype="&xsd;boolean">true</annotation:isDerived>
+        <rdfs:subPropertyOf rdf:resource="&mission-backbone;topReifiedObjectProperty"/>
+        <rdfs:range rdf:resource="&mission;Interchange"/>
+        <rdfs:domain rdf:resource="&mission;TraversingElement"/>
+        <owl:inverseOf rdf:resource="&mission;hasParticipant"/>
+        <owl:propertyChainAxiom rdf:parseType="Collection">
+            <rdf:Description>
+                <owl:inverseOf rdf:resource="&mission;hasHasParticipantTarget"/>
+            </rdf:Description>
+            <rdf:Description rdf:about="&mission;hasHasParticipantSource"/>
+        </owl:propertyChainAxiom>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#performs -->
+
+    <owl:ObjectProperty rdf:about="&mission;performs">
+        <rdf:type rdf:resource="&owl;AsymmetricProperty"/>
+        <rdf:type rdf:resource="&owl;InverseFunctionalProperty"/>
+        <rdf:type rdf:resource="&owl;IrreflexiveProperty"/>
+        <rdfs:label rdf:datatype="&xsd;string">performs</rdfs:label>
+        <dc:description rdf:datatype="&xsd;string">A
+&lt;classname&gt;Component&lt;/classname&gt;
+&lt;replaceable&gt;c&lt;/replaceable&gt;
+&lt;property&gt;performs&lt;/property&gt;
+a
+&lt;classname&gt;Function&lt;/classname&gt;
+&lt;replaceable&gt;f&lt;/replaceable&gt;
+if and only if
+&lt;replaceable&gt;c&lt;/replaceable&gt;
+has the sole responsibility for execution of
+&lt;replaceable&gt;f&lt;/replaceable&gt;.</dc:description>
+        <rdfs:subPropertyOf rdf:resource="&mission-backbone;topReifiedObjectProperty"/>
+        <rdfs:range rdf:resource="&mission;Function"/>
+        <rdfs:domain rdf:resource="&mission;PerformingElement"/>
+        <owl:propertyChainAxiom rdf:parseType="Collection">
+            <rdf:Description>
+                <owl:inverseOf rdf:resource="&mission;hasPerformsSource"/>
+            </rdf:Description>
+            <rdf:Description rdf:about="&mission;hasPerformsTarget"/>
+        </owl:propertyChainAxiom>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#presents -->
+
+    <owl:ObjectProperty rdf:about="&mission;presents">
+        <rdf:type rdf:resource="&owl;AsymmetricProperty"/>
+        <rdf:type rdf:resource="&owl;InverseFunctionalProperty"/>
+        <rdf:type rdf:resource="&owl;IrreflexiveProperty"/>
+        <rdfs:label rdf:datatype="&xsd;string">presents</rdfs:label>
+        <dc:description rdf:datatype="&xsd;string">A &lt;classname&gt;Component&lt;/classname&gt; &lt;replaceable&gt;c&lt;/replaceable&gt; &lt;property&gt;presents&lt;/property&gt; an &lt;classname&gt;Interface&lt;/classname&gt; &lt;replaceable&gt;i&lt;/replaceable&gt; if and only if &lt;replaceable&gt;c&lt;/replaceable&gt; has a direct electrical, mechanical, or logical connection to the outside via &lt;replaceable&gt;i&lt;/replaceable&gt;. Exactly one &lt;classname&gt;Component&lt;/classname&gt; &lt;property&gt;presents&lt;/property&gt; each &lt;classname&gt;Interface&lt;/classname&gt;.</dc:description>
+        <rdfs:subPropertyOf rdf:resource="&mission-backbone;topReifiedObjectProperty"/>
+        <rdfs:range rdf:resource="&mission;Interface"/>
+        <rdfs:domain rdf:resource="&mission;PresentingElement"/>
+        <owl:inverseOf rdf:resource="&mission;isPresentedBy"/>
+        <owl:propertyChainAxiom rdf:parseType="Collection">
+            <rdf:Description>
+                <owl:inverseOf rdf:resource="&mission;hasPresentsSource"/>
+            </rdf:Description>
+            <rdf:Description rdf:about="&mission;hasPresentsTarget"/>
+        </owl:propertyChainAxiom>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#pursues -->
+
+    <owl:ObjectProperty rdf:about="&mission;pursues">
+        <rdf:type rdf:resource="&owl;AsymmetricProperty"/>
+        <rdf:type rdf:resource="&owl;IrreflexiveProperty"/>
+        <rdfs:label rdf:datatype="&xsd;string">pursues</rdfs:label>
+        <dc:description rdf:datatype="&xsd;string">A &lt;classname&gt;Mission&lt;/classname&gt; &lt;replaceable&gt;m&lt;/replaceable&gt; &lt;property&gt;pursues&lt;/property&gt; an &lt;classname&gt;Objective&lt;/classname&gt; &lt;replaceable&gt;o&lt;/replaceable&gt; if and only if the successful execution of &lt;replaceable&gt;m&lt;/replaceable&gt; results in at least partial achievement of &lt;replaceable&gt;o&lt;/replaceable&gt;.</dc:description>
+        <rdfs:subPropertyOf rdf:resource="&mission-backbone;topReifiedObjectProperty"/>
+        <rdfs:domain rdf:resource="&mission;Mission"/>
+        <rdfs:range rdf:resource="&mission;Objective"/>
+        <owl:inverseOf rdf:resource="&mission;isPursuedBy"/>
+        <owl:propertyChainAxiom rdf:parseType="Collection">
+            <rdf:Description>
+                <owl:inverseOf rdf:resource="&mission;hasPursuesSource"/>
+            </rdf:Description>
+            <rdf:Description rdf:about="&mission;hasPursuesTarget"/>
+        </owl:propertyChainAxiom>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#receives -->
+
+    <owl:ObjectProperty rdf:about="&mission;receives">
+        <rdf:type rdf:resource="&owl;AsymmetricProperty"/>
+        <rdf:type rdf:resource="&owl;IrreflexiveProperty"/>
+        <rdfs:label rdf:datatype="&xsd;string">receives</rdfs:label>
+        <dc:description rdf:datatype="&xsd;string">A &lt;classname&gt;Function&lt;/classname&gt; &lt;replaceable&gt;F&lt;/replaceable&gt;
+&lt;property&gt;receives&lt;/property&gt;
+an &lt;classname&gt;Item&lt;/classname&gt; &lt;replaceable&gt;i&lt;/replaceable&gt;
+if and only if &lt;replaceable&gt;F&lt;/replaceable&gt; consumes &lt;replaceable&gt;i&lt;/replaceable&gt;.</dc:description>
+        <rdfs:subPropertyOf rdf:resource="&mission-backbone;topReifiedObjectProperty"/>
+        <rdfs:domain rdf:resource="&mission;Function"/>
+        <rdfs:range rdf:resource="&mission;Item"/>
+        <owl:inverseOf rdf:resource="&mission;isReceivedBy"/>
+        <owl:propertyChainAxiom rdf:parseType="Collection">
+            <rdf:Description>
+                <owl:inverseOf rdf:resource="&mission;hasReceivesSource"/>
+            </rdf:Description>
+            <rdf:Description rdf:about="&mission;hasReceivesTarget"/>
+        </owl:propertyChainAxiom>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#refines -->
+
+    <owl:ObjectProperty rdf:about="&mission;refines">
+        <rdf:type rdf:resource="&owl;AsymmetricProperty"/>
+        <rdf:type rdf:resource="&owl;IrreflexiveProperty"/>
+        <rdfs:label rdf:datatype="&xsd;string">refines</rdfs:label>
+        <dc:description rdf:datatype="&xsd;string">A &lt;classname&gt;Requirement&lt;/classname&gt; &lt;replaceable&gt;l&lt;/replaceable&gt; &lt;property&gt;refines&lt;/property&gt; a &lt;classname&gt;Requirement&lt;/classname&gt; &lt;replaceable&gt;h&lt;/replaceable&gt; if and only if satisfaction of &lt;replaceable&gt;l&lt;/replaceable&gt; implies partial satisfaction of &lt;replaceable&gt;h&lt;/replaceable&gt;.</dc:description>
+        <rdfs:subPropertyOf rdf:resource="&mission-backbone;topReifiedObjectProperty"/>
+        <rdfs:range rdf:resource="&mission;Requirement"/>
+        <rdfs:domain rdf:resource="&mission;Requirement"/>
+        <owl:inverseOf rdf:resource="&mission;isRefinedBy"/>
+        <owl:propertyChainAxiom rdf:parseType="Collection">
+            <rdf:Description>
+                <owl:inverseOf rdf:resource="&mission;hasRefinesSource"/>
+            </rdf:Description>
+            <rdf:Description rdf:about="&mission;hasRefinesTarget"/>
+        </owl:propertyChainAxiom>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#sends -->
+
+    <owl:ObjectProperty rdf:about="&mission;sends">
+        <rdf:type rdf:resource="&owl;AsymmetricProperty"/>
+        <rdf:type rdf:resource="&owl;InverseFunctionalProperty"/>
+        <rdf:type rdf:resource="&owl;IrreflexiveProperty"/>
+        <rdfs:label rdf:datatype="&xsd;string">sends</rdfs:label>
+        <dc:description rdf:datatype="&xsd;string">A &lt;classname&gt;Function&lt;/classname&gt; &lt;replaceable&gt;F&lt;/replaceable&gt;
+&lt;property&gt;sends&lt;/property&gt;
+an &lt;classname&gt;Item&lt;/classname&gt; &lt;replaceable&gt;i&lt;/replaceable&gt;
+if and only if &lt;replaceable&gt;F&lt;/replaceable&gt; is the source for &lt;replaceable&gt;i&lt;/replaceable&gt;.</dc:description>
+        <rdfs:subPropertyOf rdf:resource="&mission-backbone;topReifiedObjectProperty"/>
+        <rdfs:domain rdf:resource="&mission;Function"/>
+        <rdfs:range rdf:resource="&mission;Item"/>
+        <owl:inverseOf rdf:resource="&mission;isSentBy"/>
+        <owl:propertyChainAxiom rdf:parseType="Collection">
+            <rdf:Description>
+                <owl:inverseOf rdf:resource="&mission;hasSendsSource"/>
+            </rdf:Description>
+            <rdf:Description rdf:about="&mission;hasSendsTarget"/>
+        </owl:propertyChainAxiom>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#specifies -->
+
+    <owl:ObjectProperty rdf:about="&mission;specifies">
+        <rdf:type rdf:resource="&owl;AsymmetricProperty"/>
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdf:type rdf:resource="&owl;IrreflexiveProperty"/>
+        <rdfs:label rdf:datatype="&xsd;string">specifies</rdfs:label>
+        <dc:description rdf:datatype="&xsd;string">A &lt;classname&gt;Requirement&lt;/classname&gt; &lt;replaceable&gt;r&lt;/replaceable&gt; &lt;property&gt;specifies&lt;/property&gt; a element &lt;replaceable&gt;e&lt;/replaceable&gt; if and only if the properties of &lt;replaceable&gt;e&lt;/replaceable&gt; are bound by &lt;replaceable&gt;r&lt;/replaceable&gt;.</dc:description>
+        <rdfs:subPropertyOf rdf:resource="&mission-backbone;topReifiedObjectProperty"/>
+        <rdfs:domain rdf:resource="&mission;Requirement"/>
+        <rdfs:range rdf:resource="&mission;SpecifiedElement"/>
+        <owl:inverseOf rdf:resource="&mission;isSpecifiedBy"/>
+        <owl:propertyChainAxiom rdf:parseType="Collection">
+            <rdf:Description>
+                <owl:inverseOf rdf:resource="&mission;hasSpecifiesSource"/>
+            </rdf:Description>
+            <rdf:Description rdf:about="&mission;hasSpecifiesTarget"/>
+        </owl:propertyChainAxiom>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#transfers -->
+
+    <owl:ObjectProperty rdf:about="&mission;transfers">
+        <rdf:type rdf:resource="&owl;AsymmetricProperty"/>
+        <rdf:type rdf:resource="&owl;IrreflexiveProperty"/>
+        <rdfs:label rdf:datatype="&xsd;string">transfers</rdfs:label>
+        <dc:description rdf:datatype="&xsd;string">An &lt;classname&gt;Interface&lt;/classname&gt;
+&lt;replaceable&gt;i&lt;/replaceable&gt;
+&lt;property&gt;transfers&lt;/property&gt;
+a
+&lt;classname&gt;TraversingElement&lt;/classname&gt;
+&lt;replaceable&gt;e&lt;/replaceable&gt;
+if and only if
+&lt;replaceable&gt;i&lt;/replaceable&gt;
+is the access point by which
+&lt;replaceable&gt;e&lt;/replaceable&gt;
+enters or leaves a &lt;classname&gt;Component&lt;/classname&gt;
+that
+&lt;property&gt;presents&lt;/property&gt;
+&lt;replaceable&gt;i&lt;/replaceable&gt;.</dc:description>
+        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
+        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
+        <rdfs:subPropertyOf rdf:resource="&mission-backbone;topReifiedObjectProperty"/>
+        <rdfs:domain rdf:resource="&mission;Interface"/>
+        <rdfs:range rdf:resource="&mission;TraversingElement"/>
+        <owl:propertyChainAxiom rdf:parseType="Collection">
+            <rdf:Description>
+                <owl:inverseOf rdf:resource="&mission;hasTransfersSource"/>
+            </rdf:Description>
+            <rdf:Description rdf:about="&mission;hasTransfersTarget"/>
+        </owl:propertyChainAxiom>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#transfersIn -->
+
+    <owl:ObjectProperty rdf:about="&mission;transfersIn">
+        <rdf:type rdf:resource="&owl;AsymmetricProperty"/>
+        <rdf:type rdf:resource="&owl;IrreflexiveProperty"/>
+        <rdfs:label rdf:datatype="&xsd;string">transfers in</rdfs:label>
+        <dc:description rdf:datatype="&xsd;string">An &lt;classname&gt;Interface&lt;/classname&gt;
+&lt;replaceable&gt;i&lt;/replaceable&gt;
+&lt;property&gt;transfersOut&lt;/property&gt;
+a
+&lt;classname&gt;TraversingElement&lt;/classname&gt;
+&lt;replaceable&gt;e&lt;/replaceable&gt;
+if and only if
+&lt;replaceable&gt;i&lt;/replaceable&gt;
+is the access point by which
+&lt;replaceable&gt;e&lt;/replaceable&gt;
+leaves a &lt;classname&gt;Component&lt;/classname&gt;
+that
+&lt;property&gt;presents&lt;/property&gt;
+&lt;replaceable&gt;i&lt;/replaceable&gt;.</dc:description>
+        <rdfs:domain rdf:resource="&mission;Interface"/>
+        <rdfs:range rdf:resource="&mission;TraversingElement"/>
+        <rdfs:subPropertyOf rdf:resource="&mission;transfers"/>
+        <owl:propertyChainAxiom rdf:parseType="Collection">
+            <rdf:Description>
+                <owl:inverseOf rdf:resource="&mission;hasTransfersInSource"/>
+            </rdf:Description>
+            <rdf:Description rdf:about="&mission;hasTransfersInTarget"/>
+        </owl:propertyChainAxiom>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#transfersOut -->
+
+    <owl:ObjectProperty rdf:about="&mission;transfersOut">
+        <rdf:type rdf:resource="&owl;AsymmetricProperty"/>
+        <rdf:type rdf:resource="&owl;IrreflexiveProperty"/>
+        <rdfs:label rdf:datatype="&xsd;string">transfers out</rdfs:label>
+        <dc:description rdf:datatype="&xsd;string">An &lt;classname&gt;Interface&lt;/classname&gt;
+&lt;replaceable&gt;i&lt;/replaceable&gt;
+&lt;property&gt;transfersOut&lt;/property&gt;
+a
+&lt;classname&gt;TraversingElement&lt;/classname&gt;
+&lt;replaceable&gt;e&lt;/replaceable&gt;
+if and only if
+&lt;replaceable&gt;i&lt;/replaceable&gt;
+is the access point by which
+&lt;replaceable&gt;e&lt;/replaceable&gt;
+leaves a &lt;classname&gt;Component&lt;/classname&gt;
+that
+&lt;property&gt;presents&lt;/property&gt;
+&lt;replaceable&gt;i&lt;/replaceable&gt;.</dc:description>
+        <rdfs:domain rdf:resource="&mission;Interface"/>
+        <rdfs:range rdf:resource="&mission;TraversingElement"/>
+        <rdfs:subPropertyOf rdf:resource="&mission;transfers"/>
+        <owl:propertyChainAxiom rdf:parseType="Collection">
+            <rdf:Description>
+                <owl:inverseOf rdf:resource="&mission;hasTransfersOutSource"/>
+            </rdf:Description>
+            <rdf:Description rdf:about="&mission;hasTransfersOutTarget"/>
+        </owl:propertyChainAxiom>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#traverses -->
+
+    <owl:ObjectProperty rdf:about="&mission;traverses">
+        <rdf:type rdf:resource="&owl;AsymmetricProperty"/>
+        <rdf:type rdf:resource="&owl;IrreflexiveProperty"/>
+        <rdfs:label rdf:datatype="&xsd;string">traverses</rdfs:label>
+        <dc:description rdf:datatype="&xsd;string">A &lt;classname&gt;TraversingElement&lt;/classname&gt; &lt;replaceable&gt;e&lt;/replaceable&gt;
+&lt;property&gt;traverses&lt;/property&gt;
+an &lt;classname&gt;Junction&lt;/classname&gt; &lt;replaceable&gt;j&lt;/replaceable&gt;
+if and only if &lt;replaceable&gt;j&lt;/replaceable&gt; provides a medium or channel for the transfer of &lt;replaceable&gt;e&lt;/replaceable&gt;.</dc:description>
+        <annotation:isDerived rdf:datatype="&xsd;boolean">true</annotation:isDerived>
+        <rdfs:subPropertyOf rdf:resource="&mission-backbone;topReifiedObjectProperty"/>
+        <rdfs:range rdf:resource="&mission;Junction"/>
+        <rdfs:domain rdf:resource="&mission;TraversingElement"/>
+        <owl:inverseOf rdf:resource="&mission;isTraversedBy"/>
+        <owl:propertyChainAxiom rdf:parseType="Collection">
+            <rdf:Description>
+                <owl:inverseOf rdf:resource="&mission;hasIsTraversedByTarget"/>
+            </rdf:Description>
+            <rdf:Description rdf:about="&mission;hasIsTraversedBySource"/>
+        </owl:propertyChainAxiom>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Data properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/mission/mission#topDataProperty -->
+
+    <owl:DatatypeProperty rdf:about="&mission-backbone;topDataProperty">
+        <dc:description rdf:datatype="&xsd;string">&lt;property&gt;topDataProperty&lt;/property&gt; is a common superproperty of all datatype properties defined in the Mission Ontology.</dc:description>
+        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
+        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#hasRationale -->
+
+    <owl:DatatypeProperty rdf:about="&mission;hasRationale">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:label rdf:datatype="&xsd;string">has rationale</rdfs:label>
+        <dc:description rdf:datatype="&xsd;string">A &lt;property&gt;rationale&lt;/property&gt; explains why a &lt;classname&gt;Requirement&lt;/classname&gt; exists and why it &lt;property&gt;specifies&lt;/property&gt; what it does.</dc:description>
+        <rdfs:subPropertyOf rdf:resource="&base-backbone;topDataProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&mission-backbone;topDataProperty"/>
+        <rdfs:domain rdf:resource="&mission;Requirement"/>
+        <rdfs:range rdf:resource="&xsd;string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Classes
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/mission/mission#Entity -->
+
+    <owl:Class rdf:about="&mission-backbone;Entity">
+        <rdfs:subClassOf rdf:resource="&mission-backbone;Thing"/>
+        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/mission/mission#ReifiedObjectProperty -->
+
+    <owl:Class rdf:about="&mission-backbone;ReifiedObjectProperty">
+        <rdfs:subClassOf rdf:resource="&mission-backbone;Thing"/>
+        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/mission/mission#ReifiedStructuredDataProperty -->
+
+    <owl:Class rdf:about="&mission-backbone;ReifiedStructuredDataProperty">
+        <rdfs:subClassOf rdf:resource="&mission-backbone;Thing"/>
+        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/mission/mission#StructuredDatatype -->
+
+    <owl:Class rdf:about="&mission-backbone;StructuredDatatype">
+        <rdfs:subClassOf rdf:resource="&mission-backbone;Thing"/>
+        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/mission/mission#Thing -->
+
+    <owl:Class rdf:about="&mission-backbone;Thing">
+        <dc:description rdf:datatype="&xsd;string">&lt;classname&gt;Thing&lt;/classname&gt; is a common superclass of all classses defined in the Mission ontology.</dc:description>
+        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
+        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#Component -->
+
+    <owl:Class rdf:about="&mission;Component">
+        <rdfs:label rdf:datatype="&xsd;string">Component</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&mission-backbone;Entity"/>
+        <rdfs:subClassOf rdf:resource="&base;ContainedElement"/>
+        <rdfs:subClassOf rdf:resource="&base;Container"/>
+        <rdfs:subClassOf rdf:resource="&base;IdentifiedElement"/>
+        <rdfs:subClassOf rdf:resource="&mission;PerformingElement"/>
+        <rdfs:subClassOf rdf:resource="&mission;PresentingElement"/>
+        <rdfs:subClassOf rdf:resource="&mission;SpecifiedElement"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&base;contains"/>
+                <owl:allValuesFrom rdf:resource="&mission;Component"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&base;isContainedIn"/>
+                <owl:allValuesFrom rdf:resource="&mission;Component"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <dc:description rdf:datatype="&xsd;string">&lt;para&gt;A &lt;classname&gt;Component&lt;/classname&gt; is a &lt;classname&gt;PerformingElement&lt;/classname&gt; that is not a &lt;classname&gt;Mission&lt;/classname&gt;. Example
+            &lt;classname&gt;Component&lt;/classname&gt;s include launch vehicle, spacecraft, telecommunication subsystem,
+        flight software, attitude control software, and mission operations team.&lt;/para&gt;</dc:description>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#Deploys -->
+
+    <owl:Class rdf:about="&mission;Deploys">
+        <rdfs:label rdf:datatype="&xsd;string">Deploys</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&mission-backbone;ReifiedObjectProperty"/>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#Emits -->
+
+    <owl:Class rdf:about="&mission;Emits">
+        <rdfs:label rdf:datatype="&xsd;string">Emits</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&mission-backbone;ReifiedObjectProperty"/>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#Environment -->
+
+    <owl:Class rdf:about="&mission;Environment">
+        <rdfs:label rdf:datatype="&xsd;string">Environment</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&mission-backbone;Entity"/>
+        <rdfs:subClassOf rdf:resource="&base;AggregatedElement"/>
+        <rdfs:subClassOf rdf:resource="&base;IdentifiedElement"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&base;isAggregatedIn"/>
+                <owl:allValuesFrom rdf:resource="&mission;Environment"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&base;aggregates"/>
+                <owl:allValuesFrom rdf:resource="&mission;Environment"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <dc:description rdf:datatype="&xsd;string">An &lt;classname&gt;Environment&lt;/classname&gt; corresponds to a set of conditions in which a &lt;classname&gt;Component&lt;/classname&gt; must &lt;property&gt;perform&lt;/property&gt; its &lt;classname&gt;Function&lt;/classname&gt;s.
+Example environments include low earth orbit, trans-Jupiter cruise, and Martian north polar surface.</dc:description>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#Flow -->
+
+    <owl:Class rdf:about="&mission;Flow">
+        <rdfs:label rdf:datatype="&xsd;string">Flow</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&mission-backbone;Entity"/>
+        <rdfs:subClassOf rdf:resource="&base;ContainedElement"/>
+        <rdfs:subClassOf rdf:resource="&base;Container"/>
+        <rdfs:subClassOf rdf:resource="&base;IdentifiedElement"/>
+        <rdfs:subClassOf rdf:resource="&mission;TraversingElement"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&base;contains"/>
+                <owl:allValuesFrom rdf:resource="&mission;Flow"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&base;isContainedIn"/>
+                <owl:allValuesFrom rdf:resource="&mission;Flow"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <dc:description rdf:datatype="&xsd;string">A &lt;classname&gt;Flow&lt;/classname&gt; represents a non-discrete transfer of matter or energy between &lt;classname&gt;Function&lt;/classname&gt;s. Examples of &lt;classname&gt;Flow&lt;/classname&gt; include electrical power, propellant, and heat.</dc:description>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#Function -->
+
+    <owl:Class rdf:about="&mission;Function">
+        <rdfs:label rdf:datatype="&xsd;string">Function</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&mission-backbone;Entity"/>
+        <rdfs:subClassOf rdf:resource="&base;IdentifiedElement"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&mission;invokes"/>
+                <owl:allValuesFrom rdf:resource="&mission;Function"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&mission;isInvokedBy"/>
+                <owl:allValuesFrom rdf:resource="&mission;Function"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <dc:description rdf:datatype="&xsd;string">&lt;para&gt;A &lt;classname&gt;Function&lt;/classname&gt; is an operation or activity performed by a
+            &lt;classname&gt;Component&lt;/classname&gt; in the context of executing a
+            &lt;classname&gt;Mission&lt;/classname&gt;. Every &lt;classname&gt;Function&lt;/classname&gt; is a
+            &lt;classname&gt;SpecifiedElement&lt;/classname&gt;, which implies that a
+            &lt;classname&gt;Requirement&lt;/classname&gt; can &lt;property&gt;specify&lt;/property&gt; a
+            &lt;classname&gt;Function&lt;/classname&gt;. &lt;classname&gt;Function&lt;/classname&gt;s, therefore,
+        represent intended &lt;classname&gt;Component&lt;/classname&gt; behavior. Example
+            &lt;classname&gt;Function&lt;/classname&gt;s include &lt;emphasis role=&quot;italic&quot;&gt;search for life on
+            Mars&lt;/emphasis&gt;, &lt;emphasis role=&quot;italic&quot;&gt;insert into Martian orbit&lt;/emphasis&gt;, and
+            &lt;emphasis role=&quot;italic&quot;&gt;send instrument telemetry packet&lt;/emphasis&gt;.&lt;/para&gt;
+    &lt;para&gt;&lt;classname&gt;Function&lt;/classname&gt;s may &lt;property&gt;emit&lt;/property&gt; or
+            &lt;property&gt;ingest&lt;/property&gt;
+        &lt;classname&gt;Flow&lt;/classname&gt;s representing non-discrete exchanges of matter or energy.
+            &lt;classname&gt;Function&lt;/classname&gt;s may &lt;property&gt;send&lt;/property&gt; or
+            &lt;property&gt;receive&lt;/property&gt;
+        &lt;classname&gt;Item&lt;/classname&gt;s representing discrete exchanges of matter or
+        information.&lt;/para&gt;</dc:description>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#HasParticipant -->
+
+    <owl:Class rdf:about="&mission;HasParticipant">
+        <rdfs:label rdf:datatype="&xsd;string">Has Participant</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&mission-backbone;ReifiedObjectProperty"/>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#Induces -->
+
+    <owl:Class rdf:about="&mission;Induces">
+        <rdfs:label rdf:datatype="&xsd;string">Induces</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&mission-backbone;ReifiedObjectProperty"/>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#Influences -->
+
+    <owl:Class rdf:about="&mission;Influences">
+        <rdfs:label rdf:datatype="&xsd;string">Influences</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&mission-backbone;ReifiedObjectProperty"/>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#Ingests -->
+
+    <owl:Class rdf:about="&mission;Ingests">
+        <rdfs:label rdf:datatype="&xsd;string">Ingests</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&mission-backbone;ReifiedObjectProperty"/>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#Interchange -->
+
+    <owl:Class rdf:about="&mission;Interchange">
+        <rdfs:label rdf:datatype="&xsd;string">Interchange</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&mission-backbone;Entity"/>
+        <rdfs:subClassOf rdf:resource="&base;IdentifiedElement"/>
+        <dc:description rdf:datatype="&xsd;string">An &lt;classname&gt;Interchange&lt;/classname&gt; represents the intended joint behavior of a pair of &lt;classname&gt;PerformingElement&lt;/classname&gt;s. It indicates that a &lt;classname&gt;Flow&lt;/classname&gt; or &lt;classname&gt;Item&lt;/classname&gt; may be sent or emitted by one &lt;classname&gt;PerformingElement&lt;/classname&gt; and received or ingested by another.</dc:description>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#Interface -->
+
+    <owl:Class rdf:about="&mission;Interface">
+        <rdfs:label rdf:datatype="&xsd;string">Interface</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&mission-backbone;Entity"/>
+        <rdfs:subClassOf rdf:resource="&base;IdentifiedElement"/>
+        <rdfs:subClassOf rdf:resource="&mission;PresentingElement"/>
+        <dc:description rdf:datatype="&xsd;string">&lt;para&gt;An &lt;classname&gt;Interface&lt;/classname&gt; represents a set of mechanical, electrical, signal, or
+        other properties that describe some aspect of a &lt;classname&gt;Component&lt;/classname&gt;&apos;s
+        connection to or interaction with another &lt;classname&gt;Component&lt;/classname&gt;.&lt;/para&gt;
+    &lt;para&gt;It is important to distinguish between a &lt;classname&gt;Component&lt;/classname&gt;, which is a
+        discrete thing, and an &lt;classname&gt;Interface&lt;/classname&gt;, which is a collection of
+        properties. In the formulation phase, for example, we might model the launch vehicle and the
+        spacecraft as &lt;classname&gt;Component&lt;/classname&gt;s. The properties that describe how the
+        spacecraft is designed to attach to the launch vehicle would be captured in one
+            &lt;classname&gt;Interface&lt;/classname&gt; (and associated with the spacecraft using the
+            &lt;property&gt;presents&lt;/property&gt; property). The properties that describe how the launch
+        vehicle is designed or configured to attach to the spacecraft would be captured in another
+            &lt;classname&gt;Interface&lt;/classname&gt;. The fact that two (or more) interfaces mate with each other is conveyed the existence of an &lt;classname&gt;Junction&lt;/classname&gt; that &lt;property&gt;joins&lt;/property&gt; the &lt;classname&gt;Interface&lt;/classname&gt;s.&lt;/para&gt;
+    &lt;para&gt;This method of modeling interfaces allows us to capture the asymmetric aspect of
+        producer/consumer relationships, as well as providing a convenient method for associating
+        the sets of properties and characterize the interconnection of any pair of
+            &lt;classname&gt;Component&lt;/classname&gt;s so that they can be analyzed for consistency.&lt;/para&gt;</dc:description>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#Invokes -->
+
+    <owl:Class rdf:about="&mission;Invokes">
+        <rdfs:label rdf:datatype="&xsd;string">Invokes</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&mission-backbone;ReifiedObjectProperty"/>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#Involves1 -->
+
+    <owl:Class rdf:about="&mission;Involves">
+        <rdfs:label rdf:datatype="&xsd;string">Involves1</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&mission-backbone;ReifiedObjectProperty"/>
+        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>	
+    </owl:Class>
+    
+
+    <owl:Class rdf:about="&mission;Involves1">
+        <rdfs:label rdf:datatype="&xsd;string">Involves1</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&mission;Involves"/>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#Involves2 -->
+
+    <owl:Class rdf:about="&mission;Involves2">
+        <rdfs:label rdf:datatype="&xsd;string">Involves2</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&mission;Involves"/>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#Item -->
+
+    <owl:Class rdf:about="&mission;Item">
+        <rdfs:label rdf:datatype="&xsd;string">Item</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&mission-backbone;Entity"/>
+        <rdfs:subClassOf rdf:resource="&base;ContainedElement"/>
+        <rdfs:subClassOf rdf:resource="&base;Container"/>
+        <rdfs:subClassOf rdf:resource="&base;IdentifiedElement"/>
+        <rdfs:subClassOf rdf:resource="&mission;TraversingElement"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&base;contains"/>
+                <owl:allValuesFrom rdf:resource="&mission;Item"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&base;isContainedIn"/>
+                <owl:allValuesFrom rdf:resource="&mission;Item"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <dc:description rdf:datatype="&xsd;string">An &lt;classname&gt;Item&lt;/classname&gt; is a discrete unit of material or information exchanged between two &lt;classname&gt;Function&lt;/classname&gt;s.</dc:description>
+        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#Joins1 -->
+
+    <owl:Class rdf:about="&mission;Joins">
+        <rdfs:label rdf:datatype="&xsd;string">Joins1</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&mission-backbone;ReifiedObjectProperty"/>
+        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
+    </owl:Class>
+
+    <owl:Class rdf:about="&mission;Joins1">
+        <rdfs:label rdf:datatype="&xsd;string">Joins1</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&mission;Joins"/>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#Joins2 -->
+
+    <owl:Class rdf:about="&mission;Joins2">
+        <rdfs:label rdf:datatype="&xsd;string">Joins2</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&mission;Joins"/>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#Junction -->
+
+    <owl:Class rdf:about="&mission;Junction">
+        <rdfs:label rdf:datatype="&xsd;string">Junction</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&mission-backbone;Entity"/>
+        <rdfs:subClassOf rdf:resource="&base;ContainedElement"/>
+        <rdfs:subClassOf rdf:resource="&base;Container"/>
+        <rdfs:subClassOf rdf:resource="&base;IdentifiedElement"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&base;contains"/>
+                <owl:allValuesFrom rdf:resource="&mission;Junction"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&base;isContainedIn"/>
+                <owl:allValuesFrom rdf:resource="&mission;Junction"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <dc:description rdf:datatype="&xsd;string">&lt;para&gt;An &lt;classname&gt;Junction&lt;/classname&gt; represents a set of mechanical, electrical, signal, or
+        other properties that are common to a set of mutually connected &lt;classname&gt;Interface&lt;/classname&gt;s.&lt;/para&gt;</dc:description>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#MaterialItem -->
+
+    <owl:Class rdf:about="&mission;MaterialItem">
+        <rdfs:label rdf:datatype="&xsd;string">Material Item</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&mission;Item"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&base;isContainedIn"/>
+                <owl:allValuesFrom rdf:resource="&mission;MaterialItem"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&base;contains"/>
+                <owl:allValuesFrom rdf:resource="&mission;MaterialItem"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <dc:description rdf:datatype="&xsd;string">A &lt;classname&gt;MaterialItem&lt;/classname&gt; is a discrete unit of material exchanged between two &lt;classname&gt;Function&lt;/classname&gt;s. Example &lt;classname&gt;MaterialItem&lt;/classname&gt;s include rock hammer and soil sample.</dc:description>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#Message -->
+
+    <owl:Class rdf:about="&mission;Message">
+        <rdfs:label rdf:datatype="&xsd;string">Message</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&mission;Item"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&base;isContainedIn"/>
+                <owl:allValuesFrom rdf:resource="&mission;Message"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&base;contains"/>
+                <owl:allValuesFrom rdf:resource="&mission;Message"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <dc:description rdf:datatype="&xsd;string">A &lt;classname&gt;Message&lt;/classname&gt; is a discrete unit of information exchanged between two &lt;classname&gt;Function&lt;/classname&gt;s. Example &lt;classname&gt;Message&lt;/classname&gt;s include command, command response, and file contents.</dc:description>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#Mission -->
+
+    <owl:Class rdf:about="&mission;Mission">
+        <rdfs:label rdf:datatype="&xsd;string">Mission</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&mission-backbone;Entity"/>
+        <rdfs:subClassOf rdf:resource="&base;IdentifiedElement"/>
+        <rdfs:subClassOf rdf:resource="&mission;PerformingElement"/>
+        <rdfs:subClassOf rdf:resource="&mission;PresentingElement"/>
+        <rdfs:subClassOf rdf:resource="&mission;SpecifiedElement"/>
+        <dc:description rdf:datatype="&xsd;string">&lt;para&gt;
+A &lt;classname&gt;Mission&lt;/classname&gt; is a &lt;classname&gt;PerformingElement&lt;/classname&gt; that &lt;property&gt;pursue&lt;/property&gt;s &lt;classname&gt;Objectives&lt;/classname&gt;.
+&lt;/para&gt;
+&lt;para&gt;
+A &lt;classname&gt;Mission&lt;/classname&gt; may
+&lt;property&gt;contain&lt;/property&gt;
+&lt;classname&gt;Component&lt;/classname&gt;s, but the preferred relationship is that a
+&lt;classname&gt;Mission&lt;/classname&gt;
+&lt;property&gt;deploy&lt;/property&gt;s its systems (which are &lt;classname&gt;Component&lt;/classname&gt;s). This convention allows for a &lt;classname&gt;Mission&lt;/classname&gt; to be associated with shared or external &lt;classname&gt;Component&lt;/classname&gt;s that it does not strictly &lt;property&gt;contain&lt;/property&gt;.
+&lt;/para&gt;</dc:description>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#Objective -->
+
+    <owl:Class rdf:about="&mission;Objective">
+        <rdfs:label rdf:datatype="&xsd;string">Objective</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&mission-backbone;Entity"/>
+        <rdfs:subClassOf rdf:resource="&base;AggregatedElement"/>
+        <rdfs:subClassOf rdf:resource="&base;IdentifiedElement"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&base;isAggregatedIn"/>
+                <owl:allValuesFrom rdf:resource="&mission;Objective"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&base;aggregates"/>
+                <owl:allValuesFrom rdf:resource="&mission;Objective"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <dc:description rdf:datatype="&xsd;string">&lt;para&gt;An &lt;classname&gt;Objective&lt;/classname&gt; represents a specific interest that one or more
+        stakeholders have in the successful execution of a mission. Example
+            &lt;classname&gt;Objective&lt;/classname&gt;s include characterize the extent of the Europan ocean
+        and its relation to the deeper interior, characterize the Europan ice shell and any
+        subsurface water, including their heterogeneity, and the nature of surface-ice-ocean
+        exchange, and determine global Europan surface compositions and chemistry, especially as
+        related to habitability.&lt;/para&gt;
+    &lt;para&gt;&lt;classname&gt;Objective&lt;/classname&gt;s differ from &lt;classname&gt;Requirement&lt;/classname&gt;s in that
+        they are not the result of negotiated agreement between customer and supplier, they need not
+        be mutually consistent, and a &lt;classname&gt;Mission&lt;/classname&gt;
+        &lt;property&gt;pursues&lt;/property&gt; but need not completely achieve all its
+            &lt;classname&gt;Objective&lt;/classname&gt;s. In a sense, the set of
+            &lt;classname&gt;Requirement&lt;/classname&gt;s for a &lt;classname&gt;Mission&lt;/classname&gt; represents the
+        minimum acceptable achievement of &lt;classname&gt;Objectives&lt;/classname&gt; for a given cost,
+        schedule, and risk.&lt;/para&gt;</dc:description>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#PerformingElement -->
+
+    <owl:Class rdf:about="&mission;PerformingElement">
+        <rdfs:label rdf:datatype="&xsd;string">Performing Element</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&mission-backbone;Thing"/>
+        <dc:description rdf:datatype="&xsd;string">A &lt;classname&gt;PerformingElement&lt;/classname&gt; is an object that &lt;property&gt;performs&lt;/property&gt; one or more &lt;classname&gt;Function&lt;/classname&gt;s.</dc:description>
+        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#Performs -->
+
+    <owl:Class rdf:about="&mission;Performs">
+        <rdfs:label rdf:datatype="&xsd;string">Performs</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&mission-backbone;ReifiedObjectProperty"/>
+        <rdfs:subClassOf rdf:resource="&mission;SpecifiedElement"/>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#PresentingElement -->
+
+    <owl:Class rdf:about="&mission;PresentingElement">
+        <rdfs:label rdf:datatype="&xsd;string">Presenting Element</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&mission-backbone;Thing"/>
+        <dc:description rdf:datatype="&xsd;string">A &lt;classname&gt;PresentingElement&lt;/classname&gt; &lt;property&gt;present&lt;/property&gt;s zero or more &lt;classname&gt;Interface&lt;/classname&gt;s that define its connections to the outside world.</dc:description>
+        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#Presents -->
+
+    <owl:Class rdf:about="&mission;Presents">
+        <rdfs:label rdf:datatype="&xsd;string">Presents</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&mission-backbone;ReifiedObjectProperty"/>
+        <rdfs:subClassOf rdf:resource="&mission;SpecifiedElement"/>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#Pursues -->
+
+    <owl:Class rdf:about="&mission;Pursues">
+        <rdfs:label rdf:datatype="&xsd;string">Pursues</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&mission-backbone;ReifiedObjectProperty"/>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#Receives -->
+
+    <owl:Class rdf:about="&mission;Receives">
+        <rdfs:label rdf:datatype="&xsd;string">Receives</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&mission-backbone;ReifiedObjectProperty"/>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#Refines -->
+
+    <owl:Class rdf:about="&mission;Refines">
+        <rdfs:label rdf:datatype="&xsd;string">Refines</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&mission-backbone;ReifiedObjectProperty"/>
+        <rdfs:comment>Change the superclass from base-embedding:BinaryDependency to StandardProfileL2:Refine</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#Requirement -->
+
+    <owl:Class rdf:about="&mission;Requirement">
+        <rdfs:label rdf:datatype="&xsd;string">Requirement</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&mission-backbone;Entity"/>
+        <rdfs:subClassOf rdf:resource="&base;IdentifiedElement"/>
+        <dc:description rdf:datatype="&xsd;string">&lt;para&gt;A &lt;classname&gt;Requirement&lt;/classname&gt; specifies an assertion about a
+            &lt;classname&gt;SpecifiedElement&lt;/classname&gt; (&lt;classname&gt;Component&lt;/classname&gt;,
+            &lt;classname&gt;Function&lt;/classname&gt;, or &lt;classname&gt;Interface&lt;/classname&gt;) that must be true
+        for every acceptable realization of that element.&lt;/para&gt;
+    &lt;para&gt;By definition, a &lt;classname&gt;Requirement&lt;/classname&gt; that specifies a
+            &lt;classname&gt;Function&lt;/classname&gt; is a &lt;emphasis role=&quot;italic&quot;&gt;functional
+            requirement&lt;/emphasis&gt;. A &lt;classname&gt;Requirement&lt;/classname&gt; that specifies an
+            &lt;classname&gt;Interface&lt;/classname&gt; is an &lt;emphasis role=&quot;italic&quot;&gt;interface
+            requirement&lt;/emphasis&gt;.  A &lt;classname&gt;Requirement&lt;/classname&gt; that specifies a
+            &lt;classname&gt;Component&lt;/classname&gt; is a &lt;emphasis role=&quot;italic&quot;&gt;component
+            requirement&lt;/emphasis&gt;.&lt;/para&gt;</dc:description>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#Sends -->
+
+    <owl:Class rdf:about="&mission;Sends">
+        <rdfs:label rdf:datatype="&xsd;string">Sends</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&mission-backbone;ReifiedObjectProperty"/>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#SpecifiedElement -->
+
+    <owl:Class rdf:about="&mission;SpecifiedElement">
+        <rdfs:label rdf:datatype="&xsd;string">Specified Element</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&mission-backbone;Thing"/>
+        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#Specifies -->
+
+    <owl:Class rdf:about="&mission;Specifies">
+        <rdfs:label rdf:datatype="&xsd;string">Specifies</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&mission-backbone;ReifiedObjectProperty"/>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#TransfersIn -->
+
+    <owl:Class rdf:about="&mission;Transfers">
+        <rdfs:label rdf:datatype="&xsd;string">Transfers In</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&mission-backbone;ReifiedObjectProperty"/>
+        <rdfs:subClassOf rdf:resource="&mission;SpecifiedElement"/>
+        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
+    </owl:Class>
+    
+    <owl:Class rdf:about="&mission;TransfersIn">
+        <rdfs:label rdf:datatype="&xsd;string">Transfers In</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&mission;Transfers"/>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#TransfersOut -->
+
+    <owl:Class rdf:about="&mission;TransfersOut">
+        <rdfs:label rdf:datatype="&xsd;string">Transfers Out</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&mission;Transfers"/>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#Traverses -->
+
+    <owl:Class rdf:about="&mission;Traverses">
+        <rdfs:label rdf:datatype="&xsd;string">Traverses</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&mission-backbone;ReifiedObjectProperty"/>
+    </owl:Class>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/mission/mission#TraversingElement -->
+
+    <owl:Class rdf:about="&mission;TraversingElement">
+        <rdfs:label rdf:datatype="&xsd;string">Traversing Element</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&mission-backbone;Thing"/>
+        <dc:description rdf:datatype="&xsd;string">A &lt;classname&gt;TraversingElement&lt;/classname&gt; is any model element that  &lt;property&gt;traverses&lt;/property&gt; an &lt;classname&gt;Interface&lt;/classname&gt;.</dc:description>
+        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
+    </owl:Class>
+</rdf:RDF>
+
+
+
+<!-- Generated by the OWL API (version 3.4.5-SNAPSHOT) http://owlapi.sourceforge.net -->
+
