@@ -1,4 +1,8 @@
-Version 0.5: January ..., 2015
+Version 0.5.1: January 28, 2015
+
+update SBT build dependency for OMF Core (version 0.8)
+
+Version 0.5: January 28, 2015
 
 Backbone IRI update per OMF Core (version 0.8)
 IMCE Foundation Load Test per OMF Core (version 0.8)

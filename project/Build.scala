@@ -166,7 +166,10 @@ object OMFScalaBindingOWLAPI extends Build {
     lazy val getURI = System.getProperty( name + ".uri", defaultURI )
   }
 
-  val omfScalaCoreInfo = DependentGitProjectInfo( "omf.scala.core", "https://%s@secae-fn.jpl.nasa.gov/stash/scm/omf/gov.nasa.jpl.omf.scala.core.git", "0.7" )
+  val omfScalaCoreInfo = DependentGitProjectInfo( 
+      "omf.scala.core", 
+      "https://%s@secae-fn.jpl.nasa.gov/stash/scm/omf/gov.nasa.jpl.omf.scala.core.git", 
+      "0.8" )
 
   object Versions {
     val scala = "2.11.4"
