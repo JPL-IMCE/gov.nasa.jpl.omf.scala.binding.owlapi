@@ -41,4 +41,4 @@ package gov.nasa.jpl.omf.scala.binding.owlapi.types
 
 import gov.nasa.jpl.omf.scala.binding.owlapi._
 
-abstract class ModelDataRelationship(override val iri: OWLAPIOMF#IRI) extends ModelTypeTerm(iri)
+trait ModelDataRelationship extends ModelTypeTerm

@@ -41,4 +41,6 @@ package gov.nasa.jpl.omf.scala.binding.owlapi.types
 
 import gov.nasa.jpl.omf.scala.binding.owlapi._
 
-abstract class ModelTypeTerm(val iri: OWLAPIOMF#IRI)
+trait ModelTypeTerm {
+  val iri: OWLAPIOMF#IRI
+}

@@ -39,6 +39,7 @@
  */
 package gov.nasa.jpl.omf.scala.binding.owlapi.types
 
+import gov.nasa.jpl.omf.scala.core.TerminologyKind._
 import gov.nasa.jpl.omf.scala.binding.owlapi._
 import org.semanticweb.owlapi.model.OWLOntology
 import org.semanticweb.owlapi.model.IRI
@@ -74,6 +75,7 @@ case class ReadOnlyImmutableTerminologyGraphException( val operation: ImmutableO
   extends ImmutableModelTerminologyGraphException( s"Operation '${operation}' is illegal on an read-only ImmutableTerminologyGraph" )
 
 case class ImmutableModelTerminologyGraph(
+  override val kind: TerminologyKind,
   override val imports: Iterable[ModelTerminologyGraph],
   override val ont: OWLOntology,
   override protected val aspects: List[ModelEntityAspect],
@@ -86,7 +88,7 @@ case class ImmutableModelTerminologyGraph(
   override protected val s2sc: List[ModelDataRelationshipFromStructureToScalar],
   override protected val s2st: List[ModelDataRelationshipFromStructureToStructure],
   override protected val ax: List[ModelTermAxiom] )( override implicit val ops: OWLAPIOMFOps )
-  extends ModelTerminologyGraph( imports, ont )( ops ) {
+  extends ModelTerminologyGraph( kind, imports, ont )( ops ) {
 
   val getEntityDefinitionMap: Map[OWLClass, ModelEntityDefinition] =
     ( ( aspects map ( a => ( a.c -> a ) ) ) ++
@@ -189,9 +191,9 @@ case class ResolverHelper(
       if ( aaa.getProperty.getIRI == AnnotationIsDerived )
     } {
       aaa.getValue match {
-        case l: OWLLiteral if ( l.isBoolean ) => 
+        case l: OWLLiteral if ( l.isBoolean ) =>
           return l.parseBoolean
-        case _                                => 
+        case _ =>
           ()
       }
     }
@@ -479,6 +481,7 @@ case class ImmutableModelTerminologyGraphResolver( resolver: ResolverHelper ) {
       case Failure( t ) => Failure( t )
       case Success( _: NoBackbone ) =>
         Success( ImmutableModelTerminologyGraph(
+          kind = isDefinition, 
           imports, ont,
           aspects = Nil,
           concepts = Nil,
@@ -555,6 +558,7 @@ case class ImmutableModelTerminologyGraphResolver( resolver: ResolverHelper ) {
       allEntityDefinitions = allEntityDefinitionsExceptRelationships ++ entityRelationshipCMs
       dataRelationshipsFromEntity2Scalars <- resolveDataRelationshipsFromEntity2Scalars( allEntityDefinitions, dataPropertyDPIRIs, DTs )
     } yield ImmutableModelTerminologyGraph(
+      kind = backbone.kind,
       imports, ont,
       aspects = aspectCMs.values.toList,
       concepts = conceptCMs.values.toList,

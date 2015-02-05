@@ -39,6 +39,7 @@
  */
 package gov.nasa.jpl.omf.scala.binding.owlapi.types
 
+import gov.nasa.jpl.omf.scala.core.TerminologyKind._
 import gov.nasa.jpl.omf.scala.binding.owlapi._
 import org.semanticweb.owlapi.model.OWLOntology
 import org.semanticweb.owlapi.model.IRI
@@ -55,6 +56,7 @@ import gov.nasa.jpl.omf.scala.core.RelationshipCharacteristics._
 import org.semanticweb.owlapi.model.OWLObjectProperty
 
 abstract class ModelTerminologyGraph(
+  val kind: TerminologyKind,
   val imports: Iterable[ModelTerminologyGraph],
   val ont: OWLOntology )( implicit val ops: OWLAPIOMFOps ) {
 
@@ -104,8 +106,8 @@ abstract class ModelTerminologyGraph(
 
   def getTerms: ( IRI, Iterable[ModelTypeTerm] ) = ( iri, iri2typeTerm.values )
 
-  def fromTerminologyGraph: ( IRI, Iterable[ModelTerminologyGraph], Iterable[ModelEntityAspect], Iterable[ModelEntityConcept], Iterable[ModelEntityRelationship], Iterable[ModelScalarDataType], Iterable[ModelStructuredDataType], Iterable[ModelDataRelationshipFromEntityToScalar], Iterable[ModelDataRelationshipFromEntityToStructure], Iterable[ModelDataRelationshipFromStructureToScalar], Iterable[ModelDataRelationshipFromStructureToStructure], Iterable[ModelTermAxiom] ) =
-    ( iri, imports, aspects, concepts, relationships, sc, st, e2sc, e2st, s2sc, s2st, ax )
+  def fromTerminologyGraph: ( IRI, TerminologyKind, Iterable[ModelTerminologyGraph], Iterable[ModelEntityAspect], Iterable[ModelEntityConcept], Iterable[ModelEntityRelationship], Iterable[ModelScalarDataType], Iterable[ModelStructuredDataType], Iterable[ModelDataRelationshipFromEntityToScalar], Iterable[ModelDataRelationshipFromEntityToStructure], Iterable[ModelDataRelationshipFromStructureToScalar], Iterable[ModelDataRelationshipFromStructureToStructure], Iterable[ModelTermAxiom] ) =
+    ( iri, kind, imports, aspects, concepts, relationships, sc, st, e2sc, e2st, s2sc, s2st, ax )
 
   def save( saveIRI: IRI ): Try[Unit]
 

@@ -43,6 +43,7 @@ import java.net.URI
 
 import gov.nasa.jpl.omf.scala.core._
 import gov.nasa.jpl.omf.scala.core.RelationshipCharacteristics._
+import gov.nasa.jpl.omf.scala.core.TerminologyKind._
 import gov.nasa.jpl.omf.scala.binding._
 import gov.nasa.jpl.omf.scala.binding.owlapi._
 
@@ -124,6 +125,8 @@ trait OWLAPIImmutableTerminologyGraphOps extends ImmutableTerminologyGraphOps[OW
     store.loadTerminologyGraph( iri )( this )
 
   override def getTerminologyGraphIRI( graph: types.ModelTerminologyGraph ) = graph.iri
+
+  override def getTerminologyGraphKind( graph: types.ModelTerminologyGraph ) = graph.kind
 
   override def fromTerminologyGraph( graph: types.ModelTerminologyGraph ) = graph.fromTerminologyGraph
 
@@ -331,9 +334,9 @@ trait OWLAPIMutableTerminologyGraphOps extends MutableTerminologyGraphOps[OWLAPI
     store.asImmutableTerminologyGraph( g )
   
   override def makeTerminologyGraph(
-    iri: IRI,
+    iri: IRI, kind: TerminologyKind,
     extendedTGraphs: Iterable[types.ImmutableModelTerminologyGraph] )( implicit store: OWLAPIOMFGraphStore ) =
-    store.makeTerminologyGraph( iri, extendedTGraphs )( this )
+    store.makeTerminologyGraph( iri, kind, extendedTGraphs )( this )
 
   override def saveTerminologyGraph( g: types.MutableModelTerminologyGraph )( implicit store: OWLAPIOMFGraphStore ) =
     store.saveTerminologyGraph( g )( this )
@@ -631,8 +634,11 @@ class OWLAPIOMFOps
 
   val AnnotationIsAbstract = makeIRI( "http://imce.jpl.nasa.gov/foundation/annotation/annotation#isAbstract" )
   val AnnotationIsDerived = makeIRI( "http://imce.jpl.nasa.gov/foundation/annotation/annotation#isDerived" )
+  val AnnotationIsDefinition = makeIRI( "http://imce.jpl.nasa.gov/foundation/annotation/annotation#isDefinition" )
+  val AnnotationIsDesignation = makeIRI( "http://imce.jpl.nasa.gov/foundation/annotation/annotation#isDesignation" )
 
 }
+
 sealed abstract class IRIArgumentException( val message: String ) extends IllegalArgumentException( message )
 
 case class IRIFragmentException( val iri: IRI ) extends IRIArgumentException( s"withFragment(iri=${iri}) -- the IRI already has a fragment" )

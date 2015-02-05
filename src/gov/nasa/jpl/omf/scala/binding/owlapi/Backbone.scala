@@ -39,6 +39,8 @@
  */
 package gov.nasa.jpl.omf.scala.binding.owlapi
 
+import scala.collection.JavaConversions._
+import scala.language.postfixOps
 import org.semanticweb.owlapi.model.OWLOntology
 import org.semanticweb.owlapi.model.OWLClass
 import org.semanticweb.owlapi.model.IRI
@@ -49,30 +51,34 @@ import org.semanticweb.owlapi.model.OWLObjectProperty
 import org.semanticweb.owlapi.model.OWLDataProperty
 import scala.util.Failure
 import org.semanticweb.owlapi.model.OWLEntity
+import gov.nasa.jpl.omf.scala.core._
+import gov.nasa.jpl.omf.scala.core.TerminologyKind._
+import org.semanticweb.owlapi.model.AddOntologyAnnotation
+import org.semanticweb.owlapi.model.OWLLiteral
 
 sealed abstract class Backbone( val ont: OWLOntology )
 
 class NoBackbone( override val ont: OWLOntology ) extends Backbone( ont )
 
-class OMFBackbone( 
-    override val ont: OWLOntology,
-    val Thing: IRI,
-    val Entity: IRI,
-    val StructuredDatatype: IRI,
-    val ReifiedObjectProperty: IRI,
-    val ReifiedStructuredDataProperty: IRI,
-    val topObjectProperty: IRI,
-    val topReifiedObjectProperty: IRI,
-    val topReifiedObjectPropertySource: IRI,
-    val topReifiedObjectPropertyTarget: IRI,
-    val topReifiedStructuredDataProperty: IRI,
-    val topReifiedStructuredDataPropertySource: IRI,
-    val topReifiedStructuredDataPropertyTarget: IRI,
-    val topDataProperty: IRI
-    ) extends Backbone( ont ) {
+class OMFBackbone(
+  override val ont: OWLOntology,
+  val kind: TerminologyKind,
+  val Thing: IRI,
+  val Entity: IRI,
+  val StructuredDatatype: IRI,
+  val ReifiedObjectProperty: IRI,
+  val ReifiedStructuredDataProperty: IRI,
+  val topObjectProperty: IRI,
+  val topReifiedObjectProperty: IRI,
+  val topReifiedObjectPropertySource: IRI,
+  val topReifiedObjectPropertyTarget: IRI,
+  val topReifiedStructuredDataProperty: IRI,
+  val topReifiedStructuredDataPropertySource: IRI,
+  val topReifiedStructuredDataPropertyTarget: IRI,
+  val topDataProperty: IRI ) extends Backbone( ont ) {
 
   val df = ont.getOWLOntologyManager.getOWLDataFactory
-  
+
   /**
    * The IRI of the OWL Class that is the parent of:
    * - the 3 concrete categories of OMF `ModelEntityDefinition` represented as OWL Classes:
@@ -86,13 +92,13 @@ class OMFBackbone(
    * @see gov.nasa.jpl.omf.scala.core.OMF#ModelDataTypeDefinition
    */
   lazy val ThingC = df.getOWLClass( Thing )
-  
+
   /**
    * The IRI of the OWL Class that is the parent of any OMF `ModelEntityConcept` defined in the ontology representing an OMF modeling domain
    * @see gov.nasa.jpl.omf.scala.core.OMF#ModelEntityConcept
    */
   lazy val EntityC = df.getOWLClass( Entity )
-  
+
   /**
    * The IRI of the OWL Class that is the parent of any OMF `ModelStructuredDataType` defined in the ontology representing an OMF modeling domain
    * @see gov.nasa.jpl.omf.scala.core.OMF#ModelStructuredDataType
@@ -167,7 +173,7 @@ object Backbone {
    *
    * @TODO needs: annotation:isAbstract, annotation:noMapping
    */
-  def createBackbone( ont: OWLOntology, ops: OWLAPIOMFOps ): Try[OMFBackbone] = {
+  def createBackbone( ont: OWLOntology, kind: TerminologyKind, ops: OWLAPIOMFOps ): Try[OMFBackbone] = {
 
     import ops._
 
@@ -188,7 +194,7 @@ object Backbone {
       _topReifiedStructuredDataPropertySource <- withFragment( bIRI, "topReifiedStructuredDataPropertySource" )
       _topReifiedStructuredDataPropertyTarget <- withFragment( bIRI, "topReifiedStructuredDataPropertyTarget" )
       _topDataProperty <- withFragment( bIRI, "topDataProperty" )
-    } yield new OMFBackbone( ont,
+    } yield new OMFBackbone( ont, kind,
       Thing = _Thing,
       Entity = _Entity,
       StructuredDatatype = _StructuredDatatype,
@@ -202,6 +208,16 @@ object Backbone {
       topReifiedStructuredDataPropertySource = _topReifiedStructuredDataPropertySource,
       topReifiedStructuredDataPropertyTarget = _topReifiedStructuredDataPropertyTarget,
       topDataProperty = _topDataProperty ) {
+
+      kind match {
+        case `isDefinition` =>
+          val defP = df.getOWLAnnotationProperty( ops.AnnotationIsDefinition )
+          om.applyChange( new AddOntologyAnnotation( ont, df.getOWLAnnotation( defP, df.getOWLLiteral( true ) ) ) )
+
+        case `isDesignation` =>
+          val desP = df.getOWLAnnotationProperty( ops.AnnotationIsDesignation )
+          om.applyChange( new AddOntologyAnnotation( ont, df.getOWLAnnotation( desP, df.getOWLLiteral( true ) ) ) )
+      }
 
       om.applyChange( new AddAxiom( ont, df.getOWLDeclarationAxiom( ThingC ) ) )
 
@@ -243,19 +259,26 @@ object Backbone {
     ops: OWLAPIOMFOps ): Try[Backbone] = {
     import ops._
     val bIRI = toBackboneIRI( ont.getOntologyID.getOntologyIRI.get )
-    
-    def lookup[T <: OWLEntity]( fragment: String, set: Set[T]): Option[T] = {    
+
+    def lookup[T <: OWLEntity]( fragment: String, set: Set[T] ): Option[T] = {
       val iri = withFragment( bIRI, fragment ).get
-      set.find( _.getIRI == iri ) 
+      set.find( _.getIRI == iri )
     }
-    
+
+    val hasIsDesignation = ont.getAnnotations filter ( _.getProperty.getIRI == ops.AnnotationIsDesignation ) flatMap ( _.getValue match {
+      case l: OWLLiteral if ( l.isBoolean ) => Some( l.parseBoolean )
+      case _                                => None
+    } ) headOption
+
+    val kind: TerminologyKind = if ( hasIsDesignation.getOrElse( false ) ) isDesignation else isDefinition
+
     val b = for {
       _Thing <- lookup( "Thing", bCs )
       _Entity <- lookup( "Entity", bCs )
       _StructuredDatatype <- lookup( "StructuredDatatype", bCs )
       _ReifiedObjectProperty <- lookup( "ReifiedObjectProperty", bCs )
       _ReifiedStructuredDataProperty <- lookup( "ReifiedStructuredDataProperty", bCs )
-      _topObjectProperty <- lookup( "topObjectProperty" , bOPs )
+      _topObjectProperty <- lookup( "topObjectProperty", bOPs )
       _topReifiedObjectProperty <- lookup( "topReifiedObjectProperty", bOPs )
       _topReifiedObjectPropertySource <- lookup( "topReifiedObjectPropertySource", bOPs )
       _topReifiedObjectPropertyTarget <- lookup( "topReifiedObjectPropertyTarget", bOPs )
@@ -263,7 +286,7 @@ object Backbone {
       _topReifiedStructuredDataPropertySource <- lookup( "topReifiedStructuredDataPropertySource", bOPs )
       _topReifiedStructuredDataPropertyTarget <- lookup( "topReifiedStructuredDataPropertyTarget", bOPs )
       _topDataProperty <- lookup( "topDataProperty", bDPs )
-    } yield new OMFBackbone( ont,
+    } yield new OMFBackbone( ont, kind,
       Thing = _Thing.getIRI,
       Entity = _Entity.getIRI,
       StructuredDatatype = _StructuredDatatype.getIRI,
@@ -277,7 +300,7 @@ object Backbone {
       topReifiedStructuredDataPropertySource = _topReifiedStructuredDataPropertySource.getIRI,
       topReifiedStructuredDataPropertyTarget = _topReifiedStructuredDataPropertyTarget.getIRI,
       topDataProperty = _topDataProperty.getIRI )
-    
+
     b match {
       case Some( backbone ) => Success( backbone )
       case None             => Success( new NoBackbone( ont ) )

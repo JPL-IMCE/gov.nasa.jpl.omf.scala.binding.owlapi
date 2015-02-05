@@ -9,11 +9,11 @@ import java.net.URI
 import java.util.Locale
 
 /**
- * To build with Semmle:
+ * To build with SBT and/or Semmle:
  *
- * sbt -Dsbt.global.staging=sbt.staging
+ * sbt -Dsbt.global.staging=sbt.staging -Domf.scala.core.repo=remote
  *    This will check out the omf scala core from GIT.
- *
+ *    
  * sbt -Dsbt.global.staging=sbt.staging -Domf.scala.core.uri=mygit:file:///Users/rouquett/git.omf/gov.nasa.jpl.omf.scala.core#9406c575fe2f9af5e86df059e09b14c072a69b98
  * sbt -Dsbt.global.staging=sbt.staging -Domf.scala.core.local=/Users/rouquett/git.omf/gov.nasa.jpl.omf.scala.core/
  * sbt -Dsbt.global.staging=sbt.staging -Domf.scala.core.local=/Users/rouquett/git.omf/gov.nasa.jpl.omf.scala.core/ -Domf.scala.core.version=9406c575fe2f9af5e86df059e09b14c072a69b98
@@ -169,12 +169,17 @@ object OMFScalaBindingOWLAPI extends Build {
   val omfScalaCoreInfo = DependentGitProjectInfo( 
       "omf.scala.core", 
       "https://%s@secae-fn.jpl.nasa.gov/stash/scm/omf/gov.nasa.jpl.omf.scala.core.git", 
-      "0.8" )
+      "0.9.1" )
 
   object Versions {
-    val scala = "2.11.4"
+    val scala = "2.11.5"
+    
+    /** @see http://mvnrepository.com/artifact/net.sourceforge.owlapi/owlapi-distribution */
     val owlapi = "4.0.1"
+    
+    /** @see http://mvnrepository.com/artifact/xml-resolver/xml-resolver/ */
     val xmlResolver = "1.2"
+    
     val omf_scala_core_uri = omfScalaCoreInfo.getURI
   }
 

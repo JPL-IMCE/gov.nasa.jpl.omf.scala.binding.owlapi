@@ -45,4 +45,8 @@ import org.semanticweb.owlapi.model.OWLDataProperty
 case class ModelDataRelationshipFromEntityToScalar(
     val dp: OWLDataProperty,
     val source: ModelEntityDefinition,
-    val target: ModelScalarDataType) extends ModelDataRelationship(dp.getIRI)
+    val target: ModelScalarDataType) 
+  extends ModelDataRelationshipFromEntity
+  with ModelDataRelationshipToScalar {
+  override val iri = dp.getIRI
+}

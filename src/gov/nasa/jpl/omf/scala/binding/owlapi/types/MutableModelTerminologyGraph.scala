@@ -39,6 +39,7 @@
  */
 package gov.nasa.jpl.omf.scala.binding.owlapi.types
 
+import gov.nasa.jpl.omf.scala.core.TerminologyKind._
 import gov.nasa.jpl.omf.scala.binding.owlapi._
 import org.semanticweb.owlapi.model.OWLOntology
 import org.semanticweb.owlapi.model.IRI
@@ -99,9 +100,10 @@ case class AxiomScopeException( kind: AxiomExceptionKind, unaccessibleTerms: Map
       unaccessibleTerms.map { case ( kind, term ) => s"${kind}: ${term}" } mkString ( ", " ) )
 
 case class MutableModelTerminologyGraph(
+    override val kind: TerminologyKind,
   override val imports: Iterable[ModelTerminologyGraph],
   override val ont: OWLOntology )( override implicit val ops: OWLAPIOMFOps )
-  extends ModelTerminologyGraph( imports, ont )( ops ) {
+  extends ModelTerminologyGraph( kind, imports, ont )( ops ) {
 
   import ops._
   import EntityConflictException._
@@ -131,7 +133,7 @@ case class MutableModelTerminologyGraph(
     ontManager.saveOntology( ont, saveIRI )
   }
 
-  val backbone = Backbone.createBackbone( ont, ops ).get
+  val backbone = Backbone.createBackbone( ont, kind, ops ).get
 
   protected def createModelEntityAspect( a: OWLClass ): ModelEntityAspect = {
     val _a = ModelEntityAspect( a )

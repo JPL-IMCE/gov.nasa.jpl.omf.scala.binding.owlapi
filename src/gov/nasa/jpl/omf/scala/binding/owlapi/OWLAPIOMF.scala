@@ -75,6 +75,15 @@ trait OWLAPIOMFtbox extends OMFtbox {
   type ModelStructuredDataType = types.ModelStructuredDataType
   
   type ModelDataRelationship = types.ModelDataRelationship
+  
+  type ModelDataRelationshipFrom = types.ModelDataRelationshipFrom
+  type ModelDataRelationshipFromEntity = types.ModelDataRelationshipFromEntity
+  type ModelDataRelationshipFromStructure = types.ModelDataRelationshipFromStructure
+  
+  type ModelDataRelationshipTo = types.ModelDataRelationshipTo
+  type ModelDataRelationshipToScalar = types.ModelDataRelationshipToScalar
+  type ModelDataRelationshipToStructure = types.ModelDataRelationshipToStructure
+  
   type ModelDataRelationshipFromEntityToScalar = types.ModelDataRelationshipFromEntityToScalar
   type ModelDataRelationshipFromEntityToStructure = types.ModelDataRelationshipFromEntityToStructure
   type ModelDataRelationshipFromStructureToScalar = types.ModelDataRelationshipFromStructureToScalar

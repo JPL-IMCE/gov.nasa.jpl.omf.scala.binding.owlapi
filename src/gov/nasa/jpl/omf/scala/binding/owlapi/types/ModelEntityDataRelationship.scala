@@ -44,4 +44,4 @@ import gov.nasa.jpl.omf.scala.binding.owlapi._
 case class ModelEntityDataRelationship(
     override val iri: OWLAPIOMF#IRI,
     val source: ModelEntityDefinition,
-    val target: ModelDataTypeDefinition) extends ModelTypeTerm(iri)
+    val target: ModelDataTypeDefinition) extends ModelTypeTerm
