@@ -58,8 +58,8 @@ This software may be subject to U.S. export control laws. By accepting this soft
     <!-- http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/behavior/behavior#topObjectProperty -->
 
     <owl:ObjectProperty rdf:about="&behavior-backbone;topObjectProperty">
-        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
         <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
+        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
     </owl:ObjectProperty>
     
 
@@ -67,8 +67,8 @@ This software may be subject to U.S. export control laws. By accepting this soft
     <!-- http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/behavior/behavior#topReifiedObjectProperty -->
 
     <owl:ObjectProperty rdf:about="&behavior-backbone;topReifiedObjectProperty">
-        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
         <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
+        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
         <rdfs:subPropertyOf rdf:resource="&behavior-backbone;topObjectProperty"/>
     </owl:ObjectProperty>
     
@@ -77,8 +77,8 @@ This software may be subject to U.S. export control laws. By accepting this soft
     <!-- http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/behavior/behavior#topReifiedObjectPropertySource -->
 
     <owl:ObjectProperty rdf:about="&behavior-backbone;topReifiedObjectPropertySource">
-        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
         <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
+        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
         <rdfs:subPropertyOf rdf:resource="&behavior-backbone;topObjectProperty"/>
     </owl:ObjectProperty>
     
@@ -87,8 +87,8 @@ This software may be subject to U.S. export control laws. By accepting this soft
     <!-- http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/behavior/behavior#topReifiedObjectPropertyTarget -->
 
     <owl:ObjectProperty rdf:about="&behavior-backbone;topReifiedObjectPropertyTarget">
-        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
         <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
+        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
         <rdfs:subPropertyOf rdf:resource="&behavior-backbone;topObjectProperty"/>
     </owl:ObjectProperty>
     
@@ -97,8 +97,8 @@ This software may be subject to U.S. export control laws. By accepting this soft
     <!-- http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/behavior/behavior#topReifiedStructuredDataProperty -->
 
     <owl:ObjectProperty rdf:about="&behavior-backbone;topReifiedStructuredDataProperty">
-        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
         <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
+        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
         <rdfs:subPropertyOf rdf:resource="&behavior-backbone;topObjectProperty"/>
     </owl:ObjectProperty>
     
@@ -107,8 +107,8 @@ This software may be subject to U.S. export control laws. By accepting this soft
     <!-- http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/behavior/behavior#topReifiedStructuredDataPropertySource -->
 
     <owl:ObjectProperty rdf:about="&behavior-backbone;topReifiedStructuredDataPropertySource">
-        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
         <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
+        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
         <rdfs:subPropertyOf rdf:resource="&behavior-backbone;topObjectProperty"/>
     </owl:ObjectProperty>
     
@@ -117,8 +117,8 @@ This software may be subject to U.S. export control laws. By accepting this soft
     <!-- http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/behavior/behavior#topReifiedStructuredDataPropertyTarget -->
 
     <owl:ObjectProperty rdf:about="&behavior-backbone;topReifiedStructuredDataPropertyTarget">
-        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
         <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
+        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
         <rdfs:subPropertyOf rdf:resource="&behavior-backbone;topObjectProperty"/>
     </owl:ObjectProperty>
     
@@ -137,9 +137,10 @@ This software may be subject to U.S. export control laws. By accepting this soft
     <owl:ObjectProperty rdf:about="&behavior;constrains">
         <rdf:type rdf:resource="&owl;InverseFunctionalProperty"/>
         <rdfs:label rdf:datatype="&xsd;string">constrains</rdfs:label>
+        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
+        <rdfs:subPropertyOf rdf:resource="&behavior-backbone;topReifiedObjectProperty"/>
         <rdfs:domain rdf:resource="&behavior;AttributeConstraint"/>
         <rdfs:range rdf:resource="&behavior;StateVariableConstraintParticipant"/>
-        <rdfs:subPropertyOf rdf:resource="&behavior;unreferenceableReifiedObjectProperty"/>
         <owl:propertyChainAxiom rdf:parseType="Collection">
             <rdf:Description>
                 <owl:inverseOf rdf:resource="&behavior;hasConstrainsSource"/>
@@ -156,9 +157,9 @@ This software may be subject to U.S. export control laws. By accepting this soft
         <rdf:type rdf:resource="&owl;FunctionalProperty"/>
         <rdfs:label rdf:datatype="&xsd;string">exposes</rdfs:label>
         <dc:description rdf:datatype="&xsd;string">A &lt;classname&gt;PropertySurrogate&lt;/classname&gt; &lt;replaceable&gt;s&lt;/replaceable&gt; &lt;property&gt;exposes&lt;/property&gt; a &lt;classname&gt;Property&lt;/classname&gt; &lt;replaceable&gt;p&lt;/replaceable&gt; if an only if &lt;replaceable&gt;s&lt;/replaceable&gt; represents &lt;replaceable&gt;p&lt;/replaceable&gt; in an &lt;classname&gt;Interaction&lt;/classname&gt;.</dc:description>
+        <rdfs:subPropertyOf rdf:resource="&behavior-backbone;topReifiedObjectProperty"/>
         <rdfs:range rdf:resource="&behavior;Property"/>
         <rdfs:domain rdf:resource="&behavior;PropertySurrogate"/>
-        <rdfs:subPropertyOf rdf:resource="&behavior;referenceableReifiedObjectProperty"/>
         <owl:propertyChainAxiom rdf:parseType="Collection">
             <rdf:Description>
                 <owl:inverseOf rdf:resource="&behavior;hasExposesSource"/>
@@ -174,9 +175,10 @@ This software may be subject to U.S. export control laws. By accepting this soft
     <owl:ObjectProperty rdf:about="&behavior;hasAttribute">
         <rdf:type rdf:resource="&owl;InverseFunctionalProperty"/>
         <rdfs:label rdf:datatype="&xsd;string">has attribute</rdfs:label>
+        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
+        <rdfs:subPropertyOf rdf:resource="&behavior-backbone;topReifiedObjectProperty"/>
         <rdfs:range rdf:resource="&behavior;Attribute"/>
         <rdfs:domain rdf:resource="&behavior;AttributeGroup"/>
-        <rdfs:subPropertyOf rdf:resource="&behavior;unreferenceableReifiedObjectProperty"/>
         <owl:propertyChainAxiom rdf:parseType="Collection">
             <rdf:Description>
                 <owl:inverseOf rdf:resource="&behavior;hasHasAttributeSource"/>
@@ -192,9 +194,9 @@ This software may be subject to U.S. export control laws. By accepting this soft
     <owl:ObjectProperty rdf:about="&behavior;hasAutomatonConstraint">
         <rdf:type rdf:resource="&owl;InverseFunctionalProperty"/>
         <rdfs:label rdf:datatype="&xsd;string">has automaton constraint</rdfs:label>
+        <rdfs:subPropertyOf rdf:resource="&behavior-backbone;topReifiedStructuredDataProperty"/>
         <rdfs:range rdf:resource="&behavior;AttributeAutomatonConstraint"/>
         <rdfs:domain rdf:resource="&behavior;AttributeConstraintOwner"/>
-        <rdfs:subPropertyOf rdf:resource="&behavior;referenceableReifiedObjectProperty"/>
         <owl:propertyChainAxiom rdf:parseType="Collection">
             <rdf:Description>
                 <owl:inverseOf rdf:resource="&behavior;hasHasAutomatonConstraintSource"/>
@@ -209,9 +211,9 @@ This software may be subject to U.S. export control laws. By accepting this soft
 
     <owl:ObjectProperty rdf:about="&behavior;hasConstrainsSource">
         <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&behavior-backbone;topReifiedObjectPropertySource"/>
         <rdfs:range rdf:resource="&behavior;AttributeConstraint"/>
         <rdfs:domain rdf:resource="&behavior;Constrains"/>
-        <rdfs:subPropertyOf rdf:resource="&behavior;unreferenceableReifiedObjectPropertySource"/>
     </owl:ObjectProperty>
     
 
@@ -221,9 +223,9 @@ This software may be subject to U.S. export control laws. By accepting this soft
     <owl:ObjectProperty rdf:about="&behavior;hasConstrainsTarget">
         <rdf:type rdf:resource="&owl;FunctionalProperty"/>
         <rdf:type rdf:resource="&owl;InverseFunctionalProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&behavior-backbone;topReifiedObjectPropertyTarget"/>
         <rdfs:domain rdf:resource="&behavior;Constrains"/>
         <rdfs:range rdf:resource="&behavior;StateVariableConstraintParticipant"/>
-        <rdfs:subPropertyOf rdf:resource="&behavior;unreferenceableReifiedObjectPropertyTarget"/>
     </owl:ObjectProperty>
     
 
@@ -233,9 +235,9 @@ This software may be subject to U.S. export control laws. By accepting this soft
     <owl:ObjectProperty rdf:about="&behavior;hasConstraint">
         <rdf:type rdf:resource="&owl;InverseFunctionalProperty"/>
         <rdfs:label rdf:datatype="&xsd;string">has constraint</rdfs:label>
+        <rdfs:subPropertyOf rdf:resource="&behavior-backbone;topReifiedObjectProperty"/>
         <rdfs:range rdf:resource="&behavior;AttributeConstraint"/>
         <rdfs:domain rdf:resource="&behavior;AttributeConstraintOwner"/>
-        <rdfs:subPropertyOf rdf:resource="&behavior;referenceableReifiedObjectProperty"/>
         <owl:propertyChainAxiom rdf:parseType="Collection">
             <rdf:Description>
                 <owl:inverseOf rdf:resource="&behavior;hasHasConstraintSource"/>
@@ -251,9 +253,9 @@ This software may be subject to U.S. export control laws. By accepting this soft
     <owl:ObjectProperty rdf:about="&behavior;hasExposesSource">
         <rdf:type rdf:resource="&owl;FunctionalProperty"/>
         <rdf:type rdf:resource="&owl;InverseFunctionalProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&behavior-backbone;topReifiedObjectPropertySource"/>
         <rdfs:domain rdf:resource="&behavior;Exposes"/>
         <rdfs:range rdf:resource="&behavior;PropertySurrogate"/>
-        <rdfs:subPropertyOf rdf:resource="&behavior;referenceableReifiedObjectPropertySource"/>
     </owl:ObjectProperty>
     
 
@@ -262,9 +264,9 @@ This software may be subject to U.S. export control laws. By accepting this soft
 
     <owl:ObjectProperty rdf:about="&behavior;hasExposesTarget">
         <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&behavior-backbone;topReifiedObjectPropertyTarget"/>
         <rdfs:domain rdf:resource="&behavior;Exposes"/>
         <rdfs:range rdf:resource="&behavior;Property"/>
-        <rdfs:subPropertyOf rdf:resource="&behavior;referenceableReifiedObjectPropertyTarget"/>
     </owl:ObjectProperty>
     
 
@@ -274,9 +276,10 @@ This software may be subject to U.S. export control laws. By accepting this soft
     <owl:ObjectProperty rdf:about="&behavior;hasFeature">
         <rdf:type rdf:resource="&owl;InverseFunctionalProperty"/>
         <rdfs:label rdf:datatype="&xsd;string">has feature</rdfs:label>
+        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
+        <rdfs:subPropertyOf rdf:resource="&behavior-backbone;topReifiedStructuredDataProperty"/>
         <rdfs:range rdf:resource="&behavior;AbstractValueTypedFeature"/>
         <rdfs:domain rdf:resource="&behavior;StateVariableValueType"/>
-        <rdfs:subPropertyOf rdf:resource="&behavior;unreferenceableReifiedObjectProperty"/>
         <owl:propertyChainAxiom rdf:parseType="Collection">
             <rdf:Description>
                 <owl:inverseOf rdf:resource="&behavior;hasHasFeatureSource"/>
@@ -291,9 +294,9 @@ This software may be subject to U.S. export control laws. By accepting this soft
 
     <owl:ObjectProperty rdf:about="&behavior;hasHasAttributeSource">
         <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&behavior-backbone;topReifiedObjectPropertySource"/>
         <rdfs:range rdf:resource="&behavior;AttributeGroup"/>
         <rdfs:domain rdf:resource="&behavior;HasAttribute"/>
-        <rdfs:subPropertyOf rdf:resource="&behavior;unreferenceableReifiedObjectPropertySource"/>
     </owl:ObjectProperty>
     
 
@@ -303,9 +306,9 @@ This software may be subject to U.S. export control laws. By accepting this soft
     <owl:ObjectProperty rdf:about="&behavior;hasHasAttributeTarget">
         <rdf:type rdf:resource="&owl;FunctionalProperty"/>
         <rdf:type rdf:resource="&owl;InverseFunctionalProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&behavior-backbone;topReifiedObjectPropertyTarget"/>
         <rdfs:range rdf:resource="&behavior;Attribute"/>
         <rdfs:domain rdf:resource="&behavior;HasAttribute"/>
-        <rdfs:subPropertyOf rdf:resource="&behavior;unreferenceableReifiedObjectPropertyTarget"/>
     </owl:ObjectProperty>
     
 
@@ -314,9 +317,9 @@ This software may be subject to U.S. export control laws. By accepting this soft
 
     <owl:ObjectProperty rdf:about="&behavior;hasHasAutomatonConstraintSource">
         <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&behavior-backbone;topReifiedStructuredDataPropertySource"/>
         <rdfs:range rdf:resource="&behavior;AttributeConstraintOwner"/>
         <rdfs:domain rdf:resource="&behavior;HasAutomatonConstraint"/>
-        <rdfs:subPropertyOf rdf:resource="&behavior;referenceableReifiedObjectPropertySource"/>
     </owl:ObjectProperty>
     
 
@@ -326,9 +329,9 @@ This software may be subject to U.S. export control laws. By accepting this soft
     <owl:ObjectProperty rdf:about="&behavior;hasHasAutomatonConstraintTarget">
         <rdf:type rdf:resource="&owl;FunctionalProperty"/>
         <rdf:type rdf:resource="&owl;InverseFunctionalProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&behavior-backbone;topReifiedStructuredDataPropertyTarget"/>
         <rdfs:range rdf:resource="&behavior;AttributeAutomatonConstraint"/>
         <rdfs:domain rdf:resource="&behavior;HasAutomatonConstraint"/>
-        <rdfs:subPropertyOf rdf:resource="&behavior;referenceableReifiedObjectPropertyTarget"/>
     </owl:ObjectProperty>
     
 
@@ -337,9 +340,9 @@ This software may be subject to U.S. export control laws. By accepting this soft
 
     <owl:ObjectProperty rdf:about="&behavior;hasHasConstraintSource">
         <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&behavior-backbone;topReifiedObjectPropertySource"/>
         <rdfs:range rdf:resource="&behavior;AttributeConstraintOwner"/>
         <rdfs:domain rdf:resource="&behavior;HasConstraint"/>
-        <rdfs:subPropertyOf rdf:resource="&behavior;referenceableReifiedObjectPropertySource"/>
     </owl:ObjectProperty>
     
 
@@ -349,9 +352,9 @@ This software may be subject to U.S. export control laws. By accepting this soft
     <owl:ObjectProperty rdf:about="&behavior;hasHasConstraintTarget">
         <rdf:type rdf:resource="&owl;FunctionalProperty"/>
         <rdf:type rdf:resource="&owl;InverseFunctionalProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&behavior-backbone;topReifiedObjectPropertyTarget"/>
         <rdfs:range rdf:resource="&behavior;AttributeConstraint"/>
         <rdfs:domain rdf:resource="&behavior;HasConstraint"/>
-        <rdfs:subPropertyOf rdf:resource="&behavior;referenceableReifiedObjectPropertyTarget"/>
     </owl:ObjectProperty>
     
 
@@ -360,9 +363,9 @@ This software may be subject to U.S. export control laws. By accepting this soft
 
     <owl:ObjectProperty rdf:about="&behavior;hasHasFeatureSource">
         <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&behavior-backbone;topReifiedStructuredDataPropertySource"/>
         <rdfs:domain rdf:resource="&behavior;HasFeature"/>
         <rdfs:range rdf:resource="&behavior;StateVariableValueType"/>
-        <rdfs:subPropertyOf rdf:resource="&behavior;unreferenceableReifiedObjectPropertySource"/>
     </owl:ObjectProperty>
     
 
@@ -372,9 +375,9 @@ This software may be subject to U.S. export control laws. By accepting this soft
     <owl:ObjectProperty rdf:about="&behavior;hasHasFeatureTarget">
         <rdf:type rdf:resource="&owl;FunctionalProperty"/>
         <rdf:type rdf:resource="&owl;InverseFunctionalProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&behavior-backbone;topReifiedStructuredDataPropertyTarget"/>
         <rdfs:range rdf:resource="&behavior;AbstractValueTypedFeature"/>
         <rdfs:domain rdf:resource="&behavior;HasFeature"/>
-        <rdfs:subPropertyOf rdf:resource="&behavior;unreferenceableReifiedObjectPropertyTarget"/>
     </owl:ObjectProperty>
     
 
@@ -383,9 +386,9 @@ This software may be subject to U.S. export control laws. By accepting this soft
 
     <owl:ObjectProperty rdf:about="&behavior;hasHasRegionSource">
         <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&behavior-backbone;topReifiedStructuredDataPropertySource"/>
         <rdfs:range rdf:resource="&behavior;AttributeAutomatonConstraint"/>
         <rdfs:domain rdf:resource="&behavior;HasRegion"/>
-        <rdfs:subPropertyOf rdf:resource="&behavior;unreferenceableReifiedObjectPropertySource"/>
     </owl:ObjectProperty>
     
 
@@ -395,9 +398,9 @@ This software may be subject to U.S. export control laws. By accepting this soft
     <owl:ObjectProperty rdf:about="&behavior;hasHasRegionTarget">
         <rdf:type rdf:resource="&owl;FunctionalProperty"/>
         <rdf:type rdf:resource="&owl;InverseFunctionalProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&behavior-backbone;topReifiedStructuredDataPropertyTarget"/>
         <rdfs:range rdf:resource="&behavior;AutomatonRegion"/>
         <rdfs:domain rdf:resource="&behavior;HasRegion"/>
-        <rdfs:subPropertyOf rdf:resource="&behavior;unreferenceableReifiedObjectPropertyTarget"/>
     </owl:ObjectProperty>
     
 
@@ -406,9 +409,9 @@ This software may be subject to U.S. export control laws. By accepting this soft
 
     <owl:ObjectProperty rdf:about="&behavior;hasHasStateSource">
         <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&behavior-backbone;topReifiedObjectPropertySource"/>
         <rdfs:range rdf:resource="&behavior;AutomatonRegion"/>
         <rdfs:domain rdf:resource="&behavior;HasState"/>
-        <rdfs:subPropertyOf rdf:resource="&behavior;unreferenceableReifiedObjectPropertySource"/>
     </owl:ObjectProperty>
     
 
@@ -418,9 +421,9 @@ This software may be subject to U.S. export control laws. By accepting this soft
     <owl:ObjectProperty rdf:about="&behavior;hasHasStateTarget">
         <rdf:type rdf:resource="&owl;FunctionalProperty"/>
         <rdf:type rdf:resource="&owl;InverseFunctionalProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&behavior-backbone;topReifiedObjectPropertyTarget"/>
         <rdfs:range rdf:resource="&behavior;AutomatonState"/>
         <rdfs:domain rdf:resource="&behavior;HasState"/>
-        <rdfs:subPropertyOf rdf:resource="&behavior;unreferenceableReifiedObjectPropertyTarget"/>
     </owl:ObjectProperty>
     
 
@@ -430,9 +433,9 @@ This software may be subject to U.S. export control laws. By accepting this soft
     <owl:ObjectProperty rdf:about="&behavior;hasHasValueTypeSource">
         <rdf:type rdf:resource="&owl;FunctionalProperty"/>
         <rdf:type rdf:resource="&owl;InverseFunctionalProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&behavior-backbone;topReifiedStructuredDataPropertySource"/>
         <rdfs:range rdf:resource="&behavior;AbstractValueTypedAttribute"/>
         <rdfs:domain rdf:resource="&behavior;HasValueType"/>
-        <rdfs:subPropertyOf rdf:resource="&behavior;unreferenceableReifiedObjectPropertySource"/>
     </owl:ObjectProperty>
     
 
@@ -441,9 +444,9 @@ This software may be subject to U.S. export control laws. By accepting this soft
 
     <owl:ObjectProperty rdf:about="&behavior;hasHasValueTypeTarget">
         <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&behavior-backbone;topReifiedStructuredDataPropertyTarget"/>
         <rdfs:range rdf:resource="&behavior;AbstractValueType"/>
         <rdfs:domain rdf:resource="&behavior;HasValueType"/>
-        <rdfs:subPropertyOf rdf:resource="&behavior;unreferenceableReifiedObjectPropertyTarget"/>
     </owl:ObjectProperty>
     
 
@@ -452,9 +455,9 @@ This software may be subject to U.S. export control laws. By accepting this soft
 
     <owl:ObjectProperty rdf:about="&behavior;hasJoinsSource">
         <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&behavior-backbone;topReifiedObjectPropertySource"/>
         <rdfs:range rdf:resource="&behavior;Interaction"/>
         <rdfs:domain rdf:resource="&behavior;Joins"/>
-        <rdfs:subPropertyOf rdf:resource="&behavior;referenceableReifiedObjectPropertySource"/>
     </owl:ObjectProperty>
     
 
@@ -463,9 +466,9 @@ This software may be subject to U.S. export control laws. By accepting this soft
 
     <owl:ObjectProperty rdf:about="&behavior;hasJoinsTarget">
         <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&behavior-backbone;topReifiedObjectPropertyTarget"/>
         <rdfs:range rdf:resource="&behavior;AttributeGroup"/>
         <rdfs:domain rdf:resource="&behavior;Joins"/>
-        <rdfs:subPropertyOf rdf:resource="&behavior;referenceableReifiedObjectPropertyTarget"/>
     </owl:ObjectProperty>
     
 
@@ -475,9 +478,9 @@ This software may be subject to U.S. export control laws. By accepting this soft
     <owl:ObjectProperty rdf:about="&behavior;hasPlaysRoleOfSource">
         <rdf:type rdf:resource="&owl;FunctionalProperty"/>
         <rdf:type rdf:resource="&owl;InverseFunctionalProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&behavior-backbone;topReifiedObjectPropertySource"/>
         <rdfs:range rdf:resource="&behavior;AttributeConstraintParticipant"/>
         <rdfs:domain rdf:resource="&behavior;PlaysRoleOf"/>
-        <rdfs:subPropertyOf rdf:resource="&behavior;referenceableReifiedObjectPropertySource"/>
     </owl:ObjectProperty>
     
 
@@ -486,9 +489,9 @@ This software may be subject to U.S. export control laws. By accepting this soft
 
     <owl:ObjectProperty rdf:about="&behavior;hasPlaysRoleOfTarget">
         <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&behavior-backbone;topReifiedObjectPropertyTarget"/>
         <rdfs:range rdf:resource="&behavior;Attribute"/>
         <rdfs:domain rdf:resource="&behavior;PlaysRoleOf"/>
-        <rdfs:subPropertyOf rdf:resource="&behavior;referenceableReifiedObjectPropertyTarget"/>
     </owl:ObjectProperty>
     
 
@@ -497,9 +500,9 @@ This software may be subject to U.S. export control laws. By accepting this soft
 
     <owl:ObjectProperty rdf:about="&behavior;hasPresentsSource">
         <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&behavior-backbone;topReifiedObjectPropertySource"/>
         <rdfs:domain rdf:resource="&behavior;Presents"/>
         <rdfs:range rdf:resource="&behavior;PropertyGroup"/>
-        <rdfs:subPropertyOf rdf:resource="&behavior;referenceableReifiedObjectPropertySource"/>
     </owl:ObjectProperty>
     
 
@@ -508,9 +511,9 @@ This software may be subject to U.S. export control laws. By accepting this soft
 
     <owl:ObjectProperty rdf:about="&behavior;hasPresentsTarget">
         <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&behavior-backbone;topReifiedObjectPropertyTarget"/>
         <rdfs:range rdf:resource="&behavior;InteractionTerminal"/>
         <rdfs:domain rdf:resource="&behavior;Presents"/>
-        <rdfs:subPropertyOf rdf:resource="&behavior;referenceableReifiedObjectPropertyTarget"/>
     </owl:ObjectProperty>
     
 
@@ -519,9 +522,9 @@ This software may be subject to U.S. export control laws. By accepting this soft
 
     <owl:ObjectProperty rdf:about="&behavior;hasReferencesSource">
         <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&behavior-backbone;topReifiedObjectPropertySource"/>
         <rdfs:range rdf:resource="&behavior;ElementBehaviorCharacterization"/>
         <rdfs:domain rdf:resource="&behavior;References"/>
-        <rdfs:subPropertyOf rdf:resource="&behavior;referenceableReifiedObjectPropertySource"/>
     </owl:ObjectProperty>
     
 
@@ -530,9 +533,9 @@ This software may be subject to U.S. export control laws. By accepting this soft
 
     <owl:ObjectProperty rdf:about="&behavior;hasReferencesTarget">
         <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&behavior-backbone;topReifiedObjectPropertyTarget"/>
         <rdfs:range rdf:resource="&behavior;PropertyGroup"/>
         <rdfs:domain rdf:resource="&behavior;References"/>
-        <rdfs:subPropertyOf rdf:resource="&behavior;referenceableReifiedObjectPropertyTarget"/>
     </owl:ObjectProperty>
     
 
@@ -542,9 +545,10 @@ This software may be subject to U.S. export control laws. By accepting this soft
     <owl:ObjectProperty rdf:about="&behavior;hasRegion">
         <rdf:type rdf:resource="&owl;InverseFunctionalProperty"/>
         <rdfs:label rdf:datatype="&xsd;string">has region</rdfs:label>
+        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
+        <rdfs:subPropertyOf rdf:resource="&behavior-backbone;topReifiedStructuredDataProperty"/>
         <rdfs:domain rdf:resource="&behavior;AttributeAutomatonConstraint"/>
         <rdfs:range rdf:resource="&behavior;AutomatonRegion"/>
-        <rdfs:subPropertyOf rdf:resource="&behavior;unreferenceableReifiedObjectProperty"/>
         <owl:propertyChainAxiom rdf:parseType="Collection">
             <rdf:Description>
                 <owl:inverseOf rdf:resource="&behavior;hasHasRegionSource"/>
@@ -560,9 +564,10 @@ This software may be subject to U.S. export control laws. By accepting this soft
     <owl:ObjectProperty rdf:about="&behavior;hasState">
         <rdf:type rdf:resource="&owl;InverseFunctionalProperty"/>
         <rdfs:label rdf:datatype="&xsd;string">has state</rdfs:label>
+        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
+        <rdfs:subPropertyOf rdf:resource="&behavior-backbone;topReifiedObjectProperty"/>
         <rdfs:domain rdf:resource="&behavior;AutomatonRegion"/>
         <rdfs:range rdf:resource="&behavior;AutomatonState"/>
-        <rdfs:subPropertyOf rdf:resource="&behavior;unreferenceableReifiedObjectProperty"/>
         <owl:propertyChainAxiom rdf:parseType="Collection">
             <rdf:Description>
                 <owl:inverseOf rdf:resource="&behavior;hasHasStateSource"/>
@@ -577,9 +582,9 @@ This software may be subject to U.S. export control laws. By accepting this soft
 
     <owl:ObjectProperty rdf:about="&behavior;hasUsesSource">
         <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&behavior-backbone;topReifiedObjectPropertySource"/>
         <rdfs:range rdf:resource="&behavior;AttributeConstraint"/>
         <rdfs:domain rdf:resource="&behavior;Uses"/>
-        <rdfs:subPropertyOf rdf:resource="&behavior;unreferenceableReifiedObjectPropertySource"/>
     </owl:ObjectProperty>
     
 
@@ -589,9 +594,9 @@ This software may be subject to U.S. export control laws. By accepting this soft
     <owl:ObjectProperty rdf:about="&behavior;hasUsesTarget">
         <rdf:type rdf:resource="&owl;FunctionalProperty"/>
         <rdf:type rdf:resource="&owl;InverseFunctionalProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&behavior-backbone;topReifiedObjectPropertyTarget"/>
         <rdfs:range rdf:resource="&behavior;ParameterConstraintParticipant"/>
         <rdfs:domain rdf:resource="&behavior;Uses"/>
-        <rdfs:subPropertyOf rdf:resource="&behavior;unreferenceableReifiedObjectPropertyTarget"/>
     </owl:ObjectProperty>
     
 
@@ -601,10 +606,10 @@ This software may be subject to U.S. export control laws. By accepting this soft
     <owl:ObjectProperty rdf:about="&behavior;hasValueType">
         <rdf:type rdf:resource="&owl;FunctionalProperty"/>
         <rdfs:label rdf:datatype="&xsd;string">has value type</rdfs:label>
-        <rdfs:comment>has Value Type</rdfs:comment>
+        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
+        <rdfs:subPropertyOf rdf:resource="&behavior-backbone;topReifiedStructuredDataProperty"/>
         <rdfs:range rdf:resource="&behavior;AbstractValueType"/>
         <rdfs:domain rdf:resource="&behavior;AbstractValueTypedAttribute"/>
-        <rdfs:subPropertyOf rdf:resource="&behavior;unreferenceableReifiedObjectProperty"/>
         <owl:propertyChainAxiom rdf:parseType="Collection">
             <rdf:Description>
                 <owl:inverseOf rdf:resource="&behavior;hasHasValueTypeSource"/>
@@ -620,9 +625,9 @@ This software may be subject to U.S. export control laws. By accepting this soft
     <owl:ObjectProperty rdf:about="&behavior;joins">
         <rdfs:label rdf:datatype="&xsd;string">joins</rdfs:label>
         <dc:description rdf:datatype="&xsd;string">An &lt;classname&gt;Interaction&lt;/classname&gt; &lt;replaceable&gt;i&lt;/replaceable&gt; &lt;property&gt;joins&lt;/property&gt; an &lt;classname&gt;AttributeGroup&lt;/classname&gt; &lt;replaceable&gt;a&lt;/replaceable&gt; if an only if the &lt;classname&gt;BehavingElement&lt;/classname&gt;s associated with &lt;replaceable&gt;a&lt;/replaceable&gt; are involved in the interaction represented by &lt;replaceable&gt;i&lt;/replaceable&gt;.</dc:description>
+        <rdfs:subPropertyOf rdf:resource="&behavior-backbone;topReifiedObjectProperty"/>
         <rdfs:range rdf:resource="&behavior;AttributeGroup"/>
         <rdfs:domain rdf:resource="&behavior;Interaction"/>
-        <rdfs:subPropertyOf rdf:resource="&behavior;referenceableReifiedObjectProperty"/>
         <owl:propertyChainAxiom rdf:parseType="Collection">
             <rdf:Description>
                 <owl:inverseOf rdf:resource="&behavior;hasJoinsSource"/>
@@ -639,9 +644,9 @@ This software may be subject to U.S. export control laws. By accepting this soft
         <rdf:type rdf:resource="&owl;FunctionalProperty"/>
         <rdfs:label rdf:datatype="&xsd;string">plays role of</rdfs:label>
         <dc:description rdf:datatype="&xsd;string">An &lt;classname&gt;AttributeConstraintParticipant&lt;/classname&gt; &lt;replaceable&gt;p&lt;/replaceable&gt; &lt;property&gt;playsRoleOf&lt;/property&gt; an &lt;classname&gt;Attribute&lt;/classname&gt; &lt;replaceable&gt;a&lt;/replaceable&gt; if an only if it represents &lt;replaceable&gt;a&lt;/replaceable&gt; in an &lt;classname&gt;AttributeConstraint&lt;/classname&gt;.</dc:description>
+        <rdfs:subPropertyOf rdf:resource="&behavior-backbone;topReifiedObjectProperty"/>
         <rdfs:range rdf:resource="&behavior;Attribute"/>
         <rdfs:domain rdf:resource="&behavior;AttributeConstraintParticipant"/>
-        <rdfs:subPropertyOf rdf:resource="&behavior;referenceableReifiedObjectProperty"/>
         <owl:propertyChainAxiom rdf:parseType="Collection">
             <rdf:Description>
                 <owl:inverseOf rdf:resource="&behavior;hasPlaysRoleOfSource"/>
@@ -657,9 +662,9 @@ This software may be subject to U.S. export control laws. By accepting this soft
     <owl:ObjectProperty rdf:about="&behavior;presents">
         <rdfs:label rdf:datatype="&xsd;string">presents</rdfs:label>
         <dc:description rdf:datatype="&xsd;string">A &lt;classname&gt;PropertyGroup&lt;/classname&gt; &lt;replaceable&gt;g&lt;/replaceable&gt; &lt;property&gt;presents&lt;/property&gt; an &lt;classname&gt;InteractionTerminal&lt;/classname&gt; &lt;replaceable&gt;i&lt;/replaceable&gt; if and only if &lt;classname&gt;Attribute&lt;/classname&gt;s of &lt;replaceable&gt;g&lt;/replaceable&gt; are directly influenced by &lt;classname&gt;Attribute&lt;/classname&gt;s of other &lt;classname&gt;BehavingElement&lt;/classname&gt;s.</dc:description>
+        <rdfs:subPropertyOf rdf:resource="&behavior-backbone;topReifiedObjectProperty"/>
         <rdfs:range rdf:resource="&behavior;InteractionTerminal"/>
         <rdfs:domain rdf:resource="&behavior;PropertyGroup"/>
-        <rdfs:subPropertyOf rdf:resource="&behavior;referenceableReifiedObjectProperty"/>
         <owl:propertyChainAxiom rdf:parseType="Collection">
             <rdf:Description>
                 <owl:inverseOf rdf:resource="&behavior;hasPresentsSource"/>
@@ -670,53 +675,14 @@ This software may be subject to U.S. export control laws. By accepting this soft
     
 
 
-    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#referenceableReifiedObjectProperty -->
-
-    <owl:ObjectProperty rdf:about="&behavior;referenceableReifiedObjectProperty">
-        <rdfs:label rdf:datatype="&xsd;string">referenceable reified object property</rdfs:label>
-        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
-        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
-        <rdfs:subPropertyOf rdf:resource="&behavior-backbone;topReifiedObjectProperty"/>
-        <owl:propertyChainAxiom rdf:parseType="Collection">
-            <rdf:Description>
-                <owl:inverseOf rdf:resource="&behavior;referenceableReifiedObjectPropertySource"/>
-            </rdf:Description>
-            <rdf:Description rdf:about="&behavior;referenceableReifiedObjectPropertyTarget"/>
-        </owl:propertyChainAxiom>
-    </owl:ObjectProperty>
-    
-
-
-    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#referenceableReifiedObjectPropertySource -->
-
-    <owl:ObjectProperty rdf:about="&behavior;referenceableReifiedObjectPropertySource">
-        <rdfs:label rdf:datatype="&xsd;string">referenceable reified object property source</rdfs:label>
-        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
-        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
-        <rdfs:subPropertyOf rdf:resource="&behavior-backbone;topReifiedObjectPropertySource"/>
-    </owl:ObjectProperty>
-    
-
-
-    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#referenceableReifiedObjectPropertyTarget -->
-
-    <owl:ObjectProperty rdf:about="&behavior;referenceableReifiedObjectPropertyTarget">
-        <rdfs:label rdf:datatype="&xsd;string">referenceable reified object property target</rdfs:label>
-        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
-        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
-        <rdfs:subPropertyOf rdf:resource="&behavior-backbone;topReifiedObjectPropertyTarget"/>
-    </owl:ObjectProperty>
-    
-
-
     <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#references -->
 
     <owl:ObjectProperty rdf:about="&behavior;references">
         <rdfs:label rdf:datatype="&xsd;string">references</rdfs:label>
         <dc:description rdf:datatype="&xsd;string">An &lt;classname&gt;ElementBehaviorCharacterization&lt;/classname&gt; &lt;replaceable&gt;c&lt;/replaceable&gt; &lt;property&gt;references&lt;/property&gt; a &lt;classname&gt;PropertyGroup&lt;/classname&gt; &lt;replaceable&gt;g&lt;/replaceable&gt; if an only if &lt;classname&gt;ElementBehaviorConstraint&lt;/classname&gt;s of &lt;replaceable&gt;c&lt;/replaceable&gt; constrain or use &lt;classname&gt;Propert&lt;/classname&gt;ies of &lt;replaceable&gt;g&lt;/replaceable&gt;.</dc:description>
+        <rdfs:subPropertyOf rdf:resource="&behavior-backbone;topReifiedObjectProperty"/>
         <rdfs:domain rdf:resource="&behavior;ElementBehaviorCharacterization"/>
         <rdfs:range rdf:resource="&behavior;PropertyGroup"/>
-        <rdfs:subPropertyOf rdf:resource="&behavior;referenceableReifiedObjectProperty"/>
         <owl:propertyChainAxiom rdf:parseType="Collection">
             <rdf:Description>
                 <owl:inverseOf rdf:resource="&behavior;hasReferencesSource"/>
@@ -727,53 +693,15 @@ This software may be subject to U.S. export control laws. By accepting this soft
     
 
 
-    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#unreferenceableReifiedObjectProperty -->
-
-    <owl:ObjectProperty rdf:about="&behavior;unreferenceableReifiedObjectProperty">
-        <rdfs:label rdf:datatype="&xsd;string">unreferenceable reified object property</rdfs:label>
-        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
-        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
-        <rdfs:subPropertyOf rdf:resource="&behavior-backbone;topReifiedObjectProperty"/>
-        <owl:propertyChainAxiom rdf:parseType="Collection">
-            <rdf:Description>
-                <owl:inverseOf rdf:resource="&behavior;unreferenceableReifiedObjectPropertySource"/>
-            </rdf:Description>
-            <rdf:Description rdf:about="&behavior;unreferenceableReifiedObjectPropertyTarget"/>
-        </owl:propertyChainAxiom>
-    </owl:ObjectProperty>
-    
-
-
-    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#unreferenceableReifiedObjectPropertySource -->
-
-    <owl:ObjectProperty rdf:about="&behavior;unreferenceableReifiedObjectPropertySource">
-        <rdfs:label rdf:datatype="&xsd;string">unreferenceable reified object property source</rdfs:label>
-        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
-        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
-        <rdfs:subPropertyOf rdf:resource="&behavior-backbone;topReifiedObjectPropertySource"/>
-    </owl:ObjectProperty>
-    
-
-
-    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#unreferenceableReifiedObjectPropertyTarget -->
-
-    <owl:ObjectProperty rdf:about="&behavior;unreferenceableReifiedObjectPropertyTarget">
-        <rdfs:label rdf:datatype="&xsd;string">unreferenceable reified object property target</rdfs:label>
-        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
-        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
-        <rdfs:subPropertyOf rdf:resource="&behavior-backbone;topReifiedObjectPropertyTarget"/>
-    </owl:ObjectProperty>
-    
-
-
     <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#uses -->
 
     <owl:ObjectProperty rdf:about="&behavior;uses">
         <rdf:type rdf:resource="&owl;InverseFunctionalProperty"/>
         <rdfs:label>uses</rdfs:label>
+        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
+        <rdfs:subPropertyOf rdf:resource="&behavior-backbone;topReifiedObjectProperty"/>
         <rdfs:domain rdf:resource="&behavior;AttributeConstraint"/>
         <rdfs:range rdf:resource="&behavior;ParameterConstraintParticipant"/>
-        <rdfs:subPropertyOf rdf:resource="&behavior;unreferenceableReifiedObjectProperty"/>
         <owl:propertyChainAxiom rdf:parseType="Collection">
             <rdf:Description>
                 <owl:inverseOf rdf:resource="&behavior;hasUsesSource"/>
@@ -798,8 +726,8 @@ This software may be subject to U.S. export control laws. By accepting this soft
     <!-- http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/behavior/behavior#topDataProperty -->
 
     <owl:DatatypeProperty rdf:about="&behavior-backbone;topDataProperty">
-        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
         <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
+        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
     </owl:DatatypeProperty>
     
 
@@ -830,7 +758,8 @@ This software may be subject to U.S. export control laws. By accepting this soft
 
     <owl:Class rdf:about="&behavior-backbone;ReifiedObjectProperty">
         <rdfs:subClassOf rdf:resource="&behavior-backbone;Thing"/>
-        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
+        <rdfs:subClassOf rdf:resource="&analysis;AnalyzedElement"/>
+        <rdfs:subClassOf rdf:resource="&analysis;CharacterizedElement"/>
         <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
     </owl:Class>
     
@@ -840,8 +769,8 @@ This software may be subject to U.S. export control laws. By accepting this soft
 
     <owl:Class rdf:about="&behavior-backbone;ReifiedStructuredDataProperty">
         <rdfs:subClassOf rdf:resource="&behavior-backbone;Thing"/>
-        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
         <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
+        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
     </owl:Class>
     
 
@@ -860,8 +789,8 @@ This software may be subject to U.S. export control laws. By accepting this soft
     <!-- http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/behavior/behavior#Thing -->
 
     <owl:Class rdf:about="&behavior-backbone;Thing">
-        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
         <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
+        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
     </owl:Class>
     
 
@@ -1074,7 +1003,7 @@ It can also represents behavior constraints that are more amenable to an automat
 
     <owl:Class rdf:about="&behavior;Constrains">
         <rdfs:label rdf:datatype="&xsd;string">Constrains</rdfs:label>
-        <rdfs:subClassOf rdf:resource="&behavior;UnreferenceableReifiedObjectProperty"/>
+        <rdfs:subClassOf rdf:resource="&behavior-backbone;ReifiedObjectProperty"/>
     </owl:Class>
     
 
@@ -1089,13 +1018,6 @@ It can also represents behavior constraints that are more amenable to an automat
             <owl:Restriction>
                 <owl:onProperty rdf:resource="&behavior;hasConstraint"/>
                 <owl:allValuesFrom rdf:resource="&behavior;ElementBehaviorConstraint"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="&analysis;characterizes"/>
-                <owl:onClass rdf:resource="&behavior;BehavingElement"/>
-                <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
             </owl:Restriction>
         </rdfs:subClassOf>
         <dc:description rdf:datatype="&xsd;string">An &lt;classname&gt;ElementBehaviorCharacterization&lt;/classname&gt; groups &lt;classname&gt;ElementBehaviorConstraint&lt;/classname&gt;s through the &lt;property&gt;hasConstraint&lt;/property&gt;. It also &lt;property&gt;references&lt;/property&gt; &lt;classname&gt;PropertyGroup&lt;/classname&gt;s of which the &lt;classname&gt;Attributes&lt;/classname&gt;s are of interest in the scope of the &lt;classname&gt;ElementBehaviorConstraint&lt;/classname&gt;s.</dc:description>
@@ -1118,7 +1040,7 @@ It is expressed by &lt;property&gt;constrain&lt;/property&gt;ing &lt;classname&g
 
     <owl:Class rdf:about="&behavior;Exposes">
         <rdfs:label rdf:datatype="&xsd;string">Exposes</rdfs:label>
-        <rdfs:subClassOf rdf:resource="&behavior;ReferenceableReifiedObjectProperty"/>
+        <rdfs:subClassOf rdf:resource="&behavior-backbone;ReifiedObjectProperty"/>
     </owl:Class>
     
 
@@ -1127,7 +1049,7 @@ It is expressed by &lt;property&gt;constrain&lt;/property&gt;ing &lt;classname&g
 
     <owl:Class rdf:about="&behavior;HasAttribute">
         <rdfs:label rdf:datatype="&xsd;string">Has Attribute</rdfs:label>
-        <rdfs:subClassOf rdf:resource="&behavior;UnreferenceableReifiedObjectProperty"/>
+        <rdfs:subClassOf rdf:resource="&behavior-backbone;ReifiedObjectProperty"/>
     </owl:Class>
     
 
@@ -1136,7 +1058,7 @@ It is expressed by &lt;property&gt;constrain&lt;/property&gt;ing &lt;classname&g
 
     <owl:Class rdf:about="&behavior;HasAutomatonConstraint">
         <rdfs:label rdf:datatype="&xsd;string">Has Automaton Constraint</rdfs:label>
-        <rdfs:subClassOf rdf:resource="&behavior;ReferenceableReifiedObjectProperty"/>
+        <rdfs:subClassOf rdf:resource="&behavior-backbone;ReifiedObjectProperty"/>
     </owl:Class>
     
 
@@ -1145,7 +1067,7 @@ It is expressed by &lt;property&gt;constrain&lt;/property&gt;ing &lt;classname&g
 
     <owl:Class rdf:about="&behavior;HasConstraint">
         <rdfs:label rdf:datatype="&xsd;string">Has Constraint</rdfs:label>
-        <rdfs:subClassOf rdf:resource="&behavior;ReferenceableReifiedObjectProperty"/>
+        <rdfs:subClassOf rdf:resource="&behavior-backbone;ReifiedObjectProperty"/>
     </owl:Class>
     
 
@@ -1154,7 +1076,7 @@ It is expressed by &lt;property&gt;constrain&lt;/property&gt;ing &lt;classname&g
 
     <owl:Class rdf:about="&behavior;HasFeature">
         <rdfs:label rdf:datatype="&xsd;string">Has Feature</rdfs:label>
-        <rdfs:subClassOf rdf:resource="&behavior;UnreferenceableReifiedObjectProperty"/>
+        <rdfs:subClassOf rdf:resource="&behavior-backbone;ReifiedObjectProperty"/>
     </owl:Class>
     
 
@@ -1163,7 +1085,7 @@ It is expressed by &lt;property&gt;constrain&lt;/property&gt;ing &lt;classname&g
 
     <owl:Class rdf:about="&behavior;HasRegion">
         <rdfs:label rdf:datatype="&xsd;string">Has Region</rdfs:label>
-        <rdfs:subClassOf rdf:resource="&behavior;UnreferenceableReifiedObjectProperty"/>
+        <rdfs:subClassOf rdf:resource="&behavior-backbone;ReifiedObjectProperty"/>
     </owl:Class>
     
 
@@ -1172,7 +1094,7 @@ It is expressed by &lt;property&gt;constrain&lt;/property&gt;ing &lt;classname&g
 
     <owl:Class rdf:about="&behavior;HasState">
         <rdfs:label rdf:datatype="&xsd;string">Has State</rdfs:label>
-        <rdfs:subClassOf rdf:resource="&behavior;UnreferenceableReifiedObjectProperty"/>
+        <rdfs:subClassOf rdf:resource="&behavior-backbone;ReifiedObjectProperty"/>
     </owl:Class>
     
 
@@ -1181,7 +1103,7 @@ It is expressed by &lt;property&gt;constrain&lt;/property&gt;ing &lt;classname&g
 
     <owl:Class rdf:about="&behavior;HasValueType">
         <rdfs:label rdf:datatype="&xsd;string">Has Value Type</rdfs:label>
-        <rdfs:subClassOf rdf:resource="&behavior;UnreferenceableReifiedObjectProperty"/>
+        <rdfs:subClassOf rdf:resource="&behavior-backbone;ReifiedObjectProperty"/>
     </owl:Class>
     
 
@@ -1234,7 +1156,7 @@ It is expressed by &lt;property&gt;constrain&lt;/property&gt;ing &lt;classname&g
 
     <owl:Class rdf:about="&behavior;Joins">
         <rdfs:label rdf:datatype="&xsd;string">Joins</rdfs:label>
-        <rdfs:subClassOf rdf:resource="&behavior;ReferenceableReifiedObjectProperty"/>
+        <rdfs:subClassOf rdf:resource="&behavior-backbone;ReifiedObjectProperty"/>
     </owl:Class>
     
 
@@ -1302,7 +1224,7 @@ When &lt;property&gt;use&lt;/property&gt;d by an &lt;classname&gt;ElementBehavio
 
     <owl:Class rdf:about="&behavior;PlaysRoleOf">
         <rdfs:label rdf:datatype="&xsd;string">Plays Role Of</rdfs:label>
-        <rdfs:subClassOf rdf:resource="&behavior;ReferenceableReifiedObjectProperty"/>
+        <rdfs:subClassOf rdf:resource="&behavior-backbone;ReifiedObjectProperty"/>
     </owl:Class>
     
 
@@ -1311,7 +1233,7 @@ When &lt;property&gt;use&lt;/property&gt;d by an &lt;classname&gt;ElementBehavio
 
     <owl:Class rdf:about="&behavior;Presents">
         <rdfs:label rdf:datatype="&xsd;string">Presents</rdfs:label>
-        <rdfs:subClassOf rdf:resource="&behavior;ReferenceableReifiedObjectProperty"/>
+        <rdfs:subClassOf rdf:resource="&behavior-backbone;ReifiedObjectProperty"/>
     </owl:Class>
     
 
@@ -1337,13 +1259,6 @@ When &lt;property&gt;use&lt;/property&gt;d by an &lt;classname&gt;ElementBehavio
             <owl:Restriction>
                 <owl:onProperty rdf:resource="&behavior;hasAttribute"/>
                 <owl:allValuesFrom rdf:resource="&behavior;Property"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="&analysis;characterizes"/>
-                <owl:onClass rdf:resource="&behavior;BehavingElement"/>
-                <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
             </owl:Restriction>
         </rdfs:subClassOf>
         <dc:description rdf:datatype="&xsd;string">An &lt;classname&gt;PropertyGroup&lt;/classname&gt; is a construct that acts as a grouping mechanism for &lt;classname&gt;StateVariale&lt;/classname&gt;s or &lt;classname&gt;Parameter&lt;/classname&gt;s. The meaning of the grouping is left to the modeler&apos;s intent.</dc:description>
@@ -1372,22 +1287,11 @@ When &lt;property&gt;use&lt;/property&gt;d by an &lt;classname&gt;ElementBehavio
     
 
 
-    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#ReferenceableReifiedObjectProperty -->
-
-    <owl:Class rdf:about="&behavior;ReferenceableReifiedObjectProperty">
-        <rdfs:label rdf:datatype="&xsd;string">Referenceable Reified Object Property</rdfs:label>
-        <rdfs:subClassOf rdf:resource="&behavior-backbone;ReifiedObjectProperty"/>
-        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
-        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
-    </owl:Class>
-    
-
-
     <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#References -->
 
     <owl:Class rdf:about="&behavior;References">
         <rdfs:label rdf:datatype="&xsd;string">References</rdfs:label>
-        <rdfs:subClassOf rdf:resource="&behavior;ReferenceableReifiedObjectProperty"/>
+        <rdfs:subClassOf rdf:resource="&behavior-backbone;ReifiedObjectProperty"/>
     </owl:Class>
     
 
@@ -1447,20 +1351,6 @@ When &lt;property&gt;constrain&lt;/property&gt;ed by an &lt;classname&gt;Element
     <owl:Class rdf:about="&behavior;StateVariableValueType">
         <rdfs:label rdf:datatype="&xsd;string">State Variable Value Type</rdfs:label>
         <rdfs:subClassOf rdf:resource="&behavior;AttributeValueType"/>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="&behavior;hasFeature"/>
-                <owl:onClass rdf:resource="&behavior;TimeDomain"/>
-                <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="&behavior;hasFeature"/>
-                <owl:onClass rdf:resource="&behavior;Codomain"/>
-                <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
-            </owl:Restriction>
-        </rdfs:subClassOf>
         <dc:description rdf:datatype="&xsd;string">A &lt;classname&gt;StateVariableValueType&lt;/classname&gt; defines the type of the its associated &lt;classname&gt;StateVariable&lt;/classname&gt;.</dc:description>
     </owl:Class>
     
@@ -1492,22 +1382,11 @@ When &lt;property&gt;constrain&lt;/property&gt;ed by an &lt;classname&gt;Element
     
 
 
-    <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#UnreferenceableReifiedObjectProperty -->
-
-    <owl:Class rdf:about="&behavior;UnreferenceableReifiedObjectProperty">
-        <rdfs:label rdf:datatype="&xsd;string">Unreferenceable Reified Object Property</rdfs:label>
-        <rdfs:subClassOf rdf:resource="&behavior-backbone;ReifiedObjectProperty"/>
-        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
-        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
-    </owl:Class>
-    
-
-
     <!-- http://imce.jpl.nasa.gov/foundation/behavior/behavior#Uses -->
 
     <owl:Class rdf:about="&behavior;Uses">
         <rdfs:label rdf:datatype="&xsd;string">Uses</rdfs:label>
-        <rdfs:subClassOf rdf:resource="&behavior;UnreferenceableReifiedObjectProperty"/>
+        <rdfs:subClassOf rdf:resource="&behavior-backbone;ReifiedObjectProperty"/>
     </owl:Class>
     
 
@@ -1790,11 +1669,11 @@ When &lt;property&gt;constrain&lt;/property&gt;ed by an &lt;classname&gt;Element
     <rdf:Description rdf:about="&analysis;QuantityValue">
         <rdfs:label rdf:datatype="&xsd;string">Quantity Value</rdfs:label>
     </rdf:Description>
-    <rdf:Description rdf:about="&mission;hasRationale">
-        <rdfs:label rdf:datatype="&xsd;string">has rationale</rdfs:label>
-    </rdf:Description>
     <rdf:Description rdf:about="http://imce.jpl.nasa.gov/foundation/time/time#EndsAt">
         <rdfs:label rdf:datatype="&xsd;string">Ends At</rdfs:label>
+    </rdf:Description>
+    <rdf:Description rdf:about="&mission;hasRationale">
+        <rdfs:label rdf:datatype="&xsd;string">has rationale</rdfs:label>
     </rdf:Description>
     <rdf:Description rdf:about="&base;hasIndexEntry">
         <rdfs:label rdf:datatype="&xsd;string">has index entry</rdfs:label>
@@ -1938,5 +1817,5 @@ When &lt;property&gt;constrain&lt;/property&gt;ed by an &lt;classname&gt;Element
 
 
 
-<!-- Generated by the OWL API (version 3.4.5-SNAPSHOT) http://owlapi.sourceforge.net -->
+<!-- Generated by the OWL API (version 3.4.2) http://owlapi.sourceforge.net -->
 

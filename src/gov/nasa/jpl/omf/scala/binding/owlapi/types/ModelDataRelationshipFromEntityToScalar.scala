@@ -46,7 +46,8 @@ case class ModelDataRelationshipFromEntityToScalar(
     val dp: OWLDataProperty,
     val source: ModelEntityDefinition,
     val target: ModelScalarDataType) 
-  extends ModelDataRelationshipFromEntity
+  extends ModelDataRelationship
+  with ModelDataRelationshipFromEntity
   with ModelDataRelationshipToScalar {
   override val iri = dp.getIRI
 }

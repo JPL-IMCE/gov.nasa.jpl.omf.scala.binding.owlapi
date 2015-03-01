@@ -45,6 +45,7 @@ import org.semanticweb.owlapi.model.OWLOntology
 import org.semanticweb.owlapi.model.IRI
 import scala.util.Try
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelTerminologyGraph
+import java.io.OutputStream
 
 case class MutableModelInstanceGraph(
     override val tboxes: Iterable[types.ImmutableModelTerminologyGraph],
@@ -65,5 +66,9 @@ case class MutableModelInstanceGraph(
   
   def save: Try[Unit] = Try {
     ontManager.saveOntology(ont)
+  }    
+    
+  def save( os: OutputStream ): Try[Unit] = Try {
+    ontManager.saveOntology(ont, os)
   }    
 }

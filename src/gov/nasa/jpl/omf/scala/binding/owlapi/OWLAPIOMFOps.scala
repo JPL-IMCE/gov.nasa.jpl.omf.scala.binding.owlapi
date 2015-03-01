@@ -40,21 +40,20 @@
 package gov.nasa.jpl.omf.scala.binding.owlapi
 
 import java.net.URI
-
 import gov.nasa.jpl.omf.scala.core._
 import gov.nasa.jpl.omf.scala.core.RelationshipCharacteristics._
 import gov.nasa.jpl.omf.scala.core.TerminologyKind._
 import gov.nasa.jpl.omf.scala.binding._
 import gov.nasa.jpl.omf.scala.binding.owlapi._
-
 import org.semanticweb.owlapi.model.IRI
 import org.semanticweb.owlapi.model.OWLOntologyManager
-
 import scala.util.Try
 import scala.util.Success
 import scala.util.Failure
+import java.io.OutputStream
 
-trait OWLAPIIRIOps extends IRIOps[OWLAPIOMF] {
+trait OWLAPIIRIOps
+  extends IRIOps[OWLAPIOMF] {
 
   // IRI
 
@@ -73,7 +72,7 @@ trait OWLAPIIRIOps extends IRIOps[OWLAPIOMF] {
     val u = iri.toURI
     u.getFragment match {
       case f: String if ( f.nonEmpty ) => Failure( IRIFragmentException( iri ) )
-      case _                           => Success( org.semanticweb.owlapi.model.IRI.create( u.resolve( "#" + fragment ) ) )
+      case _                           => Success( org.semanticweb.owlapi.model.IRI.create( u.resolve( "#"+fragment ) ) )
     }
   }
 
@@ -96,14 +95,14 @@ trait OWLAPIIRIOps extends IRIOps[OWLAPIOMF] {
   override def toBackboneIRI( iri: IRI ) = {
     val u = iri.toURI
     import u._
-    org.semanticweb.owlapi.model.IRI.create( new URI( getScheme, getUserInfo, "imce.jpl.nasa.gov", getPort, "/backbone/" + getHost + getPath, getQuery, getFragment ) )
+    org.semanticweb.owlapi.model.IRI.create( new URI( getScheme, getUserInfo, "imce.jpl.nasa.gov", getPort, "/backbone/"+getHost + getPath, getQuery, getFragment ) )
   }
 
   override def toSourceIRI( iri: IRI ) =
     splitIRI( iri ) match {
       case ( iri, Some( f ) ) =>
         val fragment = s"has${f}Source"
-        org.semanticweb.owlapi.model.IRI.create( iri.toURI.resolve( "#" + fragment ) )
+        org.semanticweb.owlapi.model.IRI.create( iri.toURI.resolve( "#"+fragment ) )
       case ( iri, None ) =>
         throw IRISourcePropertyException( iri )
     }
@@ -112,14 +111,15 @@ trait OWLAPIIRIOps extends IRIOps[OWLAPIOMF] {
     splitIRI( iri ) match {
       case ( iri, Some( f ) ) =>
         val fragment = s"has${f}Target"
-        org.semanticweb.owlapi.model.IRI.create( iri.toURI.resolve( "#" + fragment ) )
+        org.semanticweb.owlapi.model.IRI.create( iri.toURI.resolve( "#"+fragment ) )
       case ( iri, None ) =>
         throw IRIargetPropertyException( iri )
     }
 
 }
 
-trait OWLAPIImmutableTerminologyGraphOps extends ImmutableTerminologyGraphOps[OWLAPIOMF] { self: OWLAPIOMFOps =>
+trait OWLAPIImmutableTerminologyGraphOps
+  extends ImmutableTerminologyGraphOps[OWLAPIOMF] { self: OWLAPIOMFOps =>
 
   override def loadTerminologyGraph( iri: IRI )( implicit store: OWLAPIOMFGraphStore ) =
     store.loadTerminologyGraph( iri )( this )
@@ -222,18 +222,18 @@ trait OWLAPIImmutableTerminologyGraphOps extends ImmutableTerminologyGraphOps[OW
   // entity facet
 
   override def fromEntityAspect( f: types.ModelEntityAspect ): IRI = f.iri
-  
+
   // entity concept
 
   override def fromEntityConcept( c: types.ModelEntityConcept ) = c.iri
-  
+
   // entity relationship
-  
+
   override def fromEntityRelationship( r: types.ModelEntityRelationship ) = {
     import r._
     ( iri, source, target, characteristics, isAbstract )
   }
-  
+
   // datatype definition
 
   override def fromDataTypeDefinition( dt: types.ModelDataTypeDefinition ): IRI = dt match {
@@ -255,28 +255,28 @@ trait OWLAPIImmutableTerminologyGraphOps extends ImmutableTerminologyGraphOps[OW
     import esc._
     ( iri, source, target )
   }
-  
+
   // data relationship from entity to structure
-  
+
   override def fromDataRelationshipFromEntityToStructure( est: types.ModelDataRelationshipFromEntityToStructure ) = {
     import est._
     ( iri, source, target )
   }
-    
+
   // data relationship from structure to scalar
-  
+
   override def fromDataRelationshipFromStructureToScalar( ssc: types.ModelDataRelationshipFromStructureToScalar ) = {
     import ssc._
     ( iri, source, target )
   }
-  
+
   // data relationship from structure to structure
 
   override def fromDataRelationshipFromStructureToStructure( sst: types.ModelDataRelationshipFromStructureToStructure ) = {
     import sst._
     ( iri, source, target )
   }
-  
+
   // model term axioms
 
   override def foldTermAxiom[T]( t: types.ModelTermAxiom )(
@@ -286,19 +286,19 @@ trait OWLAPIImmutableTerminologyGraphOps extends ImmutableTerminologyGraphOps[OW
     funEntityRelationshipSubClassAxiom: types.EntityRelationshipSubClassAxiom => T,
     funScalarDataTypeFacetRestriction: types.ScalarDataTypeFacetRestriction => T ): T = t match {
     case ax: types.EntityDefinitionAspectSubClassAxiom => funEntityDefinitionAspectSubClassAxiom( ax )
-    case ax: types.EntityConceptSubClassAxiom      => funEntityConceptSubClassAxiom( ax )
-    case ax: types.EntityConceptRestrictionAxiom   => funEntityConceptRestrictionAxiom( ax )
-    case ax: types.EntityRelationshipSubClassAxiom => funEntityRelationshipSubClassAxiom( ax )
-    case ax: types.ScalarDataTypeFacetRestriction  => funScalarDataTypeFacetRestriction( ax )
+    case ax: types.EntityConceptSubClassAxiom          => funEntityConceptSubClassAxiom( ax )
+    case ax: types.EntityConceptRestrictionAxiom       => funEntityConceptRestrictionAxiom( ax )
+    case ax: types.EntityRelationshipSubClassAxiom     => funEntityRelationshipSubClassAxiom( ax )
+    case ax: types.ScalarDataTypeFacetRestriction      => funScalarDataTypeFacetRestriction( ax )
   }
-  
+
   // entity definition aspect subclass axiom
-  
+
   override def fromEntityDefinitionAspectSubClassAxiom( ax: types.EntityDefinitionAspectSubClassAxiom ): ( types.ModelEntityDefinition, types.ModelEntityAspect ) = {
     import ax._
     ( sub, sup )
   }
-  
+
   // entity concept subclass axiom
 
   override def fromEntityConceptSubClassAxiom( ax: types.EntityConceptSubClassAxiom ) = {
@@ -319,31 +319,46 @@ trait OWLAPIImmutableTerminologyGraphOps extends ImmutableTerminologyGraphOps[OW
     import ax._
     ( sub, sup )
   }
-  
+
   // scalar datatype facet restriction axiom
 
   override def fromScalarDataTypeFacetRestriction( ax: types.ScalarDataTypeFacetRestriction ) = {
     import ax._
     ( sub, sup, restrictions )
-  }    
+  }
 }
 
-trait OWLAPIMutableTerminologyGraphOps extends MutableTerminologyGraphOps[OWLAPIOMF] with OWLAPIImmutableTerminologyGraphOps { self: OWLAPIOMFOps =>
-  
-  override def asImmutableTerminologyGraph( g: types.MutableModelTerminologyGraph )( implicit store: OWLAPIOMFGraphStore ) = 
-    store.asImmutableTerminologyGraph( g )
-  
-  override def makeTerminologyGraph(
-    iri: IRI, kind: TerminologyKind,
-    extendedTGraphs: Iterable[types.ImmutableModelTerminologyGraph] )( implicit store: OWLAPIOMFGraphStore ) =
-    store.makeTerminologyGraph( iri, kind, extendedTGraphs )( this )
+trait OWLAPIMutableTerminologyGraphOps
+  extends MutableTerminologyGraphOps[OWLAPIOMF]
+  with OWLAPIImmutableTerminologyGraphOps { self: OWLAPIOMFOps =>
 
-  override def saveTerminologyGraph( g: types.MutableModelTerminologyGraph )( implicit store: OWLAPIOMFGraphStore ) =
+  override def asImmutableTerminologyGraph(
+    g: types.MutableModelTerminologyGraph )( implicit store: OWLAPIOMFGraphStore ) =
+    store.asImmutableTerminologyGraph( g )
+
+  override def makeTerminologyGraph(
+    iri: IRI, kind: TerminologyKind )( implicit store: OWLAPIOMFGraphStore ) =
+    store.makeTerminologyGraph( iri, kind )( this )
+
+  override def addTerminologyGraphExtension(
+    extendingG: types.MutableModelTerminologyGraph,
+    extendedG: types.ModelTerminologyGraph )( implicit store: OWLAPIOMFGraphStore ): Try[Unit] =
+    extendingG.addTerminologyGraphExtension( extendedG )
+
+  override def saveTerminologyGraph(
+    g: types.MutableModelTerminologyGraph )( implicit store: OWLAPIOMFGraphStore ) =
     store.saveTerminologyGraph( g )( this )
+
+  override def saveTerminologyGraph(
+    g: types.MutableModelTerminologyGraph,
+    os: OutputStream )( implicit store: OWLAPIOMFGraphStore ) =
+    store.saveTerminologyGraph( g, os )( this )
 
   // entity facet
 
-  override def addEntityAspect( graph: types.MutableModelTerminologyGraph, aspectName: String )( implicit store: OWLAPIOMFGraphStore ): Try[types.ModelEntityAspect] =
+  override def addEntityAspect(
+    graph: types.MutableModelTerminologyGraph,
+    aspectName: String )( implicit store: OWLAPIOMFGraphStore ): Try[types.ModelEntityAspect] =
     for {
       aspectIRI <- withFragment( graph.iri, aspectName )
       aspect <- graph.addEntityAspect( aspectIRI )
@@ -351,12 +366,15 @@ trait OWLAPIMutableTerminologyGraphOps extends MutableTerminologyGraphOps[OWLAPI
 
   // entity concept
 
-  override def addEntityConcept( graph: types.MutableModelTerminologyGraph, conceptName: String, isAbstract: Boolean = false )( implicit store: OWLAPIOMFGraphStore ) =
+  override def addEntityConcept(
+    graph: types.MutableModelTerminologyGraph,
+    conceptName: String,
+    conceptGraphIRI: Option[IRI],
+    isAbstract: Boolean = false )( implicit store: OWLAPIOMFGraphStore ) =
     for {
       conceptIRI <- withFragment( graph.iri, conceptName )
-      concept <- graph.addEntityConcept( conceptIRI, isAbstract )
-    } yield concept
-
+      c <- graph.addEntityConcept( conceptIRI, conceptGraphIRI, isAbstract )
+    } yield c
 
   // entity relationship
 
@@ -366,6 +384,7 @@ trait OWLAPIMutableTerminologyGraphOps extends MutableTerminologyGraphOps[OWLAPI
     target: types.ModelEntityDefinition,
     characteristics: Iterable[RelationshipCharacteristics],
     reifiedRelationshipName: String,
+    relationshipGraphIRI: Option[IRI],
     unreifiedRelationshipName: String,
     unreifiedInverseRelationshipName: Option[String],
     isAbstract: Boolean = false )( implicit store: OWLAPIOMFGraphStore ) =
@@ -375,7 +394,12 @@ trait OWLAPIMutableTerminologyGraphOps extends MutableTerminologyGraphOps[OWLAPI
       rIRITarget = toTargetIRI( rIRI )
       uIRI <- withFragment( graph.iri, unreifiedRelationshipName )
       uiIRI <- withFragment( graph.iri, unreifiedInverseRelationshipName )
-      r <- graph.addEntityRelationship( rIRI, rIRISource, rIRITarget, uIRI, uiIRI, source, target, characteristics, isAbstract )
+      r <- graph.addEntityRelationship(
+        rIRI, relationshipGraphIRI,
+        rIRISource, rIRITarget,
+        uIRI, uiIRI,
+        source, target,
+        characteristics, isAbstract )
     } yield r
 
   // scalar datatype
@@ -485,7 +509,8 @@ trait OWLAPIMutableTerminologyGraphOps extends MutableTerminologyGraphOps[OWLAPI
 
 }
 
-trait OWLAPIImmutableInstanceGraphOps extends ImmutableInstanceGraphOps[OWLAPIOMF] {
+trait OWLAPIImmutableInstanceGraphOps
+  extends ImmutableInstanceGraphOps[OWLAPIOMF] {
 
   override def loadInstanceGraph( iri: IRI )( implicit store: OWLAPIOMFGraphStore ) = store.loadInstanceGraph( iri )
 
@@ -494,12 +519,12 @@ trait OWLAPIImmutableInstanceGraphOps extends ImmutableInstanceGraphOps[OWLAPIOM
   override def fromInstanceGraph( graph: instances.ModelInstanceGraph ) = graph.fromInstanceGraph
 
   // instance object
-  
+
   override def fromInstanceObject( o: instances.ModelInstanceObject ) = {
     import o._
     ( iri, conceptType )
   }
-  
+
   // instance relation
 
   override def fromInstanceRelation( r: instances.ModelInstanceRelation ) = {
@@ -513,21 +538,21 @@ trait OWLAPIImmutableInstanceGraphOps extends ImmutableInstanceGraphOps[OWLAPIOM
     import dl._
     ( lexicalForm, datatype )
   }
-  
+
   // data structure
-  
+
   override def fromDataStructure( ds: instances.ModelInstanceDataStructure ) = {
     import ds._
     ( iri, datatype )
   }
-    
+
   // data property from entity to scalar
 
   override def fromInstanceDataRelationshipFromEntityToScalar( e2sc: instances.ModelInstanceDataRelationshipFromEntityToScalar ) = {
     import e2sc._
     ( ei, dataRelationship, value )
   }
-    
+
   // data property from entity to structure
 
   override def fromInstanceDataRelationshipFromEntityToStructure( e2st: instances.ModelInstanceDataRelationshipFromEntityToStructure ) = {
@@ -536,12 +561,12 @@ trait OWLAPIImmutableInstanceGraphOps extends ImmutableInstanceGraphOps[OWLAPIOM
   }
 
   // data property from structure to scalar
-  
+
   override def fromInstanceDataRelationshipFromStructureToScalar( s2sc: instances.ModelInstanceDataRelationshipFromStructureToScalar ) = {
     import s2sc._
     ( di, dataRelationship, value )
   }
-  
+
   // data property from structure to structure
 
   override def fromInstanceDataRelationshipFromStructureToStructure( s2st: instances.ModelInstanceDataRelationshipFromStructureToStructure ) = {
@@ -549,19 +574,25 @@ trait OWLAPIImmutableInstanceGraphOps extends ImmutableInstanceGraphOps[OWLAPIOM
     ( di, dataRelationship, value )
   }
 }
-    
-trait OWLAPIMutableInstanceGraphOps extends MutableInstanceGraphOps[OWLAPIOMF] with OWLAPIImmutableInstanceGraphOps {
+
+trait OWLAPIMutableInstanceGraphOps
+  extends MutableInstanceGraphOps[OWLAPIOMF]
+  with OWLAPIImmutableInstanceGraphOps {
 
   override def asImmutableInstanceGraph( g: instances.MutableModelInstanceGraph )( implicit store: OWLAPIOMFGraphStore ) =
     store.asImmutableInstanceGraph( g )
-  
+
   override def makeInstanceGraph(
     iri: IRI,
     instantiatedTGraphs: Iterable[types.ImmutableModelTerminologyGraph],
     extendedIGraphs: Iterable[instances.ImmutableModelInstanceGraph] )( implicit store: OWLAPIOMFGraphStore ) =
     store.makeInstanceGraph( iri, instantiatedTGraphs, extendedIGraphs )
 
-  override def saveInstanceGraph( g: instances.MutableModelInstanceGraph )( implicit store: OWLAPIOMFGraphStore ) = g.save
+  override def saveInstanceGraph( g: instances.MutableModelInstanceGraph )( implicit store: OWLAPIOMFGraphStore ) =
+    g.save
+
+  override def saveInstanceGraph( g: instances.MutableModelInstanceGraph, os: OutputStream )( implicit store: OWLAPIOMFGraphStore ) =
+    g.save( os )
 
   // instance object
 
@@ -623,7 +654,7 @@ trait OWLAPIMutableInstanceGraphOps extends MutableInstanceGraphOps[OWLAPIOMF] w
     graph: instances.MutableModelInstanceGraph,
     di: instances.ModelInstanceDataStructure,
     e2st: types.ModelDataRelationshipFromStructureToStructure,
-    value: instances.ModelInstanceDataStructure )( implicit store: OWLAPIOMFGraphStore ) = ???  
+    value: instances.ModelInstanceDataStructure )( implicit store: OWLAPIOMFGraphStore ) = ???
 }
 
 class OWLAPIOMFOps
@@ -636,6 +667,16 @@ class OWLAPIOMFOps
   val AnnotationIsDerived = makeIRI( "http://imce.jpl.nasa.gov/foundation/annotation/annotation#isDerived" )
   val AnnotationIsDefinition = makeIRI( "http://imce.jpl.nasa.gov/foundation/annotation/annotation#isDefinition" )
   val AnnotationIsDesignation = makeIRI( "http://imce.jpl.nasa.gov/foundation/annotation/annotation#isDesignation" )
+
+  /**
+   * Used for an entity concept or relationship to indicate the IRI of the corresponding graph.
+   */
+  val AnnotationEntityGraphIRI = makeIRI( "http://imce.jpl.nasa.gov/foundation/annotation/annotation#entityGraphIRI" )
+
+  /**
+   * Used for a terminology graph to indicate the IRI of the corresponding entity
+   */
+  val AnnotationGraphForEntityIRI = makeIRI( "http://imce.jpl.nasa.gov/foundation/annotation/annotation#graphForEntityIRI" )
 
 }
 

@@ -41,4 +41,8 @@ package gov.nasa.jpl.omf.scala.binding.owlapi.instances
 
 import gov.nasa.jpl.omf.scala.binding.owlapi._
 
-case class ModelInstanceDataLiteral(val lexicalForm: String, val datatype: types.ModelScalarDataType) extends ModelDataInstance
+case class ModelInstanceDataLiteral(
+    val lexicalForm: String, 
+    val datatype: types.ModelScalarDataType) 
+    extends ModelInstanceAssertion
+    with ModelDataInstance

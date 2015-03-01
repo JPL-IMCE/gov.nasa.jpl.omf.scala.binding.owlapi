@@ -193,9 +193,9 @@
      xmlns:pbs="http://imce.jpl.nasa.gov/pbs/pbs#"
      xmlns:SysML-embedding="http://imce.jpl.nasa.gov/www.omg.org/spec/SysML/20140311/SysML-embedding#"
      xmlns:UML="http://imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/UML#"
-     xmlns:architectural-description="http://imce.jpl.nasa.gov/architectural-description/architectural-description#"
      xmlns:UML-backbone="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/www.omg.org/spec/UML/20110701/UML#"
      xmlns:ieee-1471="http://imce.jpl.nasa.gov/ieee-1471/ieee-1471#"
+     xmlns:architectural-description="http://imce.jpl.nasa.gov/architectural-description/architectural-description#"
      xmlns:project-closure="http://imce.jpl.nasa.gov/foundation/project/project-bundle-closure#"
      xmlns:owl2-mof2-mapping="http://imce.jpl.nasa.gov/foundation/owl2-mof2/owl2-mof2-mapping#"
      xmlns:analysis="http://imce.jpl.nasa.gov/foundation/analysis/analysis#"
@@ -213,8 +213,8 @@
      xmlns:electrical="http://imce.jpl.nasa.gov/discipline/electrical/electrical#"
      xmlns:annotation-embedding="http://imce.jpl.nasa.gov/foundation/annotation/annotation-embedding#"
      xmlns:time-embedding="http://imce.jpl.nasa.gov/foundation/time/time-embedding#"
-     xmlns:fault-management="http://imce.jpl.nasa.gov/discipline/fault-management/fault-management#"
      xmlns:mission="http://imce.jpl.nasa.gov/foundation/mission/mission#"
+     xmlns:fault-management="http://imce.jpl.nasa.gov/discipline/fault-management/fault-management#"
      xmlns:owl2-mof2-embedding-backbone="http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/owl2-mof2/owl2-mof2-embedding#"
      xmlns:pbs-embedding="http://imce.jpl.nasa.gov/pbs/pbs-embedding#"
      xmlns:vandv-embedding="http://imce.jpl.nasa.gov/discipline/vandv/vandv-embedding#"
@@ -327,8 +327,8 @@ This software may be subject to U.S. export control laws. By accepting this soft
 
     <owl:ObjectProperty rdf:about="&project-backbone;topObjectProperty">
         <dc:description rdf:datatype="&xsd;string">&lt;property&gt;topObjectProperty&lt;/property&gt; is a common superproperty of all object properties defined in the Project Ontology.</dc:description>
-        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
         <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
+        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
     </owl:ObjectProperty>
     
 
@@ -336,8 +336,8 @@ This software may be subject to U.S. export control laws. By accepting this soft
     <!-- http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/project/project#topReifiedObjectProperty -->
 
     <owl:ObjectProperty rdf:about="&project-backbone;topReifiedObjectProperty">
-        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
         <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
+        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
         <rdfs:subPropertyOf rdf:resource="&project-backbone;topObjectProperty"/>
     </owl:ObjectProperty>
     
@@ -347,8 +347,8 @@ This software may be subject to U.S. export control laws. By accepting this soft
 
     <owl:ObjectProperty rdf:about="&project-backbone;topReifiedObjectPropertySource">
         <rdf:type rdf:resource="&owl;FunctionalProperty"/>
-        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
         <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
+        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
         <rdfs:subPropertyOf rdf:resource="&project-backbone;topObjectProperty"/>
     </owl:ObjectProperty>
     
@@ -358,8 +358,8 @@ This software may be subject to U.S. export control laws. By accepting this soft
 
     <owl:ObjectProperty rdf:about="&project-backbone;topReifiedObjectPropertyTarget">
         <rdf:type rdf:resource="&owl;FunctionalProperty"/>
-        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
         <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
+        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
         <rdfs:subPropertyOf rdf:resource="&project-backbone;topObjectProperty"/>
     </owl:ObjectProperty>
     
@@ -368,8 +368,8 @@ This software may be subject to U.S. export control laws. By accepting this soft
     <!-- http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/project/project#topReifiedStructuredDataProperty -->
 
     <owl:ObjectProperty rdf:about="&project-backbone;topReifiedStructuredDataProperty">
-        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
         <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
+        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
         <rdfs:subPropertyOf rdf:resource="&project-backbone;topObjectProperty"/>
     </owl:ObjectProperty>
     
@@ -378,8 +378,8 @@ This software may be subject to U.S. export control laws. By accepting this soft
     <!-- http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/project/project#topReifiedStructuredDataPropertySource -->
 
     <owl:ObjectProperty rdf:about="&project-backbone;topReifiedStructuredDataPropertySource">
-        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
         <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
+        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
         <rdfs:subPropertyOf rdf:resource="&project-backbone;topObjectProperty"/>
     </owl:ObjectProperty>
     
@@ -388,8 +388,8 @@ This software may be subject to U.S. export control laws. By accepting this soft
     <!-- http://imce.jpl.nasa.gov/backbone/imce.jpl.nasa.gov/foundation/project/project#topReifiedStructuredDataPropertyTarget -->
 
     <owl:ObjectProperty rdf:about="&project-backbone;topReifiedStructuredDataPropertyTarget">
-        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
         <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
+        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
         <rdfs:subPropertyOf rdf:resource="&project-backbone;topObjectProperty"/>
     </owl:ObjectProperty>
     
@@ -401,7 +401,7 @@ This software may be subject to U.S. export control laws. By accepting this soft
         <rdf:type rdf:resource="&owl;AsymmetricProperty"/>
         <rdf:type rdf:resource="&owl;IrreflexiveProperty"/>
         <rdfs:label rdf:datatype="&xsd;string">accepts</rdfs:label>
-        <rdfs:range rdf:resource="&project;Product"/>
+        <rdfs:range rdf:resource="&project;DevelopedElement"/>
         <rdfs:domain rdf:resource="&project;Role"/>
         <rdfs:subPropertyOf rdf:resource="&project;hasAssignment"/>
         <owl:inverseOf rdf:resource="&project;isAcceptedBy"/>
@@ -442,8 +442,8 @@ This software may be subject to U.S. export control laws. By accepting this soft
         <rdf:type rdf:resource="&owl;IrreflexiveProperty"/>
         <rdfs:label rdf:datatype="&xsd;string">authorizes</rdfs:label>
         <rdfs:subPropertyOf rdf:resource="&project-backbone;topReifiedObjectProperty"/>
-        <rdfs:range rdf:resource="&project;Authority"/>
         <rdfs:domain rdf:resource="&project;Authority"/>
+        <rdfs:range rdf:resource="&project;Authority"/>
         <owl:propertyChainAxiom rdf:parseType="Collection">
             <rdf:Description>
                 <owl:inverseOf rdf:resource="&project;hasAuthorizesSource"/>
@@ -537,8 +537,8 @@ if and only if
 gives direction or otherwise exercises authority over
 &lt;replaceable&gt;r&lt;subscript&gt;2&lt;/subscript&gt;&lt;/replaceable&gt;.</dc:description>
         <rdfs:subPropertyOf rdf:resource="&project-backbone;topReifiedObjectProperty"/>
-        <rdfs:range rdf:resource="&project;Role"/>
         <rdfs:domain rdf:resource="&project;Role"/>
+        <rdfs:range rdf:resource="&project;Role"/>
         <owl:propertyChainAxiom rdf:parseType="Collection">
             <rdf:Description>
                 <owl:inverseOf rdf:resource="&project;hasDelegatesToSource"/>
@@ -746,9 +746,6 @@ has specific cognizance and/or responsibility for
         <rdfs:domain rdf:resource="&project;Binds"/>
         <rdfs:range rdf:resource="&project;Policy"/>
     </owl:ObjectProperty>
-    <rdf:Description>
-        <owl:inverseOf rdf:resource="&project;hasBindsSource"/>
-    </rdf:Description>
     
 
 
@@ -760,9 +757,6 @@ has specific cognizance and/or responsibility for
         <rdfs:range rdf:resource="&mission;SpecifiedElement"/>
         <rdfs:domain rdf:resource="&project;Binds"/>
     </owl:ObjectProperty>
-    <rdf:Description>
-        <owl:inverseOf rdf:resource="&project;hasBindsTarget"/>
-    </rdf:Description>
     
 
 
@@ -1014,9 +1008,9 @@ has specific cognizance and/or responsibility for
     <owl:ObjectProperty rdf:about="&project;hasInvolves1Source">
         <rdf:type rdf:resource="&owl;FunctionalProperty"/>
         <rdf:type rdf:resource="&owl;InverseFunctionalProperty"/>
-        <rdfs:subPropertyOf rdf:resource="&project-backbone;topReifiedObjectPropertySource"/>
         <rdfs:range rdf:resource="&project;Interchange"/>
         <rdfs:domain rdf:resource="&project;Involves1"/>
+        <rdfs:subPropertyOf rdf:resource="&project;hasInvolvesSource"/>
     </owl:ObjectProperty>
     
 
@@ -1025,9 +1019,9 @@ has specific cognizance and/or responsibility for
 
     <owl:ObjectProperty rdf:about="&project;hasInvolves1Target">
         <rdf:type rdf:resource="&owl;FunctionalProperty"/>
-        <rdfs:subPropertyOf rdf:resource="&project-backbone;topReifiedObjectPropertyTarget"/>
         <rdfs:domain rdf:resource="&project;Involves1"/>
         <rdfs:range rdf:resource="&project;Process"/>
+        <rdfs:subPropertyOf rdf:resource="&project;hasInvolvesTarget"/>
     </owl:ObjectProperty>
     
 
@@ -1037,9 +1031,9 @@ has specific cognizance and/or responsibility for
     <owl:ObjectProperty rdf:about="&project;hasInvolves2Source">
         <rdf:type rdf:resource="&owl;FunctionalProperty"/>
         <rdf:type rdf:resource="&owl;InverseFunctionalProperty"/>
-        <rdfs:subPropertyOf rdf:resource="&project-backbone;topReifiedObjectPropertySource"/>
         <rdfs:range rdf:resource="&project;Interchange"/>
         <rdfs:domain rdf:resource="&project;Involves2"/>
+        <rdfs:subPropertyOf rdf:resource="&project;hasInvolvesSource"/>
     </owl:ObjectProperty>
     
 
@@ -1048,8 +1042,30 @@ has specific cognizance and/or responsibility for
 
     <owl:ObjectProperty rdf:about="&project;hasInvolves2Target">
         <rdf:type rdf:resource="&owl;FunctionalProperty"/>
-        <rdfs:subPropertyOf rdf:resource="&project-backbone;topReifiedObjectPropertyTarget"/>
         <rdfs:domain rdf:resource="&project;Involves2"/>
+        <rdfs:range rdf:resource="&project;Process"/>
+        <rdfs:subPropertyOf rdf:resource="&project;hasInvolvesTarget"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/project/project#hasInvolvesSource -->
+
+    <owl:ObjectProperty rdf:about="&project;hasInvolvesSource">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&project-backbone;topReifiedObjectPropertySource"/>
+        <rdfs:range rdf:resource="&project;Interchange"/>
+        <rdfs:domain rdf:resource="&project;Involves"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://imce.jpl.nasa.gov/foundation/project/project#hasInvolvesTarget -->
+
+    <owl:ObjectProperty rdf:about="&project;hasInvolvesTarget">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&project-backbone;topReifiedObjectPropertyTarget"/>
+        <rdfs:domain rdf:resource="&project;Involves"/>
         <rdfs:range rdf:resource="&project;Process"/>
     </owl:ObjectProperty>
     
@@ -1354,8 +1370,8 @@ acts to execute the assignments of
         <rdfs:label rdf:datatype="&xsd;string">invokes</rdfs:label>
         <dc:description rdf:datatype="&xsd;string">A &lt;classname&gt;PerformedElement&lt;/classname&gt; &lt;replaceable&gt;p&lt;/replaceable&gt; &lt;property&gt;invokes&lt;/property&gt; a &lt;classname&gt;PerformedElement&lt;/classname&gt; &lt;replaceable&gt;c&lt;/replaceable&gt; if and only if the execution of &lt;replaceable&gt;c&lt;/replaceable&gt; may be triggered or caused by and within the execution of &lt;replaceable&gt;p&lt;/replaceable&gt;.</dc:description>
         <rdfs:subPropertyOf rdf:resource="&project-backbone;topReifiedObjectProperty"/>
-        <rdfs:range rdf:resource="&project;Process"/>
         <rdfs:domain rdf:resource="&project;Process"/>
+        <rdfs:range rdf:resource="&project;Process"/>
         <owl:inverseOf rdf:resource="&project;isInvokedBy"/>
         <owl:propertyChainAxiom rdf:parseType="Collection">
             <rdf:Description>
@@ -1373,12 +1389,18 @@ acts to execute the assignments of
         <rdf:type rdf:resource="&owl;AsymmetricProperty"/>
         <rdf:type rdf:resource="&owl;IrreflexiveProperty"/>
         <rdfs:label rdf:datatype="&xsd;string">involves</rdfs:label>
-        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
         <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
+        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
         <rdfs:subPropertyOf rdf:resource="&project-backbone;topReifiedObjectProperty"/>
         <rdfs:domain rdf:resource="&project;Interchange"/>
         <rdfs:range rdf:resource="&project;Process"/>
         <owl:inverseOf rdf:resource="&project;isInvolvedIn"/>
+        <owl:propertyChainAxiom rdf:parseType="Collection">
+            <rdf:Description>
+                <owl:inverseOf rdf:resource="&project;hasInvolvesSource"/>
+            </rdf:Description>
+            <rdf:Description rdf:about="&project;hasInvolvesTarget"/>
+        </owl:propertyChainAxiom>
     </owl:ObjectProperty>
     
 
@@ -1432,7 +1454,7 @@ acts to execute the assignments of
         <rdf:type rdf:resource="&owl;IrreflexiveProperty"/>
         <rdfs:label rdf:datatype="&xsd;string">is accepted by</rdfs:label>
         <annotation:isDerived rdf:datatype="&xsd;boolean">true</annotation:isDerived>
-        <rdfs:domain rdf:resource="&project;Product"/>
+        <rdfs:domain rdf:resource="&project;DevelopedElement"/>
         <rdfs:range rdf:resource="&project;Role"/>
         <rdfs:subPropertyOf rdf:resource="&project;isAssignedTo"/>
         <owl:propertyChainAxiom rdf:parseType="Collection">
@@ -1539,8 +1561,8 @@ acts to execute the assignments of
         <dc:description rdf:datatype="&xsd;string">See &lt;property&gt;delegatesTo&lt;/property&gt;.</dc:description>
         <annotation:isDerived rdf:datatype="&xsd;boolean">true</annotation:isDerived>
         <rdfs:subPropertyOf rdf:resource="&project-backbone;topReifiedObjectProperty"/>
-        <rdfs:range rdf:resource="&project;Role"/>
         <rdfs:domain rdf:resource="&project;Role"/>
+        <rdfs:range rdf:resource="&project;Role"/>
         <owl:inverseOf rdf:resource="&project;delegatesTo"/>
         <owl:propertyChainAxiom rdf:parseType="Collection">
             <rdf:Description>
@@ -1627,8 +1649,8 @@ acts to execute the assignments of
         <dc:description rdf:datatype="&xsd;string">See &lt;property&gt;invokes&lt;/property&gt;.</dc:description>
         <annotation:isDerived rdf:datatype="&xsd;boolean">true</annotation:isDerived>
         <rdfs:subPropertyOf rdf:resource="&project-backbone;topReifiedObjectProperty"/>
-        <rdfs:range rdf:resource="&project;Process"/>
         <rdfs:domain rdf:resource="&project;Process"/>
+        <rdfs:range rdf:resource="&project;Process"/>
         <owl:propertyChainAxiom rdf:parseType="Collection">
             <rdf:Description>
                 <owl:inverseOf rdf:resource="&project;hasInvokesTarget"/>
@@ -1645,12 +1667,18 @@ acts to execute the assignments of
         <rdf:type rdf:resource="&owl;AsymmetricProperty"/>
         <rdf:type rdf:resource="&owl;IrreflexiveProperty"/>
         <rdfs:label rdf:datatype="&xsd;string">is involved in</rdfs:label>
-        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
-        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
         <annotation:isDerived rdf:datatype="&xsd;boolean">true</annotation:isDerived>
+        <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
+        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
         <rdfs:subPropertyOf rdf:resource="&project-backbone;topReifiedObjectProperty"/>
         <rdfs:range rdf:resource="&project;Interchange"/>
         <rdfs:domain rdf:resource="&project;Process"/>
+        <owl:propertyChainAxiom rdf:parseType="Collection">
+            <rdf:Description>
+                <owl:inverseOf rdf:resource="&project;hasInvolvesTarget"/>
+            </rdf:Description>
+            <rdf:Description rdf:about="&project;hasInvolvesSource"/>
+        </owl:propertyChainAxiom>
     </owl:ObjectProperty>
     
 
@@ -1773,8 +1801,8 @@ acts to execute the assignments of
         <dc:description rdf:datatype="&xsd;string">See &lt;property&gt;realizes&lt;/property&gt;.</dc:description>
         <annotation:isDerived rdf:datatype="&xsd;boolean">true</annotation:isDerived>
         <rdfs:subPropertyOf rdf:resource="&project-backbone;topReifiedObjectProperty"/>
-        <rdfs:range rdf:resource="&project;RealizedElement"/>
         <rdfs:domain rdf:resource="&project;RealizedElement"/>
+        <rdfs:range rdf:resource="&project;RealizedElement"/>
         <owl:inverseOf rdf:resource="&project;realizes"/>
         <owl:propertyChainAxiom rdf:parseType="Collection">
             <rdf:Description>
@@ -2023,8 +2051,8 @@ if and only if
 &lt;replaceable&gt;c&lt;subscript&gt;1&lt;/subscript&gt;&lt;/replaceable&gt;
 is proffered by a supplier as a specification-compliant implementation of &lt;replaceable&gt;c&lt;subscript&gt;2&lt;/subscript&gt;&lt;/replaceable&gt;.</dc:description>
         <rdfs:subPropertyOf rdf:resource="&project-backbone;topReifiedObjectProperty"/>
-        <rdfs:range rdf:resource="&project;RealizedElement"/>
         <rdfs:domain rdf:resource="&project;RealizedElement"/>
+        <rdfs:range rdf:resource="&project;RealizedElement"/>
         <owl:propertyChainAxiom rdf:parseType="Collection">
             <rdf:Description>
                 <owl:inverseOf rdf:resource="&project;hasRealizesSource"/>
@@ -2131,8 +2159,8 @@ is proffered by a supplier as a specification-compliant implementation of &lt;re
 
     <owl:DatatypeProperty rdf:about="&project-backbone;topDataProperty">
         <dc:description rdf:datatype="&xsd;string">&lt;property&gt;topDataProperty&lt;/property&gt; is a common superproperty of all datatype properties defined in the Project Ontology.</dc:description>
-        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
         <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
+        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
     </owl:DatatypeProperty>
     
 
@@ -2209,8 +2237,8 @@ is proffered by a supplier as a specification-compliant implementation of &lt;re
 
     <owl:Class rdf:about="&project-backbone;Thing">
         <dc:description rdf:datatype="&xsd;string">&lt;classname&gt;Thing&lt;/classname&gt; is a common superclass of all classes defined in the Project ontology.</dc:description>
-        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
         <annotation:isAbstract rdf:datatype="&xsd;boolean">true</annotation:isAbstract>
+        <annotation:noMapping rdf:datatype="&xsd;boolean">true</annotation:noMapping>
     </owl:Class>
     
 
@@ -2223,6 +2251,12 @@ is proffered by a supplier as a specification-compliant implementation of &lt;re
         <rdfs:subClassOf rdf:resource="&project;SuppliedElement"/>
         <rdfs:subClassOf>
             <owl:Restriction>
+                <owl:onProperty rdf:resource="&project;isSuppliedBy"/>
+                <owl:allValuesFrom rdf:resource="&project;WorkPackage"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
                 <owl:onProperty rdf:resource="&project;realizes"/>
                 <owl:allValuesFrom rdf:resource="&mission;Component"/>
             </owl:Restriction>
@@ -2231,12 +2265,6 @@ is proffered by a supplier as a specification-compliant implementation of &lt;re
             <owl:Restriction>
                 <owl:onProperty rdf:resource="&project;isRealizedBy"/>
                 <owl:allValuesFrom rdf:resource="&mission;Component"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="&project;isSuppliedBy"/>
-                <owl:allValuesFrom rdf:resource="&project;WorkPackage"/>
             </owl:Restriction>
         </rdfs:subClassOf>
     </rdf:Description>
@@ -2249,13 +2277,13 @@ is proffered by a supplier as a specification-compliant implementation of &lt;re
         <rdfs:subClassOf rdf:resource="&project;RealizedElement"/>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&project;realizes"/>
+                <owl:onProperty rdf:resource="&project;isRealizedBy"/>
                 <owl:allValuesFrom rdf:resource="&mission;Function"/>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&project;isRealizedBy"/>
+                <owl:onProperty rdf:resource="&project;realizes"/>
                 <owl:allValuesFrom rdf:resource="&mission;Function"/>
             </owl:Restriction>
         </rdfs:subClassOf>
@@ -2270,13 +2298,13 @@ is proffered by a supplier as a specification-compliant implementation of &lt;re
         <rdfs:subClassOf rdf:resource="&project;RealizedElement"/>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&project;realizes"/>
+                <owl:onProperty rdf:resource="&project;isRealizedBy"/>
                 <owl:allValuesFrom rdf:resource="&mission;Interface"/>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&project;isRealizedBy"/>
+                <owl:onProperty rdf:resource="&project;realizes"/>
                 <owl:allValuesFrom rdf:resource="&mission;Interface"/>
             </owl:Restriction>
         </rdfs:subClassOf>
@@ -2573,11 +2601,20 @@ is proffered by a supplier as a specification-compliant implementation of &lt;re
     
 
 
+    <!-- http://imce.jpl.nasa.gov/foundation/project/project#Involves -->
+
+    <owl:Class rdf:about="&project;Involves">
+        <rdfs:label rdf:datatype="&xsd;string">Involves</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&project-backbone;ReifiedObjectProperty"/>
+    </owl:Class>
+    
+
+
     <!-- http://imce.jpl.nasa.gov/foundation/project/project#Involves1 -->
 
     <owl:Class rdf:about="&project;Involves1">
         <rdfs:label rdf:datatype="&xsd;string">Involves1</rdfs:label>
-        <rdfs:subClassOf rdf:resource="&project-backbone;ReifiedObjectProperty"/>
+        <rdfs:subClassOf rdf:resource="&project;Involves"/>
     </owl:Class>
     
 
@@ -2586,7 +2623,7 @@ is proffered by a supplier as a specification-compliant implementation of &lt;re
 
     <owl:Class rdf:about="&project;Involves2">
         <rdfs:label rdf:datatype="&xsd;string">Involves2</rdfs:label>
-        <rdfs:subClassOf rdf:resource="&project-backbone;ReifiedObjectProperty"/>
+        <rdfs:subClassOf rdf:resource="&project;Involves"/>
     </owl:Class>
     
 
@@ -2650,13 +2687,13 @@ is proffered by a supplier as a specification-compliant implementation of &lt;re
         <rdfs:subClassOf rdf:resource="&project;RealizedElement"/>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&project;realizes"/>
+                <owl:onProperty rdf:resource="&project;isRealizedBy"/>
                 <owl:allValuesFrom rdf:resource="&project;Process"/>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&project;isRealizedBy"/>
+                <owl:onProperty rdf:resource="&project;realizes"/>
                 <owl:allValuesFrom rdf:resource="&project;Process"/>
             </owl:Restriction>
         </rdfs:subClassOf>
@@ -2705,6 +2742,12 @@ is proffered by a supplier as a specification-compliant implementation of &lt;re
         <rdfs:subClassOf rdf:resource="&project;RealizedElement"/>
         <rdfs:subClassOf>
             <owl:Restriction>
+                <owl:onProperty rdf:resource="&project;isRealizedBy"/>
+                <owl:allValuesFrom rdf:resource="&project;Project"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
                 <owl:onProperty rdf:resource="&project;supplies"/>
                 <owl:allValuesFrom rdf:resource="&mission;Mission"/>
             </owl:Restriction>
@@ -2712,12 +2755,6 @@ is proffered by a supplier as a specification-compliant implementation of &lt;re
         <rdfs:subClassOf>
             <owl:Restriction>
                 <owl:onProperty rdf:resource="&project;realizes"/>
-                <owl:allValuesFrom rdf:resource="&project;Project"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="&project;isRealizedBy"/>
                 <owl:allValuesFrom rdf:resource="&project;Project"/>
             </owl:Restriction>
         </rdfs:subClassOf>
@@ -2827,12 +2864,6 @@ is proffered by a supplier as a specification-compliant implementation of &lt;re
         <rdfs:subClassOf rdf:resource="&project;RealizedElement"/>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&project;isRealizedBy"/>
-                <owl:allValuesFrom rdf:resource="&project;WorkPackage"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-        <rdfs:subClassOf>
-            <owl:Restriction>
                 <owl:onProperty rdf:resource="&project;realizes"/>
                 <owl:allValuesFrom rdf:resource="&project;WorkPackage"/>
             </owl:Restriction>
@@ -2843,11 +2874,17 @@ is proffered by a supplier as a specification-compliant implementation of &lt;re
                 <owl:allValuesFrom rdf:resource="&mission;Component"/>
             </owl:Restriction>
         </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&project;isRealizedBy"/>
+                <owl:allValuesFrom rdf:resource="&project;WorkPackage"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
         <dc:description rdf:datatype="&xsd;string">A &lt;classname&gt;WorkPackage&lt;/classname&gt; represents a discrete unit of &lt;classname&gt;Project&lt;/classname&gt; cost, schedule, and activity. &lt;classname&gt;WorkPackage&lt;/classname&gt;s form a hierarchy called the Work Breakdown Structure.</dc:description>
     </owl:Class>
 </rdf:RDF>
 
 
 
-<!-- Generated by the OWL API (version 3.4.5-SNAPSHOT) http://owlapi.sourceforge.net -->
+<!-- Generated by the OWL API (version 3.4.2) http://owlapi.sourceforge.net -->
 

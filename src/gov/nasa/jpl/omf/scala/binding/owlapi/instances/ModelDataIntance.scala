@@ -39,4 +39,4 @@
  */
 package gov.nasa.jpl.omf.scala.binding.owlapi.instances
 
-trait ModelDataInstance extends ModelInstanceAssertion
+trait ModelDataInstance

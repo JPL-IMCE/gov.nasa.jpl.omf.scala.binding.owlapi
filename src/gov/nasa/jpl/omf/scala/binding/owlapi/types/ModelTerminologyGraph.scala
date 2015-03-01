@@ -57,9 +57,12 @@ import org.semanticweb.owlapi.model.OWLObjectProperty
 
 abstract class ModelTerminologyGraph(
   val kind: TerminologyKind,
-  val imports: Iterable[ModelTerminologyGraph],
   val ont: OWLOntology )( implicit val ops: OWLAPIOMFOps ) {
 
+  val isImmutableModelTerminologyGraph: Boolean
+  val isMutableModelTerminologyGraph: Boolean  
+  val imports: Iterable[ModelTerminologyGraph]
+  
   import ops._
 
   val ontManager = ont.getOWLOntologyManager
@@ -109,45 +112,4 @@ abstract class ModelTerminologyGraph(
   def fromTerminologyGraph: ( IRI, TerminologyKind, Iterable[ModelTerminologyGraph], Iterable[ModelEntityAspect], Iterable[ModelEntityConcept], Iterable[ModelEntityRelationship], Iterable[ModelScalarDataType], Iterable[ModelStructuredDataType], Iterable[ModelDataRelationshipFromEntityToScalar], Iterable[ModelDataRelationshipFromEntityToStructure], Iterable[ModelDataRelationshipFromStructureToScalar], Iterable[ModelDataRelationshipFromStructureToStructure], Iterable[ModelTermAxiom] ) =
     ( iri, kind, imports, aspects, concepts, relationships, sc, st, e2sc, e2st, s2sc, s2st, ax )
 
-  def save( saveIRI: IRI ): Try[Unit]
-
-  def addEntityAspect( aspectIRI: IRI ): Try[types.ModelEntityAspect]
-
-  def addEntityConcept( conceptIRI: IRI, isAbstract: Boolean ): Try[types.ModelEntityConcept]
-
-  def addEntityRelationship(
-    rIRI: IRI, rIRISource: IRI, rIRITarget: IRI,
-    uIRI: IRI, uiIRI: Option[IRI],
-    source: ModelEntityDefinition, target: ModelEntityDefinition,
-    characteristics: Iterable[RelationshipCharacteristics], isAbstract: Boolean ): Try[types.ModelEntityRelationship]
-
-  def addScalarDataType( scalarIRI: IRI ): Try[types.ModelScalarDataType]
-
-  def addDataRelationshipFromEntityToScalar(
-    dIRI: IRI,
-    source: types.ModelEntityDefinition,
-    target: types.ModelScalarDataType ): Try[types.ModelDataRelationshipFromEntityToScalar]
-
-  def addDataRelationshipFromEntityToStructure(
-    dIRI: IRI,
-    source: types.ModelEntityDefinition,
-    target: types.ModelStructuredDataType ): Try[types.ModelDataRelationshipFromEntityToStructure]
-
-  def addDataRelationshipFromStructureToScalar(
-    dIRI: IRI,
-    source: types.ModelStructuredDataType,
-    target: types.ModelScalarDataType ): Try[types.ModelDataRelationshipFromStructureToScalar]
-
-  def addDataRelationshipFromStructureToStructure(
-    dIRI: IRI,
-    source: types.ModelStructuredDataType,
-    target: types.ModelStructuredDataType ): Try[types.ModelDataRelationshipFromStructureToStructure]
-
-  def addEntityConceptSubClassAxiom(
-    sub: types.ModelEntityConcept,
-    sup: types.ModelEntityConcept ): Try[types.EntityConceptSubClassAxiom]
-
-  def addEntityDefinitionAspectSubClassAxiom(
-    sub: types.ModelEntityDefinition,
-    sup: types.ModelEntityAspect ): Try[types.EntityDefinitionAspectSubClassAxiom]
 }

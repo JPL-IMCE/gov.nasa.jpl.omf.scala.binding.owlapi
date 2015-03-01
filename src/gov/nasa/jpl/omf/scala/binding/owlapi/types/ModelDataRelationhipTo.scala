@@ -41,4 +41,4 @@ package gov.nasa.jpl.omf.scala.binding.owlapi.types
 
 import gov.nasa.jpl.omf.scala.binding.owlapi._
 
-trait ModelDataRelationshipTo extends ModelDataRelationship
+trait ModelDataRelationshipTo

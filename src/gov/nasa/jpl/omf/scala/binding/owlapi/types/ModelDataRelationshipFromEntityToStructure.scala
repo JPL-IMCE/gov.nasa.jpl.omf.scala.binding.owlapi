@@ -44,13 +44,14 @@ import org.semanticweb.owlapi.model.OWLClass
 import org.semanticweb.owlapi.model.OWLObjectProperty
 
 case class ModelDataRelationshipFromEntityToStructure(
-    val c: OWLClass,
-    val source: ModelEntityDefinition,
-    val rSource: OWLObjectProperty,  
-    val target: ModelStructuredDataType,
-    val rTarget: OWLObjectProperty,
-    val unreified: OWLObjectProperty) 
-    extends ModelDataRelationshipFromEntity
-    with ModelDataRelationshipToStructure {
+  val c: OWLClass,
+  val source: ModelEntityDefinition,
+  val rSource: OWLObjectProperty,
+  val target: ModelStructuredDataType,
+  val rTarget: OWLObjectProperty,
+  val unreified: OWLObjectProperty )
+  extends ModelDataRelationship
+  with ModelDataRelationshipFromEntity
+  with ModelDataRelationshipToStructure {
   override val iri = c.getIRI
 }

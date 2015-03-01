@@ -61,6 +61,7 @@ import org.semanticweb.owlapi.reasoner.NodeSet
 import org.semanticweb.owlapi.model.OWLObjectPropertyExpression
 import org.semanticweb.owlapi.reasoner.OWLReasoner
 import org.semanticweb.owlapi.model.OWLObjectInverseOf
+import gov.nasa.jpl.omf.scala.core.OMFOps
 
 object ImmutableOperation extends Enumeration {
   type ImmutableOperation = Value
@@ -88,8 +89,19 @@ case class ImmutableModelTerminologyGraph(
   override protected val s2sc: List[ModelDataRelationshipFromStructureToScalar],
   override protected val s2st: List[ModelDataRelationshipFromStructureToStructure],
   override protected val ax: List[ModelTermAxiom] )( override implicit val ops: OWLAPIOMFOps )
-  extends ModelTerminologyGraph( kind, imports, ont )( ops ) {
+  extends ModelTerminologyGraph( kind, ont )( ops ) {
 
+  override val isImmutableModelTerminologyGraph = true
+  override val isMutableModelTerminologyGraph = false
+  
+  require( imports.forall( _.isImmutableModelTerminologyGraph ))
+  def immutableImports: Iterable[ImmutableModelTerminologyGraph] = imports.flatMap { case ig: ImmutableModelTerminologyGraph => Some( ig ) }
+  
+  /**
+   * Reflexive, transitive closure of imports
+   */
+  def immutableImportClosure: Set[ImmutableModelTerminologyGraph] = OMFOps.closure[ImmutableModelTerminologyGraph, ImmutableModelTerminologyGraph](this, _.immutableImports) + this
+  
   val getEntityDefinitionMap: Map[OWLClass, ModelEntityDefinition] =
     ( ( aspects map ( a => ( a.c -> a ) ) ) ++
       ( concepts map ( c => ( c.c -> c ) ) ) ++
@@ -109,63 +121,10 @@ case class ImmutableModelTerminologyGraph(
       ( s2st map ( term2pair( _ ) ) ) toMap
   }
 
-  def save( saveIRI: IRI ): Try[Unit] =
-    Failure( ReadOnlyImmutableTerminologyGraphException( Save ) )
-
-  def addEntityAspect( aspectIRI: IRI ): Try[types.ModelEntityAspect] =
-    Failure( ReadOnlyImmutableTerminologyGraphException( AddEntityAspect ) )
-
-  def addEntityConcept( conceptIRI: IRI, isAbstract: Boolean ): Try[types.ModelEntityConcept] =
-    Failure( ReadOnlyImmutableTerminologyGraphException( AddEntityConcept ) )
-
-  def addEntityRelationship(
-    rIRI: IRI, rIRISource: IRI, rIRITarget: IRI,
-    uIRI: IRI, uiIRI: Option[IRI],
-    source: ModelEntityDefinition, target: ModelEntityDefinition,
-    characteristics: Iterable[RelationshipCharacteristics], isAbstract: Boolean ): Try[types.ModelEntityRelationship] =
-    Failure( ReadOnlyImmutableTerminologyGraphException( AddEntityRelationship ) )
-
-  def addScalarDataType( scalarIRI: IRI ): Try[types.ModelScalarDataType] =
-    Failure( ReadOnlyImmutableTerminologyGraphException( AddScalarDataType ) )
-
-  def addDataRelationshipFromEntityToScalar(
-    dIRI: IRI,
-    source: types.ModelEntityDefinition,
-    target: types.ModelScalarDataType ): Try[types.ModelDataRelationshipFromEntityToScalar] =
-    Failure( ReadOnlyImmutableTerminologyGraphException( AddDataRelationshipFromEntityToScalar ) )
-
-  def addDataRelationshipFromEntityToStructure(
-    dIRI: IRI,
-    source: types.ModelEntityDefinition,
-    target: types.ModelStructuredDataType ): Try[types.ModelDataRelationshipFromEntityToStructure] =
-    Failure( ReadOnlyImmutableTerminologyGraphException( AddDataRelationshipFromEntityToStructure ) )
-
-  def addDataRelationshipFromStructureToScalar(
-    dIRI: IRI,
-    source: types.ModelStructuredDataType,
-    target: types.ModelScalarDataType ): Try[types.ModelDataRelationshipFromStructureToScalar] =
-    Failure( ReadOnlyImmutableTerminologyGraphException( AddDataRelationshipFromStructureToScalar ) )
-
-  def addDataRelationshipFromStructureToStructure(
-    dIRI: IRI,
-    source: types.ModelStructuredDataType,
-    target: types.ModelStructuredDataType ): Try[types.ModelDataRelationshipFromStructureToStructure] =
-    Failure( ReadOnlyImmutableTerminologyGraphException( AddDataRelationshipFromStructureToStructure ) )
-
-  def addEntityConceptSubClassAxiom(
-    sub: types.ModelEntityConcept,
-    sup: types.ModelEntityConcept ): Try[types.EntityConceptSubClassAxiom] =
-    Failure( ReadOnlyImmutableTerminologyGraphException( AddEntityConceptSubClassAxiom ) )
-
-  def addEntityDefinitionAspectSubClassAxiom(
-    sub: types.ModelEntityDefinition,
-    sup: types.ModelEntityAspect ): Try[types.EntityDefinitionAspectSubClassAxiom] =
-    Failure( ReadOnlyImmutableTerminologyGraphException( AddEntityDefinitionAspectSubClassAxiom ) )
-
 }
 
 case class ResolverHelper(
-  val imports: Iterable[ModelTerminologyGraph],
+  val imports: Iterable[ImmutableModelTerminologyGraph],
   val ont: OWLOntology,
   val ops: OWLAPIOMFOps ) {
 
@@ -293,6 +252,15 @@ case class ResolverHelper(
 
   type ROPInfo = ( IRI, OWLObjectProperty, OWLClass, OWLClass, Option[OWLObjectProperty] )
 
+  def ropInfoToString( ropInfo: ROPInfo ): String = 
+    s"""|ROPInfo 
+        |       iri=${ropInfo._1}
+        | obj. prop=${ropInfo._2}
+        |    domain=${ropInfo._3}
+        |     range=${ropInfo._4}
+        | inv o. p.=${ropInfo._5}
+        |""".stripMargin('|')
+  
   def resolveEntityDefinitionsForRelationships(
     entityDefinitions: Map[OWLClass, ModelEntityDefinition],
     RCs: Map[IRI, OWLClass],
@@ -360,9 +328,25 @@ case class ResolverHelper(
       ( remainingSourceROPs.isEmpty && ( remainingROPs.nonEmpty || remainingTargetROPs.nonEmpty ) ) ||
       ( remainingTargetROPs.isEmpty && ( remainingROPs.nonEmpty || remainingSourceROPs.nonEmpty ) ) ||
       remainingROPs.size != remainingSourceROPs.size ||
-      remainingROPs.size != remainingTargetROPs.size )
-      Failure( new IllegalArgumentException( "..." ) )
-
+      remainingROPs.size != remainingTargetROPs.size ) {
+      
+      val rops = remainingROPs.map(ropInfoToString(_)).mkString("\n")
+      val srops = remainingSourceROPs.map(ropInfoToString(_)).mkString("\n")
+      val trops = remainingTargetROPs.map(ropInfoToString(_)).mkString("\n")
+      
+      Failure( new IllegalArgumentException( 
+          s"""|Unresolved Reified Object Properties, ROPs: 
+              |
+              |*** ${remainingROPs.size} remaining ROPs *** 
+              |${rops}
+              |
+              |*** ${remainingSourceROPs.size} remaining source ROPs ***
+              |${srops}
+              |
+              |*** ${remainingTargetROPs.size} remaining target ROPs *** 
+              |${trops}
+              |""".stripMargin('|') ) )
+    }
     else if ( remainingROPs.isEmpty && remainingSourceROPs.isEmpty && remainingTargetROPs.isEmpty &&
       unresolvedROPs.isEmpty && unresolvableSourceROPs.isEmpty && unresolvableTargetROPs.isEmpty )
       Success( m.toMap )
@@ -509,7 +493,7 @@ case class ImmutableModelTerminologyGraphResolver( resolver: ResolverHelper ) {
 
     implicit val _backbone = backbone
 
-    val importedEntityDefinitionMaps = imports flatMap ( _.getEntityDefinitionMap ) toMap
+    val importedEntityDefinitionMaps = imports.flatMap(_.immutableImportClosure) flatMap ( _.getEntityDefinitionMap ) toMap
 
     val reasonerFactory = new StructuralReasonerFactory()
     implicit val reasoner = reasonerFactory.createReasoner( ont )
@@ -533,6 +517,11 @@ case class ImmutableModelTerminologyGraphResolver( resolver: ResolverHelper ) {
       conceptM = ModelEntityConcept( conceptC, isAbstract = isAnnotatedAbstract( conceptIRI ) )
     } yield ( conceptC -> conceptM ) ).toMap;
 
+    val structuredDatatypeSCs = ( for {
+      ( _, structuredDatatypeC ) <- structuredDatatypeCIRIs
+      structuredDatatypeSC = ModelStructuredDataType( structuredDatatypeC )
+    } yield ( structuredDatatypeC -> structuredDatatypeSC ) ).toMap;
+    
     val conceptSubClassAxs = resolveConceptSubClassAxioms( conceptCMs )
 
     val topReifiedObjectPropertySubOPs = reasoner.getSubObjectProperties( backbone.topReifiedObjectPropertyOP, false )
