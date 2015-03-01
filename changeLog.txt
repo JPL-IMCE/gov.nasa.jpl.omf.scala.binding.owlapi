@@ -1,3 +1,7 @@
+Version 0.7.2: February 28, 2015
+
+support for OMF/Core (version 0.10.3)
+
 Version 0.7.1: February 28, 2015
 
 support for OMF/Core (version 0.10.2)

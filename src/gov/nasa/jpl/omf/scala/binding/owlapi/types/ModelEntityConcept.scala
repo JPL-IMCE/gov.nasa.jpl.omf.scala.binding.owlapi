@@ -41,8 +41,12 @@ package gov.nasa.jpl.omf.scala.binding.owlapi.types
 
 import gov.nasa.jpl.omf.scala.binding.owlapi._
 import org.semanticweb.owlapi.model.OWLClass
+import org.semanticweb.owlapi.model.IRI
 
 case class ModelEntityConcept(
-  override val c: OWLClass,
+  override val e: OWLClass,
+  val eg: Option[IRI],
   val isAbstract: Boolean )
-  extends ModelEntityDefinition( c.getIRI, c )
+  extends ModelEntityDefinition( e ) {
+  override val iri = e.getIRI
+}

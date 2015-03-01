@@ -78,13 +78,13 @@ case class OWLAPIOMFGraphStore( val omfModule: OWLAPIOMFModule, val ontManager: 
 
   def asImmutableTerminologyGraph( g: types.MutableModelTerminologyGraph ): Try[types.ImmutableModelTerminologyGraph] = {
     import g.ops._
-    val ( iri, _k, _i, _a, _c, _r, _sc, _st, _esc, _est, _ssc, _sst, _ax ) = fromTerminologyGraph( g )
+    val ( iri, _e, _k, _i, _a, _c, _r, _sc, _st, _esc, _est, _ssc, _sst, _ax ) = fromTerminologyGraph( g )
     if ( immutableTBoxGraphs.contains( iri ) )
       Failure( new IllegalArgumentException( s"There is already an immutable terminology graph with IRI='${iri}'" ) )
     else {
       val ig = types.ImmutableModelTerminologyGraph(
         _k,
-        _i.toList, g.ont,
+        _i.toList, g.ont, _e,
         _a.toList, _c.toList, _r.toList,
         _sc.toList, _st.toList,
         _esc.toList, _est.toList, _ssc.toList, _sst.toList,
@@ -140,7 +140,9 @@ case class OWLAPIOMFGraphStore( val omfModule: OWLAPIOMFModule, val ontManager: 
   }
 
   protected def registerMutableOntologyAsTerminologyGraph(
-    o: OWLOntology, kind: TerminologyKind )( implicit ops: OWLAPIOMFOps ): Try[types.MutableModelTerminologyGraph] = {
+    o: OWLOntology, 
+    kind: TerminologyKind,
+    entity: Option[IRI] )( implicit ops: OWLAPIOMFOps ): Try[types.MutableModelTerminologyGraph] = {
     val iri = o.getOntologyID.getOntologyIRI
     if ( !iri.isPresent )
       Failure( new IllegalArgumentException( "An ontology must have an OntologyID with an Ontology IRI" ) )
@@ -154,7 +156,8 @@ case class OWLAPIOMFGraphStore( val omfModule: OWLAPIOMFModule, val ontManager: 
           // not yet registered.
           val g = new types.MutableModelTerminologyGraph(
             kind = kind,
-            o )
+            o,
+            entity )
           mutableTBoxGraphs.put( iri.get, g )
           Success( g )
       }
@@ -189,13 +192,15 @@ case class OWLAPIOMFGraphStore( val omfModule: OWLAPIOMFModule, val ontManager: 
     }
 
   def makeTerminologyGraph(
-    iri: IRI, kind: TerminologyKind )( implicit ops: OWLAPIOMFOps ): Try[types.MutableModelTerminologyGraph] = 
+    iri: IRI, 
+    kind: TerminologyKind,
+    entity: Option[IRI] )( implicit ops: OWLAPIOMFOps ): Try[types.MutableModelTerminologyGraph] = 
     if ( ontManager.contains( iri ) )
       Failure( new IllegalArgumentException( s"An ontology with iri='${iri}' already exists" ) )
     else
       for {
         b <- Backbone.createBackbone( ontManager.createOntology( iri ), kind, omfModule.ops )
-        g <- registerMutableOntologyAsTerminologyGraph( b.ont, b.kind )
+        g <- registerMutableOntologyAsTerminologyGraph( b.ont, b.kind, entity )
       } yield g
   
   def loadInstanceGraph( iri: IRI ): Try[instances.ImmutableModelInstanceGraph] = ???

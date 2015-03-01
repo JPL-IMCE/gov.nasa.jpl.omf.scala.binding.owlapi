@@ -43,13 +43,17 @@ import gov.nasa.jpl.omf.scala.core.RelationshipCharacteristics._
 import gov.nasa.jpl.omf.scala.binding.owlapi._
 import org.semanticweb.owlapi.model.OWLClass
 import org.semanticweb.owlapi.model.OWLObjectProperty
+import org.semanticweb.owlapi.model.IRI
 
 case class ModelEntityRelationship(
-  override val c: OWLClass,
+  override val e: OWLClass,
+  val eg: Option[IRI],
   val unreified: OWLObjectProperty,
   val inverse: Option[OWLObjectProperty],
   val source: ModelEntityDefinition, val rSource: OWLObjectProperty,
   val target: ModelEntityDefinition, val rTarget: OWLObjectProperty,
   val characteristics: Iterable[RelationshipCharacteristics],
   val isAbstract: Boolean )
-  extends ModelEntityDefinition( c.getIRI, c )
+  extends ModelEntityDefinition( e ) {
+  override val iri = e.getIRI
+}

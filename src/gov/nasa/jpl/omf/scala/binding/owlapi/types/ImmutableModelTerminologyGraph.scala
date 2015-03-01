@@ -79,6 +79,7 @@ case class ImmutableModelTerminologyGraph(
   override val kind: TerminologyKind,
   override val imports: Iterable[ModelTerminologyGraph],
   override val ont: OWLOntology,
+  override val entityG: Option[IRI],
   override protected val aspects: List[ModelEntityAspect],
   override protected val concepts: List[ModelEntityConcept],
   override protected val relationships: List[ModelEntityRelationship],
@@ -89,7 +90,7 @@ case class ImmutableModelTerminologyGraph(
   override protected val s2sc: List[ModelDataRelationshipFromStructureToScalar],
   override protected val s2st: List[ModelDataRelationshipFromStructureToStructure],
   override protected val ax: List[ModelTermAxiom] )( override implicit val ops: OWLAPIOMFOps )
-  extends ModelTerminologyGraph( kind, ont )( ops ) {
+  extends ModelTerminologyGraph( kind, ont, entityG )( ops ) {
 
   override val isImmutableModelTerminologyGraph = true
   override val isMutableModelTerminologyGraph = false
@@ -103,9 +104,9 @@ case class ImmutableModelTerminologyGraph(
   def immutableImportClosure: Set[ImmutableModelTerminologyGraph] = OMFOps.closure[ImmutableModelTerminologyGraph, ImmutableModelTerminologyGraph](this, _.immutableImports) + this
   
   val getEntityDefinitionMap: Map[OWLClass, ModelEntityDefinition] =
-    ( ( aspects map ( a => ( a.c -> a ) ) ) ++
-      ( concepts map ( c => ( c.c -> c ) ) ) ++
-      ( relationships map ( r => ( r.c -> r ) ) ) ) toMap
+    ( ( aspects map ( a => ( a.e -> a ) ) ) ++
+      ( concepts map ( c => ( c.e -> c ) ) ) ++
+      ( relationships map ( r => ( r.e -> r ) ) ) ) toMap
 
   override protected val iri2typeTerm = {
     def term2pair[T <: ModelTypeTerm]( t: T ) = ( t.iri -> t )
@@ -160,6 +161,34 @@ case class ResolverHelper(
     false
   }
 
+  def getEntityGraphIRIAnnotation( iri: IRI ): Option[IRI] = {
+    for {
+      aaa <- ont.getAnnotationAssertionAxioms( iri )
+      if ( aaa.getProperty.getIRI == AnnotationEntityGraphIRI )
+    } {
+      aaa.getValue match {
+        case gIRI: IRI => return Some( gIRI )
+        case _ => ()
+      }
+    }
+
+    None
+  }
+    
+  def getGraphForEntityIRIAnnotation( iri: IRI ): Option[IRI] = {
+    for {
+      aaa <- ont.getAnnotationAssertionAxioms( iri )
+      if ( aaa.getProperty.getIRI == AnnotationGraphForEntityIRI )
+    } {
+      aaa.getValue match {
+        case gIRI: IRI => return Some( gIRI )
+        case _ => ()
+      }
+    }
+
+    None
+  }
+  
   // Lookup of entity aspects
 
   def findDirectEntityAspect( iri: IRI, aspects: Map[OWLClass, ModelEntityAspect] ): Option[ModelEntityAspect] =
@@ -310,7 +339,7 @@ case class ResolverHelper(
       resolvedTargetROP = ( t_iri, t_op, t_source, t_target, t_inv_op )
 
       rop = ModelEntityRelationship(
-        c = rc,
+        e = rc, eg = getEntityGraphIRIAnnotation( r_iri ),
         unreified = r_op,
         inverse = None,
         source = r_sourceDef, rSource = s_op,
@@ -466,7 +495,7 @@ case class ImmutableModelTerminologyGraphResolver( resolver: ResolverHelper ) {
       case Success( _: NoBackbone ) =>
         Success( ImmutableModelTerminologyGraph(
           kind = isDefinition, 
-          imports, ont,
+          imports, ont, None,
           aspects = Nil,
           concepts = Nil,
           relationships = Nil,
@@ -514,7 +543,7 @@ case class ImmutableModelTerminologyGraphResolver( resolver: ResolverHelper ) {
 
     val conceptCMs = ( for {
       ( conceptIRI, conceptC ) <- conceptCIRIs
-      conceptM = ModelEntityConcept( conceptC, isAbstract = isAnnotatedAbstract( conceptIRI ) )
+      conceptM = ModelEntityConcept( conceptC, getEntityGraphIRIAnnotation( conceptIRI ), isAnnotatedAbstract( conceptIRI ) )
     } yield ( conceptC -> conceptM ) ).toMap;
 
     val structuredDatatypeSCs = ( for {
@@ -548,7 +577,7 @@ case class ImmutableModelTerminologyGraphResolver( resolver: ResolverHelper ) {
       dataRelationshipsFromEntity2Scalars <- resolveDataRelationshipsFromEntity2Scalars( allEntityDefinitions, dataPropertyDPIRIs, DTs )
     } yield ImmutableModelTerminologyGraph(
       kind = backbone.kind,
-      imports, ont,
+      imports, ont, getGraphForEntityIRIAnnotation( ont.getOntologyID.getOntologyIRI.get ),
       aspects = aspectCMs.values.toList,
       concepts = conceptCMs.values.toList,
       relationships = entityRelationshipCMs.values.toList,

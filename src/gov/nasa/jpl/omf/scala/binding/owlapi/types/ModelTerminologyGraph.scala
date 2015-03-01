@@ -57,7 +57,8 @@ import org.semanticweb.owlapi.model.OWLObjectProperty
 
 abstract class ModelTerminologyGraph(
   val kind: TerminologyKind,
-  val ont: OWLOntology )( implicit val ops: OWLAPIOMFOps ) {
+  val ont: OWLOntology,
+  val entityG: Option[IRI] )( implicit val ops: OWLAPIOMFOps ) {
 
   val isImmutableModelTerminologyGraph: Boolean
   val isMutableModelTerminologyGraph: Boolean  
@@ -109,7 +110,7 @@ abstract class ModelTerminologyGraph(
 
   def getTerms: ( IRI, Iterable[ModelTypeTerm] ) = ( iri, iri2typeTerm.values )
 
-  def fromTerminologyGraph: ( IRI, TerminologyKind, Iterable[ModelTerminologyGraph], Iterable[ModelEntityAspect], Iterable[ModelEntityConcept], Iterable[ModelEntityRelationship], Iterable[ModelScalarDataType], Iterable[ModelStructuredDataType], Iterable[ModelDataRelationshipFromEntityToScalar], Iterable[ModelDataRelationshipFromEntityToStructure], Iterable[ModelDataRelationshipFromStructureToScalar], Iterable[ModelDataRelationshipFromStructureToStructure], Iterable[ModelTermAxiom] ) =
-    ( iri, kind, imports, aspects, concepts, relationships, sc, st, e2sc, e2st, s2sc, s2st, ax )
+  def fromTerminologyGraph: ( IRI, Option[IRI], TerminologyKind, Iterable[ModelTerminologyGraph], Iterable[ModelEntityAspect], Iterable[ModelEntityConcept], Iterable[ModelEntityRelationship], Iterable[ModelScalarDataType], Iterable[ModelStructuredDataType], Iterable[ModelDataRelationshipFromEntityToScalar], Iterable[ModelDataRelationshipFromEntityToStructure], Iterable[ModelDataRelationshipFromStructureToScalar], Iterable[ModelDataRelationshipFromStructureToStructure], Iterable[ModelTermAxiom] ) =
+    ( iri, entityG, kind, imports, aspects, concepts, relationships, sc, st, e2sc, e2st, s2sc, s2st, ax )
 
 }

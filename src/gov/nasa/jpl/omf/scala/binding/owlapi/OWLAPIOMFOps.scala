@@ -215,7 +215,7 @@ trait OWLAPIImmutableTerminologyGraphOps
   }
 
   override def fromEntityDefinition( e: types.ModelEntityDefinition ) = e match {
-    case ec: types.ModelEntityConcept      => fromEntityConcept( ec )
+    case ec: types.ModelEntityConcept      => fromEntityConcept( ec )._1
     case er: types.ModelEntityRelationship => fromEntityRelationship( er )._1
   }
 
@@ -225,13 +225,13 @@ trait OWLAPIImmutableTerminologyGraphOps
 
   // entity concept
 
-  override def fromEntityConcept( c: types.ModelEntityConcept ) = c.iri
+  override def fromEntityConcept( c: types.ModelEntityConcept ) = ( c.iri, c.eg, c.isAbstract )
 
   // entity relationship
 
   override def fromEntityRelationship( r: types.ModelEntityRelationship ) = {
     import r._
-    ( iri, source, target, characteristics, isAbstract )
+    ( iri, eg, source, target, characteristics, isAbstract )
   }
 
   // datatype definition
@@ -338,7 +338,7 @@ trait OWLAPIMutableTerminologyGraphOps
 
   override def makeTerminologyGraph(
     iri: IRI, kind: TerminologyKind )( implicit store: OWLAPIOMFGraphStore ) =
-    store.makeTerminologyGraph( iri, kind )( this )
+    store.makeTerminologyGraph( iri, kind, None )( this )
 
   override def addTerminologyGraphExtension(
     extendingG: types.MutableModelTerminologyGraph,

@@ -42,5 +42,7 @@ package gov.nasa.jpl.omf.scala.binding.owlapi.types
 import gov.nasa.jpl.omf.scala.binding.owlapi._
 import org.semanticweb.owlapi.model.OWLClass
 
-case class ModelEntityAspect(override val c: OWLClass) 
-extends ModelEntityDefinition(c.getIRI, c)
+case class ModelEntityAspect( override val e: OWLClass )
+  extends ModelEntityDefinition( e ) {
+  override val iri = e.getIRI
+}
