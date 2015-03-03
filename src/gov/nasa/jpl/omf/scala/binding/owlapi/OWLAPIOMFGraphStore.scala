@@ -85,24 +85,55 @@ case class OWLAPIOMFGraphStore( val omfModule: OWLAPIOMFModule, val ontManager: 
   
   val OMF_MODEL_TERMINOLOGY_GRAPH = omfModelClasses("ModelTerminologyGraph")
   
-  // ModelTypeTerm
+
+  // ModelTypeTerm  
+  // ModelDataRelationship
+  val OMF_MODEL_DATA_RELATIONSHIP_FROM_ENTITY_TO_SCALAR = omfModelClasses("ModelDataRelationshipFromEntityToScalar")
+  val OMF_MODEL_DATA_RELATIONSHIP_FROM_ENTITY_TO_STRUCTURE = omfModelClasses("ModelDataRelationshipFromEntityToEntity")
+  val OMF_MODEL_DATA_RELATIONSHIP_FROM_STRUCTURE_TO_SCALAR = omfModelClasses("ModelDataRelationshipFromStructureToScalar")
+  val OMF_MODEL_DATA_RELATIONSHIP_FROM_STRUCTURE_TO_STRUCTURE = omfModelClasses("ModelDataRelationshipFromStructureToStructure")
+  
+  // ModelDataTypeDefinition
+  val OMF_MODEL_SCALAR_DATA_TYPE = omfModelClasses("ModelScalarDataType")
+  val OMF_MODEL_STRUCTURED_DATA_TYPE = omfModelClasses("ModelStructuredDataType")
   
   // ModelEntityDefinition
   val OMF_MODEL_ENTITY_ASPECT = omfModelClasses("ModelEntityAspect")
   val OMF_MODEL_ENTITY_CONCEPT = omfModelClasses("ModelEntityConcept")
   val OMF_MODEL_ENTITY_RELATIONSHIP = omfModelClasses("ModelEntityRelationship")
   
-  // ModelDataRelationship
-  
-  // ModelTermAxiom
-  val OMF_ENTITY_DEFINITION_ASPECT_SUBCLASS_AXIOM = omfModelClasses("EntityDefinitionAspectSubClassAxiom")
-  val OMF_ENTITY_CONCEPT_SUBCLASS_AXIOM = omfModelClasses("EntityConceptSubClassAxiom")
-  val OMF_ENTITY_CONCEPT_RESTRICTION_AXIOM = omfModelClasses("EntityConceptRestrictionAxiom")
-  val OMF_ENTITY_RELATIONSHIP_SUBCLASS_AXIOM = omfModelClasses("EntityRelationshipSubClassAxiom")
-  val OMF_SCALAR_DATATYPE_FACET_RESTRICTION_AXIOM = omfModelClasses("ScalarDataTypeFacetRestriction")
-  
   // Object Properties
   val OMF_DEFINES_TYPE_TERM = omfModelObjectProperties("definesTypeTerm")
+  val OMF_HAS_ASSERTS_AXIOM = omfModelObjectProperties("hasAssertsAxiom")
+  val OMF_HAS_GENERAL_ASPECT = omfModelObjectProperties("hasGeneralAspect")
+  val OMF_HAS_GENERAL_CONCEPT = omfModelObjectProperties("hasGeneralConcept")
+  val OMF_HAS_GENERAL_RELATIONSHIP = omfModelObjectProperties("hasGeneralRelationship")
+  val OMF_HAS_GRAPH = omfModelObjectProperties("hasGraph")
+  val OMF_HAS_RESTRICTED_RANGE = omfModelObjectProperties("hasRestrictedRange")
+  val OMF_HAS_SOURCE = omfModelObjectProperties("hasSource")
+  val OMF_HAS_SPECIFIC_CONCEPT = omfModelObjectProperties("hasSpecificConcept")
+  val OMF_HAS_SPECIFIC_ENTITY = omfModelObjectProperties("hasSpecificEntity")
+  val OMF_HAS_SPECIFIC_RELATIONSHIP = omfModelObjectProperties("hasSpecificRelationship")
+  val OMF_HAS_TARGET = omfModelObjectProperties("hasTarget")
+  val OMF_IMPORTS = omfModelObjectProperties("imports")
+  val OMF_IS_GRAPH_OF_ENTITY = omfModelObjectProperties("isGraphOfEntity")
+  val OMF_RESTRICTS_CONCEPT = omfModelObjectProperties("restrictsConcept")
+  val OMF_RESTRICTS_RELATIONSHIP = omfModelObjectProperties("restrictsRelationship")
+  
+  // Data Properties
+  val OMF_HAS_IRI = omfModelDataProperties("hasIRI")
+  val OMF_HAS_NAME = omfModelDataProperties("hasName")
+  val OMF_HAS_QUALIFIED_NAME = omfModelDataProperties("hasQualifiedName")
+  val OMF_HAS_UUID = omfModelDataProperties("hasUUID")
+  val OMF_IS_ABSTRACT = omfModelDataProperties("isAbstract")
+  val OMF_IS_ASYMMETRIC = omfModelDataProperties("isAsymmetric")
+  val OMF_IS_FUNCTIONAL = omfModelDataProperties("isFunctional")
+  val OMF_IS_INVERSE_FUNCTIONAL = omfModelDataProperties("isInverseFunctional")
+  val OMF_IS_IRREFLEXIVE = omfModelDataProperties("isIrreflexive")
+  val OMF_IS_REFLEXIVE = omfModelDataProperties("isReflexive")
+  val OMF_IS_SYMMETRIC = omfModelDataProperties("isSymmetric")
+  val OMF_IS_TRANSITIVE = omfModelDataProperties("isTransitive")    
+    
   
   val immutableTBoxGraphs = scala.collection.mutable.HashMap[IRI, types.ImmutableModelTerminologyGraph]()
   val mutableTBoxGraphs = scala.collection.mutable.HashMap[IRI, types.MutableModelTerminologyGraph]()
