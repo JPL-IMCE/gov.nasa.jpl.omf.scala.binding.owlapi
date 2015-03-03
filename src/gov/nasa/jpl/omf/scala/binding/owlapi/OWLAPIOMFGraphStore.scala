@@ -142,13 +142,26 @@ case class OWLAPIOMFGraphStore( val omfModule: OWLAPIOMFModule, val ontManager: 
   
   val owlDataFactory = ontManager.getOWLDataFactory
   
+  // "createOMF[...]" for every Class [...] in the protege ontology.
+  def createOMFModelTerminologyGraphExtension( 
+      o: OWLOntology, 
+      extendingG: types.MutableModelTerminologyGraph, 
+      extendedG: types.ModelTerminologyGraph): Unit = {   
+    // todo: lookup extendingG, extendedG
+    // todo: IRI for the extension instance...
+    // todo: set object properties for extending/extended
+  }
+  
+  def createOMFModelTerminologyGraph( o: OWLOntology, iri: IRI, hasName: String, hasQualifiedName: String, hasUUID: String ): Unit = {    
+    val graph = owlDataFactory.getOWLNamedIndividual(iri)
+    ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLDeclarationAxiom( graph )))
+    ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLClassAssertionAxiom( OMF_MODEL_TERMINOLOGY_GRAPH, graph )))
+  }
+  
   def createOMFModelEntityAspectInstance( o: OWLOntology, iri: IRI, hasName: String, hasQualifiedName: String, hasUUID: String ): Unit = {    
     val aspect = owlDataFactory.getOWLNamedIndividual(iri)
     ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLDeclarationAxiom( aspect )))
     ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLClassAssertionAxiom( OMF_MODEL_ENTITY_ASPECT, aspect )))  
-    ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLDataPropertyAssertionAxiom( OMF_HAS_NAME, aspect, hasName )))
-    ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLDataPropertyAssertionAxiom( OMF_HAS_QUALIFIED_NAME, aspect, hasQualifiedName )))
-    ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLDataPropertyAssertionAxiom( OMF_HAS_UUID, aspect, hasUUID )))
   }
   
   def createOMFModelEntityConceptInstance( o: OWLOntology, iri: IRI, hasName: String, hasQualifiedName: String, hasUUID: String, isAbstract: Boolean ): Unit = {    
