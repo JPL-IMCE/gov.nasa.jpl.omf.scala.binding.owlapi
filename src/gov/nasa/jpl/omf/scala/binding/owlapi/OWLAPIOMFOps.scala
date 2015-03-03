@@ -51,6 +51,7 @@ import scala.util.Try
 import scala.util.Success
 import scala.util.Failure
 import java.io.OutputStream
+import org.semanticweb.owlapi.model.OWLOntology
 
 trait OWLAPIIRIOps
   extends IRIOps[OWLAPIOMF] {
@@ -84,6 +85,18 @@ trait OWLAPIIRIOps
     }
   }
 
+  override def toAbbreviatedName( iri: IRI, lowercaseFragmentInitial: Boolean ) =
+    splitIRI( iri ) match {
+    case ( _, None ) => None
+    case ( i, Some( fragment ) ) => 
+      val path = i.toURI.getSchemeSpecificPart
+      val slash = path.lastIndexOf('/')
+      val last = path.substring(slash+1)
+      val fragmentInitial = if (lowercaseFragmentInitial) fragment.head.toLower else fragment.head
+      val fragmentTail = fragment.tail
+      Some( last+":"+fragmentInitial+fragmentTail )
+  }
+  
   override def fromIRI( iri: IRI ) = iri.toString
 
   override def isBackboneIRI( iri: IRI ) = {
@@ -366,6 +379,25 @@ trait OWLAPIMutableTerminologyGraphOps
 
   // entity concept
 
+  /**
+   * Wrapper
+   */
+  def addEntityConcept(
+    o: OWLOntology,
+    graph: types.MutableModelTerminologyGraph,
+    conceptName: String,
+    conceptGraphIRI: Option[IRI],
+    isAbstract: Boolean,
+    hasName: String,
+    hasQualifiedName: String,
+    hasUUID: String )( implicit store: OWLAPIOMFGraphStore ): Try[( types.ModelEntityConcept, Option[types.MutableModelTerminologyGraph] )] = 
+      for {
+        result <- addEntityConcept( graph, conceptName, conceptGraphIRI, isAbstract)
+      } yield {
+        store.createOMFModelEntityConceptInstance( o, result._1.iri, hasName, hasQualifiedName, hasUUID, isAbstract )
+        result
+      }
+      
   override def addEntityConcept(
     graph: types.MutableModelTerminologyGraph,
     conceptName: String,
@@ -473,7 +505,7 @@ trait OWLAPIMutableTerminologyGraphOps
   override def addEntityDefinitionAspectSubClassAxiom(
     graph: types.MutableModelTerminologyGraph,
     sub: types.ModelEntityDefinition,
-    sup: types.ModelEntityAspect )( implicit store: OWLAPIOMFGraphStore ): Try[types.EntityDefinitionAspectSubClassAxiom] =
+    sup: types.ModelEntityAspect )( implicit store: OWLAPIOMFGraphStore ) =
     graph.addEntityDefinitionAspectSubClassAxiom( sub, sup )
 
   // entity concept subclass axiom
@@ -497,7 +529,8 @@ trait OWLAPIMutableTerminologyGraphOps
   override def addEntityRelationshipSubClassAxiom(
     graph: types.MutableModelTerminologyGraph,
     sub: types.ModelEntityRelationship,
-    sup: types.ModelEntityRelationship )( implicit store: OWLAPIOMFGraphStore ) = ???
+    sup: types.ModelEntityRelationship )( implicit store: OWLAPIOMFGraphStore ) =
+      graph.addEntityRelationshipSubClassAxiom( sub, sup )
 
   // scalar datatype facet restriction axiom
 
@@ -663,6 +696,7 @@ class OWLAPIOMFOps
   with OWLAPIMutableInstanceGraphOps
   with OMFOps[OWLAPIOMF] {
 
+  val rdfs_label = makeIRI( "http://www.w3.org/2000/01/rdf-schema#label" )
   val AnnotationIsAbstract = makeIRI( "http://imce.jpl.nasa.gov/foundation/annotation/annotation#isAbstract" )
   val AnnotationIsDerived = makeIRI( "http://imce.jpl.nasa.gov/foundation/annotation/annotation#isDerived" )
   val AnnotationIsDefinition = makeIRI( "http://imce.jpl.nasa.gov/foundation/annotation/annotation#isDefinition" )

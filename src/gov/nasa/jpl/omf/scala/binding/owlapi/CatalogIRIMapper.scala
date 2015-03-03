@@ -89,11 +89,11 @@ case class CatalogIRIMapper( catalogManager: CatalogManager, catalogResolver: Ca
     val f2 = if ( normalizedPath.endsWith( ".owl" ) ) f1 else new URL( normalizedPath + ".owl" )
     try {
       for {
-        is <- Option.apply( f1.openStream )
+        is <- Option.apply( f2.openStream )
         if ( is.available() > 0 )
       } {
         is.close()
-        return Some( IRI.create( f1.toString() ) )
+        return Some( IRI.create( f2.toString() ) )
       }
     }
     catch {
@@ -102,11 +102,11 @@ case class CatalogIRIMapper( catalogManager: CatalogManager, catalogResolver: Ca
     }
     try {
       for {
-        is <- Option.apply( f2.openStream() )
+        is <- Option.apply( f1.openStream() )
         if ( is.available() > 0 )
       } {
         is.close()
-        return Some( IRI.create( f2.toString() ) )
+        return Some( IRI.create( f1.toString() ) )
       }
     }
     catch {

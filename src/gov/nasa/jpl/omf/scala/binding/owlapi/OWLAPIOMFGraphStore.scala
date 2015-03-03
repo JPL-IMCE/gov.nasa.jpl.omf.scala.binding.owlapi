@@ -58,6 +58,9 @@ import gov.nasa.jpl.omf.scala.core.TerminologyKind._
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper
 import org.semanticweb.owlapi.util.PriorityCollection
 import java.io.OutputStream
+import org.semanticweb.owlapi.model.parameters.Imports
+import org.semanticweb.owlapi.model.OWLClass
+import org.semanticweb.owlapi.model.AddAxiom
 
 case class OWLAPIOMFGraphStore( val omfModule: OWLAPIOMFModule, val ontManager: OWLOntologyManager ) {
 
@@ -73,9 +76,58 @@ case class OWLAPIOMFGraphStore( val omfModule: OWLAPIOMFModule, val ontManager: 
       mapper
     }
     
+  protected val omfModelOntology = ontManager.getOntology( omfModule.omfOntologyIRI )
+  protected val omfModelClasses = omfModelOntology.getClassesInSignature( Imports.EXCLUDED ).map { c => ( c.getIRI.getRemainder.get -> c ) } toMap;  
+  protected val omfModelObjectProperties = omfModelOntology.getObjectPropertiesInSignature( Imports.EXCLUDED ).map { op => ( op.getIRI.getRemainder.get -> op ) } toMap;
+  protected val omfModelDataProperties = omfModelOntology.getDataPropertiesInSignature( Imports.EXCLUDED ).map { dp => ( dp.getIRI.getRemainder.get -> dp ) } toMap;
+  
+  // OMF model.
+  
+  val OMF_MODEL_TERMINOLOGY_GRAPH = omfModelClasses("ModelTerminologyGraph")
+  
+  // ModelTypeTerm
+  
+  // ModelEntityDefinition
+  val OMF_MODEL_ENTITY_ASPECT = omfModelClasses("ModelEntityAspect")
+  val OMF_MODEL_ENTITY_CONCEPT = omfModelClasses("ModelEntityConcept")
+  val OMF_MODEL_ENTITY_RELATIONSHIP = omfModelClasses("ModelEntityRelationship")
+  
+  // ModelDataRelationship
+  
+  // ModelTermAxiom
+  val OMF_ENTITY_DEFINITION_ASPECT_SUBCLASS_AXIOM = omfModelClasses("EntityDefinitionAspectSubClassAxiom")
+  val OMF_ENTITY_CONCEPT_SUBCLASS_AXIOM = omfModelClasses("EntityConceptSubClassAxiom")
+  val OMF_ENTITY_CONCEPT_RESTRICTION_AXIOM = omfModelClasses("EntityConceptRestrictionAxiom")
+  val OMF_ENTITY_RELATIONSHIP_SUBCLASS_AXIOM = omfModelClasses("EntityRelationshipSubClassAxiom")
+  val OMF_SCALAR_DATATYPE_FACET_RESTRICTION_AXIOM = omfModelClasses("ScalarDataTypeFacetRestriction")
+  
+  // Object Properties
+  val OMF_DEFINES_TYPE_TERM = omfModelObjectProperties("definesTypeTerm")
+  
   val immutableTBoxGraphs = scala.collection.mutable.HashMap[IRI, types.ImmutableModelTerminologyGraph]()
   val mutableTBoxGraphs = scala.collection.mutable.HashMap[IRI, types.MutableModelTerminologyGraph]()
 
+  // OMF Ontology Instance Model Constructors  
+  
+  val owlDataFactory = ontManager.getOWLDataFactory
+  
+  def createOMFModelEntityAspectInstance( o: OWLOntology, iri: IRI, hasName: String, hasQualifiedName: String, hasUUID: String ): Unit = {    
+    val aspect = owlDataFactory.getOWLNamedIndividual(iri)
+    ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLDeclarationAxiom( aspect )))
+    ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLClassAssertionAxiom( OMF_MODEL_ENTITY_ASPECT, aspect )))  
+    ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLDataPropertyAssertionAxiom( OMF_HAS_NAME, aspect, hasName )))
+    ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLDataPropertyAssertionAxiom( OMF_HAS_QUALIFIED_NAME, aspect, hasQualifiedName )))
+    ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLDataPropertyAssertionAxiom( OMF_HAS_UUID, aspect, hasUUID )))
+  }
+  
+  def createOMFModelEntityConceptInstance( o: OWLOntology, iri: IRI, hasName: String, hasQualifiedName: String, hasUUID: String, isAbstract: Boolean ): Unit = {    
+    val concept = owlDataFactory.getOWLNamedIndividual(iri)
+    ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLDeclarationAxiom( concept )))
+    ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLClassAssertionAxiom( OMF_MODEL_ENTITY_CONCEPT, concept )))       
+  }
+  
+  
+  // OMF API
   def asImmutableTerminologyGraph( g: types.MutableModelTerminologyGraph ): Try[types.ImmutableModelTerminologyGraph] = {
     import g.ops._
     val ( iri, _e, _k, _i, _a, _c, _r, _sc, _st, _esc, _est, _ssc, _sst, _ax ) = fromTerminologyGraph( g )

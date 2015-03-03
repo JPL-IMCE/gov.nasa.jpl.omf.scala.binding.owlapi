@@ -26,7 +26,6 @@
 	<classpathentry exported="true" kind="lib" path="owlapiLibs/target/pack/lib/jsr305-2.0.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="owlapiLibs/target/pack/lib/org.apache.commons.io-2.4.jar"/>
 	<classpathentry exported="true" kind="lib" path="owlapiLibs/target/pack/lib/owlapi-distribution-4.0.1.jar" sourcepath="owlapiLibs/target/pack/lib.srcs/owlapi-distribution-4.0.1-sources.jar"/>
-	<classpathentry exported="true" kind="lib" path="owlapiLibs/target/pack/lib/scala-library-2.11.4.jar"/>
 	<classpathentry exported="true" kind="lib" path="owlapiLibs/target/pack/lib/semargl-core-0.6.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="owlapiLibs/target/pack/lib/semargl-rdf-0.6.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="owlapiLibs/target/pack/lib/semargl-rdfa-0.6.1.jar"/>

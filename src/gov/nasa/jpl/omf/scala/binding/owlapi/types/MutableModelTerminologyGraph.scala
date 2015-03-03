@@ -74,7 +74,7 @@ import RelationshipScopeAccessKind._
 
 object AxiomExceptionKind extends Enumeration {
   type AxiomExceptionKind = Value
-  val AspectSubclassAxiom, ConceptSubclassAxiom = Value
+  val AspectSubclassAxiom, ConceptSubclassAxiom, RelationshipSubclassAxiom = Value
 }
 
 import AxiomExceptionKind._
@@ -114,6 +114,7 @@ case class MutableModelTerminologyGraph(
   import ops._
   import EntityConflictException._
 
+  val rdfs_labelAP = owlDataFactory.getOWLAnnotationProperty( rdfs_label )
   val isAbstractAP = owlDataFactory.getOWLAnnotationProperty( AnnotationIsAbstract )
   val isDerivedAP = owlDataFactory.getOWLAnnotationProperty( AnnotationIsDerived )
   val entityGraphIRIAP = owlDataFactory.getOWLAnnotationProperty( AnnotationEntityGraphIRI )
@@ -447,9 +448,7 @@ case class MutableModelTerminologyGraph(
     sup: types.ModelEntityAspect ): Try[types.EntityDefinitionAspectSubClassAxiom] =
     ( isTypeTermDefinedRecursively( sub ), isTypeTermDefinedRecursively( sup ) ) match {
       case ( true, true ) =>
-        val subC = owlDataFactory.getOWLClass( sub.iri )
-        val supC = owlDataFactory.getOWLClass( sup.iri )
-        ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLSubClassOfAxiom( subC, supC ) ) )
+        ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLSubClassOfAxiom( sub.e, sup.e ) ) )
         val ax = EntityDefinitionAspectSubClassAxiom( sub, sup )
         Success( ax )
 
@@ -463,4 +462,24 @@ case class MutableModelTerminologyGraph(
         Failure( AxiomScopeException( AspectSubclassAxiom, Map( Sub -> sub, Sup -> sub ) ) )
     }
 
+  def addEntityRelationshipSubClassAxiom(
+    sub: types.ModelEntityRelationship,
+    sup: types.ModelEntityRelationship ): Try[types.EntityRelationshipSubClassAxiom] = 
+    ( isTypeTermDefinedRecursively( sub ), isTypeTermDefinedRecursively( sup ) ) match {
+      case ( true, true ) =>
+        ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLSubClassOfAxiom( sub.e, sup.e ) ) )
+        ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLSubObjectPropertyOfAxiom( sub.rSource, sup.rSource ) ) )
+        ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLSubObjectPropertyOfAxiom( sub.rTarget, sup.rTarget) ) )
+        val ax = EntityRelationshipSubClassAxiom( sub, sup )
+        Success( ax )
+
+      case ( false, true ) =>
+        Failure( AxiomScopeException( RelationshipSubclassAxiom, Map( Sub -> sub ) ) )
+
+      case ( true, false ) =>
+        Failure( AxiomScopeException( RelationshipSubclassAxiom, Map( Sup -> sup ) ) )
+
+      case ( false, false ) =>
+        Failure( AxiomScopeException( RelationshipSubclassAxiom, Map( Sub -> sub, Sup -> sup ) ) )
+    }
 }

@@ -52,4 +52,6 @@ case class OWLAPIOMFModule( val catalogManager: Option[CatalogManager] ) extends
   
   implicit val dataFactory: OWLDataFactory = OWLManager.getOWLDataFactory
   
+  val omfOntologyIRI = ops.makeIRI( "http://imce.jpl.nasa.gov/omf/omf" )
+  
 }
