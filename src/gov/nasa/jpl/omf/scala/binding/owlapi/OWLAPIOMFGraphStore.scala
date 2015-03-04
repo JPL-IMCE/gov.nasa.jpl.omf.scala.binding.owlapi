@@ -203,6 +203,16 @@ case class OWLAPIOMFGraphStore( val omfModule: OWLAPIOMFModule, val ontManager: 
     ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLDataPropertyAssertionAxiom( OMF_HAS_UUID, conceptI, hasUUID )))
   }  
   
+  def createOMFModelEntityRelationshipInstance( o: OWLOntology, relationshipT: types.ModelEntityRelationship, iri: IRI, hasName: String, hasQualifiedName: String, hasUUID: String, isAbstract: Boolean ): Unit = {    
+    val relationshipI = owlDataFactory.getOWLNamedIndividual(iri)
+    OMF_MODEL_ENTITY_RELATIONSHIP2Instance += ( relationshipT -> relationshipI )
+    ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLDeclarationAxiom( relationshipI )))
+    ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLClassAssertionAxiom( OMF_MODEL_ENTITY_CONCEPT, relationshipI )))   
+    ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLDataPropertyAssertionAxiom( OMF_HAS_NAME, relationshipI, hasName )))
+    ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLDataPropertyAssertionAxiom( OMF_HAS_QUALIFIED_NAME, relationshipI, hasQualifiedName )))
+    ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLDataPropertyAssertionAxiom( OMF_HAS_UUID, relationshipI, hasUUID )))
+  }
+    
   // OMF API
   def asImmutableTerminologyGraph( g: types.MutableModelTerminologyGraph ): Try[types.ImmutableModelTerminologyGraph] = {
     import g.ops._

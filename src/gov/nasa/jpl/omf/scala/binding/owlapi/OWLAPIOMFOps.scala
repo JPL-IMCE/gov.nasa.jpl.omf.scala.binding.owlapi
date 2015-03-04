@@ -447,10 +447,8 @@ trait OWLAPIMutableTerminologyGraphOps
 
   // entity relationship
 
-    /**
-     * wrapper
-     */
   def addEntityRelationship(
+    o: OWLOntology,
     graph: types.MutableModelTerminologyGraph,
     source: types.ModelEntityDefinition,
     target: types.ModelEntityDefinition,
@@ -462,7 +460,13 @@ trait OWLAPIMutableTerminologyGraphOps
     isAbstract: Boolean,
     hasName: String,
     hasQualifiedName: String,
-    hasUUID: String)(implicit store: OWLAPIOMFGraphStore): Try[(types.ModelEntityRelationship, Option[types.MutableModelTerminologyGraph])] = ???
+    hasUUID: String)(implicit store: OWLAPIOMFGraphStore): Try[(types.ModelEntityRelationship, Option[types.MutableModelTerminologyGraph])] = 
+    for {
+      result <- addEntityRelationship(graph, source, target, characteristics, reifiedRelationshipName, relationshipGraphIRI, unreifiedRelationshipName, unreifiedInverseRelationshipName, isAbstract)
+    } yield {
+      store.createOMFModelEntityRelationshipInstance(o, result._1, result._1.iri, hasName, hasQualifiedName, hasUUID, isAbstract)
+      result
+    }
 
   override def addEntityRelationship(
     graph: types.MutableModelTerminologyGraph,
@@ -557,7 +561,7 @@ trait OWLAPIMutableTerminologyGraphOps
   // entity definition aspect subclass axiom
 
   /**
-   * Wrapper
+   * Wrapper    
    */
   override def addEntityDefinitionAspectSubClassAxiom(
     graph: types.MutableModelTerminologyGraph,
