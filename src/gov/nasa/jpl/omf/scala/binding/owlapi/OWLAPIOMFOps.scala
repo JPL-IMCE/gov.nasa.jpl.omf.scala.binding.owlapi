@@ -359,7 +359,7 @@ trait OWLAPIMutableTerminologyGraphOps
     for {
       result <- makeTerminologyGraph(iri, kind)
     } yield {
-      store.createOMFModelTerminologyGraph(o, result.iri, hasName, hasQualifiedName, hasUUID)
+      store.createOMFModelTerminologyGraph(o, result, result.iri, hasName, hasQualifiedName, hasUUID)
       result
     }
 
@@ -395,9 +395,6 @@ trait OWLAPIMutableTerminologyGraphOps
 
   // entity facet
 
-  /**
-   * Wrapper
-   */
   def addEntityAspect(
     o: OWLOntology,
     graph: types.MutableModelTerminologyGraph,
@@ -408,7 +405,7 @@ trait OWLAPIMutableTerminologyGraphOps
     for {
       result <- addEntityAspect(graph, aspectName)
     } yield {
-      store.createOMFModelEntityAspectInstance(o, result.iri, hasName, hasQualifiedName, hasUUID)
+      store.createOMFModelEntityAspectInstance(o, result, result.iri, hasName, hasQualifiedName, hasUUID)
       result
     }
 
@@ -422,9 +419,6 @@ trait OWLAPIMutableTerminologyGraphOps
 
   // entity concept
 
-  /**
-   * Wrapper
-   */
   def addEntityConcept(
     o: OWLOntology,
     graph: types.MutableModelTerminologyGraph,
@@ -437,7 +431,7 @@ trait OWLAPIMutableTerminologyGraphOps
     for {
       result <- addEntityConcept(graph, conceptName, conceptGraphIRI, isAbstract)
     } yield {
-      store.createOMFModelEntityConceptInstance(o, result._1.iri, hasName, hasQualifiedName, hasUUID, isAbstract)
+      store.createOMFModelEntityConceptInstance(o, result._1, result._1.iri, hasName, hasQualifiedName, hasUUID, isAbstract)
       result
     }
 
@@ -453,9 +447,9 @@ trait OWLAPIMutableTerminologyGraphOps
 
   // entity relationship
 
-  /**
-   * Wrapper
-   */
+    /**
+     * wrapper
+     */
   def addEntityRelationship(
     graph: types.MutableModelTerminologyGraph,
     source: types.ModelEntityDefinition,

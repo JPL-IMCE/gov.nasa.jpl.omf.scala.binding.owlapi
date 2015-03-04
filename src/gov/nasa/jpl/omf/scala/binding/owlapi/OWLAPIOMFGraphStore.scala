@@ -61,6 +61,7 @@ import java.io.OutputStream
 import org.semanticweb.owlapi.model.parameters.Imports
 import org.semanticweb.owlapi.model.OWLClass
 import org.semanticweb.owlapi.model.AddAxiom
+import org.semanticweb.owlapi.model.OWLNamedIndividual
 
 case class OWLAPIOMFGraphStore( val omfModule: OWLAPIOMFModule, val ontManager: OWLOntologyManager ) {
 
@@ -83,24 +84,45 @@ case class OWLAPIOMFGraphStore( val omfModule: OWLAPIOMFModule, val ontManager: 
   
   // OMF model.
   
-  val OMF_MODEL_TERMINOLOGY_GRAPH = omfModelClasses("ModelTerminologyGraph")
+  // ModelTermAxiom
+  val OMF_ENTITY_CONCEPT_RESTRICTION_AXIOM = omfModelClasses("EntityConceptRestrictionAxiom")
+  val OMF_ENTITY_CONCEPT_SUB_CLASS_AXIOM = omfModelClasses("EntityConceptSubClassAxiom")
+  val OMF_ENTITY_DEFINITION_ASPECT_SUB_CLASS_AXIOM = omfModelClasses("EntityDefinitionAspectSubClassAxiom")
+  val OMF_ENTITY_RELATIONSHIP_SUB_CLASS_AXIOM = omfModelClasses("EntityRelationshipSubClassAxiom")
+  val OMF_SCALAR_DATA_TYPE_FACET_RESTRICTION = omfModelClasses("ScalarDataTypeFacetRestriction")
+  protected val OMF_ENTITY_CONCEPT_RESTRICTION_AXIOM2Instance = scala.collection.mutable.HashMap[types.EntityConceptRestrictionAxiom, OWLNamedIndividual]()
+  protected val OMF_ENTITY_CONCEPT_SUB_CLASS_AXIOM2Instance = scala.collection.mutable.HashMap[types.EntityConceptSubClassAxiom, OWLNamedIndividual]()
+  protected val OMF_ENTITY_DEFINITION_ASPECT_SUB_CLASS_AXIOM2Instance = scala.collection.mutable.HashMap[types.EntityDefinitionAspectSubClassAxiom, OWLNamedIndividual]()
+  protected val OMF_ENTITY_RELATIONSHIP_SUB_CLASS_AXIOM2Instance = scala.collection.mutable.HashMap[types.EntityRelationshipSubClassAxiom, OWLNamedIndividual]()
+  protected val OMF_SCALAR_DATA_TYPE_FACET_RESTRICTION2Instance = scala.collection.mutable.HashMap[types.ScalarDataTypeFacetRestriction, OWLNamedIndividual]()
   
+  val OMF_MODEL_TERMINOLOGY_GRAPH = omfModelClasses("ModelTerminologyGraph")
+  protected val OMF_MODEL_TERMINOLOGY_GRAPH2Instance = scala.collection.mutable.HashMap[types.ModelTerminologyGraph, OWLNamedIndividual]()
 
   // ModelTypeTerm  
   // ModelDataRelationship
-  val OMF_MODEL_DATA_RELATIONSHIP_FROM_ENTITY_TO_SCALAR = omfModelClasses("ModelDataRelationshipFromEntityToScalar")
-  val OMF_MODEL_DATA_RELATIONSHIP_FROM_ENTITY_TO_STRUCTURE = omfModelClasses("ModelDataRelationshipFromEntityToEntity")
+  val OMF_MODEL_DATA_RELATIONSHIP_FROM_ENTITY_TO_SCALAR = omfModelClasses("ModelDataRelationshipFromEntityToScalar")  
+  val OMF_MODEL_DATA_RELATIONSHIP_FROM_ENTITY_TO_STRUCTURE = omfModelClasses("ModelDataRelationshipFromEntityToStructure")
   val OMF_MODEL_DATA_RELATIONSHIP_FROM_STRUCTURE_TO_SCALAR = omfModelClasses("ModelDataRelationshipFromStructureToScalar")
   val OMF_MODEL_DATA_RELATIONSHIP_FROM_STRUCTURE_TO_STRUCTURE = omfModelClasses("ModelDataRelationshipFromStructureToStructure")
-  
+  protected val OMF_MODEL_DATA_RELATIONSHIP_FROM_ENTITY_TO_SCALAR2Instance = scala.collection.mutable.HashMap[types.ModelDataRelationshipFromEntityToScalar, OWLNamedIndividual]()
+  protected val OMF_MODEL_DATA_RELATIONSHIP_FROM_ENTITY_TO_STRUCTURE2Instance = scala.collection.mutable.HashMap[types.ModelDataRelationshipFromEntityToStructure, OWLNamedIndividual]()
+  protected val OMF_MODEL_DATA_RELATIONSHIP_FROM_STRUCTURE_TO_SCALAR2Instance = scala.collection.mutable.HashMap[types.ModelDataRelationshipFromStructureToScalar, OWLNamedIndividual]()
+  protected val OMF_MODEL_DATA_RELATIONSHIP_FROM_STRUCTURE_TO_STRUCTURE2Instance = scala.collection.mutable.HashMap[types.ModelDataRelationshipFromStructureToStructure, OWLNamedIndividual]()
+    
   // ModelDataTypeDefinition
   val OMF_MODEL_SCALAR_DATA_TYPE = omfModelClasses("ModelScalarDataType")
   val OMF_MODEL_STRUCTURED_DATA_TYPE = omfModelClasses("ModelStructuredDataType")
+  protected val OMF_MODEL_SCALAR_DATA_TYPE2Instance = scala.collection.mutable.HashMap[types.ModelScalarDataType, OWLNamedIndividual]()
+  protected val OMF_MODEL_STRUCTURED_DATA_TYPE2Instance = scala.collection.mutable.HashMap[types.ModelStructuredDataType, OWLNamedIndividual]()
   
   // ModelEntityDefinition
   val OMF_MODEL_ENTITY_ASPECT = omfModelClasses("ModelEntityAspect")
   val OMF_MODEL_ENTITY_CONCEPT = omfModelClasses("ModelEntityConcept")
   val OMF_MODEL_ENTITY_RELATIONSHIP = omfModelClasses("ModelEntityRelationship")
+  protected val OMF_MODEL_ENTITY_ASPECT2Instance = scala.collection.mutable.HashMap[types.ModelEntityAspect, OWLNamedIndividual]()
+  protected val OMF_MODEL_ENTITY_CONCEPT2Instance = scala.collection.mutable.HashMap[types.ModelEntityConcept, OWLNamedIndividual]()
+  protected val OMF_MODEL_ENTITY_RELATIONSHIP2Instance = scala.collection.mutable.HashMap[types.ModelEntityRelationship, OWLNamedIndividual]()
   
   // Object Properties
   val OMF_DEFINES_TYPE_TERM = omfModelObjectProperties("definesTypeTerm")
@@ -142,34 +164,44 @@ case class OWLAPIOMFGraphStore( val omfModule: OWLAPIOMFModule, val ontManager: 
   
   val owlDataFactory = ontManager.getOWLDataFactory
   
-  // "createOMF[...]" for every Class [...] in the protege ontology.
   def createOMFModelTerminologyGraphExtension( 
       o: OWLOntology, 
       extendingG: types.MutableModelTerminologyGraph, 
-      extendedG: types.ModelTerminologyGraph): Unit = {   
-    // todo: lookup extendingG, extendedG
-    // todo: IRI for the extension instance...
-    // todo: set object properties for extending/extended
+      extendedG: types.ModelTerminologyGraph): Unit = {
+    val extendingI = OMF_MODEL_TERMINOLOGY_GRAPH2Instance( extendingG )
+    val extendedI = OMF_MODEL_TERMINOLOGY_GRAPH2Instance( extendedG ) 
+    ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLObjectPropertyAssertionAxiom(OMF_IMPORTS, extendingI, extendedI)))
   }
   
-  def createOMFModelTerminologyGraph( o: OWLOntology, iri: IRI, hasName: String, hasQualifiedName: String, hasUUID: String ): Unit = {    
-    val graph = owlDataFactory.getOWLNamedIndividual(iri)
-    ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLDeclarationAxiom( graph )))
-    ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLClassAssertionAxiom( OMF_MODEL_TERMINOLOGY_GRAPH, graph )))
+  def createOMFModelTerminologyGraph( o: OWLOntology, graphT: types.ModelTerminologyGraph, iri: IRI, hasName: String, hasQualifiedName: String, hasUUID: String ): Unit = {    
+    val graphI = owlDataFactory.getOWLNamedIndividual(iri)
+    OMF_MODEL_TERMINOLOGY_GRAPH2Instance += ( graphT -> graphI )
+    ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLDeclarationAxiom( graphI )))
+    ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLClassAssertionAxiom( OMF_MODEL_TERMINOLOGY_GRAPH, graphI )))    
+    ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLDataPropertyAssertionAxiom( OMF_HAS_NAME, graphI, hasName )))
+    ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLDataPropertyAssertionAxiom( OMF_HAS_QUALIFIED_NAME, graphI, hasQualifiedName )))
+    ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLDataPropertyAssertionAxiom( OMF_HAS_UUID, graphI, hasUUID )))
   }
   
-  def createOMFModelEntityAspectInstance( o: OWLOntology, iri: IRI, hasName: String, hasQualifiedName: String, hasUUID: String ): Unit = {    
-    val aspect = owlDataFactory.getOWLNamedIndividual(iri)
-    ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLDeclarationAxiom( aspect )))
-    ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLClassAssertionAxiom( OMF_MODEL_ENTITY_ASPECT, aspect )))  
+  def createOMFModelEntityAspectInstance( o: OWLOntology, aspectT: types.ModelEntityAspect, iri: IRI, hasName: String, hasQualifiedName: String, hasUUID: String ): Unit = {    
+    val aspectI = owlDataFactory.getOWLNamedIndividual(iri)
+    OMF_MODEL_ENTITY_ASPECT2Instance += ( aspectT -> aspectI )
+    ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLDeclarationAxiom( aspectI )))
+    ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLClassAssertionAxiom( OMF_MODEL_ENTITY_ASPECT, aspectI )))     
+    ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLDataPropertyAssertionAxiom( OMF_HAS_NAME, aspectI, hasName )))
+    ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLDataPropertyAssertionAxiom( OMF_HAS_QUALIFIED_NAME, aspectI, hasQualifiedName )))
+    ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLDataPropertyAssertionAxiom( OMF_HAS_UUID, aspectI, hasUUID )))
   }
   
-  def createOMFModelEntityConceptInstance( o: OWLOntology, iri: IRI, hasName: String, hasQualifiedName: String, hasUUID: String, isAbstract: Boolean ): Unit = {    
-    val concept = owlDataFactory.getOWLNamedIndividual(iri)
-    ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLDeclarationAxiom( concept )))
-    ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLClassAssertionAxiom( OMF_MODEL_ENTITY_CONCEPT, concept )))       
-  }
-  
+  def createOMFModelEntityConceptInstance( o: OWLOntology, conceptT: types.ModelEntityConcept, iri: IRI, hasName: String, hasQualifiedName: String, hasUUID: String, isAbstract: Boolean ): Unit = {    
+    val conceptI = owlDataFactory.getOWLNamedIndividual(iri)
+    OMF_MODEL_ENTITY_CONCEPT2Instance += ( conceptT -> conceptI )
+    ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLDeclarationAxiom( conceptI )))
+    ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLClassAssertionAxiom( OMF_MODEL_ENTITY_CONCEPT, conceptI )))   
+    ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLDataPropertyAssertionAxiom( OMF_HAS_NAME, conceptI, hasName )))
+    ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLDataPropertyAssertionAxiom( OMF_HAS_QUALIFIED_NAME, conceptI, hasQualifiedName )))
+    ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLDataPropertyAssertionAxiom( OMF_HAS_UUID, conceptI, hasUUID )))
+  }  
   
   // OMF API
   def asImmutableTerminologyGraph( g: types.MutableModelTerminologyGraph ): Try[types.ImmutableModelTerminologyGraph] = {
