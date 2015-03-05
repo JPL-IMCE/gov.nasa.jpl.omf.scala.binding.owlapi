@@ -41,7 +41,8 @@ package gov.nasa.jpl.omf.scala.binding.owlapi.types
 
 import gov.nasa.jpl.omf.scala.binding.owlapi._
 
-abstract class EntityConceptRestrictionAxiom(
-  val sub: ModelEntityConcept,
-  val rel: ModelEntityRelationship,
-  val range: ModelEntityDefinition ) extends ModelTermAxiom
+case class EntityConceptExistentialRestrictionAxiom(
+  override val sub: ModelEntityConcept,
+  override val rel: ModelEntityRelationship,
+  override val range: ModelEntityDefinition )
+  extends EntityConceptRestrictionAxiom( sub, rel, range )

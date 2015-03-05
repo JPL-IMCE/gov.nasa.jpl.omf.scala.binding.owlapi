@@ -74,19 +74,19 @@ import RelationshipScopeAccessKind._
 
 object AxiomExceptionKind extends Enumeration {
   type AxiomExceptionKind = Value
-  val AspectSubclassAxiom, ConceptSubclassAxiom, RelationshipSubclassAxiom = Value
+  val AspectSubclassAxiom, ConceptSubclassAxiom, ConceptRestrictionAxiom, RelationshipSubclassAxiom = Value
 }
 
 import AxiomExceptionKind._
 
 object AxiomScopeAccessKind extends Enumeration {
   type AxiomScopeAccessKind = Value
-  val Sub, Sup = Value
+  val Sub, Sup, Rel, Range = Value
 }
 
 import AxiomScopeAccessKind._
 
-sealed abstract class MutableModelTerminologyGraphException( val message: String ) extends IllegalArgumentException( message )
+sealed abstract class MutableModelTerminologyGraphException( val message: String ) extends IllegalArgumentException( message ) 
 
 case class EntityConflictException( kind: EntityExceptionKind, iri: IRI, conflictingTerm: ModelTypeTerm )
   extends MutableModelTerminologyGraphException( s"Cannot create ${kind} with IRI='${iri}' because this IRI refers to: ${conflictingTerm}" )
@@ -94,12 +94,12 @@ case class EntityConflictException( kind: EntityExceptionKind, iri: IRI, conflic
 case class EntityScopeException( kind: EntityExceptionKind, iri: IRI, unaccessibleTerms: Map[RelationshipScopeAccessKind, ModelTypeTerm] )
   extends MutableModelTerminologyGraphException(
     s"Cannot create ${kind} with IRI='${iri}' because there are ${unaccessibleTerms.size} terms out of scope of the graph: "+
-      unaccessibleTerms.map { case ( kind, term ) => s"${kind}: ${term}" } mkString ( ", " ) )
+      (( unaccessibleTerms.map { case ( kind, term ) => s"${kind}: ${term}" } ) mkString ( ", ") ) )
 
 case class AxiomScopeException( kind: AxiomExceptionKind, unaccessibleTerms: Map[AxiomScopeAccessKind, ModelTypeTerm] )
   extends MutableModelTerminologyGraphException(
     s"Cannot create ${kind} because there are ${unaccessibleTerms.size} terms out of scope of the graph: "+
-      unaccessibleTerms.map { case ( kind, term ) => s"${kind}: ${term}" } mkString ( ", " ) )
+     ( ( unaccessibleTerms.map { case ( kind, term ) => s"${kind}: ${term}" } ) mkString ( ", " ) ) )
 
 case class MutableModelTerminologyGraph(
   override val kind: TerminologyKind,
@@ -443,6 +443,64 @@ case class MutableModelTerminologyGraph(
         Failure( AxiomScopeException( ConceptSubclassAxiom, Map( Sub -> sub, Sup -> sup ) ) )
     }
 
+  def addEntityConceptUniversalRestrictionAxiom(
+    sub: types.ModelEntityConcept,
+    rel: types.ModelEntityRelationship,
+    range: types.ModelEntityDefinition ): Try[types.EntityConceptUniversalRestrictionAxiom] =
+    ( isTypeTermDefinedRecursively( sub ), isTypeTermDefinedRecursively( rel ), isTypeTermDefinedRecursively( range ) ) match {
+      case ( true, true, true ) =>
+        val subC = owlDataFactory.getOWLClass( sub.iri )
+        val rangeC = owlDataFactory.getOWLClass( range.iri )
+        ontManager.applyChange( 
+            new AddAxiom( ont, 
+                owlDataFactory.getOWLSubClassOfAxiom( 
+                    subC, 
+                    owlDataFactory.getOWLObjectAllValuesFrom( rel.unreified, rangeC ) ) ) )
+        val ax = EntityConceptUniversalRestrictionAxiom( sub, rel, range )
+        Success( ax )
+
+      case ( false, _, _ ) =>
+        Failure( AxiomScopeException( ConceptRestrictionAxiom, Map( Sub -> sub ) ) )
+
+      case ( _, false, _ ) =>
+        Failure( AxiomScopeException( ConceptRestrictionAxiom, Map( Rel -> rel ) ) )
+
+      case ( _, _, false ) =>
+        Failure( AxiomScopeException( ConceptRestrictionAxiom, Map( Range -> range ) ) )
+
+      case ( _, _, _ ) =>
+        Failure( AxiomScopeException( ConceptRestrictionAxiom, Map( Sub -> sub, Rel -> rel, Range -> range) ) )
+    }
+  
+  def addEntityConceptExistentialRestrictionAxiom(
+    sub: types.ModelEntityConcept,
+    rel: types.ModelEntityRelationship,
+    range: types.ModelEntityDefinition ): Try[types.EntityConceptExistentialRestrictionAxiom] =
+    ( isTypeTermDefinedRecursively( sub ), isTypeTermDefinedRecursively( rel ), isTypeTermDefinedRecursively( range ) ) match {
+      case ( true, true, true ) =>
+        val subC = owlDataFactory.getOWLClass( sub.iri )
+        val rangeC = owlDataFactory.getOWLClass( range.iri )
+        ontManager.applyChange( 
+            new AddAxiom( ont, 
+                owlDataFactory.getOWLSubClassOfAxiom( 
+                    subC, 
+                    owlDataFactory.getOWLObjectSomeValuesFrom( rel.unreified, rangeC ) ) ) )
+        val ax = EntityConceptExistentialRestrictionAxiom( sub, rel, range )
+        Success( ax )
+
+      case ( false, _, _ ) =>
+        Failure( AxiomScopeException( ConceptRestrictionAxiom, Map( Sub -> sub ) ) )
+
+      case ( _, false, _ ) =>
+        Failure( AxiomScopeException( ConceptRestrictionAxiom, Map( Rel -> rel ) ) )
+
+      case ( _, _, false ) =>
+        Failure( AxiomScopeException( ConceptRestrictionAxiom, Map( Range -> range ) ) )
+
+      case ( _, _, _ ) =>
+        Failure( AxiomScopeException( ConceptRestrictionAxiom, Map( Sub -> sub, Rel -> rel, Range -> range) ) )
+    }
+  
   def addEntityDefinitionAspectSubClassAxiom(
     sub: types.ModelEntityDefinition,
     sup: types.ModelEntityAspect ): Try[types.EntityDefinitionAspectSubClassAxiom] =

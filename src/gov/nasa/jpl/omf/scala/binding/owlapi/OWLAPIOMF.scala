@@ -94,6 +94,8 @@ trait OWLAPIOMFtbox extends OMFtbox {
   type EntityDefinitionAspectSubClassAxiom = types.EntityDefinitionAspectSubClassAxiom 
   type EntityConceptSubClassAxiom = types.EntityConceptSubClassAxiom
   type EntityConceptRestrictionAxiom = types.EntityConceptRestrictionAxiom
+  type EntityConceptUniversalRestrictionAxiom = types.EntityConceptUniversalRestrictionAxiom
+  type EntityConceptExistentialRestrictionAxiom = types.EntityConceptExistentialRestrictionAxiom
   type EntityRelationshipSubClassAxiom = types.EntityRelationshipSubClassAxiom  
   type ScalarDataTypeFacetRestriction = types.ScalarDataTypeFacetRestriction
   
