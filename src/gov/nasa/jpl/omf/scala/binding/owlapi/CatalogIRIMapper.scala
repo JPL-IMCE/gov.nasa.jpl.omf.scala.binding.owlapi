@@ -119,7 +119,8 @@ case class CatalogIRIMapper( catalogManager: CatalogManager, catalogResolver: Ca
   def saveResolutionStrategy( resolved: String ): Option[IRI] = {
     val normalized = new URI( resolved )
     val normalizedPath = normalized.toString
-    val f1 = new URL( normalizedPath )
+    val normalizedOwlPath = if (normalizedPath.endsWith(".owl")) normalizedPath else normalizedPath+".owl"
+    val f1 = new URL( normalizedOwlPath )    
     val outputFile = if ( resolved.startsWith( "file:" ) ) new File( resolved.substring( 5 ) ) else new File( resolved )
     outputFile.getParentFile() match {
       case null => None
@@ -127,8 +128,9 @@ case class CatalogIRIMapper( catalogManager: CatalogManager, catalogResolver: Ca
         if ( !outputDir.exists )
           outputDir.mkdirs
 
-        if ( outputDir.exists && outputDir.isDirectory && outputDir.canWrite )
+        if ( outputDir.exists && outputDir.isDirectory && outputDir.canWrite ) {
           Some( IRI.create( f1.toString ) )
+        }
         else
           None
     }
