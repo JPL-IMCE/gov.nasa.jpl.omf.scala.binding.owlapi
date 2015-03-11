@@ -63,6 +63,8 @@ import org.semanticweb.owlapi.model.parameters.Imports
 import org.semanticweb.owlapi.model.OWLClass
 import org.semanticweb.owlapi.model.AddAxiom
 import org.semanticweb.owlapi.model.OWLNamedIndividual
+import org.semanticweb.owlapi.model.OWLAnnotation
+import org.semanticweb.owlapi.vocab.OWLRDFVocabulary
 
 case class OWLAPIOMFGraphStore( val omfModule: OWLAPIOMFModule, val ontManager: OWLOntologyManager ) {
 
@@ -87,6 +89,9 @@ case class OWLAPIOMFGraphStore( val omfModule: OWLAPIOMFModule, val ontManager: 
   protected lazy val omfModelClasses = omfModelOntology.getClassesInSignature( Imports.EXCLUDED ).map { c => ( c.getIRI.getRemainder.get -> c ) } toMap;
   protected lazy val omfModelObjectProperties = omfModelOntology.getObjectPropertiesInSignature( Imports.EXCLUDED ).map { op => ( op.getIRI.getRemainder.get -> op ) } toMap;
   protected lazy val omfModelDataProperties = omfModelOntology.getDataPropertiesInSignature( Imports.EXCLUDED ).map { dp => ( dp.getIRI.getRemainder.get -> dp ) } toMap;
+  protected lazy val allAnnotationProperties = omfModelOntology.getAnnotationPropertiesInSignature( Imports.INCLUDED ).map { ap => ( ap.getIRI.getShortForm -> ap ) } toMap;
+
+  lazy val RDFS_LABEL = ontManager.getOWLDataFactory.getRDFSLabel
 
   // OMF model.
 
@@ -167,6 +172,7 @@ case class OWLAPIOMFGraphStore( val omfModule: OWLAPIOMFModule, val ontManager: 
   lazy val OMF_HAS_IRI = omfModelDataProperties( "hasIRI" )
   lazy val OMF_HAS_NAME = omfModelDataProperties( "hasName" )
   lazy val OMF_HAS_PROVENANCE_FROM_RULE = omfModelDataProperties( "hasProvenanceFromRule" )
+  lazy val OMF_HAS_RELATIVE_IRI_PATH = omfModelDataProperties( "hasRelativeIRIPath" )
   lazy val OMF_HAS_QUALIFIED_NAME = omfModelDataProperties( "hasQualifiedName" )
   lazy val OMF_HAS_UUID = omfModelDataProperties( "hasUUID" )
   lazy val OMF_IS_ABSTRACT = omfModelDataProperties( "isAbstract" )
@@ -210,10 +216,10 @@ case class OWLAPIOMFGraphStore( val omfModule: OWLAPIOMFModule, val ontManager: 
       ready: List[types.ModelTerminologyGraph],
       visited: List[types.ModelTerminologyGraph] ): Unit = {
 
-//      System.out.println( s"*** registerTBoxGraph(queue=${queue.size}, ready=${ready.size}, visited=${visited.size})" )
-//      queue.foreach( q => System.out.println( s"queue: ${q.iri}" ) )
-//      ready.foreach( r => System.out.println( s"ready: ${r.iri}" ) )
-//      visited.foreach( v => System.out.println( s"visited: ${v.iri}" ) )
+      //      System.out.println( s"*** registerTBoxGraph(queue=${queue.size}, ready=${ready.size}, visited=${visited.size})" )
+      //      queue.foreach( q => System.out.println( s"queue: ${q.iri}" ) )
+      //      ready.foreach( r => System.out.println( s"ready: ${r.iri}" ) )
+      //      visited.foreach( v => System.out.println( s"visited: ${v.iri}" ) )
       queue match {
         case Nil =>
           ready match {
@@ -245,6 +251,7 @@ case class OWLAPIOMFGraphStore( val omfModule: OWLAPIOMFModule, val ontManager: 
   def createOMFModelTerminologyGraph(
     o: OWLOntology,
     hasProvenanceFromRule: String,
+    hasRelativeIRIPath: String,
     graphT: types.ModelTerminologyGraph,
     hasName: String,
     hasQualifiedName: String,
@@ -255,6 +262,7 @@ case class OWLAPIOMFGraphStore( val omfModule: OWLAPIOMFModule, val ontManager: 
     ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLClassAssertionAxiom( OMF_MODEL_TERMINOLOGY_GRAPH, graphI ) ) )
     ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLDataPropertyAssertionAxiom( OMF_HAS_PROVENANCE_FROM_RULE, graphI, hasProvenanceFromRule ) ) )
     ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLDataPropertyAssertionAxiom( OMF_HAS_IRI, graphI, graphT.iri.toString ) ) )
+    ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLDataPropertyAssertionAxiom( OMF_HAS_RELATIVE_IRI_PATH, graphI, hasRelativeIRIPath ) ) )
     ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLDataPropertyAssertionAxiom( OMF_HAS_NAME, graphI, hasName ) ) )
     ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLDataPropertyAssertionAxiom( OMF_HAS_QUALIFIED_NAME, graphI, hasQualifiedName ) ) )
     ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLDataPropertyAssertionAxiom( OMF_HAS_UUID, graphI, hasUUID ) ) )
@@ -271,7 +279,8 @@ case class OWLAPIOMFGraphStore( val omfModule: OWLAPIOMFModule, val ontManager: 
 
   def registerOMFModelEntityAspectInstance(
     o: OWLOntology,
-    aspectT: types.ModelEntityAspect ): OWLNamedIndividual =
+    aspectT: types.ModelEntityAspect,
+    hasQualifiedName: Option[String] = None ): OWLNamedIndividual =
     OMF_MODEL_ENTITY_ASPECT2Instance.get( aspectT ) match {
       case Some( aspectI ) =>
         //System.out.println( s"#! Aspect: ${aspectT.iri}" )
@@ -282,6 +291,12 @@ case class OWLAPIOMFGraphStore( val omfModule: OWLAPIOMFModule, val ontManager: 
         OMF_MODEL_ENTITY_ASPECT2Instance += ( aspectT -> aspectI )
         ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLDeclarationAxiom( aspectI ) ) )
         ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLClassAssertionAxiom( OMF_MODEL_ENTITY_ASPECT, aspectI ) ) )
+        hasQualifiedName match {
+          case None => ()
+          case Some( qName ) => ontManager.applyChange( new AddAxiom(
+            o,
+            owlDataFactory.getOWLAnnotationAssertionAxiom( RDFS_LABEL, aspectI.getIRI, owlDataFactory.getOWLLiteral( qName ) ) ) )
+        }
         //System.out.println( s"## Aspect: ${aspectT.iri}" )
         aspectI
     }
@@ -293,7 +308,7 @@ case class OWLAPIOMFGraphStore( val omfModule: OWLAPIOMFModule, val ontManager: 
     hasName: String,
     hasQualifiedName: String,
     hasUUID: String ): Unit = {
-    val aspectI = registerOMFModelEntityAspectInstance( o, aspectT )
+    val aspectI = registerOMFModelEntityAspectInstance( o, aspectT, Some( hasQualifiedName ) )
     ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLDataPropertyAssertionAxiom( OMF_HAS_PROVENANCE_FROM_RULE, aspectI, hasProvenanceFromRule ) ) )
     ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLDataPropertyAssertionAxiom( OMF_HAS_IRI, aspectI, aspectT.iri.toString ) ) )
     ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLDataPropertyAssertionAxiom( OMF_HAS_NAME, aspectI, hasName ) ) )
@@ -303,7 +318,8 @@ case class OWLAPIOMFGraphStore( val omfModule: OWLAPIOMFModule, val ontManager: 
 
   def registerOMFModelEntityConceptInstance(
     o: OWLOntology,
-    conceptT: types.ModelEntityConcept ): OWLNamedIndividual =
+    conceptT: types.ModelEntityConcept,
+    hasQualifiedName: Option[String] = None ): OWLNamedIndividual =
     OMF_MODEL_ENTITY_CONCEPT2Instance.get( conceptT ) match {
       case Some( conceptI ) =>
         //System.out.println( s"#! Concept: ${conceptT.iri}" )
@@ -314,6 +330,12 @@ case class OWLAPIOMFGraphStore( val omfModule: OWLAPIOMFModule, val ontManager: 
         OMF_MODEL_ENTITY_CONCEPT2Instance += ( conceptT -> conceptI )
         ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLDeclarationAxiom( conceptI ) ) )
         ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLClassAssertionAxiom( OMF_MODEL_ENTITY_CONCEPT, conceptI ) ) )
+        hasQualifiedName match {
+          case None => ()
+          case Some( qName ) => ontManager.applyChange( new AddAxiom(
+            o,
+            owlDataFactory.getOWLAnnotationAssertionAxiom( RDFS_LABEL, conceptI.getIRI, owlDataFactory.getOWLLiteral( qName ) ) ) )
+        }
         //System.out.println( s"## Concept: ${conceptT.iri}" )
         conceptI
     }
@@ -327,7 +349,7 @@ case class OWLAPIOMFGraphStore( val omfModule: OWLAPIOMFModule, val ontManager: 
     hasQualifiedName: String,
     hasUUID: String,
     isAbstract: Boolean ): Unit = {
-    val conceptI = registerOMFModelEntityConceptInstance( o, conceptT )
+    val conceptI = registerOMFModelEntityConceptInstance( o, conceptT, Some( hasQualifiedName ) )
     ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLDataPropertyAssertionAxiom( OMF_HAS_PROVENANCE_FROM_RULE, conceptI, hasProvenanceFromRule ) ) )
     ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLDataPropertyAssertionAxiom( OMF_HAS_IRI, conceptI, conceptT.iri.toString ) ) )
     ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLDataPropertyAssertionAxiom( OMF_HAS_NAME, conceptI, hasName ) ) )
@@ -344,7 +366,8 @@ case class OWLAPIOMFGraphStore( val omfModule: OWLAPIOMFModule, val ontManager: 
 
   def registerOMFModelEntityRelationshipInstance(
     o: OWLOntology,
-    relationshipT: types.ModelEntityRelationship ): OWLNamedIndividual =
+    relationshipT: types.ModelEntityRelationship,
+    hasQualifiedName: Option[String] = None ): OWLNamedIndividual =
     OMF_MODEL_ENTITY_RELATIONSHIP2Instance.get( relationshipT ) match {
       case Some( relationshipI ) =>
         //System.out.println( s"#! Relationship: ${relationshipT.iri}" )
@@ -354,7 +377,13 @@ case class OWLAPIOMFGraphStore( val omfModule: OWLAPIOMFModule, val ontManager: 
         OMF_MODEL_ENTITY_DEFINITION2Instance += ( relationshipT -> relationshipI )
         OMF_MODEL_ENTITY_RELATIONSHIP2Instance += ( relationshipT -> relationshipI )
         ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLDeclarationAxiom( relationshipI ) ) )
-        ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLClassAssertionAxiom( OMF_MODEL_ENTITY_CONCEPT, relationshipI ) ) )
+        ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLClassAssertionAxiom( OMF_MODEL_ENTITY_RELATIONSHIP, relationshipI ) ) )
+        hasQualifiedName match {
+          case None => ()
+          case Some( qName ) => ontManager.applyChange( new AddAxiom(
+            o,
+            owlDataFactory.getOWLAnnotationAssertionAxiom( RDFS_LABEL, relationshipI.getIRI, owlDataFactory.getOWLLiteral( qName ) ) ) )
+        }
         //System.out.println( s"## Relationship: ${relationshipT.iri}" )
         relationshipI
     }
@@ -368,12 +397,16 @@ case class OWLAPIOMFGraphStore( val omfModule: OWLAPIOMFModule, val ontManager: 
     hasQualifiedName: String,
     hasUUID: String,
     isAbstract: Boolean ): Unit = {
-    val relationshipI = registerOMFModelEntityRelationshipInstance( o, relationshipT )
+    val relationshipI = registerOMFModelEntityRelationshipInstance( o, relationshipT, Some( hasQualifiedName ) )
+    val sourceI = OMF_MODEL_ENTITY_DEFINITION2Instance( relationshipT.source )
+    val targetI = OMF_MODEL_ENTITY_DEFINITION2Instance( relationshipT.target)    
     ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLDataPropertyAssertionAxiom( OMF_HAS_PROVENANCE_FROM_RULE, relationshipI, hasProvenanceFromRule ) ) )
     ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLDataPropertyAssertionAxiom( OMF_HAS_IRI, relationshipI, relationshipT.iri.toString ) ) )
     ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLDataPropertyAssertionAxiom( OMF_HAS_NAME, relationshipI, hasName ) ) )
     ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLDataPropertyAssertionAxiom( OMF_HAS_QUALIFIED_NAME, relationshipI, hasQualifiedName ) ) )
     ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLDataPropertyAssertionAxiom( OMF_HAS_UUID, relationshipI, hasUUID ) ) )
+    ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLObjectPropertyAssertionAxiom( OMF_HAS_SOURCE, relationshipI, sourceI ) ) )
+    ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLObjectPropertyAssertionAxiom( OMF_HAS_TARGET, relationshipI, targetI ) ) )
     graphO match {
       case None => ()
       case Some( graphT ) =>
@@ -396,8 +429,8 @@ case class OWLAPIOMFGraphStore( val omfModule: OWLAPIOMFModule, val ontManager: 
     ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLDeclarationAxiom( axiomI ) ) )
     ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLClassAssertionAxiom( OMF_ENTITY_DEFINITION_ASPECT_SUB_CLASS_AXIOM, axiomI ) ) )
     ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLDataPropertyAssertionAxiom( OMF_HAS_PROVENANCE_FROM_RULE, axiomI, hasProvenanceFromRule ) ) )
-    ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLObjectPropertyAssertionAxiom( OMF_HAS_GENERAL_ASPECT, axiomI, subI ) ) )
-    ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLObjectPropertyAssertionAxiom( OMF_HAS_SPECIFIC_ENTITY, axiomI, supI ) ) )
+    ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLObjectPropertyAssertionAxiom( OMF_HAS_GENERAL_ASPECT, axiomI, supI ) ) )
+    ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLObjectPropertyAssertionAxiom( OMF_HAS_SPECIFIC_ENTITY, axiomI, subI ) ) )
   }
 
   def createOMFEntityConceptSubClassAxiomInstance(
@@ -413,8 +446,8 @@ case class OWLAPIOMFGraphStore( val omfModule: OWLAPIOMFModule, val ontManager: 
     ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLDeclarationAxiom( axiomI ) ) )
     ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLClassAssertionAxiom( OMF_ENTITY_CONCEPT_SUB_CLASS_AXIOM, axiomI ) ) )
     ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLDataPropertyAssertionAxiom( OMF_HAS_PROVENANCE_FROM_RULE, axiomI, hasProvenanceFromRule ) ) )
-    ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLObjectPropertyAssertionAxiom( OMF_HAS_GENERAL_CONCEPT, axiomI, subI ) ) )
-    ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLObjectPropertyAssertionAxiom( OMF_HAS_SPECIFIC_CONCEPT, axiomI, supI ) ) )
+    ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLObjectPropertyAssertionAxiom( OMF_HAS_GENERAL_CONCEPT, axiomI, supI ) ) )
+    ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLObjectPropertyAssertionAxiom( OMF_HAS_SPECIFIC_CONCEPT, axiomI, subI ) ) )
   }
 
   def createOMFEntityConceptUniversalRestrictionAxiomInstance(
@@ -470,8 +503,8 @@ case class OWLAPIOMFGraphStore( val omfModule: OWLAPIOMFModule, val ontManager: 
     ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLDeclarationAxiom( axiomI ) ) )
     ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLClassAssertionAxiom( OMF_ENTITY_RELATIONSHIP_SUB_CLASS_AXIOM, axiomI ) ) )
     ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLDataPropertyAssertionAxiom( OMF_HAS_PROVENANCE_FROM_RULE, axiomI, hasProvenanceFromRule ) ) )
-    ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLObjectPropertyAssertionAxiom( OMF_HAS_GENERAL_RELATIONSHIP, axiomI, subI ) ) )
-    ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLObjectPropertyAssertionAxiom( OMF_HAS_SPECIFIC_RELATIONSHIP, axiomI, supI ) ) )
+    ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLObjectPropertyAssertionAxiom( OMF_HAS_GENERAL_RELATIONSHIP, axiomI, supI ) ) )
+    ontManager.applyChange( new AddAxiom( o, owlDataFactory.getOWLObjectPropertyAssertionAxiom( OMF_HAS_SPECIFIC_RELATIONSHIP, axiomI, subI ) ) )
   }
 
   // OMF API
@@ -581,7 +614,7 @@ case class OWLAPIOMFGraphStore( val omfModule: OWLAPIOMFModule, val ontManager: 
           val o =
             if ( ontManager.contains( iri ) ) ontManager.getOntology( iri )
             else ontManager.loadOntology( iri )
-          System.out.println( s"loadTerminologyGraph: iri=${iri}, o=${o.getOWLOntologyManager.getOntologyDocumentIRI( o )}" )
+          //System.out.println( s"loadTerminologyGraph: iri=${iri}, o=${o.getOWLOntologyManager.getOntologyDocumentIRI( o )}" )
           registerImmutableOntologyAsTerminologyGraph( o )
         } catch {
           case t: OWLOntologyCreationException =>

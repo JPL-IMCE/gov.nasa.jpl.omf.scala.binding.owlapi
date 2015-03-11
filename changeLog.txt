@@ -1,3 +1,11 @@
+Version 0.8.3: March 11, 2015
+
+Added tbox:hasRelativeIRIPath
+Added rdfs:label for OMF metadata instances
+Fix the general/specific roles of 3 SubClassAxioms kinds in the OMF metadata (Concept, Relationship and EntityDefinitionAspect)
+Fix the classification of OMF EntityRelationship metadata instances -- previously these metadata instances were classified as Concept instead of Relationship.
+Add the source/target metadata information for OMF metadata relationship instances
+
 Version 0.8.2: March 5, 2015
 
 Override Cody's (old) changes

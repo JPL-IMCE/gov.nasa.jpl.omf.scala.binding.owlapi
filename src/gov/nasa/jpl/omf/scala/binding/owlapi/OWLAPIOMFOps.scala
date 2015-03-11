@@ -352,7 +352,7 @@ trait OWLAPIMutableTerminologyGraphOps
   def makeTerminologyGraph(
     o: OWLOntology,
     hasProvenanceFromRule: String,
-    iri: IRI,
+    iri: IRI, hasRelativeIRIPath: String,
     kind: TerminologyKind.TerminologyKind,
     hasName: String,
     hasQualifiedName: String,
@@ -360,7 +360,7 @@ trait OWLAPIMutableTerminologyGraphOps
     for {
       result <- makeTerminologyGraph( iri, kind )
     } yield {
-      store.createOMFModelTerminologyGraph( o, hasProvenanceFromRule, result, hasName, hasQualifiedName, hasUUID )
+      store.createOMFModelTerminologyGraph( o, hasProvenanceFromRule, hasRelativeIRIPath, result, hasName, hasQualifiedName, hasUUID )
       result
     }
 

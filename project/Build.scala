@@ -169,7 +169,7 @@ object OMFScalaBindingOWLAPI extends Build {
   val omfScalaCoreInfo = DependentGitProjectInfo( 
       "omf.scala.core", 
       "https://%s@secae-fn.jpl.nasa.gov/stash/scm/omf/gov.nasa.jpl.omf.scala.core.git", 
-      "0.9.1" )
+      "0.11.1" )
 
   object Versions {
     val scala = "2.11.5"

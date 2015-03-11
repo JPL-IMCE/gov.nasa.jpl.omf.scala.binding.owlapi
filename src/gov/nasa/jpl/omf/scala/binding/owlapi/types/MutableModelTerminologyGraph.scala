@@ -468,8 +468,6 @@ case class MutableModelTerminologyGraph(
       case ( _, _, false ) =>
         Failure( AxiomScopeException( ConceptRestrictionAxiom, Map( Range -> range ) ) )
 
-      case ( _, _, _ ) =>
-        Failure( AxiomScopeException( ConceptRestrictionAxiom, Map( Sub -> sub, Rel -> rel, Range -> range) ) )
     }
   
   def addEntityConceptExistentialRestrictionAxiom(
@@ -496,9 +494,6 @@ case class MutableModelTerminologyGraph(
 
       case ( _, _, false ) =>
         Failure( AxiomScopeException( ConceptRestrictionAxiom, Map( Range -> range ) ) )
-
-      case ( _, _, _ ) =>
-        Failure( AxiomScopeException( ConceptRestrictionAxiom, Map( Sub -> sub, Rel -> rel, Range -> range) ) )
     }
   
   def addEntityDefinitionAspectSubClassAxiom(
