@@ -245,6 +245,7 @@ case class OWLAPIOMFGraphStore( val omfModule: OWLAPIOMFModule, val ontManager: 
       }
     }
 
+    ontManager.applyChange( new AddImport( o, owlDataFactory.getOWLImportsDeclaration( omfModule.omfOntologyIRI )))
     registerTBoxGraph( List( graphT ), List(), List() )
   }
 
