@@ -6,3 +6,4 @@ project/target
 target
 omf-scala-core
 /sbt.staging/
+.idea
