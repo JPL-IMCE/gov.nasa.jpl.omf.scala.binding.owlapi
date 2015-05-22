@@ -46,7 +46,9 @@ import org.apache.xml.resolver.CatalogManager
 import scala.util.Failure
 import scala.util.Success
 
-abstract class OWLAPIOMFVocabularyTest( val saveStore: OWLAPIOMFGraphStore, val loadStore: OWLAPIOMFGraphStore )
+abstract class OWLAPIOMFVocabularyTest(
+                                        override val saveStore: OWLAPIOMFGraphStore,
+                                        override val loadStore: OWLAPIOMFGraphStore )
   extends testFunctionalAPI.OMFVocabularyTest[OWLAPIOMF]( 
       saveStore, saveStore.omfModule.ops,
       loadStore, loadStore.omfModule.ops )

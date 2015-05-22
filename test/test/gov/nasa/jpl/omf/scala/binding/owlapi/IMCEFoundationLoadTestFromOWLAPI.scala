@@ -46,7 +46,7 @@ import org.apache.xml.resolver.CatalogManager
 import scala.util.Failure
 import scala.util.Success
 
-abstract class IMCEFoundationLoadTestFromOWLAPI( val loadStore: OWLAPIOMFGraphStore )
+abstract class IMCEFoundationLoadTestFromOWLAPI( override val loadStore: OWLAPIOMFGraphStore )
   extends testFunctionalAPI.IMCEFoundationLoadTest[OWLAPIOMF]( 
       loadStore, loadStore.omfModule.ops )
       
