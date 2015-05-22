@@ -87,7 +87,10 @@ object OMFBindingOWLAPI extends Build {
       scalaSource in Test := baseDirectory.value / "test",
 
       libraryDependencies ++= Seq(
-        "gov.nasa.jpl.mbee.omf" %% "omf-scala-core" % Versions.jpl_omf_core
+        "gov.nasa.jpl.mbee.omf" %% "omf-scala-core" % Versions.jpl_omf_core % "compile",
+        "gov.nasa.jpl.mbee.omf" %% "omf-scala-core" % Versions.jpl_omf_core % "test" classifier "tests",
+        "gov.nasa.jpl.mbee" %% "jpl-mbee-common-scala-libraries_core" % Versions.jpl_mbee_core,
+        "gov.nasa.jpl.mbee" %% "jpl-mbee-common-owlapi-libraries" % Versions.jpl_owlapi
       )
     )
 }
