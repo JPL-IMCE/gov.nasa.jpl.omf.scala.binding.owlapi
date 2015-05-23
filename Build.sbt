@@ -10,6 +10,10 @@ git.useGitDescribe := true
 
 seq(versionWithGit: _*)
 
+test <<= (test in Test) dependsOn extractArchives
+
+unmanagedClasspath in Test += baseDirectory.value / "gov-nasa-jpl-imce-ontologies"
+
 license := """|
  | License Terms
  |

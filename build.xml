@@ -26,7 +26,7 @@
         <fail />
     </target>
 
-    <target name="all.ok" if="all.precondition.md" depends="publish">
+    <target name="all.ok" if="all.precondition.md" depends="publish,test">
         <save.prev.properties />
     </target>
 
@@ -43,6 +43,22 @@
             <arg value="-batch"/>
             <arg value="-no-colors"/>
             <arg value="publish"/>
+        </exec>
+    </target>
+
+    <target name="test">
+        <echoproperties prefix="env"/>
+        <exec executable="${env.JENKINS_HOME}/tools/SBT/sbt"
+              failifexecutionfails="true"
+              failonerror="true"
+              logerror="true"
+              dir=".">
+            <arg value="-java-home"/>
+            <arg value="${env.JAVA7_HOME}"/>
+            <arg value="-DJPL_MBEE_LOCAL_REPOSITORY=${env.JPL_MBEE_LOCAL_REPOSITORY}"/>
+            <arg value="-batch"/>
+            <arg value="-no-colors"/>
+            <arg value="test"/>
         </exec>
     </target>
 
