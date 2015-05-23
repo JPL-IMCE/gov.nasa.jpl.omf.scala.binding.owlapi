@@ -1,7 +1,0 @@
-<?xml version='1.0'?>
-<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog" prefer="public">
-
-	<rewriteURI rewritePrefix="file:./imce" uriStartString="http://imce.jpl.nasa.gov"/>
-	<rewriteURI rewritePrefix="file:./w3" uriStartString="http://www.w3.org"/>	
-	
-</catalog>

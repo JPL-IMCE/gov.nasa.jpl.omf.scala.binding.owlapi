@@ -39,6 +39,8 @@
  */
 package test.gov.nasa.jpl.omf.scala.binding.owlapi
 
+import java.net.URLClassLoader
+
 import org.semanticweb.owlapi.apibinding.OWLManager
 import gov.nasa.jpl.omf.scala.binding.owlapi._
 import test.gov.nasa.jpl.omf.scala.core.{ functionalAPI => testFunctionalAPI }

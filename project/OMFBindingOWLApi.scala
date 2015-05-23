@@ -37,14 +37,8 @@ object OMFBindingOWLAPI extends Build {
     Defaults.coreDefaultSettings ++ Defaults.runnerSettings ++ Defaults.baseTasks ++ graphSettings
 
   lazy val sourcePublishSettings = Seq(
-    // disable publishing the main jar produced by `package`
-    publishArtifact in(Compile, packageBin) := true,
-
-    // disable publishing the main API jar
-    publishArtifact in(Compile, packageDoc) := true,
-
-    // disable publishing the main sources jar
-    publishArtifact in(Compile, packageSrc) := true
+    // include all test artifacts
+    publishArtifact in Test := true
   )
 
   def mappingFromProject(mappings: ((Seq[TaskKey[File]], Seq[Configuration]), String)*)(currentProject: ProjectRef, structure: BuildStructure): Task[Seq[(File, String)]] = {
@@ -71,6 +65,52 @@ object OMFBindingOWLAPI extends Build {
     )
   ) ++ publishPackZipArchive
 
+  lazy val archivesToExtract = TaskKey[Map[File, (File, File)]]("archives-to-extract", "ZIP files to be extracted at a target directory according to the 'extract' attribute of the corresponding library dependency")
+
+  lazy val extractArchives = TaskKey[Unit]("extract-archives", "Extracts ZIP files")
+
+  lazy val extractSettings = Seq(
+
+    archivesToExtract <<= (libraryDependencies, update, scalaBinaryVersion, baseDirectory) map { (deps, up, ver, base) =>
+      val artifact2extract = (for {
+        dep <- deps
+        tuple = (dep.name + "-" + dep.revision, dep.name)
+      } yield dep.name + "_" + ver -> tuple) toMap
+
+      val artifactArchive2extractFolder = (for {
+        cReport <- up.configurations
+        mReport <- cReport.modules
+        (artifact, archive) <- mReport.artifacts
+        if artifact.extension == "zip"
+        (folder, extract) <- artifact2extract.get(artifact.name)
+        subFolder = new File(folder)
+        extractFolder = new File(base.getAbsolutePath + File.separator + extract)
+        tuple = (subFolder, extractFolder)
+      } yield archive -> tuple) toMap
+
+      artifactArchive2extractFolder
+    },
+
+    extractArchives <<= (archivesToExtract, streams) map { (a2e, s) =>
+      a2e foreach { case (archive, (subFolder, extractFolder)) =>
+        s.log.info(s"Extracting archive $archive\n=> $extractFolder (sub-folder=${subFolder.name})")
+        val files = IO.unzip(archive, extractFolder)
+        require(files.nonEmpty)
+        require(extractFolder.exists)
+        val extractSubFolder = extractFolder / subFolder.name
+        require(extractSubFolder.exists)
+        val extractPrefix = extractSubFolder.getAbsolutePath+"/"
+        for {
+          file <- files
+        } {
+          val to = file.getAbsolutePath.stripPrefix(extractPrefix)
+          IO.move(file, extractFolder / to)
+        }
+        IO.delete(extractSubFolder)
+      }
+    }
+  )
+
   lazy val owlapi = Project(
     "omf-scala-core-binding-owlapi",
     file(".")).
@@ -81,6 +121,7 @@ object OMFBindingOWLAPI extends Build {
     settings(sourcePublishSettings: _*).
     settings(com.banno.license.Plugin.licenseSettings: _*).
     settings(sourcePackSettings: _*).
+    settings(extractSettings: _*).
     settings(
       removeExistingHeaderBlock := true,
       scalaSource in Compile := baseDirectory.value / "src",
@@ -90,7 +131,8 @@ object OMFBindingOWLAPI extends Build {
         "gov.nasa.jpl.mbee.omf" %% "omf-scala-core" % Versions.jpl_omf_core % "compile",
         "gov.nasa.jpl.mbee.omf" %% "omf-scala-core" % Versions.jpl_omf_core % "test" classifier "tests",
         "gov.nasa.jpl.mbee" %% "jpl-mbee-common-scala-libraries_core" % Versions.jpl_mbee_core,
-        "gov.nasa.jpl.mbee" %% "jpl-mbee-common-owlapi-libraries" % Versions.jpl_owlapi
+        "gov.nasa.jpl.mbee" %% "jpl-mbee-common-owlapi-libraries" % Versions.jpl_owlapi,
+        "gov.nasa.jpl.imce" %% "gov-nasa-jpl-imce-ontologies" % Versions.imce_loadprod
       )
     )
 }

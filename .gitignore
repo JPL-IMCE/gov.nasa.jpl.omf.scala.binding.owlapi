@@ -7,3 +7,8 @@ target
 omf-scala-core
 /sbt.staging/
 .idea
+gov-nasa-jpl-imce-ontologies
+jpl-mbee-common-owlapi-libraries
+jpl-mbee-common-scala-libraries_core
+omf-scala-core
+owlapiLibs
