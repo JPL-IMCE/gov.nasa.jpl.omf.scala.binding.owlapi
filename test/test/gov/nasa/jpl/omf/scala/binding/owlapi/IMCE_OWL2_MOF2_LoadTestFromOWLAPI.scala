@@ -48,33 +48,33 @@ import org.apache.xml.resolver.CatalogManager
 import scala.util.Failure
 import scala.util.Success
 
-abstract class IMCE_OWL2_MOF2_LoadTestFromOWLAPI( override val loadStore: OWLAPIOMFGraphStore )
-  extends testFunctionalAPI.IMCE_OWL2_MOF2_LoadTest[OWLAPIOMF]( 
-      loadStore, loadStore.omfModule.ops )
-      
-abstract class IMCE_OWL2_MOF2_LoadTestFromOWLAPICatalog( @transient val catalogManager: CatalogManager )
-  extends IMCE_OWL2_MOF2_LoadTestFromOWLAPI( 
-      loadStore = OWLAPIOMFGraphStore( OWLAPIOMFModule(Some(catalogManager)), OWLManager.createOWLOntologyManager() ) )
-
-class IMCE_OWL2_MOF2_LoadTestFromOWLAPILocalCatalog
-  extends IMCE_OWL2_MOF2_LoadTestFromOWLAPICatalog( catalogManager = new CatalogManager() ) {
-  
-  val catalogFile = "/ontologies/imce.local.catalog.xml"
-  loadStore.catalogIRIMapper match {
-      case None => 
-        throw new IllegalArgumentException("There should be a catalog IRI mapper since the store was constructed with a catalog manager")
-      
-      case Some( catalogIRImapper ) =>
-        classOf[OWLAPIOWFVocabularyTestLocalCatalog].getResource(catalogFile) match {
-          case null => 
-            throw new IllegalArgumentException(s"There should be a '${catalogFile}' resource on the classpath")
-          case testCatalogURL =>
-            catalogIRImapper.parseCatalog( testCatalogURL.toURI ) match {
-              case Failure( t ) => 
-                throw new IllegalArgumentException(s"Cannot parse the test catalog: '${testCatalogURL}'", t )
-              case Success( _ ) =>
-                ()              
-            }
-        }       
-    }
-}
+//abstract class IMCE_OWL2_MOF2_LoadTestFromOWLAPI( override val loadStore: OWLAPIOMFGraphStore )
+//  extends testFunctionalAPI.IMCE_OWL2_MOF2_LoadTest[OWLAPIOMF](
+//      loadStore, loadStore.omfModule.ops )
+//
+//abstract class IMCE_OWL2_MOF2_LoadTestFromOWLAPICatalog( @transient val catalogManager: CatalogManager )
+//  extends IMCE_OWL2_MOF2_LoadTestFromOWLAPI(
+//      loadStore = OWLAPIOMFGraphStore( OWLAPIOMFModule(Some(catalogManager)), OWLManager.createOWLOntologyManager() ) )
+//
+//class IMCE_OWL2_MOF2_LoadTestFromOWLAPILocalCatalog
+//  extends IMCE_OWL2_MOF2_LoadTestFromOWLAPICatalog( catalogManager = new CatalogManager() ) {
+//
+//  val catalogFile = "/ontologies/imce.local.catalog.xml"
+//  loadStore.catalogIRIMapper match {
+//      case None =>
+//        throw new IllegalArgumentException("There should be a catalog IRI mapper since the store was constructed with a catalog manager")
+//
+//      case Some( catalogIRImapper ) =>
+//        classOf[OWLAPIOWFVocabularyTestLocalCatalog].getResource(catalogFile) match {
+//          case null =>
+//            throw new IllegalArgumentException(s"There should be a '${catalogFile}' resource on the classpath")
+//          case testCatalogURL =>
+//            catalogIRImapper.parseCatalog( testCatalogURL.toURI ) match {
+//              case Failure( t ) =>
+//                throw new IllegalArgumentException(s"Cannot parse the test catalog: '${testCatalogURL}'", t )
+//              case Success( _ ) =>
+//                ()
+//            }
+//        }
+//    }
+//}

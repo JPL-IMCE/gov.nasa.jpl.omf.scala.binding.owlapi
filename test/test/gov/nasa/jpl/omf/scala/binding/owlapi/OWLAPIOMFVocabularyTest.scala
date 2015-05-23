@@ -60,15 +60,16 @@ abstract class OWLAPIOMFVocabularyCatalogTest( @transient val catalogManager: Ca
 
 class OWLAPIOWFVocabularyTestLocalCatalog
   extends OWLAPIOMFVocabularyCatalogTest( catalogManager = new CatalogManager() ) {
-  
+
+  val catalogFile = "/ontologies/imce.local.catalog.xml"
   saveStore.catalogIRIMapper match {
       case None => 
         throw new IllegalArgumentException("There should be a catalog IRI mapper since the store was constructed with a catalog manager")
       
       case Some( catalogIRImapper ) =>
-        classOf[OWLAPIOWFVocabularyTestLocalCatalog].getResource("/resources/test.catalog.xml") match {
+        classOf[OWLAPIOWFVocabularyTestLocalCatalog].getResource(catalogFile) match {
           case null => 
-            throw new IllegalArgumentException("There should be a 'test.catalog.xml' resource on the classpath")
+            throw new IllegalArgumentException(s"There should be a '$catalogFile' resource on the classpath")
           case testCatalogURL =>
             catalogIRImapper.parseCatalog( testCatalogURL.toURI ) match {
               case Failure( t ) => 
@@ -84,9 +85,9 @@ class OWLAPIOWFVocabularyTestLocalCatalog
         throw new IllegalArgumentException("There should be a catalog IRI mapper since the store was constructed with a catalog manager")
       
       case Some( catalogIRImapper ) =>
-        classOf[OWLAPIOWFVocabularyTestLocalCatalog].getResource("/resources/test.catalog.xml") match {
+        classOf[OWLAPIOWFVocabularyTestLocalCatalog].getResource(catalogFile) match {
           case null => 
-            throw new IllegalArgumentException("There should be a 'test.catalog.xml' resource on the classpath")
+            throw new IllegalArgumentException(s"There should be a '$catalogFile' resource on the classpath")
           case testCatalogURL =>
             catalogIRImapper.parseCatalog( testCatalogURL.toURI ) match {
               case Failure( t ) => 
