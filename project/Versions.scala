@@ -13,5 +13,5 @@ object Versions {
   val jpl_owlapi = jpl_mbee_release_prefix+jpl_mbee_common_scala_libraries_revision
 
   // IMCE-LOADPROD
-  val imce_loadprod=jpl_mbee_release_prefix+"4e67e5645272d2effb48f11742b736c447af92e9"
+  val imce_loadprod=jpl_mbee_release_prefix+"52e7f929d0b6ecbb55cd4bda24f9f724db1b7c28"
 }
