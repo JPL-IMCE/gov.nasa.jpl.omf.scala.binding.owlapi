@@ -122,7 +122,7 @@ case class MutableModelTerminologyGraph(
 
   override protected val aspects = scala.collection.mutable.ListBuffer[ModelEntityAspect]()
   override protected val concepts = scala.collection.mutable.ListBuffer[ModelEntityConcept]()
-  override protected val relationships = scala.collection.mutable.ListBuffer[ModelEntityRelationship]()
+  override protected val relationships = scala.collection.mutable.ListBuffer[ModelEntityReifiedRelationship]()
   override protected val sc = scala.collection.mutable.ListBuffer[ModelScalarDataType]()
   override protected val st = scala.collection.mutable.ListBuffer[ModelStructuredDataType]()
   override protected val e2sc = scala.collection.mutable.ListBuffer[ModelDataRelationshipFromEntityToScalar]()
@@ -229,8 +229,8 @@ case class MutableModelTerminologyGraph(
     u: OWLObjectProperty, ui: Option[OWLObjectProperty],
     source: ModelEntityDefinition, rSource: OWLObjectProperty,
     target: ModelEntityDefinition, rTarget: OWLObjectProperty,
-    characteristics: Iterable[RelationshipCharacteristics], isAbstract: Boolean ): types.ModelEntityRelationship = {
-    val _term = ModelEntityRelationship(
+    characteristics: Iterable[RelationshipCharacteristics], isAbstract: Boolean ): types.ModelEntityReifiedRelationship = {
+    val _term = ModelEntityReifiedRelationship(
       r, rg,
       u, ui,
       source, rSource,
@@ -247,7 +247,7 @@ case class MutableModelTerminologyGraph(
     uIRI: IRI, uiIRI: Option[IRI],
     source: ModelEntityDefinition, target: ModelEntityDefinition,
     characteristics: Iterable[RelationshipCharacteristics],
-    isAbstract: Boolean )( implicit store: OWLAPIOMFGraphStore ): Try[( types.ModelEntityRelationship, Option[MutableModelTerminologyGraph] )] = {
+    isAbstract: Boolean )( implicit store: OWLAPIOMFGraphStore ): Try[( types.ModelEntityReifiedRelationship, Option[MutableModelTerminologyGraph] )] = {
 
     val sourceC = owlDataFactory.getOWLClass( source.iri )
     val targetC = owlDataFactory.getOWLClass( target.iri )
@@ -310,7 +310,7 @@ case class MutableModelTerminologyGraph(
     uIRI: IRI, uiIRI: Option[IRI],
     source: ModelEntityDefinition, target: ModelEntityDefinition,
     characteristics: Iterable[RelationshipCharacteristics],
-    isAbstract: Boolean )( implicit store: OWLAPIOMFGraphStore ): Try[( types.ModelEntityRelationship, Option[MutableModelTerminologyGraph] )] =
+    isAbstract: Boolean )( implicit store: OWLAPIOMFGraphStore ): Try[( types.ModelEntityReifiedRelationship, Option[MutableModelTerminologyGraph] )] =
     ( lookupTypeTerm( rIRI ),
       lookupTypeTerm( rIRISource ),
       lookupTypeTerm( rIRITarget ),
@@ -445,7 +445,7 @@ case class MutableModelTerminologyGraph(
 
   def addEntityConceptUniversalRestrictionAxiom(
     sub: types.ModelEntityConcept,
-    rel: types.ModelEntityRelationship,
+    rel: types.ModelEntityReifiedRelationship,
     range: types.ModelEntityDefinition ): Try[types.EntityConceptUniversalRestrictionAxiom] =
     ( isTypeTermDefinedRecursively( sub ), isTypeTermDefinedRecursively( rel ), isTypeTermDefinedRecursively( range ) ) match {
       case ( true, true, true ) =>
@@ -472,7 +472,7 @@ case class MutableModelTerminologyGraph(
   
   def addEntityConceptExistentialRestrictionAxiom(
     sub: types.ModelEntityConcept,
-    rel: types.ModelEntityRelationship,
+    rel: types.ModelEntityReifiedRelationship,
     range: types.ModelEntityDefinition ): Try[types.EntityConceptExistentialRestrictionAxiom] =
     ( isTypeTermDefinedRecursively( sub ), isTypeTermDefinedRecursively( rel ), isTypeTermDefinedRecursively( range ) ) match {
       case ( true, true, true ) =>
@@ -516,8 +516,8 @@ case class MutableModelTerminologyGraph(
     }
 
   def addEntityRelationshipSubClassAxiom(
-    sub: types.ModelEntityRelationship,
-    sup: types.ModelEntityRelationship ): Try[types.EntityRelationshipSubClassAxiom] = 
+    sub: types.ModelEntityReifiedRelationship,
+    sup: types.ModelEntityReifiedRelationship ): Try[types.EntityRelationshipSubClassAxiom] =
     ( isTypeTermDefinedRecursively( sub ), isTypeTermDefinedRecursively( sup ) ) match {
       case ( true, true ) =>
         ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLSubClassOfAxiom( sub.e, sup.e ) ) )

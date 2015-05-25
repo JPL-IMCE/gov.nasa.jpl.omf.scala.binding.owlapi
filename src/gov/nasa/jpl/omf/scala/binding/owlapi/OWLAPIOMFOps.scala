@@ -166,7 +166,7 @@ trait OWLAPIImmutableTerminologyGraphOps
 
   override def lookupEntityRelationship( graph: types.ModelTerminologyGraph, iri: IRI ) =
     lookupTypeTerm( graph, iri ) match {
-      case Some( t: types.ModelEntityRelationship ) => Some( t )
+      case Some( t: types.ModelEntityReifiedRelationship ) => Some( t )
       case _                                        => None
     }
 
@@ -210,7 +210,7 @@ trait OWLAPIImmutableTerminologyGraphOps
 
   def foldTerm[T]( t: types.ModelTypeTerm )(
     funEntityConcept: types.ModelEntityConcept => T,
-    funEntityRelationship: types.ModelEntityRelationship => T,
+    funEntityRelationship: types.ModelEntityReifiedRelationship => T,
     funScalarDataType: types.ModelScalarDataType => T,
     funStructuredDataType: types.ModelStructuredDataType => T,
     funDataRelationshipFromEntityToScalar: types.ModelDataRelationshipFromEntityToScalar => T,
@@ -218,7 +218,7 @@ trait OWLAPIImmutableTerminologyGraphOps
     funDataRelationshipFromStructureToScalar: types.ModelDataRelationshipFromStructureToScalar => T,
     funDataRelationshipFromStructureToStructure: types.ModelDataRelationshipFromStructureToStructure => T ): T = t match {
     case et: types.ModelEntityConcept                             => funEntityConcept( et )
-    case et: types.ModelEntityRelationship                        => funEntityRelationship( et )
+    case et: types.ModelEntityReifiedRelationship                        => funEntityRelationship( et )
     case ed: types.ModelScalarDataType                            => funScalarDataType( ed )
     case ed: types.ModelStructuredDataType                        => funStructuredDataType( ed )
     case esc: types.ModelDataRelationshipFromEntityToScalar       => funDataRelationshipFromEntityToScalar( esc )
@@ -229,7 +229,7 @@ trait OWLAPIImmutableTerminologyGraphOps
 
   override def fromEntityDefinition( e: types.ModelEntityDefinition ) = e match {
     case ec: types.ModelEntityConcept      => fromEntityConcept( ec )._1
-    case er: types.ModelEntityRelationship => fromEntityRelationship( er )._1
+    case er: types.ModelEntityReifiedRelationship => fromEntityRelationship( er )._1
   }
 
   // entity facet
@@ -242,7 +242,7 @@ trait OWLAPIImmutableTerminologyGraphOps
 
   // entity relationship
 
-  override def fromEntityRelationship( r: types.ModelEntityRelationship ) = {
+  override def fromEntityRelationship( r: types.ModelEntityReifiedRelationship ) = {
     import r._
     ( iri, eg, source, target, characteristics, isAbstract )
   }
@@ -467,7 +467,7 @@ trait OWLAPIMutableTerminologyGraphOps
     isAbstract: Boolean,
     hasName: String,
     hasQualifiedName: String,
-    hasUUID: String )( implicit store: OWLAPIOMFGraphStore ): Try[( types.ModelEntityRelationship, Option[types.MutableModelTerminologyGraph] )] =
+    hasUUID: String )( implicit store: OWLAPIOMFGraphStore ): Try[( types.ModelEntityReifiedRelationship, Option[types.MutableModelTerminologyGraph] )] =
     for {
       result <- addEntityRelationship( graph,
         source, target, characteristics,
@@ -626,7 +626,7 @@ trait OWLAPIMutableTerminologyGraphOps
     hasProvenanceFromRule: String,
     graph: types.MutableModelTerminologyGraph,
     sub: types.ModelEntityConcept,
-    rel: types.ModelEntityRelationship,
+    rel: types.ModelEntityReifiedRelationship,
     range: types.ModelEntityDefinition )( implicit store: OWLAPIOMFGraphStore ): Try[types.EntityConceptUniversalRestrictionAxiom] =
     for {
       result <- addEntityConceptUniversalRestrictionAxiom( graph, sub, rel, range )
@@ -638,7 +638,7 @@ trait OWLAPIMutableTerminologyGraphOps
   override def addEntityConceptUniversalRestrictionAxiom(
     graph: types.MutableModelTerminologyGraph,
     sub: types.ModelEntityConcept,
-    rel: types.ModelEntityRelationship,
+    rel: types.ModelEntityReifiedRelationship,
     range: types.ModelEntityDefinition )( implicit store: OWLAPIOMFGraphStore ): Try[types.EntityConceptUniversalRestrictionAxiom] =
       graph.addEntityConceptUniversalRestrictionAxiom( sub, rel, range )
 
@@ -650,7 +650,7 @@ trait OWLAPIMutableTerminologyGraphOps
     hasProvenanceFromRule: String,
     graph: types.MutableModelTerminologyGraph,
     sub: types.ModelEntityConcept,
-    rel: types.ModelEntityRelationship,
+    rel: types.ModelEntityReifiedRelationship,
     range: types.ModelEntityDefinition )( implicit store: OWLAPIOMFGraphStore ): Try[types.EntityConceptExistentialRestrictionAxiom] =
     for {
       result <- addEntityConceptExistentialRestrictionAxiom( graph, sub, rel, range )
@@ -662,7 +662,7 @@ trait OWLAPIMutableTerminologyGraphOps
   override def addEntityConceptExistentialRestrictionAxiom(
     graph: types.MutableModelTerminologyGraph,
     sub: types.ModelEntityConcept,
-    rel: types.ModelEntityRelationship,
+    rel: types.ModelEntityReifiedRelationship,
     range: types.ModelEntityDefinition )( implicit store: OWLAPIOMFGraphStore ): Try[types.EntityConceptExistentialRestrictionAxiom] =
       graph.addEntityConceptExistentialRestrictionAxiom( sub, rel, range )
 
@@ -675,8 +675,8 @@ trait OWLAPIMutableTerminologyGraphOps
     o: OWLOntology,
     hasProvenanceFromRule: String,
     graph: types.MutableModelTerminologyGraph,
-    sub: types.ModelEntityRelationship,
-    sup: types.ModelEntityRelationship )( implicit store: OWLAPIOMFGraphStore ): Try[types.EntityRelationshipSubClassAxiom] =
+    sub: types.ModelEntityReifiedRelationship,
+    sup: types.ModelEntityReifiedRelationship )( implicit store: OWLAPIOMFGraphStore ): Try[types.EntityRelationshipSubClassAxiom] =
     for {
       result <- addEntityRelationshipSubClassAxiom( graph, sub, sup )
     } yield {
@@ -686,8 +686,8 @@ trait OWLAPIMutableTerminologyGraphOps
     
   override def addEntityRelationshipSubClassAxiom(
     graph: types.MutableModelTerminologyGraph,
-    sub: types.ModelEntityRelationship,
-    sup: types.ModelEntityRelationship )( implicit store: OWLAPIOMFGraphStore ) =
+    sub: types.ModelEntityReifiedRelationship,
+    sup: types.ModelEntityReifiedRelationship )( implicit store: OWLAPIOMFGraphStore ) =
     graph.addEntityRelationshipSubClassAxiom( sub, sup )
 
   // scalar datatype facet restriction axiom
@@ -796,7 +796,7 @@ trait OWLAPIMutableInstanceGraphOps
 
   override def addInstanceRelation(
     graph: instances.MutableModelInstanceGraph,
-    relationshipType: types.ModelEntityRelationship,
+    relationshipType: types.ModelEntityReifiedRelationship,
     source: instances.ModelEntityInstance,
     target: instances.ModelEntityInstance,
     fragment: String )( implicit store: OWLAPIOMFGraphStore ) = ???

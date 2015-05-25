@@ -71,7 +71,7 @@ abstract class ModelTerminologyGraph(
 
   protected val aspects: scala.collection.Seq[ModelEntityAspect]
   protected val concepts: scala.collection.Seq[ModelEntityConcept]
-  protected val relationships: scala.collection.Seq[ModelEntityRelationship]
+  protected val relationships: scala.collection.Seq[ModelEntityReifiedRelationship]
   protected val sc: scala.collection.Seq[ModelScalarDataType]
   protected val st: scala.collection.Seq[ModelStructuredDataType]
   protected val e2sc: scala.collection.Seq[ModelDataRelationshipFromEntityToScalar]
@@ -110,7 +110,7 @@ abstract class ModelTerminologyGraph(
 
   def getTerms: ( IRI, Iterable[ModelTypeTerm] ) = ( iri, iri2typeTerm.values )
 
-  def fromTerminologyGraph: ( IRI, Option[IRI], TerminologyKind, Iterable[ModelTerminologyGraph], Iterable[ModelEntityAspect], Iterable[ModelEntityConcept], Iterable[ModelEntityRelationship], Iterable[ModelScalarDataType], Iterable[ModelStructuredDataType], Iterable[ModelDataRelationshipFromEntityToScalar], Iterable[ModelDataRelationshipFromEntityToStructure], Iterable[ModelDataRelationshipFromStructureToScalar], Iterable[ModelDataRelationshipFromStructureToStructure], Iterable[ModelTermAxiom] ) =
+  def fromTerminologyGraph: ( IRI, Option[IRI], TerminologyKind, Iterable[ModelTerminologyGraph], Iterable[ModelEntityAspect], Iterable[ModelEntityConcept], Iterable[ModelEntityReifiedRelationship], Iterable[ModelScalarDataType], Iterable[ModelStructuredDataType], Iterable[ModelDataRelationshipFromEntityToScalar], Iterable[ModelDataRelationshipFromEntityToStructure], Iterable[ModelDataRelationshipFromStructureToScalar], Iterable[ModelDataRelationshipFromStructureToStructure], Iterable[ModelTermAxiom] ) =
     ( iri, entityG, kind, imports, aspects, concepts, relationships, sc, st, e2sc, e2st, s2sc, s2st, ax )
 
 }
