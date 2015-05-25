@@ -13,7 +13,7 @@ import xerial.sbt.Pack._
  */
 object OMFBindingOWLAPI extends Build {
 
-    lazy val jplSettings = Seq(
+  lazy val jplSettings = Seq(
     scalaVersion := Versions.scala,
     organization := "gov.nasa.jpl.mbee.omf",
     organizationName := "JPL, Caltech",
@@ -99,7 +99,7 @@ object OMFBindingOWLAPI extends Build {
         require(extractFolder.exists)
         val extractSubFolder = extractFolder / subFolder.name
         require(extractSubFolder.exists)
-        val extractPrefix = extractSubFolder.getAbsolutePath+"/"
+        val extractPrefix = extractSubFolder.getAbsolutePath + "/"
         for {
           file <- files
         } {
@@ -128,8 +128,11 @@ object OMFBindingOWLAPI extends Build {
       scalaSource in Test := baseDirectory.value / "test",
 
       libraryDependencies ++= Seq(
-        "gov.nasa.jpl.mbee.omf" %% "omf-scala-core" % Versions.jpl_omf_core % "compile",
-        "gov.nasa.jpl.mbee.omf" %% "omf-scala-core" % Versions.jpl_omf_core % "test" classifier "tests",
+        "gov.nasa.jpl.mbee.omf" %% "omf-scala-core" % Versions.jpl_omf_core % "compile" withSources() withJavadoc(),
+        "gov.nasa.jpl.mbee.omf" %% "omf-scala-core" % Versions.jpl_omf_core % "test" classifier "tests"
+          artifacts(
+            Artifact.classified("omf-scala-core", "tests-sources"),
+            Artifact.classified("omf-scala-core", "tests-javadoc")),
         "gov.nasa.jpl.mbee" %% "jpl-mbee-common-scala-libraries_core" % Versions.jpl_mbee_core,
         "gov.nasa.jpl.mbee" %% "jpl-mbee-common-owlapi-libraries" % Versions.jpl_owlapi,
         "gov.nasa.jpl.imce" %% "gov-nasa-jpl-imce-ontologies" % Versions.imce_loadprod
