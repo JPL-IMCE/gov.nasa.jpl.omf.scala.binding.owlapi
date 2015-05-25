@@ -148,7 +148,7 @@ case class OWLAPIOMFGraphStore( val omfModule: OWLAPIOMFModule, val ontManager: 
   protected val OMF_MODEL_ENTITY_CONCEPT2Instance = scala.collection.mutable.HashMap[types.ModelEntityConcept, OWLNamedIndividual]()
 
   lazy val OMF_MODEL_ENTITY_RELATIONSHIP = omfModelClasses( "ModelEntityRelationship" )
-  protected val OMF_MODEL_ENTITY_RELATIONSHIP2Instance = scala.collection.mutable.HashMap[types.ModelEntityRelationship, OWLNamedIndividual]()
+  protected val OMF_MODEL_ENTITY_RELATIONSHIP2Instance = scala.collection.mutable.HashMap[types.ModelEntityReifiedRelationship, OWLNamedIndividual]()
 
   // Object Properties
   lazy val OMF_DEFINES_TYPE_TERM = omfModelObjectProperties( "definesTypeTerm" )
@@ -367,7 +367,7 @@ case class OWLAPIOMFGraphStore( val omfModule: OWLAPIOMFModule, val ontManager: 
 
   def registerOMFModelEntityRelationshipInstance(
     o: OWLOntology,
-    relationshipT: types.ModelEntityRelationship,
+    relationshipT: types.ModelEntityReifiedRelationship,
     hasQualifiedName: Option[String] = None ): OWLNamedIndividual =
     OMF_MODEL_ENTITY_RELATIONSHIP2Instance.get( relationshipT ) match {
       case Some( relationshipI ) =>
@@ -392,7 +392,7 @@ case class OWLAPIOMFGraphStore( val omfModule: OWLAPIOMFModule, val ontManager: 
   def createOMFModelEntityRelationshipInstance(
     o: OWLOntology,
     hasProvenanceFromRule: String,
-    relationshipT: types.ModelEntityRelationship,
+    relationshipT: types.ModelEntityReifiedRelationship,
     graphO: Option[types.MutableModelTerminologyGraph],
     hasName: String,
     hasQualifiedName: String,
@@ -456,7 +456,7 @@ case class OWLAPIOMFGraphStore( val omfModule: OWLAPIOMFModule, val ontManager: 
     hasProvenanceFromRule: String,
     axiomT: types.EntityConceptUniversalRestrictionAxiom,
     subT: types.ModelEntityConcept,
-    relT: types.ModelEntityRelationship,
+    relT: types.ModelEntityReifiedRelationship,
     rangeT: types.ModelEntityDefinition ): Unit = {
     val subI = OMF_MODEL_ENTITY_CONCEPT2Instance( subT )
     val relI = OMF_MODEL_ENTITY_RELATIONSHIP2Instance( relT )
@@ -476,7 +476,7 @@ case class OWLAPIOMFGraphStore( val omfModule: OWLAPIOMFModule, val ontManager: 
     hasProvenanceFromRule: String,
     axiomT: types.EntityConceptExistentialRestrictionAxiom,
     subT: types.ModelEntityConcept,
-    relT: types.ModelEntityRelationship,
+    relT: types.ModelEntityReifiedRelationship,
     rangeT: types.ModelEntityDefinition ): Unit = {
     val subI = OMF_MODEL_ENTITY_CONCEPT2Instance( subT )
     val relI = OMF_MODEL_ENTITY_RELATIONSHIP2Instance( relT )
@@ -495,8 +495,8 @@ case class OWLAPIOMFGraphStore( val omfModule: OWLAPIOMFModule, val ontManager: 
     o: OWLOntology,
     hasProvenanceFromRule: String,
     axiomT: types.EntityRelationshipSubClassAxiom,
-    subT: types.ModelEntityRelationship,
-    supT: types.ModelEntityRelationship ): Unit = {
+    subT: types.ModelEntityReifiedRelationship,
+    supT: types.ModelEntityReifiedRelationship ): Unit = {
     val subI = OMF_MODEL_ENTITY_RELATIONSHIP2Instance( subT )
     val supI = OMF_MODEL_ENTITY_RELATIONSHIP2Instance( supT )
     val axiomI = owlDataFactory.getOWLNamedIndividual( makeMetadataInstanceIRI( o, "RelationshipSubClass", OMF_ENTITY_RELATIONSHIP_SUB_CLASS_AXIOM2Instance ) )

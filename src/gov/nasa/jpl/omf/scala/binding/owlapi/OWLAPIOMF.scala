@@ -68,7 +68,7 @@ trait OWLAPIOMFtbox extends OMFtbox {
   type ModelEntityDefinition = types.ModelEntityDefinition
   type ModelEntityAspect = types.ModelEntityAspect
   type ModelEntityConcept = types.ModelEntityConcept
-  type ModelEntityRelationship = types.ModelEntityRelationship
+  type ModelEntityReifiedRelationship = types.ModelEntityReifiedRelationship
   
   type ModelDataTypeDefinition = types.ModelDataTypeDefinition
   type ModelScalarDataType = types.ModelScalarDataType

@@ -42,5 +42,5 @@ package gov.nasa.jpl.omf.scala.binding.owlapi.types
 import gov.nasa.jpl.omf.scala.binding.owlapi._
 
 case class EntityRelationshipSubClassAxiom(
-    val sub: ModelEntityRelationship,
-    val sup: ModelEntityRelationship) extends ModelTermAxiom
+    val sub: ModelEntityReifiedRelationship,
+    val sup: ModelEntityReifiedRelationship) extends ModelTermAxiom

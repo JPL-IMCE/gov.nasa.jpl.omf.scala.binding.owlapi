@@ -82,7 +82,7 @@ case class ImmutableModelTerminologyGraph(
   override val entityG: Option[IRI],
   override protected val aspects: List[ModelEntityAspect],
   override protected val concepts: List[ModelEntityConcept],
-  override protected val relationships: List[ModelEntityRelationship],
+  override protected val relationships: List[ModelEntityReifiedRelationship],
   override protected val sc: List[ModelScalarDataType],
   override protected val st: List[ModelStructuredDataType],
   override protected val e2sc: List[ModelDataRelationshipFromEntityToScalar],
@@ -225,19 +225,19 @@ case class ResolverHelper(
 
   // Lookup of entity relationships
 
-  def findDirectEntityRelationship( iri: IRI, relationships: Map[OWLClass, ModelEntityRelationship] ): Option[ModelEntityRelationship] =
+  def findDirectEntityRelationship( iri: IRI, relationships: Map[OWLClass, ModelEntityReifiedRelationship] ): Option[ModelEntityReifiedRelationship] =
     ( for {
       ( conceptC, conceptM ) <- relationships
       if ( iri == conceptC.getIRI )
     } yield conceptM ) headOption
 
-  def findImportedEntityRelationship( iri: IRI ): Option[ModelEntityRelationship] =
+  def findImportedEntityRelationship( iri: IRI ): Option[ModelEntityReifiedRelationship] =
     ( for {
       g <- imports
       conceptM <- ops.lookupEntityRelationship( g, iri )
     } yield conceptM ) headOption
 
-  def findEntityRelationship( iri: IRI, relationships: Map[OWLClass, ModelEntityRelationship] ): Option[ModelEntityRelationship] =
+  def findEntityRelationship( iri: IRI, relationships: Map[OWLClass, ModelEntityReifiedRelationship] ): Option[ModelEntityReifiedRelationship] =
     findDirectEntityRelationship( iri, relationships ) orElse findImportedEntityRelationship( iri )
 
   // ------
@@ -296,7 +296,7 @@ case class ResolverHelper(
     ROPs: Iterable[ROPInfo],
     sourceROPs: Iterable[ROPInfo],
     targetROPs: Iterable[ROPInfo],
-    entityRelationships: Map[OWLClass, ModelEntityRelationship] ): Try[Map[OWLClass, ModelEntityRelationship]] = {
+    entityRelationships: Map[OWLClass, ModelEntityReifiedRelationship] ): Try[Map[OWLClass, ModelEntityReifiedRelationship]] = {
     import ops._
 
     val rcs = RCs.values.toSet
@@ -338,7 +338,7 @@ case class ResolverHelper(
       resolvedSourceROP = ( s_iri, s_op, s_source, s_target, s_inv_op )
       resolvedTargetROP = ( t_iri, t_op, t_source, t_target, t_inv_op )
 
-      rop = ModelEntityRelationship(
+      rop = ModelEntityReifiedRelationship(
         e = rc, eg = getEntityGraphIRIAnnotation( r_iri ),
         unreified = r_op,
         inverse = None,

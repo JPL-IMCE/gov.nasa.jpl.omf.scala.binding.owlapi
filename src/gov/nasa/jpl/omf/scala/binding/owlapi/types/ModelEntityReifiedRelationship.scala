@@ -45,7 +45,7 @@ import org.semanticweb.owlapi.model.OWLClass
 import org.semanticweb.owlapi.model.OWLObjectProperty
 import org.semanticweb.owlapi.model.IRI
 
-case class ModelEntityRelationship(
+case class ModelEntityReifiedRelationship(
   override val e: OWLClass,
   val eg: Option[IRI],
   val unreified: OWLObjectProperty,
