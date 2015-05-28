@@ -133,7 +133,6 @@ object OMFBindingOWLAPI extends Build {
           artifacts(
             Artifact.classified("omf-scala-core", "tests-sources"),
             Artifact.classified("omf-scala-core", "tests-javadoc")),
-        "gov.nasa.jpl.mbee" %% "jpl-mbee-common-scala-libraries_core" % Versions.jpl_mbee_core,
         "gov.nasa.jpl.mbee" %% "jpl-mbee-common-owlapi-libraries" % Versions.jpl_owlapi,
         "gov.nasa.jpl.imce" %% "gov-nasa-jpl-imce-ontologies" % Versions.imce_loadprod
       )
