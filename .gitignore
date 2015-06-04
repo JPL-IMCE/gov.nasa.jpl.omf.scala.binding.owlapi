@@ -1,14 +1,13 @@
 .cache
+.idea
+.project
 bin
 owlapiLibs
 project/project
 project/target
 target
 omf-scala-core
-/sbt.staging/
-.idea
+sbt.staging
 gov-nasa-jpl-imce-ontologies
 jpl-mbee-common-owlapi-libraries
 jpl-mbee-common-scala-libraries_core
-omf-scala-core
-owlapiLibs
