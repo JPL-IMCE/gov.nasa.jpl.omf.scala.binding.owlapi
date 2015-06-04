@@ -76,7 +76,7 @@ lazy val core = Project("omf-scala-core-binding-owlapi",
     MBEEPlugin.MBEEOrganizations.imce.mbeeArtifactVersion("omf-scala-core", MBEEKeys.mbeeReleaseVersionPrefix.value, Versions.jpl_omf_core_revision) % "test" classifier "tests"
         artifacts(
         Artifact.classified("omf-scala-core", "tests-sources"),
-        Artifact.classified("omf-scala-core", "tests-javadoc"))
-      //MBEEPlugin.MBEEOrganizations.imce.mbeeArtifactVersion("gov-nasa-jpl-imce-ontologies", MBEEKeys.mbeeReleaseVersionPrefix.value, Versions.imce_loadprod)
+        Artifact.classified("omf-scala-core", "tests-javadoc")),
+    MBEEPlugin.MBEEOrganizations.imce.mbeeArtifactVersion("gov-nasa-jpl-imce-ontologies", MBEEKeys.mbeeReleaseVersionPrefix.value, Versions.imce_loadprod_revision)
     )
   )
