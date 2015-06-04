@@ -34,7 +34,7 @@ lazy val core = Project("omf-scala-core-binding-owlapi",
       artifacts(
       Artifact.classified("omf-scala-core", "tests-sources"),
       Artifact.classified("omf-scala-core", "tests-javadoc")),
-    MBEEPlugin.MBEEOrganizations.imce.mbeeArtifactVersion("gov-nasa-jpl-imce-ontologies", MBEEKeys.mbeeReleaseVersionPrefix.value, Versions.imce_loadprod_revision)
+    MBEEPlugin.MBEEOrganizations.imce.mbeeZipArtifactVersion("gov-nasa-jpl-imce-ontologies", MBEEKeys.mbeeReleaseVersionPrefix.value, Versions.imce_loadprod_revision)
   ),
 
   archivesToExtract <<= (libraryDependencies, update, scalaBinaryVersion, baseDirectory) map { (deps, up, ver, base) =>
