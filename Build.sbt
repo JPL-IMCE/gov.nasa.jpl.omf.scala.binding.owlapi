@@ -34,13 +34,15 @@ lazy val core = Project("omf-scala-core-binding-owlapi",
       artifacts(
       Artifact.classified("omf-scala-core", "tests-sources"),
       Artifact.classified("omf-scala-core", "tests-javadoc")),
-    MBEEPlugin.MBEEOrganizations.imce.mbeeArtifactVersion("gov-nasa-jpl-imce-ontologies", MBEEKeys.mbeeReleaseVersionPrefix.value, Versions.imce_loadprod_revision)
+    MBEEPlugin.MBEEOrganizations.imce.mbeeZipArtifactVersion("gov-nasa-jpl-imce-ontologies", MBEEKeys.mbeeReleaseVersionPrefix.value, Versions.imce_loadprod_revision) % "runtime"
   ),
 
-  archivesToExtract <<= (libraryDependencies, update, scalaBinaryVersion, baseDirectory) map { (deps, up, ver, base) =>
+  archivesToExtract <<= (libraryDependencies, update, scalaBinaryVersion, baseDirectory, streams) map { (deps, up, ver, base, s) =>
     val artifact2extract = (for {
       dep <- deps
-      tuple = (dep.name + "-" + dep.revision, dep.name)
+      tuple = (dep.name + "_" + ver + "-" + dep.revision, dep.name)
+      if (dep.configurations == Some("runtime"))
+      //_ = s.log.info(s"dependency name: ${dep.name}, config: ${dep.configurations}")
     } yield dep.name + "_" + ver -> tuple) toMap
 
     val artifactArchive2extractFolder = (for {
@@ -49,6 +51,7 @@ lazy val core = Project("omf-scala-core-binding-owlapi",
       (artifact, archive) <- mReport.artifacts
       if artifact.extension == "zip"
       (folder, extract) <- artifact2extract.get(artifact.name)
+      //_ = s.log.info(s"artifact: ${artifact.name} => subFolder: $folder, extract: $extract  ")
       subFolder = new File(folder)
       extractFolder = new File(base.getAbsolutePath + File.separator + extract)
       tuple = (subFolder, extractFolder)
@@ -59,11 +62,12 @@ lazy val core = Project("omf-scala-core-binding-owlapi",
 
   extractArchives <<= (archivesToExtract, streams) map { (a2e, s) =>
     a2e foreach { case (archive, (subFolder, extractFolder)) =>
-      s.log.info(s"Extracting archive $archive\n=> $extractFolder (sub-folder=${subFolder.name})")
+      //s.log.info(s"Extracting archive $archive\n=> $extractFolder (sub-folder=${subFolder.name})")
       val files = IO.unzip(archive, extractFolder)
       require(files.nonEmpty)
       require(extractFolder.exists)
-      val extractSubFolder = extractFolder / subFolder.name
+      val extractSubFolder = extractFolder / "scala-2.11" / subFolder.name
+      //s.log.info(s"check extractSubFolder: $extractSubFolder")
       require(extractSubFolder.exists)
       val extractPrefix = extractSubFolder.getAbsolutePath + "/"
       for {
@@ -73,6 +77,7 @@ lazy val core = Project("omf-scala-core-binding-owlapi",
         IO.move(file, extractFolder / to)
       }
       IO.delete(extractSubFolder)
+      IO.delete(extractFolder / "scala-2.11")
     }
   },
 
