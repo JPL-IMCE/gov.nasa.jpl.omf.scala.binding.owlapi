@@ -1,7 +1,7 @@
 .cache
 .idea
 .project
-bin
+bin*
 owlapiLibs
 project/project
 project/target
