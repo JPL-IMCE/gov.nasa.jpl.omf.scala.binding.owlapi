@@ -202,8 +202,9 @@ case class MutableModelTerminologyGraph(
         conceptGraphIRI match {
           case None =>
             Success(
-              createModelEntityConcept( conceptC, isAbstract, None ),
-              None )
+              Tuple2(
+                createModelEntityConcept( conceptC, isAbstract, None ),
+                None ) )
 
           case Some( cgIRI ) =>
             makeTerminologyGraph( cgIRI, kind ) match {
@@ -214,8 +215,9 @@ case class MutableModelTerminologyGraph(
                 ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLAnnotationAssertionAxiom( entityGraphIRIAP, conceptIRI, cgIRI ) ) )
                 ontManager.applyChange( new AddAxiom( cg.ont, owlDataFactory.getOWLAnnotationAssertionAxiom( graphForEntityIRIAP, cgIRI, conceptIRI ) ) )
                 Success(
-                  createModelEntityConcept( conceptC, isAbstract, Some( cgIRI ) ),
-                  Some( cg ) )
+                  Tuple2(
+                    createModelEntityConcept( conceptC, isAbstract, Some( cgIRI ) ),
+                    Some( cg ) ) )
             }
         }
 
@@ -290,14 +292,14 @@ case class MutableModelTerminologyGraph(
 
     rg match {
       case None =>
-        Success( term, None )
+        Success( Tuple2( term, None ) )
       case Some( rgIRI ) =>
 
         makeTerminologyGraph( rgIRI, kind ) match {
           case Failure( t ) =>
             Failure( t )
           case Success( relationshipGraph ) =>
-            Success( term, Some( relationshipGraph ) )
+            Success( Tuple2( term, Some( relationshipGraph ) ) )
         }
     }
 
