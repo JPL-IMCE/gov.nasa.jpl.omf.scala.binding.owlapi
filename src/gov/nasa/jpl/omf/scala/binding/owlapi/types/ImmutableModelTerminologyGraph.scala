@@ -64,24 +64,37 @@ import gov.nasa.jpl.omf.scala.core.OMFOps
 
 object ImmutableOperation extends Enumeration {
   type ImmutableOperation = Value
-  val Save, AddEntityAspect, AddEntityConcept, AddEntityRelationship, AddScalarDataType, AddDataRelationshipFromEntityToScalar, AddDataRelationshipFromEntityToStructure, AddDataRelationshipFromStructureToScalar, AddDataRelationshipFromStructureToStructure, AddEntityConceptSubClassAxiom, AddEntityDefinitionAspectSubClassAxiom = Value
+  val Save,
+  AddEntityAspect,
+  AddEntityConcept,
+  AddEntityReifiedRelationship,
+  AddScalarDataType,
+  AddDataRelationshipFromEntityToScalar,
+  AddDataRelationshipFromEntityToStructure,
+  AddDataRelationshipFromStructureToScalar,
+  AddDataRelationshipFromStructureToStructure,
+  AddEntityConceptSubClassAxiom,
+  AddEntityDefinitionAspectSubClassAxiom = Value
 }
 
 import ImmutableOperation._
 
-sealed abstract class ImmutableModelTerminologyGraphException( val message: String ) extends IllegalArgumentException( message )
+sealed abstract class ImmutableModelTerminologyGraphException( val message: String )
+  extends IllegalArgumentException( message )
 
 case class ReadOnlyImmutableTerminologyGraphException( val operation: ImmutableOperation )
-  extends ImmutableModelTerminologyGraphException( s"Operation '${operation}' is illegal on an read-only ImmutableTerminologyGraph" )
+  extends ImmutableModelTerminologyGraphException(
+    s"Operation '${operation}' is illegal on an read-only ImmutableTerminologyGraph" )
 
-case class ImmutableModelTerminologyGraph(
-  override val kind: TerminologyKind,
+case class ImmutableModelTerminologyGraph
+( override val kind: TerminologyKind,
   override val imports: Iterable[ModelTerminologyGraph],
   override val ont: OWLOntology,
   override val entityG: Option[IRI],
   override protected val aspects: List[ModelEntityAspect],
   override protected val concepts: List[ModelEntityConcept],
-  override protected val relationships: List[ModelEntityReifiedRelationship],
+  override protected val reifiedRelationships: List[ModelEntityReifiedRelationship],
+  override protected val unreifiedRelationships: List[ModelEntityUnreifiedRelationship],
   override protected val sc: List[ModelScalarDataType],
   override protected val st: List[ModelStructuredDataType],
   override protected val e2sc: List[ModelDataRelationshipFromEntityToScalar],
@@ -95,30 +108,32 @@ case class ImmutableModelTerminologyGraph(
   override val isMutableModelTerminologyGraph = false
 
   require( imports.forall( _.isImmutableModelTerminologyGraph ) )
-  def immutableImports: Iterable[ImmutableModelTerminologyGraph] = imports.flatMap { case ig: ImmutableModelTerminologyGraph => Some( ig ) }
+  def immutableImports: Iterable[ImmutableModelTerminologyGraph] =
+    imports.flatMap { case ig: ImmutableModelTerminologyGraph => Some( ig ) }
 
   /**
    * Reflexive, transitive closure of imports
    */
-  def immutableImportClosure: Set[ImmutableModelTerminologyGraph] = OMFOps.closure[ImmutableModelTerminologyGraph, ImmutableModelTerminologyGraph]( this, _.immutableImports ) + this
+  def immutableImportClosure: Set[ImmutableModelTerminologyGraph] =
+    OMFOps.closure[ImmutableModelTerminologyGraph, ImmutableModelTerminologyGraph]( this, _.immutableImports ) + this
 
   val getEntityDefinitionMap: Map[OWLClass, ModelEntityDefinition] =
-    ( ( aspects map ( a => ( a.e -> a ) ) ) ++
-      ( concepts map ( c => ( c.e -> c ) ) ) ++
-      ( relationships map ( r => ( r.e -> r ) ) ) ) toMap
+    ( ( aspects map ( a => a.e -> a ) ) ++
+      ( concepts map ( c => c.e -> c ) ) ++
+      ( reifiedRelationships map ( r => r.e -> r ) ) ) toMap
 
   override protected val iri2typeTerm = {
-    def term2pair[T <: ModelTypeTerm]( t: T ) = ( t.iri -> t )
+    def term2pair[T <: ModelTypeTerm]( t: T ) = t.iri -> t
 
-    ( aspects map ( term2pair( _ ) ) ) ++
-      ( concepts map ( term2pair( _ ) ) ) ++
-      ( relationships map ( term2pair( _ ) ) ) ++
-      ( sc map ( term2pair( _ ) ) ) ++
-      ( st map ( term2pair( _ ) ) ) ++
-      ( e2sc map ( term2pair( _ ) ) ) ++
-      ( e2st map ( term2pair( _ ) ) ) ++
-      ( s2sc map ( term2pair( _ ) ) ) ++
-      ( s2st map ( term2pair( _ ) ) ) toMap
+    ( aspects map term2pair ) ++
+      ( concepts map term2pair ) ++
+      ( reifiedRelationships map term2pair ) ++
+      ( sc map term2pair ) ++
+      ( st map term2pair ) ++
+      ( e2sc map term2pair ) ++
+      ( e2st map term2pair ) ++
+      ( s2sc map term2pair ) ++
+      ( s2st map term2pair ) toMap
   }
 
 }
@@ -133,11 +148,13 @@ case class ResolverHelper(
   def isAnnotatedAbstract( iri: IRI ): Boolean = {
     for {
       aaa <- ont.getAnnotationAssertionAxioms( iri )
-      if ( aaa.getProperty.getIRI == AnnotationIsAbstract )
+      if aaa.getProperty.getIRI == AnnotationIsAbstract
     } {
       aaa.getValue match {
-        case l: OWLLiteral if ( l.isBoolean ) => return l.parseBoolean
-        case _                                => ()
+        case l: OWLLiteral if l.isBoolean =>
+          return l.parseBoolean
+        case _ =>
+          ()
       }
     }
 
@@ -147,10 +164,10 @@ case class ResolverHelper(
   def isAnnotatedDerived( iri: IRI ): Boolean = {
     for {
       aaa <- ont.getAnnotationAssertionAxioms( iri )
-      if ( aaa.getProperty.getIRI == AnnotationIsDerived )
+      if aaa.getProperty.getIRI == AnnotationIsDerived
     } {
       aaa.getValue match {
-        case l: OWLLiteral if ( l.isBoolean ) =>
+        case l: OWLLiteral if l.isBoolean =>
           return l.parseBoolean
         case _ =>
           ()
@@ -163,7 +180,7 @@ case class ResolverHelper(
   def getEntityGraphIRIAnnotation( iri: IRI ): Option[IRI] = {
     for {
       aaa <- ont.getAnnotationAssertionAxioms( iri )
-      if ( aaa.getProperty.getIRI == AnnotationEntityGraphIRI )
+      if aaa.getProperty.getIRI == AnnotationEntityGraphIRI
     } {
       aaa.getValue match {
         case gIRI: IRI => return Some( gIRI )
@@ -177,7 +194,7 @@ case class ResolverHelper(
   def getGraphForEntityIRIAnnotation( iri: IRI ): Option[IRI] = {
     for {
       aaa <- ont.getAnnotationAssertionAxioms( iri )
-      if ( aaa.getProperty.getIRI == AnnotationGraphForEntityIRI )
+      if aaa.getProperty.getIRI == AnnotationGraphForEntityIRI
     } {
       aaa.getValue match {
         case gIRI: IRI => return Some( gIRI )
@@ -193,7 +210,7 @@ case class ResolverHelper(
   def findDirectEntityAspect( iri: IRI, aspects: Map[OWLClass, ModelEntityAspect] ): Option[ModelEntityAspect] =
     ( for {
       ( aspectC, aspectM ) <- aspects
-      if ( iri == aspectC.getIRI )
+      if iri == aspectC.getIRI
     } yield aspectM ) headOption
 
   def findImportedEntityAspect( iri: IRI ): Option[ModelEntityAspect] =
@@ -210,7 +227,7 @@ case class ResolverHelper(
   def findDirectEntityConcept( iri: IRI, concepts: Map[OWLClass, ModelEntityConcept] ): Option[ModelEntityConcept] =
     ( for {
       ( conceptC, conceptM ) <- concepts
-      if ( iri == conceptC.getIRI )
+      if iri == conceptC.getIRI
     } yield conceptM ) headOption
 
   def findImportedEntityConcept( iri: IRI ): Option[ModelEntityConcept] =
@@ -224,39 +241,49 @@ case class ResolverHelper(
 
   // Lookup of entity relationships
 
-  def findDirectEntityRelationship( iri: IRI, relationships: Map[OWLClass, ModelEntityReifiedRelationship] ): Option[ModelEntityReifiedRelationship] =
+  def findDirectEntityReifiedRelationship
+  ( iri: IRI, relationships: Map[OWLClass, ModelEntityReifiedRelationship] )
+  : Option[ModelEntityReifiedRelationship] =
     ( for {
       ( conceptC, conceptM ) <- relationships
-      if ( iri == conceptC.getIRI )
+      if iri == conceptC.getIRI
     } yield conceptM ) headOption
 
-  def findImportedEntityRelationship( iri: IRI ): Option[ModelEntityReifiedRelationship] =
+  def findImportedEntityReifiedRelationship
+  ( iri: IRI )
+  : Option[ModelEntityReifiedRelationship] =
     ( for {
       g <- imports
-      conceptM <- ops.lookupEntityRelationship( g, iri )
+      conceptM <- ops.lookupEntityReifiedRelationship( g, iri )
     } yield conceptM ) headOption
 
-  def findEntityRelationship( iri: IRI, relationships: Map[OWLClass, ModelEntityReifiedRelationship] ): Option[ModelEntityReifiedRelationship] =
-    findDirectEntityRelationship( iri, relationships ) orElse findImportedEntityRelationship( iri )
+  def findEntityReifiedRelationship
+  ( iri: IRI, relationships: Map[OWLClass, ModelEntityReifiedRelationship] )
+  : Option[ModelEntityReifiedRelationship] =
+    findDirectEntityReifiedRelationship( iri, relationships ) orElse findImportedEntityReifiedRelationship( iri )
 
   // ------
 
   type DOPInfo = ( OWLDataProperty, OWLClass, OWLDatatype )
 
-  def resolveDataPropertyDPIRIs( subDPs: NodeSet[OWLDataProperty], tDPs: Set[OWLDataProperty] )( implicit reasoner: OWLReasoner ): Iterable[DOPInfo] =
-    ( for {
+  def resolveDataPropertyDPIRIs
+  ( subDPs: NodeSet[OWLDataProperty], tDPs: Set[OWLDataProperty] )
+  ( implicit reasoner: OWLReasoner )
+  : Iterable[DOPInfo] =
+    for {
       dataPropertyN <- subDPs
       dataPropertyDP <- dataPropertyN flatMap { case dp: OWLDataProperty => Some( dp ) }
-      if ( tDPs.contains( dataPropertyDP ) )
+      if tDPs.contains( dataPropertyDP )
       dataPropertyDomain <- reasoner.getDataPropertyDomains( dataPropertyDP, true ).getFlattened
       dataPropertyRange <- ont.getDataPropertyRangeAxioms( dataPropertyDP )
       dataPropertyType = dataPropertyRange.getRange.asOWLDatatype
-    } yield ( dataPropertyDP, dataPropertyDomain, dataPropertyType ) )
+    } yield ( dataPropertyDP, dataPropertyDomain, dataPropertyType )
 
-  def resolveDataRelationshipsFromEntity2Scalars(
-    entityDefinitions: Map[OWLClass, ModelEntityDefinition],
+  def resolveDataRelationshipsFromEntity2Scalars
+  ( entityDefinitions: Map[OWLClass, ModelEntityDefinition],
     dataPropertyDPIRIs: Iterable[DOPInfo],
-    DTs: Map[OWLDatatype, ModelScalarDataType] ): Try[List[ModelDataRelationshipFromEntityToScalar]] = {
+    DTs: Map[OWLDatatype, ModelScalarDataType] )
+  : Try[List[ModelDataRelationshipFromEntityToScalar]] = {
     val remainingDataPropertyDPIRIs = scala.collection.mutable.ListBuffer[DOPInfo]()
     remainingDataPropertyDPIRIs ++= dataPropertyDPIRIs
 
@@ -289,13 +316,14 @@ case class ResolverHelper(
         | inv o. p.=${ropInfo._5}
         |""".stripMargin( '|' )
 
-  def resolveEntityDefinitionsForRelationships(
-    entityDefinitions: Map[OWLClass, ModelEntityDefinition],
+  def resolveEntityDefinitionsForRelationships
+  ( entityDefinitions: Map[OWLClass, ModelEntityDefinition],
     RCs: Map[IRI, OWLClass],
     ROPs: Iterable[ROPInfo],
     sourceROPs: Iterable[ROPInfo],
     targetROPs: Iterable[ROPInfo],
-    entityRelationships: Map[OWLClass, ModelEntityReifiedRelationship] ): Try[Map[OWLClass, ModelEntityReifiedRelationship]] = {
+    entityReifiedRelationships: Map[OWLClass, ModelEntityReifiedRelationship] )
+  : Try[Map[OWLClass, ModelEntityReifiedRelationship]] = {
     import ops._
 
     val rcs = RCs.values.toSet
@@ -326,7 +354,7 @@ case class ResolverHelper(
       ( s_iri, s_op, s_source, s_target, s_inv_op ) <- resolvableSourceROPs filter ( _._4 == r_source )
       ( t_iri, t_op, t_source, t_target, t_inv_op ) <- resolvableTargetROPs filter ( _._4 == r_target )
 
-      if ( s_source == t_source )
+      if s_source == t_source
 
       r_sourceDef <- entityDefinitions.get( r_source )
       r_targetDef <- entityDefinitions.get( r_target )
@@ -349,7 +377,7 @@ case class ResolverHelper(
       remainingROPs -= resolvedROP
       remainingSourceROPs -= resolvedSourceROP
       remainingTargetROPs -= resolvedTargetROP
-      ( rc -> rop )
+      rc -> rop
     }
 
     if ( ( remainingROPs.isEmpty && ( remainingSourceROPs.nonEmpty || remainingTargetROPs.nonEmpty ) ) ||
@@ -358,21 +386,21 @@ case class ResolverHelper(
       remainingROPs.size != remainingSourceROPs.size ||
       remainingROPs.size != remainingTargetROPs.size ) {
 
-      val rops = remainingROPs.map( ropInfoToString( _ ) ).mkString( "\n" )
-      val srops = remainingSourceROPs.map( ropInfoToString( _ ) ).mkString( "\n" )
-      val trops = remainingTargetROPs.map( ropInfoToString( _ ) ).mkString( "\n" )
+      val rops = remainingROPs.map( ropInfoToString ).mkString( "\n" )
+      val srops = remainingSourceROPs.map( ropInfoToString ).mkString( "\n" )
+      val trops = remainingTargetROPs.map( ropInfoToString ).mkString( "\n" )
 
       Failure( new IllegalArgumentException(
         s"""|Unresolved Reified Object Properties, ROPs: 
               |
               |*** ${remainingROPs.size} remaining ROPs *** 
-              |${rops}
+              |$rops
               |
               |*** ${remainingSourceROPs.size} remaining source ROPs ***
-              |${srops}
+              |$srops
               |
               |*** ${remainingTargetROPs.size} remaining target ROPs *** 
-              |${trops}
+              |$trops
               |""".stripMargin( '|' ) ) )
     } else if ( remainingROPs.isEmpty && remainingSourceROPs.isEmpty && remainingTargetROPs.isEmpty &&
       unresolvedROPs.isEmpty && unresolvableSourceROPs.isEmpty && unresolvableTargetROPs.isEmpty )
@@ -381,7 +409,7 @@ case class ResolverHelper(
     else
       resolveEntityDefinitionsForRelationships(
         entityDefinitions ++ m.toMap,
-        RCs ++ ( m map { case ( rc, rcDef ) => ( rc.getIRI -> rc ) } ).toMap,
+        RCs ++ ( m map { case ( rc, rcDef ) => rc.getIRI -> rc } ).toMap,
         unresolvedROPs ++ remainingROPs,
         unresolvableSourceROPs ++ remainingSourceROPs,
         unresolvableTargetROPs ++ remainingTargetROPs,
@@ -390,55 +418,79 @@ case class ResolverHelper(
 
   // ---------
 
-  def resolveThingCIRIs( thingSubClasses: NodeSet[OWLClass], tCs: Set[OWLClass] ): Map[IRI, OWLClass] =
+  def resolveThingCIRIs
+  ( thingSubClasses: NodeSet[OWLClass], tCs: Set[OWLClass] )
+  : Map[IRI, OWLClass] =
     ( for {
       thingN <- thingSubClasses
-      if ( !thingN.isBottomNode )
+      if !thingN.isBottomNode
       thingC = thingN.getRepresentativeElement
-      if ( tCs.contains( thingC ) )
+      if tCs.contains( thingC )
       thingIRI = thingC.getIRI
-    } yield ( thingIRI -> thingC ) ).toMap
+    } yield thingIRI -> thingC ).toMap
 
-  def resolveConceptCIRIs( entitySubClasses: NodeSet[OWLClass], tCs: Set[OWLClass] ): Map[IRI, OWLClass] =
+  def resolveAspectCIRIs
+  ( entitySubClasses: NodeSet[OWLClass], tCs: Set[OWLClass] )
+  : Map[IRI, OWLClass] =
+    ( for {
+      aspectN <- entitySubClasses
+      if !aspectN.isBottomNode
+      aspectC = aspectN.getRepresentativeElement
+      if tCs.contains( aspectC )
+      aspectIRI = aspectC.getIRI
+    } yield aspectIRI -> aspectC ).toMap
+
+  def resolveConceptCIRIs
+  ( entitySubClasses: NodeSet[OWLClass], tCs: Set[OWLClass] )
+  : Map[IRI, OWLClass] =
     ( for {
       conceptN <- entitySubClasses
-      if ( !conceptN.isBottomNode )
+      if !conceptN.isBottomNode
       conceptC = conceptN.getRepresentativeElement
-      if ( tCs.contains( conceptC ) )
+      if tCs.contains( conceptC )
       conceptIRI = conceptC.getIRI
-    } yield ( conceptIRI -> conceptC ) ).toMap
+    } yield conceptIRI -> conceptC ).toMap
 
-  def resolveReifiedObjectPropertyCIRIs( reifiedObjectPropertySubClasses: NodeSet[OWLClass], tCs: Set[OWLClass] ): Map[IRI, OWLClass] =
+  def resolveReifiedObjectPropertyCIRIs
+  ( reifiedObjectPropertySubClasses: NodeSet[OWLClass], tCs: Set[OWLClass] )
+  : Map[IRI, OWLClass] =
     ( for {
       reifiedObjectPropertyN <- reifiedObjectPropertySubClasses
-      if ( !reifiedObjectPropertyN.isBottomNode )
+      if !reifiedObjectPropertyN.isBottomNode
       reifiedObjectPropertyC = reifiedObjectPropertyN.getRepresentativeElement
-      if ( tCs.contains( reifiedObjectPropertyC ) )
+      if tCs.contains( reifiedObjectPropertyC )
       reifiedObjectPropertyCIRI = reifiedObjectPropertyC.getIRI
-    } yield ( reifiedObjectPropertyCIRI -> reifiedObjectPropertyC ) ).toMap
+    } yield reifiedObjectPropertyCIRI -> reifiedObjectPropertyC ).toMap
 
-  def resolveReifiedStructuredDataPropertyCIRIs( reifiedStructuredDataPropertySubClasses: NodeSet[OWLClass], tCs: Set[OWLClass] ): Map[IRI, OWLClass] =
+  def resolveReifiedStructuredDataPropertyCIRIs
+  ( reifiedStructuredDataPropertySubClasses: NodeSet[OWLClass], tCs: Set[OWLClass] )
+  : Map[IRI, OWLClass] =
     ( for {
       reifiedStructuredDataPropertyN <- reifiedStructuredDataPropertySubClasses
-      if ( !reifiedStructuredDataPropertyN.isBottomNode )
+      if !reifiedStructuredDataPropertyN.isBottomNode
       reifiedStructuredDataPropertyC = reifiedStructuredDataPropertyN.getRepresentativeElement
-      if ( tCs.contains( reifiedStructuredDataPropertyC ) )
+      if tCs.contains( reifiedStructuredDataPropertyC )
       reifiedStructuredDataPropertyCIRI = reifiedStructuredDataPropertyC.getIRI
-    } yield ( reifiedStructuredDataPropertyCIRI -> reifiedStructuredDataPropertyC ) ).toMap
+    } yield reifiedStructuredDataPropertyCIRI -> reifiedStructuredDataPropertyC ).toMap
 
-  def resolveStructuredDatatypeCIRIs( structuredDatatypeSubClasses: NodeSet[OWLClass], tCs: Set[OWLClass] ): Map[IRI, OWLClass] =
+  def resolveStructuredDatatypeCIRIs
+  ( structuredDatatypeSubClasses: NodeSet[OWLClass], tCs: Set[OWLClass] )
+  : Map[IRI, OWLClass] =
     ( for {
       structuredDatatypeN <- structuredDatatypeSubClasses
-      if ( !structuredDatatypeN.isBottomNode )
+      if !structuredDatatypeN.isBottomNode
       structuredDatatypeC = structuredDatatypeN.getRepresentativeElement
-      if ( tCs.contains( structuredDatatypeC ) )
+      if tCs.contains( structuredDatatypeC )
       structuredDatatypeCIRI = structuredDatatypeC.getIRI
-    } yield ( structuredDatatypeCIRI -> structuredDatatypeC ) ).toMap
+    } yield structuredDatatypeCIRI -> structuredDatatypeC ).toMap
 
-  def resolveDomainRangeForObjectProperties( subOPs: NodeSet[OWLObjectPropertyExpression], tOPs: Set[OWLObjectProperty] )( implicit reasoner: OWLReasoner ): Iterable[ROPInfo] =
+  def resolveDomainRangeForObjectProperties
+  ( subOPs: NodeSet[OWLObjectPropertyExpression], tOPs: Set[OWLObjectProperty] )
+  ( implicit reasoner: OWLReasoner )
+  : Iterable[ROPInfo] =
     ( for {
-      N <- subOPs
-      OP <- N flatMap {
+      _n_ <- subOPs
+      _op_ <- _n_ flatMap {
         case op: OWLObjectProperty =>
           if ( tOPs.contains( op ) && !isAnnotatedDerived( op.getIRI ) )
             Some( op )
@@ -455,10 +507,10 @@ case class ResolverHelper(
               None
           }
       }
-      D <- reasoner.getObjectPropertyDomains( OP, true ).getFlattened
-      R <- reasoner.getObjectPropertyRanges( OP, true ).getFlattened
+      _d_ <- reasoner.getObjectPropertyDomains( _op_, true ).getFlattened
+      _r_ <- reasoner.getObjectPropertyRanges( _op_, true ).getFlattened
     } yield {
-      val INV = ( N flatMap {
+      val INV = ( _n_ flatMap {
         case op: OWLObjectProperty =>
           if ( tOPs.contains( op ) && isAnnotatedDerived( op.getIRI ) )
             Some( op )
@@ -475,15 +527,18 @@ case class ResolverHelper(
               None
           }
       } ).headOption
-      ( OP.getIRI, OP, D, R, INV )
+      ( _op_.getIRI, _op_, _d_, _r_, INV )
     } ).toSet
 
-  def resolveConceptSubClassAxioms( conceptCMs: Map[OWLClass, ModelEntityConcept] )( implicit reasoner: OWLReasoner, backbone: OMFBackbone ): Iterable[EntityConceptSubClassAxiom] =
+  def resolveConceptSubClassAxioms
+  ( conceptCMs: Map[OWLClass, ModelEntityConcept] )
+  ( implicit reasoner: OWLReasoner, backbone: OMFBackbone )
+  : Iterable[EntityConceptSubClassAxiom] =
     for {
       ( subC, subM ) <- conceptCMs
       supN <- reasoner.getSuperClasses( subC, true )
       supC = supN.getRepresentativeElement
-      if ( supC != backbone.EntityC )
+      if supC != backbone.EntityC
       supM <- findEntityConcept( supC.getIRI, conceptCMs )
     } yield EntityConceptSubClassAxiom( subM, null )
 }
@@ -494,21 +549,30 @@ case class ImmutableModelTerminologyGraphResolver( resolver: ResolverHelper ) {
   import resolver.ops._
 
   def resolve: Try[ImmutableModelTerminologyGraph] = {
-    val DTs = ont.getDatatypesInSignature( Imports.EXCLUDED ) map ( dt => ( dt -> ModelScalarDataType( dt.getIRI ) ) ) toMap
+    val DTs = ont.getDatatypesInSignature( Imports.EXCLUDED ) map
+      ( dt => dt -> ModelScalarDataType( dt.getIRI ) ) toMap
 
-    val ( bCs, tCs ) = ont.getClassesInSignature( Imports.EXCLUDED ) partition { c => isBackboneIRI( c.getIRI ) }
-    val ( bOPs, tOPs ) = ont.getObjectPropertiesInSignature( Imports.EXCLUDED ) partition { c => isBackboneIRI( c.getIRI ) }
-    val ( bDPs, tDPs ) = ont.getDataPropertiesInSignature( Imports.EXCLUDED ) partition { c => isBackboneIRI( c.getIRI ) }
+    val ( bCs, tCs ) = ont.getClassesInSignature( Imports.EXCLUDED ) partition
+      { c => isBackboneIRI( c.getIRI ) }
+
+    val ( bOPs, tOPs ) = ont.getObjectPropertiesInSignature( Imports.EXCLUDED ) partition
+      { c => isBackboneIRI( c.getIRI ) }
+
+    val ( bDPs, tDPs ) = ont.getDataPropertiesInSignature( Imports.EXCLUDED ) partition
+      { c => isBackboneIRI( c.getIRI ) }
 
     Backbone.resolveBackbone( ont, bCs.toSet, bOPs.toSet, bDPs.toSet, ops ) match {
       case Failure( t ) => Failure( t )
       case Success( _: NoBackbone ) =>
         Success( ImmutableModelTerminologyGraph(
           kind = isDefinition,
-          imports, ont, None,
+          imports=imports,
+          ont=ont,
+          entityG=None,
           aspects = Nil,
           concepts = Nil,
-          relationships = Nil,
+          reifiedRelationships = Nil,
+          unreifiedRelationships = Nil,
           sc = DTs.values.toList,
           st = Nil,
           e2sc = Nil,
@@ -532,65 +596,131 @@ case class ImmutableModelTerminologyGraphResolver( resolver: ResolverHelper ) {
 
     implicit val _backbone = backbone
 
-    val importedEntityDefinitionMaps = imports.flatMap( _.immutableImportClosure ) flatMap ( _.getEntityDefinitionMap ) toMap
+    val importedEntityDefinitionMaps = imports.flatMap( _.immutableImportClosure ) flatMap
+      ( _.getEntityDefinitionMap ) toMap
 
     val reasonerFactory = new StructuralReasonerFactory()
     implicit val reasoner = reasonerFactory.createReasoner( ont )
 
-    val thingCIRIs = resolveThingCIRIs( reasoner.getSubClasses( backbone.ThingC, false ), tCs )
-    val conceptCIRIs = resolveConceptCIRIs( reasoner.getSubClasses( backbone.EntityC, false ), tCs )
-    val reifiedObjectPropertyCIRIs = resolveReifiedObjectPropertyCIRIs( reasoner.getSubClasses( backbone.ReifiedObjectPropertyC, false ), tCs )
-    val reifiedStructuredDataPropertyCIRIs = resolveReifiedStructuredDataPropertyCIRIs( reasoner.getSubClasses( backbone.ReifiedStructuredDataPropertyC, false ), tCs )
-    val structuredDatatypeCIRIs = resolveStructuredDatatypeCIRIs( reasoner.getSubClasses( backbone.StructuredDatatypeC, false ), tCs )
+    val thingCIRIs =
+      resolveThingCIRIs(
+        reasoner.getSubClasses( backbone.ThingC, false ),
+        tCs )
 
-    val nonAspectIRIs = conceptCIRIs.keys ++ reifiedObjectPropertyCIRIs.keys ++ reifiedStructuredDataPropertyCIRIs.keys ++ structuredDatatypeCIRIs.keys
-    val aspectCIRIs = thingCIRIs -- nonAspectIRIs
+    val conceptCIRIs =
+      resolveConceptCIRIs(
+        reasoner.getSubClasses( backbone.EntityC, false ),
+        tCs )
 
-    val aspectCMs = ( for {
+    val reifiedObjectPropertyCIRIs =
+      resolveReifiedObjectPropertyCIRIs(
+        reasoner.getSubClasses( backbone.ReifiedObjectPropertyC, false ),
+        tCs )
+
+    val reifiedStructuredDataPropertyCIRIs =
+      resolveReifiedStructuredDataPropertyCIRIs( reasoner.getSubClasses( backbone.ReifiedStructuredDataPropertyC, false ), tCs )
+
+    val structuredDatatypeCIRIs =
+      resolveStructuredDatatypeCIRIs( reasoner.getSubClasses( backbone.StructuredDatatypeC, false ), tCs )
+
+    val nonAspectCs =
+      conceptCIRIs.values ++
+        reifiedObjectPropertyCIRIs.values ++
+        reifiedStructuredDataPropertyCIRIs.values ++
+        structuredDatatypeCIRIs.values
+
+    val ontIRIPrefix = backbone.ont.getOntologyID.getOntologyIRI.get.toString
+
+    val aCs = (tCs -- nonAspectCs).filter { c =>
+      c.getIRI.toString.startsWith(ontIRIPrefix)
+    }
+
+    val aspectCIRIs =
+      resolveAspectCIRIs(
+        reasoner.getSubClasses( backbone.AspectC, false ),
+        aCs )
+
+    System.out.println(s"backbone: ${backbone.ont.getOntologyID.toString}")
+    aspectCIRIs.keySet.toList.sortBy(_.toString).foreach { a =>
+      System.out.println(s" aspect: ${a.toString}")
+    }
+
+    //val aspectCIRIs = thingCIRIs -- nonAspectIRIs
+
+    val aspectCMs = for {
       ( _, aspectC ) <- aspectCIRIs
       aspectM = ModelEntityAspect( aspectC )
-    } yield ( aspectC -> aspectM ) ).toMap;
+    } yield aspectC -> aspectM
 
-    val conceptCMs = ( for {
+    val conceptCMs = for {
       ( conceptIRI, conceptC ) <- conceptCIRIs
-      conceptM = ModelEntityConcept( conceptC, getEntityGraphIRIAnnotation( conceptIRI ), isAnnotatedAbstract( conceptIRI ) )
-    } yield ( conceptC -> conceptM ) ).toMap;
+      conceptM =
+      ModelEntityConcept( conceptC, getEntityGraphIRIAnnotation( conceptIRI ), isAnnotatedAbstract( conceptIRI ) )
+    } yield conceptC -> conceptM
 
-    val structuredDatatypeSCs = ( for {
+    val structuredDatatypeSCs = for {
       ( _, structuredDatatypeC ) <- structuredDatatypeCIRIs
       structuredDatatypeSC = ModelStructuredDataType( structuredDatatypeC )
-    } yield ( structuredDatatypeC -> structuredDatatypeSC ) ).toMap;
+    } yield structuredDatatypeC -> structuredDatatypeSC
 
     val conceptSubClassAxs = resolveConceptSubClassAxioms( conceptCMs )
 
-    val topReifiedObjectPropertySubOPs = reasoner.getSubObjectProperties( backbone.topReifiedObjectPropertyOP, false )
-    val reifiedObjectPropertyOPIRIs = resolveDomainRangeForObjectProperties( topReifiedObjectPropertySubOPs, tOPs )
+    val topReifiedObjectPropertySubOPs =
+      reasoner.getSubObjectProperties( backbone.topReifiedObjectPropertyOP, false )
 
-    val topReifiedObjectPropertySourceSubOPs = reasoner.getSubObjectProperties( backbone.topReifiedObjectPropertySourceOP, false )
-    val reifiedObjectPropertySourceOPIRIs = resolveDomainRangeForObjectProperties( topReifiedObjectPropertySourceSubOPs, tOPs )
+    val reifiedObjectPropertyOPIRIs =
+      resolveDomainRangeForObjectProperties( topReifiedObjectPropertySubOPs, tOPs )
 
-    val topReifiedObjectPropertyTargetSubOPs = reasoner.getSubObjectProperties( backbone.topReifiedObjectPropertyTargetOP, false )
-    val reifiedObjectPropertyTargetOPIRIs = resolveDomainRangeForObjectProperties( topReifiedObjectPropertyTargetSubOPs, tOPs )
+    val topReifiedObjectPropertySourceSubOPs =
+      reasoner.getSubObjectProperties( backbone.topReifiedObjectPropertySourceOP, false )
 
-    val dataPropertyDPIRIs = resolveDataPropertyDPIRIs( reasoner.getSubDataProperties( backbone.topDataPropertyDP, false ), tDPs )
+    val reifiedObjectPropertySourceOPIRIs =
+      resolveDomainRangeForObjectProperties( topReifiedObjectPropertySourceSubOPs, tOPs )
 
-    val allEntityDefinitionsExceptRelationships = importedEntityDefinitionMaps ++ aspectCMs ++ conceptCMs
+    val topReifiedObjectPropertyTargetSubOPs =
+      reasoner.getSubObjectProperties( backbone.topReifiedObjectPropertyTargetOP, false )
+
+    val reifiedObjectPropertyTargetOPIRIs =
+      resolveDomainRangeForObjectProperties( topReifiedObjectPropertyTargetSubOPs, tOPs )
+
+    val dataPropertyDPIRIs =
+      resolveDataPropertyDPIRIs( reasoner.getSubDataProperties( backbone.topDataPropertyDP, false ), tDPs )
+
+    val allEntityDefinitionsExceptRelationships =
+      importedEntityDefinitionMaps ++
+        aspectCMs ++
+        conceptCMs
+
     for {
-      entityRelationshipCMs <- resolveEntityDefinitionsForRelationships(
+      entityReifiedRelationshipCMs <- resolveEntityDefinitionsForRelationships(
         allEntityDefinitionsExceptRelationships,
         reifiedObjectPropertyCIRIs,
         reifiedObjectPropertyOPIRIs,
         reifiedObjectPropertySourceOPIRIs,
         reifiedObjectPropertyTargetOPIRIs,
         Map() )
-      allEntityDefinitions = allEntityDefinitionsExceptRelationships ++ entityRelationshipCMs
-      dataRelationshipsFromEntity2Scalars <- resolveDataRelationshipsFromEntity2Scalars( allEntityDefinitions, dataPropertyDPIRIs, DTs )
+      allEntityDefinitions = allEntityDefinitionsExceptRelationships ++ entityReifiedRelationshipCMs
+      dataRelationshipsFromEntity2Scalars <-
+        resolveDataRelationshipsFromEntity2Scalars( allEntityDefinitions, dataPropertyDPIRIs, DTs )
+      _ = System.out.println(
+      s"""TBox: ${ont.getOntologyID.getOntologyIRI.get}
+          | aspects: ${aspectCMs.values.size}
+          | concepts: ${conceptCMs.values.size}
+          | reifiedRelationships: ${entityReifiedRelationshipCMs.values.size}
+       """.stripMargin
+      )
+      _ = aspectCMs.values.toList.sortBy(_.iri.toString).foreach { a =>
+        System.out.println(s" a: ${a.iri}")
+      }
     } yield ImmutableModelTerminologyGraph(
       kind = backbone.kind,
-      imports, ont, getGraphForEntityIRIAnnotation( ont.getOntologyID.getOntologyIRI.get ),
+      imports=imports,
+      ont=ont,
+      entityG=getGraphForEntityIRIAnnotation( ont.getOntologyID.getOntologyIRI.get ),
       aspects = aspectCMs.values.toList,
       concepts = conceptCMs.values.toList,
-      relationships = entityRelationshipCMs.values.toList,
+      reifiedRelationships = entityReifiedRelationshipCMs.values.toList,
+      unreifiedRelationships = Nil,
       sc = DTs.values.toList,
       st = Nil,
       e2sc = dataRelationshipsFromEntity2Scalars,

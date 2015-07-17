@@ -63,16 +63,28 @@ class OWLAPIOWFVocabularyTestLocalCatalog
   val catalogFile = "/ontologies/imce.local.catalog.xml"
   saveStore.catalogIRIMapper match {
       case None => 
-        throw new IllegalArgumentException("There should be a catalog IRI mapper since the store was constructed with a catalog manager")
+        throw new IllegalArgumentException(
+          "There should be a catalog IRI mapper since the store was constructed with a catalog manager")
       
       case Some( catalogIRImapper ) =>
         classOf[OWLAPIOWFVocabularyTestLocalCatalog].getResource(catalogFile) match {
-          case null => 
-            throw new IllegalArgumentException(s"There should be a '$catalogFile' resource on the classpath")
+          case null =>
+            Option.apply(java.nio.file.Paths.get("ontologies", "imce.local.catalog.xml")) match {
+              case Some(p)
+                if p.toFile.exists() && p.toFile.canRead =>
+                catalogIRImapper.parseCatalog( p.toFile.toURI ) match {
+                  case Failure( t ) =>
+                    throw new IllegalArgumentException(s"Cannot parse the test catalog: '${p.toFile.toURI}'", t )
+                  case Success( _ ) =>
+                    ()
+                }
+              case _ =>
+                throw new IllegalArgumentException(s"There should be a '$catalogFile' resource on the classpath")
+            }
           case testCatalogURL =>
             catalogIRImapper.parseCatalog( testCatalogURL.toURI ) match {
               case Failure( t ) => 
-                throw new IllegalArgumentException(s"Cannot parse the test catalog: '${testCatalogURL}'", t )
+                throw new IllegalArgumentException(s"Cannot parse the test catalog: '$testCatalogURL'", t )
               case Success( _ ) =>
                 ()              
             }
@@ -81,16 +93,28 @@ class OWLAPIOWFVocabularyTestLocalCatalog
     
   loadStore.catalogIRIMapper match {
       case None => 
-        throw new IllegalArgumentException("There should be a catalog IRI mapper since the store was constructed with a catalog manager")
+        throw new IllegalArgumentException(
+          "There should be a catalog IRI mapper since the store was constructed with a catalog manager")
       
       case Some( catalogIRImapper ) =>
         classOf[OWLAPIOWFVocabularyTestLocalCatalog].getResource(catalogFile) match {
-          case null => 
-            throw new IllegalArgumentException(s"There should be a '$catalogFile' resource on the classpath")
+          case null =>
+            Option.apply(java.nio.file.Paths.get("ontologies", "imce.local.catalog.xml")) match {
+              case Some(p)
+                if p.toFile.exists() && p.toFile.canRead =>
+                catalogIRImapper.parseCatalog( p.toFile.toURI ) match {
+                  case Failure( t ) =>
+                    throw new IllegalArgumentException(s"Cannot parse the test catalog: '${p.toFile.toURI}'", t )
+                  case Success( _ ) =>
+                    ()
+                }
+              case _ =>
+                throw new IllegalArgumentException(s"There should be a '$catalogFile' resource on the classpath")
+            }
           case testCatalogURL =>
             catalogIRImapper.parseCatalog( testCatalogURL.toURI ) match {
-              case Failure( t ) => 
-                throw new IllegalArgumentException(s"Cannot parse the test catalog: '${testCatalogURL}'", t )
+              case Failure( t ) =>
+                throw new IllegalArgumentException(s"Cannot parse the test catalog: '$testCatalogURL'", t )
               case Success( _ ) =>
                 ()              
             }

@@ -43,11 +43,11 @@ import gov.nasa.jpl.omf.scala.binding.owlapi._
 import test.gov.nasa.jpl.omf.scala.core.{ functionalAPI => testFunctionalAPI }
 import org.apache.xml.resolver.CatalogManager
 
-abstract class IMCEMissionDomainTBoxOWLAPIExample( override val store: OWLAPIOMFGraphStore )
+abstract class IMCEMissionDomainTBoxOWLAPIExample()( override implicit val store: OWLAPIOMFGraphStore )
 extends testFunctionalAPI.IMCEMissionDomainTBoxExample[OWLAPIOMF]()( store.omfModule.ops, store )
 
 class IMCEMissionDomainTBoxOWLAPIExampleNoCatalog
-extends IMCEMissionDomainTBoxOWLAPIExample( 
+extends IMCEMissionDomainTBoxOWLAPIExample()(
     OWLAPIOMFGraphStore( 
         OWLAPIOMFModule( None ), 
         OWLManager.createOWLOntologyManager() ) )

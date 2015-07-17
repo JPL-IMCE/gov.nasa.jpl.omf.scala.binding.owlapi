@@ -59,10 +59,11 @@ sealed abstract class Backbone( val ont: OWLOntology )
 
 class NoBackbone( override val ont: OWLOntology ) extends Backbone( ont )
 
-class OMFBackbone(
-  override val ont: OWLOntology,
+class OMFBackbone
+( override val ont: OWLOntology,
   val kind: TerminologyKind,
   val Thing: IRI,
+  val Aspect: IRI,
   val Entity: IRI,
   val StructuredDatatype: IRI,
   val ReifiedObjectProperty: IRI,
@@ -74,91 +75,123 @@ class OMFBackbone(
   val topReifiedStructuredDataProperty: IRI,
   val topReifiedStructuredDataPropertySource: IRI,
   val topReifiedStructuredDataPropertyTarget: IRI,
-  val topDataProperty: IRI ) extends Backbone( ont ) {
+  val topDataProperty: IRI )
+  extends Backbone( ont ) {
 
   val df = ont.getOWLOntologyManager.getOWLDataFactory
 
   /**
    * The IRI of the OWL Class that is the parent of:
    * - the 3 concrete categories of OMF `ModelEntityDefinition` represented as OWL Classes:
-   * -- `ModelEntityAspect` (direct specializations of the backbone OWL Class `Thing`)
-   * -- `ModelEntityConcept` (indirect specializations via the backbone OWL Class `Entity`)
-   * -- `ModelEntityRelationship` (indirect specializations via the backbone OWL Class `ReifiedObjectProperty`)
+   * -- `ModelEntityAspect`
+   *    (direct specializations of the backbone OWL Class `Thing`)
+   * -- `ModelEntityConcept`
+   *    (indirect specializations via the backbone OWL Class `Entity`)
+   * -- `ModelEntityReifiedRelationship`
+   *    (indirect specializations via the backbone OWL Class `ReifiedObjectProperty`)
    * - the 2 concrete categories of OMF `ModelDataTypeDefinition` represented as OWL Classes:
-   * -- `ModelStructuredDataType` (indirect specializations via the backbone OWL Class `StructuredDatatype`)
-   * -- `ModelStructuredDataRelationship` (indirect specializations via the backbone OWL Class `ReifiedStructuredDataProperty`)
+   * -- `ModelStructuredDataType`
+   *     (indirect specializations via the backbone OWL Class `StructuredDatatype`)
+   * -- `ModelStructuredDataRelationship`
+   *     (indirect specializations via the backbone OWL Class `ReifiedStructuredDataProperty`)
    * @see gov.nasa.jpl.omf.scala.core.OMF#ModelEntityDefinition
    * @see gov.nasa.jpl.omf.scala.core.OMF#ModelDataTypeDefinition
    */
   lazy val ThingC = df.getOWLClass( Thing )
 
   /**
-   * The IRI of the OWL Class that is the parent of any OMF `ModelEntityConcept` defined in the ontology representing an OMF modeling domain
+   * The IRI of the OWL Class that is the parent of any OMF `ModelEntityAspect` defined
+   * in the ontology representing an OMF modeling domain
+   * @see gov.nasa.jpl.omf.scala.core.OMF#ModelEntityAspect
+   */
+  lazy val AspectC = df.getOWLClass( Aspect )
+
+  /**
+   * The IRI of the OWL Class that is the parent of any OMF `ModelEntityConcept` defined
+   * in the ontology representing an OMF modeling domain
    * @see gov.nasa.jpl.omf.scala.core.OMF#ModelEntityConcept
    */
   lazy val EntityC = df.getOWLClass( Entity )
 
   /**
-   * The IRI of the OWL Class that is the parent of any OMF `ModelStructuredDataType` defined in the ontology representing an OMF modeling domain
+   * The IRI of the OWL Class that is the parent of any OMF `ModelStructuredDataType` defined
+   * in the ontology representing an OMF modeling domain
    * @see gov.nasa.jpl.omf.scala.core.OMF#ModelStructuredDataType
    */
   lazy val StructuredDatatypeC = df.getOWLClass( StructuredDatatype )
 
   /**
-   * The IRI of the OWL Class that is the parent of any OMF `ModelEntityRelationship` defined in the ontology representing an OMF modeling domain
-   * @see gov.nasa.jpl.omf.scala.core.OMF#ModelEntityRelationship
+   * The IRI of the OWL Class that is the parent of any OMF `ModelEntityReifiedRelationship` defined
+   * in the ontology representing an OMF modeling domain
+   * @see gov.nasa.jpl.omf.scala.core.OMF#ModelEntityReifiedRelationship
    */
   lazy val ReifiedObjectPropertyC = df.getOWLClass( ReifiedObjectProperty )
 
   /**
-   * The IRI of the OWL Class that is the parent of any OMF `ModelStructuredDataRelationship` defined in the ontology representing an OMF modeling domain
+   * The IRI of the OWL Class that is the parent of any OMF `ModelStructuredDataRelationship` defined
+   * in the ontology representing an OMF modeling domain
    * @see gov.nasa.jpl.omf.scala.core.OMF#ModelStructuredDataRelationship
    */
   lazy val ReifiedStructuredDataPropertyC = df.getOWLClass( ReifiedStructuredDataProperty )
 
   /**
-   * The IRI of the OWL ObjectProperty that is the parent of any category of OMF type represented as an OWL ObjectProperty
+   * The IRI of the OWL ObjectProperty that is the parent of
+   * any category of OMF type represented as an OWL ObjectProperty
    */
   lazy val topObjectPropertyOP = df.getOWLObjectProperty( topObjectProperty )
 
   /**
-   * The IRI of the OWL ObjectProperty that is the parent of any unreified object property chain for an OMF `ModelEntityRelationship` defined in the ontology representing an OMF modeling domain
-   * @see gov.nasa.jpl.omf.scala.core.OMF#ModelEntityRelationship
+   * The IRI of the OWL ObjectProperty that is the parent of
+   * any unreified object property chain for an OMF `ModelEntityReifiedRelationship` defined
+   * in the ontology representing an OMF modeling domain
+   * @see gov.nasa.jpl.omf.scala.core.OMF#ModelEntityReifiedRelationship
    */
   lazy val topReifiedObjectPropertyOP = df.getOWLObjectProperty( topReifiedObjectProperty )
 
   /**
-   * The IRI of the OWL ObjectProperty that is the parent of any unreified object property source for an OMF `ModelEntityRelationship` defined in the ontology representing an OMF modeling domain
-   * @see gov.nasa.jpl.omf.scala.core.OMF#ModelEntityRelationship
+   * The IRI of the OWL ObjectProperty that is the parent of
+   * any unreified object property source for an OMF `ModelEntityReifiedelationship` defined
+   * in the ontology representing an OMF modeling domain
+   * @see gov.nasa.jpl.omf.scala.core.OMF#ModelEntityReifiedRelationship
    */
   lazy val topReifiedObjectPropertySourceOP = df.getOWLObjectProperty( topReifiedObjectPropertySource )
 
   /**
-   * The IRI of the OWL ObjectProperty that is the parent of any unreified object property target for an OMF `ModelEntityRelationship` defined in the ontology representing an OMF modeling domain
-   * @see gov.nasa.jpl.omf.scala.core.OMF#ModelEntityRelationship
+   * The IRI of the OWL ObjectProperty that is the parent of
+   * any unreified object property target for an OMF `ModelEntityReifiedRelationship` defined
+   * in the ontology representing an OMF modeling domain
+   * @see gov.nasa.jpl.omf.scala.core.OMF#ModelEntityReifiedRelationship
    */
   lazy val topReifiedObjectPropertyTargetOP = df.getOWLObjectProperty( topReifiedObjectPropertyTarget )
 
   /**
-   * The IRI of the OWL ObjectProperty that is the parent of any unreified object property chain for an OMF `ModelStructuredDataRelationship` defined in the ontology representing an OMF modeling domain
+   * The IRI of the OWL ObjectProperty that is the parent of
+   * any unreified object property chain for an OMF `ModelStructuredDataRelationship` defined
+   * in the ontology representing an OMF modeling domain
    * @see gov.nasa.jpl.omf.scala.core.OMF#ModelStructuredDataRelationship
    */
   lazy val topReifiedStructuredDataPropertyOP = df.getOWLObjectProperty( topReifiedStructuredDataProperty )
 
   /**
-   * The IRI of the OWL ObjectProperty that is the parent of any unreified object property source for an OMF `ModelStructuredDataRelationship` defined in the ontology representing an OMF modeling domain
+   * The IRI of the OWL ObjectProperty that is the parent of
+   * any unreified object property source for an OMF `ModelStructuredDataRelationship` defined
+   * in the ontology representing an OMF modeling domain
    * @see gov.nasa.jpl.omf.scala.core.OMF#ModelStructuredDataRelationship
    */
   lazy val topReifiedStructuredDataPropertySourceOP = df.getOWLObjectProperty( topReifiedStructuredDataPropertySource )
 
   /**
-   * The IRI of the OWL ObjectProperty that is the parent of any unreified object property target for an OMF `ModelStructuredDataRelationship` defined in the ontology representing an OMF modeling domain
+   * The IRI of the OWL ObjectProperty that is the parent of
+   * any unreified object property target for an OMF `ModelStructuredDataRelationship` defined
+   * in the ontology representing an OMF modeling domain
    * @see gov.nasa.jpl.omf.scala.core.OMF#ModelStructuredDataRelationship
    */
   lazy val topReifiedStructuredDataPropertyTargetOP = df.getOWLObjectProperty( topReifiedStructuredDataPropertyTarget )
 
   /**
-   * The IRI of the OWL DataProperty that is the parent of any data property for an OMF `ModelEntityDataRelationship` defined in the ontology representation of an OMF modeling domain
+   * The IRI of the OWL DataProperty that is the parent of
+   * any data property for an OMF `ModelEntityDataRelationship` defined
+   * in the ontology representation of an OMF modeling domain
    */
   lazy val topDataPropertyDP = df.getOWLDataProperty( topDataProperty )
 
@@ -167,8 +200,10 @@ class OMFBackbone(
 object Backbone {
 
   /**
-   * Representing an OMF domain as an OWL ontology involves adopting conventions for distinguishing the OMF role that each OWL entity has.
-   * These conventions involve a small vocabulary of OWL entities called the backbone for an OMF domain ontology.
+   * Representing an OMF domain as an OWL ontology involves adopting conventions for
+   * distinguishing the OMF role that each OWL entity has.
+   * These conventions involve a small vocabulary of OWL entities called
+   * the backbone for an OMF domain ontology.
    *
    * @TODO needs: annotation:isAbstract, annotation:noMapping
    */
@@ -181,6 +216,7 @@ object Backbone {
 
     for {
       _Thing <- withFragment( bIRI, "Thing" )
+      _Aspect <- withFragment( bIRI, "Aspect" )
       _Entity <- withFragment( bIRI, "Entity" )
       _StructuredDatatype <- withFragment( bIRI, "StructuredDatatype" )
       _ReifiedObjectProperty <- withFragment( bIRI, "ReifiedObjectProperty" )
@@ -195,6 +231,7 @@ object Backbone {
       _topDataProperty <- withFragment( bIRI, "topDataProperty" )
     } yield new OMFBackbone( ont, kind,
       Thing = _Thing,
+      Aspect = _Aspect,
       Entity = _Entity,
       StructuredDatatype = _StructuredDatatype,
       ReifiedObjectProperty = _ReifiedObjectProperty,
@@ -209,11 +246,11 @@ object Backbone {
       topDataProperty = _topDataProperty ) {
 
       kind match {
-        case `isDefinition` =>
+        case _ @ ( `isDefinition` | `isToplevelDefinition` ) =>
           val defP = df.getOWLAnnotationProperty( ops.AnnotationIsDefinition )
           om.applyChange( new AddOntologyAnnotation( ont, df.getOWLAnnotation( defP, df.getOWLLiteral( true ) ) ) )
 
-        case `isDesignation` =>
+        case _ @ ( `isDesignation` | `isToplevelDesignation` ) =>
           val desP = df.getOWLAnnotationProperty( ops.AnnotationIsDesignation )
           om.applyChange( new AddOntologyAnnotation( ont, df.getOWLAnnotation( desP, df.getOWLLiteral( true ) ) ) )
       }
@@ -221,7 +258,7 @@ object Backbone {
       om.applyChange( new AddAxiom( ont, df.getOWLDeclarationAxiom( ThingC ) ) )
 
       for {
-        c <- Seq( EntityC, ReifiedObjectPropertyC, ReifiedStructuredDataPropertyC, StructuredDatatypeC )
+        c <- Seq( AspectC, EntityC, ReifiedObjectPropertyC, ReifiedStructuredDataPropertyC, StructuredDatatypeC )
       } {
         om.applyChange( new AddAxiom( ont, df.getOWLDeclarationAxiom( c ) ) )
         om.applyChange( new AddAxiom( ont, df.getOWLSubClassOfAxiom( c, ThingC ) ) )
@@ -231,19 +268,30 @@ object Backbone {
 
       for {
         op <- Seq(
-          topReifiedObjectPropertyOP, topReifiedObjectPropertySourceOP, topReifiedObjectPropertyTargetOP,
-          topReifiedStructuredDataPropertyOP, topReifiedStructuredDataPropertySourceOP, topReifiedStructuredDataPropertyTargetOP )
+          topReifiedObjectPropertyOP,
+          topReifiedObjectPropertySourceOP,
+          topReifiedObjectPropertyTargetOP,
+          topReifiedStructuredDataPropertyOP,
+          topReifiedStructuredDataPropertySourceOP,
+          topReifiedStructuredDataPropertyTargetOP )
       } {
-        om.applyChange( new AddAxiom( ont, df.getOWLDeclarationAxiom( op ) ) )
-        om.applyChange( new AddAxiom( ont, df.getOWLSubObjectPropertyOfAxiom( op, topObjectPropertyOP ) ) )
+        om.applyChange( new AddAxiom( ont,
+          df.getOWLDeclarationAxiom( op ) ) )
+        om.applyChange( new AddAxiom( ont,
+          df.getOWLSubObjectPropertyOfAxiom( op, topObjectPropertyOP ) ) )
       }
 
-      om.applyChange( new AddAxiom( ont, df.getOWLFunctionalObjectPropertyAxiom( topReifiedObjectPropertySourceOP ) ) )
-      om.applyChange( new AddAxiom( ont, df.getOWLFunctionalObjectPropertyAxiom( topReifiedObjectPropertyTargetOP ) ) )
-      om.applyChange( new AddAxiom( ont, df.getOWLFunctionalObjectPropertyAxiom( topReifiedStructuredDataPropertySourceOP ) ) )
-      om.applyChange( new AddAxiom( ont, df.getOWLFunctionalObjectPropertyAxiom( topReifiedStructuredDataPropertyTargetOP ) ) )
+      om.applyChange( new AddAxiom( ont,
+        df.getOWLFunctionalObjectPropertyAxiom( topReifiedObjectPropertySourceOP ) ) )
+      om.applyChange( new AddAxiom( ont,
+        df.getOWLFunctionalObjectPropertyAxiom( topReifiedObjectPropertyTargetOP ) ) )
+      om.applyChange( new AddAxiom( ont,
+        df.getOWLFunctionalObjectPropertyAxiom( topReifiedStructuredDataPropertySourceOP ) ) )
+      om.applyChange( new AddAxiom( ont,
+        df.getOWLFunctionalObjectPropertyAxiom( topReifiedStructuredDataPropertyTargetOP ) ) )
 
-      om.applyChange( new AddAxiom( ont, df.getOWLDeclarationAxiom( topDataPropertyDP ) ) )
+      om.applyChange( new AddAxiom( ont,
+        df.getOWLDeclarationAxiom( topDataPropertyDP ) ) )
     }
   }
 
@@ -264,15 +312,21 @@ object Backbone {
       set.find( _.getIRI == iri )
     }
 
-    val hasIsDesignation = ont.getAnnotations filter ( _.getProperty.getIRI == ops.AnnotationIsDesignation ) flatMap ( _.getValue match {
-      case l: OWLLiteral if ( l.isBoolean ) => Some( l.parseBoolean )
-      case _                                => None
+    val hasIsDesignation = ont.getAnnotations.
+      filter ( _.getProperty.getIRI == ops.AnnotationIsDesignation ).
+      flatMap ( _.getValue match {
+      case l: OWLLiteral if l.isBoolean =>
+        Some( l.parseBoolean )
+      case _  =>
+        None
     } ) headOption
 
-    val kind: TerminologyKind = if ( hasIsDesignation.getOrElse( false ) ) isDesignation else isDefinition
+    val kind: TerminologyKind =
+      if ( hasIsDesignation.getOrElse( false ) ) isDesignation else isDefinition
 
     val b = for {
       _Thing <- lookup( "Thing", bCs )
+      _Aspect <- lookup( "Aspect", bCs )
       _Entity <- lookup( "Entity", bCs )
       _StructuredDatatype <- lookup( "StructuredDatatype", bCs )
       _ReifiedObjectProperty <- lookup( "ReifiedObjectProperty", bCs )
@@ -287,6 +341,7 @@ object Backbone {
       _topDataProperty <- lookup( "topDataProperty", bDPs )
     } yield new OMFBackbone( ont, kind,
       Thing = _Thing.getIRI,
+      Aspect = _Aspect.getIRI,
       Entity = _Entity.getIRI,
       StructuredDatatype = _StructuredDatatype.getIRI,
       ReifiedObjectProperty = _ReifiedObjectProperty.getIRI,
@@ -301,8 +356,10 @@ object Backbone {
       topDataProperty = _topDataProperty.getIRI )
 
     b match {
-      case Some( backbone ) => Success( backbone )
-      case None             => Success( new NoBackbone( ont ) )
+      case Some( backbone ) =>
+        Success( backbone )
+      case None =>
+        Success( new NoBackbone( ont ) )
     }
   }
 }

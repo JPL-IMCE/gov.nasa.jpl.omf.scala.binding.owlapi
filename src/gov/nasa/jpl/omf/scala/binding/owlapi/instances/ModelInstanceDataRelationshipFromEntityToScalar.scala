@@ -43,4 +43,5 @@ import gov.nasa.jpl.omf.scala.binding.owlapi._
 case class ModelInstanceDataRelationshipFromEntityToScalar(
     val ei: ModelEntityInstance, 
     val dataRelationship: types.ModelDataRelationshipFromEntityToScalar,
-    val value: ModelInstanceDataLiteral) extends ModelInstanceAssertion
+    val value: ModelInstanceDataLiteral)
+  extends ModelInstanceAssertion

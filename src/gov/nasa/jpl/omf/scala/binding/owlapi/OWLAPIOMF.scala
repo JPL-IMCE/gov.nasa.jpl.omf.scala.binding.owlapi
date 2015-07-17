@@ -41,8 +41,17 @@ package gov.nasa.jpl.omf.scala.binding.owlapi
 import gov.nasa.jpl.omf.scala.core._
 import gov.nasa.jpl.omf.scala.binding._
 import org.semanticweb.owlapi.model.OWLOntologyManager
+import gov.nasa.jpl.omf.scala.core.RelationshipCharacteristics._
+import gov.nasa.jpl.omf.scala.core.TerminologyKind._
 
-trait OWLAPIOMF extends OMF with OWLAPIOMFstore with OWLAPIOMFiri with OWLAPIOMFtbox with OWLAPIOMFabox
+trait OWLAPIOMF
+  extends OMF
+  with OWLAPIOMFstore
+  with OWLAPIOMFiri
+  with OWLAPIOMFtbox
+  with OWLAPIOMFabox {
+
+}
 
 trait OWLAPIOMFstore extends OMFstore {
   
@@ -68,6 +77,7 @@ trait OWLAPIOMFtbox extends OMFtbox {
   type ModelEntityAspect = types.ModelEntityAspect
   type ModelEntityConcept = types.ModelEntityConcept
   type ModelEntityReifiedRelationship = types.ModelEntityReifiedRelationship
+  type ModelEntityUnreifiedRelationship = types.ModelEntityUnreifiedRelationship
   
   type ModelDataTypeDefinition = types.ModelDataTypeDefinition
   type ModelScalarDataType = types.ModelScalarDataType
@@ -95,9 +105,13 @@ trait OWLAPIOMFtbox extends OMFtbox {
   type EntityConceptRestrictionAxiom = types.EntityConceptRestrictionAxiom
   type EntityConceptUniversalRestrictionAxiom = types.EntityConceptUniversalRestrictionAxiom
   type EntityConceptExistentialRestrictionAxiom = types.EntityConceptExistentialRestrictionAxiom
-  type EntityRelationshipSubClassAxiom = types.EntityRelationshipSubClassAxiom  
+  type EntityReifiedRelationshipSubClassAxiom = types.EntityReifiedRelationshipSubClassAxiom
   type ScalarDataTypeFacetRestriction = types.ScalarDataTypeFacetRestriction
-  
+
+  type TerminologyGraphAxiom = types.TerminologyGraphAxiom
+  type TerminologyGraphDirectExtensionAxiom = types.TerminologyGraphDirectExtensionAxiom
+  type TerminologyGraphDirectNestingAxiom = types.TerminologyGraphDirectNestingAxiom
+
 }
 
 trait OWLAPIOMFabox extends OMFabox {
@@ -124,3 +138,50 @@ trait OWLAPIOMFabox extends OMFabox {
   type ModelInstanceDataRelationshipFromStructureToStructure = instances.ModelInstanceDataRelationshipFromStructureToStructure
     
 }
+
+
+case class OWLAPITerminologyGraphSignature
+( override val iri: OWLAPIOMF#IRI,
+  override val entityGraphIRI: Option[OWLAPIOMF#IRI],
+  override val kind: TerminologyKind,
+  override val nesting: Option[OWLAPIOMF#ModelTerminologyGraph],
+  override val nested: Iterable[OWLAPIOMF#ModelTerminologyGraph],
+  override val imports: Iterable[OWLAPIOMF#ModelTerminologyGraph],
+  override val aspects: Iterable[OWLAPIOMF#ModelEntityAspect],
+  override val concepts: Iterable[OWLAPIOMF#ModelEntityConcept],
+  override val reifiedRelationships: Iterable[OWLAPIOMF#ModelEntityReifiedRelationship],
+  override val unreifiedRelationships: Iterable[OWLAPIOMF#ModelEntityUnreifiedRelationship],
+  override val scalarDataTypes: Iterable[OWLAPIOMF#ModelScalarDataType],
+  override val structuredDataTypes: Iterable[OWLAPIOMF#ModelStructuredDataType],
+  override val entity2scalarDataRelationships: Iterable[OWLAPIOMF#ModelDataRelationshipFromEntityToScalar],
+  override val entity2structureDataRelationships: Iterable[OWLAPIOMF#ModelDataRelationshipFromEntityToStructure],
+  override val structure2scalarDataRelationships: Iterable[OWLAPIOMF#ModelDataRelationshipFromStructureToScalar],
+  override val structure2structureDataRelationships: Iterable[OWLAPIOMF#ModelDataRelationshipFromStructureToStructure],
+  override val axioms: Iterable[OWLAPIOMF#ModelTermAxiom] )
+  extends TerminologyGraphSignature[OWLAPIOMF]
+{}
+
+case class OWLAPIEntityConceptSignature
+( override val iri: OWLAPIOMF#IRI,
+  override val subGraph: Option[OWLAPIOMF#IRI],
+  override val isAbstract: Boolean)
+  extends EntityConceptSignature[OWLAPIOMF]
+{}
+
+case class OWLAPIEntityReifiedRelationshipSignature
+( override val iri: OWLAPIOMF#IRI,
+  override val subGraph: Option[OWLAPIOMF#IRI],
+  override val source: OWLAPIOMF#ModelEntityDefinition,
+  override val target: OWLAPIOMF#ModelEntityDefinition,
+  override val characteristics: Iterable[RelationshipCharacteristics],
+  override val isAbstract: Boolean )
+  extends EntityReifiedRelationshipSignature[OWLAPIOMF]
+{}
+
+case class OWLAPIEntityUnreifiedRelationshipSignature
+( override val iri: OWLAPIOMF#IRI,
+  override val source: OWLAPIOMF#ModelEntityDefinition,
+  override val target: OWLAPIOMF#ModelEntityDefinition,
+  override val characteristics: Iterable[RelationshipCharacteristics] )
+  extends EntityUnreifiedRelationshipSignature[OWLAPIOMF]
+{}

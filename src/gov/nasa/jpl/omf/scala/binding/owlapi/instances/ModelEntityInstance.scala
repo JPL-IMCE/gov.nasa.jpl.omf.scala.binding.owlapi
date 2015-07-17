@@ -41,4 +41,5 @@ package gov.nasa.jpl.omf.scala.binding.owlapi.instances
 import gov.nasa.jpl.omf.scala.binding._
 import gov.nasa.jpl.omf.scala.binding.owlapi._
 
-abstract class ModelEntityInstance(override val iri: OWLAPIOMF#IRI) extends ModelNamedIndividual(iri)
+abstract class ModelEntityInstance(override val iri: OWLAPIOMF#IRI)
+  extends ModelNamedIndividual(iri)

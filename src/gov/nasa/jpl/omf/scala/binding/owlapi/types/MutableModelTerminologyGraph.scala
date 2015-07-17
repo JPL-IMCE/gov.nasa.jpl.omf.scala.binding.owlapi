@@ -40,26 +40,19 @@ package gov.nasa.jpl.omf.scala.binding.owlapi.types
 
 import gov.nasa.jpl.omf.scala.core.TerminologyKind._
 import gov.nasa.jpl.omf.scala.binding.owlapi._
-import org.semanticweb.owlapi.model.OWLOntology
-import org.semanticweb.owlapi.model.IRI
-import org.semanticweb.owlapi.model.parameters.Imports
+import org.semanticweb.owlapi.model._
+import org.semanticweb.owlapi.model.parameters.{ChangeApplied, Imports}
 import scala.collection.JavaConversions._
 import scala.language.postfixOps
 import scala.util.Try
 import scala.util.Success
 import scala.util.Failure
-import org.semanticweb.owlapi.model.AddAxiom
-import org.semanticweb.owlapi.model.OWLDatatype
-import org.semanticweb.owlapi.model.OWLClass
 import gov.nasa.jpl.omf.scala.core.RelationshipCharacteristics._
-import org.semanticweb.owlapi.model.OWLObjectProperty
-import org.semanticweb.owlapi.model.OWLDataProperty
-import org.semanticweb.owlapi.model.AddImport
 import java.io.OutputStream
 
 object EntityExceptionKind extends Enumeration {
   type EntityExceptionKind = Value
-  val EntityAspect, EntityConcept, EntityRelationship, DataRelationshipFromEntityToScalar, ScalarDataType = Value
+  val EntityAspect, EntityConcept, EntityReifiedRelationship, DataRelationshipFromEntityToScalar, ScalarDataType = Value
 }
 
 import EntityExceptionKind._
@@ -73,7 +66,7 @@ import RelationshipScopeAccessKind._
 
 object AxiomExceptionKind extends Enumeration {
   type AxiomExceptionKind = Value
-  val AspectSubclassAxiom, ConceptSubclassAxiom, ConceptRestrictionAxiom, RelationshipSubclassAxiom = Value
+  val AspectSubclassAxiom, ConceptSubclassAxiom, ConceptRestrictionAxiom, ReifiedRelationshipSubclassAxiom = Value
 }
 
 import AxiomExceptionKind._
@@ -85,30 +78,109 @@ object AxiomScopeAccessKind extends Enumeration {
 
 import AxiomScopeAccessKind._
 
-sealed abstract class MutableModelTerminologyGraphException( val message: String ) extends IllegalArgumentException( message ) 
+sealed abstract class MutableModelTerminologyGraphException( val message: String )
+  extends IllegalArgumentException( message )
 
-case class EntityConflictException( kind: EntityExceptionKind, iri: IRI, conflictingTerm: ModelTypeTerm )
-  extends MutableModelTerminologyGraphException( s"Cannot create ${kind} with IRI='${iri}' because this IRI refers to: ${conflictingTerm}" )
-
-case class EntityScopeException( kind: EntityExceptionKind, iri: IRI, unaccessibleTerms: Map[RelationshipScopeAccessKind, ModelTypeTerm] )
+case class EntityConflictException
+( kind: EntityExceptionKind, iri: IRI, conflictingTerm: ModelTypeTerm )
   extends MutableModelTerminologyGraphException(
-    s"Cannot create ${kind} with IRI='${iri}' because there are ${unaccessibleTerms.size} terms out of scope of the graph: "+
-      (( unaccessibleTerms.map { case ( kind, term ) => s"${kind}: ${term}" } ) mkString ( ", ") ) )
+    s"Cannot create $kind with IRI='$iri' because this IRI refers to: $conflictingTerm" )
 
-case class AxiomScopeException( kind: AxiomExceptionKind, unaccessibleTerms: Map[AxiomScopeAccessKind, ModelTypeTerm] )
+case class EntityScopeException
+( kind: EntityExceptionKind, iri: IRI, unaccessibleTerms: Map[RelationshipScopeAccessKind, ModelTypeTerm] )
   extends MutableModelTerminologyGraphException(
-    s"Cannot create ${kind} because there are ${unaccessibleTerms.size} terms out of scope of the graph: "+
-     ( ( unaccessibleTerms.map { case ( kind, term ) => s"${kind}: ${term}" } ) mkString ( ", " ) ) )
+    s"""Cannot create $kind with IRI='$iri' because
+       |there are ${unaccessibleTerms.size} terms out of scope of the graph: """.stripMargin +
+      ( unaccessibleTerms.map { case ( kind, term ) => s"$kind: $term" } mkString ", " ) )
 
-case class MutableModelTerminologyGraph(
-  override val kind: TerminologyKind,
+case class AxiomScopeException
+( kind: AxiomExceptionKind, unaccessibleTerms: Map[AxiomScopeAccessKind, ModelTypeTerm] )
+  extends MutableModelTerminologyGraphException(
+    s"""Cannot create $kind because
+       |there are ${unaccessibleTerms.size} terms out of scope of the graph: """.stripMargin +
+      ( unaccessibleTerms.map { case ( kind, term ) => s"$kind: $term" } mkString ", " ) )
+
+case class MutableModelTerminologyGraph
+( override val kind: TerminologyKind,
   override val ont: OWLOntology,
-  override val entityG: Option[IRI] )( override implicit val ops: OWLAPIOMFOps )
+  override val entityG: Option[IRI] )
+( override implicit val ops: OWLAPIOMFOps )
   extends ModelTerminologyGraph( kind, ont, entityG )( ops ) {
 
   override val isImmutableModelTerminologyGraph = true
   override val isMutableModelTerminologyGraph = false
   override val imports = scala.collection.mutable.ListBuffer[ModelTerminologyGraph]()
+
+  def setTerminologyGraphShortName
+  (shortName: Option[String])
+  (implicit omfStore: OWLAPIOMFGraphStore)
+  : Try[Unit] =
+  for {
+    c1 <- getTerminologyGraphShortNameAnnotation match {
+      case Some(annotation) =>
+        ontManager.applyChange( new RemoveOntologyAnnotation(ont, annotation) ) match {
+          case ChangeApplied.SUCCESSFULLY =>
+            Success(Unit)
+          case ChangeApplied.UNSUCCESSFULLY =>
+            Failure(new IllegalArgumentException(
+              s"Failed to remove the tbox ontology 'rdfs:label' annotation"))
+        }
+      case None =>
+        Success(Unit)
+    }
+    c2 <- shortName match {
+      case None =>
+        Success(Unit)
+      case Some(label) =>
+        ontManager.applyChange(new AddOntologyAnnotation(
+          ont,
+          owlDataFactory.getOWLAnnotation(
+            omfStore.RDFS_LABEL,
+            owlDataFactory.getOWLLiteral(label)))) match {
+          case ChangeApplied.SUCCESSFULLY =>
+            Success(Unit)
+          case ChangeApplied.UNSUCCESSFULLY =>
+            Failure(new IllegalArgumentException(
+              s"Failed to add the tbox ontology 'rdfs:label' annotation"))
+        }
+    }
+  } yield ()
+
+  def setTerminologyGraphUUID
+  (uuid: Option[String])
+  (implicit omfStore: OWLAPIOMFGraphStore)
+  : Try[Unit] =
+    for {
+      c1 <- getTerminologyGraphUUIDAnnotation match {
+        case Some(annotation) =>
+          ontManager.applyChange( new RemoveOntologyAnnotation(ont, annotation) ) match {
+            case ChangeApplied.SUCCESSFULLY =>
+              Success(Unit)
+            case ChangeApplied.UNSUCCESSFULLY =>
+              Failure(new IllegalArgumentException(
+                s"Failed to remove the tbox ontology 'uuid' annotation"))
+          }
+        case None =>
+          Success(Unit)
+      }
+      c2 <- uuid match {
+        case None =>
+          Success(Unit)
+        case Some(id) =>
+          ontManager.applyChange(new AddOntologyAnnotation(
+            ont,
+            owlDataFactory.getOWLAnnotation(
+              omfStore.ANNOTATION_HAS_UUID,
+              owlDataFactory.getOWLLiteral(id)))) match {
+            case ChangeApplied.SUCCESSFULLY =>
+              Success(Unit)
+            case ChangeApplied.UNSUCCESSFULLY =>
+              Failure(new IllegalArgumentException(
+                s"Failed to add the tbox ontology 'uuid' annotation"))
+          }
+      }
+    } yield ()
+
 
   import ops._
   import EntityConflictException._
@@ -121,7 +193,8 @@ case class MutableModelTerminologyGraph(
 
   override protected val aspects = scala.collection.mutable.ListBuffer[ModelEntityAspect]()
   override protected val concepts = scala.collection.mutable.ListBuffer[ModelEntityConcept]()
-  override protected val relationships = scala.collection.mutable.ListBuffer[ModelEntityReifiedRelationship]()
+  override protected val reifiedRelationships = scala.collection.mutable.ListBuffer[ModelEntityReifiedRelationship]()
+  override protected val unreifiedRelationships = scala.collection.mutable.ListBuffer[ModelEntityUnreifiedRelationship]()
   override protected val sc = scala.collection.mutable.ListBuffer[ModelScalarDataType]()
   override protected val st = scala.collection.mutable.ListBuffer[ModelStructuredDataType]()
   override protected val e2sc = scala.collection.mutable.ListBuffer[ModelDataRelationshipFromEntityToScalar]()
@@ -131,9 +204,9 @@ case class MutableModelTerminologyGraph(
   override protected val ax = scala.collection.mutable.ListBuffer[ModelTermAxiom]()
 
   override def getEntityDefinitionMap: Map[OWLClass, ModelEntityDefinition] =
-    ( ( aspects map ( a => ( a.e -> a ) ) ) ++
-      ( concepts map ( c => ( c.e -> c ) ) ) ++
-      ( relationships map ( r => ( r.e -> r ) ) ) ) toMap
+    ( ( aspects map ( a => a.e -> a ) ) ++
+      ( concepts map ( c => c.e -> c ) ) ++
+      ( reifiedRelationships map ( r => r.e -> r ) ) ) toMap
 
   override protected val iri2typeTerm = scala.collection.mutable.HashMap[IRI, ModelTypeTerm]()
 
@@ -147,57 +220,147 @@ case class MutableModelTerminologyGraph(
 
   val backbone = Backbone.createBackbone( ont, kind, ops ).get
 
-  def addTerminologyGraphExtension( extendedG: ModelTerminologyGraph ): Try[Unit] = {
-    if ( imports.contains( extendedG ) ) Failure( new IllegalArgumentException( "..." ) )
+  def addTerminologyGraphExtension
+  ( extendedG: ModelTerminologyGraph )
+  : Try[types.TerminologyGraphDirectExtensionAxiom] =
+    if ( imports.contains( extendedG ) )
+      Failure( new IllegalArgumentException( "..." ) )
     else {
       imports.add( extendedG )
       val decl = ontManager.getOWLDataFactory.getOWLImportsDeclaration( extendedG.iri )
       val changeApplied = ontManager.applyChange( new AddImport( ont, decl ) )
-      Success( Unit )
+      Success( types.TerminologyGraphDirectExtensionAxiom(
+        extendingChild = this,
+        extendedParent = extendedG) )
     }
-  }
 
-  protected def createModelEntityAspect( a: OWLClass ): ModelEntityAspect = {
+  protected def createModelEntityAspect
+  ( a: OWLClass )
+  : ModelEntityAspect = {
     val _a = ModelEntityAspect( a )
     aspects += _a
     iri2typeTerm += a.getIRI -> _a
     _a
   }
 
-  def addEntityAspect( aspectIRI: IRI ): Try[types.ModelEntityAspect] = iri2typeTerm get aspectIRI match {
+  def setTermShortName
+  ( term: types.ModelTypeTerm,
+    shortName: Option[String] )
+  (implicit omfStore: OWLAPIOMFGraphStore)
+  : Try[Unit] =
+    for {
+      c1 <- getTermShortNameAnnotationAssertionAxiom(term) match {
+        case Some(annotationAssertionAxiom) =>
+          ontManager.applyChange( new RemoveAxiom(ont, annotationAssertionAxiom) ) match {
+            case ChangeApplied.SUCCESSFULLY =>
+              Success(Unit)
+            case ChangeApplied.UNSUCCESSFULLY =>
+              Failure(new IllegalArgumentException(
+                s"Failed to remove a tbox ontology 'rdfs:label' annotation assertion axiom"))
+          }
+        case None =>
+          Success(Unit)
+      }
+      c2 <- shortName match {
+        case None =>
+          Success(Unit)
+        case Some(label) =>
+          ontManager.applyChange(new AddAxiom(
+            ont,
+            owlDataFactory.getOWLAnnotationAssertionAxiom(
+              omfStore.RDFS_LABEL,
+              term.iri,
+              owlDataFactory.getOWLLiteral(label)))) match {
+            case ChangeApplied.SUCCESSFULLY =>
+              Success(Unit)
+            case ChangeApplied.UNSUCCESSFULLY =>
+              Failure(new IllegalArgumentException(
+                s"Failed to add a tbox ontology 'rdfs:label' annotation assertion axiom"))
+          }
+      }
+    } yield ()
+
+  def setTermShortUUID
+  ( term: types.ModelTypeTerm,
+    uuid: Option[String] )
+  (implicit omfStore: OWLAPIOMFGraphStore)
+  : Try[Unit] =
+    for {
+      c1 <- getTermUUIDAnnotationAssertionAxiom(term) match {
+        case Some(annotationAssertionAxiom) =>
+          ontManager.applyChange( new RemoveAxiom(ont, annotationAssertionAxiom) ) match {
+            case ChangeApplied.SUCCESSFULLY =>
+              Success(Unit)
+            case ChangeApplied.UNSUCCESSFULLY =>
+              Failure(new IllegalArgumentException(
+                s"Failed to remove a tbox ontology 'uuid' annotation assertion axiom"))
+          }
+        case None =>
+          Success(Unit)
+      }
+      c2 <- uuid match {
+        case None =>
+          Success(Unit)
+        case Some(id) =>
+          ontManager.applyChange(new AddAxiom(
+            ont,
+            owlDataFactory.getOWLAnnotationAssertionAxiom(
+              omfStore.ANNOTATION_HAS_UUID,
+              term.iri,
+              owlDataFactory.getOWLLiteral(id)))) match {
+            case ChangeApplied.SUCCESSFULLY =>
+              Success(Unit)
+            case ChangeApplied.UNSUCCESSFULLY =>
+              Failure(new IllegalArgumentException(
+                s"Failed to add a tbox ontology 'uuid' annotation assertion axiom"))
+          }
+      }
+    } yield ()
+
+  def addEntityAspect
+  ( aspectIRI: IRI )
+  : Try[types.ModelEntityAspect] =
+    iri2typeTerm get aspectIRI match {
     case None =>
       val aspectC = owlDataFactory.getOWLClass( aspectIRI )
       val aspectTerm = createModelEntityAspect( aspectC )
       ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLDeclarationAxiom( aspectC ) ) )
-      ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLSubClassOfAxiom( aspectC, backbone.ThingC ) ) )
+      ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLSubClassOfAxiom( aspectC, backbone.AspectC ) ) )
       Success( aspectTerm )
 
     case Some( term ) =>
       Failure( EntityConflictException( EntityAspect, aspectIRI, term ) )
   }
 
-  protected def createModelEntityConcept(
-    c: OWLClass,
+  protected def createModelEntityConcept
+  ( c: OWLClass,
     isAbstract: Boolean,
-    cgIRI: Option[IRI] ): ModelEntityConcept = {
+    cgIRI: Option[IRI] )
+  : ModelEntityConcept = {
     val _c = ModelEntityConcept( c, cgIRI, isAbstract )
     concepts += _c
     iri2typeTerm += c.getIRI -> _c
     _c
   }
 
-  def addEntityConcept(
-    conceptIRI: IRI,
+  def addEntityConcept
+  ( conceptIRI: IRI,
     conceptGraphIRI: Option[IRI],
-    isAbstract: Boolean )( implicit store: OWLAPIOMFGraphStore ): Try[( types.ModelEntityConcept, Option[MutableModelTerminologyGraph] )] =
+    isAbstract: Boolean )
+  ( implicit store: OWLAPIOMFGraphStore )
+  : Try[( types.ModelEntityConcept, Option[MutableModelTerminologyGraph] )] =
 
     iri2typeTerm get conceptIRI match {
       case None =>
 
         val conceptC = owlDataFactory.getOWLClass( conceptIRI )
-        ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLDeclarationAxiom( conceptC ) ) )
-        ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLAnnotationAssertionAxiom( isAbstractAP, conceptIRI, owlDataFactory.getOWLLiteral( isAbstract ) ) ) )
-        ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLSubClassOfAxiom( conceptC, backbone.EntityC ) ) )
+        ontManager.applyChange( new AddAxiom( ont,
+          owlDataFactory.getOWLDeclarationAxiom( conceptC ) ) )
+        ontManager.applyChange( new AddAxiom( ont,
+          owlDataFactory.getOWLAnnotationAssertionAxiom(
+            isAbstractAP, conceptIRI, owlDataFactory.getOWLLiteral( isAbstract ) ) ) )
+        ontManager.applyChange( new AddAxiom( ont,
+          owlDataFactory.getOWLSubClassOfAxiom( conceptC, backbone.EntityC ) ) )
 
         conceptGraphIRI match {
           case None =>
@@ -207,13 +370,15 @@ case class MutableModelTerminologyGraph(
                 None ) )
 
           case Some( cgIRI ) =>
-            makeTerminologyGraph( cgIRI, kind ) match {
+            makeTerminologyGraph( cgIRI, kind, entityGraphIRI=None ) match {
               case Failure( t ) =>
                 Failure( t )
 
               case Success( cg ) =>
-                ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLAnnotationAssertionAxiom( entityGraphIRIAP, conceptIRI, cgIRI ) ) )
-                ontManager.applyChange( new AddAxiom( cg.ont, owlDataFactory.getOWLAnnotationAssertionAxiom( graphForEntityIRIAP, cgIRI, conceptIRI ) ) )
+                ontManager.applyChange( new AddAxiom( ont,
+                  owlDataFactory.getOWLAnnotationAssertionAxiom( entityGraphIRIAP, conceptIRI, cgIRI ) ) )
+                ontManager.applyChange( new AddAxiom( cg.ont,
+                  owlDataFactory.getOWLAnnotationAssertionAxiom( graphForEntityIRIAP, cgIRI, conceptIRI ) ) )
                 Success(
                   Tuple2(
                     createModelEntityConcept( conceptC, isAbstract, Some( cgIRI ) ),
@@ -225,30 +390,34 @@ case class MutableModelTerminologyGraph(
         Failure( EntityConflictException( EntityConcept, conceptIRI, term ) )
     }
 
-  protected def createEntityRelationship(
-    r: OWLClass, rg: Option[IRI],
+  protected def createEntityReifiedRelationship
+  ( r: OWLClass, rg: Option[IRI],
     u: OWLObjectProperty, ui: Option[OWLObjectProperty],
     source: ModelEntityDefinition, rSource: OWLObjectProperty,
     target: ModelEntityDefinition, rTarget: OWLObjectProperty,
-    characteristics: Iterable[RelationshipCharacteristics], isAbstract: Boolean ): types.ModelEntityReifiedRelationship = {
+    characteristics: Iterable[RelationshipCharacteristics],
+    isAbstract: Boolean )
+  : types.ModelEntityReifiedRelationship = {
     val _term = ModelEntityReifiedRelationship(
       r, rg,
       u, ui,
       source, rSource,
       target, rTarget,
       characteristics, isAbstract )
-    relationships += _term
+    reifiedRelationships += _term
     iri2typeTerm += r.getIRI -> _term
     _term
   }
 
-  protected def makeEntityRelationship(
-    rIRI: IRI, rg: Option[IRI],
+  protected def makeEntityReifiedRelationship
+  ( rIRI: IRI, rg: Option[IRI],
     rIRISource: IRI, rIRITarget: IRI,
     uIRI: IRI, uiIRI: Option[IRI],
     source: ModelEntityDefinition, target: ModelEntityDefinition,
     characteristics: Iterable[RelationshipCharacteristics],
-    isAbstract: Boolean )( implicit store: OWLAPIOMFGraphStore ): Try[( types.ModelEntityReifiedRelationship, Option[MutableModelTerminologyGraph] )] = {
+    isAbstract: Boolean )
+  ( implicit store: OWLAPIOMFGraphStore )
+  : Try[( types.ModelEntityReifiedRelationship, Option[MutableModelTerminologyGraph] )] = {
 
     val sourceC = owlDataFactory.getOWLClass( source.iri )
     val targetC = owlDataFactory.getOWLClass( target.iri )
@@ -257,37 +426,66 @@ case class MutableModelTerminologyGraph(
     val rTarget = owlDataFactory.getOWLObjectProperty( rIRITarget )
     val u = owlDataFactory.getOWLObjectProperty( uIRI )
     val ui = if ( uiIRI.isEmpty ) None else Some( owlDataFactory.getOWLObjectProperty( uiIRI.get ) )
-    val term = createEntityRelationship( r, rg, u, ui, source, rSource, target, rTarget, characteristics, isAbstract )
+    val term = createEntityReifiedRelationship(
+      r, rg, u, ui, source, rSource, target, rTarget, characteristics, isAbstract )
 
-    ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLDeclarationAxiom( r ) ) )
-    ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLAnnotationAssertionAxiom( isAbstractAP, rIRI, owlDataFactory.getOWLLiteral( isAbstract ) ) ) )
-    ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLSubClassOfAxiom( r, backbone.ReifiedObjectPropertyC ) ) )
+    ontManager.applyChange( new AddAxiom( ont,
+      owlDataFactory.getOWLDeclarationAxiom( r ) ) )
+    ontManager.applyChange( new AddAxiom( ont,
+      owlDataFactory.getOWLAnnotationAssertionAxiom(
+        isAbstractAP, rIRI, owlDataFactory.getOWLLiteral( isAbstract ) ) ) )
+    ontManager.applyChange( new AddAxiom( ont,
+      owlDataFactory.getOWLSubClassOfAxiom( r, backbone.ReifiedObjectPropertyC ) ) )
 
-    ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLDeclarationAxiom( rSource ) ) )
-    ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLSubObjectPropertyOfAxiom( rSource, backbone.topReifiedObjectPropertySourceOP ) ) )
-    ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLObjectPropertyDomainAxiom( rSource, r ) ) )
-    ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLObjectPropertyRangeAxiom( rSource, sourceC ) ) )
-    ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLFunctionalObjectPropertyAxiom( rSource ) ) )
+    ontManager.applyChange( new AddAxiom( ont,
+      owlDataFactory.getOWLDeclarationAxiom( rSource ) ) )
+    ontManager.applyChange( new AddAxiom( ont,
+      owlDataFactory.getOWLSubObjectPropertyOfAxiom( rSource, backbone.topReifiedObjectPropertySourceOP ) ) )
+    ontManager.applyChange( new AddAxiom( ont,
+      owlDataFactory.getOWLObjectPropertyDomainAxiom( rSource, r ) ) )
+    ontManager.applyChange( new AddAxiom( ont,
+      owlDataFactory.getOWLObjectPropertyRangeAxiom( rSource, sourceC ) ) )
+    ontManager.applyChange( new AddAxiom( ont,
+      owlDataFactory.getOWLFunctionalObjectPropertyAxiom( rSource ) ) )
 
-    ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLDeclarationAxiom( rTarget ) ) )
-    ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLSubObjectPropertyOfAxiom( rTarget, backbone.topReifiedObjectPropertyTargetOP ) ) )
-    ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLObjectPropertyDomainAxiom( rTarget, r ) ) )
-    ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLObjectPropertyRangeAxiom( rTarget, targetC ) ) )
-    ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLFunctionalObjectPropertyAxiom( rTarget ) ) )
+    ontManager.applyChange( new AddAxiom( ont,
+      owlDataFactory.getOWLDeclarationAxiom( rTarget ) ) )
+    ontManager.applyChange( new AddAxiom( ont,
+      owlDataFactory.getOWLSubObjectPropertyOfAxiom( rTarget, backbone.topReifiedObjectPropertyTargetOP ) ) )
+    ontManager.applyChange( new AddAxiom( ont,
+      owlDataFactory.getOWLObjectPropertyDomainAxiom( rTarget, r ) ) )
+    ontManager.applyChange( new AddAxiom( ont,
+      owlDataFactory.getOWLObjectPropertyRangeAxiom( rTarget, targetC ) ) )
+    ontManager.applyChange( new AddAxiom( ont,
+      owlDataFactory.getOWLFunctionalObjectPropertyAxiom( rTarget ) ) )
 
-    ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLDeclarationAxiom( u ) ) )
-    ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLSubObjectPropertyOfAxiom( u, backbone.topReifiedObjectPropertyOP ) ) )
-    ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLObjectPropertyDomainAxiom( u, sourceC ) ) )
-    ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLObjectPropertyRangeAxiom( u, targetC ) ) )
-    ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLSubPropertyChainOfAxiom( List( owlDataFactory.getOWLObjectInverseOf( rSource ), rTarget ), u ) ) )
+    ontManager.applyChange( new AddAxiom( ont,
+      owlDataFactory.getOWLDeclarationAxiom( u ) ) )
+    ontManager.applyChange( new AddAxiom( ont,
+      owlDataFactory.getOWLSubObjectPropertyOfAxiom( u, backbone.topReifiedObjectPropertyOP ) ) )
+    ontManager.applyChange( new AddAxiom( ont,
+      owlDataFactory.getOWLObjectPropertyDomainAxiom( u, sourceC ) ) )
+    ontManager.applyChange( new AddAxiom( ont,
+      owlDataFactory.getOWLObjectPropertyRangeAxiom( u, targetC ) ) )
+    ontManager.applyChange( new AddAxiom( ont,
+      owlDataFactory.getOWLSubPropertyChainOfAxiom(
+        List( owlDataFactory.getOWLObjectInverseOf( rSource ), rTarget ), u ) ) )
 
     if ( ui.isDefined ) {
-      ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLDeclarationAxiom( ui.get ) ) )
-      ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLAnnotationAssertionAxiom( isDerivedAP, ui.get.getIRI, owlDataFactory.getOWLLiteral( true ) ) ) )
-      ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLSubObjectPropertyOfAxiom( ui.get, backbone.topReifiedObjectPropertyOP ) ) )
-      ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLObjectPropertyDomainAxiom( ui.get, targetC ) ) )
-      ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLObjectPropertyRangeAxiom( ui.get, sourceC ) ) )
-      ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLSubPropertyChainOfAxiom( List( owlDataFactory.getOWLObjectInverseOf( rTarget ), rSource ), ui.get ) ) )
+      ontManager.applyChange( new AddAxiom( ont,
+        owlDataFactory.getOWLDeclarationAxiom( ui.get ) ) )
+      ontManager.applyChange( new AddAxiom( ont,
+        owlDataFactory.getOWLAnnotationAssertionAxiom(
+          isDerivedAP, ui.get.getIRI, owlDataFactory.getOWLLiteral( true ) ) ) )
+      ontManager.applyChange( new AddAxiom( ont,
+        owlDataFactory.getOWLSubObjectPropertyOfAxiom( ui.get, backbone.topReifiedObjectPropertyOP ) ) )
+      ontManager.applyChange( new AddAxiom( ont,
+        owlDataFactory.getOWLObjectPropertyDomainAxiom( ui.get, targetC ) ) )
+      ontManager.applyChange( new AddAxiom( ont,
+        owlDataFactory.getOWLObjectPropertyRangeAxiom( ui.get, sourceC ) ) )
+      ontManager.applyChange( new AddAxiom( ont,
+        owlDataFactory.getOWLSubPropertyChainOfAxiom(
+          List( owlDataFactory.getOWLObjectInverseOf( rTarget ), rSource ), ui.get ) ) )
     }
 
     rg match {
@@ -295,7 +493,7 @@ case class MutableModelTerminologyGraph(
         Success( Tuple2( term, None ) )
       case Some( rgIRI ) =>
 
-        makeTerminologyGraph( rgIRI, kind ) match {
+        makeTerminologyGraph( rgIRI, kind, entityGraphIRI=None ) match {
           case Failure( t ) =>
             Failure( t )
           case Success( relationshipGraph ) =>
@@ -305,13 +503,15 @@ case class MutableModelTerminologyGraph(
 
   }
 
-  def addEntityRelationship(
-    rIRI: IRI, relationshipGraphIRI: Option[IRI],
+  def addEntityReifiedRelationship
+  ( rIRI: IRI, relationshipGraphIRI: Option[IRI],
     rIRISource: IRI, rIRITarget: IRI,
     uIRI: IRI, uiIRI: Option[IRI],
     source: ModelEntityDefinition, target: ModelEntityDefinition,
     characteristics: Iterable[RelationshipCharacteristics],
-    isAbstract: Boolean )( implicit store: OWLAPIOMFGraphStore ): Try[( types.ModelEntityReifiedRelationship, Option[MutableModelTerminologyGraph] )] =
+    isAbstract: Boolean )
+  ( implicit store: OWLAPIOMFGraphStore )
+  : Try[( types.ModelEntityReifiedRelationship, Option[MutableModelTerminologyGraph] )] =
     ( lookupTypeTerm( rIRI ),
       lookupTypeTerm( rIRISource ),
       lookupTypeTerm( rIRITarget ),
@@ -320,42 +520,57 @@ case class MutableModelTerminologyGraph(
         case ( None, None, None, None, None ) =>
           ( isTypeTermDefinedRecursively( source ), isTypeTermDefinedRecursively( target ) ) match {
             case ( true, true ) =>
-              makeEntityRelationship( rIRI, relationshipGraphIRI, rIRISource, rIRITarget, uIRI, uiIRI, source, target, characteristics, isAbstract )
+              makeEntityReifiedRelationship(
+                rIRI, relationshipGraphIRI, rIRISource, rIRITarget, uIRI, uiIRI,
+                source, target, characteristics, isAbstract )
             case ( false, true ) =>
-              Failure( EntityScopeException( EntityRelationship, rIRI, Map( Source -> source ) ) )
+              Failure( EntityScopeException(
+                EntityReifiedRelationship, rIRI, Map( Source -> source ) ) )
 
             case ( true, false ) =>
-              Failure( EntityScopeException( EntityRelationship, rIRI, Map( Target -> target ) ) )
+              Failure( EntityScopeException(
+                EntityReifiedRelationship, rIRI, Map( Target -> target ) ) )
 
             case ( false, false ) =>
-              Failure( EntityScopeException( EntityRelationship, rIRI, Map( Source -> source, Target -> target ) ) )
+              Failure( EntityScopeException(
+                EntityReifiedRelationship, rIRI, Map( Source -> source, Target -> target ) ) )
           }
 
         case ( Some( t ), _, _, _, _ ) =>
-          Failure( EntityConflictException( EntityRelationship, rIRI, t ) )
+          Failure( EntityConflictException(
+            EntityReifiedRelationship, rIRI, t ) )
 
         case ( _, Some( t ), _, _, _ ) =>
-          Failure( EntityConflictException( EntityRelationship, rIRISource, t ) )
+          Failure( EntityConflictException(
+            EntityReifiedRelationship, rIRISource, t ) )
 
         case ( _, _, Some( t ), _, _ ) =>
-          Failure( EntityConflictException( EntityRelationship, rIRITarget, t ) )
+          Failure( EntityConflictException(
+            EntityReifiedRelationship, rIRITarget, t ) )
 
         case ( _, _, _, Some( t ), _ ) =>
-          Failure( EntityConflictException( EntityRelationship, uIRI, t ) )
+          Failure( EntityConflictException(
+            EntityReifiedRelationship, uIRI, t ) )
 
         case ( _, _, _, _, Some( t ) ) =>
           require( uiIRI.isDefined )
-          Failure( EntityConflictException( EntityRelationship, uiIRI.get, t ) )
+          Failure( EntityConflictException(
+            EntityReifiedRelationship, uiIRI.get, t ) )
       }
 
-  protected def createModelScalarDataType( dt: OWLDatatype ): ModelScalarDataType = {
+  protected def createModelScalarDataType
+  ( dt: OWLDatatype )
+  : ModelScalarDataType = {
     val _dt = ModelScalarDataType( dt.getIRI )
     sc += _dt
     iri2typeTerm += dt.getIRI -> _dt
     _dt
   }
 
-  def addScalarDataType( scalarIRI: IRI ): Try[types.ModelScalarDataType] = iri2typeTerm get scalarIRI match {
+  def addScalarDataType
+  ( scalarIRI: IRI )
+  : Try[types.ModelScalarDataType] =
+    iri2typeTerm get scalarIRI match {
     case None =>
       val scalarDT = owlDataFactory.getOWLDatatype( scalarIRI )
       val scalarTerm = createModelScalarDataType( scalarDT )
@@ -366,66 +581,84 @@ case class MutableModelTerminologyGraph(
       Failure( EntityConflictException( ScalarDataType, scalarIRI, term ) )
   }
 
-  def createDataRelationshipFromEntityToScalar( esc: OWLDataProperty, source: ModelEntityDefinition, target: ModelScalarDataType ): ModelDataRelationshipFromEntityToScalar = {
+  def createDataRelationshipFromEntityToScalar
+  ( esc: OWLDataProperty, source: ModelEntityDefinition, target: ModelScalarDataType )
+  : ModelDataRelationshipFromEntityToScalar = {
     val _esc = ModelDataRelationshipFromEntityToScalar( esc, source, target )
     e2sc += _esc
     iri2typeTerm += esc.getIRI -> _esc
     _esc
   }
 
-  protected def makeDataRelationshipFromEntityToScalar(
-    dIRI: IRI,
+  protected def makeDataRelationshipFromEntityToScalar
+  ( dIRI: IRI,
     source: types.ModelEntityDefinition,
-    target: types.ModelScalarDataType ): Try[types.ModelDataRelationshipFromEntityToScalar] = {
+    target: types.ModelScalarDataType )
+  : Try[types.ModelDataRelationshipFromEntityToScalar] = {
     val escDP = owlDataFactory.getOWLDataProperty( dIRI )
     val escTerm = createDataRelationshipFromEntityToScalar( escDP, source, target )
-    ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLDeclarationAxiom( escDP ) ) )
-    ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLSubDataPropertyOfAxiom( escDP, backbone.topDataPropertyDP ) ) )
-    ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLDataPropertyDomainAxiom( escDP, source.e ) ) )
-    ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLDataPropertyRangeAxiom( escDP, owlDataFactory.getOWLDatatype( target.iri ) ) ) )
+    ontManager.applyChange( new AddAxiom( ont,
+      owlDataFactory.getOWLDeclarationAxiom( escDP ) ) )
+    ontManager.applyChange( new AddAxiom( ont,
+      owlDataFactory.getOWLSubDataPropertyOfAxiom( escDP, backbone.topDataPropertyDP ) ) )
+    ontManager.applyChange( new AddAxiom( ont,
+      owlDataFactory.getOWLDataPropertyDomainAxiom( escDP, source.e ) ) )
+    ontManager.applyChange( new AddAxiom( ont,
+      owlDataFactory.getOWLDataPropertyRangeAxiom( escDP, owlDataFactory.getOWLDatatype( target.iri ) ) ) )
     Success( escTerm )
   }
 
-  def addDataRelationshipFromEntityToScalar(
-    dIRI: IRI,
+  def addDataRelationshipFromEntityToScalar
+  ( dIRI: IRI,
     source: types.ModelEntityDefinition,
-    target: types.ModelScalarDataType ): Try[types.ModelDataRelationshipFromEntityToScalar] = iri2typeTerm get dIRI match {
+    target: types.ModelScalarDataType )
+  ( implicit store: OWLAPIOMFGraphStore )
+  : Try[types.ModelDataRelationshipFromEntityToScalar] = iri2typeTerm get dIRI match {
     case None =>
       ( isTypeTermDefinedRecursively( source ), isTypeTermDefinedRecursively( target ) ) match {
         case ( true, true ) =>
           makeDataRelationshipFromEntityToScalar( dIRI, source, target )
         case ( false, true ) =>
-          Failure( EntityScopeException( DataRelationshipFromEntityToScalar, dIRI, Map( Source -> source ) ) )
+          Failure( EntityScopeException(
+            DataRelationshipFromEntityToScalar, dIRI, Map( Source -> source ) ) )
 
         case ( true, false ) =>
-          Failure( EntityScopeException( DataRelationshipFromEntityToScalar, dIRI, Map( Target -> target ) ) )
+          Failure( EntityScopeException(
+            DataRelationshipFromEntityToScalar, dIRI, Map( Target -> target ) ) )
 
         case ( false, false ) =>
-          Failure( EntityScopeException( DataRelationshipFromEntityToScalar, dIRI, Map( Source -> source, Target -> target ) ) )
+          Failure( EntityScopeException(
+            DataRelationshipFromEntityToScalar, dIRI, Map( Source -> source, Target -> target ) ) )
       }
 
     case Some( term ) =>
-      Failure( EntityConflictException( DataRelationshipFromEntityToScalar, dIRI, term ) )
+      Failure( EntityConflictException(
+        DataRelationshipFromEntityToScalar, dIRI, term ) )
   }
 
-  def addDataRelationshipFromEntityToStructure(
-    dIRI: IRI,
+  def addDataRelationshipFromEntityToStructure
+  ( dIRI: IRI,
     source: types.ModelEntityDefinition,
-    target: types.ModelStructuredDataType ): Try[types.ModelDataRelationshipFromEntityToStructure] = ???
+    target: types.ModelStructuredDataType )
+  : Try[types.ModelDataRelationshipFromEntityToStructure] = ???
 
-  def addDataRelationshipFromStructureToScalar(
-    dIRI: IRI,
+  def addDataRelationshipFromStructureToScalar
+  ( dIRI: IRI,
     source: types.ModelStructuredDataType,
-    target: types.ModelScalarDataType ): Try[types.ModelDataRelationshipFromStructureToScalar] = ???
+    target: types.ModelScalarDataType )
+  : Try[types.ModelDataRelationshipFromStructureToScalar] = ???
 
-  def addDataRelationshipFromStructureToStructure(
-    dIRI: IRI,
+  def addDataRelationshipFromStructureToStructure
+  ( dIRI: IRI,
     source: types.ModelStructuredDataType,
-    target: types.ModelStructuredDataType ): Try[types.ModelDataRelationshipFromStructureToStructure] = ???
+    target: types.ModelStructuredDataType )
+  : Try[types.ModelDataRelationshipFromStructureToStructure] = ???
 
-  def addEntityConceptSubClassAxiom(
-    sub: types.ModelEntityConcept,
-    sup: types.ModelEntityConcept ): Try[types.EntityConceptSubClassAxiom] =
+  def addEntityConceptSubClassAxiom
+  ( sub: types.ModelEntityConcept,
+    sup: types.ModelEntityConcept )
+  ( implicit store: OWLAPIOMFGraphStore )
+  : Try[types.EntityConceptSubClassAxiom] =
     ( isTypeTermDefinedRecursively( sub ), isTypeTermDefinedRecursively( sup ) ) match {
       case ( true, true ) =>
         val subC = owlDataFactory.getOWLClass( sub.iri )
@@ -444,11 +677,15 @@ case class MutableModelTerminologyGraph(
         Failure( AxiomScopeException( ConceptSubclassAxiom, Map( Sub -> sub, Sup -> sup ) ) )
     }
 
-  def addEntityConceptUniversalRestrictionAxiom(
-    sub: types.ModelEntityConcept,
+  def addEntityConceptUniversalRestrictionAxiom
+  ( sub: types.ModelEntityConcept,
     rel: types.ModelEntityReifiedRelationship,
-    range: types.ModelEntityDefinition ): Try[types.EntityConceptUniversalRestrictionAxiom] =
-    ( isTypeTermDefinedRecursively( sub ), isTypeTermDefinedRecursively( rel ), isTypeTermDefinedRecursively( range ) ) match {
+    range: types.ModelEntityDefinition )
+  ( implicit store: OWLAPIOMFGraphStore )
+  : Try[types.EntityConceptUniversalRestrictionAxiom] =
+    ( isTypeTermDefinedRecursively( sub ),
+      isTypeTermDefinedRecursively( rel ),
+      isTypeTermDefinedRecursively( range ) ) match {
       case ( true, true, true ) =>
         val subC = owlDataFactory.getOWLClass( sub.iri )
         val rangeC = owlDataFactory.getOWLClass( range.iri )
@@ -471,11 +708,15 @@ case class MutableModelTerminologyGraph(
 
     }
   
-  def addEntityConceptExistentialRestrictionAxiom(
-    sub: types.ModelEntityConcept,
+  def addEntityConceptExistentialRestrictionAxiom
+  ( sub: types.ModelEntityConcept,
     rel: types.ModelEntityReifiedRelationship,
-    range: types.ModelEntityDefinition ): Try[types.EntityConceptExistentialRestrictionAxiom] =
-    ( isTypeTermDefinedRecursively( sub ), isTypeTermDefinedRecursively( rel ), isTypeTermDefinedRecursively( range ) ) match {
+    range: types.ModelEntityDefinition )
+  ( implicit store: OWLAPIOMFGraphStore )
+  : Try[types.EntityConceptExistentialRestrictionAxiom] =
+    ( isTypeTermDefinedRecursively( sub ),
+      isTypeTermDefinedRecursively( rel ),
+      isTypeTermDefinedRecursively( range ) ) match {
       case ( true, true, true ) =>
         val subC = owlDataFactory.getOWLClass( sub.iri )
         val rangeC = owlDataFactory.getOWLClass( range.iri )
@@ -497,10 +738,13 @@ case class MutableModelTerminologyGraph(
         Failure( AxiomScopeException( ConceptRestrictionAxiom, Map( Range -> range ) ) )
     }
   
-  def addEntityDefinitionAspectSubClassAxiom(
-    sub: types.ModelEntityDefinition,
-    sup: types.ModelEntityAspect ): Try[types.EntityDefinitionAspectSubClassAxiom] =
-    ( isTypeTermDefinedRecursively( sub ), isTypeTermDefinedRecursively( sup ) ) match {
+  def addEntityDefinitionAspectSubClassAxiom
+  ( sub: types.ModelEntityDefinition,
+    sup: types.ModelEntityAspect )
+  ( implicit store: OWLAPIOMFGraphStore )
+  : Try[types.EntityDefinitionAspectSubClassAxiom] =
+    ( isTypeTermDefinedRecursively( sub ),
+      isTypeTermDefinedRecursively( sup ) ) match {
       case ( true, true ) =>
         ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLSubClassOfAxiom( sub.e, sup.e ) ) )
         val ax = EntityDefinitionAspectSubClassAxiom( sub, sup )
@@ -516,24 +760,29 @@ case class MutableModelTerminologyGraph(
         Failure( AxiomScopeException( AspectSubclassAxiom, Map( Sub -> sub, Sup -> sub ) ) )
     }
 
-  def addEntityRelationshipSubClassAxiom(
-    sub: types.ModelEntityReifiedRelationship,
-    sup: types.ModelEntityReifiedRelationship ): Try[types.EntityRelationshipSubClassAxiom] =
+  def addEntityReifiedRelationshipSubClassAxiom
+  ( sub: types.ModelEntityReifiedRelationship,
+    sup: types.ModelEntityReifiedRelationship )
+  ( implicit store: OWLAPIOMFGraphStore )
+  : Try[types.EntityReifiedRelationshipSubClassAxiom] =
     ( isTypeTermDefinedRecursively( sub ), isTypeTermDefinedRecursively( sup ) ) match {
       case ( true, true ) =>
-        ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLSubClassOfAxiom( sub.e, sup.e ) ) )
-        ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLSubObjectPropertyOfAxiom( sub.rSource, sup.rSource ) ) )
-        ontManager.applyChange( new AddAxiom( ont, owlDataFactory.getOWLSubObjectPropertyOfAxiom( sub.rTarget, sup.rTarget) ) )
-        val ax = EntityRelationshipSubClassAxiom( sub, sup )
+        ontManager.applyChange( new AddAxiom( ont,
+          owlDataFactory.getOWLSubClassOfAxiom( sub.e, sup.e ) ) )
+        ontManager.applyChange( new AddAxiom( ont,
+          owlDataFactory.getOWLSubObjectPropertyOfAxiom( sub.rSource, sup.rSource ) ) )
+        ontManager.applyChange( new AddAxiom( ont,
+          owlDataFactory.getOWLSubObjectPropertyOfAxiom( sub.rTarget, sup.rTarget) ) )
+        val ax = EntityReifiedRelationshipSubClassAxiom( sub, sup )
         Success( ax )
 
       case ( false, true ) =>
-        Failure( AxiomScopeException( RelationshipSubclassAxiom, Map( Sub -> sub ) ) )
+        Failure( AxiomScopeException( ReifiedRelationshipSubclassAxiom, Map( Sub -> sub ) ) )
 
       case ( true, false ) =>
-        Failure( AxiomScopeException( RelationshipSubclassAxiom, Map( Sup -> sup ) ) )
+        Failure( AxiomScopeException( ReifiedRelationshipSubclassAxiom, Map( Sup -> sup ) ) )
 
       case ( false, false ) =>
-        Failure( AxiomScopeException( RelationshipSubclassAxiom, Map( Sub -> sub, Sup -> sup ) ) )
+        Failure( AxiomScopeException( ReifiedRelationshipSubclassAxiom, Map( Sub -> sub, Sup -> sup ) ) )
     }
 }

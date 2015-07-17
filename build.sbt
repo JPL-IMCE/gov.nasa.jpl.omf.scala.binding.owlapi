@@ -28,15 +28,30 @@ lazy val core = Project("omf-scala-core-binding-owlapi",
   resolvers += new MavenRepository("bintray-pchiusano-scalaz-stream", "http://dl.bintray.com/pchiusano/maven"),
 
   libraryDependencies ++= Seq(
-    MBEEPlugin.MBEEOrganizations.imce.mbeeZipArtifactVersion("jpl-mbee-common-scala-libraries_core", MBEEKeys.mbeeReleaseVersionPrefix.value, Versions.jpl_mbee_common_scala_libraries_revision),
-    MBEEPlugin.MBEEOrganizations.imce.mbeeZipArtifactVersion("jpl-mbee-common-scala-libraries_other", MBEEKeys.mbeeReleaseVersionPrefix.value, Versions.jpl_mbee_common_scala_libraries_revision),
-    MBEEPlugin.MBEEOrganizations.imce.mbeeZipArtifactVersion("jpl-mbee-common-owlapi-libraries", MBEEKeys.mbeeReleaseVersionPrefix.value, Versions.jpl_mbee_common_scala_libraries_revision),
-    MBEEPlugin.MBEEOrganizations.imce.mbeeArtifactVersion("omf-scala-core", MBEEKeys.mbeeReleaseVersionPrefix.value, Versions.jpl_omf_core_revision) % "compile" withSources() withJavadoc(),
-    MBEEPlugin.MBEEOrganizations.imce.mbeeArtifactVersion("omf-scala-core", MBEEKeys.mbeeReleaseVersionPrefix.value, Versions.jpl_omf_core_revision) % "test" classifier "tests"
-      artifacts(
-      Artifact.classified("omf-scala-core", "tests-sources"),
-      Artifact.classified("omf-scala-core", "tests-javadoc")),
-    MBEEPlugin.MBEEOrganizations.imce.mbeeZipArtifactVersion("gov-nasa-jpl-imce-ontologies", MBEEKeys.mbeeReleaseVersionPrefix.value, Versions.imce_loadprod_revision) % "runtime"
+    MBEEPlugin.MBEEOrganizations.imce.mbeeZipArtifactVersion(
+      "jpl-mbee-common-scala-libraries_core",
+      MBEEKeys.mbeeReleaseVersionPrefix.value, Versions.jpl_mbee_common_scala_libraries_revision),
+    MBEEPlugin.MBEEOrganizations.imce.mbeeZipArtifactVersion(
+      "jpl-mbee-common-scala-libraries_other",
+      MBEEKeys.mbeeReleaseVersionPrefix.value, Versions.jpl_mbee_common_scala_libraries_revision),
+    MBEEPlugin.MBEEOrganizations.imce.mbeeZipArtifactVersion(
+      "jpl-mbee-common-owlapi-libraries",
+      MBEEKeys.mbeeReleaseVersionPrefix.value, Versions.jpl_mbee_common_scala_libraries_revision),
+    MBEEPlugin.MBEEOrganizations.imce.mbeeArtifactVersion(
+      "omf-scala-core",
+      MBEEKeys.mbeeReleaseVersionPrefix.value, Versions.jpl_omf_core_revision) % "compile" withSources() withJavadoc(),
+//    MBEEPlugin.MBEEOrganizations.imce.mbeeArtifactVersion(
+//      "omf-scala-core",
+//      MBEEKeys.mbeeReleaseVersionPrefix.value, Versions.jpl_omf_core_revision) % "test" classifier "tests"
+//      artifacts(
+//      Artifact.classified("omf-scala-core", "tests-sources"),
+//      Artifact.classified("omf-scala-core", "tests-javadoc")),
+    MBEEPlugin.MBEEOrganizations.imce.mbeeArtifactVersion(
+      "omf-scala-core",
+      MBEEKeys.mbeeReleaseVersionPrefix.value, Versions.jpl_omf_core_revision) % "test" classifier "tests" withSources() withJavadoc(),
+    MBEEPlugin.MBEEOrganizations.imce.mbeeZipArtifactVersion(
+      "gov-nasa-jpl-imce-ontologies",
+      MBEEKeys.mbeeReleaseVersionPrefix.value, Versions.imce_loadprod_revision) % "runtime"
   ),
 
   archivesToExtract <<= (libraryDependencies, update, scalaBinaryVersion, baseDirectory, streams) map { (deps, up, ver, base, s) =>
