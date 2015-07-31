@@ -42,4 +42,7 @@ import gov.nasa.jpl.omf.scala.binding.owlapi._
 import org.semanticweb.owlapi.model.OWLClass
 
 abstract class ModelEntityDefinition(val e: OWLClass) 
-  extends ModelTypeTerm
+  extends ModelTypeTerm {
+
+  require(null != e)
+}

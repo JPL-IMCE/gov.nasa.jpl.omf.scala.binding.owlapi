@@ -44,4 +44,7 @@ import org.semanticweb.owlapi.model.OWLDataProperty
 trait ModelDataRelationshipToScalar extends ModelDataRelationshipTo {
   val dp: OWLDataProperty
   val target: ModelScalarDataType
+
+  require(null != dp)
+  require(null != target)
 }

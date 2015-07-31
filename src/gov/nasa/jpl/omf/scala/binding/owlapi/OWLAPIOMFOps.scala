@@ -44,6 +44,8 @@ import gov.nasa.jpl.omf.scala.core.RelationshipCharacteristics._
 import gov.nasa.jpl.omf.scala.core.TerminologyKind._
 import gov.nasa.jpl.omf.scala.binding._
 import gov.nasa.jpl.omf.scala.binding.owlapi._
+import org.apache.commons.codec.binary.Hex
+import org.apache.commons.codec.digest.DigestUtils
 import org.semanticweb.owlapi.model.{OWLNamedIndividual, IRI, OWLOntologyManager, OWLOntology}
 import scala.util.Try
 import scala.util.Success
@@ -52,6 +54,9 @@ import java.io.OutputStream
 
 trait OWLAPIIRIOps
   extends IRIOps[OWLAPIOMF] {
+
+  def iri2hash(prefix: String, iri: IRI): String =
+    Hex.encodeHexString(DigestUtils.sha(prefix+iri.toString))
 
   // IRI
 
@@ -93,6 +98,14 @@ trait OWLAPIIRIOps
           None )
     }
   }
+
+  def getIRIFragment(iri: IRI): String =
+    splitIRI(iri) match {
+      case (_, None) =>
+        throw new IllegalArgumentException(s"IRI must have a fragment: $iri")
+      case (_, Some(f)) =>
+        f
+    }
 
   override def toAbbreviatedName
   ( iri: IRI, lowercaseFragmentInitial: Boolean ) =
@@ -147,14 +160,106 @@ trait OWLAPIIRIOps
 
 }
 
-trait OWLAPIImmutableTerminologyGraphOps
-  extends ImmutableTerminologyGraphOps[OWLAPIOMF] { self: OWLAPIOMFOps =>
+trait OWLAPIStoreOps
+  extends OMFStoreOps[OWLAPIOMF] { self: OWLAPIOMFOps =>
 
   override def loadTerminologyGraph
   ( iri: IRI )
   ( implicit store: OWLAPIOMFGraphStore )
   : Try[types.ImmutableModelTerminologyGraph] =
     store.loadTerminologyGraph( iri )( this )
+
+  override def fromTerminologyGraph
+  ( graph: types.ModelTerminologyGraph )
+  ( implicit store: OWLAPIOMFGraphStore )
+  : OWLAPITerminologyGraphSignature =
+    store.fromTerminologyGraph( graph )
+
+  override def addNestedTerminologyGraph
+  ( parentG: types.ModelTerminologyGraph,
+    nestedG: types.ModelTerminologyGraph )
+  ( implicit store: OWLAPIOMFGraphStore )
+  : Try[types.TerminologyGraphDirectNestingAxiom] =
+    store.createTerminologyGraphDirectNestingAxiom(parentG, nestedG)
+
+  override def addTerminologyGraphExtension
+  ( extendingG: types.ModelTerminologyGraph,
+    extendedG: types.ModelTerminologyGraph )
+  ( implicit store: OWLAPIOMFGraphStore )
+  : Try[types.TerminologyGraphDirectExtensionAxiom] =
+    store.createTerminologyGraphDirectExtensionAxiom( extendingG, extendedG )
+
+  override def makeTerminologyGraph
+  ( iri: IRI,
+    kind: TerminologyKind )
+  ( implicit store: OWLAPIOMFGraphStore )
+  : Try[types.MutableModelTerminologyGraph] =
+    store.makeTerminologyGraph( iri, kind )( this )
+
+  override def saveTerminologyGraph
+  ( g: types.ModelTerminologyGraph )
+  ( implicit store: OWLAPIOMFGraphStore ) =
+    store.saveTerminologyGraph( g )( this )
+
+  override def saveTerminologyGraph
+  ( g: types.ModelTerminologyGraph,
+    os: OutputStream )
+  ( implicit store: OWLAPIOMFGraphStore ) =
+    store.saveTerminologyGraph( g, os )( this )
+
+  override def asImmutableTerminologyGraph
+  ( g: types.MutableModelTerminologyGraph )
+  ( implicit store: OWLAPIOMFGraphStore ) =
+    store.asImmutableTerminologyGraph( g )
+
+  def resolveTerminologyGraph
+  ( o: OWLOntology,
+    ont: OWLOntology,
+    kind: TerminologyKind.TerminologyKind )
+  ( implicit store: OWLAPIOMFGraphStore )
+  : Try[types.MutableModelTerminologyGraph] =
+    store.createOMFModelTerminologyGraph(o, ont.getOntologyID.getOntologyIRI.get, ont, kind )
+
+  override def loadInstanceGraph
+  ( iri: IRI )
+  ( implicit store: OWLAPIOMFGraphStore ):
+  Try[instances.ImmutableModelInstanceGraph] =
+    store.loadInstanceGraph( iri )
+
+  override def fromInstanceGraph
+  ( graph: instances.ModelInstanceGraph ) =
+    graph.fromInstanceGraph
+
+  override def asImmutableInstanceGraph
+  ( g: instances.MutableModelInstanceGraph )
+  ( implicit store: OWLAPIOMFGraphStore )
+  : Try[instances.ImmutableModelInstanceGraph] =
+    store.asImmutableInstanceGraph( g )
+
+  override def makeInstanceGraph
+  ( iri: IRI,
+    instantiatedTGraphs: Iterable[types.ImmutableModelTerminologyGraph],
+    extendedIGraphs: Iterable[instances.ImmutableModelInstanceGraph] )
+  ( implicit store: OWLAPIOMFGraphStore )
+  : Try[instances.MutableModelInstanceGraph] =
+    store.makeInstanceGraph( iri, instantiatedTGraphs, extendedIGraphs )
+
+  override def saveInstanceGraph
+  ( g: instances.ModelInstanceGraph )
+  ( implicit store: OWLAPIOMFGraphStore )
+  : Try[Unit] =
+    g.save
+
+  override def saveInstanceGraph
+  ( g: instances.ModelInstanceGraph, os: OutputStream )
+  ( implicit store: OWLAPIOMFGraphStore )
+  : Try[Unit] =
+    g.save( os )
+
+}
+
+trait OWLAPIImmutableTerminologyGraphOps
+  extends ImmutableTerminologyGraphOps[OWLAPIOMF] { self: OWLAPIOMFOps =>
 
   override def getTerminologyGraphIRI
   ( graph: types.ModelTerminologyGraph ) =
@@ -172,89 +277,95 @@ trait OWLAPIImmutableTerminologyGraphOps
   ( graph: types.ModelTerminologyGraph ) =
     graph.kind
 
-  override def fromTerminologyGraph
-  ( graph: types.ModelTerminologyGraph )
-  ( implicit store: OWLAPIOMFGraphStore )
-  : OWLAPITerminologyGraphSignature =
-    store.fromTerminologyGraph( graph )
-
   override def lookupTypeTerm
-  ( graph: types.ModelTerminologyGraph, iri: IRI ) =
-    graph.lookupTypeTerm( iri )
+  ( graph: types.ModelTerminologyGraph, iri: IRI, recursively: Boolean )
+  ( implicit store: OWLAPIOMFGraphStore ) =
+    graph.lookupTypeTerm( iri, recursively )
 
   override def lookupEntityDefinition
-  ( graph: types.ModelTerminologyGraph, iri: IRI ) =
-    lookupTypeTerm( graph, iri ) match {
+  ( graph: types.ModelTerminologyGraph, iri: IRI, recursively: Boolean )
+  ( implicit store: OWLAPIOMFGraphStore ) =
+    lookupTypeTerm( graph, iri, recursively ) match {
       case Some( t: types.ModelEntityDefinition ) => Some( t )
       case _                                      => None
     }
 
   override def lookupEntityAspect
-  ( graph: types.ModelTerminologyGraph, iri: IRI ) =
-    lookupTypeTerm( graph, iri ) match {
+  ( graph: types.ModelTerminologyGraph, iri: IRI, recursively: Boolean )
+  ( implicit store: OWLAPIOMFGraphStore ) =
+    lookupTypeTerm( graph, iri, recursively ) match {
       case Some( t: types.ModelEntityAspect ) => Some( t )
       case _                                  => None
     }
 
   override def lookupEntityConcept
-  ( graph: types.ModelTerminologyGraph, iri: IRI ) =
-    lookupTypeTerm( graph, iri ) match {
+  ( graph: types.ModelTerminologyGraph, iri: IRI, recursively: Boolean )
+  ( implicit store: OWLAPIOMFGraphStore ) =
+    lookupTypeTerm( graph, iri, recursively ) match {
       case Some( t: types.ModelEntityConcept ) => Some( t )
       case _                                   => None
     }
 
   override def lookupEntityReifiedRelationship
-  ( graph: types.ModelTerminologyGraph, iri: IRI ) =
-    lookupTypeTerm( graph, iri ) match {
+  ( graph: types.ModelTerminologyGraph, iri: IRI, recursively: Boolean )
+  ( implicit store: OWLAPIOMFGraphStore ) =
+    lookupTypeTerm( graph, iri, recursively ) match {
       case Some( t: types.ModelEntityReifiedRelationship ) => Some( t )
       case _                                        => None
     }
 
   override def lookupEntityUnreifiedRelationship
-  ( graph: types.ModelTerminologyGraph, iri: IRI ) =
-    lookupTypeTerm( graph, iri ) match {
+  ( graph: types.ModelTerminologyGraph, iri: IRI, recursively: Boolean )
+  ( implicit store: OWLAPIOMFGraphStore ) =
+    lookupTypeTerm( graph, iri, recursively ) match {
       case Some( t: types.ModelEntityUnreifiedRelationship ) => Some( t )
       case _                                        => None
     }
 
   override def lookupScalarDataType
-  ( graph: types.ModelTerminologyGraph, iri: IRI ) =
-    lookupTypeTerm( graph, iri ) match {
+  ( graph: types.ModelTerminologyGraph, iri: IRI, recursively: Boolean )
+  ( implicit store: OWLAPIOMFGraphStore ) =
+    lookupTypeTerm( graph, iri, recursively ) match {
       case Some( t: types.ModelScalarDataType ) => Some( t )
       case _                                    => None
     }
 
   override def lookupStructuredDataType
-  ( graph: types.ModelTerminologyGraph, iri: IRI ) =
-    lookupTypeTerm( graph, iri ) match {
+  ( graph: types.ModelTerminologyGraph, iri: IRI, recursively: Boolean )
+  ( implicit store: OWLAPIOMFGraphStore ) =
+    lookupTypeTerm( graph, iri, recursively ) match {
       case Some( t: types.ModelStructuredDataType ) => Some( t )
       case _                                        => None
     }
 
   override def lookupEntityDataRelationshipFromEntityToScalar
-  ( graph: types.ModelTerminologyGraph, iri: IRI ) =
-    lookupTypeTerm( graph, iri ) match {
+  ( graph: types.ModelTerminologyGraph, iri: IRI, recursively: Boolean )
+  ( implicit store: OWLAPIOMFGraphStore ) =
+    lookupTypeTerm( graph, iri, recursively ) match {
       case Some( t: types.ModelDataRelationshipFromEntityToScalar ) => Some( t )
       case _ => None
     }
 
   override def lookupEntityDataRelationshipFromEntityToStructure
-  ( graph: types.ModelTerminologyGraph, iri: IRI ) =
-    lookupTypeTerm( graph, iri ) match {
+  ( graph: types.ModelTerminologyGraph, iri: IRI, recursively: Boolean )
+  ( implicit store: OWLAPIOMFGraphStore ) =
+    lookupTypeTerm( graph, iri, recursively ) match {
       case Some( t: types.ModelDataRelationshipFromEntityToStructure ) => Some( t )
       case _ => None
     }
 
   override def lookupEntityDataRelationshipFromStructureToScalar
-  ( graph: types.ModelTerminologyGraph, iri: IRI ) =
-    lookupTypeTerm( graph, iri ) match {
+  ( graph: types.ModelTerminologyGraph, iri: IRI, recursively: Boolean )
+  ( implicit store: OWLAPIOMFGraphStore ) =
+    lookupTypeTerm( graph, iri, recursively ) match {
       case Some( t: types.ModelDataRelationshipFromStructureToScalar ) => Some( t )
       case _ => None
     }
 
   override def lookupEntityDataRelationshipFromStructureToStructure
-  ( graph: types.ModelTerminologyGraph, iri: IRI ) =
-    lookupTypeTerm( graph, iri ) match {
+  ( graph: types.ModelTerminologyGraph, iri: IRI, recursively: Boolean )
+  ( implicit store: OWLAPIOMFGraphStore ) =
+    lookupTypeTerm( graph, iri, recursively ) match {
       case Some( t: types.ModelDataRelationshipFromStructureToStructure ) => Some( t )
       case _ => None
     }
@@ -334,13 +445,13 @@ trait OWLAPIImmutableTerminologyGraphOps
 
   override def fromEntityConcept
   ( c: types.ModelEntityConcept ) =
-    OWLAPIEntityConceptSignature( c.iri, c.eg, c.isAbstract )
+    OWLAPIEntityConceptSignature( c.iri, c.isAbstract )
 
   // entity relationship
 
   override def fromEntityReifiedRelationship
   ( r: types.ModelEntityReifiedRelationship ) =
-    OWLAPIEntityReifiedRelationshipSignature( r.iri, r.eg, r.source, r.target, r.characteristics, r.isAbstract )
+    OWLAPIEntityReifiedRelationshipSignature( r.iri, r.source, r.target, r.characteristics, r.isAbstract )
 
 
   override def fromEntityUnreifiedRelationship
@@ -463,48 +574,6 @@ trait OWLAPIMutableTerminologyGraphOps
   extends MutableTerminologyGraphOps[OWLAPIOMF]
   with OWLAPIImmutableTerminologyGraphOps { self: OWLAPIOMFOps =>
 
-  override def asImmutableTerminologyGraph
-  ( g: types.MutableModelTerminologyGraph )
-  ( implicit store: OWLAPIOMFGraphStore ) =
-    store.asImmutableTerminologyGraph( g )
-
-  def makeTerminologyGraph
-  ( o: OWLOntology,
-    hasProvenanceFromRule: String,
-    iri: IRI, hasRelativeIRIPath: String,
-    kind: TerminologyKind.TerminologyKind,
-    entity: Option[IRI],
-    hasName: Option[String],
-    hasUUID: Option[String] )
-  ( implicit store: OWLAPIOMFGraphStore )
-  : Try[types.MutableModelTerminologyGraph] =
-    for {
-      result <- makeTerminologyGraph( iri, kind, entity )
-      _ <- store.createOMFModelTerminologyGraph(o, result, kind, hasName, hasUUID )
-    } yield {
-      result
-    }
-
-  override def makeTerminologyGraph
-  ( iri: IRI,
-    kind: TerminologyKind,
-    entityGraphIRI: Option[IRI] )
-  ( implicit store: OWLAPIOMFGraphStore )
-  : Try[types.MutableModelTerminologyGraph] =
-    store.makeTerminologyGraph( iri, kind, entityGraphIRI )( this )
-
-  def setTerminologyGraphShortName
-  ( o: OWLOntology,
-    graph: types.MutableModelTerminologyGraph,
-    name: Option[String] )
-  ( implicit store: OWLAPIOMFGraphStore )
-  : Try[Unit] =
-  for {
-    result <- setTerminologyGraphShortName( graph, name )
-  } yield {
-    ???
-    result
-  }
 
   override def setTerminologyGraphShortName
   ( graph: types.MutableModelTerminologyGraph,
@@ -513,19 +582,6 @@ trait OWLAPIMutableTerminologyGraphOps
   : Try[Unit] =
     graph.setTerminologyGraphShortName(name)
 
-  def setTerminologyGraphUUID
-  ( o: OWLOntology,
-    graph: types.MutableModelTerminologyGraph,
-    uuid: Option[String] )
-  ( implicit store: OWLAPIOMFGraphStore )
-  : Try[Unit] =
-    for {
-      result <- setTerminologyGraphUUID( graph, uuid )
-    } yield {
-      ???
-      result
-    }
-
   override def setTerminologyGraphUUID
   ( graph: types.MutableModelTerminologyGraph,
     uuid: Option[String] )
@@ -533,56 +589,6 @@ trait OWLAPIMutableTerminologyGraphOps
   : Try[Unit] =
     graph.setTerminologyGraphUUID(uuid)
 
-  def addNestedTerminologyGraph
-  ( o: OWLOntology,
-    parentG: types.MutableModelTerminologyGraph,
-    nestedG: types.ModelTerminologyGraph )
-  ( implicit store: OWLAPIOMFGraphStore )
-  : Try[types.TerminologyGraphDirectNestingAxiom] =
-    for {
-      result <- addNestedTerminologyGraph( parentG, nestedG )
-      _ <- store.addNestedTerminologyGraph( o, result )
-    } yield {
-      result
-    }
-
-  override def addNestedTerminologyGraph
-  ( parentG: types.MutableModelTerminologyGraph,
-    nestedG: types.ModelTerminologyGraph )
-  ( implicit store: OWLAPIOMFGraphStore )
-  : Try[types.TerminologyGraphDirectNestingAxiom] =
-    store.createTerminologyGraphDirectNestingAxiom(parentG, nestedG)
-
-  def addTerminologyGraphExtension
-  ( o: OWLOntology,
-    extendingG: types.MutableModelTerminologyGraph,
-    extendedG: types.ModelTerminologyGraph )
-  ( implicit store: OWLAPIOMFGraphStore )
-  : Try[types.TerminologyGraphDirectExtensionAxiom] =
-    for {
-      result <- addTerminologyGraphExtension( extendingG, extendedG )
-      _ <- store.createOMFModelTerminologyGraphExtension( o, result )
-    } yield {
-      result
-    }
-
-  override def addTerminologyGraphExtension
-  ( extendingG: types.MutableModelTerminologyGraph,
-    extendedG: types.ModelTerminologyGraph )
-  ( implicit store: OWLAPIOMFGraphStore )
-  : Try[types.TerminologyGraphDirectExtensionAxiom] =
-    store.createTerminologyGraphDirectExtensionAxiom( extendingG, extendedG )
-
-  override def saveTerminologyGraph
-  ( g: types.MutableModelTerminologyGraph )
-  ( implicit store: OWLAPIOMFGraphStore ) =
-    store.saveTerminologyGraph( g )( this )
-
-  override def saveTerminologyGraph
-  ( g: types.MutableModelTerminologyGraph,
-    os: OutputStream )
-  ( implicit store: OWLAPIOMFGraphStore ) =
-    store.saveTerminologyGraph( g, os )( this )
 
   def setTermShortName
   ( o: OWLOntology,
@@ -634,14 +640,12 @@ trait OWLAPIMutableTerminologyGraphOps
   ( o: OWLOntology,
     hasProvenanceFromRule: String,
     graph: types.MutableModelTerminologyGraph,
-    aspectName: String,
-    hasName: Option[String],
-    hasUUID: Option[String] )
+    aspectName: String )
   ( implicit store: OWLAPIOMFGraphStore )
   : Try[types.ModelEntityAspect] =
     for {
       result <- addEntityAspect( graph, aspectName )
-      _ <- store.createOMFModelEntityAspectInstance( o, graph, hasProvenanceFromRule, result, hasName, hasUUID )
+      _ <- store.createOMFModelEntityAspectInstance( o, graph, hasProvenanceFromRule, result )
     } yield {
       result
     }
@@ -663,16 +667,13 @@ trait OWLAPIMutableTerminologyGraphOps
     hasProvenanceFromRule: String,
     graph: types.MutableModelTerminologyGraph,
     conceptName: String,
-    conceptGraphIRI: Option[IRI],
-    isAbstract: Boolean,
-    hasName: Option[String],
-    hasUUID: Option[String] )
+    isAbstract: Boolean )
   ( implicit store: OWLAPIOMFGraphStore )
-  : Try[( types.ModelEntityConcept, Option[types.MutableModelTerminologyGraph] )] =
+  : Try[types.ModelEntityConcept] =
     for {
-      result <- addEntityConcept( graph, conceptName, conceptGraphIRI, isAbstract )
-      _ <- store.createOMFModelEntityConceptInstance(
-        o, graph, hasProvenanceFromRule, result._1, result._2, hasName, hasUUID, isAbstract )
+      conceptIRI <- withFragment( graph.iri, conceptName )
+      result <- graph.addEntityConcept( conceptIRI, isAbstract )
+      _ <- store.createOMFModelEntityConceptInstance(graph, Some(hasProvenanceFromRule), result, isAbstract )
     } yield {
       result
     }
@@ -680,14 +681,14 @@ trait OWLAPIMutableTerminologyGraphOps
   override def addEntityConcept
   ( graph: types.MutableModelTerminologyGraph,
     conceptName: String,
-    conceptGraphIRI: Option[IRI],
     isAbstract: Boolean )
   ( implicit store: OWLAPIOMFGraphStore )
-  : Try[( types.ModelEntityConcept, Option[types.MutableModelTerminologyGraph] )] =
+  : Try[types.ModelEntityConcept] =
     for {
       conceptIRI <- withFragment( graph.iri, conceptName )
-      c <- graph.addEntityConcept( conceptIRI, conceptGraphIRI, isAbstract )
-    } yield c
+      result <- graph.addEntityConcept( conceptIRI, isAbstract )
+      _ <- store.createOMFModelEntityConceptInstance(graph, None, result, isAbstract )
+    } yield result
 
   // entity relationship
 
@@ -702,23 +703,26 @@ trait OWLAPIMutableTerminologyGraphOps
     target: types.ModelEntityDefinition,
     characteristics: Iterable[RelationshipCharacteristics.RelationshipCharacteristics],
     reifiedRelationshipName: String,
-    relationshipGraphIRI: Option[IRI],
     unreifiedRelationshipName: String,
     unreifiedInverseRelationshipName: Option[String],
-    isAbstract: Boolean,
-    hasName: Option[String],
-    hasUUID: Option[String] )
+    isAbstract: Boolean )
   ( implicit store: OWLAPIOMFGraphStore )
-  : Try[( types.ModelEntityReifiedRelationship, Option[types.MutableModelTerminologyGraph] )] =
+  : Try[types.ModelEntityReifiedRelationship] =
     for {
-      result <- addEntityReifiedRelationship( graph,
-        source, target, characteristics,
-        reifiedRelationshipName, relationshipGraphIRI,
-        unreifiedRelationshipName, unreifiedInverseRelationshipName, isAbstract )
-      _ <- store.createOMFModelEntityReifiedRelationshipInstance(
-        o, graph, hasProvenanceFromRule, result._1, result._2, hasName, hasUUID, isAbstract )
+      rIRI <- withFragment( graph.iri, reifiedRelationshipName )
+      rIRISource = toSourceIRI( rIRI )
+      rIRITarget = toTargetIRI( rIRI )
+      uIRI <- withFragment( graph.iri, unreifiedRelationshipName )
+      uiIRI <- withFragment( graph.iri, unreifiedInverseRelationshipName )
+      r <- graph.addEntityReifiedRelationship(
+        rIRI,
+        rIRISource, rIRITarget,
+        uIRI, uiIRI,
+        source, target,
+        characteristics, isAbstract )
+      _ <- store.createOMFModelEntityReifiedRelationshipInstance(graph, Some(hasProvenanceFromRule), r, isAbstract)
     } yield {
-      result
+      r
     }
 
   override def addEntityReifiedRelationship
@@ -727,12 +731,11 @@ trait OWLAPIMutableTerminologyGraphOps
     target: types.ModelEntityDefinition,
     characteristics: Iterable[RelationshipCharacteristics],
     reifiedRelationshipName: String,
-    relationshipGraphIRI: Option[IRI],
     unreifiedRelationshipName: String,
     unreifiedInverseRelationshipName: Option[String],
     isAbstract: Boolean )
   ( implicit store: OWLAPIOMFGraphStore )
-  : Try[( types.ModelEntityReifiedRelationship, Option[types.MutableModelTerminologyGraph] )] =
+  : Try[types.ModelEntityReifiedRelationship] =
     for {
       rIRI <- withFragment( graph.iri, reifiedRelationshipName )
       rIRISource = toSourceIRI( rIRI )
@@ -740,30 +743,65 @@ trait OWLAPIMutableTerminologyGraphOps
       uIRI <- withFragment( graph.iri, unreifiedRelationshipName )
       uiIRI <- withFragment( graph.iri, unreifiedInverseRelationshipName )
       r <- graph.addEntityReifiedRelationship(
-        rIRI, relationshipGraphIRI,
+        rIRI,
         rIRISource, rIRITarget,
         uIRI, uiIRI,
         source, target,
         characteristics, isAbstract )
+      _ <- store.createOMFModelEntityReifiedRelationshipInstance(graph, None, r, isAbstract)
     } yield r
 
   // scalar datatype
 
+  def addScalarDataType
+  ( o: OWLOntology,
+    hasProvenanceFromRule: String,
+    graph: types.MutableModelTerminologyGraph,
+    scalarName: String,
+    hasName: Option[String],
+    hasUUID: Option[String] )
+  ( implicit store: OWLAPIOMFGraphStore )
+  : Try[types.ModelScalarDataType] =
+  for {
+    result <- addScalarDataType(graph, scalarName)
+    _ <- store.createOMFModelScalarDataTypeInstance(o, graph, hasProvenanceFromRule, result, hasName, hasUUID)
+  } yield result
+
   override def addScalarDataType
   ( graph: types.MutableModelTerminologyGraph,
     scalarName: String )
-  ( implicit store: OWLAPIOMFGraphStore ) =
+  ( implicit store: OWLAPIOMFGraphStore )
+  : Try[types.ModelScalarDataType] =
     for {
       scalarIRI <- withFragment( graph.iri, scalarName )
-      scalar <- graph.addScalarDataType( scalarIRI )
-    } yield scalar
+      sc <- graph.addScalarDataType( scalarIRI )
+    } yield sc
 
   // structured datatype
 
+  def addStructuredDataType
+  ( o: OWLOntology,
+    hasProvenanceFromRule: String,
+    graph: types.MutableModelTerminologyGraph,
+    structureName: String,
+    hasName: Option[String],
+    hasUUID: Option[String] )
+  ( implicit store: OWLAPIOMFGraphStore )
+  : Try[types.ModelStructuredDataType] =
+    for {
+      result <- addStructuredDataType(graph, structureName)
+      _ <- store.createOMFModelStructuredDataTypeInstance(o, graph, hasProvenanceFromRule, result, hasName, hasUUID)
+    } yield result
+
   override def addStructuredDataType
   ( graph: types.MutableModelTerminologyGraph,
-    fragment: String )
-  ( implicit store: OWLAPIOMFGraphStore ) = ???
+    structureName: String )
+  ( implicit store: OWLAPIOMFGraphStore )
+  : Try[types.ModelStructuredDataType] =
+    for {
+      structureIRI <- withFragment( graph.iri, structureName )
+      st <- graph.addStructuredDataType( structureIRI )
+    } yield st
 
   // data relationship from entity to scalar
 
@@ -834,8 +872,7 @@ trait OWLAPIMutableTerminologyGraphOps
   : Try[types.EntityDefinitionAspectSubClassAxiom] =
     for {
       result <- addEntityDefinitionAspectSubClassAxiom( graph, sub, sup )
-      _ <- store.createOMFEntityDefinitionAspectSubClassAxiomInstance( o,
-        graph, hasProvenanceFromRule, result, sub, sup )
+      _ <- store.createOMFEntityDefinitionAspectSubClassAxiomInstance( o, graph, result, Some(hasProvenanceFromRule) )
     } yield {
       result
     }
@@ -849,6 +886,14 @@ trait OWLAPIMutableTerminologyGraphOps
 
   // entity concept subclass axiom
 
+  override def addEntityConceptToplevelDesignationTerminologyGraphAxiom
+  ( graph: types.MutableModelTerminologyGraph,
+    entityConcept: types.ModelEntityConcept,
+    designationTerminologyGraph: types.ModelTerminologyGraph )
+  ( implicit store: OWLAPIOMFGraphStore )
+  : Try[types.EntityConceptToplevelDesignationTerminologyGraphAxiom] =
+    ???
+
   /**
    * Wrapper
    */    
@@ -861,12 +906,12 @@ trait OWLAPIMutableTerminologyGraphOps
   ( implicit store: OWLAPIOMFGraphStore )
   : Try[types.EntityConceptSubClassAxiom] =
     for {
-      result <- addEntityConceptSubClassAxiom( graph, sub, sup )
-      _ <- store.createOMFEntityConceptSubClassAxiomInstance( o, graph, hasProvenanceFromRule, result, sub, sup )
+      result <- graph.addEntityConceptSubClassAxiom( sub, sup )
+      _ <- store.createOMFEntityConceptSubClassAxiomInstance( graph, result, Some(hasProvenanceFromRule) )
     } yield {
-      System.out.println("# OMF/OWLAPI ops: ConceptSubClass:"+
-        " sup="+store.omfModule.ops.fromTerm(sup)+
-        " sub="+store.omfModule.ops.fromTerm(sub))
+//      System.out.println("# OMF/OWLAPI ops: ConceptSubClass:"+
+//        " sup="+store.omfModule.ops.fromTerm(sup)+
+//        " sub="+store.omfModule.ops.fromTerm(sub))
 
       result
     }
@@ -876,7 +921,16 @@ trait OWLAPIMutableTerminologyGraphOps
     sub: types.ModelEntityConcept,
     sup: types.ModelEntityConcept )
   ( implicit store: OWLAPIOMFGraphStore ) =
-    graph.addEntityConceptSubClassAxiom( sub, sup )
+  for {
+    result <- graph.addEntityConceptSubClassAxiom( sub, sup )
+    _ <- store.createOMFEntityConceptSubClassAxiomInstance( graph, result, None )
+  } yield {
+//    System.out.println("# OMF/OWLAPI ops: ConceptSubClass:"+
+//      " sup="+store.omfModule.ops.fromTerm(sup)+
+//      " sub="+store.omfModule.ops.fromTerm(sub))
+
+    result
+  }
 
   // entity concept restriction axioms
 
@@ -981,19 +1035,9 @@ trait OWLAPIMutableTerminologyGraphOps
 trait OWLAPIImmutableInstanceGraphOps
   extends ImmutableInstanceGraphOps[OWLAPIOMF] {
 
-  override def loadInstanceGraph
-  ( iri: IRI )
-  ( implicit store: OWLAPIOMFGraphStore ):
-  Try[instances.ImmutableModelInstanceGraph] =
-    store.loadInstanceGraph( iri )
-
   override def getInstanceGraphIRI
   ( graph: instances.ModelInstanceGraph ) =
     graph.iri
-
-  override def fromInstanceGraph
-  ( graph: instances.ModelInstanceGraph ) =
-    graph.fromInstanceGraph
 
   // instance object
 
@@ -1063,32 +1107,6 @@ trait OWLAPIImmutableInstanceGraphOps
 trait OWLAPIMutableInstanceGraphOps
   extends MutableInstanceGraphOps[OWLAPIOMF]
   with OWLAPIImmutableInstanceGraphOps {
-
-  override def asImmutableInstanceGraph
-  ( g: instances.MutableModelInstanceGraph )
-  ( implicit store: OWLAPIOMFGraphStore )
-  : Try[instances.ImmutableModelInstanceGraph] =
-    store.asImmutableInstanceGraph( g )
-
-  override def makeInstanceGraph
-  ( iri: IRI,
-    instantiatedTGraphs: Iterable[types.ImmutableModelTerminologyGraph],
-    extendedIGraphs: Iterable[instances.ImmutableModelInstanceGraph] )
-  ( implicit store: OWLAPIOMFGraphStore )
-  : Try[instances.MutableModelInstanceGraph] =
-    store.makeInstanceGraph( iri, instantiatedTGraphs, extendedIGraphs )
-
-  override def saveInstanceGraph
-  ( g: instances.MutableModelInstanceGraph )
-  ( implicit store: OWLAPIOMFGraphStore )
-  : Try[Unit] =
-    g.save
-
-  override def saveInstanceGraph
-  ( g: instances.MutableModelInstanceGraph, os: OutputStream )
-  ( implicit store: OWLAPIOMFGraphStore )
-  : Try[Unit] =
-    g.save( os )
 
   // instance object
 
@@ -1177,7 +1195,8 @@ class OWLAPIOMFOps
   extends OMFOps[OWLAPIOMF]
   with OWLAPIIRIOps
   with OWLAPIMutableTerminologyGraphOps
-  with OWLAPIMutableInstanceGraphOps {
+  with OWLAPIMutableInstanceGraphOps
+  with OWLAPIStoreOps {
 
   val rdfs_label =
     makeIRI( "http://www.w3.org/2000/01/rdf-schema#label" )
@@ -1203,31 +1222,32 @@ class OWLAPIOMFOps
   val AnnotationIsDesignation =
     makeIRI( "http://imce.jpl.nasa.gov/foundation/annotation/annotation#isDesignation" )
 
-  /**
-   * Used for an entity concept or relationship to indicate the IRI of the corresponding graph.
-   */
-  val AnnotationEntityGraphIRI =
-    makeIRI( "http://imce.jpl.nasa.gov/foundation/annotation/annotation#entityGraphIRI" )
-
-  /**
-   * Used for a terminology graph to indicate the IRI of the corresponding entity
-   */
-  val AnnotationGraphForEntityIRI =
-    makeIRI( "http://imce.jpl.nasa.gov/foundation/annotation/annotation#graphForEntityIRI" )
+  val AnnotationIsToplevel =
+    makeIRI( "http://imce.jpl.nasa.gov/foundation/annotation/annotation#isToplevel" )
 
 }
 
 sealed abstract class IRIArgumentException( val message: String )
-  extends IllegalArgumentException( message )
+  extends IllegalArgumentException( message ) {
+  require(null != message)
+}
 
 case class IRIFragmentException( val iri: IRI )
-  extends IRIArgumentException( s"withFragment(iri=${iri}) -- the IRI already has a fragment" )
+  extends IRIArgumentException( s"withFragment(iri=${iri}) -- the IRI already has a fragment" ) {
+  require(null != iri)
+}
 
 case class IRIObjectPropertyException( val iri: IRI )
-  extends IRIArgumentException( s"toObjectProperty(iri=${iri}) -- the IRI must have a fragment" )
+  extends IRIArgumentException( s"toObjectProperty(iri=${iri}) -- the IRI must have a fragment" ) {
+  require(null != iri)
+}
 
 case class IRISourcePropertyException( val iri: IRI )
-  extends IRIArgumentException( s"toSourceIRI(iri=${iri}) -- the IRI must have a fragment" )
+  extends IRIArgumentException( s"toSourceIRI(iri=${iri}) -- the IRI must have a fragment" ) {
+  require(null != iri)
+}
 
 case class IRIargetPropertyException( val iri: IRI )
-  extends IRIArgumentException( s"toTargetIRI(iri=${iri}) -- the IRI must have a fragment" )
+  extends IRIArgumentException( s"toTargetIRI(iri=${iri}) -- the IRI must have a fragment" ) {
+  require(null != iri)
+}

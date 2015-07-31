@@ -38,6 +38,8 @@
  */
 package gov.nasa.jpl.omf.scala.binding.owlapi.types
 
+import java.io.OutputStream
+
 import gov.nasa.jpl.omf.scala.core._
 import gov.nasa.jpl.omf.scala.core.TerminologyKind._
 import gov.nasa.jpl.omf.scala.binding.owlapi._
@@ -50,14 +52,17 @@ import scala.util.Success
 import scala.util.Failure
 import gov.nasa.jpl.omf.scala.core.RelationshipCharacteristics._
 
-abstract class ModelTerminologyGraph(
-  val kind: TerminologyKind,
-  val ont: OWLOntology,
-  val entityG: Option[IRI] )( implicit val ops: OWLAPIOMFOps ) {
+abstract class ModelTerminologyGraph
+( val kind: TerminologyKind,
+  val ont: OWLOntology )
+( implicit val ops: OWLAPIOMFOps ) {
+
+  require(null != kind)
+  require(null != ont)
+  require(null != ops)
 
   val isImmutableModelTerminologyGraph: Boolean
-  val isMutableModelTerminologyGraph: Boolean  
-  val imports: Iterable[ModelTerminologyGraph]
+  val isMutableModelTerminologyGraph: Boolean
   
   import ops._
 
@@ -91,16 +96,21 @@ abstract class ModelTerminologyGraph(
       exists ( _.isTypeTermDefined( t ) )
 
   def lookupTypeTerm
-  ( iri: IRI )
+  ( iri: IRI, recursively: Boolean )
+  ( implicit store: OWLAPIOMFGraphStore )
   : Option[ModelTypeTerm] =
+  if (recursively)
+    lookupTypeTermRecursively(iri)
+  else
     iri2typeTerm.get( iri )
 
   def lookupTypeTerm
-  ( iri: Option[IRI] )
+  ( iri: Option[IRI], recursively: Boolean )
+  ( implicit store: OWLAPIOMFGraphStore )
   : Option[ModelTypeTerm] =
     for {
       _iri <- iri
-      _t <- lookupTypeTerm( _iri )
+      _t <- lookupTypeTerm( _iri, recursively )
     } yield _t
 
   def lookupTypeTermRecursively
@@ -108,7 +118,7 @@ abstract class ModelTerminologyGraph(
   ( implicit store: OWLAPIOMFGraphStore )
   : Option[ModelTypeTerm] =
     terminologyGraphImportClosure[OWLAPIOMF, ModelTerminologyGraph](this, onlyCompatibleKind = true).
-      flatMap(_.lookupTypeTerm( iri )).headOption
+      flatMap(_.lookupTypeTerm( iri, recursively=false )).headOption
 
   def lookupTypeTermRecursively
   ( iri: Option[IRI] )
@@ -123,15 +133,18 @@ abstract class ModelTerminologyGraph(
 
   def getEntityDefinitionMap: Map[OWLClass, ModelEntityDefinition]
 
+  def getScalarDatatypeDefinitionMap: Map[OWLDatatype, ModelScalarDataType]
+
   def getTerms: ( IRI, Iterable[ModelTypeTerm] ) = ( iri, iri2typeTerm.values )
 
   def fromTerminologyGraph
   ( nesting: Option[ModelTerminologyGraph],
-    nested: Iterable[ModelTerminologyGraph] )
+    nested: Iterable[ModelTerminologyGraph],
+    extended: Iterable[ModelTerminologyGraph] )
   : OWLAPITerminologyGraphSignature =
     OWLAPITerminologyGraphSignature(
-      iri, entityG, kind, nesting, nested,
-      imports, aspects, concepts,
+      iri, kind, nesting, nested,
+      extended, aspects, concepts,
       reifiedRelationships, unreifiedRelationships,
       sc, st, e2sc, e2st, s2sc, s2st,
       ax )
@@ -176,4 +189,13 @@ abstract class ModelTerminologyGraph(
   : Option[OWLAnnotationAssertionAxiom] =
     ont.getAnnotationAssertionAxioms( term.iri ).
       find( _.getProperty.getIRI == ops.AnnotationHasUUID )
+
+
+  def save( saveIRI: IRI ): Try[Unit] = Try {
+    ontManager.saveOntology( ont, saveIRI )
+  }
+
+  def save( os: OutputStream ): Try[Unit] = Try {
+    ontManager.saveOntology( ont, os )
+  }
 }

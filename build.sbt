@@ -40,15 +40,17 @@ lazy val core = Project("omf-scala-core-binding-owlapi",
     MBEEPlugin.MBEEOrganizations.imce.mbeeArtifactVersion(
       "omf-scala-core",
       MBEEKeys.mbeeReleaseVersionPrefix.value, Versions.jpl_omf_core_revision) % "compile" withSources() withJavadoc(),
-//    MBEEPlugin.MBEEOrganizations.imce.mbeeArtifactVersion(
-//      "omf-scala-core",
-//      MBEEKeys.mbeeReleaseVersionPrefix.value, Versions.jpl_omf_core_revision) % "test" classifier "tests"
-//      artifacts(
-//      Artifact.classified("omf-scala-core", "tests-sources"),
-//      Artifact.classified("omf-scala-core", "tests-javadoc")),
+  // This form does get the test sources with IntelliJ
     MBEEPlugin.MBEEOrganizations.imce.mbeeArtifactVersion(
       "omf-scala-core",
-      MBEEKeys.mbeeReleaseVersionPrefix.value, Versions.jpl_omf_core_revision) % "test" classifier "tests" withSources() withJavadoc(),
+      MBEEKeys.mbeeReleaseVersionPrefix.value, Versions.jpl_omf_core_revision) % "test" classifier "tests"
+      artifacts(
+      Artifact.classified("omf-scala-core", "tests-sources"),
+      Artifact.classified("omf-scala-core", "tests-javadoc")),
+  // This form does not get the test sources with IntelliJ
+//    MBEEPlugin.MBEEOrganizations.imce.mbeeArtifactVersion(
+//      "omf-scala-core",
+//      MBEEKeys.mbeeReleaseVersionPrefix.value, Versions.jpl_omf_core_revision) % "test" classifier "tests" withSources() withJavadoc(),
     MBEEPlugin.MBEEOrganizations.imce.mbeeZipArtifactVersion(
       "gov-nasa-jpl-imce-ontologies",
       MBEEKeys.mbeeReleaseVersionPrefix.value, Versions.imce_loadprod_revision) % "runtime"

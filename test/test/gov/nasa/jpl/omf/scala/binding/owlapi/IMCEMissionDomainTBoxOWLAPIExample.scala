@@ -38,16 +38,54 @@
  */
 package test.gov.nasa.jpl.omf.scala.binding.owlapi
 
-import org.semanticweb.owlapi.apibinding.OWLManager
 import gov.nasa.jpl.omf.scala.binding.owlapi._
-import test.gov.nasa.jpl.omf.scala.core.{ functionalAPI => testFunctionalAPI }
 import org.apache.xml.resolver.CatalogManager
+import org.semanticweb.owlapi.apibinding.OWLManager
+import test.gov.nasa.jpl.omf.scala.core.{functionalAPI => testFunctionalAPI}
 
-abstract class IMCEMissionDomainTBoxOWLAPIExample()( override implicit val store: OWLAPIOMFGraphStore )
-extends testFunctionalAPI.IMCEMissionDomainTBoxExample[OWLAPIOMF]()( store.omfModule.ops, store )
+import scala.util.{Failure, Success}
 
-class IMCEMissionDomainTBoxOWLAPIExampleNoCatalog
-extends IMCEMissionDomainTBoxOWLAPIExample()(
-    OWLAPIOMFGraphStore( 
-        OWLAPIOMFModule( None ), 
-        OWLManager.createOWLOntologyManager() ) )
+abstract class IMCEMissionDomainTBoxOWLAPIExample(override val store: OWLAPIOMFGraphStore)
+  extends testFunctionalAPI.IMCEMissionDomainTBoxExample[OWLAPIOMF]()(store.omfModule.ops, store)
+
+abstract class IMCEMissionDomainTBoxOWLAPIExampleCatalogTest(@transient val catalogManager: CatalogManager)
+  extends IMCEMissionDomainTBoxOWLAPIExample(
+    store = OWLAPIOMFGraphStore(OWLAPIOMFModule(Some(catalogManager)), OWLManager.createOWLOntologyManager()))
+
+class IMCEMissionDomainTBoxOWLAPIExampleLocalCatalog
+  extends IMCEMissionDomainTBoxOWLAPIExampleCatalogTest(catalogManager = new CatalogManager()) {
+  val catalogFile = "/ontologies/imce.local.catalog.xml"
+  store.catalogIRIMapper match {
+    case None =>
+      throw new IllegalArgumentException(
+        "There should be a catalog IRI mapper since the store was constructed with a catalog manager")
+
+    case Some(catalogIRImapper) =>
+      classOf[OWLAPIOWFVocabularyMutabilityTestLocalCatalog].getResource(catalogFile) match {
+        case null =>
+          Option.apply(java.nio.file.Paths.get("ontologies", "imce.local.catalog.xml")) match {
+            case Some(p)
+              if p.toFile.exists() && p.toFile.canRead =>
+              catalogIRImapper.parseCatalog(p.toFile.toURI) match {
+                case Failure(t) =>
+                  throw new IllegalArgumentException(s"Cannot parse the test catalog: '${p.toFile.toURI}'", t)
+                case Success(_) =>
+                  ()
+              }
+            case _ =>
+              throw new IllegalArgumentException(s"There should be a '$catalogFile' resource on the classpath")
+          }
+        case testCatalogURL =>
+          catalogIRImapper.parseCatalog(testCatalogURL.toURI) match {
+            case Failure(t) =>
+              throw new IllegalArgumentException(s"Cannot parse the test catalog: '$testCatalogURL'", t)
+            case Success(_) =>
+              ()
+          }
+      }
+  }
+
+  val metadataIRI = store.omfModule.ops.makeIRI("http://imce.jpl.nasa.gov/test/OWLAPIOMFVocabularySave")
+  val metadataOnt = store.ontManager.createOntology(metadataIRI)
+  store.setOMFMetadataOntology(metadataOnt)
+}

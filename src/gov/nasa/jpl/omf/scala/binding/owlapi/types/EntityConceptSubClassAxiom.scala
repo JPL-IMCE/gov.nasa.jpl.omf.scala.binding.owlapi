@@ -42,4 +42,8 @@ import gov.nasa.jpl.omf.scala.binding.owlapi._
 
 case class EntityConceptSubClassAxiom(
     val sub: ModelEntityConcept,
-    val sup: ModelEntityConcept) extends ModelTermAxiom
+    val sup: ModelEntityConcept) extends ModelTermAxiom {
+
+    require( null != sub )
+    require( null != sup )
+}

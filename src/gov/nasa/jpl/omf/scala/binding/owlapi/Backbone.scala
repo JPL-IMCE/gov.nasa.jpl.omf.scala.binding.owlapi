@@ -55,7 +55,10 @@ import gov.nasa.jpl.omf.scala.core.TerminologyKind._
 import org.semanticweb.owlapi.model.AddOntologyAnnotation
 import org.semanticweb.owlapi.model.OWLLiteral
 
-sealed abstract class Backbone( val ont: OWLOntology )
+sealed abstract class Backbone( val ont: OWLOntology ) {
+
+  require(null != ont)
+}
 
 class NoBackbone( override val ont: OWLOntology ) extends Backbone( ont )
 
@@ -77,6 +80,22 @@ class OMFBackbone
   val topReifiedStructuredDataPropertyTarget: IRI,
   val topDataProperty: IRI )
   extends Backbone( ont ) {
+
+  require(null != kind)
+  require(null != Thing)
+  require(null != Aspect)
+  require(null != Entity)
+  require(null != StructuredDatatype)
+  require(null != ReifiedObjectProperty)
+  require(null != ReifiedStructuredDataProperty)
+  require(null != topObjectProperty)
+  require(null != topReifiedObjectProperty)
+  require(null != topReifiedObjectPropertySource)
+  require(null != topReifiedObjectPropertyTarget)
+  require(null != topReifiedStructuredDataProperty)
+  require(null != topReifiedStructuredDataPropertySource)
+  require(null != topReifiedStructuredDataPropertyTarget)
+  require(null != topDataProperty)
 
   val df = ont.getOWLOntologyManager.getOWLDataFactory
 

@@ -43,5 +43,8 @@ import org.semanticweb.owlapi.model.OWLClass
 
 case class ModelEntityAspect( override val e: OWLClass )
   extends ModelEntityDefinition( e ) {
+
+  require(null != e)
+
   override val iri = e.getIRI
 }

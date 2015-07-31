@@ -38,124 +38,145 @@
  */
 package gov.nasa.jpl.omf.scala.binding.owlapi
 
-import java.io.File
-import java.io.IOException
-import java.net.MalformedURLException
-import java.net.URI
-import java.net.URL
+import java.io.{File, IOException}
+import java.net.{MalformedURLException, URI, URL}
 
-import scala.util.Failure
-import scala.util.Success
-import scala.util.Try
-
-import org.apache.xml.resolver.Catalog
-import org.apache.xml.resolver.CatalogManager
+import org.apache.xml.resolver.{Catalog, CatalogManager}
 import org.apache.xml.resolver.tools.CatalogResolver
 import org.semanticweb.owlapi.annotations.HasPriority
-import org.semanticweb.owlapi.model.IRI
-import org.semanticweb.owlapi.model.OWLOntologyIRIMapper
+import org.semanticweb.owlapi.model.{IRI, OWLOntologyIRIMapper}
 
-@HasPriority( 0 )
-case class CatalogIRIMapper( catalogManager: CatalogManager, catalogResolver: CatalogResolver, catalog: Catalog ) extends OWLOntologyIRIMapper {
+import scala.util.{Failure, Success, Try}
 
-  def this( catalogManager: CatalogManager, catalogResolver: CatalogResolver ) = this( catalogManager, catalogResolver, catalogResolver.getCatalog )
+@HasPriority(0)
+case class CatalogIRIMapper
+(catalogManager: CatalogManager,
+ catalogResolver: CatalogResolver,
+ catalog: Catalog) extends OWLOntologyIRIMapper {
 
-  def this( catalogManager: CatalogManager ) = this( catalogManager, new CatalogResolver( catalogManager ) )
+  require(null != catalogManager)
+  require(null != catalogResolver)
+  require(null != catalog)
 
-  def parseCatalog( catalogURI: URI ): Try[Unit] =
+  def this
+  (catalogManager: CatalogManager,
+   catalogResolver: CatalogResolver) =
+    this(catalogManager, catalogResolver, catalogResolver.getCatalog)
+
+  def this
+  (catalogManager: CatalogManager) =
+    this(catalogManager, new CatalogResolver(catalogManager))
+
+  def parseCatalog(catalogURI: URI): Try[Unit] =
     try {
-      catalog.parseCatalog( catalogURI.toURL() )
-      Success( Unit )
+      catalog.parseCatalog(catalogURI.toURL)
+      Success(Unit)
     }
     catch {
-      case e: IOException => Failure( e )
+      case e: IOException => Failure(e)
     }
 
-  def getDocumentIRI( ontologyIRI: IRI ): IRI =
-    resolveIRI( ontologyIRI, loadResolutionStrategy ) match {
-      case null        => ontologyIRI
+  def getDocumentIRI(ontologyIRI: IRI): IRI =
+    resolveIRI(ontologyIRI, loadResolutionStrategy) match {
+      case null => ontologyIRI
       case resolvedIRI => resolvedIRI
     }
 
-  def loadResolutionStrategy( resolved: String ): Option[IRI] = {
+  def loadResolutionStrategy(resolved: String): Option[IRI] = {
 
-    def ignore( e: Exception ) = {}
+    def ignore(e: Exception) = {}
 
-    val normalized = new URI( resolved )
-    val normalizedPath = normalized.toString()
+    val normalized = new URI(resolved)
+    val normalizedPath = normalized.toString
 
-    val f1 = new URL( normalizedPath )
-    val f2 = if ( normalizedPath.endsWith( ".owl" ) ) f1 else new URL( normalizedPath + ".owl" )
+    val f1 = new URL(normalizedPath)
+    val f2 =
+      if (normalizedPath.endsWith(".owl")) f1
+      else new URL(normalizedPath + ".owl")
     try {
       for {
-        is <- Option.apply( f2.openStream )
-        if ( is.available() > 0 )
+        is <- Option.apply(f2.openStream)
+        if is.available() > 0
       } {
         is.close()
-        return Some( IRI.create( f2.toString() ) )
+        return Some(IRI.create(f2.toString))
       }
     }
     catch {
-      case e: IOException => ignore( e )
+      case e: IOException => ignore(e)
       // try another variant.
     }
     try {
       for {
-        is <- Option.apply( f1.openStream() )
-        if ( is.available() > 0 )
+        is <- Option.apply(f1.openStream())
+        if is.available() > 0
       } {
         is.close()
-        return Some( IRI.create( f1.toString() ) )
+        return Some(IRI.create(f1.toString))
       }
     }
     catch {
-      case e: IOException => ignore( e )
+      case e: IOException => ignore(e)
       // try another variant.
     }
     None
   }
 
-  def saveResolutionStrategy( resolved: String ): Option[IRI] = {
-    val normalized = new URI( resolved )
+  def saveResolutionStrategy(resolved: String): Option[IRI] = {
+    val normalized = new URI(resolved)
     val normalizedPath = normalized.toString
-    val normalizedOwlPath = if (normalizedPath.endsWith(".owl")) normalizedPath else normalizedPath+".owl"
-    val f1 = new URL( normalizedOwlPath )    
-    val outputFile = if ( resolved.startsWith( "file:" ) ) new File( resolved.substring( 5 ) ) else new File( resolved )
-    outputFile.getParentFile() match {
-      case null => None
+    val normalizedOwlPath =
+      if (normalizedPath.endsWith(".owl")) normalizedPath
+      else normalizedPath + ".owl"
+    val f1 = new URL(normalizedOwlPath)
+    val outputFile =
+      if (resolved.startsWith("file:")) new File(resolved.substring(5))
+      else new File(resolved)
+
+    outputFile.getParentFile match {
+      case null =>
+        None
+
       case outputDir =>
-        if ( !outputDir.exists )
+        if (!outputDir.exists)
           outputDir.mkdirs
 
-        if ( outputDir.exists && outputDir.isDirectory && outputDir.canWrite ) {
-          Some( IRI.create( f1.toString ) )
-        }
+        if (outputDir.exists && outputDir.isDirectory && outputDir.canWrite)
+          Some(IRI.create(f1.toString))
         else
           None
     }
   }
 
-  def resolveIRI( iri: IRI, resolutionStrategy: ( String ) => Option[IRI] ): IRI = {
+  def resolveIRI(iri: IRI, resolutionStrategy: (String) => Option[IRI]): IRI = {
 
-    def ignore( e: Exception ) = {}
+    def ignore(e: Exception) = {}
 
     val rawPath = iri.toURI.toString
-    val iriPath = if ( rawPath.endsWith( "#" ) ) rawPath.substring( 0, rawPath.length() - 1 ) else rawPath
+    val iriPath =
+      if (rawPath.endsWith("#")) rawPath.substring(0, rawPath.length() - 1)
+      else rawPath
+
     try {
-      catalog.resolveURI( iriPath ) match {
+      catalog.resolveURI(iriPath) match {
         case null =>
           iri
         case resolved =>
-          resolutionStrategy( resolved ) match {
-            case None                => iri
-            case Some( resolvedIRI ) => resolvedIRI
+          resolutionStrategy(resolved) match {
+            case None =>
+              iri
+            case Some(resolvedIRI) =>
+              resolvedIRI
           }
       }
     }
     catch {
       case e: MalformedURLException =>
-        ignore( e ); iri
-      case e: IOException           => ignore( e ); iri
+        ignore(e)
+        iri
+      case e: IOException =>
+        ignore(e)
+        iri
     }
   }
 }

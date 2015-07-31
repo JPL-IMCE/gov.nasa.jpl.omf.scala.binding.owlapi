@@ -42,4 +42,6 @@ import gov.nasa.jpl.omf.scala.binding.owlapi._
 
 trait ModelDataRelationshipFromEntity extends ModelDataRelationshipFrom {
   val source: ModelEntityDefinition
+
+  require(null != source)
 }
