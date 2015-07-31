@@ -43,4 +43,6 @@ import gov.nasa.jpl.omf.scala.binding.owlapi._
 case class ModelInstanceDataRelationshipFromStructureToStructure(
     val di: ModelInstanceDataStructure, 
     val dataRelationship: types.ModelDataRelationshipFromStructureToStructure,
-    val value: ModelInstanceDataStructure) extends ModelInstanceAssertion
+    val value: ModelInstanceDataStructure)
+  extends ModelNamedIndividual(di.iri)
+  with ModelInstanceAssertion

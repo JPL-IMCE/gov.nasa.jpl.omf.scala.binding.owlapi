@@ -40,7 +40,13 @@ package gov.nasa.jpl.omf.scala.binding.owlapi.types
 
 import gov.nasa.jpl.omf.scala.core._
 
-case class ScalarDataTypeFacetRestriction(
-    val sub: ModelScalarDataType,
-    val sup: ModelScalarDataType,
-    val restrictions: Iterable[ConstrainingFacet]) extends ModelTermAxiom
+case class ScalarDataTypeFacetRestriction
+(val sub: ModelScalarDataType,
+ val sup: ModelScalarDataType,
+ val restrictions: Iterable[ConstrainingFacet])
+  extends ModelTermAxiom {
+
+  require(null != sub)
+  require(null != sup)
+  require(null != restrictions)
+}

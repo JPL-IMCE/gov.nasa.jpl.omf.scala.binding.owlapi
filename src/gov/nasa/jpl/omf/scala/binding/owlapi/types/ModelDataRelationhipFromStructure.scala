@@ -42,4 +42,6 @@ import gov.nasa.jpl.omf.scala.binding.owlapi._
 
 trait ModelDataRelationshipFromStructure extends ModelDataRelationshipFrom {
   val source: ModelStructuredDataType
+
+  require(null != source)
 }

@@ -52,5 +52,13 @@ case class ModelDataRelationshipFromStructureToStructure(
   extends ModelDataRelationship
   with ModelDataRelationshipFromStructure
   with ModelDataRelationshipToStructure {
+
+  require(null != c)
+  require(null != source)
+  require(null != rSource)
+  require(null != target)
+  require(null != rTarget)
+  require(null != unreified)
+
   override val iri = c.getIRI
 }

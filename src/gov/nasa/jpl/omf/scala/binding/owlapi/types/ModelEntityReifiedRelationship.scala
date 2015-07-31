@@ -46,7 +46,6 @@ import org.semanticweb.owlapi.model.IRI
 
 case class ModelEntityReifiedRelationship(
   override val e: OWLClass,
-  val eg: Option[IRI],
   val unreified: OWLObjectProperty,
   val inverse: Option[OWLObjectProperty],
   val source: ModelEntityDefinition, val rSource: OWLObjectProperty,
@@ -54,5 +53,12 @@ case class ModelEntityReifiedRelationship(
   val characteristics: Iterable[RelationshipCharacteristics],
   val isAbstract: Boolean )
   extends ModelEntityDefinition( e ) {
+
+  require(null != e)
+  require(null != inverse)
+  require(null != source)
+  require(null != target)
+  require(null != characteristics)
+
   override val iri = e.getIRI
 }

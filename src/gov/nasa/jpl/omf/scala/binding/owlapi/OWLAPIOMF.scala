@@ -41,8 +41,17 @@ package gov.nasa.jpl.omf.scala.binding.owlapi
 import gov.nasa.jpl.omf.scala.core._
 import gov.nasa.jpl.omf.scala.binding._
 import org.semanticweb.owlapi.model.OWLOntologyManager
+import gov.nasa.jpl.omf.scala.core.RelationshipCharacteristics._
+import gov.nasa.jpl.omf.scala.core.TerminologyKind._
 
-trait OWLAPIOMF extends OMF with OWLAPIOMFstore with OWLAPIOMFiri with OWLAPIOMFtbox with OWLAPIOMFabox
+trait OWLAPIOMF
+  extends OMF
+  with OWLAPIOMFstore
+  with OWLAPIOMFiri
+  with OWLAPIOMFtbox
+  with OWLAPIOMFabox {
+
+}
 
 trait OWLAPIOMFstore extends OMFstore {
   
@@ -58,69 +67,231 @@ trait OWLAPIOMFiri extends OMFiri {
 
 trait OWLAPIOMFtbox extends OMFtbox {
   
-  type ModelTerminologyGraph = types.ModelTerminologyGraph
-  type ImmutableModelTerminologyGraph = types.ImmutableModelTerminologyGraph
-  type MutableModelTerminologyGraph = types.MutableModelTerminologyGraph
+  type ModelTerminologyGraph =
+  types.ModelTerminologyGraph
+
+  type ImmutableModelTerminologyGraph =
+  types.ImmutableModelTerminologyGraph
+
+  type MutableModelTerminologyGraph =
+  types.MutableModelTerminologyGraph
   
-  type ModelTypeTerm = types.ModelTypeTerm
+  type ModelTypeTerm =
+  types.ModelTypeTerm
     
-  type ModelEntityDefinition = types.ModelEntityDefinition
-  type ModelEntityAspect = types.ModelEntityAspect
-  type ModelEntityConcept = types.ModelEntityConcept
-  type ModelEntityReifiedRelationship = types.ModelEntityReifiedRelationship
+  type ModelEntityDefinition =
+  types.ModelEntityDefinition
+
+  type ModelEntityAspect =
+  types.ModelEntityAspect
+
+  type ModelEntityConcept =
+  types.ModelEntityConcept
+
+  type ModelEntityReifiedRelationship =
+  types.ModelEntityReifiedRelationship
+
+  type ModelEntityUnreifiedRelationship =
+  types.ModelEntityUnreifiedRelationship
   
-  type ModelDataTypeDefinition = types.ModelDataTypeDefinition
-  type ModelScalarDataType = types.ModelScalarDataType
-  type ModelStructuredDataType = types.ModelStructuredDataType
+  type ModelDataTypeDefinition =
+  types.ModelDataTypeDefinition
+
+  type ModelScalarDataType =
+  types.ModelScalarDataType
+
+  type ModelStructuredDataType =
+  types.ModelStructuredDataType
   
-  type ModelDataRelationship = types.ModelDataRelationship
+  type ModelDataRelationship =
+  types.ModelDataRelationship
   
-  type ModelDataRelationshipFrom = types.ModelDataRelationshipFrom
-  type ModelDataRelationshipFromEntity = types.ModelDataRelationshipFromEntity
-  type ModelDataRelationshipFromStructure = types.ModelDataRelationshipFromStructure
+  type ModelDataRelationshipFrom =
+  types.ModelDataRelationshipFrom
+
+  type ModelDataRelationshipFromEntity =
+  types.ModelDataRelationshipFromEntity
+
+  type ModelDataRelationshipFromStructure =
+  types.ModelDataRelationshipFromStructure
   
-  type ModelDataRelationshipTo = types.ModelDataRelationshipTo
-  type ModelDataRelationshipToScalar = types.ModelDataRelationshipToScalar
-  type ModelDataRelationshipToStructure = types.ModelDataRelationshipToStructure
+  type ModelDataRelationshipTo =
+  types.ModelDataRelationshipTo
+
+  type ModelDataRelationshipToScalar =
+  types.ModelDataRelationshipToScalar
+
+  type ModelDataRelationshipToStructure =
+  types.ModelDataRelationshipToStructure
   
-  type ModelDataRelationshipFromEntityToScalar = types.ModelDataRelationshipFromEntityToScalar
-  type ModelDataRelationshipFromEntityToStructure = types.ModelDataRelationshipFromEntityToStructure
-  type ModelDataRelationshipFromStructureToScalar = types.ModelDataRelationshipFromStructureToScalar
-  type ModelDataRelationshipFromStructureToStructure = types.ModelDataRelationshipFromStructureToStructure
+  type ModelDataRelationshipFromEntityToScalar =
+  types.ModelDataRelationshipFromEntityToScalar
+
+  type ModelDataRelationshipFromEntityToStructure =
+  types.ModelDataRelationshipFromEntityToStructure
+
+  type ModelDataRelationshipFromStructureToScalar =
+  types.ModelDataRelationshipFromStructureToScalar
+
+  type ModelDataRelationshipFromStructureToStructure =
+  types.ModelDataRelationshipFromStructureToStructure
   
-  type ModelTermAxiom = types.ModelTermAxiom
+  type ModelTermAxiom =
+  types.ModelTermAxiom
    
-  type EntityDefinitionAspectSubClassAxiom = types.EntityDefinitionAspectSubClassAxiom 
-  type EntityConceptSubClassAxiom = types.EntityConceptSubClassAxiom
-  type EntityConceptRestrictionAxiom = types.EntityConceptRestrictionAxiom
-  type EntityConceptUniversalRestrictionAxiom = types.EntityConceptUniversalRestrictionAxiom
-  type EntityConceptExistentialRestrictionAxiom = types.EntityConceptExistentialRestrictionAxiom
-  type EntityRelationshipSubClassAxiom = types.EntityRelationshipSubClassAxiom  
-  type ScalarDataTypeFacetRestriction = types.ScalarDataTypeFacetRestriction
-  
+  type EntityDefinitionAspectSubClassAxiom =
+  types.EntityDefinitionAspectSubClassAxiom
+
+  type EntityConceptToplevelDesignationTerminologyGraphAxiom =
+  types.EntityConceptToplevelDesignationTerminologyGraphAxiom
+
+  type EntityConceptSubClassAxiom =
+  types.EntityConceptSubClassAxiom
+
+  type EntityConceptRestrictionAxiom =
+  types.EntityConceptRestrictionAxiom
+
+  type EntityConceptUniversalRestrictionAxiom =
+  types.EntityConceptUniversalRestrictionAxiom
+
+  type EntityConceptExistentialRestrictionAxiom =
+  types.EntityConceptExistentialRestrictionAxiom
+
+  type EntityReifiedRelationshipSubClassAxiom =
+  types.EntityReifiedRelationshipSubClassAxiom
+
+  type ScalarDataTypeFacetRestriction =
+  types.ScalarDataTypeFacetRestriction
+
+  type TerminologyGraphAxiom =
+  types.TerminologyGraphAxiom
+
+  type TerminologyGraphDirectExtensionAxiom =
+  types.TerminologyGraphDirectExtensionAxiom
+
+  type TerminologyGraphDirectNestingAxiom =
+  types.TerminologyGraphDirectNestingAxiom
+
 }
 
 trait OWLAPIOMFabox extends OMFabox {
   
-  type ModelInstanceGraph = instances.ModelInstanceGraph
-  type ImmutableModelInstanceGraph = instances.ImmutableModelInstanceGraph
-  type MutableModelInstanceGraph = instances.MutableModelInstanceGraph
+  type ModelInstanceGraph =
+  instances.ModelInstanceGraph
+
+  type ImmutableModelInstanceGraph =
+  instances.ImmutableModelInstanceGraph
+
+  type MutableModelInstanceGraph =
+  instances.MutableModelInstanceGraph
   
-  type ModelInstanceAssertion = instances.ModelInstanceAssertion
+  type ModelInstanceAssertion =
+  instances.ModelInstanceAssertion
   
-  type ModelNamedIndividual = instances.ModelNamedIndividual
+  type ModelNamedIndividual =
+  instances.ModelNamedIndividual
   
-  type ModelEntityInstance = instances.ModelEntityInstance
-  type ModelInstanceObject = instances.ModelInstanceObject
-  type ModelInstanceRelation = instances.ModelInstanceRelation
+  type ModelEntityInstance =
+  instances.ModelEntityInstance
+
+  type ModelInstanceObject =
+  instances.ModelInstanceObject
+
+  type ModelInstanceRelation =
+  instances.ModelInstanceRelation
   
-  type ModelDataInstance = instances.ModelDataInstance
-  type ModelInstanceDataLiteral = instances.ModelInstanceDataLiteral
-  type ModelInstanceDataStructure = instances.ModelInstanceDataStructure
+  type ModelDataInstance =
+  instances.ModelDataInstance
+
+  type ModelInstanceDataLiteral =
+  instances.ModelInstanceDataLiteral
+
+  type ModelInstanceDataStructure =
+  instances.ModelInstanceDataStructure
   
-  type ModelInstanceDataRelationshipFromEntityToScalar = instances.ModelInstanceDataRelationshipFromEntityToScalar
-  type ModelInstanceDataRelationshipFromEntityToStructure = instances.ModelInstanceDataRelationshipFromEntityToStructure
-  type ModelInstanceDataRelationshipFromStructureToScalar = instances.ModelInstanceDataRelationshipFromStructureToScalar
-  type ModelInstanceDataRelationshipFromStructureToStructure = instances.ModelInstanceDataRelationshipFromStructureToStructure
+  type ModelInstanceDataRelationshipFromEntityToScalar =
+  instances.ModelInstanceDataRelationshipFromEntityToScalar
+
+  type ModelInstanceDataRelationshipFromEntityToStructure =
+  instances.ModelInstanceDataRelationshipFromEntityToStructure
+
+  type ModelInstanceDataRelationshipFromStructureToScalar =
+  instances.ModelInstanceDataRelationshipFromStructureToScalar
+
+  type ModelInstanceDataRelationshipFromStructureToStructure =
+  instances.ModelInstanceDataRelationshipFromStructureToStructure
     
+}
+
+
+case class OWLAPITerminologyGraphSignature
+( override val iri: OWLAPIOMF#IRI,
+  override val kind: TerminologyKind,
+  override val nesting: Option[OWLAPIOMF#ModelTerminologyGraph],
+  override val nested: Iterable[OWLAPIOMF#ModelTerminologyGraph],
+  override val imports: Iterable[OWLAPIOMF#ModelTerminologyGraph],
+  override val aspects: Iterable[OWLAPIOMF#ModelEntityAspect],
+  override val concepts: Iterable[OWLAPIOMF#ModelEntityConcept],
+  override val reifiedRelationships: Iterable[OWLAPIOMF#ModelEntityReifiedRelationship],
+  override val unreifiedRelationships: Iterable[OWLAPIOMF#ModelEntityUnreifiedRelationship],
+  override val scalarDataTypes: Iterable[OWLAPIOMF#ModelScalarDataType],
+  override val structuredDataTypes: Iterable[OWLAPIOMF#ModelStructuredDataType],
+  override val entity2scalarDataRelationships: Iterable[OWLAPIOMF#ModelDataRelationshipFromEntityToScalar],
+  override val entity2structureDataRelationships: Iterable[OWLAPIOMF#ModelDataRelationshipFromEntityToStructure],
+  override val structure2scalarDataRelationships: Iterable[OWLAPIOMF#ModelDataRelationshipFromStructureToScalar],
+  override val structure2structureDataRelationships: Iterable[OWLAPIOMF#ModelDataRelationshipFromStructureToStructure],
+  override val axioms: Iterable[OWLAPIOMF#ModelTermAxiom] )
+  extends TerminologyGraphSignature[OWLAPIOMF]
+{
+  require(null != iri)
+  require(null != kind)
+  require(null != nesting)
+  require(null != nested)
+  require(null != imports)
+  require(null != aspects)
+  require(null != concepts)
+  require(null != reifiedRelationships)
+  require(null != unreifiedRelationships)
+  require(null != scalarDataTypes)
+  require(null != structuredDataTypes)
+  require(null != entity2scalarDataRelationships)
+  require(null != entity2structureDataRelationships)
+  require(null != structure2scalarDataRelationships)
+  require(null != structure2structureDataRelationships)
+  require(null != axioms)
+}
+
+case class OWLAPIEntityConceptSignature
+( override val iri: OWLAPIOMF#IRI,
+  override val isAbstract: Boolean)
+  extends EntityConceptSignature[OWLAPIOMF]
+{
+  require(null != iri)
+}
+
+case class OWLAPIEntityReifiedRelationshipSignature
+( override val iri: OWLAPIOMF#IRI,
+  override val source: OWLAPIOMF#ModelEntityDefinition,
+  override val target: OWLAPIOMF#ModelEntityDefinition,
+  override val characteristics: Iterable[RelationshipCharacteristics],
+  override val isAbstract: Boolean )
+  extends EntityReifiedRelationshipSignature[OWLAPIOMF]
+{
+  require(null != iri)
+  require(null != source)
+  require(null != target)
+  require(null != characteristics)
+}
+
+case class OWLAPIEntityUnreifiedRelationshipSignature
+( override val iri: OWLAPIOMF#IRI,
+  override val source: OWLAPIOMF#ModelEntityDefinition,
+  override val target: OWLAPIOMF#ModelEntityDefinition,
+  override val characteristics: Iterable[RelationshipCharacteristics] )
+  extends EntityUnreifiedRelationshipSignature[OWLAPIOMF]
+{
+  require(null != iri)
+  require(null != source)
+  require(null != target)
+  require(null != characteristics)
 }

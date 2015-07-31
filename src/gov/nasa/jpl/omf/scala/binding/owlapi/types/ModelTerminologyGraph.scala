@@ -38,30 +38,31 @@
  */
 package gov.nasa.jpl.omf.scala.binding.owlapi.types
 
+import java.io.OutputStream
+
+import gov.nasa.jpl.omf.scala.core._
 import gov.nasa.jpl.omf.scala.core.TerminologyKind._
 import gov.nasa.jpl.omf.scala.binding.owlapi._
-import org.semanticweb.owlapi.model.OWLOntology
-import org.semanticweb.owlapi.model.IRI
+import org.semanticweb.owlapi.model._
 import org.semanticweb.owlapi.model.parameters.Imports
 import scala.collection.JavaConversions._
 import scala.language.postfixOps
 import scala.util.Try
 import scala.util.Success
 import scala.util.Failure
-import org.semanticweb.owlapi.model.AddAxiom
-import org.semanticweb.owlapi.model.OWLDatatype
-import org.semanticweb.owlapi.model.OWLClass
 import gov.nasa.jpl.omf.scala.core.RelationshipCharacteristics._
-import org.semanticweb.owlapi.model.OWLObjectProperty
 
-abstract class ModelTerminologyGraph(
-  val kind: TerminologyKind,
-  val ont: OWLOntology,
-  val entityG: Option[IRI] )( implicit val ops: OWLAPIOMFOps ) {
+abstract class ModelTerminologyGraph
+( val kind: TerminologyKind,
+  val ont: OWLOntology )
+( implicit val ops: OWLAPIOMFOps ) {
+
+  require(null != kind)
+  require(null != ont)
+  require(null != ops)
 
   val isImmutableModelTerminologyGraph: Boolean
-  val isMutableModelTerminologyGraph: Boolean  
-  val imports: Iterable[ModelTerminologyGraph]
+  val isMutableModelTerminologyGraph: Boolean
   
   import ops._
 
@@ -70,7 +71,8 @@ abstract class ModelTerminologyGraph(
 
   protected val aspects: scala.collection.Seq[ModelEntityAspect]
   protected val concepts: scala.collection.Seq[ModelEntityConcept]
-  protected val relationships: scala.collection.Seq[ModelEntityReifiedRelationship]
+  protected val reifiedRelationships: scala.collection.Seq[ModelEntityReifiedRelationship]
+  protected val unreifiedRelationships: scala.collection.Seq[ModelEntityUnreifiedRelationship]
   protected val sc: scala.collection.Seq[ModelScalarDataType]
   protected val st: scala.collection.Seq[ModelStructuredDataType]
   protected val e2sc: scala.collection.Seq[ModelDataRelationshipFromEntityToScalar]
@@ -81,23 +83,47 @@ abstract class ModelTerminologyGraph(
 
   protected val iri2typeTerm: scala.collection.Map[IRI, ModelTypeTerm]
 
-  def isTypeTermDefined( t: ModelTypeTerm ): Boolean = iri2typeTerm.values.contains( t )
+  def isTypeTermDefined
+  ( t: ModelTypeTerm )
+  : Boolean =
+    iri2typeTerm.values.contains( t )
 
-  def isTypeTermDefinedRecursively( t: ModelTypeTerm ): Boolean =
-    isTypeTermDefined( t ) || imports.exists ( _.isTypeTermDefinedRecursively( t ) )
+  def isTypeTermDefinedRecursively
+  ( t: ModelTypeTerm )
+  ( implicit store: OWLAPIOMFGraphStore )
+  : Boolean =
+    terminologyGraphImportClosure[OWLAPIOMF, ModelTerminologyGraph](this, onlyCompatibleKind = true).
+      exists ( _.isTypeTermDefined( t ) )
 
-  def lookupTypeTerm( iri: IRI ): Option[ModelTypeTerm] = iri2typeTerm.get( iri )
+  def lookupTypeTerm
+  ( iri: IRI, recursively: Boolean )
+  ( implicit store: OWLAPIOMFGraphStore )
+  : Option[ModelTypeTerm] =
+  if (recursively)
+    lookupTypeTermRecursively(iri)
+  else
+    iri2typeTerm.get( iri )
 
-  def lookupTypeTerm( iri: Option[IRI] ): Option[ModelTypeTerm] =
+  def lookupTypeTerm
+  ( iri: Option[IRI], recursively: Boolean )
+  ( implicit store: OWLAPIOMFGraphStore )
+  : Option[ModelTypeTerm] =
     for {
       _iri <- iri
-      _t <- lookupTypeTerm( _iri )
+      _t <- lookupTypeTerm( _iri, recursively )
     } yield _t
 
-  def lookupTypeTermRecursively( iri: IRI ): Option[ModelTypeTerm] =
-    lookupTypeTerm( iri ).orElse( { imports.view flatMap { _.lookupTypeTermRecursively( iri ) } headOption } )
+  def lookupTypeTermRecursively
+  ( iri: IRI )
+  ( implicit store: OWLAPIOMFGraphStore )
+  : Option[ModelTypeTerm] =
+    terminologyGraphImportClosure[OWLAPIOMF, ModelTerminologyGraph](this, onlyCompatibleKind = true).
+      flatMap(_.lookupTypeTerm( iri, recursively=false )).headOption
 
-  def lookupTypeTermRecursively( iri: Option[IRI] ): Option[ModelTypeTerm] =
+  def lookupTypeTermRecursively
+  ( iri: Option[IRI] )
+  ( implicit store: OWLAPIOMFGraphStore )
+  : Option[ModelTypeTerm] =
     for {
       _iri <- iri
       _t <- lookupTypeTermRecursively( _iri )
@@ -107,9 +133,69 @@ abstract class ModelTerminologyGraph(
 
   def getEntityDefinitionMap: Map[OWLClass, ModelEntityDefinition]
 
+  def getScalarDatatypeDefinitionMap: Map[OWLDatatype, ModelScalarDataType]
+
   def getTerms: ( IRI, Iterable[ModelTypeTerm] ) = ( iri, iri2typeTerm.values )
 
-  def fromTerminologyGraph: ( IRI, Option[IRI], TerminologyKind, Iterable[ModelTerminologyGraph], Iterable[ModelEntityAspect], Iterable[ModelEntityConcept], Iterable[ModelEntityReifiedRelationship], Iterable[ModelScalarDataType], Iterable[ModelStructuredDataType], Iterable[ModelDataRelationshipFromEntityToScalar], Iterable[ModelDataRelationshipFromEntityToStructure], Iterable[ModelDataRelationshipFromStructureToScalar], Iterable[ModelDataRelationshipFromStructureToStructure], Iterable[ModelTermAxiom] ) =
-    ( iri, entityG, kind, imports, aspects, concepts, relationships, sc, st, e2sc, e2st, s2sc, s2st, ax )
+  def fromTerminologyGraph
+  ( nesting: Option[ModelTerminologyGraph],
+    nested: Iterable[ModelTerminologyGraph],
+    extended: Iterable[ModelTerminologyGraph] )
+  : OWLAPITerminologyGraphSignature =
+    OWLAPITerminologyGraphSignature(
+      iri, kind, nesting, nested,
+      extended, aspects, concepts,
+      reifiedRelationships, unreifiedRelationships,
+      sc, st, e2sc, e2st, s2sc, s2st,
+      ax )
 
+  def getTerminologyGraphShortNameAnnotation
+  : Option[OWLAnnotation] =
+    ont.getAnnotations.find( _.getProperty.getIRI == ops.OMF_TBox_DataProperty_HasShortName )
+
+  def getTerminologyGraphShortName
+  : Option[String] =
+    getTerminologyGraphShortNameAnnotation.
+      flatMap ( _.getValue match {
+      case l: OWLLiteral =>
+        Some( l.getLiteral )
+      case _  =>
+        None
+  } )
+
+
+  def getTerminologyGraphUUIDAnnotation
+  : Option[OWLAnnotation] =
+    ont.getAnnotations.find( _.getProperty.getIRI == ops.OMF_TBox_DataProperty_HasUUID )
+
+  def getTerminologyGraphUUID
+  : Option[String] =
+    getTerminologyGraphUUIDAnnotation.
+      flatMap ( _.getValue match {
+      case l: OWLLiteral =>
+        Some( l.getLiteral )
+      case _  =>
+        None
+    } )
+
+  def getTermShortNameAnnotationAssertionAxiom
+  ( term: types.ModelTypeTerm )
+  : Option[OWLAnnotationAssertionAxiom] =
+    ont.getAnnotationAssertionAxioms( term.iri ).
+      find( _.getProperty.getIRI == ops.rdfs_label )
+
+  def getTermUUIDAnnotationAssertionAxiom
+  ( term: types.ModelTypeTerm )
+  : Option[OWLAnnotationAssertionAxiom] =
+    ont.getAnnotationAssertionAxioms( term.iri ).
+      find( _.getProperty.getIRI == ops.AnnotationHasUUID )
+
+
+  def save( saveIRI: IRI ): Try[Unit] = Try {
+    ontManager.saveOntology( ont, saveIRI )
+  }
+
+  def save( os: OutputStream ): Try[Unit] = Try {
+    ontManager.saveOntology( ont, os )
+  }
 }

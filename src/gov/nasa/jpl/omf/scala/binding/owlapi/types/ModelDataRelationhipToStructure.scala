@@ -51,4 +51,10 @@ trait ModelDataRelationshipToStructure extends ModelDataRelationshipTo {
   val rTarget: OWLObjectProperty
   
   val unreified: OWLObjectProperty
+
+
+  require(null != c)
+  require(null != rSource)
+  require(null != target)
+  require(null != unreified)
 }

@@ -40,4 +40,8 @@ package gov.nasa.jpl.omf.scala.binding.owlapi.types
 
 import gov.nasa.jpl.omf.scala.binding.owlapi._
 
-abstract class ModelDataTypeDefinition(override val iri: OWLAPIOMF#IRI) extends ModelTypeTerm
+abstract class ModelDataTypeDefinition(override val iri: OWLAPIOMF#IRI)
+  extends ModelTypeTerm {
+
+  require(null != iri)
+}

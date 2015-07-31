@@ -38,6 +38,8 @@
  */
 package gov.nasa.jpl.omf.scala.binding.owlapi.instances
 
+import java.io.OutputStream
+
 import gov.nasa.jpl.omf.scala.binding._
 import gov.nasa.jpl.omf.scala.binding.owlapi._
 import org.semanticweb.owlapi.model.OWLOntology
@@ -81,4 +83,11 @@ abstract class ModelInstanceGraph(
         objects, relations, dataLiterals, dataObjects, 
         e2sc, e2st, s2sc, s2st )
 
+  def save: Try[Unit] = Try {
+    ontManager.saveOntology(ont)
+  }
+
+  def save( os: OutputStream ): Try[Unit] = Try {
+    ontManager.saveOntology(ont, os)
+  }
 }

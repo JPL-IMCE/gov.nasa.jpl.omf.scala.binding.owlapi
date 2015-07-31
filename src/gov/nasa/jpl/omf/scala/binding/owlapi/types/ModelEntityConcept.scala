@@ -44,8 +44,10 @@ import org.semanticweb.owlapi.model.IRI
 
 case class ModelEntityConcept(
   override val e: OWLClass,
-  val eg: Option[IRI],
   val isAbstract: Boolean )
   extends ModelEntityDefinition( e ) {
+
+  require(null != e)
+
   override val iri = e.getIRI
 }

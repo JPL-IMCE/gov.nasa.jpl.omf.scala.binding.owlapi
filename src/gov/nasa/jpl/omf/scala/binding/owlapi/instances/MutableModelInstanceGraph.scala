@@ -62,12 +62,5 @@ case class MutableModelInstanceGraph(
    override protected val s2st = scala.collection.mutable.ListBuffer[ModelInstanceDataRelationshipFromStructureToStructure]()
     
   protected val iri2namedIndividual = scala.collection.mutable.HashMap[IRI, ModelNamedIndividual]()
-  
-  def save: Try[Unit] = Try {
-    ontManager.saveOntology(ont)
-  }    
-    
-  def save( os: OutputStream ): Try[Unit] = Try {
-    ontManager.saveOntology(ont, os)
-  }    
+
 }

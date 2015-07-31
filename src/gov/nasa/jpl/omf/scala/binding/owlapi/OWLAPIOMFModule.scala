@@ -43,14 +43,18 @@ import org.semanticweb.owlapi.apibinding.OWLManager
 import org.semanticweb.owlapi.model.OWLDataFactory
 import org.apache.xml.resolver.CatalogManager
 
-case class OWLAPIOMFModule( val catalogManager: Option[CatalogManager] ) extends OMFModule with OMFOpsModule {
-  
+case class OWLAPIOMFModule( val catalogManager: Option[CatalogManager] )
+  extends OMFModule
+  with OMFOpsModule {
+
+  require(null != catalogManager )
+
   type omf = OWLAPIOMF
 
   implicit val ops: OWLAPIOMFOps = new OWLAPIOMFOps
   
   implicit val dataFactory: OWLDataFactory = OWLManager.getOWLDataFactory
   
-  val omfOntologyIRI = ops.makeIRI( "http://imce.jpl.nasa.gov/foundation/omf/omf" )
+  val omfOntologyIRI = ops.makeIRI( "http://imce.jpl.nasa.gov/foundation/omf/omf.owl" )
   
 }

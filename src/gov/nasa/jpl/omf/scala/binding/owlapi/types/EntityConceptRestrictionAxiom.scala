@@ -43,4 +43,9 @@ import gov.nasa.jpl.omf.scala.binding.owlapi._
 abstract class EntityConceptRestrictionAxiom(
   val sub: ModelEntityConcept,
   val rel: ModelEntityReifiedRelationship,
-  val range: ModelEntityDefinition ) extends ModelTermAxiom
+  val range: ModelEntityDefinition ) extends ModelTermAxiom {
+
+  require(null != sub)
+  require(null != rel)
+  require(null != range)
+}

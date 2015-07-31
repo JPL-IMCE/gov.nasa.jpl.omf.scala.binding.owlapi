@@ -39,5 +39,8 @@
 package gov.nasa.jpl.omf.scala.binding.owlapi.types
 
 import gov.nasa.jpl.omf.scala.binding.owlapi._
+import org.semanticweb.owlapi.model.OWLDatatype
 
-case class ModelScalarDataType(override val iri: OWLAPIOMF#IRI) extends ModelDataTypeDefinition(iri)
+case class ModelScalarDataType
+(val sc: OWLDatatype )
+  extends ModelDataTypeDefinition(sc.getIRI)

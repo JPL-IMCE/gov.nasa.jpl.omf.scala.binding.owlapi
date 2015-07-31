@@ -48,5 +48,11 @@ case class ModelDataRelationshipFromEntityToScalar(
   extends ModelDataRelationship
   with ModelDataRelationshipFromEntity
   with ModelDataRelationshipToScalar {
+
+  require(null != dp)
+  require(null != source)
+  require(null != target)
+
   override val iri = dp.getIRI
+
 }
