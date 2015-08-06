@@ -260,13 +260,23 @@ case class MutableModelTerminologyGraph
 
   def addTerminologyGraphExtension
   (extendedG: ModelTerminologyGraph)
-  : Try[types.TerminologyGraphDirectExtensionAxiom] = {
-    val decl = ontManager.getOWLDataFactory.getOWLImportsDeclaration(extendedG.iri)
-    val changeApplied = ontManager.applyChange(new AddImport(ont, decl))
-    Success(types.TerminologyGraphDirectExtensionAxiom(
-      extendingChild = this,
-      extendedParent = extendedG))
-  }
+  (implicit store: OWLAPIOMFGraphStore)
+  : Try[types.TerminologyGraphDirectExtensionAxiom] =
+    for {
+      axiom <- store.createTerminologyGraphDirectExtensionAxiom(this, extendedG)
+    } yield {
+      for {
+        change <- Seq(
+          new AddImport(ont, ontManager.getOWLDataFactory.getOWLImportsDeclaration(extendedG.iri))
+        )
+      } {
+        val result = ontManager.applyChange(change)
+        require(
+          result == ChangeApplied.SUCCESSFULLY,
+          s"\naddTerminologyGraphExtension:\n$change")
+      }
+      axiom
+    }
 
   def setTermShortName
   (term: types.ModelTypeTerm,
@@ -490,6 +500,17 @@ case class MutableModelTerminologyGraph
         characteristics, isAbstract)
     } yield {
 
+      val vr: SWRLVariable = owlDataFactory.getSWRLVariable(IRI.create("urn:swrl#r"))
+      val vs: SWRLVariable = owlDataFactory.getSWRLVariable(IRI.create("urn:swrl#s"))
+      val vt: SWRLVariable = owlDataFactory.getSWRLVariable(IRI.create("urn:swrl#t"))
+
+      val body1: SWRLObjectPropertyAtom = owlDataFactory.getSWRLObjectPropertyAtom(rSource, vr, vs)
+      val body2: SWRLObjectPropertyAtom = owlDataFactory.getSWRLObjectPropertyAtom(rTarget, vr, vt)
+
+      val head: SWRLObjectPropertyAtom = owlDataFactory.getSWRLObjectPropertyAtom(u, vs, vt)
+
+      val rule: SWRLRule = owlDataFactory.getSWRLRule(Set(body1, body2), Set(head))
+
       for {
         change <- Seq(
           new AddAxiom(ont,
@@ -530,9 +551,11 @@ case class MutableModelTerminologyGraph
             owlDataFactory.getOWLObjectPropertyDomainAxiom(u, sourceC)),
           new AddAxiom(ont,
             owlDataFactory.getOWLObjectPropertyRangeAxiom(u, targetC)),
-          new AddAxiom(ont,
-            owlDataFactory.getOWLSubPropertyChainOfAxiom(
-              List(owlDataFactory.getOWLObjectInverseOf(rSource), rTarget), u))
+
+          //                    new AddAxiom(ont,
+          //                      owlDataFactory.getOWLSubPropertyChainOfAxiom(
+          //                        List(owlDataFactory.getOWLObjectInverseOf(rSource), rTarget), u)),
+          new AddAxiom(ont, rule)
         ) ++
           (if (ui.isDefined)
             Seq(
@@ -546,10 +569,12 @@ case class MutableModelTerminologyGraph
               new AddAxiom(ont,
                 owlDataFactory.getOWLObjectPropertyDomainAxiom(ui.get, targetC)),
               new AddAxiom(ont,
-                owlDataFactory.getOWLObjectPropertyRangeAxiom(ui.get, sourceC)),
-              new AddAxiom(ont,
-                owlDataFactory.getOWLSubPropertyChainOfAxiom(
-                  List(owlDataFactory.getOWLObjectInverseOf(rTarget), rSource), ui.get)))
+                owlDataFactory.getOWLObjectPropertyRangeAxiom(ui.get, sourceC))
+
+              //              new AddAxiom(ont,
+              //                owlDataFactory.getOWLSubPropertyChainOfAxiom(
+              //                  List(owlDataFactory.getOWLObjectInverseOf(rTarget), rSource), ui.get))
+            )
           else
             Seq())
       } {
@@ -803,7 +828,7 @@ case class MutableModelTerminologyGraph
 
   def createEntityConceptSubClassAxiom
   (sub: types.ModelEntityConcept,
-    sup: types.ModelEntityConcept)
+   sup: types.ModelEntityConcept)
   (implicit store: OWLAPIOMFGraphStore)
   : Try[types.EntityConceptSubClassAxiom] =
     ax.find {

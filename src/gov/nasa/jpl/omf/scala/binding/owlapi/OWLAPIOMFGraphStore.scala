@@ -386,15 +386,6 @@ case class OWLAPIOMFGraphStore(val omfModule: OWLAPIOMFModule, val ontManager: O
       }
     else {
 
-      if (!extendingG.ont.getDirectImportsDocuments.contains(extendedG.kindIRI)) {
-        val change = new AddImport(extendingG.ont,
-          ontManager.getOWLDataFactory.getOWLImportsDeclaration(extendedG.kindIRI))
-        val result = ontManager.applyChange(change)
-        require(
-          result == ChangeApplied.SUCCESSFULLY,
-          s"\ncreateTerminologyGraphDirectExtensionAxiom:\n$change")
-      }
-
       val axiom = types.TerminologyGraphDirectExtensionAxiom(
         extendingChild = extendingG,
         extendedParent = extendedG)
@@ -1044,15 +1035,17 @@ case class OWLAPIOMFGraphStore(val omfModule: OWLAPIOMFModule, val ontManager: O
     }
 
     info.nested foreach { aNestedG: types.ModelTerminologyGraph =>
-      ops.addNestedTerminologyGraph(
+      val ok = createTerminologyGraphDirectNestingAxiom(
         parentG = g,
-        nestedG = aNestedG)(this)
+        childG = aNestedG)
+      require(ok.isSuccess)
     }
 
     info.imports foreach { anExtendedG: types.ModelTerminologyGraph =>
-      ops.addTerminologyGraphExtension(
+      val ok = createTerminologyGraphDirectExtensionAxiom(
         extendingG = g,
-        extendedG = anExtendedG)(this)
+        extendedG = anExtendedG)
+      require(ok.isSuccess)
     }
 
     // short name & uuid are represented in the ontology, g.ont

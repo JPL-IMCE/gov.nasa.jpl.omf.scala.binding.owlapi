@@ -190,7 +190,7 @@ case class ResolverHelper
         case _ =>
           for {
             importG <- imports
-            ok = addTerminologyGraphExtension(extendingG = g, extendedG = importG)(omfStore)
+            ok = omfStore.createTerminologyGraphDirectExtensionAxiom(extendingG = g, extendedG = importG)
           } ok match {
             case Failure(f) =>
               throw f
