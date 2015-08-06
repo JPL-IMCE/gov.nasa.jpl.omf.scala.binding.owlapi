@@ -176,18 +176,18 @@ trait OWLAPIStoreOps
     store.fromTerminologyGraph( graph )
 
   override def addNestedTerminologyGraph
-  ( parentG: types.ModelTerminologyGraph,
+  ( parentG: types.MutableModelTerminologyGraph,
     nestedG: types.ModelTerminologyGraph )
   ( implicit store: OWLAPIOMFGraphStore )
   : Try[types.TerminologyGraphDirectNestingAxiom] =
     store.createTerminologyGraphDirectNestingAxiom(parentG, nestedG)
 
   override def addTerminologyGraphExtension
-  ( extendingG: types.ModelTerminologyGraph,
+  ( extendingG: types.MutableModelTerminologyGraph,
     extendedG: types.ModelTerminologyGraph )
   ( implicit store: OWLAPIOMFGraphStore )
   : Try[types.TerminologyGraphDirectExtensionAxiom] =
-    store.createTerminologyGraphDirectExtensionAxiom( extendingG, extendedG )
+    extendingG.addTerminologyGraphExtension( extendedG )
 
   override def makeTerminologyGraph
   ( iri: IRI,
