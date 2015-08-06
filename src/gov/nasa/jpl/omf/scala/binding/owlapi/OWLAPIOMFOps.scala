@@ -589,42 +589,13 @@ trait OWLAPIMutableTerminologyGraphOps
   : Try[Unit] =
     graph.setTerminologyGraphUUID(uuid)
 
-
-  def setTermShortName
-  ( o: OWLOntology,
-    graph: types.MutableModelTerminologyGraph,
-    term: types.ModelTypeTerm,
-    name: Option[String] )
-  ( implicit store: OWLAPIOMFGraphStore )
-  : Try[Unit] =
-  for {
-    result <- setTermShortName(graph, term, name)
-  } yield {
-    ???
-    result
-  }
-
   override def setTermShortName
   ( graph: types.MutableModelTerminologyGraph,
     term: types.ModelTypeTerm,
     name: Option[String] )
   ( implicit store: OWLAPIOMFGraphStore )
   : Try[Unit] =
-  ???
-
-  def setTermUUID
-  ( o: OWLOntology,
-    graph: types.MutableModelTerminologyGraph,
-    term: types.ModelTypeTerm,
-    uuid: Option[String] )
-  ( implicit store: OWLAPIOMFGraphStore )
-  : Try[Unit] =
-  for {
-    result <- setTermUUID(graph, term, uuid)
-  } yield {
-    ???
-    result
-  }
+  graph.setTermShortName(term, name)
 
   override def setTermUUID
   ( graph: types.MutableModelTerminologyGraph,
@@ -632,23 +603,9 @@ trait OWLAPIMutableTerminologyGraphOps
     uuid: Option[String] )
   ( implicit store: OWLAPIOMFGraphStore )
   : Try[Unit] =
-  ???
+  graph.setTermUUID(term, uuid)
 
   // entity facet
-
-  def addEntityAspect
-  ( o: OWLOntology,
-    hasProvenanceFromRule: String,
-    graph: types.MutableModelTerminologyGraph,
-    aspectName: String )
-  ( implicit store: OWLAPIOMFGraphStore )
-  : Try[types.ModelEntityAspect] =
-    for {
-      result <- addEntityAspect( graph, aspectName )
-      _ <- store.createOMFModelEntityAspectInstance( o, graph, hasProvenanceFromRule, result )
-    } yield {
-      result
-    }
 
   override def addEntityAspect
   ( graph: types.MutableModelTerminologyGraph,
@@ -657,26 +614,11 @@ trait OWLAPIMutableTerminologyGraphOps
   : Try[types.ModelEntityAspect] =
     for {
       aspectIRI <- withFragment( graph.iri, aspectName )
-      aspect <- graph.addEntityAspect( aspectIRI )
-    } yield aspect
+      result <- graph.addEntityAspect( aspectIRI )
+      _ <- store.registerOMFModelEntityAspectInstance(graph, result)
+    } yield result
 
   // entity concept
-
-  def addEntityConcept
-  ( o: OWLOntology,
-    hasProvenanceFromRule: String,
-    graph: types.MutableModelTerminologyGraph,
-    conceptName: String,
-    isAbstract: Boolean )
-  ( implicit store: OWLAPIOMFGraphStore )
-  : Try[types.ModelEntityConcept] =
-    for {
-      conceptIRI <- withFragment( graph.iri, conceptName )
-      result <- graph.addEntityConcept( conceptIRI, isAbstract )
-      _ <- store.createOMFModelEntityConceptInstance(graph, Some(hasProvenanceFromRule), result, isAbstract )
-    } yield {
-      result
-    }
 
   override def addEntityConcept
   ( graph: types.MutableModelTerminologyGraph,
@@ -687,43 +629,10 @@ trait OWLAPIMutableTerminologyGraphOps
     for {
       conceptIRI <- withFragment( graph.iri, conceptName )
       result <- graph.addEntityConcept( conceptIRI, isAbstract )
-      _ <- store.createOMFModelEntityConceptInstance(graph, None, result, isAbstract )
+      _ <- store.registerOMFModelEntityConceptInstance(graph, result )
     } yield result
 
   // entity relationship
-
-  /**
-   * wrapper
-   */
-  def addEntityReifiedRelationship
-  ( o: OWLOntology,
-    hasProvenanceFromRule: String,
-    graph: types.MutableModelTerminologyGraph,
-    source: types.ModelEntityDefinition,
-    target: types.ModelEntityDefinition,
-    characteristics: Iterable[RelationshipCharacteristics.RelationshipCharacteristics],
-    reifiedRelationshipName: String,
-    unreifiedRelationshipName: String,
-    unreifiedInverseRelationshipName: Option[String],
-    isAbstract: Boolean )
-  ( implicit store: OWLAPIOMFGraphStore )
-  : Try[types.ModelEntityReifiedRelationship] =
-    for {
-      rIRI <- withFragment( graph.iri, reifiedRelationshipName )
-      rIRISource = toSourceIRI( rIRI )
-      rIRITarget = toTargetIRI( rIRI )
-      uIRI <- withFragment( graph.iri, unreifiedRelationshipName )
-      uiIRI <- withFragment( graph.iri, unreifiedInverseRelationshipName )
-      r <- graph.addEntityReifiedRelationship(
-        rIRI,
-        rIRISource, rIRITarget,
-        uIRI, uiIRI,
-        source, target,
-        characteristics, isAbstract )
-      _ <- store.createOMFModelEntityReifiedRelationshipInstance(graph, Some(hasProvenanceFromRule), r, isAbstract)
-    } yield {
-      r
-    }
 
   override def addEntityReifiedRelationship
   ( graph: types.MutableModelTerminologyGraph,
@@ -742,30 +651,16 @@ trait OWLAPIMutableTerminologyGraphOps
       rIRITarget = toTargetIRI( rIRI )
       uIRI <- withFragment( graph.iri, unreifiedRelationshipName )
       uiIRI <- withFragment( graph.iri, unreifiedInverseRelationshipName )
-      r <- graph.addEntityReifiedRelationship(
+      result <- graph.addEntityReifiedRelationship(
         rIRI,
         rIRISource, rIRITarget,
         uIRI, uiIRI,
         source, target,
         characteristics, isAbstract )
-      _ <- store.createOMFModelEntityReifiedRelationshipInstance(graph, None, r, isAbstract)
-    } yield r
+      _ <- store.registerOMFModelEntityReifiedRelationshipInstance(graph, result)
+    } yield result
 
   // scalar datatype
-
-  def addScalarDataType
-  ( o: OWLOntology,
-    hasProvenanceFromRule: String,
-    graph: types.MutableModelTerminologyGraph,
-    scalarName: String,
-    hasName: Option[String],
-    hasUUID: Option[String] )
-  ( implicit store: OWLAPIOMFGraphStore )
-  : Try[types.ModelScalarDataType] =
-  for {
-    result <- addScalarDataType(graph, scalarName)
-    _ <- store.createOMFModelScalarDataTypeInstance(o, graph, hasProvenanceFromRule, result, hasName, hasUUID)
-  } yield result
 
   override def addScalarDataType
   ( graph: types.MutableModelTerminologyGraph,
@@ -774,24 +669,11 @@ trait OWLAPIMutableTerminologyGraphOps
   : Try[types.ModelScalarDataType] =
     for {
       scalarIRI <- withFragment( graph.iri, scalarName )
-      sc <- graph.addScalarDataType( scalarIRI )
-    } yield sc
+      result <- graph.addScalarDataType( scalarIRI )
+      _ <- store.registerOMFModelScalarDataTypeInstance(graph, result)
+    } yield result
 
   // structured datatype
-
-  def addStructuredDataType
-  ( o: OWLOntology,
-    hasProvenanceFromRule: String,
-    graph: types.MutableModelTerminologyGraph,
-    structureName: String,
-    hasName: Option[String],
-    hasUUID: Option[String] )
-  ( implicit store: OWLAPIOMFGraphStore )
-  : Try[types.ModelStructuredDataType] =
-    for {
-      result <- addStructuredDataType(graph, structureName)
-      _ <- store.createOMFModelStructuredDataTypeInstance(o, graph, hasProvenanceFromRule, result, hasName, hasUUID)
-    } yield result
 
   override def addStructuredDataType
   ( graph: types.MutableModelTerminologyGraph,
@@ -800,8 +682,9 @@ trait OWLAPIMutableTerminologyGraphOps
   : Try[types.ModelStructuredDataType] =
     for {
       structureIRI <- withFragment( graph.iri, structureName )
-      st <- graph.addStructuredDataType( structureIRI )
-    } yield st
+      result <- graph.addStructuredDataType( structureIRI )
+      _ <- store.registerOMFModelStructuredDataTypeInstance(graph, result)
+    } yield result
 
   // data relationship from entity to scalar
 
@@ -859,24 +742,6 @@ trait OWLAPIMutableTerminologyGraphOps
 
   // entity definition aspect subclass axiom
 
-  /**
-   * Wrapper
-   */    
-  def addEntityDefinitionAspectSubClassAxiom
-  ( o: OWLOntology,
-    hasProvenanceFromRule: String,
-    graph: types.MutableModelTerminologyGraph,
-    sub: types.ModelEntityDefinition,
-    sup: types.ModelEntityAspect )
-  ( implicit store: OWLAPIOMFGraphStore )
-  : Try[types.EntityDefinitionAspectSubClassAxiom] =
-    for {
-      result <- addEntityDefinitionAspectSubClassAxiom( graph, sub, sup )
-      _ <- store.createOMFEntityDefinitionAspectSubClassAxiomInstance( o, graph, result, Some(hasProvenanceFromRule) )
-    } yield {
-      result
-    }
-    
   override def addEntityDefinitionAspectSubClassAxiom
   ( graph: types.MutableModelTerminologyGraph,
     sub: types.ModelEntityDefinition,
@@ -893,66 +758,16 @@ trait OWLAPIMutableTerminologyGraphOps
   ( implicit store: OWLAPIOMFGraphStore )
   : Try[types.EntityConceptToplevelDesignationTerminologyGraphAxiom] =
     ???
-
-  /**
-   * Wrapper
-   */    
-  def addEntityConceptSubClassAxiom
-  ( o: OWLOntology,
-    hasProvenanceFromRule: String,
-    graph: types.MutableModelTerminologyGraph,
-    sub: types.ModelEntityConcept,
-    sup: types.ModelEntityConcept )
-  ( implicit store: OWLAPIOMFGraphStore )
-  : Try[types.EntityConceptSubClassAxiom] =
-    for {
-      result <- graph.addEntityConceptSubClassAxiom( sub, sup )
-      _ <- store.createOMFEntityConceptSubClassAxiomInstance( graph, result, Some(hasProvenanceFromRule) )
-    } yield {
-//      System.out.println("# OMF/OWLAPI ops: ConceptSubClass:"+
-//        " sup="+store.omfModule.ops.fromTerm(sup)+
-//        " sub="+store.omfModule.ops.fromTerm(sub))
-
-      result
-    }
     
   override def addEntityConceptSubClassAxiom
   ( graph: types.MutableModelTerminologyGraph,
     sub: types.ModelEntityConcept,
     sup: types.ModelEntityConcept )
-  ( implicit store: OWLAPIOMFGraphStore ) =
-  for {
-    result <- graph.addEntityConceptSubClassAxiom( sub, sup )
-    _ <- store.createOMFEntityConceptSubClassAxiomInstance( graph, result, None )
-  } yield {
-//    System.out.println("# OMF/OWLAPI ops: ConceptSubClass:"+
-//      " sup="+store.omfModule.ops.fromTerm(sup)+
-//      " sub="+store.omfModule.ops.fromTerm(sub))
-
-    result
-  }
+  ( implicit store: OWLAPIOMFGraphStore )
+  : Try[types.EntityConceptSubClassAxiom] =
+    graph.addEntityConceptSubClassAxiom( sub, sup )
 
   // entity concept restriction axioms
-
-  /**
-   * Wrapper
-   */
-  def addEntityConceptUniversalRestrictionAxiom
-  ( o: OWLOntology,
-    hasProvenanceFromRule: String,
-    graph: types.MutableModelTerminologyGraph,
-    sub: types.ModelEntityConcept,
-    rel: types.ModelEntityReifiedRelationship,
-    range: types.ModelEntityDefinition )
-  ( implicit store: OWLAPIOMFGraphStore )
-  : Try[types.EntityConceptUniversalRestrictionAxiom] =
-    for {
-      result <- addEntityConceptUniversalRestrictionAxiom( graph, sub, rel, range )
-      _ <- store.createOMFEntityConceptUniversalRestrictionAxiomInstance(
-        o, graph, hasProvenanceFromRule, result, sub, rel, range )
-    } yield {
-      result
-    }
     
   override def addEntityConceptUniversalRestrictionAxiom
   ( graph: types.MutableModelTerminologyGraph,
@@ -961,27 +776,7 @@ trait OWLAPIMutableTerminologyGraphOps
     range: types.ModelEntityDefinition )
   ( implicit store: OWLAPIOMFGraphStore )
   : Try[types.EntityConceptUniversalRestrictionAxiom] =
-      graph.addEntityConceptUniversalRestrictionAxiom( sub, rel, range )
-
-  /**
-   * Wrapper
-   */
-  def addEntityConceptExistentialRestrictionAxiom
-  ( o: OWLOntology,
-    hasProvenanceFromRule: String,
-    graph: types.MutableModelTerminologyGraph,
-    sub: types.ModelEntityConcept,
-    rel: types.ModelEntityReifiedRelationship,
-    range: types.ModelEntityDefinition )
-  ( implicit store: OWLAPIOMFGraphStore )
-  : Try[types.EntityConceptExistentialRestrictionAxiom] =
-    for {
-      result <- addEntityConceptExistentialRestrictionAxiom( graph, sub, rel, range )
-      _ <- store.createOMFEntityConceptExistentialRestrictionAxiomInstance(
-        o, graph, hasProvenanceFromRule, result, sub, rel, range )
-    } yield {
-      result
-    }
+    graph.addEntityConceptUniversalRestrictionAxiom( sub, rel, range )
     
   override def addEntityConceptExistentialRestrictionAxiom
   ( graph: types.MutableModelTerminologyGraph,
@@ -990,28 +785,9 @@ trait OWLAPIMutableTerminologyGraphOps
     range: types.ModelEntityDefinition )
   ( implicit store: OWLAPIOMFGraphStore )
   : Try[types.EntityConceptExistentialRestrictionAxiom] =
-      graph.addEntityConceptExistentialRestrictionAxiom( sub, rel, range )
+    graph.addEntityConceptExistentialRestrictionAxiom( sub, rel, range )
 
   // entity relationship subclass axiom
-
-  /**
-   * Wrapper
-   */    
-  def addEntityReifiedRelationshipSubClassAxiom
-  ( o: OWLOntology,
-    hasProvenanceFromRule: String,
-    graph: types.MutableModelTerminologyGraph,
-    sub: types.ModelEntityReifiedRelationship,
-    sup: types.ModelEntityReifiedRelationship )
-  ( implicit store: OWLAPIOMFGraphStore )
-  : Try[types.EntityReifiedRelationshipSubClassAxiom] =
-    for {
-      result <- addEntityReifiedRelationshipSubClassAxiom( graph, sub, sup )
-      _ <- store.createOMFEntityReifiedRelationshipSubClassAxiomInstance(
-        o, graph, hasProvenanceFromRule, result, sub, sup )
-    } yield {
-      result
-    }
     
   override def addEntityReifiedRelationshipSubClassAxiom
   ( graph: types.MutableModelTerminologyGraph,

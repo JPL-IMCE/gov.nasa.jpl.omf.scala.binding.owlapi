@@ -129,7 +129,12 @@ abstract class ModelTerminologyGraph
       _t <- lookupTypeTermRecursively( _iri )
     } yield _t
 
-  val iri = ont.getOntologyID.getOntologyIRI.get
+  val iri: IRI = ont.getOntologyID.getOntologyIRI.get
+
+  val kindIRI: IRI
+
+  protected def makeKindIRI(kind: String): IRI =
+    iri.resolve(iri.getRemainder.or("")+"?kind="+kind)
 
   def getEntityDefinitionMap: Map[OWLClass, ModelEntityDefinition]
 
