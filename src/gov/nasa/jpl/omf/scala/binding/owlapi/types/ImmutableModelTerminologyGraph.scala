@@ -112,13 +112,15 @@ case class ImmutableModelTerminologyGraph
   override val isImmutableModelTerminologyGraph = true
   override val isMutableModelTerminologyGraph = false
 
+  override val kindIRI: IRI = makeKindIRI("immutable")
+
   val getEntityDefinitionMap: Map[OWLClass, ModelEntityDefinition] =
     ((aspects map (a => a.e -> a)) ++
       (concepts map (c => c.e -> c)) ++
       (reifiedRelationships map (r => r.e -> r))) toMap
 
   val getScalarDatatypeDefinitionMap: Map[OWLDatatype, ModelScalarDataType] =
-    sc map ( t => t.sc -> t ) toMap
+    sc map (t => t.sc -> t) toMap
 
   override protected val iri2typeTerm = {
     def term2pair[T <: ModelTypeTerm](t: T) = t.iri -> t
@@ -148,6 +150,10 @@ case class ResolverHelper
   require(null != omfStore)
 
   import omfStore.ops._
+
+  val LOG: Boolean = false
+  val LOG1: Boolean = false
+
   implicit val store = omfStore
 
   def getOntologyIRI: IRI =
@@ -169,17 +175,17 @@ case class ResolverHelper
   lazy val tboxG: MutableModelTerminologyGraph = resolveTerminologyGraph(
     o = omfMetadata,
     ont = ont,
-    kind = kind )(omfStore) match {
+    kind = kind)(omfStore) match {
 
     case Failure(f) =>
       throw f
 
     case Success(g) =>
-      ( omfStore.ops.setTerminologyGraphShortName(g, getOntologyShortName)(omfStore),
-        omfStore.ops.setTerminologyGraphUUID(g, getOntologyUUID)(omfStore) ) match {
-        case ( Failure(f), _ ) =>
+      (omfStore.ops.setTerminologyGraphShortName(g, getOntologyShortName)(omfStore),
+        omfStore.ops.setTerminologyGraphUUID(g, getOntologyUUID)(omfStore)) match {
+        case (Failure(f), _) =>
           throw f
-        case ( _, Failure(f) ) =>
+        case (_, Failure(f)) =>
           throw f
         case _ =>
           for {
@@ -419,7 +425,7 @@ case class ResolverHelper
       e2sc_targetDef <- DTs.get(e2sc_target)
     } yield {
         remainingDataPropertyDPIRIs -= dataPropertyDPIRI
-        tboxG.addDataRelationshipFromEntityToScalar(e2sc_dp.getIRI, e2sc_sourceDef, e2sc_targetDef)(omfStore) match {
+        tboxG.createDataRelationshipFromEntityToScalar(e2sc_dp, e2sc_sourceDef, e2sc_targetDef) match {
           case Failure(f) =>
             return Failure(f)
           case Success(r) =>
@@ -429,8 +435,13 @@ case class ResolverHelper
 
     if (remainingDataPropertyDPIRIs.isEmpty)
       Success(e2sc.toList)
-    else
+    else {
+      System.out.println(s"resolveDataRelationshipsFromEntity2Scalars: ${remainingDataPropertyDPIRIs.size}")
+      remainingDataPropertyDPIRIs.foreach { dp =>
+        System.out.println(s"dp: ${dp._1} domain: ${dp._2} range: ${dp._3}")
+      }
       Failure(new IllegalArgumentException("... esc ..."))
+    }
   }
 
   // ----------
@@ -439,7 +450,7 @@ case class ResolverHelper
 
   def ropInfoToString(ropInfo: ROPInfo): String =
     s"""|ROPInfo 
-        |  iri=${ropInfo._1}
+        |iri=${ropInfo._1}
         |obj. prop=${ropInfo._2}
         |domain=${ropInfo._3}
         |range=${ropInfo._4}
@@ -493,21 +504,27 @@ case class ResolverHelper
 
       (r_iri, r_op, r_source, r_target, r_inv_op) <- resolvableROPs
       if chainOP.getIRI == r_iri
-      //_ = System.out.println(s"r_op: matches!")
-      //_ = System.out.println(s"r_op: chainSource: ${chainSource.getIRI} chainTarget: ${chainTarget.getIRI}")
-      //_ = System.out.println(s"r_op: r_source: ${r_source.getIRI} r_target: ${r_target.getIRI}")
+      _ = if (LOG1) {
+        System.out.println(s"r_op: matches!")
+        System.out.println(s"r_op: chainSource: ${chainSource.getIRI} chainTarget: ${chainTarget.getIRI}")
+        System.out.println(s"r_op: r_source: ${r_source.getIRI} r_target: ${r_target.getIRI}")
+      }
 
       (s_iri, s_op, s_source, s_target, s_inv_op) <- resolvableSourceROPs filter {
         case (x, _, _, y, _) =>
           x == chainSource.getIRI && y.getIRI == r_source.getIRI
       }
-      //_ = System.out.println(s"s_op: ${s_op.getIRI}")
+      _ = if (LOG1) {
+        System.out.println(s"s_op: ${s_op.getIRI}")
+      }
 
       (t_iri, t_op, t_source, t_target, t_inv_op) <- resolvableTargetROPs filter {
         case (x, _, _, y, _) =>
           x == chainTarget.getIRI && y.getIRI == r_target.getIRI
       }
-      //_ = System.out.println(s"t_op: ${t_op.getIRI}")
+      _ = if (LOG1) {
+        System.out.println(s"t_op: ${t_op.getIRI}")
+      }
 
       if s_source == t_source
 
@@ -520,42 +537,41 @@ case class ResolverHelper
       resolvedSourceROP = (s_iri, s_op, s_source, s_target, s_inv_op)
       resolvedTargetROP = (t_iri, t_op, t_source, t_target, t_inv_op)
 
-      rop = addEntityReifiedRelationship(
-        o = omfMetadata,
-        hasProvenanceFromRule = provenance,
-        graph = tboxG,
-        source = r_sourceDef,
-        target = r_targetDef,
-        characteristics = Nil,
-        reifiedRelationshipName = getIRIFragment(rc.getIRI),
-        unreifiedRelationshipName = getIRIFragment(r_op.getIRI),
-        unreifiedInverseRelationshipName = r_inv_op match {
-          case None =>
-            None
-          case Some(inv) =>
-            Some(getIRIFragment(inv.getIRI))
-        },
-        isAbstract = isAnnotatedAbstract(rc.getIRI)
-      )(omfStore) match {
+      _rr = tboxG.createEntityReifiedRelationship(
+        r = rc,
+        u = r_op, ui = r_inv_op,
+        source = r_sourceDef, rSource = chainSource,
+        target = r_targetDef, rTarget = chainTarget,
+        characteristics = Iterable(),
+        isAbstract = isAnnotatedAbstract(rc.getIRI)) match {
+        case Success(rr) =>
+          val rcIRI = rc.getIRI
+          tboxG.setTermShortName(rr, getOWLTermShortName(rcIRI))
+          tboxG.setTermUUID(rr, getOWLTermUUID(rcIRI))
+          rr
         case Failure(f) =>
           return Failure(f)
-        case Success(rr) =>
-          rr
       }
-    //      rop = ModelEntityReifiedRelationship(
-    //        e = rc,
-    //        unreified = r_op,
-    //        inverse = None,
-    //        source = r_sourceDef, rSource = s_op,
-    //        target = r_targetDef, rTarget = t_op,
-    //        characteristics = Nil,
-    //        isAbstract = isAnnotatedAbstract(rc.getIRI))
-    //_ = System.out.println(s"rop=$r_iri $s_iri $t_iri")
+      _ = omfStore.registerOMFModelEntityReifiedRelationshipInstance(tboxG, _rr) match {
+        case Success(_) =>
+          ()
+        case Failure(f) =>
+          return Failure(f)
+      }
+      _ = if (LOG1) {
+        System.out.println(s"rop=$r_iri $s_iri $t_iri")
+      }
     } yield {
         remainingROPs -= resolvedROP
         remainingSourceROPs -= resolvedSourceROP
         remainingTargetROPs -= resolvedTargetROP
-        rc -> rop
+        if (LOG1) {
+          System.out.println(
+            s"""|resolveEntityDefinitionsForRelationship:
+                |${_rr}
+                |""".stripMargin('|'))
+        }
+        rc -> _rr
       }
 
     if ((remainingROPs.isEmpty && (remainingSourceROPs.nonEmpty || remainingTargetROPs.nonEmpty)) ||
@@ -564,9 +580,9 @@ case class ResolverHelper
       remainingROPs.size != remainingSourceROPs.size ||
       remainingROPs.size != remainingTargetROPs.size) {
 
-      val rops = remainingROPs.map(ropInfoToString).mkString("\n")
-      val srops = remainingSourceROPs.map(ropInfoToString).mkString("\n")
-      val trops = remainingTargetROPs.map(ropInfoToString).mkString("\n")
+      val rops = remainingROPs.toList.sortBy(_._1.toString).map(ropInfoToString).mkString("\n")
+      val srops = remainingSourceROPs.toList.sortBy(_._1.toString).map(ropInfoToString).mkString("\n")
+      val trops = remainingTargetROPs.toList.sortBy(_._1.toString).map(ropInfoToString).mkString("\n")
 
       Failure(new IllegalArgumentException(
         s"""|Unresolved Reified Object Properties, ROPs: 
@@ -633,7 +649,7 @@ case class ResolverHelper
       //      System.out.println(s"\n#resolveEntityDefinitionsForRelationships with ${m.size}")
       resolveEntityDefinitionsForRelationships(
         entityDefinitions ++ m.toMap,
-        RCs ++ (m map { case (rc, rcDef) => rc.getIRI -> rc }).toMap,
+        RCs ++ (m map { case (rc, _) => rc.getIRI -> rc }).toMap,
         unresolvedROPs ++ remainingROPs,
         unresolvableSourceROPs ++ remainingSourceROPs,
         unresolvableTargetROPs ++ remainingTargetROPs,
@@ -765,12 +781,9 @@ case class ResolverHelper
       (subC, subM) <- conceptCMs
       supC <- reasoner.getSuperClasses(subC, true).getFlattened
       supM <- findEntityConcept(supC.getIRI, allConceptsIncludingImported)
-    } addEntityConceptSubClassAxiom(
-      o = omfMetadata,
-      hasProvenanceFromRule = provenance,
-      graph = tboxG,
-      sub = subM,
-      sup = supM
+    } tboxG.createEntityConceptSubClassAxiom(
+        sub = subM,
+        sup = supM
       )(omfStore) match {
         case Failure(f) =>
           return Failure(f)
@@ -787,10 +800,7 @@ case class ResolverHelper
       (subC, subM) <- reifiedRelationshipCMs
       supC <- reasoner.getSuperClasses(subC, true).getFlattened
       supM <- findEntityReifiedRelationship(supC.getIRI, allReifiedRelationshipsIncludingImported)
-    } addEntityReifiedRelationshipSubClassAxiom(
-        o = omfMetadata,
-        hasProvenanceFromRule = provenance,
-        graph = tboxG,
+    } tboxG.createEntityReifiedRelationshipSubClassAxiom(
         sub = subM,
         sup = supM
       )(omfStore) match {
@@ -809,12 +819,9 @@ case class ResolverHelper
       (subC, subM) <- allEntityDefinitions
       supC <- reasoner.getSuperClasses(subC, true).getFlattened
       supM <- findEntityAspect(supC.getIRI, allAspectsIncludingImported)
-    } addEntityDefinitionAspectSubClassAxiom(
-        o = omfMetadata,
-        hasProvenanceFromRule = provenance,
-        graph = tboxG,
-        sub=subM,
-      sup=supM)(omfStore) match {
+    } tboxG.createEntityDefinitionAspectSubClassAxiom(
+        sub = subM,
+        sup = supM)(omfStore) match {
         case Failure(f) =>
           return Failure(f)
         case Success(_) =>
@@ -823,6 +830,9 @@ case class ResolverHelper
 }
 
 case class ImmutableModelTerminologyGraphResolver(resolver: ResolverHelper) {
+
+  val LOG: Boolean = true
+  val LOG1: Boolean = false
 
   require(null != resolver)
 
@@ -834,18 +844,20 @@ case class ImmutableModelTerminologyGraphResolver(resolver: ResolverHelper) {
 
     val scalarDatatypeSCs = for {
       scalarDatatypeDT <- dTs
-      scalarDatatypeIRI = scalarDatatypeDT.getIRI
-      scalarDatatypeSC = addScalarDataType(
-        o = resolver.omfMetadata,
-        hasProvenanceFromRule = provenance,
-        graph = tboxG,
-        scalarName = getIRIFragment(scalarDatatypeIRI),
-        hasName = getOWLTermShortName(scalarDatatypeIRI),
-        hasUUID = getOWLTermUUID(scalarDatatypeIRI)) match {
+      scalarDatatypeSC = tboxG.createModelScalarDataType(scalarDatatypeDT) match {
+        case Success(sc) =>
+          val scIRI = scalarDatatypeDT.getIRI
+          tboxG.setTermShortName(sc, getOWLTermShortName(scIRI))
+          tboxG.setTermUUID(sc, getOWLTermUUID(scIRI))
+          sc
         case Failure(f) =>
           return Failure(f)
-        case Success(c) =>
-          c
+      }
+      _ = resolver.omfStore.registerOMFModelScalarDataTypeInstance(tboxG, scalarDatatypeSC) match {
+        case Success(_) =>
+          ()
+        case Failure(f) =>
+          return Failure(f)
       }
     } yield scalarDatatypeDT -> scalarDatatypeSC
 
@@ -889,22 +901,30 @@ case class ImmutableModelTerminologyGraphResolver(resolver: ResolverHelper) {
         (_, onlyCompatibleKind = true)
         (resolver.omfStore.ops, resolver.omfStore)).toSet[ModelTerminologyGraph]
 
-    //    System.out.println(s"ont: ${backbone.ont.getOntologyID} with ${imports.size} imports")
-    //    System.out.println(imports.map(_.ont.getOntologyID.toString).toList.sorted.mkString("\n => imports: ", "\n => imports: ", "\n"))
-    //
-    //    System.out.println(s"import closure: ${importClosure.size}")
-    //    System.out.println(importClosure.map(_.ont.getOntologyID.toString).toList.sorted.mkString("\n => imports: ", "\n => imports: ", "\n"))
+    if (LOG) {
+      System.out.println(s"\n\n=>ont: ${backbone.ont.getOntologyID} with ${imports.size} imports")
+      System.out.println(imports.map(_.ont.getOntologyID.toString).toList.sorted.mkString("\n => imports: ", "\n => imports: ", "\n"))
+
+      System.out.println(s"import closure: ${importClosure.size}")
+      System.out.println(importClosure.map(_.ont.getOntologyID.toString).toList.sorted.mkString("\n => imports: ", "\n => imports: ", "\n"))
+    }
 
     val importedScalarDatatypeDefinitionMaps: Map[OWLDatatype, ModelScalarDataType] =
-      importClosure.flatMap(_.getScalarDatatypeDefinitionMap) toMap
+      importClosure.flatMap(_.getScalarDatatypeDefinitionMap).toMap
+
+    if (LOG) {
+      System.out.println(s"importedScalarDatatypeDefinitionMaps: ${importedScalarDatatypeDefinitionMaps.size}")
+    }
 
     val importedEntityDefinitionMaps: Map[OWLClass, ModelEntityDefinition] =
-      importClosure.flatMap(_.getEntityDefinitionMap) toMap
+      importClosure.flatMap(_.getEntityDefinitionMap).toMap
 
     val allImportedReifiedRelationships: Map[OWLClass, ModelEntityReifiedRelationship] =
       importedEntityDefinitionMaps flatMap {
-        case (rrC, rrE: ModelEntityReifiedRelationship) => Some(rrC -> rrE)
-        case _ => None
+        case (rrC, rrE: ModelEntityReifiedRelationship) =>
+          Some(rrC -> rrE)
+        case _ =>
+          None
       }
 
     val reasonerFactory = new StructuralReasonerFactory()
@@ -949,95 +969,168 @@ case class ImmutableModelTerminologyGraphResolver(resolver: ResolverHelper) {
         aCs)
 
     val subPropertyChainAxioms = ont.getLogicalAxioms(Imports.EXCLUDED).flatMap {
-      case ax: OWLSubPropertyChainOfAxiom => Some(ax)
-      case _ => None
+      case ax: SWRLRule =>
+        Some(ax)
+      case _ =>
+        None
     }
 
     val chains: Chains = for {
-      ax: OWLSubPropertyChainOfAxiom <- subPropertyChainAxioms.toSet
+      rule: SWRLRule <- subPropertyChainAxioms.toSet
+      variables: Set[SWRLVariable] = rule.getVariables.toSet
+      if 3 == variables.size
 
-      sup: OWLObjectProperty <- ax.getSuperProperty match {
+      heads: Set[SWRLAtom] = rule.getHead.toSet
+      if 1 == heads.size
+      head: SWRLObjectPropertyAtom <- heads.head match {
+        case opa: SWRLObjectPropertyAtom =>
+          Some(opa)
+        case _ =>
+          None
+      }
+      head_op: OWLObjectProperty <- head.getPredicate match {
         case op: OWLObjectProperty =>
           Some(op)
         case _ =>
           None
       }
-
-      hasSource: OWLObjectProperty <- ax.getPropertyChain.flatMap {
-        case inv: OWLObjectInverseOf =>
-          inv.getInverse match {
-            case op: OWLObjectProperty =>
-              Some(op)
-            case _ =>
-              None
-          }
+      head_v1: SWRLVariable <- head.getFirstArgument match {
+        case v: SWRLVariable => Some(v)
+        case _ => None
+      }
+      head_v2: SWRLVariable <- head.getSecondArgument match {
+        case v: SWRLVariable => Some(v)
+        case _ => None
+      }
+      bodies: Set[SWRLAtom] = rule.getBody.toSet
+      if 2 == bodies.size
+      body1: SWRLObjectPropertyAtom <- bodies.head match {
+        case opa: SWRLObjectPropertyAtom =>
+          Some(opa)
         case _ =>
           None
-      } headOption
-
-      hasTarget: OWLObjectProperty <- ax.getPropertyChain.flatMap {
+      }
+      body1_op: OWLObjectProperty <- body1.getPredicate match {
         case op: OWLObjectProperty =>
           Some(op)
         case _ =>
           None
-      } headOption
+      }
+      body1_v1: SWRLVariable <- body1.getFirstArgument match {
+        case v: SWRLVariable => Some(v)
+        case _ => None
+      }
+      body1_v2: SWRLVariable <- body1.getSecondArgument match {
+        case v: SWRLVariable => Some(v)
+        case _ => None
+      }
+      body2: SWRLObjectPropertyAtom <- bodies.tail.head match {
+        case opa: SWRLObjectPropertyAtom =>
+          Some(opa)
+        case _ =>
+          None
+      }
+      body2_op: OWLObjectProperty <- body2.getPredicate match {
+        case op: OWLObjectProperty =>
+          Some(op)
+        case _ =>
+          None
+      }
+      body2_v1: SWRLVariable <- body2.getFirstArgument match {
+        case v: SWRLVariable =>
+          Some(v)
+        case _ =>
+          None
+      }
+      body2_v2: SWRLVariable <- body2.getSecondArgument match {
+        case v: SWRLVariable =>
+          Some(v)
+        case _ =>
+          None
+      }
+      if body1_v1 == body2_v1
 
-    } yield Tuple3(sup, hasSource, hasTarget)
+      _ = if (LOG1) {
+        System.out.println(s"\nhead op: $head_op, v1: $head_v1, v2: $head_v2")
+        System.out.println(s"body1 op: $body1_op, v1: $body1_v1, v2: $body1_v2")
+        System.out.println(s"body2 op: $body2_op, v1: $body2_v1, v2: $body2_v2")
+      }
 
-    val aspectCMs = for {
+      _ = require((head_v1 == body1_v2 && head_v2 == body2_v2) || (head_v1 == body2_v2 && head_v2 == body1_v2))
+
+      hasSource = if (head_v1 == body1_v2 && head_v2 == body2_v2) body1_op else body2_op
+      hasTarget = if (head_v1 == body1_v2 && head_v2 == body2_v2) body2_op else body1_op
+      _ = if (LOG1) {
+        System.out.println(s"hasSource: $hasSource, hasTarget: $hasTarget")
+      }
+    } yield Tuple3(head_op, hasSource, hasTarget)
+
+    val aspectCMs: Map[OWLClass, ModelEntityAspect] = Map[OWLClass, ModelEntityAspect]() ++ (for {
       (aspectIRI, aspectC) <- aspectCIRIs
-      aspectM = addEntityAspect(
-        o = resolver.omfMetadata,
-        hasProvenanceFromRule = provenance,
-        graph = tboxG,
-        aspectName = getIRIFragment(aspectIRI)) match {
+      aspectM = tboxG.createModelEntityAspect(aspectC) match {
+        case Success(a) =>
+          tboxG.setTermShortName(a, getOWLTermShortName(aspectIRI))
+          tboxG.setTermUUID(a, getOWLTermUUID(aspectIRI))
+          a
         case Failure(f) =>
           return Failure(f)
-        case Success(a) =>
-          a
       }
-    } yield aspectC -> aspectM
+      _ = resolver.omfStore.registerOMFModelEntityAspectInstance(tboxG, aspectM) match {
+        case Success(_) =>
+          ()
+        case Failure(f) =>
+          return Failure(f)
+      }
+    } yield aspectC -> aspectM)
 
     val allAspectsIncludingImported: Map[OWLClass, ModelEntityAspect] = aspectCMs ++
       importedEntityDefinitionMaps flatMap {
-      case (aC, aE: ModelEntityAspect) => Some(aC -> aE)
-      case _ => None
+      case (aC, aE: ModelEntityAspect) =>
+        Some(aC -> aE)
+      case _ =>
+        None
     }
 
-    val conceptCMs = for {
+    val conceptCMs: Map[OWLClass, ModelEntityConcept] = Map[OWLClass, ModelEntityConcept]() ++ (for {
       (conceptIRI, conceptC) <- conceptCIRIs
-      conceptM = addEntityConcept(
-        o = resolver.omfMetadata,
-        hasProvenanceFromRule = provenance,
-        graph = tboxG,
-        conceptName = getIRIFragment(conceptIRI),
-        isAbstract = isAnnotatedAbstract(conceptIRI)) match {
+      conceptM = tboxG.createModelEntityConcept(conceptC, isAnnotatedAbstract(conceptIRI)) match {
+        case Success(c) =>
+          tboxG.setTermShortName(c, getOWLTermShortName(conceptIRI))
+          tboxG.setTermUUID(c, getOWLTermUUID(conceptIRI))
+          c
         case Failure(f) =>
           return Failure(f)
-        case Success(c) =>
-          c
       }
-    } yield conceptC -> conceptM
+      _ = resolver.omfStore.registerOMFModelEntityConceptInstance(tboxG, conceptM) match {
+        case Success(_) =>
+          ()
+        case Failure(f) =>
+          return Failure(f)
+      }
+    } yield conceptC -> conceptM)
 
-    val allConceptsIncludingImported: Map[OWLClass, ModelEntityConcept] = conceptCMs ++
-      importedEntityDefinitionMaps flatMap {
-      case (cC, cE: ModelEntityConcept) => Some(cC -> cE)
-      case _ => None
+    val importedConceptDefinitions: Map[OWLClass, ModelEntityConcept] = importedEntityDefinitionMaps flatMap {
+      case (cC, cE: ModelEntityConcept) =>
+        Some(cC -> cE)
+      case _ =>
+        None
     }
-
+    val allConceptsIncludingImported: Map[OWLClass, ModelEntityConcept] = conceptCMs ++ importedConceptDefinitions
     val structuredDatatypeSCs = for {
       (structuredDatatypeIRI, structuredDatatypeC) <- structuredDatatypeCIRIs
-      structuredDatatypeST = addStructuredDataType(
-        o = resolver.omfMetadata,
-        hasProvenanceFromRule = provenance,
-        graph = tboxG,
-        structureName = getIRIFragment(structuredDatatypeIRI),
-        hasName = getOWLTermShortName(structuredDatatypeIRI),
-        hasUUID = getOWLTermUUID(structuredDatatypeIRI)) match {
+      structuredDatatypeST = tboxG.createModelStructuredDataType(structuredDatatypeC) match {
+        case Success(c) =>
+          tboxG.setTermShortName(c, getOWLTermShortName(structuredDatatypeIRI))
+          tboxG.setTermUUID(c, getOWLTermUUID(structuredDatatypeIRI))
+          c
         case Failure(f) =>
           return Failure(f)
-        case Success(c) =>
-          c
+      }
+      _ = resolver.omfStore.registerOMFModelStructuredDataTypeInstance(tboxG, structuredDatatypeST) match {
+        case Success(_) =>
+          ()
+        case Failure(f) =>
+          return Failure(f)
       }
     } yield structuredDatatypeC -> structuredDatatypeST
 
@@ -1077,8 +1170,9 @@ case class ImmutableModelTerminologyGraphResolver(resolver: ResolverHelper) {
         reifiedObjectPropertyTargetOPIRIs,
         chains,
         Map())
-      allEntityDefinitions: Map[OWLClass, ModelEntityDefinition] = allEntityDefinitionsExceptRelationships ++
-        entityReifiedRelationshipCMs
+      allEntityDefinitions: Map[OWLClass, ModelEntityDefinition] =
+      Map[OWLClass, ModelEntityDefinition]() ++
+        aspectCMs ++ conceptCMs ++ entityReifiedRelationshipCMs
       _ <- resolveDefinitionAspectSubClassAxioms(allEntityDefinitions, allAspectsIncludingImported)
       _ <- resolveReifiedRelationshipSubClassAxioms(
         entityReifiedRelationshipCMs, allImportedReifiedRelationships)
@@ -1086,29 +1180,18 @@ case class ImmutableModelTerminologyGraphResolver(resolver: ResolverHelper) {
         scalarDatatypeSCs
       dataRelationshipsFromEntity2Scalars <- resolveDataRelationshipsFromEntity2Scalars(
         allEntityDefinitions, dataPropertyDPIRIs, allScalarDefinitions)
-    //      _ = System.out.println(
-    //        s"""TBox: ${resolver.getOntologyIRI}
-    //          | aspects: ${aspectCMs.values.size}
-    //          | concepts: ${conceptCMs.values.size}
-    //          | reifiedRelationships: ${entityReifiedRelationshipCMs.values.size}
-    //       """.stripMargin
-    //      )
-    //      _ = aspectCMs.values.toList.sortBy(_.iri.toString).foreach { a =>
-    //        System.out.println(s" a: ${a.iri}")
-    //      }
+
       itboxG <- asImmutableTerminologyGraph(tboxG)
 
     } yield {
 
-      for {
-        importG <- imports
-        ok = addTerminologyGraphExtension(extendingG = itboxG, extendedG = importG)
-      } ok match {
-        case Failure(f) =>
-          return Failure(f)
-        case Success(_) =>
-          ()
-      }
+      val iimports = fromTerminologyGraph(itboxG).imports
+      require(imports.forall(i1 =>
+        iimports.exists(i2 => i2.kindIRI == i1.kindIRI)
+      ))
+      require(iimports.forall(i2 =>
+        imports.exists(i1 => i1.kindIRI == i2.kindIRI)
+      ))
 
       itboxG
     }
