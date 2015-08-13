@@ -300,9 +300,9 @@ case class OWLAPIOMFGraphStore(val omfModule: OWLAPIOMFModule, val ontManager: O
   (parentG: types.ModelTerminologyGraph,
    childG: types.ModelTerminologyGraph)
   : Try[types.TerminologyGraphDirectNestingAxiom] = {
-    val nestedChildren = nestingParent2NestedChildren.getOrElseUpdate(
-                                                                       parentG,
-                                                                       scala.collection.mutable.HashSet[types.ModelTerminologyGraph]())
+    val nestedChildren = nestingParent2NestedChildren
+                         .getOrElseUpdate(parentG,
+                                          scala.collection.mutable.HashSet[types.ModelTerminologyGraph]())
     val axiom = directNestingAxioms.find { ax =>
       ax.nestedChild.kindIRI == childG.kindIRI &&
       ax.nestingParent.kindIRI == parentG.kindIRI
@@ -323,23 +323,29 @@ case class OWLAPIOMFGraphStore(val omfModule: OWLAPIOMFModule, val ontManager: O
                                                               nestingParent = parentG)
         val parentI = OMF_MODEL_TERMINOLOGY_GRAPH2Instance(parentG)
         val nestedI = OMF_MODEL_TERMINOLOGY_GRAPH2Instance(childG)
-        val directNestingI = owlDataFactory.getOWLNamedIndividual(
-                                                                   makeMetadataInstanceIRI(omfMetadata.get, "DN", childG
-                                                                                                                  .kindIRI, parentG
-                                                                                                                            .kindIRI))
+        val directNestingI =
+          owlDataFactory
+          .getOWLNamedIndividual(
+                                  makeMetadataInstanceIRI(omfMetadata.get,
+                                                          "DN",
+                                                          childG.kindIRI,
+                                                          parentG.kindIRI))
         for {
           change <- Seq(
                          new AddAxiom(omfMetadata.get,
                                       owlDataFactory.getOWLDeclarationAxiom(directNestingI)),
                          new AddAxiom(omfMetadata.get,
-                                      owlDataFactory.getOWLClassAssertionAxiom(
-                                                                                OMF_TERMINOLOGY_GRAPH_DIRECT_NESTING_AXIOM, directNestingI)),
+                                      owlDataFactory
+                                      .getOWLClassAssertionAxiom(OMF_TERMINOLOGY_GRAPH_DIRECT_NESTING_AXIOM,
+                                                                 directNestingI)),
                          new AddAxiom(omfMetadata.get,
-                                      owlDataFactory.getOWLObjectPropertyAssertionAxiom(
-                                                                                         OMF_HAS_DIRECT_NESTING, directNestingI, parentI)),
+                                      owlDataFactory
+                                      .getOWLObjectPropertyAssertionAxiom(OMF_HAS_DIRECT_NESTING,
+                                                                          directNestingI, parentI)),
                          new AddAxiom(omfMetadata.get,
-                                      owlDataFactory.getOWLObjectPropertyAssertionAxiom(
-                                                                                         OMF_HAS_DIRECT_NESTED_CHILD, directNestingI, nestedI)))
+                                      owlDataFactory
+                                      .getOWLObjectPropertyAssertionAxiom(OMF_HAS_DIRECT_NESTED_CHILD,
+                                                                          directNestingI, nestedI)))
         } {
           val result = ontManager.applyChange(change)
           require(
@@ -362,9 +368,10 @@ case class OWLAPIOMFGraphStore(val omfModule: OWLAPIOMFModule, val ontManager: O
   (extendingG: types.ModelTerminologyGraph,
    extendedG: types.ModelTerminologyGraph)
   : Try[types.TerminologyGraphDirectExtensionAxiom] = {
-    val extendedParents = extendingChild2ExtendedParents.getOrElseUpdate(
-                                                                          extendingG,
-                                                                          scala.collection.mutable.HashSet[types.ModelTerminologyGraph]())
+    val extendedParents =
+      extendingChild2ExtendedParents
+      .getOrElseUpdate(extendingG,
+                       scala.collection.mutable.HashSet[types.ModelTerminologyGraph]())
     if (extendedParents.contains(extendedG))
       directExtensionAxioms.find { ax =>
         ax.extendingChild.kindIRI == extendingG.kindIRI &&
@@ -388,9 +395,9 @@ case class OWLAPIOMFGraphStore(val omfModule: OWLAPIOMFModule, val ontManager: O
       }
     else {
 
-      val axiom = types.TerminologyGraphDirectExtensionAxiom(
-                                                              extendingChild = extendingG,
-                                                              extendedParent = extendedG)
+      val axiom = types
+                  .TerminologyGraphDirectExtensionAxiom(extendingChild = extendingG,
+                                                        extendedParent = extendedG)
 
       for {
         added <- Seq(
@@ -400,12 +407,11 @@ case class OWLAPIOMFGraphStore(val omfModule: OWLAPIOMFModule, val ontManager: O
 
       val extendingI = OMF_MODEL_TERMINOLOGY_GRAPH2Instance(axiom.extendingChild)
       val extendedI = OMF_MODEL_TERMINOLOGY_GRAPH2Instance(axiom.extendedParent)
-      val directImportingI = owlDataFactory.getOWLNamedIndividual(
-                                                                   makeMetadataInstanceIRI(omfMetadata.get, "DI", axiom
-                                                                                                                  .extendingChild
-                                                                                                                  .kindIRI, axiom
-                                                                                                                            .extendedParent
-                                                                                                                            .kindIRI))
+      val directImportingI = owlDataFactory
+                             .getOWLNamedIndividual(makeMetadataInstanceIRI(omfMetadata.get,
+                                                                            "DI",
+                                                                            axiom.extendingChild.kindIRI,
+                                                                            axiom.extendedParent.kindIRI))
 
       if (LOG) {
         System.out.println(
@@ -420,13 +426,16 @@ case class OWLAPIOMFGraphStore(val omfModule: OWLAPIOMFModule, val ontManager: O
                                     owlDataFactory.getOWLDeclarationAxiom(directImportingI)),
                        new AddAxiom(omfMetadata.get,
                                     owlDataFactory
-                                    .getOWLClassAssertionAxiom(OMF_TERMINOLOGY_GRAPH_DIRECT_EXTENSION_AXIOM, directImportingI)),
+                                    .getOWLClassAssertionAxiom(OMF_TERMINOLOGY_GRAPH_DIRECT_EXTENSION_AXIOM,
+                                                               directImportingI)),
                        new AddAxiom(omfMetadata.get,
-                                    owlDataFactory.getOWLObjectPropertyAssertionAxiom(
-                                                                                       OMF_HAS_DIRECT_EXTENDED_PARENT, directImportingI, extendedI)),
+                                    owlDataFactory
+                                    .getOWLObjectPropertyAssertionAxiom(OMF_HAS_DIRECT_EXTENDED_PARENT,
+                                                                        directImportingI, extendedI)),
                        new AddAxiom(omfMetadata.get,
-                                    owlDataFactory.getOWLObjectPropertyAssertionAxiom(
-                                                                                       OMF_HAS_DIRECT_EXTENSIONING_CHILD, directImportingI, extendingI)))
+                                    owlDataFactory
+                                    .getOWLObjectPropertyAssertionAxiom(OMF_HAS_DIRECT_EXTENSIONING_CHILD,
+                                                                        directImportingI, extendingI)))
       } {
         val result = ontManager.applyChange(change)
         require(
@@ -518,16 +527,16 @@ case class OWLAPIOMFGraphStore(val omfModule: OWLAPIOMFModule, val ontManager: O
   }
 
   def setTerminologyGraphShortName
-  (tbox: types.MutableModelTerminologyGraph,
+  (tbox: types.ModelTerminologyGraph,
    label: String)
   : Try[Unit] = {
     for {
       change <-
       Seq(new AddAxiom(omfMetadata.get,
-                       owlDataFactory.getOWLDataPropertyAssertionAxiom(
-                                                                        OMF_HAS_SHORT_NAME,
-                                                                        OMF_MODEL_TERMINOLOGY_GRAPH2Instance(tbox),
-                                                                        owlDataFactory.getOWLLiteral(label)))
+                       owlDataFactory
+                       .getOWLDataPropertyAssertionAxiom(OMF_HAS_SHORT_NAME,
+                                                         OMF_MODEL_TERMINOLOGY_GRAPH2Instance(tbox),
+                                                         owlDataFactory.getOWLLiteral(label)))
          )
     } {
       val result = ontManager.applyChange(change)
@@ -539,16 +548,16 @@ case class OWLAPIOMFGraphStore(val omfModule: OWLAPIOMFModule, val ontManager: O
   }
 
   def setTerminologyGraphUUID
-  (tbox: types.MutableModelTerminologyGraph,
+  (tbox: types.ModelTerminologyGraph,
    id: String)
   : Try[Unit] = {
     for {
       change <-
       Seq(new AddAxiom(omfMetadata.get,
-                       owlDataFactory.getOWLDataPropertyAssertionAxiom(
-                                                                        OMF_HAS_UUID,
-                                                                        OMF_MODEL_TERMINOLOGY_GRAPH2Instance(tbox),
-                                                                        owlDataFactory.getOWLLiteral(id)))
+                       owlDataFactory
+                       .getOWLDataPropertyAssertionAxiom(OMF_HAS_UUID,
+                                                         OMF_MODEL_TERMINOLOGY_GRAPH2Instance(tbox),
+                                                         owlDataFactory.getOWLLiteral(id)))
          )
     } {
       val result = ontManager.applyChange(change)
@@ -569,11 +578,10 @@ case class OWLAPIOMFGraphStore(val omfModule: OWLAPIOMFModule, val ontManager: O
         for {
           change <- Seq(
                          new AddAxiom(omfMetadata.get,
-                                      owlDataFactory.getOWLDataPropertyAssertionAxiom(
-                                                                                       OMF_HAS_SHORT_NAME,
-                                                                                       termI,
-                                                                                       owlDataFactory
-                                                                                       .getOWLLiteral(label)))
+                                      owlDataFactory
+                                      .getOWLDataPropertyAssertionAxiom(OMF_HAS_SHORT_NAME,
+                                                                        termI,
+                                                                        owlDataFactory.getOWLLiteral(label)))
                        )
         } {
           val result = ontManager.applyChange(change)
@@ -596,11 +604,10 @@ case class OWLAPIOMFGraphStore(val omfModule: OWLAPIOMFModule, val ontManager: O
         for {
           change <- Seq(
                          new AddAxiom(omfMetadata.get,
-                                      owlDataFactory.getOWLDataPropertyAssertionAxiom(
-                                                                                       OMF_HAS_UUID,
-                                                                                       termI,
-                                                                                       owlDataFactory
-                                                                                       .getOWLLiteral(id)))
+                                      owlDataFactory
+                                      .getOWLDataPropertyAssertionAxiom(OMF_HAS_UUID,
+                                                                        termI,
+                                                                        owlDataFactory.getOWLLiteral(id)))
                        )
         } {
           val result = ontManager.applyChange(change)
@@ -613,7 +620,7 @@ case class OWLAPIOMFGraphStore(val omfModule: OWLAPIOMFModule, val ontManager: O
         Failure(new IllegalArgumentException(s"setTermUUID: no definition for $termT to set UUID=$id"))
     }
 
-  def registerOMFModelEntityAspectInstance
+  def createOMFModelEntityAspectInstance
   (tbox: types.ModelTerminologyGraph,
    aspectT: types.ModelEntityAspect)
   : Try[OWLNamedIndividual] =
@@ -621,19 +628,16 @@ case class OWLAPIOMFGraphStore(val omfModule: OWLAPIOMFModule, val ontManager: O
       case Some(aspectI) =>
         Success(aspectI)
       case None          =>
-        val aspectI = owlDataFactory.getOWLNamedIndividual(
-                                                            makeMetadataInstanceIRI(omfMetadata.get, "A", aspectT.iri))
+        val aspectI = owlDataFactory
+                      .getOWLNamedIndividual(makeMetadataInstanceIRI(omfMetadata.get,
+                                                                     "A",
+                                                                     aspectT.iri))
         for {
           change <- Seq(
                          new AddAxiom(omfMetadata.get,
                                       owlDataFactory.getOWLDeclarationAxiom(aspectI)),
                          new AddAxiom(omfMetadata.get,
                                       owlDataFactory.getOWLClassAssertionAxiom(OMF_MODEL_ENTITY_ASPECT, aspectI)),
-                         new AddAxiom(omfMetadata.get,
-                                      owlDataFactory.getOWLObjectPropertyAssertionAxiom(
-                                                                                         OMF_DIRECTLY_DEFINES_TYPE_TERM,
-                                                                                         OMF_MODEL_TERMINOLOGY_GRAPH2Instance(tbox),
-                                                                                         aspectI)),
                          new AddAxiom(omfMetadata.get,
                                       owlDataFactory
                                       .getOWLDataPropertyAssertionAxiom(OMF_HAS_IRI, aspectI, aspectT.iri.toString))
@@ -642,7 +646,7 @@ case class OWLAPIOMFGraphStore(val omfModule: OWLAPIOMFModule, val ontManager: O
           val result = ontManager.applyChange(change)
           require(
                    result == ChangeApplied.SUCCESSFULLY,
-                   s"\nregisterOMFModelEntityAspectInstance:\n$change")
+                   s"\ncreateOMFModelEntityAspectInstance:\n$change")
         }
         OMF_MODEL_TYPE_TERM2Instance += (aspectT -> aspectI)
         OMF_MODEL_ENTITY_DEFINITION2Instance += (aspectT -> aspectI)
@@ -650,7 +654,31 @@ case class OWLAPIOMFGraphStore(val omfModule: OWLAPIOMFModule, val ontManager: O
         Success(aspectI)
     }
 
-  def registerOMFModelEntityConceptInstance
+  def registerOMFModelEntityAspectInstance
+  (tbox: types.ModelTerminologyGraph,
+   aspectT: types.ModelEntityAspect)
+  : Try[OWLNamedIndividual] =
+    for {
+      aspectI <- createOMFModelEntityAspectInstance(tbox, aspectT)
+    } yield {
+      for {
+        change <- Seq(
+                       new AddAxiom(omfMetadata.get,
+                                    owlDataFactory
+                                    .getOWLObjectPropertyAssertionAxiom(OMF_DIRECTLY_DEFINES_TYPE_TERM,
+                                                                        OMF_MODEL_TERMINOLOGY_GRAPH2Instance(tbox),
+                                                                        aspectI))
+                     )
+      } {
+        val result = ontManager.applyChange(change)
+        require(
+                 result == ChangeApplied.SUCCESSFULLY,
+                 s"\nregisterOMFModelEntityAspectInstance:\n$change")
+      }
+      aspectI
+    }
+
+  def createOMFModelEntityConceptInstance
   (tbox: types.ModelTerminologyGraph,
    conceptT: types.ModelEntityConcept)
   : Try[OWLNamedIndividual] =
@@ -658,20 +686,18 @@ case class OWLAPIOMFGraphStore(val omfModule: OWLAPIOMFModule, val ontManager: O
       case Some(conceptI) =>
         Success(conceptI)
       case None           =>
-        val conceptI = owlDataFactory.getOWLNamedIndividual(
-                                                             makeMetadataInstanceIRI(omfMetadata.get, "C", conceptT
-                                                                                                           .iri))
+        val conceptI = owlDataFactory
+                       .getOWLNamedIndividual(makeMetadataInstanceIRI(omfMetadata.get,
+                                                                      "C",
+                                                                      conceptT.iri))
         for {
           change <- Seq(
                          new AddAxiom(omfMetadata.get,
-                                      owlDataFactory.getOWLDeclarationAxiom(conceptI)),
+                                      owlDataFactory
+                                      .getOWLDeclarationAxiom(conceptI)),
                          new AddAxiom(omfMetadata.get,
-                                      owlDataFactory.getOWLClassAssertionAxiom(OMF_MODEL_ENTITY_CONCEPT, conceptI)),
-                         new AddAxiom(omfMetadata.get,
-                                      owlDataFactory.getOWLObjectPropertyAssertionAxiom(
-                                                                                         OMF_DIRECTLY_DEFINES_TYPE_TERM,
-                                                                                         OMF_MODEL_TERMINOLOGY_GRAPH2Instance(tbox),
-                                                                                         conceptI)),
+                                      owlDataFactory
+                                      .getOWLClassAssertionAxiom(OMF_MODEL_ENTITY_CONCEPT, conceptI)),
                          new AddAxiom(omfMetadata.get,
                                       owlDataFactory
                                       .getOWLDataPropertyAssertionAxiom(OMF_HAS_IRI, conceptI, conceptT.iri.toString))
@@ -680,7 +706,7 @@ case class OWLAPIOMFGraphStore(val omfModule: OWLAPIOMFModule, val ontManager: O
           val result = ontManager.applyChange(change)
           require(
                    result == ChangeApplied.SUCCESSFULLY,
-                   s"\nregisterOMFModelEntityConceptInstance:\n$change")
+                   s"\ncreateOMFModelEntityConceptInstance:\n$change")
         }
         OMF_MODEL_TYPE_TERM2Instance += (conceptT -> conceptI)
         OMF_MODEL_ENTITY_DEFINITION2Instance += (conceptT -> conceptI)
@@ -688,7 +714,31 @@ case class OWLAPIOMFGraphStore(val omfModule: OWLAPIOMFModule, val ontManager: O
         Success(conceptI)
     }
 
-  def registerOMFModelEntityReifiedRelationshipInstance
+  def registerOMFModelEntityConceptInstance
+  (tbox: types.ModelTerminologyGraph,
+   conceptT: types.ModelEntityConcept)
+  : Try[OWLNamedIndividual] =
+    for {
+      conceptI <- createOMFModelEntityConceptInstance(tbox, conceptT)
+    } yield {
+      for {
+        change <- Seq(
+                       new AddAxiom(omfMetadata.get,
+                                    owlDataFactory
+                                    .getOWLObjectPropertyAssertionAxiom(OMF_DIRECTLY_DEFINES_TYPE_TERM,
+                                                                        OMF_MODEL_TERMINOLOGY_GRAPH2Instance(tbox),
+                                                                        conceptI))
+                     )
+      } {
+        val result = ontManager.applyChange(change)
+        require(
+                 result == ChangeApplied.SUCCESSFULLY,
+                 s"\nregisterOMFModelEntityConceptInstance:\n$change")
+      }
+      conceptI
+    }
+
+  def createOMFModelEntityReifiedRelationshipInstance
   (tbox: types.ModelTerminologyGraph,
    relationshipT: types.ModelEntityReifiedRelationship)
   : Try[OWLNamedIndividual] =
@@ -696,9 +746,10 @@ case class OWLAPIOMFGraphStore(val omfModule: OWLAPIOMFModule, val ontManager: O
       case Some(relationshipI) =>
         Success(relationshipI)
       case None                =>
-        val relationshipI = owlDataFactory.getOWLNamedIndividual(
-                                                                  makeMetadataInstanceIRI(omfMetadata
-                                                                                          .get, "R", relationshipT.iri))
+        val relationshipI = owlDataFactory
+                            .getOWLNamedIndividual(makeMetadataInstanceIRI(omfMetadata.get,
+                                                                           "R",
+                                                                           relationshipT.iri))
         val sourceI = OMF_MODEL_ENTITY_DEFINITION2Instance(relationshipT.source)
         val targetI = OMF_MODEL_ENTITY_DEFINITION2Instance(relationshipT.target)
         for {
@@ -709,15 +760,10 @@ case class OWLAPIOMFGraphStore(val omfModule: OWLAPIOMFModule, val ontManager: O
                                       owlDataFactory
                                       .getOWLClassAssertionAxiom(OMF_MODEL_ENTITY_RELATIONSHIP, relationshipI)),
                          new AddAxiom(omfMetadata.get,
-                                      owlDataFactory.getOWLObjectPropertyAssertionAxiom(
-                                                                                         OMF_DIRECTLY_DEFINES_TYPE_TERM,
-                                                                                         OMF_MODEL_TERMINOLOGY_GRAPH2Instance(tbox),
-                                                                                         relationshipI)),
-                         new AddAxiom(omfMetadata.get,
-                                      owlDataFactory.getOWLDataPropertyAssertionAxiom(
-                                                                                       OMF_HAS_IRI, relationshipI, relationshipT
-                                                                                                                   .iri
-                                                                                                                   .toString)),
+                                      owlDataFactory
+                                      .getOWLDataPropertyAssertionAxiom(OMF_HAS_IRI,
+                                                                        relationshipI,
+                                                                        relationshipT.iri.toString)),
                          new AddAxiom(omfMetadata.get,
                                       owlDataFactory
                                       .getOWLObjectPropertyAssertionAxiom(OMF_HAS_SOURCE, relationshipI, sourceI)),
@@ -729,7 +775,7 @@ case class OWLAPIOMFGraphStore(val omfModule: OWLAPIOMFModule, val ontManager: O
           val result = ontManager.applyChange(change)
           require(
                    result == ChangeApplied.SUCCESSFULLY,
-                   s"\nregisterOMFModelEntityReifiedRelationshipInstance:\n$change")
+                   s"\ncreateOMFModelEntityReifiedRelationshipInstance:\n$change")
         }
         OMF_MODEL_TYPE_TERM2Instance += (relationshipT -> relationshipI)
         OMF_MODEL_ENTITY_DEFINITION2Instance += (relationshipT -> relationshipI)
@@ -737,7 +783,32 @@ case class OWLAPIOMFGraphStore(val omfModule: OWLAPIOMFModule, val ontManager: O
         Success(relationshipI)
     }
 
-  def registerOMFModelScalarDataTypeInstance
+
+  def registerOMFModelEntityReifiedRelationshipInstance
+  (tbox: types.ModelTerminologyGraph,
+   relationshipT: types.ModelEntityReifiedRelationship)
+  : Try[OWLNamedIndividual] =
+    for {
+      relationshipI <- createOMFModelEntityReifiedRelationshipInstance(tbox, relationshipT)
+    } yield {
+      for {
+        change <- Seq(
+                       new AddAxiom(omfMetadata.get,
+                                    owlDataFactory
+                                    .getOWLObjectPropertyAssertionAxiom(OMF_DIRECTLY_DEFINES_TYPE_TERM,
+                                                                        OMF_MODEL_TERMINOLOGY_GRAPH2Instance(tbox),
+                                                                        relationshipI))
+                     )
+      } {
+        val result = ontManager.applyChange(change)
+        require(
+                 result == ChangeApplied.SUCCESSFULLY,
+                 s"\nregisterOMFModelEntityReifiedRelationshipInstance:\n$change")
+      }
+      relationshipI
+    }
+
+  def createOMFModelScalarDataTypeInstance
   (tbox: types.ModelTerminologyGraph,
    scalarDT: types.ModelScalarDataType)
   : Try[OWLNamedIndividual] =
@@ -745,20 +816,19 @@ case class OWLAPIOMFGraphStore(val omfModule: OWLAPIOMFModule, val ontManager: O
       case Some(scalarDI) =>
         Success(scalarDI)
       case None           =>
-        val scalarDI = owlDataFactory.getOWLNamedIndividual(
-                                                             makeMetadataInstanceIRI(omfMetadata.get, "SC", scalarDT
-                                                                                                            .iri))
+        val scalarDI = owlDataFactory
+                       .getOWLNamedIndividual(makeMetadataInstanceIRI(omfMetadata.get,
+                                                                      "SC",
+                                                                      tbox.kindIRI,
+                                                                      scalarDT.iri))
         for {
           change <- Seq(
                          new AddAxiom(omfMetadata.get,
-                                      owlDataFactory.getOWLDeclarationAxiom(scalarDI)),
+                                      owlDataFactory
+                                      .getOWLDeclarationAxiom(scalarDI)),
                          new AddAxiom(omfMetadata.get,
-                                      owlDataFactory.getOWLClassAssertionAxiom(OMF_MODEL_SCALAR_DATA_TYPE, scalarDI)),
-                         new AddAxiom(omfMetadata.get,
-                                      owlDataFactory.getOWLObjectPropertyAssertionAxiom(
-                                                                                         OMF_DIRECTLY_DEFINES_TYPE_TERM,
-                                                                                         OMF_MODEL_TERMINOLOGY_GRAPH2Instance(tbox),
-                                                                                         scalarDI)),
+                                      owlDataFactory
+                                      .getOWLClassAssertionAxiom(OMF_MODEL_SCALAR_DATA_TYPE, scalarDI)),
                          new AddAxiom(omfMetadata.get,
                                       owlDataFactory
                                       .getOWLDataPropertyAssertionAxiom(OMF_HAS_IRI, scalarDI, scalarDT.iri.toString))
@@ -767,7 +837,7 @@ case class OWLAPIOMFGraphStore(val omfModule: OWLAPIOMFModule, val ontManager: O
           val result = ontManager.applyChange(change)
           require(
                    result == ChangeApplied.SUCCESSFULLY,
-                   s"\nregisterOMFModelScalarDataTypeInstance:\n$change")
+                   s"\ncreateOMFModelScalarDataTypeInstance:\n$change")
         }
         OMF_MODEL_TYPE_TERM2Instance += (scalarDT -> scalarDI)
         OMF_MODEL_DATA_TYPE_DEFINITION2Instance += (scalarDT -> scalarDI)
@@ -775,7 +845,31 @@ case class OWLAPIOMFGraphStore(val omfModule: OWLAPIOMFModule, val ontManager: O
         Success(scalarDI)
     }
 
-  def registerOMFModelStructuredDataTypeInstance
+  def registerOMFModelScalarDataTypeInstance
+  (tbox: types.ModelTerminologyGraph,
+   scalarDT: types.ModelScalarDataType)
+  : Try[OWLNamedIndividual] =
+    for {
+      scalarDI <- createOMFModelScalarDataTypeInstance(tbox, scalarDT)
+    } yield {
+      for {
+        change <- Seq(
+                       new AddAxiom(omfMetadata.get,
+                                    owlDataFactory
+                                    .getOWLObjectPropertyAssertionAxiom(OMF_DIRECTLY_DEFINES_TYPE_TERM,
+                                                                        OMF_MODEL_TERMINOLOGY_GRAPH2Instance(tbox),
+                                                                        scalarDI))
+                     )
+      } {
+        val result = ontManager.applyChange(change)
+        require(
+                 result == ChangeApplied.SUCCESSFULLY,
+                 s"\nregisterOMFModelScalarDataTypeInstance:\n$change")
+      }
+      scalarDI
+    }
+
+  def createOMFModelStructuredDataTypeInstance
   (tbox: types.ModelTerminologyGraph,
    structuredDT: types.ModelStructuredDataType)
   : Try[OWLNamedIndividual] =
@@ -783,9 +877,11 @@ case class OWLAPIOMFGraphStore(val omfModule: OWLAPIOMFModule, val ontManager: O
       case Some(structuredDI) =>
         Success(structuredDI)
       case None               =>
-        val structuredDI = owlDataFactory.getOWLNamedIndividual(
-                                                                 makeMetadataInstanceIRI(omfMetadata
-                                                                                         .get, "ST", structuredDT.iri))
+        val structuredDI = owlDataFactory
+                           .getOWLNamedIndividual(makeMetadataInstanceIRI(omfMetadata.get,
+                                                                          "ST",
+                                                                          tbox.kindIRI,
+                                                                          structuredDT.iri))
         for {
           change <- Seq(
                          new AddAxiom(omfMetadata.get,
@@ -793,11 +889,6 @@ case class OWLAPIOMFGraphStore(val omfModule: OWLAPIOMFModule, val ontManager: O
                          new AddAxiom(omfMetadata.get,
                                       owlDataFactory
                                       .getOWLClassAssertionAxiom(OMF_MODEL_STRUCTURED_DATA_TYPE, structuredDI)),
-                         new AddAxiom(omfMetadata.get,
-                                      owlDataFactory.getOWLObjectPropertyAssertionAxiom(
-                                                                                         OMF_DIRECTLY_DEFINES_TYPE_TERM,
-                                                                                         OMF_MODEL_TERMINOLOGY_GRAPH2Instance(tbox),
-                                                                                         structuredDI)),
                          new AddAxiom(omfMetadata.get,
                                       owlDataFactory
                                       .getOWLDataPropertyAssertionAxiom(OMF_HAS_IRI, structuredDI, structuredDT.iri
@@ -807,12 +898,36 @@ case class OWLAPIOMFGraphStore(val omfModule: OWLAPIOMFModule, val ontManager: O
           val result = ontManager.applyChange(change)
           require(
                    result == ChangeApplied.SUCCESSFULLY,
-                   s"\nregisterOMFModelStructuredDataTypeInstance:\n$change")
+                   s"\ncreateOMFModelStructuredDataTypeInstance:\n$change")
         }
         OMF_MODEL_TYPE_TERM2Instance += (structuredDT -> structuredDI)
         OMF_MODEL_DATA_TYPE_DEFINITION2Instance += (structuredDT -> structuredDI)
         OMF_MODEL_STRUCTURED_DATA_TYPE2Instance += (structuredDT -> structuredDI)
         Success(structuredDI)
+    }
+
+  def registerOMFModelStructuredDataTypeInstance
+  (tbox: types.ModelTerminologyGraph,
+   structuredDT: types.ModelStructuredDataType)
+  : Try[OWLNamedIndividual] =
+    for {
+      structuredDI <- createOMFModelStructuredDataTypeInstance(tbox, structuredDT)
+    } yield {
+      for {
+        change <- Seq(
+                       new AddAxiom(omfMetadata.get,
+                                    owlDataFactory
+                                    .getOWLObjectPropertyAssertionAxiom(OMF_DIRECTLY_DEFINES_TYPE_TERM,
+                                                                        OMF_MODEL_TERMINOLOGY_GRAPH2Instance(tbox),
+                                                                        structuredDI))
+                     )
+      } {
+        val result = ontManager.applyChange(change)
+        require(
+                 result == ChangeApplied.SUCCESSFULLY,
+                 s"\nregisterOMFModelStructuredDataTypeInstance:\n$change")
+      }
+      structuredDI
     }
 
   def createOMFEntityDefinitionAspectSubClassAxiomInstance
@@ -821,20 +936,22 @@ case class OWLAPIOMFGraphStore(val omfModule: OWLAPIOMFModule, val ontManager: O
   : Try[types.EntityDefinitionAspectSubClassAxiom] = {
     val subI = OMF_MODEL_ENTITY_DEFINITION2Instance(axiomT.sub)
     val supI = OMF_MODEL_ENTITY_ASPECT2Instance(axiomT.sup)
-    val axiomI = owlDataFactory.getOWLNamedIndividual(makeMetadataInstanceIRI(omfMetadata.get,
-                                                                              "DefinitionAspectSubClass", axiomT.sub
-                                                                                                          .iri, axiomT
-                                                                                                                .sup
-                                                                                                                .iri))
+    val axiomI = owlDataFactory
+                 .getOWLNamedIndividual(makeMetadataInstanceIRI(omfMetadata.get,
+                                                                "DefinitionAspectSubClass",
+                                                                tbox.kindIRI,
+                                                                axiomT.sub.iri,
+                                                                axiomT.sup.iri))
     for {
       change <- Seq(
                      new AddAxiom(omfMetadata.get,
-                                  owlDataFactory.getOWLDeclarationAxiom(axiomI)),
+                                  owlDataFactory
+                                  .getOWLDeclarationAxiom(axiomI)),
                      new AddAxiom(omfMetadata.get,
-                                  owlDataFactory.getOWLObjectPropertyAssertionAxiom(
-                                                                                     OMF_DIRECTLY_ASSERTS_AXIOM,
-                                                                                     OMF_MODEL_TERMINOLOGY_GRAPH2Instance(tbox),
-                                                                                     axiomI)),
+                                  owlDataFactory
+                                  .getOWLObjectPropertyAssertionAxiom(OMF_DIRECTLY_ASSERTS_AXIOM,
+                                                                      OMF_MODEL_TERMINOLOGY_GRAPH2Instance(tbox),
+                                                                      axiomI)),
                      new AddAxiom(omfMetadata.get,
                                   owlDataFactory
                                   .getOWLClassAssertionAxiom(OMF_ENTITY_DEFINITION_ASPECT_SUB_CLASS_AXIOM, axiomI)),
@@ -863,21 +980,25 @@ case class OWLAPIOMFGraphStore(val omfModule: OWLAPIOMFModule, val ontManager: O
   : Try[types.EntityConceptSubClassAxiom] = {
     val subI = OMF_MODEL_ENTITY_CONCEPT2Instance(axiomT.sub)
     val supI = OMF_MODEL_ENTITY_CONCEPT2Instance(axiomT.sup)
-    val axiomI = owlDataFactory.getOWLNamedIndividual(makeMetadataInstanceIRI(omfMetadata.get,
-                                                                              "ConceptSubClass", axiomT.sub.iri, axiomT
-                                                                                                                 .sup
-                                                                                                                 .iri))
+    val axiomI = owlDataFactory
+                 .getOWLNamedIndividual(makeMetadataInstanceIRI(omfMetadata.get,
+                                                                "ConceptSubClass",
+                                                                tbox.kindIRI,
+                                                                axiomT.sub.iri,
+                                                                axiomT.sup.iri))
     for {
       change <- Seq(
                      new AddAxiom(omfMetadata.get,
-                                  owlDataFactory.getOWLDeclarationAxiom(axiomI)),
+                                  owlDataFactory
+                                  .getOWLDeclarationAxiom(axiomI)),
                      new AddAxiom(omfMetadata.get,
-                                  owlDataFactory.getOWLObjectPropertyAssertionAxiom(
-                                                                                     OMF_DIRECTLY_ASSERTS_AXIOM,
-                                                                                     OMF_MODEL_TERMINOLOGY_GRAPH2Instance(tbox),
-                                                                                     axiomI)),
+                                  owlDataFactory
+                                  .getOWLObjectPropertyAssertionAxiom(OMF_DIRECTLY_ASSERTS_AXIOM,
+                                                                      OMF_MODEL_TERMINOLOGY_GRAPH2Instance(tbox),
+                                                                      axiomI)),
                      new AddAxiom(omfMetadata.get,
-                                  owlDataFactory.getOWLClassAssertionAxiom(OMF_ENTITY_CONCEPT_SUB_CLASS_AXIOM, axiomI)),
+                                  owlDataFactory
+                                  .getOWLClassAssertionAxiom(OMF_ENTITY_CONCEPT_SUB_CLASS_AXIOM, axiomI)),
                      new AddAxiom(omfMetadata.get,
                                   owlDataFactory
                                   .getOWLObjectPropertyAssertionAxiom(OMF_HAS_GENERAL_CONCEPT, axiomI, supI)),
@@ -899,28 +1020,29 @@ case class OWLAPIOMFGraphStore(val omfModule: OWLAPIOMFModule, val ontManager: O
   }
 
   def createOMFEntityConceptUniversalRestrictionAxiomInstance
-  (tbox: types.MutableModelTerminologyGraph,
+  (tbox: types.ModelTerminologyGraph,
    axiomT: types.EntityConceptUniversalRestrictionAxiom)
   : Try[types.EntityConceptUniversalRestrictionAxiom] = {
     val subI = OMF_MODEL_ENTITY_CONCEPT2Instance(axiomT.sub)
     val relI = OMF_MODEL_ENTITY_RELATIONSHIP2Instance(axiomT.rel)
     val rangeI = OMF_MODEL_ENTITY_DEFINITION2Instance(axiomT.range)
-    val axiomI = owlDataFactory.getOWLNamedIndividual(makeMetadataInstanceIRI(omfMetadata.get,
-                                                                              "UniversalConceptRestriction", axiomT.sub
-                                                                                                             .iri, axiomT
-                                                                                                                   .rel
-                                                                                                                   .iri, axiomT
-                                                                                                                         .range
-                                                                                                                         .iri))
+    val axiomI = owlDataFactory
+                 .getOWLNamedIndividual(makeMetadataInstanceIRI(omfMetadata.get,
+                                                                "UniversalConceptRestriction",
+                                                                tbox.kindIRI,
+                                                                axiomT.sub.iri,
+                                                                axiomT.rel.iri,
+                                                                axiomT.range.iri))
     for {
       change <- Seq(
                      new AddAxiom(omfMetadata.get,
-                                  owlDataFactory.getOWLDeclarationAxiom(axiomI)),
+                                  owlDataFactory
+                                  .getOWLDeclarationAxiom(axiomI)),
                      new AddAxiom(omfMetadata.get,
-                                  owlDataFactory.getOWLObjectPropertyAssertionAxiom(
-                                                                                     OMF_DIRECTLY_ASSERTS_AXIOM,
-                                                                                     OMF_MODEL_TERMINOLOGY_GRAPH2Instance(tbox),
-                                                                                     axiomI)),
+                                  owlDataFactory
+                                  .getOWLObjectPropertyAssertionAxiom(OMF_DIRECTLY_ASSERTS_AXIOM,
+                                                                      OMF_MODEL_TERMINOLOGY_GRAPH2Instance(tbox),
+                                                                      axiomI)),
                      new AddAxiom(omfMetadata.get,
                                   owlDataFactory
                                   .getOWLClassAssertionAxiom(OMF_ENTITY_CONCEPT_UNIVERSAL_RESTRICTION_AXIOM, axiomI)),
@@ -947,27 +1069,29 @@ case class OWLAPIOMFGraphStore(val omfModule: OWLAPIOMFModule, val ontManager: O
   }
 
   def createOMFEntityConceptExistentialRestrictionAxiomInstance
-  (tbox: types.MutableModelTerminologyGraph,
+  (tbox: types.ModelTerminologyGraph,
    axiomT: types.EntityConceptExistentialRestrictionAxiom)
   : Try[types.EntityConceptExistentialRestrictionAxiom] = {
     val subI = OMF_MODEL_ENTITY_CONCEPT2Instance(axiomT.sub)
     val relI = OMF_MODEL_ENTITY_RELATIONSHIP2Instance(axiomT.rel)
     val rangeI = OMF_MODEL_ENTITY_DEFINITION2Instance(axiomT.range)
-    val axiomI = owlDataFactory.getOWLNamedIndividual(
-                                                       makeMetadataInstanceIRI(omfMetadata.get,
-                                                                               "ExistentialConceptRestriction",
-                                                                               axiomT.sub.iri, axiomT.rel.iri, axiomT
-                                                                                                               .range
-                                                                                                               .iri))
+    val axiomI = owlDataFactory
+                 .getOWLNamedIndividual(makeMetadataInstanceIRI(omfMetadata.get,
+                                                                "ExistentialConceptRestriction",
+                                                                tbox.kindIRI,
+                                                                axiomT.sub.iri,
+                                                                axiomT.rel.iri,
+                                                                axiomT.range.iri))
     for {
       change <- Seq(
                      new AddAxiom(omfMetadata.get,
-                                  owlDataFactory.getOWLDeclarationAxiom(axiomI)),
+                                  owlDataFactory
+                                  .getOWLDeclarationAxiom(axiomI)),
                      new AddAxiom(omfMetadata.get,
-                                  owlDataFactory.getOWLObjectPropertyAssertionAxiom(
-                                                                                     OMF_DIRECTLY_ASSERTS_AXIOM,
-                                                                                     OMF_MODEL_TERMINOLOGY_GRAPH2Instance(tbox),
-                                                                                     axiomI)),
+                                  owlDataFactory
+                                  .getOWLObjectPropertyAssertionAxiom(OMF_DIRECTLY_ASSERTS_AXIOM,
+                                                                      OMF_MODEL_TERMINOLOGY_GRAPH2Instance(tbox),
+                                                                      axiomI)),
                      new AddAxiom(omfMetadata.get,
                                   owlDataFactory
                                   .getOWLClassAssertionAxiom(OMF_ENTITY_CONCEPT_EXISTENTIAL_RESTRICTION_AXIOM, axiomI)),
@@ -994,33 +1118,38 @@ case class OWLAPIOMFGraphStore(val omfModule: OWLAPIOMFModule, val ontManager: O
   }
 
   def createOMFEntityReifiedRelationshipSubClassAxiomInstance
-  (tbox: types.MutableModelTerminologyGraph,
+  (tbox: types.ModelTerminologyGraph,
    axiomT: types.EntityReifiedRelationshipSubClassAxiom)
   : Try[types.EntityReifiedRelationshipSubClassAxiom] = {
     val subI = OMF_MODEL_ENTITY_RELATIONSHIP2Instance(axiomT.sub)
     val supI = OMF_MODEL_ENTITY_RELATIONSHIP2Instance(axiomT.sup)
-    val axiomI = owlDataFactory.getOWLNamedIndividual(makeMetadataInstanceIRI(omfMetadata.get,
-                                                                              "RelationshipSubClass", axiomT.sub
-                                                                                                      .iri, axiomT.sup
-                                                                                                            .iri))
+    val axiomI = owlDataFactory
+                 .getOWLNamedIndividual(makeMetadataInstanceIRI(omfMetadata.get,
+                                                                "RelationshipSubClass",
+                                                                tbox.kindIRI,
+                                                                axiomT.sub.iri,
+                                                                axiomT.sup.iri))
     for {
       change <- Seq(
                      new AddAxiom(omfMetadata.get,
-                                  owlDataFactory.getOWLDeclarationAxiom(axiomI)),
+                                  owlDataFactory
+                                  .getOWLDeclarationAxiom(axiomI)),
                      new AddAxiom(omfMetadata.get,
-                                  owlDataFactory.getOWLObjectPropertyAssertionAxiom(
-                                                                                     OMF_DIRECTLY_ASSERTS_AXIOM,
-                                                                                     OMF_MODEL_TERMINOLOGY_GRAPH2Instance(tbox),
-                                                                                     axiomI)),
+                                  owlDataFactory
+                                  .getOWLObjectPropertyAssertionAxiom(OMF_DIRECTLY_ASSERTS_AXIOM,
+                                                                      OMF_MODEL_TERMINOLOGY_GRAPH2Instance(tbox),
+                                                                      axiomI)),
                      new AddAxiom(omfMetadata.get,
                                   owlDataFactory
                                   .getOWLClassAssertionAxiom(OMF_ENTITY_REIFIED_RELATIONSHIP_SUB_CLASS_AXIOM, axiomI)),
                      new AddAxiom(omfMetadata.get,
                                   owlDataFactory
-                                  .getOWLObjectPropertyAssertionAxiom(OMF_HAS_GENERAL_REIFIED_RELATIONSHIP, axiomI, supI)),
+                                  .getOWLObjectPropertyAssertionAxiom(OMF_HAS_GENERAL_REIFIED_RELATIONSHIP,
+                                                                      axiomI, supI)),
                      new AddAxiom(omfMetadata.get,
                                   owlDataFactory
-                                  .getOWLObjectPropertyAssertionAxiom(OMF_HAS_SPECIFIC_REIFIED_RELATIONSHIP, axiomI, subI)))
+                                  .getOWLObjectPropertyAssertionAxiom(OMF_HAS_SPECIFIC_REIFIED_RELATIONSHIP,
+                                                                      axiomI, subI)))
     //    ontManager.applyChange( new AddAxiom(
     //    o, owlDataFactory.getOWLDataPropertyAssertionAxiom(
     //      OMF_HAS_PROVENANCE_FROM_RULE, axiomI, hasProvenanceFromRule ) ) )
@@ -1037,75 +1166,193 @@ case class OWLAPIOMFGraphStore(val omfModule: OWLAPIOMFModule, val ontManager: O
   // OMF API
   def asImmutableTerminologyGraph
   (g: types.MutableModelTerminologyGraph)
-  : Try[types.ImmutableModelTerminologyGraph] = {
-    val tgraph = fromTerminologyGraph(g)
-    if (immutableTBoxGraphs.contains(g.kindIRI))
-      Failure(new IllegalArgumentException(
-                                            s"There is already an immutable terminology graph with IRI='${g.kindIRI}'"))
-    else
-      tgraph.nesting match {
-        case Some(nestingParent) =>
-          Failure(new IllegalArgumentException(
-                                                s"Immutability conversion is currently not supported " +
-                                                s"for mutable graphs that have a nesting parent, $nestingParent")
-                 )
-        case None                =>
+  : Try[(types.ImmutableModelTerminologyGraph, types.Mutable2IMutableTerminologyMap)] = {
 
-          val nestedG = tgraph.nested map {
-            case i: types.ImmutableModelTerminologyGraph =>
-              i
-            case m: types.MutableModelTerminologyGraph   =>
-              this.asImmutableTerminologyGraph(m) match {
-                case Failure(t) =>
-                  return Failure(t)
-                case Success(i) =>
-                  i
-              }
-          }
-
-          val extendedG = tgraph.imports map {
-            case i: types.ImmutableModelTerminologyGraph =>
-              i
-            case m: types.MutableModelTerminologyGraph   =>
-              this.asImmutableTerminologyGraph(m) match {
-                case Failure(t) =>
-                  return Failure(t)
-                case Success(i) =>
-                  i
-              }
-          }
-
-          val itgraph = tgraph.copy(nested = nestedG, imports = extendedG)
-
-          val graphT = types.ImmutableModelTerminologyGraph(
-                                                             tgraph.kind,
-                                                             g.ont,
-                                                             tgraph.aspects.toList,
-                                                             tgraph.concepts.toList,
-                                                             tgraph.reifiedRelationships.toList,
-                                                             tgraph.unreifiedRelationships.toList,
-                                                             tgraph.scalarDataTypes.toList,
-                                                             tgraph.structuredDataTypes.toList,
-                                                             tgraph.entity2scalarDataRelationships.toList,
-                                                             tgraph.entity2structureDataRelationships.toList,
-                                                             tgraph.structure2scalarDataRelationships.toList,
-                                                             tgraph.structure2structureDataRelationships.toList,
-                                                             tgraph.axioms.toList)(g.ops)
-
-          register(graphT, itgraph)
+    def convert1
+    (acc: types.Mutable2IMutableTerminologyMap,
+     mg: types.MutableModelTerminologyGraph)
+    : Try[types.Mutable2IMutableTerminologyMap] = {
+      System.out
+      .println(s"convert1: acc=${acc.size}, m=${mg.kindIRI}")
+      for {
+        (m, i) <- acc
+      } {
+        System.out.println(s"acc.m: ${m.kindIRI}")
+        System.out.println(s"acc.i: ${i.kindIRI}")
       }
+
+      require(!acc.contains(mg), s"convert1: acc=${acc.size}, m=${mg.kindIRI}")
+      val tgraph = fromTerminologyGraph(mg)
+      val ns: Iterable[types.ImmutableModelTerminologyGraph] =
+        tgraph
+        .nested
+        .map {
+               case g: types.ImmutableModelTerminologyGraph =>
+                 g
+               case g: types.MutableModelTerminologyGraph   =>
+                 acc.get(g) match {
+                   case Some(ag) => ag
+                   case None     =>
+                     val message =
+                       s"""No Immutable graph available for a nested mutable graph:
+                           |mutable graph to convert:
+                           |$mg
+                           |nested mutable graph that should have been converted:
+                           |$g
+                           |""".stripMargin
+                     return Failure(new IllegalArgumentException(message))
+                 }
+             }
+      val is: Iterable[types.ImmutableModelTerminologyGraph] =
+        tgraph
+        .imports
+        .map {
+               case g: types.ImmutableModelTerminologyGraph =>
+                 g
+               case g: types.MutableModelTerminologyGraph   =>
+                 acc.get(g) match {
+                   case Some(ag) => ag
+                   case None     =>
+                     val message =
+                       s"""No Immutable graph available for an imported mutable graph:
+                           |mutable graph to convert:
+                           |$mg
+                           |imported mutable graph that should have been converted:
+                           |$g
+                           |""".stripMargin
+                     return Failure(new IllegalArgumentException(message))
+                 }
+             }
+
+      val itgraph = tgraph.copy(nested = ns, imports = is)
+      val ig =
+        types
+        .ImmutableModelTerminologyGraph(
+                                         tgraph.kind,
+                                         mg.ont,
+                                         tgraph.aspects.toList,
+                                         tgraph.concepts.toList,
+                                         tgraph.reifiedRelationships.toList,
+                                         tgraph.unreifiedRelationships.toList,
+                                         tgraph.scalarDataTypes.toList,
+                                         tgraph.structuredDataTypes.toList,
+                                         tgraph.entity2scalarDataRelationships.toList,
+                                         tgraph.entity2structureDataRelationships.toList,
+                                         tgraph.structure2scalarDataRelationships.toList,
+                                         tgraph.structure2structureDataRelationships.toList,
+                                         tgraph.axioms.toList)(mg.ops)
+
+      System.out
+      .println(
+                s"""### Mutable TBox:
+                    |${mg.kindIRI}
+                    |#-- Immutable TBox:
+                    |${ig.kindIRI}
+                    |#---
+                    |
+      """.stripMargin)
+      val m2i: types.Mutable2IMutableTerminologyMap =
+        Map(mg -> ig) ++ acc
+
+      register(ig, itgraph, m2i, mg.getTerminologyGraphShortName, mg.getTerminologyGraphUUID)
+    }
+
+    def convert
+    (acc: types.Mutable2IMutableTerminologyMap,
+     queue: Seq[types.MutableModelTerminologyGraph],
+     visited: Seq[types.MutableModelTerminologyGraph])
+    : Try[types.Mutable2IMutableTerminologyMap] = {
+      System.out
+      .println(s"convert: acc=${acc.size}, queue=${queue.size}, visited=${visited.size}")
+      for {
+        (m, i) <- acc
+      } {
+        System.out.println(s"acc.m: ${m.kindIRI}")
+        System.out.println(s"acc.i: ${i.kindIRI}")
+      }
+      for {qm <- queue} {
+        System.out.println(s"q.m: ${qm.kindIRI}")
+      }
+      for {vm <- visited} {
+        System.out.println(s"v.m: ${vm.kindIRI}")
+      }
+      if (queue.isEmpty) {
+        if (visited.isEmpty)
+          Success(acc)
+        else if (acc.contains(visited.head))
+          convert(acc, Seq(), visited.tail)
+        else
+          for {
+            acc1 <- convert1(acc, visited.head)
+            result <- convert(acc1, visited.tail, Seq())
+          } yield result
+      } else {
+        val mg = queue.head
+        val mgInfo = fromTerminologyGraph(mg)
+
+        mgInfo.nesting match {
+          case Some(mgParent) =>
+            require(visited.contains(mgParent) ||
+                    acc.contains(mgParent) ||
+                    queue.contains(mgParent),
+                    s"queue.head: ${queue.head.kindIRI}, nesting parent: ${mgParent.kindIRI}")
+          case None           =>
+            ()
+        }
+
+        val nestedQueue =
+          mgInfo
+          .nested
+          .flatMap {
+                     case _: types.ImmutableModelTerminologyGraph =>
+                       None
+                     case m: types.MutableModelTerminologyGraph   =>
+                       if (queue.contains(m)) None
+                       else Some(m)
+                   }
+          .toSeq
+
+        val extendedQueue =
+          mgInfo
+          .imports
+          .flatMap {
+                     case _: types.ImmutableModelTerminologyGraph =>
+                       None
+                     case m: types.MutableModelTerminologyGraph   =>
+                       if (queue.contains(m)) None
+                       else Some(m)
+                   }
+          .toSeq
+
+        convert(acc, extendedQueue ++ nestedQueue ++ queue.tail, queue.head +: visited)
+      }
+    }
+
+    for {
+      m2i <- convert(Map(), Seq(g), Seq())
+    } yield {
+      require(m2i.contains(g))
+      (m2i(g), m2i)
+    }
+
   }
 
   def register
   (g: types.ImmutableModelTerminologyGraph,
-   info: OWLAPITerminologyGraphSignature)
-  : Try[types.ImmutableModelTerminologyGraph] = {
+   info: OWLAPITerminologyGraphSignature,
+   m2i: types.Mutable2IMutableTerminologyMap,
+   name: Option[String],
+   uuid: Option[String])
+  : Try[types.Mutable2IMutableTerminologyMap] = {
 
-    immutableTBoxGraphs.put(g.kindIRI, g)
+    val ok1 = immutableTBoxGraphs.put(g.kindIRI, g)
+    require(ok1.isEmpty, s"register g: ${g.kindIRI}")
 
-    val graphI = owlDataFactory.getOWLNamedIndividual(
-                                                       makeMetadataInstanceIRI(omfMetadata.get, "Gro", g.kindIRI))
-    OMF_MODEL_TERMINOLOGY_GRAPH2Instance += (g -> graphI)
+    val graphI = owlDataFactory
+                 .getOWLNamedIndividual(makeMetadataInstanceIRI(omfMetadata.get, "Gro", g.kindIRI))
+    val ok2 = OMF_MODEL_TERMINOLOGY_GRAPH2Instance.put(g, graphI)
+    require(ok2.isEmpty, s"register g: ${g.kindIRI}")
+
     val okind = g.kind match {
       case TerminologyKind.isToplevelDefinition  =>
         OMF_TOPLEVEL_DEFINITION_TBOX
@@ -1134,18 +1381,35 @@ case class OWLAPIOMFGraphStore(val omfModule: OWLAPIOMFModule, val ontManager: O
       require(result == ChangeApplied.SUCCESSFULLY, s"\nregister:\n$change")
     }
 
-    info.nested foreach { aNestedG: types.ModelTerminologyGraph =>
-      val ok = createTerminologyGraphDirectNestingAxiom(
-                                                         parentG = g,
-                                                         childG = aNestedG)
-      require(ok.isSuccess)
+    name match {
+      case Some(label) =>
+        val ok = setTerminologyGraphShortName(g, label)
+        require(ok.isSuccess)
+      case None        =>
+        ()
+    }
+    uuid match {
+      case Some(id) =>
+        val ok = setTerminologyGraphUUID(g, id)
+        require(ok.isSuccess)
+      case None     =>
+        ()
     }
 
-    info.imports foreach { anExtendedG: types.ModelTerminologyGraph =>
-      val ok = createTerminologyGraphDirectExtensionAxiom(
-                                                           extendingG = g,
-                                                           extendedG = anExtendedG)
-      require(ok.isSuccess)
+    info.nested foreach {
+      aNestedG: types.ModelTerminologyGraph =>
+        val ok = createTerminologyGraphDirectNestingAxiom(
+                                                           parentG = g,
+                                                           childG = aNestedG)
+        require(ok.isSuccess)
+    }
+
+    info.imports foreach {
+      anExtendedG: types.ModelTerminologyGraph =>
+        val ok = createTerminologyGraphDirectExtensionAxiom(
+                                                             extendingG = g,
+                                                             extendedG = anExtendedG)
+        require(ok.isSuccess)
     }
 
     // short name & uuid are represented in the ontology, g.ont
@@ -1174,16 +1438,42 @@ case class OWLAPIOMFGraphStore(val omfModule: OWLAPIOMFModule, val ontManager: O
       ok = registerOMFModelStructuredDataTypeInstance(g, st)
     } require(ok.isSuccess)
 
-    Success(g)
+    for {
+      axiom <- info.axioms
+      ok = axiom match {
+        case ax: types.EntityConceptSubClassAxiom             =>
+          createOMFEntityConceptSubClassAxiomInstance(g, ax)
+        case ax: types.EntityReifiedRelationshipSubClassAxiom =>
+          createOMFEntityReifiedRelationshipSubClassAxiomInstance(g, ax)
+        case ax: types.EntityDefinitionAspectSubClassAxiom    =>
+          createOMFEntityDefinitionAspectSubClassAxiomInstance(g, ax)
+        case ax: types.EntityConceptDesignationTerminologyGraphAxiom =>
+          System.out
+          .println(
+            s"""*** EntityConceptDesignationTerminologyGraphAxiom:
+               |entity:${ax.entityConceptDesignation.iri}
+               |des. g:${ax.designationTerminologyGraph.kindIRI}""".stripMargin)
+          Success(ax)
+        case ax: types.EntityConceptUniversalRestrictionAxiom   =>
+          createOMFEntityConceptUniversalRestrictionAxiomInstance(g, ax)
+        case ax: types.EntityConceptExistentialRestrictionAxiom =>
+          createOMFEntityConceptExistentialRestrictionAxiomInstance(g, ax)
+        //        case ax: types.ScalarDataTypeFacetRestriction =>
+        case ax =>
+          Failure(new IllegalArgumentException(s"Unrecognized axiom: $ax}"))
+      }
+    } require(ok.isSuccess)
+
+    Success(m2i)
   }
 
   def loadTerminologyGraph
   (iri: IRI)
   (implicit ops: OWLAPIOMFOps)
-  : Try[types.ImmutableModelTerminologyGraph] =
+  : Try[(types.ImmutableModelTerminologyGraph, types.Mutable2IMutableTerminologyMap)] =
     immutableTBoxGraphs.get(iri) match {
       case Some(tbox) =>
-        Success(tbox)
+        Success((tbox, Map()))
       case None       =>
         try {
           val o =
@@ -1202,7 +1492,7 @@ case class OWLAPIOMFGraphStore(val omfModule: OWLAPIOMFModule, val ontManager: O
   (o: OWLOntology,
    extendedTGraphs: Iterable[types.ImmutableModelTerminologyGraph] = Nil)
   (implicit ops: OWLAPIOMFOps)
-  : Try[types.ImmutableModelTerminologyGraph] = {
+  : Try[(types.ImmutableModelTerminologyGraph, types.Mutable2IMutableTerminologyMap)] = {
     val iri = o.getOntologyID.getOntologyIRI
     if (!iri.isPresent)
       Failure(new IllegalArgumentException("An ontology must have an OntologyID with an Ontology IRI"))
@@ -1210,12 +1500,16 @@ case class OWLAPIOMFGraphStore(val omfModule: OWLAPIOMFModule, val ontManager: O
       immutableTBoxGraphs.get(iri.get) match {
         case Some(g) =>
           // already registered.
-          Success(g)
+          Success((g, Map()))
 
         case None =>
           // not yet registered.
 
-          val directlyExtendedTGraphs = scala.collection.mutable.HashSet[types.ImmutableModelTerminologyGraph]()
+          val m2iAcc =
+            scala.collection.mutable.HashMap[types.MutableModelTerminologyGraph, types.ImmutableModelTerminologyGraph]()
+
+          val directlyExtendedTGraphs =
+            scala.collection.mutable.HashSet[types.ImmutableModelTerminologyGraph] ()
 
           o.getDirectImports foreach {
             importedO =>
@@ -1223,21 +1517,24 @@ case class OWLAPIOMFGraphStore(val omfModule: OWLAPIOMFModule, val ontManager: O
                 case Failure(t) =>
                   return Failure(t)
 
-                case Success(eg) =>
+                case Success((eg, m2i)) =>
                   directlyExtendedTGraphs += eg
+                  m2iAcc ++= m2i
               }
           }
 
           directlyExtendedTGraphs ++= extendedTGraphs
 
           for {
-            g <- types.ImmutableModelTerminologyGraphResolver(
-                                                               ResolverHelper(omfMetadata
-                                                                              .get, directlyExtendedTGraphs, o, this))
-                 .resolve
+            (g, m2i) <- types
+                        .ImmutableModelTerminologyGraphResolver(ResolverHelper(omfMetadata.get,
+                                                                               directlyExtendedTGraphs,
+                                                                               o,
+                                                                               this))
+                        .resolve
           } yield {
             immutableTBoxGraphs.put(iri.get, g)
-            g
+            (g, m2i)
           }
       }
   }

@@ -166,7 +166,7 @@ trait OWLAPIStoreOps
   override def loadTerminologyGraph
   ( iri: IRI )
   ( implicit store: OWLAPIOMFGraphStore )
-  : Try[types.ImmutableModelTerminologyGraph] =
+  : Try[(types.ImmutableModelTerminologyGraph, types.Mutable2IMutableTerminologyMap)] =
     store.loadTerminologyGraph( iri )( this )
 
   override def fromTerminologyGraph
@@ -751,12 +751,12 @@ trait OWLAPIMutableTerminologyGraphOps
 
   // entity concept subclass axiom
 
-  override def addEntityConceptToplevelDesignationTerminologyGraphAxiom
+  override def addEntityConceptDesignationTerminologyGraphAxiom
   ( graph: types.MutableModelTerminologyGraph,
-    entityConcept: types.ModelEntityConcept,
+    entityConceptDesignation: types.ModelEntityConcept,
     designationTerminologyGraph: types.ModelTerminologyGraph )
   ( implicit store: OWLAPIOMFGraphStore )
-  : Try[types.EntityConceptToplevelDesignationTerminologyGraphAxiom] =
+  : Try[types.EntityConceptDesignationTerminologyGraphAxiom] =
     ???
     
   override def addEntityConceptSubClassAxiom

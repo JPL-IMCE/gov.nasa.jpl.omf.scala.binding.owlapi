@@ -75,7 +75,10 @@ trait OWLAPIOMFtbox extends OMFtbox {
 
   type MutableModelTerminologyGraph =
   types.MutableModelTerminologyGraph
-  
+
+  override type Mutable2IMutableTerminologyMap =
+  types.Mutable2IMutableTerminologyMap
+
   type ModelTypeTerm =
   types.ModelTypeTerm
     
@@ -142,8 +145,8 @@ trait OWLAPIOMFtbox extends OMFtbox {
   type EntityDefinitionAspectSubClassAxiom =
   types.EntityDefinitionAspectSubClassAxiom
 
-  type EntityConceptToplevelDesignationTerminologyGraphAxiom =
-  types.EntityConceptToplevelDesignationTerminologyGraphAxiom
+  type EntityConceptDesignationTerminologyGraphAxiom =
+  types.EntityConceptDesignationTerminologyGraphAxiom
 
   type EntityConceptSubClassAxiom =
   types.EntityConceptSubClassAxiom
