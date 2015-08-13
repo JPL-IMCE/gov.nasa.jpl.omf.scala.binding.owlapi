@@ -182,7 +182,7 @@ case class MutableModelTerminologyGraph
             case ChangeApplied.SUCCESSFULLY =>
               if (LOG)
                 System.out.println(s"setTerminologyGraphShortName: $kindIRI name='$label'")
-              Success(Unit)
+              omfStore.setTerminologyGraphShortName(this, label)
             case ChangeApplied.UNSUCCESSFULLY =>
               Failure(new IllegalArgumentException(
                 s"Failed to add the tbox ontology 'rdfs:label' annotation"))
@@ -219,7 +219,7 @@ case class MutableModelTerminologyGraph
             case ChangeApplied.SUCCESSFULLY =>
               if (LOG)
                 System.out.println(s"setTerminologyGraphUUID: $kindIRI uuid='$id'")
-              Success(Unit)
+              omfStore.setTerminologyGraphUUID(this, id)
             case ChangeApplied.UNSUCCESSFULLY =>
               Failure(new IllegalArgumentException(
                 s"Failed to add the tbox ontology 'uuid' annotation"))
