@@ -42,6 +42,9 @@ import gov.nasa.jpl.omf.scala.core.RelationshipCharacteristics._
 import org.semanticweb.owlapi.model.OWLObjectProperty
 import org.semanticweb.owlapi.model.IRI
 
+import scala.collection.immutable._
+import scala.Predef.require
+
 case class ModelEntityUnreifiedRelationship
 ( val e: OWLObjectProperty,
   val source: ModelEntityDefinition,
@@ -58,5 +61,5 @@ case class ModelEntityUnreifiedRelationship
   require(null != rTarget)
   require(null != characteristics)
 
-  override val iri = e.getIRI
+  override val iri: IRI = e.getIRI
 }

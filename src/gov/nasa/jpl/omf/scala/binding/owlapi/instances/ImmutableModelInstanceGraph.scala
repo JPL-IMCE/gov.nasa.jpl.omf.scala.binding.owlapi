@@ -38,12 +38,10 @@
  */
 package gov.nasa.jpl.omf.scala.binding.owlapi.instances
 
-import gov.nasa.jpl.omf.scala.binding._
 import gov.nasa.jpl.omf.scala.binding.owlapi._
 import org.semanticweb.owlapi.model.OWLOntology
-import org.semanticweb.owlapi.model.IRI
-import scala.util.Try
-import gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelTerminologyGraph
+
+import scala.collection.immutable._
 
 case class ImmutableModelInstanceGraph(
   override val tboxes: Iterable[types.ImmutableModelTerminologyGraph],

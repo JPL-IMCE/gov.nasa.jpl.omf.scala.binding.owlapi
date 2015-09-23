@@ -38,22 +38,26 @@
  */
 package gov.nasa.jpl.omf.scala.binding.owlapi
 
-import scala.collection.JavaConversions._
-import scala.language.postfixOps
 import org.semanticweb.owlapi.model.OWLOntology
 import org.semanticweb.owlapi.model.OWLClass
 import org.semanticweb.owlapi.model.IRI
-import scala.util.Try
-import scala.util.Success
 import org.semanticweb.owlapi.model.AddAxiom
 import org.semanticweb.owlapi.model.OWLObjectProperty
 import org.semanticweb.owlapi.model.OWLDataProperty
-import scala.util.Failure
 import org.semanticweb.owlapi.model.OWLEntity
 import gov.nasa.jpl.omf.scala.core._
 import gov.nasa.jpl.omf.scala.core.TerminologyKind._
 import org.semanticweb.owlapi.model.AddOntologyAnnotation
 import org.semanticweb.owlapi.model.OWLLiteral
+
+import scala.collection.JavaConversions._
+import scala.collection.immutable._
+import scala.language.postfixOps
+import scala.{Option,None,Some,StringContext}
+import scala.Predef.{Set=>_,Map=>_,_}
+import scala.util.Try
+import scala.util.Success
+import scala.util.Failure
 
 sealed abstract class Backbone( val ont: OWLOntology ) {
 

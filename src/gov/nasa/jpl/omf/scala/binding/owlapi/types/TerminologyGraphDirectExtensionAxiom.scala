@@ -38,6 +38,8 @@
  */
 package gov.nasa.jpl.omf.scala.binding.owlapi.types
 
+import scala.Predef.require
+
 case class TerminologyGraphDirectExtensionAxiom
 ( extendingChild: ModelTerminologyGraph,
   extendedParent: ModelTerminologyGraph )

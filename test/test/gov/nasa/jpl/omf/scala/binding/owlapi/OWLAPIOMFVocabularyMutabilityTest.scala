@@ -45,6 +45,9 @@ import test.gov.nasa.jpl.omf.scala.core.{ functionalAPI => testFunctionalAPI }
 import org.apache.xml.resolver.CatalogManager
 import scala.util.Failure
 import scala.util.Success
+import scala.Predef._
+import scala.{transient,Option,None,Some,StringContext,Unit}
+import java.lang.IllegalArgumentException
 
 abstract class OWLAPIOMFVocabularyMutabilityTest(
                                                     override val saveStore: OWLAPIOMFGraphStore,

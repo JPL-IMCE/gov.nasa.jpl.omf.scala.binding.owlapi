@@ -40,12 +40,15 @@ package gov.nasa.jpl.omf.scala.binding.owlapi
 
 import java.io.{File, IOException}
 import java.net.{MalformedURLException, URI, URL}
+import java.lang.Throwable
 
 import org.apache.xml.resolver.{Catalog, CatalogManager}
 import org.apache.xml.resolver.tools.CatalogResolver
 import org.semanticweb.owlapi.annotations.HasPriority
 import org.semanticweb.owlapi.model.{IRI, OWLOntologyIRIMapper}
 
+import scala.{Option,None,Some,StringContext,Unit}
+import scala.Predef.{Set=>_,Map=>_,_}
 import scala.util.{Failure, Success, Try}
 
 @HasPriority(0)
@@ -68,13 +71,7 @@ case class CatalogIRIMapper
     this(catalogManager, new CatalogResolver(catalogManager))
 
   def parseCatalog(catalogURI: URI): Try[Unit] =
-    try {
-      catalog.parseCatalog(catalogURI.toURL)
-      Success(Unit)
-    }
-    catch {
-      case e: IOException => Failure(e)
-    }
+    Try(catalog.parseCatalog(catalogURI.toURL))
 
   def getDocumentIRI(ontologyIRI: IRI): IRI =
     resolveIRI(ontologyIRI, loadResolutionStrategy) match {
@@ -84,7 +81,7 @@ case class CatalogIRIMapper
 
   def loadResolutionStrategy(resolved: String): Option[IRI] = {
 
-    def ignore(e: Exception) = {}
+    def ignore(e: Throwable) = {}
 
     val normalized = new URI(resolved)
     val normalizedPath = normalized.toString
@@ -150,7 +147,7 @@ case class CatalogIRIMapper
 
   def resolveIRI(iri: IRI, resolutionStrategy: (String) => Option[IRI]): IRI = {
 
-    def ignore(e: Exception) = {}
+    def ignore(e: Throwable) = {}
 
     val rawPath = iri.toURI.toString
     val iriPath =

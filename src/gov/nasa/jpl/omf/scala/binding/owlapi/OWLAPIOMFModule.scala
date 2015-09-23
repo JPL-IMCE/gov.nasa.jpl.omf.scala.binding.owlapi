@@ -43,6 +43,9 @@ import org.semanticweb.owlapi.apibinding.OWLManager
 import org.semanticweb.owlapi.model.OWLDataFactory
 import org.apache.xml.resolver.CatalogManager
 
+import scala.Option
+import scala.Predef.require
+
 case class OWLAPIOMFModule( val catalogManager: Option[CatalogManager] )
   extends OMFModule
   with OMFOpsModule {

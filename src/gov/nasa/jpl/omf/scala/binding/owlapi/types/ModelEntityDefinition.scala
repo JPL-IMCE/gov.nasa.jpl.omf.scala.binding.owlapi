@@ -38,7 +38,7 @@
  */
 package gov.nasa.jpl.omf.scala.binding.owlapi.types
 
-import gov.nasa.jpl.omf.scala.binding.owlapi._
+import scala.Predef.require
 import org.semanticweb.owlapi.model.OWLClass
 
 abstract class ModelEntityDefinition(val e: OWLClass) 

@@ -38,6 +38,9 @@
  */
 package gov.nasa.jpl.omf.scala.binding.owlapi.types
 
+import java.lang.IllegalArgumentException
+import java.lang.System
+
 import gov.nasa.jpl.omf.scala.binding.owlapi._
 import gov.nasa.jpl.omf.scala.core.TerminologyKind._
 import gov.nasa.jpl.omf.scala.core._
@@ -47,6 +50,10 @@ import org.semanticweb.owlapi.reasoner.structural.StructuralReasonerFactory
 import org.semanticweb.owlapi.reasoner.{NodeSet, OWLReasoner}
 
 import scala.collection.JavaConversions._
+import scala.collection.immutable._
+import scala.util.Try
+import scala.{Boolean,Enumeration,Option,None,Some,StringContext,Tuple3,Unit}
+import scala.Predef.{Set=>_,Map=>_,_}
 import scala.language.postfixOps
 import scala.util.{Failure, Success, Try}
 
@@ -402,7 +409,7 @@ case class ResolverHelper
   (implicit reasoner: OWLReasoner)
   : Iterable[DOPInfo] =
     for {
-      dataPropertyN <- subDPs
+      dataPropertyN <- subDPs.to[Iterable]
       dataPropertyDP <- dataPropertyN flatMap { case dp: OWLDataProperty => Some(dp) }
       if tDPs.contains(dataPropertyDP)
       dataPropertyDomain <- reasoner.getDataPropertyDomains(dataPropertyDP, true).getFlattened

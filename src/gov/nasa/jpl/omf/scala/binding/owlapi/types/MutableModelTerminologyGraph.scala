@@ -38,13 +38,19 @@
  */
 package gov.nasa.jpl.omf.scala.binding.owlapi.types
 
+import java.lang.{IllegalArgumentException,System}
+
 import gov.nasa.jpl.omf.scala.binding.owlapi._
+import gov.nasa.jpl.omf.scala.core.ConstrainingFacet
 import gov.nasa.jpl.omf.scala.core.RelationshipCharacteristics._
 import gov.nasa.jpl.omf.scala.core.TerminologyKind._
 import org.semanticweb.owlapi.model._
 import org.semanticweb.owlapi.model.parameters.ChangeApplied
 
 import scala.collection.JavaConversions._
+import scala.collection.immutable._
+import scala.{Boolean,Enumeration,Option,None,Some,StringContext,Unit}
+import scala.Predef.{Set=>_,Map=>_,_}
 import scala.language.postfixOps
 import scala.util.{Failure, Success, Try}
 
@@ -75,7 +81,9 @@ object AxiomExceptionKind extends Enumeration {
   ReifiedRelationshipSubclassAxiomException,
   EntityDefinitionAspectSubClassAxiomException,
   EntityConceptSubClassAxiomException,
-  EntityReifiedRelationshipSubClassAxiomException = Value
+  EntityReifiedRelationshipSubClassAxiomException,
+  EntityConceptDesignationTerminologyGraphAxiomException,
+  ScalarDataTypeFacetRestrictionAxiomException = Value
 }
 
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.AxiomExceptionKind._
@@ -96,8 +104,8 @@ case class EntityAlreadyDefinedException
 (kind: EntityExceptionKind,
  iri: IRI,
  term: ModelTypeTerm)
-  extends MutableModelTerminologyGraphException(
-    s"Cannot create $kind with IRI='$iri' because it is already defined as: $term") {
+  extends MutableModelTerminologyGraphException(s"Cannot create $kind with IRI='$iri'" +
+                                                s" because it is already defined as: $term") {
 
   require(null != kind)
   require(null != iri)
@@ -108,8 +116,8 @@ case class EntityConflictException
 (kind: EntityExceptionKind,
  iri: IRI,
  conflictingTerm: ModelTypeTerm)
-  extends MutableModelTerminologyGraphException(
-    s"Cannot create $kind with IRI='$iri' because this IRI refers to: $conflictingTerm") {
+  extends MutableModelTerminologyGraphException(s"Cannot create $kind with IRI='$iri' " +
+                                                s"because this IRI refers to: $conflictingTerm") {
 
   require(null != kind)
   require(null != iri)
@@ -121,24 +129,26 @@ case class EntityScopeException
  iri: IRI,
  unaccessibleTerms: Map[RelationshipScopeAccessKind, ModelTypeTerm])
   extends MutableModelTerminologyGraphException(
-    s"""Cannot create $kind with IRI='$iri' because
-        |there are ${unaccessibleTerms.size} terms out of scope of the graph: """.stripMargin +
-      (unaccessibleTerms.map { case (kind, term) => s"$kind: $term" } mkString ", "))
+                                                 s"""Cannot create $kind with IRI='$iri' because
+                                                     |there are ${unaccessibleTerms.size} terms out of scope of
+                                                     |the graph: """.stripMargin +
+                                                 (unaccessibleTerms.map { case (k, t) => s"$k: $t" } mkString ", "))
 
 case class AxiomScopeException
 (kind: AxiomExceptionKind,
  unaccessibleTerms: Map[AxiomScopeAccessKind, ModelTypeTerm])
   extends MutableModelTerminologyGraphException(
-    s"""Cannot create $kind because
-        |there are ${unaccessibleTerms.size} terms out of scope of the graph: """.stripMargin +
-      (unaccessibleTerms.map { case (kind, term) => s"$kind: $term" } mkString ", "))
+                                                 s"""Cannot create $kind because
+                                                     |there are ${unaccessibleTerms.size} terms out of scope of
+                                                     |the graph: """.stripMargin +
+                                                 (unaccessibleTerms.map { case (k, t) => s"$k: $t" } mkString ", "))
 
 case class DuplicateModelTermAxiomException
 (kind: AxiomExceptionKind,
  axiom: ModelTermAxiom)
   extends MutableModelTerminologyGraphException(
-    s"""Cannot create $kind because
-        |the axiom is already asserted $axiom""".stripMargin)
+                                                 s"""Cannot create $kind because
+                                                     |the axiom is already asserted $axiom""".stripMargin)
 
 case class MutableModelTerminologyGraph
 (override val kind: TerminologyKind,
@@ -161,31 +171,30 @@ case class MutableModelTerminologyGraph
       c1 <- getTerminologyGraphShortNameAnnotation match {
         case Some(annotation) =>
           ontManager.applyChange(new RemoveOntologyAnnotation(ont, annotation)) match {
-            case ChangeApplied.SUCCESSFULLY =>
+            case ChangeApplied.SUCCESSFULLY   =>
               Success(Unit)
             case ChangeApplied.UNSUCCESSFULLY =>
-              Failure(new IllegalArgumentException(
-                s"Failed to remove the tbox ontology 'rdfs:label' annotation"))
+              Failure(new IllegalArgumentException(s"Failed to remove the tbox ontology 'rdfs:label' annotation"))
           }
-        case None =>
+        case None             =>
           Success(Unit)
       }
       c2 <- shortName match {
-        case None =>
+        case None        =>
           Success(Unit)
         case Some(label) =>
-          ontManager.applyChange(new AddOntologyAnnotation(
-            ont,
-            owlDataFactory.getOWLAnnotation(
-              omfStore.RDFS_LABEL,
-              owlDataFactory.getOWLLiteral(label)))) match {
-            case ChangeApplied.SUCCESSFULLY =>
+          ontManager
+          .applyChange(new AddOntologyAnnotation(ont,
+                                                 owlDataFactory
+                                                 .getOWLAnnotation(omfStore.RDFS_LABEL,
+                                                                   owlDataFactory.getOWLLiteral(label)))) match {
+            case ChangeApplied.SUCCESSFULLY   =>
               if (LOG)
                 System.out.println(s"setTerminologyGraphShortName: $kindIRI name='$label'")
               omfStore.setTerminologyGraphShortName(this, label)
             case ChangeApplied.UNSUCCESSFULLY =>
               Failure(new IllegalArgumentException(
-                s"Failed to add the tbox ontology 'rdfs:label' annotation"))
+                                                    s"Failed to add the tbox ontology 'rdfs:label' annotation"))
           }
       }
     } yield ()
@@ -198,31 +207,29 @@ case class MutableModelTerminologyGraph
       c1 <- getTerminologyGraphUUIDAnnotation match {
         case Some(annotation) =>
           ontManager.applyChange(new RemoveOntologyAnnotation(ont, annotation)) match {
-            case ChangeApplied.SUCCESSFULLY =>
+            case ChangeApplied.SUCCESSFULLY   =>
               Success(Unit)
             case ChangeApplied.UNSUCCESSFULLY =>
-              Failure(new IllegalArgumentException(
-                s"Failed to remove the tbox ontology 'uuid' annotation"))
+              Failure(new IllegalArgumentException(s"Failed to remove the tbox ontology 'uuid' annotation"))
           }
-        case None =>
+        case None             =>
           Success(Unit)
       }
       c2 <- uuid match {
-        case None =>
+        case None     =>
           Success(Unit)
         case Some(id) =>
-          ontManager.applyChange(new AddOntologyAnnotation(
-            ont,
-            owlDataFactory.getOWLAnnotation(
-              omfStore.ANNOTATION_HAS_UUID,
-              owlDataFactory.getOWLLiteral(id)))) match {
-            case ChangeApplied.SUCCESSFULLY =>
+          ontManager
+          .applyChange(new AddOntologyAnnotation(ont,
+                                                 owlDataFactory
+                                                 .getOWLAnnotation(omfStore.ANNOTATION_HAS_UUID,
+                                                                   owlDataFactory.getOWLLiteral(id)))) match {
+            case ChangeApplied.SUCCESSFULLY   =>
               if (LOG)
                 System.out.println(s"setTerminologyGraphUUID: $kindIRI uuid='$id'")
               omfStore.setTerminologyGraphUUID(this, id)
             case ChangeApplied.UNSUCCESSFULLY =>
-              Failure(new IllegalArgumentException(
-                s"Failed to add the tbox ontology 'uuid' annotation"))
+              Failure(new IllegalArgumentException(s"Failed to add the tbox ontology 'uuid' annotation"))
           }
       }
     } yield ()
@@ -234,25 +241,48 @@ case class MutableModelTerminologyGraph
   val isAbstractAP = owlDataFactory.getOWLAnnotationProperty(AnnotationIsAbstract)
   val isDerivedAP = owlDataFactory.getOWLAnnotationProperty(AnnotationIsDerived)
 
-  override protected val aspects = scala.collection.mutable.ListBuffer[ModelEntityAspect]()
-  override protected val concepts = scala.collection.mutable.ListBuffer[ModelEntityConcept]()
-  override protected val reifiedRelationships = scala.collection.mutable.ListBuffer[ModelEntityReifiedRelationship]()
-  override protected val unreifiedRelationships = scala.collection.mutable.ListBuffer[ModelEntityUnreifiedRelationship]()
-  override protected val sc = scala.collection.mutable.ListBuffer[ModelScalarDataType]()
-  override protected val st = scala.collection.mutable.ListBuffer[ModelStructuredDataType]()
-  override protected val e2sc = scala.collection.mutable.ListBuffer[ModelDataRelationshipFromEntityToScalar]()
-  override protected val e2st = scala.collection.mutable.ListBuffer[ModelDataRelationshipFromEntityToStructure]()
-  override protected val s2sc = scala.collection.mutable.ListBuffer[ModelDataRelationshipFromStructureToScalar]()
-  override protected val s2st = scala.collection.mutable.ListBuffer[ModelDataRelationshipFromStructureToStructure]()
-  override protected val ax = scala.collection.mutable.ListBuffer[ModelTermAxiom]()
+  override protected val aspects =
+    scala.collection.mutable.ListBuffer[ModelEntityAspect]()
+
+  override protected val concepts =
+    scala.collection.mutable.ListBuffer[ModelEntityConcept]()
+
+  override protected val reifiedRelationships =
+    scala.collection.mutable.ListBuffer[ModelEntityReifiedRelationship]()
+
+  override protected val unreifiedRelationships =
+    scala.collection.mutable.ListBuffer[ModelEntityUnreifiedRelationship]()
+
+  override protected val sc =
+    scala.collection.mutable.ListBuffer[ModelScalarDataType]()
+
+  override protected val st =
+    scala.collection.mutable.ListBuffer[ModelStructuredDataType]()
+
+  override protected val e2sc =
+    scala.collection.mutable.ListBuffer[ModelDataRelationshipFromEntityToScalar]()
+
+  override protected val e2st =
+    scala.collection.mutable.ListBuffer[ModelDataRelationshipFromEntityToStructure]()
+
+  override protected val s2sc =
+    scala.collection.mutable.ListBuffer[ModelDataRelationshipFromStructureToScalar]()
+
+  override protected val s2st =
+    scala.collection.mutable.ListBuffer[ModelDataRelationshipFromStructureToStructure]()
+
+  override protected val ax =
+    scala.collection.mutable.ListBuffer[ModelTermAxiom]()
 
   override def getEntityDefinitionMap: Map[OWLClass, ModelEntityDefinition] =
-    ((aspects map (a => a.e -> a)) ++
-      (concepts map (c => c.e -> c)) ++
-      (reifiedRelationships map (r => r.e -> r))) toMap
+    (aspects.map (a => a.e -> a) ++
+     concepts.map (c => c.e -> c) ++
+     reifiedRelationships.map (r => r.e -> r)).toMap
 
   override def getScalarDatatypeDefinitionMap: Map[OWLDatatype, ModelScalarDataType] =
-    sc map (t => t.sc -> t) toMap
+    sc
+    .map (t => t.sc -> t)
+    .toMap
 
   override protected val iri2typeTerm = scala.collection.mutable.HashMap[IRI, ModelTypeTerm]()
 
@@ -267,13 +297,14 @@ case class MutableModelTerminologyGraph
     } yield {
       for {
         change <- Seq(
-          new AddImport(ont, ontManager.getOWLDataFactory.getOWLImportsDeclaration(extendedG.iri))
-        )
+                       new AddImport(ont,
+                                     ontManager.getOWLDataFactory.getOWLImportsDeclaration(extendedG.iri))
+                     )
       } {
         val result = ontManager.applyChange(change)
         require(
-          result == ChangeApplied.SUCCESSFULLY,
-          s"\naddTerminologyGraphExtension:\n$change")
+                 result == ChangeApplied.SUCCESSFULLY,
+                 s"\naddTerminologyGraphExtension:\n$change")
       }
       axiom
     }
@@ -287,32 +318,34 @@ case class MutableModelTerminologyGraph
       c1 <- getTermShortNameAnnotationAssertionAxiom(term) match {
         case Some(annotationAssertionAxiom) =>
           ontManager.applyChange(new RemoveAxiom(ont, annotationAssertionAxiom)) match {
-            case ChangeApplied.SUCCESSFULLY =>
+            case ChangeApplied.SUCCESSFULLY   =>
               Success(Unit)
             case ChangeApplied.UNSUCCESSFULLY =>
               Failure(new IllegalArgumentException(
-                s"Failed to remove a tbox ontology 'rdfs:label' annotation assertion axiom"))
+                                                    s"Failed to remove a tbox ontology 'rdfs:label' " +
+                                                    s"annotation assertion axiom"))
           }
-        case None =>
+        case None                           =>
           Success(Unit)
       }
       c2 <- shortName match {
-        case None =>
+        case None        =>
           Success(Unit)
         case Some(label) =>
-          ontManager.applyChange(new AddAxiom(
-            ont,
-            owlDataFactory.getOWLAnnotationAssertionAxiom(
-              omfStore.RDFS_LABEL,
-              term.iri,
-              owlDataFactory.getOWLLiteral(label)))) match {
-            case ChangeApplied.SUCCESSFULLY =>
+          ontManager
+          .applyChange(new AddAxiom(ont,
+                                    owlDataFactory
+                                    .getOWLAnnotationAssertionAxiom(omfStore.RDFS_LABEL,
+                                                                    term.iri,
+                                                                    owlDataFactory.getOWLLiteral(label)))) match {
+            case ChangeApplied.SUCCESSFULLY   =>
               if (LOG)
                 System.out.println(s"setTermShortName: ${term.iri} name='$label'")
               omfStore.setTermShortName(this, term, label)
             case ChangeApplied.UNSUCCESSFULLY =>
               Failure(new IllegalArgumentException(
-                s"Failed to add a tbox ontology 'uuid' annotation assertion axiom"))
+                                                    s"Failed to add a tbox ontology 'uuid' " +
+                                                    s"annotation assertion axiom"))
           }
       }
     } yield ()
@@ -326,32 +359,34 @@ case class MutableModelTerminologyGraph
       c1 <- getTermUUIDAnnotationAssertionAxiom(term) match {
         case Some(annotationAssertionAxiom) =>
           ontManager.applyChange(new RemoveAxiom(ont, annotationAssertionAxiom)) match {
-            case ChangeApplied.SUCCESSFULLY =>
+            case ChangeApplied.SUCCESSFULLY   =>
               Success(Unit)
             case ChangeApplied.UNSUCCESSFULLY =>
               Failure(new IllegalArgumentException(
-                s"Failed to remove a tbox ontology 'uuid' annotation assertion axiom"))
+                                                    s"Failed to remove a tbox ontology 'uuid'" +
+                                                    s" annotation assertion axiom"))
           }
-        case None =>
+        case None                           =>
           Success(Unit)
       }
       c2 <- uuid match {
-        case None =>
+        case None     =>
           Success(Unit)
         case Some(id) =>
-          ontManager.applyChange(new AddAxiom(
-            ont,
-            owlDataFactory.getOWLAnnotationAssertionAxiom(
-              omfStore.ANNOTATION_HAS_UUID,
-              term.iri,
-              owlDataFactory.getOWLLiteral(id)))) match {
-            case ChangeApplied.SUCCESSFULLY =>
+          ontManager
+          .applyChange(new AddAxiom(ont,
+                                    owlDataFactory
+                                    .getOWLAnnotationAssertionAxiom(omfStore.ANNOTATION_HAS_UUID,
+                                                                    term.iri,
+                                                                    owlDataFactory.getOWLLiteral(id)))) match {
+            case ChangeApplied.SUCCESSFULLY   =>
               if (LOG)
                 System.out.println(s"setTermUUID: ${term.iri} uuid='$id'")
               omfStore.setTermUUID(this, term, id)
             case ChangeApplied.UNSUCCESSFULLY =>
               Failure(new IllegalArgumentException(
-                s"Failed to add a tbox ontology 'uuid' annotation assertion axiom"))
+                                                    s"Failed to add a tbox ontology 'uuid'" +
+                                                    s" annotation assertion axiom"))
           }
       }
     } yield ()
@@ -360,14 +395,14 @@ case class MutableModelTerminologyGraph
   (a: OWLClass)
   : Try[types.ModelEntityAspect] =
     iri2typeTerm.get(a.getIRI) match {
-      case None =>
+      case None                             =>
         val _a = types.ModelEntityAspect(a)
         aspects += _a
         iri2typeTerm += a.getIRI -> _a
         Success(_a)
       case Some(t: types.ModelEntityAspect) =>
         Failure(EntityAlreadyDefinedException(EntityAspect, a.getIRI, t))
-      case Some(t) =>
+      case Some(t)                          =>
         Failure(EntityConflictException(EntityAspect, a.getIRI, t))
     }
 
@@ -375,26 +410,26 @@ case class MutableModelTerminologyGraph
   (aspectIRI: IRI)
   : Try[types.ModelEntityAspect] =
     iri2typeTerm get aspectIRI match {
-      case None =>
+      case None                             =>
         val aspectC = owlDataFactory.getOWLClass(aspectIRI)
         for {
           result <- createModelEntityAspect(aspectC)
         } yield {
           for {
             change <- Seq(
-              new AddAxiom(ont, owlDataFactory.getOWLDeclarationAxiom(aspectC)),
-              new AddAxiom(ont, owlDataFactory.getOWLSubClassOfAxiom(aspectC, backbone.AspectC)))
+                           new AddAxiom(ont, owlDataFactory.getOWLDeclarationAxiom(aspectC)),
+                           new AddAxiom(ont, owlDataFactory.getOWLSubClassOfAxiom(aspectC, backbone.AspectC)))
           } {
             val result = ontManager.applyChange(change)
             require(
-              result == ChangeApplied.SUCCESSFULLY,
-              s"\naddEntityAspect:\n$change")
+                     result == ChangeApplied.SUCCESSFULLY,
+                     s"\naddEntityAspect:\n$change")
           }
           result
         }
       case Some(t: types.ModelEntityAspect) =>
         Failure(EntityAlreadyDefinedException(EntityAspect, aspectIRI, t))
-      case Some(t) =>
+      case Some(t)                          =>
         Failure(EntityConflictException(EntityAspect, aspectIRI, t))
     }
 
@@ -403,14 +438,14 @@ case class MutableModelTerminologyGraph
    isAbstract: Boolean)
   : Try[types.ModelEntityConcept] =
     iri2typeTerm.get(c.getIRI) match {
-      case None =>
+      case None                              =>
         val _c = types.ModelEntityConcept(c, isAbstract)
         concepts += _c
         iri2typeTerm += c.getIRI -> _c
         Success(_c)
       case Some(t: types.ModelEntityConcept) =>
         Failure(EntityAlreadyDefinedException(EntityConcept, c.getIRI, t))
-      case Some(t) =>
+      case Some(t)                           =>
         Failure(EntityConflictException(EntityConcept, c.getIRI, t))
     }
 
@@ -421,31 +456,35 @@ case class MutableModelTerminologyGraph
   : Try[types.ModelEntityConcept] =
 
     iri2typeTerm get conceptIRI match {
-      case None =>
+      case None                              =>
         val conceptC = owlDataFactory.getOWLClass(conceptIRI)
         for {
           result <- createModelEntityConcept(conceptC, isAbstract)
         } yield {
           for {
-            change <- Seq(
-              new AddAxiom(ont,
-                owlDataFactory.getOWLDeclarationAxiom(conceptC)),
-              new AddAxiom(ont,
-                owlDataFactory.getOWLAnnotationAssertionAxiom(
-                  isAbstractAP, conceptIRI, owlDataFactory.getOWLLiteral(isAbstract))),
-              new AddAxiom(ont,
-                owlDataFactory.getOWLSubClassOfAxiom(conceptC, backbone.EntityC)))
+            change <-
+            Seq(new AddAxiom(ont,
+                             owlDataFactory
+                             .getOWLDeclarationAxiom(conceptC)),
+                new AddAxiom(ont,
+                             owlDataFactory
+                             .getOWLAnnotationAssertionAxiom(isAbstractAP,
+                                                             conceptIRI,
+                                                             owlDataFactory.getOWLLiteral(isAbstract))),
+                new AddAxiom(ont,
+                             owlDataFactory
+                             .getOWLSubClassOfAxiom(conceptC, backbone.EntityC)))
           } {
             val result = ontManager.applyChange(change)
             require(
-              result == ChangeApplied.SUCCESSFULLY,
-              s"\naddEntityConcept:\n$change")
+                     result == ChangeApplied.SUCCESSFULLY,
+                     s"\naddEntityConcept:\n$change")
           }
           result
         }
       case Some(t: types.ModelEntityConcept) =>
         Failure(EntityAlreadyDefinedException(EntityConcept, conceptIRI, t))
-      case Some(t) =>
+      case Some(t)                           =>
         Failure(EntityConflictException(EntityConcept, conceptIRI, t))
     }
 
@@ -458,19 +497,18 @@ case class MutableModelTerminologyGraph
    isAbstract: Boolean)
   : Try[types.ModelEntityReifiedRelationship] =
     iri2typeTerm.get(r.getIRI) match {
-      case None =>
-        val _r = types.ModelEntityReifiedRelationship(
-          r,
-          u, ui,
-          source, rSource,
-          target, rTarget,
-          characteristics, isAbstract)
+      case None                                          =>
+        val _r = types.ModelEntityReifiedRelationship(r,
+                                                      u, ui,
+                                                      source, rSource,
+                                                      target, rTarget,
+                                                      characteristics, isAbstract)
         reifiedRelationships += _r
         iri2typeTerm += r.getIRI -> _r
         Success(_r)
       case Some(t: types.ModelEntityReifiedRelationship) =>
         Failure(EntityAlreadyDefinedException(EntityReifiedRelationship, r.getIRI, t))
-      case Some(t) =>
+      case Some(t)                                       =>
         Failure(EntityConflictException(EntityReifiedRelationship, r.getIRI, t))
     }
 
@@ -493,11 +531,10 @@ case class MutableModelTerminologyGraph
     val ui = if (uiIRI.isEmpty) None else Some(owlDataFactory.getOWLObjectProperty(uiIRI.get))
 
     for {
-      result <- createEntityReifiedRelationship(
-        r, u, ui,
-        source, rSource,
-        target, rTarget,
-        characteristics, isAbstract)
+      result <- createEntityReifiedRelationship(r, u, ui,
+                                                source, rSource,
+                                                target, rTarget,
+                                                characteristics, isAbstract)
     } yield {
 
       val vr: SWRLVariable = owlDataFactory.getSWRLVariable(IRI.create("urn:swrl#r"))
@@ -512,76 +549,97 @@ case class MutableModelTerminologyGraph
       val rule: SWRLRule = owlDataFactory.getSWRLRule(Set(body1, body2), Set(head))
 
       for {
-        change <- Seq(
-          new AddAxiom(ont,
-            owlDataFactory.getOWLDeclarationAxiom(r)),
-          new AddAxiom(ont,
-            owlDataFactory.getOWLAnnotationAssertionAxiom(
-              isAbstractAP, rIRI, owlDataFactory.getOWLLiteral(isAbstract))),
-          new AddAxiom(ont,
-            owlDataFactory.getOWLSubClassOfAxiom(r, backbone.ReifiedObjectPropertyC)),
+        change <-
+        Seq(new AddAxiom(ont,
+                         owlDataFactory
+                         .getOWLDeclarationAxiom(r)),
+            new AddAxiom(ont,
+                         owlDataFactory
+                         .getOWLAnnotationAssertionAxiom(isAbstractAP,
+                                                         rIRI,
+                                                         owlDataFactory.getOWLLiteral(isAbstract))),
+            new AddAxiom(ont,
+                         owlDataFactory
+                         .getOWLSubClassOfAxiom(r, backbone.ReifiedObjectPropertyC)),
 
-          new AddAxiom(ont,
-            owlDataFactory.getOWLDeclarationAxiom(rSource)),
-          new AddAxiom(ont,
-            owlDataFactory.getOWLSubObjectPropertyOfAxiom(rSource, backbone.topReifiedObjectPropertySourceOP)),
-          new AddAxiom(ont,
-            owlDataFactory.getOWLObjectPropertyDomainAxiom(rSource, r)),
-          new AddAxiom(ont,
-            owlDataFactory.getOWLObjectPropertyRangeAxiom(rSource, sourceC)),
-          new AddAxiom(ont,
-            owlDataFactory.getOWLFunctionalObjectPropertyAxiom(rSource)),
+            new AddAxiom(ont,
+                         owlDataFactory
+                         .getOWLDeclarationAxiom(rSource)),
+            new AddAxiom(ont,
+                         owlDataFactory
+                         .getOWLSubObjectPropertyOfAxiom(rSource,
+                                                         backbone.topReifiedObjectPropertySourceOP)),
+            new AddAxiom(ont,
+                         owlDataFactory
+                         .getOWLObjectPropertyDomainAxiom(rSource, r)),
+            new AddAxiom(ont,
+                         owlDataFactory
+                         .getOWLObjectPropertyRangeAxiom(rSource, sourceC)),
+            new AddAxiom(ont,
+                         owlDataFactory
+                         .getOWLFunctionalObjectPropertyAxiom(rSource)),
 
-          new AddAxiom(ont,
-            owlDataFactory.getOWLDeclarationAxiom(rTarget)),
-          new AddAxiom(ont,
-            owlDataFactory.getOWLSubObjectPropertyOfAxiom(rTarget, backbone.topReifiedObjectPropertyTargetOP)),
-          new AddAxiom(ont,
-            owlDataFactory.getOWLObjectPropertyDomainAxiom(rTarget, r)),
-          new AddAxiom(ont,
-            owlDataFactory.getOWLObjectPropertyRangeAxiom(rTarget, targetC)),
-          new AddAxiom(ont,
-            owlDataFactory.getOWLFunctionalObjectPropertyAxiom(rTarget)),
+            new AddAxiom(ont,
+                         owlDataFactory.getOWLDeclarationAxiom(rTarget)),
+            new AddAxiom(ont,
+                         owlDataFactory
+                         .getOWLSubObjectPropertyOfAxiom(rTarget,
+                                                         backbone.topReifiedObjectPropertyTargetOP)),
+            new AddAxiom(ont,
+                         owlDataFactory
+                         .getOWLObjectPropertyDomainAxiom(rTarget, r)),
+            new AddAxiom(ont,
+                         owlDataFactory
+                         .getOWLObjectPropertyRangeAxiom(rTarget, targetC)),
+            new AddAxiom(ont,
+                         owlDataFactory
+                         .getOWLFunctionalObjectPropertyAxiom(rTarget)),
 
-          new AddAxiom(ont,
-            owlDataFactory.getOWLDeclarationAxiom(u)),
-          new AddAxiom(ont,
-            owlDataFactory.getOWLSubObjectPropertyOfAxiom(u, backbone.topReifiedObjectPropertyOP)),
-          new AddAxiom(ont,
-            owlDataFactory.getOWLObjectPropertyDomainAxiom(u, sourceC)),
-          new AddAxiom(ont,
-            owlDataFactory.getOWLObjectPropertyRangeAxiom(u, targetC)),
-
-          //                    new AddAxiom(ont,
-          //                      owlDataFactory.getOWLSubPropertyChainOfAxiom(
-          //                        List(owlDataFactory.getOWLObjectInverseOf(rSource), rTarget), u)),
-          new AddAxiom(ont, rule)
-        ) ++
-          (if (ui.isDefined)
-            Seq(
-              new AddAxiom(ont,
-                owlDataFactory.getOWLDeclarationAxiom(ui.get)),
-              new AddAxiom(ont,
-                owlDataFactory.getOWLAnnotationAssertionAxiom(
-                  isDerivedAP, ui.get.getIRI, owlDataFactory.getOWLLiteral(true))),
-              new AddAxiom(ont,
-                owlDataFactory.getOWLSubObjectPropertyOfAxiom(ui.get, backbone.topReifiedObjectPropertyOP)),
-              new AddAxiom(ont,
-                owlDataFactory.getOWLObjectPropertyDomainAxiom(ui.get, targetC)),
-              new AddAxiom(ont,
-                owlDataFactory.getOWLObjectPropertyRangeAxiom(ui.get, sourceC))
-
-              //              new AddAxiom(ont,
-              //                owlDataFactory.getOWLSubPropertyChainOfAxiom(
-              //                  List(owlDataFactory.getOWLObjectInverseOf(rTarget), rSource), ui.get))
-            )
-          else
-            Seq())
+            new AddAxiom(ont,
+                         owlDataFactory
+                         .getOWLDeclarationAxiom(u)),
+            new AddAxiom(ont,
+                         owlDataFactory
+                         .getOWLSubObjectPropertyOfAxiom(u,
+                                                         backbone.topReifiedObjectPropertyOP)),
+            new AddAxiom(ont,
+                         owlDataFactory
+                         .getOWLObjectPropertyDomainAxiom(u, sourceC)),
+            new AddAxiom(ont,
+                         owlDataFactory
+                         .getOWLObjectPropertyRangeAxiom(u, targetC)),
+            new AddAxiom(ont, rule)
+           ) ++
+        (if (ui.isDefined)
+          Seq(
+               new AddAxiom(ont,
+                            owlDataFactory
+                            .getOWLDeclarationAxiom(ui.get)),
+               new AddAxiom(ont,
+                            owlDataFactory
+                            .getOWLAnnotationAssertionAxiom(isDerivedAP,
+                                                            ui.get.getIRI,
+                                                            owlDataFactory.getOWLLiteral(true))),
+               new AddAxiom(ont,
+                            owlDataFactory
+                            .getOWLSubObjectPropertyOfAxiom(ui.get,
+                                                            backbone.topReifiedObjectPropertyOP)),
+               new AddAxiom(ont,
+                            owlDataFactory
+                            .getOWLObjectPropertyDomainAxiom(ui.get,
+                                                             targetC)),
+               new AddAxiom(ont,
+                            owlDataFactory
+                            .getOWLObjectPropertyRangeAxiom(ui.get,
+                                                            sourceC))
+             )
+        else
+          Seq())
       } {
         val result = ontManager.applyChange(change)
         require(
-          result == ChangeApplied.SUCCESSFULLY,
-          s"\nmakeEntityReifiedRelationship:\n$change")
+                 result == ChangeApplied.SUCCESSFULLY,
+                 s"\nmakeEntityReifiedRelationship:\n$change")
       }
 
       result
@@ -605,57 +663,48 @@ case class MutableModelTerminologyGraph
       lookupTypeTerm(uiIRI, recursively = true)) match {
       case (None, None, None, None, None) =>
         (isTypeTermDefinedRecursively(source), isTypeTermDefinedRecursively(target)) match {
-          case (true, true) =>
-            makeEntityReifiedRelationship(
-              rIRI, rIRISource, rIRITarget, uIRI, uiIRI,
-              source, target, characteristics, isAbstract)
+          case (true, true)  =>
+            makeEntityReifiedRelationship(rIRI, rIRISource, rIRITarget, uIRI, uiIRI,
+                                          source, target, characteristics, isAbstract)
           case (false, true) =>
-            Failure(EntityScopeException(
-              EntityReifiedRelationship, rIRI, Map(Source -> source)))
+            Failure(EntityScopeException(EntityReifiedRelationship, rIRI, Map(Source -> source)))
 
           case (true, false) =>
-            Failure(EntityScopeException(
-              EntityReifiedRelationship, rIRI, Map(Target -> target)))
+            Failure(EntityScopeException(EntityReifiedRelationship, rIRI, Map(Target -> target)))
 
           case (false, false) =>
-            Failure(EntityScopeException(
-              EntityReifiedRelationship, rIRI, Map(Source -> source, Target -> target)))
+            Failure(EntityScopeException(EntityReifiedRelationship, rIRI, Map(Source -> source, Target -> target)))
         }
 
       case (Some(t), _, _, _, _) =>
-        Failure(EntityConflictException(
-          EntityReifiedRelationship, rIRI, t))
+        Failure(EntityConflictException(EntityReifiedRelationship, rIRI, t))
 
       case (_, Some(t), _, _, _) =>
-        Failure(EntityConflictException(
-          EntityReifiedRelationship, rIRISource, t))
+        Failure(EntityConflictException(EntityReifiedRelationship, rIRISource, t))
 
       case (_, _, Some(t), _, _) =>
-        Failure(EntityConflictException(
-          EntityReifiedRelationship, rIRITarget, t))
+        Failure(EntityConflictException(EntityReifiedRelationship, rIRITarget, t))
 
       case (_, _, _, Some(t), _) =>
-        Failure(EntityConflictException(
-          EntityReifiedRelationship, uIRI, t))
+        Failure(EntityConflictException(EntityReifiedRelationship, uIRI, t))
 
       case (_, _, _, _, Some(t)) =>
         require(uiIRI.isDefined)
-        Failure(EntityConflictException(
-          EntityReifiedRelationship, uiIRI.get, t))
+        Failure(EntityConflictException(EntityReifiedRelationship, uiIRI.get, t))
     }
 
   def createModelScalarDataType
   (dt: OWLDatatype)
   : Try[types.ModelScalarDataType] =
     iri2typeTerm.get(dt.getIRI) match {
-      case None =>
+      case None                               =>
         val _dt = types.ModelScalarDataType(dt)
         sc += _dt
         iri2typeTerm += dt.getIRI -> _dt
         Success(_dt)
       case Some(t: types.ModelScalarDataType) =>
         Failure(EntityAlreadyDefinedException(ScalarDataType, dt.getIRI, t))
-      case Some(t) =>
+      case Some(t)                            =>
         Failure(EntityConflictException(ScalarDataType, dt.getIRI, t))
     }
 
@@ -663,26 +712,28 @@ case class MutableModelTerminologyGraph
   (scalarIRI: IRI)
   : Try[types.ModelScalarDataType] =
     iri2typeTerm get scalarIRI match {
-      case None =>
+      case None                               =>
         val scalarDT = owlDataFactory.getOWLDatatype(scalarIRI)
         for {
           result <- createModelScalarDataType(scalarDT)
         } yield {
           for {
             change <- Seq(
-              new AddAxiom(ont, owlDataFactory.getOWLDeclarationAxiom(scalarDT))
-            )
+                           new AddAxiom(ont,
+                                        owlDataFactory
+                                        .getOWLDeclarationAxiom(scalarDT))
+                         )
           } {
             val result = ontManager.applyChange(change)
             require(
-              result == ChangeApplied.SUCCESSFULLY,
-              s"\naddScalarDataType:\n$change")
+                     result == ChangeApplied.SUCCESSFULLY,
+                     s"\naddScalarDataType:\n$change")
           }
           result
         }
       case Some(t: types.ModelScalarDataType) =>
         Failure(EntityAlreadyDefinedException(ScalarDataType, scalarIRI, t))
-      case Some(t) =>
+      case Some(t)                            =>
         Failure(EntityConflictException(ScalarDataType, scalarIRI, t))
     }
 
@@ -690,14 +741,14 @@ case class MutableModelTerminologyGraph
   (c: OWLClass)
   : Try[types.ModelStructuredDataType] =
     iri2typeTerm.get(c.getIRI) match {
-      case None =>
+      case None                                   =>
         val _st = types.ModelStructuredDataType(c)
         st += _st
         iri2typeTerm += c.getIRI -> _st
         Success(_st)
       case Some(t: types.ModelStructuredDataType) =>
         Failure(EntityAlreadyDefinedException(StructuredDataType, c.getIRI, t))
-      case Some(t) =>
+      case Some(t)                                =>
         Failure(EntityConflictException(StructuredDataType, c.getIRI, t))
     }
 
@@ -707,29 +758,32 @@ case class MutableModelTerminologyGraph
   : Try[types.ModelStructuredDataType] =
 
     iri2typeTerm get structuredDataTypeIRI match {
-      case None =>
-        val structuredDataTypeC = owlDataFactory.getOWLClass(structuredDataTypeIRI)
+      case None                                   =>
+        val structuredDataTypeC = owlDataFactory
+                                  .getOWLClass(structuredDataTypeIRI)
         for {
           result <- createModelStructuredDataType(structuredDataTypeC)
         } yield {
           for {
             change <- Seq(
-              new AddAxiom(ont,
-                owlDataFactory.getOWLDeclarationAxiom(structuredDataTypeC)),
-              new AddAxiom(ont,
-                owlDataFactory.getOWLSubClassOfAxiom(structuredDataTypeC, backbone.StructuredDatatypeC))
-            )
+                           new AddAxiom(ont,
+                                        owlDataFactory
+                                        .getOWLDeclarationAxiom(structuredDataTypeC)),
+                           new AddAxiom(ont,
+                                        owlDataFactory
+                                        .getOWLSubClassOfAxiom(structuredDataTypeC, backbone.StructuredDatatypeC))
+                         )
           } {
             val result = ontManager.applyChange(change)
             require(
-              result == ChangeApplied.SUCCESSFULLY,
-              s"\naddStructuredDataType:\n$change")
+                     result == ChangeApplied.SUCCESSFULLY,
+                     s"\naddStructuredDataType:\n$change")
           }
           result
         }
       case Some(t: types.ModelStructuredDataType) =>
         Failure(EntityAlreadyDefinedException(StructuredDataType, structuredDataTypeIRI, t))
-      case Some(t) =>
+      case Some(t)                                =>
         Failure(EntityConflictException(StructuredDataType, structuredDataTypeIRI, t))
     }
 
@@ -737,14 +791,14 @@ case class MutableModelTerminologyGraph
   (esc: OWLDataProperty, source: ModelEntityDefinition, target: ModelScalarDataType)
   : Try[types.ModelDataRelationshipFromEntityToScalar] =
     iri2typeTerm.get(esc.getIRI) match {
-      case None =>
+      case None                                                   =>
         val _esc = types.ModelDataRelationshipFromEntityToScalar(esc, source, target)
         e2sc += _esc
         iri2typeTerm += esc.getIRI -> _esc
         Success(_esc)
       case Some(t: types.ModelDataRelationshipFromEntityToScalar) =>
         Failure(EntityAlreadyDefinedException(EntityAspect, esc.getIRI, t))
-      case Some(t) =>
+      case Some(t)                                                =>
         Failure(EntityConflictException(EntityAspect, esc.getIRI, t))
     }
 
@@ -759,20 +813,24 @@ case class MutableModelTerminologyGraph
     } yield {
       for {
         change <- Seq(
-          new AddAxiom(ont,
-            owlDataFactory.getOWLDeclarationAxiom(escDP)),
-          new AddAxiom(ont,
-            owlDataFactory.getOWLSubDataPropertyOfAxiom(escDP, backbone.topDataPropertyDP)),
-          new AddAxiom(ont,
-            owlDataFactory.getOWLDataPropertyDomainAxiom(escDP, source.e)),
-          new AddAxiom(ont,
-            owlDataFactory.getOWLDataPropertyRangeAxiom(escDP, owlDataFactory.getOWLDatatype(target.iri)))
-        )
+                       new AddAxiom(ont,
+                                    owlDataFactory
+                                    .getOWLDeclarationAxiom(escDP)),
+                       new AddAxiom(ont,
+                                    owlDataFactory
+                                    .getOWLSubDataPropertyOfAxiom(escDP, backbone.topDataPropertyDP)),
+                       new AddAxiom(ont,
+                                    owlDataFactory
+                                    .getOWLDataPropertyDomainAxiom(escDP, source.e)),
+                       new AddAxiom(ont,
+                                    owlDataFactory
+                                    .getOWLDataPropertyRangeAxiom(escDP, owlDataFactory.getOWLDatatype(target.iri)))
+                     )
       } {
         val result = ontManager.applyChange(change)
         require(
-          result == ChangeApplied.SUCCESSFULLY,
-          s"\nmakeDataRelationshipFromEntityToScalar:\n$change")
+                 result == ChangeApplied.SUCCESSFULLY,
+                 s"\nmakeDataRelationshipFromEntityToScalar:\n$change")
       }
       result
     }
@@ -788,24 +846,24 @@ case class MutableModelTerminologyGraph
       (isTypeTermDefinedRecursively(source),
         isTypeTermDefinedRecursively(target)
         ) match {
-        case (true, true) =>
+        case (true, true)  =>
           makeDataRelationshipFromEntityToScalar(dIRI, source, target)
         case (false, true) =>
-          Failure(EntityScopeException(
-            DataRelationshipFromEntityToScalar, dIRI, Map(Source -> source)))
+          Failure(EntityScopeException(DataRelationshipFromEntityToScalar,
+                                       dIRI, Map(Source -> source)))
 
         case (true, false) =>
-          Failure(EntityScopeException(
-            DataRelationshipFromEntityToScalar, dIRI, Map(Target -> target)))
+          Failure(EntityScopeException(DataRelationshipFromEntityToScalar,
+                                       dIRI, Map(Target -> target)))
 
         case (false, false) =>
-          Failure(EntityScopeException(
-            DataRelationshipFromEntityToScalar, dIRI, Map(Source -> source, Target -> target)))
+          Failure(EntityScopeException(DataRelationshipFromEntityToScalar,
+                                       dIRI, Map(Source -> source, Target -> target)))
       }
 
     case Some(term) =>
-      Failure(EntityConflictException(
-        DataRelationshipFromEntityToScalar, dIRI, term))
+      Failure(EntityConflictException(DataRelationshipFromEntityToScalar,
+                                      dIRI, term))
   }
 
   def addDataRelationshipFromEntityToStructure
@@ -832,22 +890,22 @@ case class MutableModelTerminologyGraph
   (implicit store: OWLAPIOMFGraphStore)
   : Try[types.EntityConceptSubClassAxiom] =
     ax.find {
-      case axiom: types.EntityConceptSubClassAxiom =>
-        axiom.sub == sub && axiom.sup == sup
-      case _ =>
-        false
-    } match {
-      case None =>
+              case axiom: types.EntityConceptSubClassAxiom =>
+                axiom.sub == sub && axiom.sup == sup
+              case _                                       =>
+                false
+            } match {
+      case None     =>
         for {
-          axiom <- store.createOMFEntityConceptSubClassAxiomInstance(
-            this,
-            EntityConceptSubClassAxiom(sub, sup))
+          axiom <- store
+                   .createOMFEntityConceptSubClassAxiomInstance(this,
+                                                                EntityConceptSubClassAxiom(sub, sup))
         } yield {
           ax += axiom
           axiom
         }
-      case Some(ax) =>
-        Failure(DuplicateModelTermAxiomException(EntityConceptSubClassAxiomException, ax))
+      case Some(other) =>
+        Failure(DuplicateModelTermAxiomException(EntityConceptSubClassAxiomException, other))
     }
 
   def addEntityConceptSubClassAxiom
@@ -865,14 +923,16 @@ case class MutableModelTerminologyGraph
           val supC = owlDataFactory.getOWLClass(sup.iri)
           for {
             change <- Seq(
-              new AddAxiom(ont, owlDataFactory.getOWLSubClassOfAxiom(subC, supC))
-            )
+                           new AddAxiom(ont,
+                                        owlDataFactory
+                                        .getOWLSubClassOfAxiom(subC, supC))
+                         )
           } {
 
             val result = ontManager.applyChange(change)
             require(
-              result == ChangeApplied.SUCCESSFULLY,
-              s"\naddEntityConceptSubClassAxiom:\n$change")
+                     result == ChangeApplied.SUCCESSFULLY,
+                     s"\naddEntityConceptSubClassAxiom:\n$change")
           }
           axiom
         }
@@ -900,35 +960,48 @@ case class MutableModelTerminologyGraph
         val subC = owlDataFactory.getOWLClass(sub.iri)
         val rangeC = owlDataFactory.getOWLClass(range.iri)
         for {
-          axiom <- store.createOMFEntityConceptUniversalRestrictionAxiomInstance(
-            this, EntityConceptUniversalRestrictionAxiom(sub, rel, range))
+          axiom <-
+          store
+          .createOMFEntityConceptUniversalRestrictionAxiomInstance(this,
+                                                                   EntityConceptUniversalRestrictionAxiom(sub,
+                                                                                                          rel,
+                                                                                                          range))
         } yield {
           for {
-            change <- Seq(
-              new AddAxiom(ont,
-                owlDataFactory.getOWLSubClassOfAxiom(
-                  subC,
-                  owlDataFactory.getOWLObjectAllValuesFrom(rel.unreified, rangeC)))
-            )
+            change <-
+            Seq(
+                 new AddAxiom(ont,
+                              owlDataFactory
+                              .getOWLSubClassOfAxiom(subC,
+                                                     owlDataFactory
+                                                     .getOWLObjectAllValuesFrom(rel.unreified,
+                                                                                rangeC)))
+               )
           } {
 
             val result = ontManager.applyChange(change)
             require(
-              result == ChangeApplied.SUCCESSFULLY,
-              s"\naddEntityConceptUniversalRestrictionAxiom:\n$change")
+                     result == ChangeApplied.SUCCESSFULLY,
+                     s"\naddEntityConceptUniversalRestrictionAxiom:\n$change")
           }
           ax += axiom
           axiom
         }
 
       case (false, _, _) =>
-        Failure(AxiomScopeException(ConceptRestrictionAxiomException, Map(Sub -> sub)))
+        Failure(AxiomScopeException(
+          ConceptRestrictionAxiomException,
+          Map(AxiomScopeAccessKind.Sub -> sub)))
 
       case (_, false, _) =>
-        Failure(AxiomScopeException(ConceptRestrictionAxiomException, Map(Rel -> rel)))
+        Failure(AxiomScopeException(
+          ConceptRestrictionAxiomException,
+          Map(AxiomScopeAccessKind.Rel -> rel)))
 
       case (_, _, false) =>
-        Failure(AxiomScopeException(ConceptRestrictionAxiomException, Map(Range -> range)))
+        Failure(AxiomScopeException(
+          ConceptRestrictionAxiomException,
+          Map(AxiomScopeAccessKind.Range -> range)))
 
     }
 
@@ -945,35 +1018,47 @@ case class MutableModelTerminologyGraph
         val subC = owlDataFactory.getOWLClass(sub.iri)
         val rangeC = owlDataFactory.getOWLClass(range.iri)
         for {
-          axiom <- store.createOMFEntityConceptExistentialRestrictionAxiomInstance(
-            this, EntityConceptExistentialRestrictionAxiom(sub, rel, range))
+          axiom <-
+          store
+          .createOMFEntityConceptExistentialRestrictionAxiomInstance(this,
+                                                                     EntityConceptExistentialRestrictionAxiom(sub,
+                                                                                                              rel,
+                                                                                                              range))
         } yield {
           for {
-            change <- Seq(
-              new AddAxiom(ont,
-                owlDataFactory.getOWLSubClassOfAxiom(
-                  subC,
-                  owlDataFactory.getOWLObjectSomeValuesFrom(rel.unreified, rangeC)))
-            )
+            change <-
+            Seq(new AddAxiom(ont,
+                             owlDataFactory
+                             .getOWLSubClassOfAxiom(subC,
+                                                    owlDataFactory
+                                                    .getOWLObjectSomeValuesFrom(rel.unreified,
+                                                                                rangeC)))
+               )
           } {
 
             val result = ontManager.applyChange(change)
             require(
-              result == ChangeApplied.SUCCESSFULLY,
-              s"\naddEntityConceptExistentialRestrictionAxiom:\n$change")
+                     result == ChangeApplied.SUCCESSFULLY,
+                     s"\naddEntityConceptExistentialRestrictionAxiom:\n$change")
           }
           ax += axiom
           axiom
         }
 
       case (false, _, _) =>
-        Failure(AxiomScopeException(ConceptRestrictionAxiomException, Map(Sub -> sub)))
+        Failure(AxiomScopeException(
+          ConceptRestrictionAxiomException,
+          Map(AxiomScopeAccessKind.Sub -> sub)))
 
       case (_, false, _) =>
-        Failure(AxiomScopeException(ConceptRestrictionAxiomException, Map(Rel -> rel)))
+        Failure(AxiomScopeException(
+          ConceptRestrictionAxiomException,
+          Map(AxiomScopeAccessKind.Rel -> rel)))
 
       case (_, _, false) =>
-        Failure(AxiomScopeException(ConceptRestrictionAxiomException, Map(Range -> range)))
+        Failure(AxiomScopeException(
+          ConceptRestrictionAxiomException,
+          Map(AxiomScopeAccessKind.Range -> range)))
     }
 
   def createEntityDefinitionAspectSubClassAxiom
@@ -982,22 +1067,23 @@ case class MutableModelTerminologyGraph
   (implicit store: OWLAPIOMFGraphStore)
   : Try[types.EntityDefinitionAspectSubClassAxiom] =
     ax.find {
-      case axiom: types.EntityDefinitionAspectSubClassAxiom =>
-        axiom.sub == sub && axiom.sup == sup
-      case _ =>
-        false
-    } match {
-      case None =>
+              case axiom: types.EntityDefinitionAspectSubClassAxiom =>
+                axiom.sub == sub && axiom.sup == sup
+              case _                                                =>
+                false
+            } match {
+      case None     =>
         for {
-          axiom <- store.createOMFEntityDefinitionAspectSubClassAxiomInstance(
-            this,
-            EntityDefinitionAspectSubClassAxiom(sub, sup))
+          axiom <-
+          store
+          .createOMFEntityDefinitionAspectSubClassAxiomInstance(this,
+                                                                EntityDefinitionAspectSubClassAxiom(sub, sup))
         } yield {
           ax += axiom
           axiom
         }
-      case Some(ax) =>
-        Failure(DuplicateModelTermAxiomException(EntityDefinitionAspectSubClassAxiomException, ax))
+      case Some(other) =>
+        Failure(DuplicateModelTermAxiomException(EntityDefinitionAspectSubClassAxiomException, other))
     }
 
   def addEntityDefinitionAspectSubClassAxiom
@@ -1012,15 +1098,17 @@ case class MutableModelTerminologyGraph
           axiom <- createEntityDefinitionAspectSubClassAxiom(sub, sup)
         } yield {
           for {
-            change <- Seq(
-              new AddAxiom(ont, owlDataFactory.getOWLSubClassOfAxiom(sub.e, sup.e))
-            )
+            change <-
+            Seq(new AddAxiom(ont,
+                             owlDataFactory
+                             .getOWLSubClassOfAxiom(sub.e, sup.e))
+               )
           } {
 
             val result = ontManager.applyChange(change)
             require(
-              result == ChangeApplied.SUCCESSFULLY,
-              s"\naddEntityDefinitionAspectSubClassAxiom:\n$change")
+                     result == ChangeApplied.SUCCESSFULLY,
+                     s"\naddEntityDefinitionAspectSubClassAxiom:\n$change")
           }
           axiom
         }
@@ -1035,28 +1123,67 @@ case class MutableModelTerminologyGraph
         Failure(AxiomScopeException(EntityDefinitionAspectSubClassAxiomException, Map(Sub -> sub, Sup -> sub)))
     }
 
+
+  def createOMFEntityConceptDesignationTerminologyGraphAxiom
+  (entityConceptDesignation: types.ModelEntityConcept,
+   designationTerminologyGraph: types.ModelTerminologyGraph)
+  (implicit store: OWLAPIOMFGraphStore)
+  : Try[types.EntityConceptDesignationTerminologyGraphAxiom] =
+    ax.find {
+              case axiom: types.EntityConceptDesignationTerminologyGraphAxiom =>
+                axiom.entityConceptDesignation == entityConceptDesignation &&
+                axiom.designationTerminologyGraph == designationTerminologyGraph
+              case _                                                          =>
+                false
+            } match {
+      case None     =>
+        val axInstance = EntityConceptDesignationTerminologyGraphAxiom(entityConceptDesignation,
+                                                                       designationTerminologyGraph)
+        for {
+          axiom <- store.createOMFEntityConceptDesignationTerminologyGraphAxiomInstance(this, axInstance)
+        } yield {
+          ax += axiom
+          axiom
+        }
+      case Some(other) =>
+        Failure(DuplicateModelTermAxiomException(EntityConceptDesignationTerminologyGraphAxiomException, other))
+    }
+
+  def addEntityConceptDesignationTerminologyGraphAxiom
+  (entityConceptDesignation: types.ModelEntityConcept,
+   designationTerminologyGraph: types.ModelTerminologyGraph)
+  (implicit store: OWLAPIOMFGraphStore)
+  : Try[types.EntityConceptDesignationTerminologyGraphAxiom] =
+    for {
+      axiom <- createOMFEntityConceptDesignationTerminologyGraphAxiom(entityConceptDesignation,
+                                                                      designationTerminologyGraph)
+    } yield {
+      ax += axiom
+      axiom
+    }
+
   def createEntityReifiedRelationshipSubClassAxiom
   (sub: types.ModelEntityReifiedRelationship,
    sup: types.ModelEntityReifiedRelationship)
   (implicit store: OWLAPIOMFGraphStore)
   : Try[types.EntityReifiedRelationshipSubClassAxiom] =
     ax.find {
-      case axiom: types.EntityReifiedRelationshipSubClassAxiom =>
-        axiom.sub == sub && axiom.sup == sup
-      case _ =>
-        false
-    } match {
-      case None =>
+              case axiom: types.EntityReifiedRelationshipSubClassAxiom =>
+                axiom.sub == sub && axiom.sup == sup
+              case _                                                   =>
+                false
+            } match {
+      case None     =>
+        val axInstance = EntityReifiedRelationshipSubClassAxiom(sub, sup)
         for {
-          axiom <- store.createOMFEntityReifiedRelationshipSubClassAxiomInstance(
-            this,
-            EntityReifiedRelationshipSubClassAxiom(sub, sup))
+          axiom <- store
+                   .createOMFEntityReifiedRelationshipSubClassAxiomInstance(this, axInstance)
         } yield {
           ax += axiom
           axiom
         }
-      case Some(ax) =>
-        Failure(DuplicateModelTermAxiomException(EntityReifiedRelationshipSubClassAxiomException, ax))
+      case Some(other) =>
+        Failure(DuplicateModelTermAxiomException(EntityReifiedRelationshipSubClassAxiomException, other))
     }
 
   def addEntityReifiedRelationshipSubClassAxiom
@@ -1070,19 +1197,21 @@ case class MutableModelTerminologyGraph
           axiom <- createEntityReifiedRelationshipSubClassAxiom(sub, sup)
         } yield {
           for {
-            change <- Seq(
-              new AddAxiom(ont,
-                owlDataFactory.getOWLSubClassOfAxiom(sub.e, sup.e)),
-              new AddAxiom(ont,
-                owlDataFactory.getOWLSubObjectPropertyOfAxiom(sub.rSource, sup.rSource)),
-              new AddAxiom(ont,
-                owlDataFactory.getOWLSubObjectPropertyOfAxiom(sub.rTarget, sup.rTarget))
-            )
+            change <- Seq(new AddAxiom(ont,
+                                       owlDataFactory
+                                       .getOWLSubClassOfAxiom(sub.e, sup.e)),
+                          new AddAxiom(ont,
+                                       owlDataFactory
+                                       .getOWLSubObjectPropertyOfAxiom(sub.rSource, sup.rSource)),
+                          new AddAxiom(ont,
+                                       owlDataFactory
+                                       .getOWLSubObjectPropertyOfAxiom(sub.rTarget, sup.rTarget))
+                         )
           } {
             val result = ontManager.applyChange(change)
             require(
-              result == ChangeApplied.SUCCESSFULLY,
-              s"\naddEntityReifiedRelationshipSubClassAxiom:\n$change")
+                     result == ChangeApplied.SUCCESSFULLY,
+                     s"\naddEntityReifiedRelationshipSubClassAxiom:\n$change")
           }
           axiom
         }
@@ -1096,4 +1225,75 @@ case class MutableModelTerminologyGraph
       case (false, false) =>
         Failure(AxiomScopeException(ReifiedRelationshipSubclassAxiomException, Map(Sub -> sub, Sup -> sup)))
     }
+
+  def createScalarDataTypeFacetRestrictionAxiom
+  (sub: types.ModelScalarDataType,
+   sup: types.ModelScalarDataType,
+   restrictions: Iterable[ConstrainingFacet])
+  (implicit store: OWLAPIOMFGraphStore)
+  : Try[types.ScalarDataTypeFacetRestrictionAxiom] =
+    ax.find {
+              case axiom: types.ScalarDataTypeFacetRestrictionAxiom =>
+                axiom.sub == sub &&
+                axiom.sup == sup &&
+                axiom.restrictions.toSet.diff(restrictions.toSet).isEmpty
+              case _                                                =>
+                false
+            } match {
+      case None     =>
+        for {
+          axiom <-
+          store
+          .createOMFScalarDataTypeFacetRestrictionAxiomInstance(this,
+                                                                ScalarDataTypeFacetRestrictionAxiom(sub,
+                                                                                                    sup,
+                                                                                                    restrictions))
+        } yield {
+          ax += axiom
+          axiom
+        }
+      case Some(other) =>
+        Failure(DuplicateModelTermAxiomException(ScalarDataTypeFacetRestrictionAxiomException, other))
+    }
+
+  def addScalarDataTypeFacetRestrictionAxiom
+  (sub: types.ModelScalarDataType,
+   sup: types.ModelScalarDataType,
+   restrictions: Iterable[ConstrainingFacet])
+  (implicit store: OWLAPIOMFGraphStore)
+  : Try[types.ScalarDataTypeFacetRestrictionAxiom] =
+    (isTypeTermDefinedRecursively(sub),
+      isTypeTermDefinedRecursively(sup)) match {
+      case (true, true) =>
+        for {
+          axiom <- createScalarDataTypeFacetRestrictionAxiom(sub, sup, restrictions)
+        } yield {
+//          Try(for {
+//                restriction <- restrictions
+//                change <- new AddAxiom(ont,
+//                  owlDataFactory
+//                  .getOWLDatatypeRestriction(sub.sc, restriction.))
+//            )
+//          } {
+//
+//            val result = ontManager.applyChange(change)
+//            require(
+//                     result == ChangeApplied.SUCCESSFULLY,
+//                     s"\naddScalarDataTypeFacetRestrictionAxiom:\n$change")
+//          })
+//          .flatMap { _ => axiom }
+          ???
+        }
+
+      case (false, true) =>
+        Failure(AxiomScopeException(ScalarDataTypeFacetRestrictionAxiomException, Map(Sub -> sub)))
+
+      case (true, false) =>
+        Failure(AxiomScopeException(ScalarDataTypeFacetRestrictionAxiomException, Map(Sup -> sub)))
+
+      case (false, false) =>
+        Failure(AxiomScopeException(ScalarDataTypeFacetRestrictionAxiomException, Map(Sub -> sub, Sup -> sub)))
+    }
+
+
 }

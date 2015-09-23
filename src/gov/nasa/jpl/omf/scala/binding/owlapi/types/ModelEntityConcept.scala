@@ -38,9 +38,10 @@
  */
 package gov.nasa.jpl.omf.scala.binding.owlapi.types
 
-import gov.nasa.jpl.omf.scala.binding.owlapi._
 import org.semanticweb.owlapi.model.OWLClass
-import org.semanticweb.owlapi.model.IRI
+
+import scala.Boolean
+import scala.Predef.require
 
 case class ModelEntityConcept(
   override val e: OWLClass,

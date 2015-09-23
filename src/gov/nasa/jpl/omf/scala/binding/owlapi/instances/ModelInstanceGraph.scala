@@ -40,17 +40,16 @@ package gov.nasa.jpl.omf.scala.binding.owlapi.instances
 
 import java.io.OutputStream
 
-import gov.nasa.jpl.omf.scala.binding._
-import gov.nasa.jpl.omf.scala.binding.owlapi._
 import org.semanticweb.owlapi.model.OWLOntology
 import org.semanticweb.owlapi.model.IRI
+import scala.collection.immutable._
+import scala.Unit
 import scala.util.Try
-import gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelTerminologyGraph
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.ImmutableModelTerminologyGraph
 
 abstract class ModelInstanceGraph(
-    val tboxes: Iterable[types.ImmutableModelTerminologyGraph],
-    val imports: Iterable[ImmutableModelInstanceGraph], 
+    val tboxes: scala.collection.Iterable[gov.nasa.jpl.omf.scala.binding.owlapi.types.ImmutableModelTerminologyGraph],
+    val imports: scala.collection.Iterable[ImmutableModelInstanceGraph],
     protected val ont: OWLOntology ) {
     
   protected val objects: scala.collection.Seq[ModelInstanceObject]
@@ -79,9 +78,17 @@ abstract class ModelInstanceGraph(
       Iterable[ModelInstanceDataRelationshipFromEntityToStructure],
       Iterable[ModelInstanceDataRelationshipFromStructureToScalar],
       Iterable[ModelInstanceDataRelationshipFromStructureToStructure]) =
-    ( iri, tboxes, imports,
-        objects, relations, dataLiterals, dataObjects, 
-        e2sc, e2st, s2sc, s2st )
+    ( iri,
+      tboxes.to[Iterable],
+      imports.to[Iterable],
+      objects.to[Iterable],
+      relations.to[Iterable],
+      dataLiterals.to[Iterable],
+      dataObjects.to[Iterable],
+      e2sc.to[Iterable],
+      e2st.to[Iterable],
+      s2sc.to[Iterable],
+      s2st.to[Iterable] )
 
   def save: Try[Unit] = Try {
     ontManager.saveOntology(ont)

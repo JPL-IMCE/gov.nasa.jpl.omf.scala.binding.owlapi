@@ -45,12 +45,14 @@ import gov.nasa.jpl.omf.scala.core.TerminologyKind._
 import gov.nasa.jpl.omf.scala.binding.owlapi._
 import org.semanticweb.owlapi.model._
 import org.semanticweb.owlapi.model.parameters.Imports
+import scala.collection.immutable._
 import scala.collection.JavaConversions._
 import scala.language.postfixOps
+import scala.{Boolean,Option,None,Some,StringContext,Unit}
+import scala.Predef.{Set=>_,Map=>_,_}
 import scala.util.Try
 import scala.util.Success
 import scala.util.Failure
-import gov.nasa.jpl.omf.scala.core.RelationshipCharacteristics._
 
 abstract class ModelTerminologyGraph
 ( val kind: TerminologyKind,
@@ -63,8 +65,6 @@ abstract class ModelTerminologyGraph
 
   val isImmutableModelTerminologyGraph: Boolean
   val isMutableModelTerminologyGraph: Boolean
-  
-  import ops._
 
   val ontManager = ont.getOWLOntologyManager
   val owlDataFactory = ontManager.getOWLDataFactory
@@ -140,7 +140,7 @@ abstract class ModelTerminologyGraph
 
   def getScalarDatatypeDefinitionMap: Map[OWLDatatype, ModelScalarDataType]
 
-  def getTerms: ( IRI, Iterable[ModelTypeTerm] ) = ( iri, iri2typeTerm.values )
+  def getTerms: ( IRI, Iterable[ModelTypeTerm] ) = ( iri, iri2typeTerm.values.to[Iterable] )
 
   def fromTerminologyGraph
   ( nesting: Option[ModelTerminologyGraph],
@@ -149,10 +149,18 @@ abstract class ModelTerminologyGraph
   : OWLAPITerminologyGraphSignature =
     OWLAPITerminologyGraphSignature(
       iri, kind, nesting, nested,
-      extended, aspects, concepts,
-      reifiedRelationships, unreifiedRelationships,
-      sc, st, e2sc, e2st, s2sc, s2st,
-      ax )
+      extended,
+      aspects.to[Iterable],
+      concepts.to[Iterable],
+      reifiedRelationships.to[Iterable],
+      unreifiedRelationships.to[Iterable],
+      sc.to[Iterable],
+      st.to[Iterable],
+      e2sc.to[Iterable],
+      e2st.to[Iterable],
+      s2sc.to[Iterable],
+      s2st.to[Iterable],
+      ax.to[Iterable] )
 
   def getTerminologyGraphShortNameAnnotation
   : Option[OWLAnnotation] =

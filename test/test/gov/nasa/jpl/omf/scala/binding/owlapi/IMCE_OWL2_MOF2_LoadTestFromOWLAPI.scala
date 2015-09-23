@@ -38,14 +38,14 @@
  */
 package test.gov.nasa.jpl.omf.scala.binding.owlapi
 
-import java.net.URLClassLoader
+//import java.net.URLClassLoader
 
-import org.semanticweb.owlapi.apibinding.OWLManager
-import gov.nasa.jpl.omf.scala.binding.owlapi._
-import test.gov.nasa.jpl.omf.scala.core.{ functionalAPI => testFunctionalAPI }
-import org.apache.xml.resolver.CatalogManager
-import scala.util.Failure
-import scala.util.Success
+//import org.semanticweb.owlapi.apibinding.OWLManager
+//import gov.nasa.jpl.omf.scala.binding.owlapi._
+//import test.gov.nasa.jpl.omf.scala.core.{ functionalAPI => testFunctionalAPI }
+//import org.apache.xml.resolver.CatalogManager
+//import scala.util.Failure
+//import scala.util.Success
 
 //abstract class IMCE_OWL2_MOF2_LoadTestFromOWLAPI( override val loadStore: OWLAPIOMFGraphStore )
 //  extends testFunctionalAPI.IMCE_OWL2_MOF2_LoadTest[OWLAPIOMF](

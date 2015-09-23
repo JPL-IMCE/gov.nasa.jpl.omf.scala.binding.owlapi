@@ -42,8 +42,10 @@ import gov.nasa.jpl.omf.scala.binding.owlapi._
 import org.apache.xml.resolver.CatalogManager
 import org.semanticweb.owlapi.apibinding.OWLManager
 import test.gov.nasa.jpl.omf.scala.core.{functionalAPI => testFunctionalAPI}
-
+import scala.{transient,Option,None,Some,StringContext}
+import scala.Predef._
 import scala.util.{Failure, Success}
+import java.lang.IllegalArgumentException
 
 abstract class IMCEMissionDomainTBoxOWLAPIExample(override val store: OWLAPIOMFGraphStore)
   extends testFunctionalAPI.IMCEMissionDomainTBoxExample[OWLAPIOMF]()(store.omfModule.ops, store)
