@@ -38,8 +38,6 @@
  */
 package gov.nasa.jpl.omf.scala.binding.owlapi.types
 
-import gov.nasa.jpl.omf.scala.binding.owlapi._
-
 case class EntityConceptUniversalRestrictionAxiom(
   override val sub: ModelEntityConcept,
   override val rel: ModelEntityReifiedRelationship,

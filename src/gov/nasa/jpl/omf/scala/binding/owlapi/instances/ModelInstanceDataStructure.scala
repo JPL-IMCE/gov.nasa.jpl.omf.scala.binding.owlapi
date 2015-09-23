@@ -38,7 +38,6 @@
  */
 package gov.nasa.jpl.omf.scala.binding.owlapi.instances
 
-import gov.nasa.jpl.omf.scala.binding._
 import gov.nasa.jpl.omf.scala.binding.owlapi._
 
 case class ModelInstanceDataStructure(

@@ -38,7 +38,7 @@
  */
 package gov.nasa.jpl.omf.scala.binding.owlapi.types
 
-import gov.nasa.jpl.omf.scala.binding.owlapi._
+import scala.Predef.require
 
 case class EntityDefinitionAspectSubClassAxiom(
     val sub: ModelEntityDefinition,

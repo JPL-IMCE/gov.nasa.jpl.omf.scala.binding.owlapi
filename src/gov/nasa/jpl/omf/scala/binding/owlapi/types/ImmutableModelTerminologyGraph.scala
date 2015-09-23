@@ -38,6 +38,9 @@
  */
 package gov.nasa.jpl.omf.scala.binding.owlapi.types
 
+import java.lang.IllegalArgumentException
+import java.lang.System
+
 import gov.nasa.jpl.omf.scala.binding.owlapi._
 import gov.nasa.jpl.omf.scala.core.TerminologyKind._
 import gov.nasa.jpl.omf.scala.core._
@@ -47,6 +50,10 @@ import org.semanticweb.owlapi.reasoner.structural.StructuralReasonerFactory
 import org.semanticweb.owlapi.reasoner.{NodeSet, OWLReasoner}
 
 import scala.collection.JavaConversions._
+import scala.collection.immutable._
+import scala.util.Try
+import scala.{Boolean,Enumeration,Option,None,Some,StringContext,Tuple3,Unit}
+import scala.Predef.{Set=>_,Map=>_,_}
 import scala.language.postfixOps
 import scala.util.{Failure, Success, Try}
 
@@ -402,7 +409,7 @@ case class ResolverHelper
   (implicit reasoner: OWLReasoner)
   : Iterable[DOPInfo] =
     for {
-      dataPropertyN <- subDPs
+      dataPropertyN <- subDPs.to[Iterable]
       dataPropertyDP <- dataPropertyN flatMap { case dp: OWLDataProperty => Some(dp) }
       if tDPs.contains(dataPropertyDP)
       dataPropertyDomain <- reasoner.getDataPropertyDomains(dataPropertyDP, true).getFlattened
@@ -839,7 +846,7 @@ case class ImmutableModelTerminologyGraphResolver(resolver: ResolverHelper) {
   import resolver._
   import resolver.omfStore.ops._
 
-  def resolve: Try[ImmutableModelTerminologyGraph] = {
+  def resolve: Try[(ImmutableModelTerminologyGraph, Mutable2IMutableTerminologyMap)] = {
     val dTs = ont.getDatatypesInSignature(Imports.EXCLUDED).filter(ont.isDeclared)
 
     val scalarDatatypeSCs = for {
@@ -879,8 +886,7 @@ case class ImmutableModelTerminologyGraphResolver(resolver: ResolverHelper) {
     Backbone.resolveBackbone(ont, bCs.toSet, bOPs.toSet, bDPs.toSet, resolver.omfStore.ops) match {
       case Failure(t) => Failure(t)
       case Success(_: NoBackbone) =>
-        val itboxG = asImmutableTerminologyGraph(tboxG)
-        itboxG
+        asImmutableTerminologyGraph(tboxG)
       case Success(backbone: OMFBackbone) =>
         resolve(backbone, scalarDatatypeSCs.toMap, tCs.toSet, tOPs.toSet, tDPs.toSet)
     }
@@ -892,7 +898,7 @@ case class ImmutableModelTerminologyGraphResolver(resolver: ResolverHelper) {
    tCs: Set[OWLClass],
    tOPs: Set[OWLObjectProperty],
    tDPs: Set[OWLDataProperty])
-  : Try[ImmutableModelTerminologyGraph] = {
+  : Try[(ImmutableModelTerminologyGraph, Mutable2IMutableTerminologyMap)] = {
 
     implicit val _backbone = backbone
 
@@ -1185,7 +1191,7 @@ case class ImmutableModelTerminologyGraphResolver(resolver: ResolverHelper) {
 
     } yield {
 
-      val iimports = fromTerminologyGraph(itboxG).imports
+      val iimports = fromTerminologyGraph(itboxG._1).imports
       require(imports.forall(i1 =>
         iimports.exists(i2 => i2.kindIRI == i1.kindIRI)
       ))

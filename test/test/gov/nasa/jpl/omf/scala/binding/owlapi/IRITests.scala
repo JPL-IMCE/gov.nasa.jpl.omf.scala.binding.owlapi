@@ -38,7 +38,7 @@
  */
 package test.gov.nasa.jpl.omf.scala.binding.owlapi
 
-import org.semanticweb.owlapi.apibinding.OWLManager
+import scala.None
 
 import gov.nasa.jpl.omf.scala.binding.owlapi._
 

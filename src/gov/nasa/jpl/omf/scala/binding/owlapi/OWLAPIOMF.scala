@@ -39,10 +39,12 @@
 package gov.nasa.jpl.omf.scala.binding.owlapi
 
 import gov.nasa.jpl.omf.scala.core._
-import gov.nasa.jpl.omf.scala.binding._
-import org.semanticweb.owlapi.model.OWLOntologyManager
 import gov.nasa.jpl.omf.scala.core.RelationshipCharacteristics._
 import gov.nasa.jpl.omf.scala.core.TerminologyKind._
+
+import scala.collection.immutable._
+import scala.{Boolean,Option}
+import scala.Predef.require
 
 trait OWLAPIOMF
   extends OMF
@@ -75,7 +77,10 @@ trait OWLAPIOMFtbox extends OMFtbox {
 
   type MutableModelTerminologyGraph =
   types.MutableModelTerminologyGraph
-  
+
+  override type Mutable2IMutableTerminologyMap =
+  types.Mutable2IMutableTerminologyMap
+
   type ModelTypeTerm =
   types.ModelTypeTerm
     
@@ -142,8 +147,8 @@ trait OWLAPIOMFtbox extends OMFtbox {
   type EntityDefinitionAspectSubClassAxiom =
   types.EntityDefinitionAspectSubClassAxiom
 
-  type EntityConceptToplevelDesignationTerminologyGraphAxiom =
-  types.EntityConceptToplevelDesignationTerminologyGraphAxiom
+  type EntityConceptDesignationTerminologyGraphAxiom =
+  types.EntityConceptDesignationTerminologyGraphAxiom
 
   type EntityConceptSubClassAxiom =
   types.EntityConceptSubClassAxiom
@@ -160,8 +165,8 @@ trait OWLAPIOMFtbox extends OMFtbox {
   type EntityReifiedRelationshipSubClassAxiom =
   types.EntityReifiedRelationshipSubClassAxiom
 
-  type ScalarDataTypeFacetRestriction =
-  types.ScalarDataTypeFacetRestriction
+  type ScalarDataTypeFacetRestrictionAxiom =
+  types.ScalarDataTypeFacetRestrictionAxiom
 
   type TerminologyGraphAxiom =
   types.TerminologyGraphAxiom

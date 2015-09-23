@@ -38,7 +38,6 @@
  */
 package gov.nasa.jpl.omf.scala.binding.owlapi.types
 
-import gov.nasa.jpl.omf.scala.binding.owlapi._
 import org.semanticweb.owlapi.model.OWLDatatype
 
 case class ModelScalarDataType

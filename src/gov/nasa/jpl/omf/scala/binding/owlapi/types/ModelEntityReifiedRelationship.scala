@@ -39,10 +39,11 @@
 package gov.nasa.jpl.omf.scala.binding.owlapi.types
 
 import gov.nasa.jpl.omf.scala.core.RelationshipCharacteristics._
-import gov.nasa.jpl.omf.scala.binding.owlapi._
 import org.semanticweb.owlapi.model.OWLClass
 import org.semanticweb.owlapi.model.OWLObjectProperty
-import org.semanticweb.owlapi.model.IRI
+import scala.collection.immutable._
+import scala.{Boolean,Option}
+import scala.Predef.require
 
 case class ModelEntityReifiedRelationship(
   override val e: OWLClass,

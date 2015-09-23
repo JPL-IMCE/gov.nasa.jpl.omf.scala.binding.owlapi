@@ -39,6 +39,7 @@
 package gov.nasa.jpl.omf.scala.binding.owlapi.types
 
 import gov.nasa.jpl.omf.scala.binding.owlapi._
+import scala.Predef.require
 
 case class ModelEntityDataRelationship
 ( override val iri: OWLAPIOMF#IRI,
