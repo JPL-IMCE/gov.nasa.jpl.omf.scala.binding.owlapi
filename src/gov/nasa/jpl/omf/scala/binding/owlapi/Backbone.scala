@@ -228,7 +228,7 @@ object Backbone {
    * These conventions involve a small vocabulary of OWL entities called
    * the backbone for an OMF domain ontology.
    *
-   * @TODO needs: annotation:isAbstract, annotation:noMapping
+   * @@todo needs: annotation:isAbstract, annotation:noMapping
    */
   def createBackbone( ont: OWLOntology, kind: TerminologyKind, ops: OWLAPIOMFOps ): Try[OMFBackbone] = {
 
@@ -319,7 +319,7 @@ object Backbone {
   }
 
   /**
-   * @TODO needs: annotation:isAbstract
+   * @todo needs: annotation:isAbstract
    */
   def resolveBackbone(
     ont: OWLOntology,
