@@ -15,6 +15,7 @@ lazy val core =
   .enablePlugins(MBEEGitPlugin)
   .settings(MBEEPlugin.mbeeDynamicScriptsProjectResourceSettings(Some("gov.nasa.jpl.omf.scala.binding.owlapi")))
   .settings(MBEEPlugin.mbeeStrictScalacFatalWarningsSettings)
+  .settings(MBEEPlugin.mbeeScalaDoc(diagrams=false)) // Graphviz craches the build on sscae-build.
   .settings(
     MBEEKeys.mbeeLicenseYearOrRange := "2014-2015",
     MBEEKeys.mbeeOrganizationInfo := MBEEPlugin.MBEEOrganizations.imce,
