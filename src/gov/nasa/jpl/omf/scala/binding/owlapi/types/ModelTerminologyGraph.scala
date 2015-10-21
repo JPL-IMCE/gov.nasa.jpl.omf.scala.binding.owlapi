@@ -50,9 +50,8 @@ import scala.collection.JavaConversions._
 import scala.language.postfixOps
 import scala.{Boolean,Option,None,Some,StringContext,Unit}
 import scala.Predef.{Set=>_,Map=>_,_}
-import scala.util.Try
-import scala.util.Success
-import scala.util.Failure
+import scala.util.control.Exception._
+import scalaz._, Scalaz._
 
 abstract class ModelTerminologyGraph
 ( val kind: TerminologyKind,
@@ -204,11 +203,31 @@ abstract class ModelTerminologyGraph
       find( _.getProperty.getIRI == ops.AnnotationHasUUID )
 
 
-  def save( saveIRI: IRI ): Try[Unit] = Try {
-    ontManager.saveOntology( ont, saveIRI )
-  }
+  def save( saveIRI: IRI ): NonEmptyList[java.lang.Throwable] \/ Unit =
+    nonFatalCatch[Unit]
+      .withApply {
+        (cause: java.lang.Throwable) =>
+          NonEmptyList(
+            OMFError.omfException(
+              s"saving ModelTerminologyGraph failed: ${cause.getMessage}",
+              cause)
+          ).left
+      }
+      .apply({
+        ontManager.saveOntology(ont, saveIRI).right
+      })
 
-  def save( os: OutputStream ): Try[Unit] = Try {
-    ontManager.saveOntology( ont, os )
-  }
+  def save( os: OutputStream ): NonEmptyList[java.lang.Throwable] \/ Unit =
+    nonFatalCatch[Unit]
+      .withApply {
+        (cause: java.lang.Throwable) =>
+          NonEmptyList(
+            OMFError.omfException(
+              s"saving ModelTerminologyGraph failed: ${cause.getMessage}",
+              cause)
+          ).left
+      }
+      .apply({
+        ontManager.saveOntology(ont, os).right
+      })
 }

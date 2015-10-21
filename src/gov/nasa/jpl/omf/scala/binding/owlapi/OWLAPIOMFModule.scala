@@ -40,24 +40,74 @@ package gov.nasa.jpl.omf.scala.binding.owlapi
 
 import gov.nasa.jpl.omf.scala.core._
 import org.semanticweb.owlapi.apibinding.OWLManager
-import org.semanticweb.owlapi.model.OWLDataFactory
+import org.semanticweb.owlapi.model.{IRI,OWLDataFactory}
 import org.apache.xml.resolver.CatalogManager
 
-import scala.Option
 import scala.Predef.require
+import scalaz._
 
-case class OWLAPIOMFModule( val catalogManager: Option[CatalogManager] )
-  extends OMFModule
+case class OWLAPIOMFModule
+( catalogManager: CatalogManager,
+  ops: OWLAPIOMFOps,
+  omfOntologyIRI: IRI
+) extends OMFModule
   with OMFOpsModule {
 
   require(null != catalogManager )
 
   type omf = OWLAPIOMF
-
-  implicit val ops: OWLAPIOMFOps = new OWLAPIOMFOps
   
   implicit val dataFactory: OWLDataFactory = OWLManager.getOWLDataFactory
+
+}
+
+object OWLAPIOMFModule {
   
-  val omfOntologyIRI = ops.makeIRI( "http://imce.jpl.nasa.gov/foundation/omf/omf.owl" )
-  
+  def owlAPIOMFModule(catalogManager: CatalogManager)
+  : NonEmptyList[java.lang.Throwable] \/ OWLAPIOMFModule = 
+  for {
+    rdfs_label <-
+    OWLAPIIRIOps.makeIRI("http://www.w3.org/2000/01/rdf-schema#label")
+
+    OMF_TBox_DataProperty_HasShortName <-
+    OWLAPIIRIOps.makeIRI("http://imce.jpl.nasa.gov/foundation/omf/omfMetadata#hasShortName")
+
+    OMF_TBox_DataProperty_HasUUID <-
+    OWLAPIIRIOps.makeIRI("http://imce.jpl.nasa.gov/foundation/omf/omfMetadata#hasUUID")
+
+    AnnotationHasUUID <-
+    OWLAPIIRIOps.makeIRI("http://imce.jpl.nasa.gov/foundation/annotation/annotation#hasUUID")
+
+    AnnotationIsAbstract <-
+    OWLAPIIRIOps.makeIRI("http://imce.jpl.nasa.gov/foundation/annotation/annotation#isAbstract")
+
+    AnnotationIsDerived <-
+    OWLAPIIRIOps.makeIRI("http://imce.jpl.nasa.gov/foundation/annotation/annotation#isDerived")
+
+    AnnotationIsDefinition <-
+    OWLAPIIRIOps.makeIRI("http://imce.jpl.nasa.gov/foundation/annotation/annotation#isDefinition")
+
+    AnnotationIsDesignation <-
+    OWLAPIIRIOps.makeIRI("http://imce.jpl.nasa.gov/foundation/annotation/annotation#isDesignation")
+
+    AnnotationIsToplevel <-
+    OWLAPIIRIOps.makeIRI("http://imce.jpl.nasa.gov/foundation/annotation/annotation#isToplevel")
+
+    omfOntologyIRI <-
+    OWLAPIIRIOps.makeIRI( "http://imce.jpl.nasa.gov/foundation/omf/omf.owl" )
+
+    ops = new OWLAPIOMFOps(
+      rdfs_label,
+      OMF_TBox_DataProperty_HasShortName,
+      OMF_TBox_DataProperty_HasUUID,
+      AnnotationHasUUID,
+      AnnotationIsAbstract,
+      AnnotationIsDerived,
+      AnnotationIsDefinition,
+      AnnotationIsDesignation,
+      AnnotationIsToplevel)
+
+  } yield
+    OWLAPIOMFModule(catalogManager, ops, omfOntologyIRI)
+
 }

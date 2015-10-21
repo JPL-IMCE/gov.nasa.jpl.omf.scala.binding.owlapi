@@ -47,9 +47,17 @@ import org.apache.xml.resolver.tools.CatalogResolver
 import org.semanticweb.owlapi.annotations.HasPriority
 import org.semanticweb.owlapi.model.{IRI, OWLOntologyIRIMapper}
 
+import gov.nasa.jpl.omf.scala.core.OMFError
+
 import scala.{Option,None,Some,StringContext,Unit}
 import scala.Predef.{Set=>_,Map=>_,_}
-import scala.util.{Failure, Success, Try}
+import scala.util.control.Exception._
+import scalaz._, Scalaz._
+
+class CatalogURIMapperException
+(override val message: String,
+ override val cause: Option[java.lang.Throwable] = None)
+  extends OMFError.OMFException(message, cause)
 
 @HasPriority(0)
 case class CatalogIRIMapper
@@ -70,8 +78,21 @@ case class CatalogIRIMapper
   (catalogManager: CatalogManager) =
     this(catalogManager, new CatalogResolver(catalogManager))
 
-  def parseCatalog(catalogURI: URI): Try[Unit] =
-    Try(catalog.parseCatalog(catalogURI.toURL))
+  def parseCatalog(catalogURI: URI)
+  : NonEmptyList[java.lang.Throwable] \/ Unit =
+
+    nonFatalCatch[Unit]
+      .withApply {
+        (cause: java.lang.Throwable) =>
+          NonEmptyList(
+            catalogURIMapperException(
+              s"parseCatalog: catalogURI:$catalogURI failed: ${cause.getMessage}",
+              cause.some)
+          ).left
+      }
+      .apply({
+        catalog.parseCatalog(catalogURI.toURL).right
+      })
 
   def getDocumentIRI(ontologyIRI: IRI): IRI =
     resolveIRI(ontologyIRI, loadResolutionStrategy) match {

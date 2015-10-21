@@ -49,6 +49,8 @@ import scala.Predef._
 import scala.{transient,Option,None,Some,StringContext,Unit}
 import java.lang.IllegalArgumentException
 
+import scalaz._, Scalaz._
+
 abstract class OWLAPIOMFVocabularyImmutabilityTest(
                                         override val saveStore: OWLAPIOMFGraphStore,
                                         override val loadStore: OWLAPIOMFGraphStore )
@@ -58,44 +60,53 @@ abstract class OWLAPIOMFVocabularyImmutabilityTest(
       
 abstract class OWLAPIOMFVocabularyImmutabilityCatalogTest( @transient val catalogManager: CatalogManager )
   extends OWLAPIOMFVocabularyImmutabilityTest(
-      saveStore = OWLAPIOMFGraphStore( OWLAPIOMFModule(Some(catalogManager)), OWLManager.createOWLOntologyManager() ),      
-      loadStore = OWLAPIOMFGraphStore( OWLAPIOMFModule(Some(catalogManager)), OWLManager.createOWLOntologyManager() ) )
+      saveStore = OWLAPIOMFGraphStore(
+        OWLAPIOMFModule.owlAPIOMFModule(catalogManager).valueOr { (errors: NonEmptyList[java.lang.Throwable]) =>
+          val message = s"${errors.size} errors" + errors.map(_.getMessage).toList.mkString("\n => ","\n => ","\n")
+          throw new scala.IllegalArgumentException(message)
+        },
+        OWLManager.createOWLOntologyManager() ),
+      loadStore = OWLAPIOMFGraphStore(
+        OWLAPIOMFModule.owlAPIOMFModule(catalogManager).valueOr { (errors: NonEmptyList[java.lang.Throwable]) =>
+          val message = s"${errors.size} errors" + errors.map(_.getMessage).toList.mkString("\n => ","\n => ","\n")
+          throw new scala.IllegalArgumentException(message)
+        },
+        OWLManager.createOWLOntologyManager() ) )
 
 class OWLAPIOWFVocabularyImmutabilityTestLocalCatalog
   extends OWLAPIOMFVocabularyImmutabilityCatalogTest( catalogManager = new CatalogManager() ) {
 
   val catalogFile = "/ontologies/imce.local.catalog.xml"
-  saveStore.catalogIRIMapper match {
-      case None => 
-        throw new IllegalArgumentException(
-          "There should be a catalog IRI mapper since the store was constructed with a catalog manager")
-      
-      case Some( catalogIRImapper ) =>
-        classOf[OWLAPIOWFVocabularyImmutabilityTestLocalCatalog].getResource(catalogFile) match {
-          case null =>
-            Option.apply(java.nio.file.Paths.get("ontologies", "imce.local.catalog.xml")) match {
-              case Some(p)
-                if p.toFile.exists() && p.toFile.canRead =>
-                catalogIRImapper.parseCatalog( p.toFile.toURI ) match {
-                  case Failure( t ) =>
-                    throw new IllegalArgumentException(s"Cannot parse the test catalog: '${p.toFile.toURI}'", t )
-                  case Success( _ ) =>
-                    ()
-                }
-              case _ =>
-                throw new IllegalArgumentException(s"There should be a '$catalogFile' resource on the classpath")
-            }
-          case testCatalogURL =>
-            catalogIRImapper.parseCatalog( testCatalogURL.toURI ) match {
-              case Failure( t ) => 
-                throw new IllegalArgumentException(s"Cannot parse the test catalog: '$testCatalogURL'", t )
-              case Success( _ ) =>
-                ()              
-            }
-        }       
-    }
 
-  val saveMetadataIRI = saveStore.omfModule.ops.makeIRI("http://imce.jpl.nasa.gov/test/OWLAPIOMFVocabularySave")
+  Option.apply(classOf[OWLAPIOWFVocabularyMutabilityTestLocalCatalog].getResource(catalogFile))
+    .fold[Unit]({
+    Option.apply(java.nio.file.Paths.get("ontologies", "imce.local.catalog.xml"))
+      .fold[Unit]({
+      throw new IllegalArgumentException(s"There should be a '$catalogFile' resource on the classpath")
+    }) { p =>
+      if (p.toFile.exists() && p.toFile.canRead)
+        saveStore.catalogIRIMapper.parseCatalog(p.toFile.toURI)
+          .valueOr { (errors: NonEmptyList[java.lang.Throwable]) =>
+            val message = s"${errors.size} errors" + errors.map(_.getMessage).toList.mkString("\n => ","\n => ","\n")
+            throw new scala.IllegalArgumentException(message)
+          }
+      else
+        throw new IllegalArgumentException(s"There should be a '$catalogFile' resource on the classpath")
+    }
+  }){ testCatalogURL =>
+    saveStore.catalogIRIMapper.parseCatalog(testCatalogURL.toURI)
+      .valueOr { (errors: NonEmptyList[java.lang.Throwable]) =>
+        val message = s"${errors.size} errors" + errors.map(_.getMessage).toList.mkString("\n => ","\n => ","\n")
+        throw new scala.IllegalArgumentException(message)
+      }
+  }
+
+  val saveMetadataIRI =
+    saveStore.omfModule.ops.makeIRI("http://imce.jpl.nasa.gov/test/OWLAPIOMFVocabularySave")
+    .valueOr { (errors: NonEmptyList[java.lang.Throwable]) =>
+      val message = s"${errors.size} errors" + errors.map(_.getMessage).toList.mkString("\n => ","\n => ","\n")
+      throw new scala.IllegalArgumentException(message)
+    }
   val saveMetadataOnt = saveStore.ontManager.createOntology( saveMetadataIRI )
   saveStore.setOMFMetadataOntology( saveMetadataOnt )
 
@@ -103,49 +114,39 @@ class OWLAPIOWFVocabularyImmutabilityTestLocalCatalog
   }
 
   override def postOMFSave(): Unit = {
-    saveStore.catalogIRIMapper match {
-      case None =>
-        throw new IllegalArgumentException(
-          "There should be a catalog IRI mapper since the store was constructed with a catalog manager")
-
-      case Some(catalogIRImapper) =>
-        val saveIRI = catalogIRImapper.resolveIRI(saveMetadataIRI, catalogIRImapper.saveResolutionStrategy)
-        saveStore.ontManager.saveOntology(saveMetadataOnt, saveIRI)
-    }
+    val saveIRI = saveStore.catalogIRIMapper.resolveIRI(saveMetadataIRI, saveStore.catalogIRIMapper.saveResolutionStrategy)
+    saveStore.ontManager.saveOntology(saveMetadataOnt, saveIRI)
   }
 
-
-  loadStore.catalogIRIMapper match {
-      case None => 
-        throw new IllegalArgumentException(
-          "There should be a catalog IRI mapper since the store was constructed with a catalog manager")
-      
-      case Some( catalogIRImapper ) =>
-        classOf[OWLAPIOWFVocabularyImmutabilityTestLocalCatalog].getResource(catalogFile) match {
-          case null =>
-            Option.apply(java.nio.file.Paths.get("ontologies", "imce.local.catalog.xml")) match {
-              case Some(p)
-                if p.toFile.exists() && p.toFile.canRead =>
-                catalogIRImapper.parseCatalog( p.toFile.toURI ) match {
-                  case Failure( t ) =>
-                    throw new IllegalArgumentException(s"Cannot parse the test catalog: '${p.toFile.toURI}'", t )
-                  case Success( _ ) =>
-                    ()
-                }
-              case _ =>
-                throw new IllegalArgumentException(s"There should be a '$catalogFile' resource on the classpath")
-            }
-          case testCatalogURL =>
-            catalogIRImapper.parseCatalog( testCatalogURL.toURI ) match {
-              case Failure( t ) =>
-                throw new IllegalArgumentException(s"Cannot parse the test catalog: '$testCatalogURL'", t )
-              case Success( _ ) =>
-                ()              
-            }
-        }       
+  Option.apply(classOf[OWLAPIOWFVocabularyMutabilityTestLocalCatalog].getResource(catalogFile))
+    .fold[Unit]({
+    Option.apply(java.nio.file.Paths.get("ontologies", "imce.local.catalog.xml"))
+      .fold[Unit]({
+      throw new IllegalArgumentException(s"There should be a '$catalogFile' resource on the classpath")
+    }) { p =>
+      if (p.toFile.exists() && p.toFile.canRead)
+        loadStore.catalogIRIMapper.parseCatalog(p.toFile.toURI)
+          .valueOr { (errors: NonEmptyList[java.lang.Throwable]) =>
+            val message = s"${errors.size} errors" + errors.map(_.getMessage).toList.mkString("\n => ","\n => ","\n")
+            throw new scala.IllegalArgumentException(message)
+          }
+      else
+        throw new IllegalArgumentException(s"There should be a '$catalogFile' resource on the classpath")
     }
+  }){ testCatalogURL =>
+    loadStore.catalogIRIMapper.parseCatalog(testCatalogURL.toURI)
+      .valueOr { (errors: NonEmptyList[java.lang.Throwable]) =>
+        val message = s"${errors.size} errors" + errors.map(_.getMessage).toList.mkString("\n => ","\n => ","\n")
+        throw new scala.IllegalArgumentException(message)
+      }
+  }
 
-  val loadMetadataIRI = loadStore.omfModule.ops.makeIRI("http://imce.jpl.nasa.gov/test/OWLAPIOMFVocabularyLoad")
+  val loadMetadataIRI =
+    loadStore.omfModule.ops.makeIRI("http://imce.jpl.nasa.gov/test/OWLAPIOMFVocabularyLoad")
+    .valueOr { (errors: NonEmptyList[java.lang.Throwable]) =>
+      val message = s"${errors.size} errors" + errors.map(_.getMessage).toList.mkString("\n => ","\n => ","\n")
+      throw new scala.IllegalArgumentException(message)
+    }
   val loadMetadataOnt = loadStore.ontManager.createOntology( loadMetadataIRI )
   loadStore.setOMFMetadataOntology( loadMetadataOnt )
 
@@ -153,15 +154,8 @@ class OWLAPIOWFVocabularyImmutabilityTestLocalCatalog
   }
 
   override def postOMFLoad(): Unit = {
-    loadStore.catalogIRIMapper match {
-      case None =>
-        throw new IllegalArgumentException(
-          "There should be a catalog IRI mapper since the store was constructed with a catalog manager")
-
-      case Some(catalogIRImapper) =>
-        val loadIRI = catalogIRImapper.resolveIRI(loadMetadataIRI, catalogIRImapper.saveResolutionStrategy)
-        loadStore.ontManager.saveOntology(loadMetadataOnt, loadIRI)
-    }
+    val loadIRI = loadStore.catalogIRIMapper.resolveIRI(loadMetadataIRI, saveStore.catalogIRIMapper.saveResolutionStrategy)
+    loadStore.ontManager.saveOntology(loadMetadataOnt, loadIRI)
   }
 
 

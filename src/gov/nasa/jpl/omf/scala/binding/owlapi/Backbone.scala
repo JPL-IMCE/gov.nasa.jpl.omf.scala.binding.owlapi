@@ -55,9 +55,7 @@ import scala.collection.immutable._
 import scala.language.postfixOps
 import scala.{Option,None,Some,StringContext}
 import scala.Predef.{Set=>_,Map=>_,_}
-import scala.util.Try
-import scala.util.Success
-import scala.util.Failure
+import scalaz._, Scalaz._
 
 sealed abstract class Backbone( val ont: OWLOntology ) {
 
@@ -230,7 +228,8 @@ object Backbone {
    *
    * @todo needs: annotation:isAbstract, annotation:noMapping
    */
-  def createBackbone( ont: OWLOntology, kind: TerminologyKind, ops: OWLAPIOMFOps ): Try[OMFBackbone] = {
+  def createBackbone( ont: OWLOntology, kind: TerminologyKind, ops: OWLAPIOMFOps )
+  : NonEmptyList[java.lang.Throwable] \/ OMFBackbone = {
 
     import ops._
 
@@ -326,63 +325,85 @@ object Backbone {
     bCs: Set[OWLClass],
     bOPs: Set[OWLObjectProperty],
     bDPs: Set[OWLDataProperty],
-    ops: OWLAPIOMFOps ): Try[Backbone] = {
+    ops: OWLAPIOMFOps )
+  : NonEmptyList[java.lang.Throwable] \/ Backbone = {
     import ops._
-    val bIRI = toBackboneIRI( ont.getOntologyID.getOntologyIRI.get )
+    val bIRI = toBackboneIRI(ont.getOntologyID.getOntologyIRI.get)
 
-    def lookup[T <: OWLEntity]( fragment: String, set: Set[T] ): Option[T] = {
-      val iri = withFragment( bIRI, fragment ).get
-      set.find( _.getIRI == iri )
-    }
+    def lookup[T <: OWLEntity](fragment: String, set: Set[T])
+    : NonEmptyList[java.lang.Throwable] \/ Option[T] =
+      withFragment(bIRI, fragment)
+        .flatMap { iri =>
+          set
+            .find(_.getIRI == iri)
+            .right
+        }
 
     val hasIsDesignation = ont.getAnnotations.
-      filter ( _.getProperty.getIRI == ops.AnnotationIsDesignation ).
-      flatMap ( _.getValue match {
-      case l: OWLLiteral if l.isBoolean =>
-        Some( l.parseBoolean )
-      case _  =>
-        None
-    } ) headOption
+      filter(_.getProperty.getIRI == ops.AnnotationIsDesignation).
+      flatMap(_.getValue match {
+        case l: OWLLiteral if l.isBoolean =>
+          Some(l.parseBoolean)
+        case _ =>
+          None
+      }) headOption
 
     val kind: TerminologyKind =
-      if ( hasIsDesignation.getOrElse( false ) ) isDesignation else isDefinition
+      if (hasIsDesignation.getOrElse(false)) isDesignation else isDefinition
 
-    val b = for {
-      _Thing <- lookup( "Thing", bCs )
-      _Aspect <- lookup( "Aspect", bCs )
-      _Entity <- lookup( "Entity", bCs )
-      _StructuredDatatype <- lookup( "StructuredDatatype", bCs )
-      _ReifiedObjectProperty <- lookup( "ReifiedObjectProperty", bCs )
-      _ReifiedStructuredDataProperty <- lookup( "ReifiedStructuredDataProperty", bCs )
-      _topObjectProperty <- lookup( "topObjectProperty", bOPs )
-      _topReifiedObjectProperty <- lookup( "topReifiedObjectProperty", bOPs )
-      _topReifiedObjectPropertySource <- lookup( "topReifiedObjectPropertySource", bOPs )
-      _topReifiedObjectPropertyTarget <- lookup( "topReifiedObjectPropertyTarget", bOPs )
-      _topReifiedStructuredDataProperty <- lookup( "topReifiedStructuredDataProperty", bOPs )
-      _topReifiedStructuredDataPropertySource <- lookup( "topReifiedStructuredDataPropertySource", bOPs )
-      _topReifiedStructuredDataPropertyTarget <- lookup( "topReifiedStructuredDataPropertyTarget", bOPs )
-      _topDataProperty <- lookup( "topDataProperty", bDPs )
-    } yield new OMFBackbone( ont, kind,
-      Thing = _Thing.getIRI,
-      Aspect = _Aspect.getIRI,
-      Entity = _Entity.getIRI,
-      StructuredDatatype = _StructuredDatatype.getIRI,
-      ReifiedObjectProperty = _ReifiedObjectProperty.getIRI,
-      ReifiedStructuredDataProperty = _ReifiedStructuredDataProperty.getIRI,
-      topObjectProperty = _topObjectProperty.getIRI,
-      topReifiedObjectProperty = _topReifiedObjectProperty.getIRI,
-      topReifiedObjectPropertySource = _topReifiedObjectPropertySource.getIRI,
-      topReifiedObjectPropertyTarget = _topReifiedObjectPropertyTarget.getIRI,
-      topReifiedStructuredDataProperty = _topReifiedStructuredDataProperty.getIRI,
-      topReifiedStructuredDataPropertySource = _topReifiedStructuredDataPropertySource.getIRI,
-      topReifiedStructuredDataPropertyTarget = _topReifiedStructuredDataPropertyTarget.getIRI,
-      topDataProperty = _topDataProperty.getIRI )
+    for {
+      _Thing <- lookup("Thing", bCs)
+      _Aspect <- lookup("Aspect", bCs)
+      _Entity <- lookup("Entity", bCs)
+      _StructuredDatatype <- lookup("StructuredDatatype", bCs)
+      _ReifiedObjectProperty <- lookup("ReifiedObjectProperty", bCs)
+      _ReifiedStructuredDataProperty <- lookup("ReifiedStructuredDataProperty", bCs)
+      _topObjectProperty <- lookup("topObjectProperty", bOPs)
+      _topReifiedObjectProperty <- lookup("topReifiedObjectProperty", bOPs)
+      _topReifiedObjectPropertySource <- lookup("topReifiedObjectPropertySource", bOPs)
+      _topReifiedObjectPropertyTarget <- lookup("topReifiedObjectPropertyTarget", bOPs)
+      _topReifiedStructuredDataProperty <- lookup("topReifiedStructuredDataProperty", bOPs)
+      _topReifiedStructuredDataPropertySource <- lookup("topReifiedStructuredDataPropertySource", bOPs)
+      _topReifiedStructuredDataPropertyTarget <- lookup("topReifiedStructuredDataPropertyTarget", bOPs)
+      _topDataProperty <- lookup("topDataProperty", bDPs)
+    } yield {
+      val b = for {
+        t <- _Thing
+        a <- _Aspect
+        e <- _Entity
+        st <- _StructuredDatatype
+        rop <- _ReifiedObjectProperty
+        rsdp <- _ReifiedStructuredDataProperty
+        tOP <- _topObjectProperty
+        tROP <- _topReifiedObjectProperty
+        tROPs <- _topReifiedObjectPropertySource
+        tROPt <- _topReifiedObjectPropertyTarget
+        tRSDP <- _topReifiedStructuredDataProperty
+        tRSDPs <- _topReifiedStructuredDataPropertySource
+        tRSDPt <- _topReifiedStructuredDataPropertyTarget
+        tDP <- _topDataProperty
+      } yield
+        new OMFBackbone(ont, kind,
+          Thing = t.getIRI,
+          Aspect = a.getIRI,
+          Entity = e.getIRI,
+          StructuredDatatype = st.getIRI,
+          ReifiedObjectProperty = rop.getIRI,
+          ReifiedStructuredDataProperty = rsdp.getIRI,
+          topObjectProperty = tOP.getIRI,
+          topReifiedObjectProperty = tROP.getIRI,
+          topReifiedObjectPropertySource = tROPs.getIRI,
+          topReifiedObjectPropertyTarget = tROPt.getIRI,
+          topReifiedStructuredDataProperty = tRSDP.getIRI,
+          topReifiedStructuredDataPropertySource = tRSDPs.getIRI,
+          topReifiedStructuredDataPropertyTarget = tRSDPt.getIRI,
+          topDataProperty = tDP.getIRI)
 
-    b match {
-      case Some( backbone ) =>
-        Success( backbone )
-      case None =>
-        Success( new NoBackbone( ont ) )
+      val r = b.getOrElse(
+        new NoBackbone(ont)
+      )
+
+      r
     }
   }
 }

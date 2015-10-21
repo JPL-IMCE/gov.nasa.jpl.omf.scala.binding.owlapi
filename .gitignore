@@ -1,4 +1,5 @@
 .cache
+.ensime*
 .idea
 .project
 bin*

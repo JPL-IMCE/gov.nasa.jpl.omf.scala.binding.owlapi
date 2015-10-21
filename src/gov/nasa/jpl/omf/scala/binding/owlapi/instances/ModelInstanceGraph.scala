@@ -43,14 +43,17 @@ import java.io.OutputStream
 import org.semanticweb.owlapi.model.OWLOntology
 import org.semanticweb.owlapi.model.IRI
 import scala.collection.immutable._
-import scala.Unit
-import scala.util.Try
+import scala.{StringContext,Unit}
+import scala.util.control.Exception._
+import scalaz._, Scalaz._
+
+import gov.nasa.jpl.omf.scala.core.OMFError
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.ImmutableModelTerminologyGraph
 
-abstract class ModelInstanceGraph(
-    val tboxes: scala.collection.Iterable[gov.nasa.jpl.omf.scala.binding.owlapi.types.ImmutableModelTerminologyGraph],
-    val imports: scala.collection.Iterable[ImmutableModelInstanceGraph],
-    protected val ont: OWLOntology ) {
+abstract class ModelInstanceGraph
+( val tboxes: scala.collection.Iterable[gov.nasa.jpl.omf.scala.binding.owlapi.types.ImmutableModelTerminologyGraph],
+  val imports: scala.collection.Iterable[ImmutableModelInstanceGraph],
+  protected val ont: OWLOntology ) {
     
   protected val objects: scala.collection.Seq[ModelInstanceObject]
   protected val relations: scala.collection.Seq[ModelInstanceRelation]
@@ -90,11 +93,34 @@ abstract class ModelInstanceGraph(
       s2sc.to[Iterable],
       s2st.to[Iterable] )
 
-  def save: Try[Unit] = Try {
-    ontManager.saveOntology(ont)
-  }
+  def save
+  : NonEmptyList[java.lang.Throwable] \/ Unit =
+    nonFatalCatch[Unit]
+      .withApply {
+        (cause: java.lang.Throwable) =>
+          NonEmptyList(
+            OMFError.omfException(
+              s"saving ModelInstanceGraph failed: ${cause.getMessage}",
+              cause)
+          ).left
+      }
+      .apply({
+        ontManager.saveOntology(ont).right
+      })
 
-  def save( os: OutputStream ): Try[Unit] = Try {
-    ontManager.saveOntology(ont, os)
-  }
+  def save( os: OutputStream )
+  : NonEmptyList[java.lang.Throwable] \/ Unit =
+    nonFatalCatch[Unit]
+      .withApply {
+        (cause: java.lang.Throwable) =>
+          NonEmptyList(
+            OMFError.omfException(
+              s"saving ModelInstanceGraph failed: ${cause.getMessage}",
+              cause)
+          ).left
+      }
+      .apply({
+        ontManager.saveOntology(ont, os).right
+      })
+
 }

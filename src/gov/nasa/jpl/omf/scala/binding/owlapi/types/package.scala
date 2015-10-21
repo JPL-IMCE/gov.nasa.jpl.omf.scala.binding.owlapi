@@ -38,10 +38,147 @@
  */
 package gov.nasa.jpl.omf.scala.binding.owlapi
 
+
+import gov.nasa.jpl.omf.scala.binding.owlapi.types.AxiomExceptionKind._
+import gov.nasa.jpl.omf.scala.binding.owlapi.types.AxiomScopeAccessKind._
+import gov.nasa.jpl.omf.scala.binding.owlapi.types.EntityExceptionKind._
+import gov.nasa.jpl.omf.scala.binding.owlapi.types.RelationshipScopeAccessKind._
+import gov.nasa.jpl.omf.scala.core.TerminologyKind
+
+import org.semanticweb.owlapi.model._
+
+import scala.{Option,None,Some,Unit}
+import scala.collection.JavaConversions._
 import scala.collection.immutable._
+import scala.Predef.String
+import scalaz._, Scalaz._
 
 package object types {
 
   type Mutable2IMutableTerminologyMap = Map[MutableModelTerminologyGraph, ImmutableModelTerminologyGraph]
 
+  def entityAlreadyDefinedException
+  (kind: EntityExceptionKind,
+   iri: IRI,
+   term: ModelTypeTerm)
+  : java.lang.Throwable =
+    EntityAlreadyDefinedException(kind, iri, term)
+
+  def entityConflictException
+  (kind: EntityExceptionKind,
+   iri: IRI,
+   conflictingTerm: ModelTypeTerm)
+  : java.lang.Throwable =
+    EntityConflictException(kind, iri, conflictingTerm)
+
+  def entityScopeException
+  (kind: EntityExceptionKind,
+   iri: IRI,
+   unaccessibleTerms: Map[RelationshipScopeAccessKind, ModelTypeTerm])
+  : java.lang.Throwable =
+    EntityScopeException(kind, iri, unaccessibleTerms)
+
+  def axiomScopeException
+  (kind: AxiomExceptionKind,
+   unaccessibleTerms: Map[AxiomScopeAccessKind, ModelTypeTerm])
+  : java.lang.Throwable =
+    AxiomScopeException(kind, unaccessibleTerms)
+
+  def duplicateModelTermAxiomException
+  (kind: AxiomExceptionKind,
+   axiom: ModelTermAxiom)
+  : java.lang.Throwable =
+    DuplicateModelTermAxiomException(kind, axiom)
+
+
+  def immutableModelTerminologyGraphResolver
+  (omfMetadata: OWLOntology,
+   imports: Iterable[ImmutableModelTerminologyGraph],
+   ont: OWLOntology,
+   omfStore: OWLAPIOMFGraphStore)
+  : NonEmptyList[java.lang.Throwable] \/ ImmutableModelTerminologyGraphResolver = {
+    implicit val ops = omfStore.ops
+
+    val ontOps = new OWLOntologyOps(ont)
+
+    val isTboxDef = ontOps.isOntologyTBoxDefinition
+    val IsTboxTop = ontOps.isOntologyTBoxToplevel
+    val kind =
+      if (isTboxDef)
+        if (IsTboxTop)
+          TerminologyKind.isToplevelDefinition
+        else
+          TerminologyKind.isDefinition
+      else
+      if (IsTboxTop)
+        TerminologyKind.isToplevelDesignation
+      else
+        TerminologyKind.isDesignation
+
+    val getOntologyShortName: Option[String] =
+      ont
+        .getAnnotations
+        .find(_.getProperty.getIRI == ops.rdfs_label)
+        .flatMap(_.getValue match {
+          case l: OWLLiteral =>
+            Some(l.getLiteral)
+          case _ =>
+            None
+        })
+
+    val getOntologyUUID: Option[String] =
+      ont
+        .getAnnotations
+        .find(_.getProperty.getIRI == ops.AnnotationHasUUID)
+        .flatMap(_.getValue match {
+          case l: OWLLiteral =>
+            Some(l.getLiteral)
+          case _ =>
+            None
+        })
+
+    ops
+    .resolveTerminologyGraph(o = omfMetadata, ont = ont, kind = kind)(omfStore)
+    .flatMap { g: MutableModelTerminologyGraph =>
+
+      for {
+        _ <- omfStore.ops.setTerminologyGraphShortName(g, getOntologyShortName)(omfStore)
+        _ <- omfStore.ops.setTerminologyGraphUUID(g, getOntologyUUID)(omfStore)
+        _ <- {
+          (().right[NonEmptyList[java.lang.Throwable]] /: imports) {
+            (acc: NonEmptyList[java.lang.Throwable] \/ Unit, importG: ImmutableModelTerminologyGraph) =>
+            acc +++
+            omfStore.createTerminologyGraphDirectExtensionAxiom(extendingG = g, extendedG = importG).map(_ => ())
+          }
+        }
+      } yield
+            ImmutableModelTerminologyGraphResolver(ResolverHelper(omfMetadata, g, imports, ont, omfStore))
+    }
+
+
+  }
+
+  implicit def OWLClass2ModelEntityDefinitionSemigroup
+  : Semigroup[Map[OWLClass, ModelEntityDefinition]] =
+    Semigroup.instance(_ ++ _)
+
+  implicit def OWLClass2ModelEntityAspectSemigroup
+  : Semigroup[Map[OWLClass, ModelEntityAspect]] =
+    Semigroup.instance(_ ++ _)
+
+  implicit def OWLClass2ModelEntityConceptSemigroup
+  : Semigroup[Map[OWLClass, ModelEntityConcept]] =
+    Semigroup.instance(_ ++ _)
+
+  implicit def OWLClass2ModelEntityReifiedRelationshipSemigroup
+  : Semigroup[Map[OWLClass, ModelEntityReifiedRelationship]] =
+    Semigroup.instance(_ ++ _)
+
+  implicit def OWLClass2ModelStructuredDataTypeSemigroup
+  : Semigroup[Map[OWLClass, ModelStructuredDataType]] =
+    Semigroup.instance(_ ++ _)
+
+  implicit def OWLDatatype2ModelScalarDataTypeSemigroup
+  : Semigroup[Map[OWLDatatype, ModelScalarDataType]] =
+    Semigroup.instance(_ ++ _)
 }

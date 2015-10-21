@@ -38,8 +38,6 @@
  */
 package gov.nasa.jpl.omf.scala.binding.owlapi
 
-import java.io.OutputStream
-import java.lang.IllegalArgumentException
 import java.net.URI
 
 import gov.nasa.jpl.omf.scala.core._
@@ -48,46 +46,73 @@ import gov.nasa.jpl.omf.scala.core.TerminologyKind._
 
 import org.apache.commons.codec.binary.Hex
 import org.apache.commons.codec.digest.DigestUtils
-import org.semanticweb.owlapi.model.{OWLNamedIndividual, IRI, OWLOntologyManager, OWLOntology}
+import org.semanticweb.owlapi.model._
 
-import scala.{Boolean,Option,None,Some,StringContext,Unit}
+import scala.util.control.Exception._
+import scala.{AnyVal,Boolean,Option,None,Some,StringContext,Unit}
+import scala.collection.JavaConversions._
 import scala.collection.immutable._
-import scala.util.Try
-import scala.util.Success
-import scala.util.Failure
 import scala.Predef.{Set=>_,Map=>_,_}
+import scalaz._, Scalaz._
+
+object OWLAPIIRIOps {
+
+  def makeIRI
+  (s: String)
+  : NonEmptyList[java.lang.Throwable] \/IRI =
+    nonFatalCatch[Unit]
+      .withApply {
+        (cause: java.lang.Throwable) =>
+          NonEmptyList(
+            OMFError.omfException(
+              s"makeIR('$s') failed: ${cause.getMessage}",
+              cause)
+          ).left
+      }
+      .apply({
+        org.semanticweb.owlapi.model.IRI.create(s).right
+      })
+}
 
 trait OWLAPIIRIOps
   extends IRIOps[OWLAPIOMF] {
 
-  def iri2hash(prefix: String, iri: IRI): String =
+  def iri2hash(prefix: String, iri: IRI)
+  : String =
     Hex.encodeHexString(DigestUtils.sha(prefix + iri.toString))
 
   // IRI
 
   override def makeIRI
-  (s: String) =
-    org.semanticweb.owlapi.model.IRI.create(s)
+  (s: String)
+  : NonEmptyList[java.lang.Throwable] \/IRI =
+    OWLAPIIRIOps.makeIRI(s)
 
   def withFragment
   (iri: IRI, fragment: Option[String])
-  : Try[Option[IRI]] =
-    fragment match {
-      case None            => Success(None)
-      case Some(_fragment) => withFragment(iri, _fragment) match {
-        case Success(_iri) => Success(Some(_iri))
-        case Failure(t)    => Failure(t)
-      }
+  : NonEmptyList[java.lang.Throwable] \/ IRI =
+    fragment
+    .fold[NonEmptyList[java.lang.Throwable] \/ IRI](
+      iri.right
+    ){ _fragment =>
+      withFragment(iri, _fragment)
     }
 
   override def withFragment
-  (iri: IRI, fragment: String) = {
+  (iri: IRI, fragment: String)
+  : NonEmptyList[java.lang.Throwable] \/ IRI = {
     val u = iri.toURI
-    u.getFragment match {
-      case f: String if f.nonEmpty =>
-        Failure(IRIFragmentException(iri))
-      case _                       =>
-        Success(org.semanticweb.owlapi.model.IRI.create(u.resolve("#" + fragment)))
+    Option.apply(u.getFragment)
+    .fold[NonEmptyList[java.lang.Throwable] \/ IRI](
+      org.semanticweb.owlapi.model.IRI.create(u.resolve("#" + fragment)).right
+    ){ f =>
+      NonEmptyList(
+        OMFError
+        .omfException(
+          s"Cannot add fragment '$fragment' to IRI: $iri",
+          IRIFragmentException(iri)
+        )
+      ).left
     }
   }
 
@@ -103,14 +128,6 @@ trait OWLAPIIRIOps
           None)
     }
   }
-
-  def getIRIFragment(iri: IRI): String =
-    splitIRI(iri) match {
-      case (_, None)    =>
-        throw new IllegalArgumentException(s"IRI must have a fragment: $iri")
-      case (_, Some(f)) =>
-        f
-    }
 
   override def toAbbreviatedName
   (iri: IRI, lowercaseFragmentInitial: Boolean) =
@@ -172,7 +189,7 @@ trait OWLAPIStoreOps
   override def loadTerminologyGraph
   (iri: IRI)
   (implicit store: OWLAPIOMFGraphStore)
-  : Try[(types.ImmutableModelTerminologyGraph, types.Mutable2IMutableTerminologyMap)] =
+  : NonEmptyList[java.lang.Throwable] \/ (types.ImmutableModelTerminologyGraph, types.Mutable2IMutableTerminologyMap) =
     store.loadTerminologyGraph(iri)(this)
 
   override def fromTerminologyGraph
@@ -185,21 +202,21 @@ trait OWLAPIStoreOps
   (parentG: types.MutableModelTerminologyGraph,
    nestedG: types.ModelTerminologyGraph)
   (implicit store: OWLAPIOMFGraphStore)
-  : Try[types.TerminologyGraphDirectNestingAxiom] =
+  : NonEmptyList[java.lang.Throwable] \/ types.TerminologyGraphDirectNestingAxiom =
     store.createTerminologyGraphDirectNestingAxiom(parentG, nestedG)
 
   override def addTerminologyGraphExtension
   (extendingG: types.MutableModelTerminologyGraph,
    extendedG: types.ModelTerminologyGraph)
   (implicit store: OWLAPIOMFGraphStore)
-  : Try[types.TerminologyGraphDirectExtensionAxiom] =
+  : NonEmptyList[java.lang.Throwable] \/ types.TerminologyGraphDirectExtensionAxiom =
     extendingG.addTerminologyGraphExtension(extendedG)
 
   override def makeTerminologyGraph
   (iri: IRI,
    kind: TerminologyKind)
   (implicit store: OWLAPIOMFGraphStore)
-  : Try[types.MutableModelTerminologyGraph] =
+  : NonEmptyList[java.lang.Throwable] \/ types.MutableModelTerminologyGraph =
     store.makeTerminologyGraph(iri, kind)(this)
 
   override def saveTerminologyGraph
@@ -209,7 +226,7 @@ trait OWLAPIStoreOps
 
   override def saveTerminologyGraph
   (g: types.ModelTerminologyGraph,
-   os: OutputStream)
+   os: java.io.OutputStream)
   (implicit store: OWLAPIOMFGraphStore) =
     store.saveTerminologyGraph(g, os)(this)
 
@@ -223,13 +240,13 @@ trait OWLAPIStoreOps
    ont: OWLOntology,
    kind: TerminologyKind.TerminologyKind)
   (implicit store: OWLAPIOMFGraphStore)
-  : Try[types.MutableModelTerminologyGraph] =
+  : NonEmptyList[java.lang.Throwable] \/ types.MutableModelTerminologyGraph =
     store.createOMFModelTerminologyGraph(o, ont.getOntologyID.getOntologyIRI.get, ont, kind)
 
   override def loadInstanceGraph
   (iri: IRI)
   (implicit store: OWLAPIOMFGraphStore):
-  Try[instances.ImmutableModelInstanceGraph] =
+  NonEmptyList[java.lang.Throwable] \/ instances.ImmutableModelInstanceGraph =
     store.loadInstanceGraph(iri)
 
   override def fromInstanceGraph
@@ -239,7 +256,7 @@ trait OWLAPIStoreOps
   override def asImmutableInstanceGraph
   (g: instances.MutableModelInstanceGraph)
   (implicit store: OWLAPIOMFGraphStore)
-  : Try[instances.ImmutableModelInstanceGraph] =
+  : NonEmptyList[java.lang.Throwable] \/ instances.ImmutableModelInstanceGraph =
     store.asImmutableInstanceGraph(g)
 
   override def makeInstanceGraph
@@ -247,19 +264,19 @@ trait OWLAPIStoreOps
    instantiatedTGraphs: Iterable[types.ImmutableModelTerminologyGraph],
    extendedIGraphs: Iterable[instances.ImmutableModelInstanceGraph])
   (implicit store: OWLAPIOMFGraphStore)
-  : Try[instances.MutableModelInstanceGraph] =
+  : NonEmptyList[java.lang.Throwable] \/ instances.MutableModelInstanceGraph =
     store.makeInstanceGraph(iri, instantiatedTGraphs, extendedIGraphs)
 
   override def saveInstanceGraph
   (g: instances.ModelInstanceGraph)
   (implicit store: OWLAPIOMFGraphStore)
-  : Try[Unit] =
+  : NonEmptyList[java.lang.Throwable] \/ Unit =
     g.save
 
   override def saveInstanceGraph
-  (g: instances.ModelInstanceGraph, os: OutputStream)
+  (g: instances.ModelInstanceGraph, os: java.io.OutputStream)
   (implicit store: OWLAPIOMFGraphStore)
-  : Try[Unit] =
+  : NonEmptyList[java.lang.Throwable] \/ Unit =
     g.save(os)
 
 }
@@ -605,14 +622,14 @@ trait OWLAPIMutableTerminologyGraphOps
   (graph: types.MutableModelTerminologyGraph,
    name: Option[String])
   (implicit store: OWLAPIOMFGraphStore)
-  : Try[Unit] =
+  : NonEmptyList[java.lang.Throwable] \/ Unit =
     graph.setTerminologyGraphShortName(name)
 
   override def setTerminologyGraphUUID
   (graph: types.MutableModelTerminologyGraph,
    uuid: Option[String])
   (implicit store: OWLAPIOMFGraphStore)
-  : Try[Unit] =
+  : NonEmptyList[java.lang.Throwable] \/ Unit =
     graph.setTerminologyGraphUUID(uuid)
 
   override def setTermShortName
@@ -620,7 +637,7 @@ trait OWLAPIMutableTerminologyGraphOps
    term: types.ModelTypeTerm,
    name: Option[String])
   (implicit store: OWLAPIOMFGraphStore)
-  : Try[Unit] =
+  : NonEmptyList[java.lang.Throwable] \/ Unit =
     graph.setTermShortName(term, name)
 
   override def setTermUUID
@@ -628,7 +645,7 @@ trait OWLAPIMutableTerminologyGraphOps
    term: types.ModelTypeTerm,
    uuid: Option[String])
   (implicit store: OWLAPIOMFGraphStore)
-  : Try[Unit] =
+  : NonEmptyList[java.lang.Throwable] \/ Unit =
     graph.setTermUUID(term, uuid)
 
   // entity facet
@@ -637,7 +654,7 @@ trait OWLAPIMutableTerminologyGraphOps
   (graph: types.MutableModelTerminologyGraph,
    aspectName: String)
   (implicit store: OWLAPIOMFGraphStore)
-  : Try[types.ModelEntityAspect] =
+  : NonEmptyList[java.lang.Throwable] \/ types.ModelEntityAspect =
     for {
       aspectIRI <- withFragment(graph.iri, aspectName)
       result <- graph.addEntityAspect(aspectIRI)
@@ -651,7 +668,7 @@ trait OWLAPIMutableTerminologyGraphOps
    conceptName: String,
    isAbstract: Boolean)
   (implicit store: OWLAPIOMFGraphStore)
-  : Try[types.ModelEntityConcept] =
+  : NonEmptyList[java.lang.Throwable] \/ types.ModelEntityConcept =
     for {
       conceptIRI <- withFragment(graph.iri, conceptName)
       result <- graph.addEntityConcept(conceptIRI, isAbstract)
@@ -670,7 +687,7 @@ trait OWLAPIMutableTerminologyGraphOps
    unreifiedInverseRelationshipName: Option[String],
    isAbstract: Boolean)
   (implicit store: OWLAPIOMFGraphStore)
-  : Try[types.ModelEntityReifiedRelationship] =
+  : NonEmptyList[java.lang.Throwable] \/ types.ModelEntityReifiedRelationship =
     for {
       rIRI <- withFragment(graph.iri, reifiedRelationshipName)
       rIRISource = toSourceIRI(rIRI)
@@ -680,7 +697,7 @@ trait OWLAPIMutableTerminologyGraphOps
       result <- graph.addEntityReifiedRelationship(
                                                     rIRI,
                                                     rIRISource, rIRITarget,
-                                                    uIRI, uiIRI,
+                                                    uIRI, uiIRI.some,
                                                     source, target,
                                                     characteristics, isAbstract)
       _ <- store.registerOMFModelEntityReifiedRelationshipInstance(graph, result)
@@ -692,7 +709,7 @@ trait OWLAPIMutableTerminologyGraphOps
   (graph: types.MutableModelTerminologyGraph,
    scalarName: String)
   (implicit store: OWLAPIOMFGraphStore)
-  : Try[types.ModelScalarDataType] =
+  : NonEmptyList[java.lang.Throwable] \/ types.ModelScalarDataType =
     for {
       scalarIRI <- withFragment(graph.iri, scalarName)
       result <- graph.addScalarDataType(scalarIRI)
@@ -705,7 +722,7 @@ trait OWLAPIMutableTerminologyGraphOps
   (graph: types.MutableModelTerminologyGraph,
    structureName: String)
   (implicit store: OWLAPIOMFGraphStore)
-  : Try[types.ModelStructuredDataType] =
+  : NonEmptyList[java.lang.Throwable] \/ types.ModelStructuredDataType =
     for {
       structureIRI <- withFragment(graph.iri, structureName)
       result <- graph.addStructuredDataType(structureIRI)
@@ -782,7 +799,7 @@ trait OWLAPIMutableTerminologyGraphOps
    entityConceptDesignation: types.ModelEntityConcept,
    designationTerminologyGraph: types.ModelTerminologyGraph)
   (implicit store: OWLAPIOMFGraphStore)
-  : Try[types.EntityConceptDesignationTerminologyGraphAxiom] =
+  : NonEmptyList[java.lang.Throwable] \/ types.EntityConceptDesignationTerminologyGraphAxiom =
     graph.addEntityConceptDesignationTerminologyGraphAxiom(entityConceptDesignation, designationTerminologyGraph)
 
   override def addEntityConceptSubClassAxiom
@@ -790,7 +807,7 @@ trait OWLAPIMutableTerminologyGraphOps
    sub: types.ModelEntityConcept,
    sup: types.ModelEntityConcept)
   (implicit store: OWLAPIOMFGraphStore)
-  : Try[types.EntityConceptSubClassAxiom] =
+  : NonEmptyList[java.lang.Throwable] \/ types.EntityConceptSubClassAxiom =
     graph.addEntityConceptSubClassAxiom(sub, sup)
 
   // entity concept restriction axioms
@@ -801,7 +818,7 @@ trait OWLAPIMutableTerminologyGraphOps
    rel: types.ModelEntityReifiedRelationship,
    range: types.ModelEntityDefinition)
   (implicit store: OWLAPIOMFGraphStore)
-  : Try[types.EntityConceptUniversalRestrictionAxiom] =
+  : NonEmptyList[java.lang.Throwable] \/ types.EntityConceptUniversalRestrictionAxiom =
     graph.addEntityConceptUniversalRestrictionAxiom(sub, rel, range)
 
   override def addEntityConceptExistentialRestrictionAxiom
@@ -810,7 +827,7 @@ trait OWLAPIMutableTerminologyGraphOps
    rel: types.ModelEntityReifiedRelationship,
    range: types.ModelEntityDefinition)
   (implicit store: OWLAPIOMFGraphStore)
-  : Try[types.EntityConceptExistentialRestrictionAxiom] =
+  : NonEmptyList[java.lang.Throwable] \/ types.EntityConceptExistentialRestrictionAxiom =
     graph.addEntityConceptExistentialRestrictionAxiom(sub, rel, range)
 
   // entity relationship subclass axiom
@@ -917,7 +934,7 @@ trait OWLAPIMutableInstanceGraphOps
    conceptType: types.ModelEntityConcept,
    fragment: String)
   (implicit store: OWLAPIOMFGraphStore)
-  : Try[instances.ModelInstanceObject] =
+  : NonEmptyList[java.lang.Throwable] \/ instances.ModelInstanceObject =
     ???
 
   // instance relation
@@ -929,7 +946,7 @@ trait OWLAPIMutableInstanceGraphOps
    target: instances.ModelEntityInstance,
    fragment: String)
   (implicit store: OWLAPIOMFGraphStore)
-  : Try[instances.ModelInstanceRelation] =
+  : NonEmptyList[java.lang.Throwable] \/ instances.ModelInstanceRelation =
     ???
 
   // data literal
@@ -939,7 +956,7 @@ trait OWLAPIMutableInstanceGraphOps
    datatype: types.ModelScalarDataType,
    lexicalForm: String)
   (implicit store: OWLAPIOMFGraphStore)
-  : Try[instances.ModelInstanceDataLiteral] =
+  : NonEmptyList[java.lang.Throwable] \/ instances.ModelInstanceDataLiteral =
     ???
 
   // data structure
@@ -949,7 +966,7 @@ trait OWLAPIMutableInstanceGraphOps
    datatype: types.ModelStructuredDataType,
    fragment: String)
   (implicit store: OWLAPIOMFGraphStore)
-  : Try[instances.ModelInstanceDataStructure] =
+  : NonEmptyList[java.lang.Throwable] \/ instances.ModelInstanceDataStructure =
     ???
 
   // data property from entity to scalar
@@ -960,7 +977,7 @@ trait OWLAPIMutableInstanceGraphOps
    e2sc: types.ModelDataRelationshipFromEntityToScalar,
    value: instances.ModelInstanceDataLiteral)
   (implicit store: OWLAPIOMFGraphStore)
-  : Try[instances.ModelInstanceDataRelationshipFromEntityToScalar] =
+  : NonEmptyList[java.lang.Throwable] \/ instances.ModelInstanceDataRelationshipFromEntityToScalar =
     ???
 
   // data property from entity to structure
@@ -995,43 +1012,79 @@ trait OWLAPIMutableInstanceGraphOps
 }
 
 class OWLAPIOMFOps
+( val rdfs_label: IRI,
+  val OMF_TBox_DataProperty_HasShortName: IRI,
+  val OMF_TBox_DataProperty_HasUUID: IRI,
+  val AnnotationHasUUID: IRI,
+  val AnnotationIsAbstract: IRI,
+  val AnnotationIsDerived: IRI,
+  val AnnotationIsDefinition: IRI,
+  val AnnotationIsDesignation: IRI,
+  val AnnotationIsToplevel: IRI)
   extends OMFOps[OWLAPIOMF]
           with OWLAPIIRIOps
           with OWLAPIMutableTerminologyGraphOps
           with OWLAPIMutableInstanceGraphOps
           with OWLAPIStoreOps {
 
-  val rdfs_label =
-    makeIRI("http://www.w3.org/2000/01/rdf-schema#label")
+}
 
-  val OMF_TBox_DataProperty_HasShortName =
-    makeIRI("http://imce.jpl.nasa.gov/foundation/omf/omfMetadata#hasShortName")
+final class OWLOntologyOps
+(val ont: OWLOntology)
+(implicit val ops: OWLAPIOMFOps) {
 
-  val OMF_TBox_DataProperty_HasUUID =
-    makeIRI("http://imce.jpl.nasa.gov/foundation/omf/omfMetadata#hasUUID")
+  def isOntologyTBoxToplevel: Boolean = {
+    for {
+      aaa <- ont.getAnnotations
+      if aaa.getProperty.getIRI == ops.AnnotationIsToplevel
+    } {
+      aaa.getValue match {
+        case l: OWLLiteral if l.isBoolean =>
+          return l.parseBoolean
+        case _ =>
+          ()
+      }
+    }
 
-  val AnnotationHasUUID =
-    makeIRI("http://imce.jpl.nasa.gov/foundation/annotation/annotation#hasUUID")
+    false
+  }
 
-  val AnnotationIsAbstract =
-    makeIRI("http://imce.jpl.nasa.gov/foundation/annotation/annotation#isAbstract")
+  def isOntologyTBoxDefinition: Boolean = {
+    for {
+      aaa <- ont.getAnnotations
+      if aaa.getProperty.getIRI == ops.AnnotationIsDefinition
+    } {
+      aaa.getValue match {
+        case l: OWLLiteral if l.isBoolean =>
+          return l.parseBoolean
+        case _ =>
+          ()
+      }
+    }
 
-  val AnnotationIsDerived =
-    makeIRI("http://imce.jpl.nasa.gov/foundation/annotation/annotation#isDerived")
+    true
+  }
 
-  val AnnotationIsDefinition =
-    makeIRI("http://imce.jpl.nasa.gov/foundation/annotation/annotation#isDefinition")
+  def isOntologyTBoxDesignation: Boolean = {
+    for {
+      aaa <- ont.getAnnotations
+      if aaa.getProperty.getIRI == ops.AnnotationIsDesignation
+    } {
+      aaa.getValue match {
+        case l: OWLLiteral if l.isBoolean =>
+          return l.parseBoolean
+        case _ =>
+          ()
+      }
+    }
 
-  val AnnotationIsDesignation =
-    makeIRI("http://imce.jpl.nasa.gov/foundation/annotation/annotation#isDesignation")
-
-  val AnnotationIsToplevel =
-    makeIRI("http://imce.jpl.nasa.gov/foundation/annotation/annotation#isToplevel")
+    false
+  }
 
 }
 
 sealed abstract class IRIArgumentException(val message: String)
-  extends IllegalArgumentException(message) {
+  extends java.lang.IllegalArgumentException(message) {
   require(null != message)
 }
 
