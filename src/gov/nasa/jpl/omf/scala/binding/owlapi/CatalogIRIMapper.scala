@@ -56,7 +56,7 @@ import scalaz._, Scalaz._
 
 class CatalogURIMapperException
 (override val message: String,
- override val cause: Option[java.lang.Throwable] = None)
+ override val cause: OMFError.OptionThrowableNel = OMFError.emptyThrowableNel)
   extends OMFError.OMFException(message, cause)
 
 @HasPriority(0)
@@ -87,7 +87,7 @@ case class CatalogIRIMapper
           NonEmptyList(
             catalogURIMapperException(
               s"parseCatalog: catalogURI:$catalogURI failed: ${cause.getMessage}",
-              cause.some)
+              cause)
           ).left
       }
       .apply({

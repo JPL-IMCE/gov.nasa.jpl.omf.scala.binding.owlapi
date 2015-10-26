@@ -38,15 +38,23 @@
  */
 package gov.nasa.jpl.omf.scala.binding
 
-import scala.{Option, None}
+import gov.nasa.jpl.omf.scala.core.OMFError
+
 import scala.Predef.String
+import scalaz._, Scalaz._
 
 package object owlapi {
 
   def catalogURIMapperException
   (message: String,
-   cause: Option[java.lang.Throwable] = None)
+   cause: OMFError.OptionThrowableNel = OMFError.emptyThrowableNel)
   : java.lang.Throwable =
     new CatalogURIMapperException(message, cause)
+
+  def catalogURIMapperException
+  (message: String,
+   cause: java.lang.Throwable)
+  : java.lang.Throwable =
+    new CatalogURIMapperException(message, cause.wrapNel.some)
 
 }

@@ -1,7 +1,7 @@
 object Versions {
 
   // JPL Ontology Modeling Framework Core
-  val jpl_omf_core_revision="788b38bb923a6a5ba1ad3a11ca2a55189f703571"
+  val jpl_omf_core_revision="6aab7d74ebd60a1cf2dbe06ed891680f895569ed"
 
   // JPL MBEE Common Scala Libraries
   val jpl_mbee_common_scala_libraries_revision="202d290d17805d26522329ceb8c09fe5945ffebf"
