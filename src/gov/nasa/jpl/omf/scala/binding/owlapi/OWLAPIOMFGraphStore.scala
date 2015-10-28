@@ -1528,10 +1528,15 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
 
         mgInfo.nesting match {
           case Some(mgParent) =>
-            require(visited.contains(mgParent) ||
-                    acc.contains(mgParent) ||
-                    queue.contains(mgParent),
-                    s"queue.head: ${queue.head.kindIRI}, nesting parent: ${mgParent.kindIRI}")
+
+            val ok1 = visited.contains(mgParent)
+            val ok2 = acc.find {
+              case (m: types.MutableModelTerminologyGraph, _: types.ImmutableModelTerminologyGraph) =>
+                m.equals(mgParent)
+            }.nonEmpty
+            val ok3 = queue.contains(mgParent)
+            require(ok1 || ok2 || ok3,
+                    s"queue.head: ${queue.head.kindIRI}, nesting parent: ${mgParent.kindIRI} (ok1=$ok1, ok2=$ok2, ok3=$ok3")
           case None           =>
             ()
         }
