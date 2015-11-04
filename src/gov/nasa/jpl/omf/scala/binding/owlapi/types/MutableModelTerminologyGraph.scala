@@ -176,37 +176,28 @@ case class MutableModelTerminologyGraph
         .fold[NonEmptyList[java.lang.Throwable] \/ Unit](
           \/-(())
         ){ annotation =>
-          ontManager
-          .applyChange(new RemoveOntologyAnnotation(ont, annotation)) match {
-            case ChangeApplied.SUCCESSFULLY   =>
-              \/-(())
-            case ChangeApplied.UNSUCCESSFULLY =>
-              NonEmptyList(
-                OMFError.omfBindingError(s"Failed to remove the tbox ontology 'rdfs:label' annotation")
-              ).left
-          }
+          applyOntologyChange(
+            ontManager,
+            new RemoveOntologyAnnotation(ont, annotation),
+            ifError="Failed to remove the tbox ontology 'rdfs:label' annotation")
         }
       c2 <-
         shortName
         .fold[NonEmptyList[java.lang.Throwable] \/ Unit](
           \/-(())
         ){ label =>
-          ontManager
-          .applyChange(
+          applyOntologyChange(
+            ontManager,
             new AddOntologyAnnotation(
               ont,
-              owlDataFactory.getOWLAnnotation(omfStore.RDFS_LABEL, owlDataFactory.getOWLLiteral(label)))
-          ) match {
-            case ChangeApplied.SUCCESSFULLY   =>
+              owlDataFactory.getOWLAnnotation(omfStore.RDFS_LABEL, owlDataFactory.getOWLLiteral(label))),
+            ifError="Failed to add the tbox ontology 'rdfs:label' annotation",
+            ifSuccess=(() => {
+              omfStore.setTerminologyGraphShortName(this, label)
               if (LOG)
                 System.out.println(s"setTerminologyGraphShortName: $kindIRI name='$label'")
-              omfStore.setTerminologyGraphShortName(this, label)
-            case ChangeApplied.UNSUCCESSFULLY =>
-              NonEmptyList(
-                OMFError.omfBindingError(s"Failed to add the tbox ontology 'rdfs:label' annotation")
-              ).left
+            }).some)
           }
-      }
     } yield ()
 
   def setTerminologyGraphUUID
@@ -218,37 +209,28 @@ case class MutableModelTerminologyGraph
         getTerminologyGraphUUIDAnnotation
           .fold[NonEmptyList[java.lang.Throwable] \/ Unit](
           \/-(())
-        ){ annotation =>
-          ontManager
-            .applyChange(new RemoveOntologyAnnotation(ont, annotation)) match {
-            case ChangeApplied.SUCCESSFULLY   =>
-              \/-(())
-            case ChangeApplied.UNSUCCESSFULLY =>
-              NonEmptyList(
-                OMFError.omfBindingError(s"Failed to remove the tbox ontology 'uuid' annotation")
-              ).left
-          }
+        ) { annotation =>
+          applyOntologyChange(
+            ontManager,
+            new RemoveOntologyAnnotation(ont, annotation),
+            ifError = "Failed to remove the tbox ontology 'uuid' annotation")
         }
       c2 <-
         uuid
         .fold[NonEmptyList[java.lang.Throwable] \/ Unit](
           \/-(())
-        ){ id =>
-          ontManager
-            .applyChange(
-              new AddOntologyAnnotation(
-                ont,
-                owlDataFactory.getOWLAnnotation(omfStore.ANNOTATION_HAS_UUID, owlDataFactory.getOWLLiteral(id)))
-            ) match {
-            case ChangeApplied.SUCCESSFULLY   =>
+        ) { id =>
+          applyOntologyChange(
+            ontManager,
+            new AddOntologyAnnotation(
+              ont,
+              owlDataFactory.getOWLAnnotation(omfStore.ANNOTATION_HAS_UUID, owlDataFactory.getOWLLiteral(id))),
+            ifError = "Failed to add the tbox ontology 'uuid' annotation",
+            ifSuccess = (() => {
+              omfStore.setTerminologyGraphUUID(this, id)
               if (LOG)
                 System.out.println(s"setTerminologyGraphUUID: $kindIRI uuid='$id'")
-              omfStore.setTerminologyGraphUUID(this, id)
-            case ChangeApplied.UNSUCCESSFULLY =>
-              NonEmptyList(
-                OMFError.omfBindingError(s"Failed to add the tbox ontology 'uuid' annotation")
-              ).left
-          }
+            }).some)
         }
     } yield ()
 
@@ -336,43 +318,33 @@ case class MutableModelTerminologyGraph
       	getTermShortNameAnnotationAssertionAxiom(term)
         .fold[NonEmptyList[java.lang.Throwable] \/ Unit](
             \/-(())
-          ){ annotationAssertionAxiom =>
-            ontManager.applyChange(new RemoveAxiom(ont, annotationAssertionAxiom)) match {
-              case ChangeApplied.SUCCESSFULLY   =>
-                \/-(())
-              case ChangeApplied.UNSUCCESSFULLY =>
-                NonEmptyList(
-                  OMFError.omfBindingError(
-                    s"Failed to remove a tbox term 'rdfs:label' " +
-                      s"annotation assertion axiom")
-                ).left
-            }
+        ){ annotationAssertionAxiom =>
+          applyOntologyChange(
+            ontManager,
+            new RemoveAxiom(ont, annotationAssertionAxiom),
+            ifError="Failed to remove a tbox term 'rdfs:label' annotation assertion axiom")
           }
-
       c2 <-
       	shortName
         .fold[NonEmptyList[java.lang.Throwable] \/ Unit](
           \/-(())
         ){ label =>
-          ontManager
-          .applyChange(new AddAxiom(ont,
-                                    owlDataFactory
-                                    .getOWLAnnotationAssertionAxiom(omfStore.RDFS_LABEL,
-                                                                    term.iri,
-                                      owlDataFactory.getOWLLiteral(label)))
-          ) match {
-            case ChangeApplied.SUCCESSFULLY   =>
+          applyOntologyChange(
+            ontManager,
+            new AddAxiom(
+              ont,
+              owlDataFactory
+                .getOWLAnnotationAssertionAxiom(
+                  omfStore.RDFS_LABEL,
+                  term.iri,
+                  owlDataFactory.getOWLLiteral(label))),
+            ifError="Failed to add a tbox term 'rdfs:label' annotation assertion axiom",
+            ifSuccess=(() => {
+              omfStore.setTermShortName(this, term, label)
               if (LOG)
                 System.out.println(s"setTermShortName: ${term.iri} name='$label'")
-              omfStore.setTermShortName(this, term, label)
-            case ChangeApplied.UNSUCCESSFULLY =>
-              NonEmptyList(
-                OMFError.omfBindingError(
-                  s"Failed to add a tbox term 'rdfs:label' " +
-                    s"annotation assertion axiom")
-              ).left
+            }).some)
           }
-      }
     } yield ()
 
   def setTermUUID
@@ -386,16 +358,10 @@ case class MutableModelTerminologyGraph
         .fold[NonEmptyList[java.lang.Throwable] \/ Unit](
           \/-(())
         ){ annotationAssertionAxiom =>
-          ontManager.applyChange(new RemoveAxiom(ont, annotationAssertionAxiom)) match {
-            case ChangeApplied.SUCCESSFULLY   =>
-              \/-(())
-            case ChangeApplied.UNSUCCESSFULLY =>
-              NonEmptyList(
-                OMFError.omfBindingError(
-                  s"Failed to remove a tbox term 'uuid'" +
-                    s" annotation assertion axiom")
-              ).left
-          }
+          applyOntologyChange(
+            ontManager,
+            new RemoveAxiom(ont, annotationAssertionAxiom),
+            ifError="Failed to remove a tbox term 'uuid' annotation assertion axiom")
         }
 
       c2 <-
@@ -403,24 +369,20 @@ case class MutableModelTerminologyGraph
         .fold[NonEmptyList[java.lang.Throwable] \/ Unit](
           \/-(())
         ){ id =>
-          ontManager
-          .applyChange(new AddAxiom(ont,
+          applyOntologyChange(
+            ontManager,
+            new AddAxiom(
+              ont,
               owlDataFactory
                 .getOWLAnnotationAssertionAxiom(omfStore.ANNOTATION_HAS_UUID,
                   term.iri,
-                  owlDataFactory.getOWLLiteral(id)))
-            ) match {
-            case ChangeApplied.SUCCESSFULLY   =>
+                  owlDataFactory.getOWLLiteral(id))),
+            ifError="Failed to add a tbox term 'uuid' annotation assertion axiom",
+            ifSuccess=(() => {
+              omfStore.setTermUUID(this, term, id)
               if (LOG)
                 System.out.println(s"setTermUUID: ${term.iri} name='$id'")
-              omfStore.setTermUUID(this, term, id)
-            case ChangeApplied.UNSUCCESSFULLY =>
-              NonEmptyList(
-                OMFError.omfBindingError(
-                  s"Failed to add a tbox term 'uuid' " +
-                    s"annotation assertion axiom")
-              ).left
-          }
+            }).some)
         }
 
     } yield ()

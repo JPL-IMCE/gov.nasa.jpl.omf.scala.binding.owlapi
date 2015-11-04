@@ -39,7 +39,10 @@
 package gov.nasa.jpl.omf.scala.binding
 
 import gov.nasa.jpl.omf.scala.core.OMFError
+import org.semanticweb.owlapi.model.parameters.ChangeApplied
+import org.semanticweb.owlapi.model.{OWLOntologyChange, OWLOntologyManager}
 
+import scala.{Option,None,StringContext,Unit}
 import scala.Predef.String
 import scalaz._, Scalaz._
 
@@ -56,5 +59,38 @@ package object owlapi {
    cause: java.lang.Throwable)
   : java.lang.Throwable =
     new CatalogURIMapperException(message, cause.wrapNel.some)
+
+
+  def applyOntologyChange
+  (ontManager: OWLOntologyManager,
+   ontChange: OWLOntologyChange,
+   ifError: String,
+   ifSuccess: Option[() => Unit] = None)
+  : NonEmptyList[java.lang.Throwable] \/ Unit =
+  ontManager.applyChange(ontChange) match {
+    case ChangeApplied.SUCCESSFULLY =>
+      ifSuccess
+      .fold[NonEmptyList[java.lang.Throwable] \/ Unit](
+        \/-(())
+      ){ callback =>
+        \/.fromTryCatchNonFatal[Unit](callback())
+        .fold[NonEmptyList[java.lang.Throwable] \/ Unit](
+        l = (t: java.lang.Throwable) =>
+          -\/(
+            NonEmptyList(OMFError.omfBindingException(ifError, t))
+          ),
+        r = (_: Unit) =>
+          \/-(())
+        )
+      }
+    case ChangeApplied.NO_OPERATION =>
+      NonEmptyList(
+        OMFError.omfBindingError(s"$ifError (no-operation change)")
+      ).left
+    case ChangeApplied.UNSUCCESSFULLY =>
+      NonEmptyList(
+        OMFError.omfBindingError(s"$ifError (unsuccessful change)")
+      ).left
+  }
 
 }
