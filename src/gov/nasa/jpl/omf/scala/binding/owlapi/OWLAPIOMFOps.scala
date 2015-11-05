@@ -212,12 +212,20 @@ trait OWLAPIStoreOps
   : NonEmptyList[java.lang.Throwable] \/ types.TerminologyGraphDirectExtensionAxiom =
     extendingG.addTerminologyGraphExtension(extendedG)
 
+  def makeTerminologyGraph
+  (iri: IRI,
+   relativeIRIPath: Option[String],
+   kind: TerminologyKind)
+  (implicit store: OWLAPIOMFGraphStore)
+  : NonEmptyList[java.lang.Throwable] \/ types.MutableModelTerminologyGraph =
+    store.makeTerminologyGraph(iri, relativeIRIPath, kind)(this)
+
   override def makeTerminologyGraph
   (iri: IRI,
    kind: TerminologyKind)
   (implicit store: OWLAPIOMFGraphStore)
   : NonEmptyList[java.lang.Throwable] \/ types.MutableModelTerminologyGraph =
-    store.makeTerminologyGraph(iri, kind)(this)
+    store.makeTerminologyGraph(iri, relativeIRIPath=Option.empty[String], kind)(this)
 
   override def saveTerminologyGraph
   (g: types.ModelTerminologyGraph)
@@ -241,7 +249,9 @@ trait OWLAPIStoreOps
    kind: TerminologyKind.TerminologyKind)
   (implicit store: OWLAPIOMFGraphStore)
   : NonEmptyList[java.lang.Throwable] \/ types.MutableModelTerminologyGraph =
-    store.createOMFModelTerminologyGraph(o, ont.getOntologyID.getOntologyIRI.get, ont, kind)
+    store.createOMFModelTerminologyGraph(
+      o, ont.getOntologyID.getOntologyIRI.get,
+      relativeIRIPath=Option.empty[String], ont, kind)
 
   override def loadInstanceGraph
   (iri: IRI)

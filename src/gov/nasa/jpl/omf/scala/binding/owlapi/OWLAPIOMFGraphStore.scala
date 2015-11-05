@@ -292,6 +292,7 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
 
   // Data Properties
   lazy val OMF_HAS_IRI = omfModelDataProperties("hasIRI")
+  lazy val OMF_HAS_RELATIVE_IRI_PATH = omfModelDataProperties( "hasRelativeIRIPath" )
   lazy val OMF_HAS_SHORT_NAME = omfModelDataProperties("hasShortName")
   lazy val OMF_HAS_UUID = omfModelDataProperties("hasUUID")
   lazy val OMF_IS_ABSTRACT = omfModelDataProperties("isAbstract")
@@ -536,6 +537,7 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
   def createOMFModelTerminologyGraph
   (o: OWLOntology,
    iri: IRI,
+   relativeIRIPath: Option[String],
    tboxOnt: OWLOntology,
    kind: TerminologyKind.TerminologyKind)
   : NonEmptyList[java.lang.Throwable] \/ types.MutableModelTerminologyGraph =
@@ -558,7 +560,7 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
           OMF_DESIGNATION_TBOX
       }
       for {
-        change <- Seq(
+        change <- Seq[OWLOntologyChange](
           new AddAxiom(o,
             owlDataFactory.getOWLDeclarationAxiom(graphI)),
           new AddAxiom(o,
@@ -569,7 +571,15 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
           new AddAxiom(o,
             owlDataFactory
               .getOWLDataPropertyAssertionAxiom(OMF_HAS_IRI, graphI, graphT.kindIRI.toString))
-        )
+        ) ++ relativeIRIPath.fold[Seq[OWLOntologyChange]](
+          Seq()
+        ){ _relativeIRIPath =>
+          Seq(
+            new AddAxiom(o,
+              owlDataFactory
+              .getOWLDataPropertyAssertionAxiom(OMF_HAS_RELATIVE_IRI_PATH, graphI, _relativeIRIPath))
+          )
+        }
       } {
         val result = ontManager.applyChange(change)
         require(
@@ -1819,6 +1829,7 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
 
   def makeTerminologyGraph
   (iri: IRI,
+   relativeIRIPath: Option[String],
    kind: TerminologyKind)
   (implicit ops: OWLAPIOMFOps)
   : NonEmptyList[java.lang.Throwable] \/ types.MutableModelTerminologyGraph =
@@ -1832,7 +1843,7 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
         ).left
       else
       // not yet registered.
-        createOMFModelTerminologyGraph(omfMetadata.get, iri, ontManager.createOntology(iri), kind)
+        createOMFModelTerminologyGraph(omfMetadata.get, iri, relativeIRIPath, ontManager.createOntology(iri), kind)
     ) { g =>
       g.right
     }
