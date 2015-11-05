@@ -212,7 +212,7 @@ trait OWLAPIStoreOps
   : NonEmptyList[java.lang.Throwable] \/ types.TerminologyGraphDirectExtensionAxiom =
     extendingG.addTerminologyGraphExtension(extendedG)
 
-  def makeTerminologyGraph
+  def makeTerminologyGraphWithPath
   (iri: IRI,
    relativeIRIPath: Option[String],
    kind: TerminologyKind)
