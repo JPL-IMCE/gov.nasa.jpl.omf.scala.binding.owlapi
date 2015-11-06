@@ -1509,14 +1509,14 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
           require(i_mg_relativePath_dataValue.isDefined)
           val i_mg_relativePath_value = i_mg_relativePath_dataValue.get.getObject.getLiteral
 
-          System.out
-            .println(
-              s"""### Mutable TBox:
-                        |${mg.kindIRI}
-                        |#-- Immutable TBox:
-                        |${ig.kindIRI}
-                        |#--- relIRI: $i_mg_relativePath_value
-                        |""".stripMargin)
+//          System.out
+//            .println(
+//              s"""### Mutable TBox:
+//                        |${mg.kindIRI}
+//                        |#-- Immutable TBox:
+//                        |${ig.kindIRI}
+//                        |#--- relIRI: $i_mg_relativePath_value
+//                        |""".stripMargin)
 
           val m2i: types.Mutable2IMutableTerminologyMap = Map(mg -> ig) ++ acc
 
