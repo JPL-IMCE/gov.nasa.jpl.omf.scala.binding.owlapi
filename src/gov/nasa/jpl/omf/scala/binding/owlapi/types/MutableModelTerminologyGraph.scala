@@ -164,7 +164,7 @@ case class MutableModelTerminologyGraph
 
   override val kindIRI: IRI = makeKindIRI("mutable")
 
-  val LOG: Boolean = true
+  val LOG: Boolean = "true" equalsIgnoreCase java.lang.System.getProperty("gov.nasa.jpl.omf.scala.binding.owlapi.log.MutableModelTerminologyGraph")
 
   def setTerminologyGraphShortName
   (shortName: Option[String])

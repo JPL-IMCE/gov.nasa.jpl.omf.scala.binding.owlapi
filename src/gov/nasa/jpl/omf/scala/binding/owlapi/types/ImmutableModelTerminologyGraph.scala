@@ -160,8 +160,8 @@ case class ResolverHelper
 
   import omfStore.ops._
 
-  val LOG: Boolean = false
-  val LOG1: Boolean = false
+  val LOG: Boolean = "true" equalsIgnoreCase java.lang.System.getProperty("gov.nasa.jpl.omf.scala.binding.owlapi.log.ResolverHelper1")
+  val LOG1: Boolean = "true" equalsIgnoreCase java.lang.System.getProperty("gov.nasa.jpl.omf.scala.binding.owlapi.log.ResolverHelper2")
 
   implicit val store = omfStore
 
@@ -796,8 +796,8 @@ case class ResolverHelper
 
 case class ImmutableModelTerminologyGraphResolver(resolver: ResolverHelper) {
 
-  val LOG: Boolean = true
-  val LOG1: Boolean = false
+  val LOG: Boolean = "true" equalsIgnoreCase java.lang.System.getProperty("gov.nasa.jpl.omf.scala.binding.owlapi.log.ImmutableModelTerminologyGraphResolver1")
+  val LOG1: Boolean = "true" equalsIgnoreCase java.lang.System.getProperty("gov.nasa.jpl.omf.scala.binding.owlapi.log.ImmutableModelTerminologyGraphResolver2")
 
   require(null != resolver)
 

@@ -44,6 +44,14 @@ Running unit tests from the Scala IDE in Eclipse:
 
 In the Scala perspective, use the Run or Debug menus to launch the configurations included in the `launchers/` folder.
 
- 
+### logging
 
+Set system properties:
+
+  - gov.nasa.jpl.omf.scala.binding.owlapi.log.GraphStore
+  - gov.nasa.jpl.omf.scala.binding.owlapi.log.ResolverHelper1
+  - gov.nasa.jpl.omf.scala.binding.owlapi.log.ResolverHelper2
+  - gov.nasa.jpl.omf.scala.binding.owlapi.log.ImmutableModelTerminologyGraphResolver1
+  - gov.nasa.jpl.omf.scala.binding.owlapi.log.ImmutableModelTerminologyGraphResolver2
+  - gov.nasa.jpl.omf.scala.binding.owlapi.log.MutableModelTerminologyGraph
 

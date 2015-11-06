@@ -62,7 +62,7 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
   require(null != omfModule)
   require(null != ontManager)
 
-  val LOG: Boolean = true
+  val LOG: Boolean = "true" equalsIgnoreCase java.lang.System.getProperty("gov.nasa.jpl.omf.scala.binding.owlapi.log.GraphStore")
 
   implicit val ops = omfModule.ops
 
