@@ -545,6 +545,14 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
       .createBackbone(tboxOnt, kind, ops)
       .flatMap { backbone =>
     val graphT = new types.MutableModelTerminologyGraph(kind = kind, ont = tboxOnt, backbone = backbone)
+
+    // @todo cleanup this kludge
+    val aRelativeIRIPath =
+      relativeIRIPath.fold[String] (
+        iri.toString.stripPrefix("http://imce.jpl.nasa.gov")
+      ){ identity }
+    System.out.println(s"\n*** createOMFModelTerminologyGraph\n=> iri=$iri\n=> rel=$aRelativeIRIPath")
+
     for {
       graphIRI <- makeMetadataInstanceIRI(o, "Grw", iri)
       graphI = owlDataFactory.getOWLNamedIndividual(graphIRI)
@@ -570,16 +578,13 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
               .getOWLObjectPropertyAssertionAxiom(OMF_HAS_TERMINOLOGY_KIND, graphI, okind)),
           new AddAxiom(o,
             owlDataFactory
-              .getOWLDataPropertyAssertionAxiom(OMF_HAS_IRI, graphI, graphT.kindIRI.toString))
-        ) ++ relativeIRIPath.fold[Seq[OWLOntologyChange]](
-          Seq()
-        ){ _relativeIRIPath =>
-          Seq(
-            new AddAxiom(o,
-              owlDataFactory
-              .getOWLDataPropertyAssertionAxiom(OMF_HAS_RELATIVE_IRI_PATH, graphI, _relativeIRIPath))
-          )
-        }
+              .getOWLDataPropertyAssertionAxiom(OMF_HAS_IRI, graphI, graphT.kindIRI.toString)),
+
+          // @todo kludge
+          new AddAxiom(o,
+            owlDataFactory
+              .getOWLDataPropertyAssertionAxiom(OMF_HAS_RELATIVE_IRI_PATH, graphI, aRelativeIRIPath+"_Grw"))
+        )
       } {
         val result = ontManager.applyChange(change)
         require(
@@ -1397,14 +1402,14 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
     (acc: types.Mutable2IMutableTerminologyMap,
      mg: types.MutableModelTerminologyGraph)
     : NonEmptyList[java.lang.Throwable] \/ types.Mutable2IMutableTerminologyMap = {
-      System.out
-      .println(s"convert1: acc=${acc.size}, m=${mg.kindIRI}")
-      for {
-        (m, i) <- acc
-      } {
-        System.out.println(s"acc.m: ${m.kindIRI}")
-        System.out.println(s"acc.i: ${i.kindIRI}")
-      }
+//      System.out
+//      .println(s"convert1: acc=${acc.size}, m=${mg.kindIRI}")
+//      for {
+//        (m, i) <- acc
+//      } {
+//        System.out.println(s"acc.m: ${m.kindIRI}")
+//        System.out.println(s"acc.i: ${i.kindIRI}")
+//      }
 
       require(!acc.contains(mg), s"convert1: acc=${acc.size}, m=${mg.kindIRI}")
       val tgraph = fromTerminologyGraph(mg)
@@ -1489,16 +1494,34 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
                 tgraph.structure2structureDataRelationships.toList,
                 tgraph.axioms.toList)(mg.ops)
 
+          // @todo cleanup this kludge
+          val i_mg = OMF_MODEL_TERMINOLOGY_GRAPH2Instance(mg)
+          val i_mg_dataValues: Set[OWLDataPropertyAssertionAxiom] = omfMetadata.get.getDataPropertyAssertionAxioms(i_mg).toSet
+          require(i_mg_dataValues.nonEmpty)
+          val i_mg_relativePath_dataValue = i_mg_dataValues.find { ax =>
+            ax.getProperty match {
+              case dp: OWLDataProperty =>
+                dp == OMF_HAS_RELATIVE_IRI_PATH
+              case _ =>
+                false
+            }
+          }
+          require(i_mg_relativePath_dataValue.isDefined)
+          val i_mg_relativePath_value = i_mg_relativePath_dataValue.get.getObject.getLiteral
+
           System.out
             .println(
               s"""### Mutable TBox:
                         |${mg.kindIRI}
                         |#-- Immutable TBox:
                         |${ig.kindIRI}
-                        |#---
+                        |#--- relIRI: $i_mg_relativePath_value
                         |""".stripMargin)
+
           val m2i: types.Mutable2IMutableTerminologyMap = Map(mg -> ig) ++ acc
-          register(ig, itgraph, m2i, mg.getTerminologyGraphShortName, mg.getTerminologyGraphUUID)
+
+
+          register(ig, itgraph, m2i, mg.getTerminologyGraphShortName, mg.getTerminologyGraphUUID, i_mg_relativePath_value)
         }
       }
     }
@@ -1508,20 +1531,20 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
      queue: Seq[types.MutableModelTerminologyGraph],
      visited: Seq[types.MutableModelTerminologyGraph])
     : NonEmptyList[java.lang.Throwable] \/ types.Mutable2IMutableTerminologyMap = {
-      System.out
-      .println(s"convert: acc=${acc.size}, queue=${queue.size}, visited=${visited.size}")
-      for {
-        (m, i) <- acc
-      } {
-        System.out.println(s"acc.m: ${m.kindIRI}")
-        System.out.println(s"acc.i: ${i.kindIRI}")
-      }
-      for {qm <- queue} {
-        System.out.println(s"q.m: ${qm.kindIRI}")
-      }
-      for {vm <- visited} {
-        System.out.println(s"v.m: ${vm.kindIRI}")
-      }
+//      System.out
+//      .println(s"convert: acc=${acc.size}, queue=${queue.size}, visited=${visited.size}")
+//      for {
+//        (m, i) <- acc
+//      } {
+//        System.out.println(s"acc.m: ${m.kindIRI}")
+//        System.out.println(s"acc.i: ${i.kindIRI}")
+//      }
+//      for {qm <- queue} {
+//        System.out.println(s"q.m: ${qm.kindIRI}")
+//      }
+//      for {vm <- visited} {
+//        System.out.println(s"v.m: ${vm.kindIRI}")
+//      }
       if (queue.isEmpty) {
         if (visited.isEmpty)
           \/-(acc)
@@ -1597,7 +1620,8 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
    info: OWLAPITerminologyGraphSignature,
    m2i: types.Mutable2IMutableTerminologyMap,
    name: Option[String],
-   uuid: Option[String])
+   uuid: Option[String],
+   relativeIRIPath: String)
   : NonEmptyList[java.lang.Throwable] \/ types.Mutable2IMutableTerminologyMap = {
 
     val ok1 = immutableTBoxGraphs.put(g.kindIRI, g)
@@ -1631,7 +1655,12 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
               .getOWLObjectPropertyAssertionAxiom(OMF_HAS_TERMINOLOGY_KIND, graphI, okind)),
           new AddAxiom(omfMetadata.get,
             owlDataFactory
-              .getOWLDataPropertyAssertionAxiom(OMF_HAS_IRI, graphI, g.kindIRI.toString))
+              .getOWLDataPropertyAssertionAxiom(OMF_HAS_IRI, graphI, g.kindIRI.toString)),
+
+          // @todo kludge
+          new AddAxiom(omfMetadata.get,
+            owlDataFactory
+              .getOWLDataPropertyAssertionAxiom(OMF_HAS_RELATIVE_IRI_PATH, graphI, relativeIRIPath+"_Gro"))
         )
       } {
         val result = ontManager.applyChange(change)
