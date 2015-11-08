@@ -39,6 +39,7 @@
 package gov.nasa.jpl.omf.scala.binding.owlapi
 
 import java.lang.System
+import java.util.concurrent.TimeUnit
 
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper
 import gov.nasa.jpl.omf.scala.core.TerminologyKind._
@@ -50,6 +51,7 @@ import org.semanticweb.owlapi.util.PriorityCollection
 import scala.collection.immutable._
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
+import scala.concurrent.duration.FiniteDuration
 import scala.language.postfixOps
 import scala.reflect.internal.FatalError
 import scala.util.control.Exception._
@@ -1520,8 +1522,11 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
 
           val m2i: types.Mutable2IMutableTerminologyMap = Map(mg -> ig) ++ acc
 
-
-          register(ig, itgraph, m2i, mg.getTerminologyGraphShortName, mg.getTerminologyGraphUUID, i_mg_relativePath_value)
+          val current: java.lang.Long = java.lang.System.currentTimeMillis()
+          val result = register(ig, itgraph, m2i, mg.getTerminologyGraphShortName, mg.getTerminologyGraphUUID, i_mg_relativePath_value)
+          val delta = FiniteDuration.apply(java.lang.System.currentTimeMillis() - current, TimeUnit.MILLISECONDS)
+          System.out.println(s"Registering ${ig.kindIRI} took ${prettyDuration(delta)} (success? ${result.isRight})")
+          result
         }
       }
     }

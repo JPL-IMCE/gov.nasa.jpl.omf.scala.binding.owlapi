@@ -42,11 +42,28 @@ import gov.nasa.jpl.omf.scala.core.OMFError
 import org.semanticweb.owlapi.model.parameters.ChangeApplied
 import org.semanticweb.owlapi.model.{OWLOntologyChange, OWLOntologyManager}
 
+import scala.concurrent.duration.Duration
 import scala.{Option,None,StringContext,Unit}
 import scala.Predef.String
 import scalaz._, Scalaz._
 
 package object owlapi {
+
+  def prettyDuration(d: Duration): String = {
+
+    val (hours, minutes, seconds, millis) =
+      (d.toHours, d.toMinutes, d.toSeconds, d.toMillis)
+
+    val adjMinutes = minutes - hours * 60
+    val adjSeconds = seconds - minutes * 60
+    val adjMillis = millis - seconds * 1000
+
+    val r1 = if (hours > 0) s"$hours hours" else ""
+    val r2 = if (adjMinutes > 0) (if (!r1.isEmpty) r1+", " else "") + s"$adjMinutes minutes" else r1
+    val r3 = if (adjSeconds > 0) (if (!r2.isEmpty) r2+", " else "") + s"$adjSeconds seconds" else r2
+    val r4 = if (adjMillis > 0) (if (!r3.isEmpty) r3+", " else "") + s"$adjMillis millis" else r3
+    r4
+  }
 
   def catalogURIMapperException
   (message: String,
