@@ -1478,6 +1478,8 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
       tnN.flatMap { ns =>
         tiN.flatMap { is =>
 
+          val current: java.lang.Long = java.lang.System.currentTimeMillis()
+
           val itgraph = tgraph.copy(nested = ns, imports = is)
           val ig =
             types
@@ -1522,10 +1524,9 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
 
           val m2i: types.Mutable2IMutableTerminologyMap = Map(mg -> ig) ++ acc
 
-          val current: java.lang.Long = java.lang.System.currentTimeMillis()
           val result = register(ig, itgraph, m2i, mg.getTerminologyGraphShortName, mg.getTerminologyGraphUUID, i_mg_relativePath_value)
           val delta = FiniteDuration.apply(java.lang.System.currentTimeMillis() - current, TimeUnit.MILLISECONDS)
-          System.out.println(s"Registering ${ig.kindIRI} took ${prettyDuration(delta)} (success? ${result.isRight})")
+          System.out.println(s"Registration in ${prettyDuration(delta)}: ${ig.kindIRI}")
           result
         }
       }
@@ -1568,10 +1569,10 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
           case Some(mgParent) =>
 
             val ok1 = visited.contains(mgParent)
-            val ok2 = acc.find {
+            val ok2 = acc.exists {
               case (m: types.MutableModelTerminologyGraph, _: types.ImmutableModelTerminologyGraph) =>
                 m.equals(mgParent)
-            }.nonEmpty
+            }
             val ok3 = queue.contains(mgParent)
             require(ok1 || ok2 || ok3,
                     s"queue.head: ${queue.head.kindIRI}, nesting parent: ${mgParent.kindIRI} (ok1=$ok1, ok2=$ok2, ok3=$ok3")
@@ -1611,10 +1612,14 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
       }
     }
 
+
+    val current: java.lang.Long = java.lang.System.currentTimeMillis()
     for {
       m2i <- convert(Map(), Seq(g), Seq())
     } yield {
       require(m2i.contains(g))
+      val delta = FiniteDuration.apply(java.lang.System.currentTimeMillis() - current, TimeUnit.MILLISECONDS)
+      System.out.println(s"conversion in ${prettyDuration(delta)}")
       (m2i(g), m2i)
     }
 

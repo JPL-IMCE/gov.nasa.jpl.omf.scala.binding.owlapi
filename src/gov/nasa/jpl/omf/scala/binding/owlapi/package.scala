@@ -62,7 +62,8 @@ package object owlapi {
     val r2 = if (adjMinutes > 0) (if (!r1.isEmpty) r1+", " else "") + s"$adjMinutes minutes" else r1
     val r3 = if (adjSeconds > 0) (if (!r2.isEmpty) r2+", " else "") + s"$adjSeconds seconds" else r2
     val r4 = if (adjMillis > 0) (if (!r3.isEmpty) r3+", " else "") + s"$adjMillis millis" else r3
-    r4
+    val r5 = if (r4.isEmpty) "<1 ms" else r4
+    r5
   }
 
   def catalogURIMapperException
