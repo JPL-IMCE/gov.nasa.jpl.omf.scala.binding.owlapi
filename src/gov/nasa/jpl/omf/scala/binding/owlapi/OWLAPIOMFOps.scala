@@ -215,17 +215,22 @@ trait OWLAPIStoreOps
   def makeTerminologyGraphWithPath
   (iri: IRI,
    relativeIRIPath: Option[String],
+   relativeIRIHashPrefix: Option[String],
    kind: TerminologyKind)
   (implicit store: OWLAPIOMFGraphStore)
   : NonEmptyList[java.lang.Throwable] \/ types.MutableModelTerminologyGraph =
-    store.makeTerminologyGraph(iri, relativeIRIPath, kind)(this)
+    store.makeTerminologyGraph(iri, relativeIRIPath, relativeIRIHashPrefix, kind)(this)
 
   override def makeTerminologyGraph
   (iri: IRI,
    kind: TerminologyKind)
   (implicit store: OWLAPIOMFGraphStore)
   : NonEmptyList[java.lang.Throwable] \/ types.MutableModelTerminologyGraph =
-    store.makeTerminologyGraph(iri, relativeIRIPath=Option.empty[String], kind)(this)
+    store.makeTerminologyGraph(
+      iri,
+      relativeIRIPath=Option.empty[String],
+      relativeIRIHashPrefix=Option.empty[String],
+      kind)(this)
 
   override def saveTerminologyGraph
   (g: types.ModelTerminologyGraph)
@@ -246,12 +251,14 @@ trait OWLAPIStoreOps
   def resolveTerminologyGraph
   (o: OWLOntology,
    ont: OWLOntology,
+   relativeIRIPath: Option[String],
+   relativeIRIHashPrefix: Option[String],
    kind: TerminologyKind.TerminologyKind)
   (implicit store: OWLAPIOMFGraphStore)
   : NonEmptyList[java.lang.Throwable] \/ types.MutableModelTerminologyGraph =
     store.createOMFModelTerminologyGraph(
       o, ont.getOntologyID.getOntologyIRI.get,
-      relativeIRIPath=Option.empty[String], ont, kind)
+      relativeIRIPath, relativeIRIHashPrefix, ont, kind)
 
   override def loadInstanceGraph
   (iri: IRI)
@@ -1026,6 +1033,9 @@ class OWLAPIOMFOps
   val OMF_TBox_DataProperty_HasShortName: IRI,
   val OMF_TBox_DataProperty_HasUUID: IRI,
   val AnnotationHasUUID: IRI,
+  val AnnotationHasRelativeIRI: IRI,
+  val AnnotationHasIRIHashPrefix: IRI,
+  val AnnotationHasIRIHashSuffix: IRI,
   val AnnotationIsAbstract: IRI,
   val AnnotationIsDerived: IRI,
   val AnnotationIsDefinition: IRI,

@@ -131,8 +131,49 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
   lazy val ANNOTATION_HAS_UUID: OWLAnnotationProperty =
     ontManager
     .getOWLDataFactory
-    .getOWLAnnotationProperty(omfModule.ops.OMF_TBox_DataProperty_HasUUID)
+    .getOWLAnnotationProperty(omfModule.ops.AnnotationHasUUID)
 
+  lazy val ANNOTATION_HAS_RELATIVE_IRI: OWLAnnotationProperty =
+    ontManager
+      .getOWLDataFactory
+      .getOWLAnnotationProperty(omfModule.ops.AnnotationHasRelativeIRI)
+
+  def createAddOntologyHasRelativeIRIAnnotation
+  (o: OWLOntology,
+   relativeIRI: String)
+  : AddOntologyAnnotation =
+    new AddOntologyAnnotation(
+      o,
+      owlDataFactory
+        .getOWLAnnotation( ANNOTATION_HAS_RELATIVE_IRI, owlDataFactory.getOWLLiteral( relativeIRI ) ) )
+
+  lazy val ANNOTATION_HAS_IRI_HASH_PREFIX: OWLAnnotationProperty =
+    ontManager
+      .getOWLDataFactory
+      .getOWLAnnotationProperty(omfModule.ops.AnnotationHasIRIHashPrefix)
+
+  def createAddOntologyHasIRIHashPrefixAnnotation
+  (o: OWLOntology,
+   iriHashPrefix: String)
+  : AddOntologyAnnotation =
+    new AddOntologyAnnotation(
+      o,
+      owlDataFactory
+        .getOWLAnnotation( ANNOTATION_HAS_IRI_HASH_PREFIX, owlDataFactory.getOWLLiteral( iriHashPrefix ) ) )
+
+  lazy val ANNOTATION_HAS_IRI_HASH_SUFFIX: OWLAnnotationProperty =
+    ontManager
+      .getOWLDataFactory
+      .getOWLAnnotationProperty(omfModule.ops.AnnotationHasIRIHashSuffix)
+
+  def createAddOntologyHasIRIHashSuffixAnnotation
+  (o: OWLOntology,
+   iriHashSuffix: String)
+  : AddOntologyAnnotation =
+    new AddOntologyAnnotation(
+      o,
+      owlDataFactory
+        .getOWLAnnotation( ANNOTATION_HAS_IRI_HASH_SUFFIX, owlDataFactory.getOWLLiteral( iriHashSuffix ) ) )
   // OMF Metadata.
 
   protected var omfMetadata: Option[OWLOntology] = None
@@ -294,7 +335,28 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
 
   // Data Properties
   lazy val OMF_HAS_IRI = omfModelDataProperties("hasIRI")
+
+  /**
+    * The ontology IRI relative path.
+    * If unspecified, it is computed by removing the IMCE catalog URI prefix: http://imce.jpl.nasa.gov
+    *
+    * Note that in the OMF metadata, there are two variants of an ontology: Mutable, Immutable.
+    * These are distinguished with a suffix _Grw, _Gro; however, the suffix is not included in the relative IRI path.
+    */
   lazy val OMF_HAS_RELATIVE_IRI_PATH = omfModelDataProperties( "hasRelativeIRIPath" )
+
+  /**
+    * If specified, the prefix splits the relative IRI path in two:
+    * hashPrefix (not hashed) -- the value of this property
+    * hashSuffix (hashed with SHA-256)
+    */
+  lazy val OMF_HAS_RELATIVE_IRI_HASH_PREFIX= omfModelDataProperties( "hasRelativeIRIHashPrefix" )
+
+  /**
+    * When there is both IRI relative path and IRI hash prefix,
+    * this property has the SHA-256 hash of the IRI relative path stripped of the IRI hash prefix.
+    */
+  lazy val OMF_HAS_RELATIVE_IRI_HASH_SUFFIX = omfModelDataProperties( "hasRelativeIRIHashSuffix" )
   lazy val OMF_HAS_SHORT_NAME = omfModelDataProperties("hasShortName")
   lazy val OMF_HAS_UUID = omfModelDataProperties("hasUUID")
   lazy val OMF_IS_ABSTRACT = omfModelDataProperties("isAbstract")
@@ -540,6 +602,7 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
   (o: OWLOntology,
    iri: IRI,
    relativeIRIPath: Option[String],
+   relativeIRIHashPrefix: Option[String],
    tboxOnt: OWLOntology,
    kind: TerminologyKind.TerminologyKind)
   : NonEmptyList[java.lang.Throwable] \/ types.MutableModelTerminologyGraph =
@@ -548,7 +611,6 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
       .flatMap { backbone =>
     val graphT = new types.MutableModelTerminologyGraph(kind = kind, ont = tboxOnt, backbone = backbone)
 
-    // @todo cleanup this kludge
     val aRelativeIRIPath =
       relativeIRIPath.fold[String] (
         iri.toString.stripPrefix("http://imce.jpl.nasa.gov")
@@ -581,12 +643,30 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
           new AddAxiom(o,
             owlDataFactory
               .getOWLDataPropertyAssertionAxiom(OMF_HAS_IRI, graphI, graphT.kindIRI.toString)),
-
-          // @todo kludge
           new AddAxiom(o,
             owlDataFactory
-              .getOWLDataPropertyAssertionAxiom(OMF_HAS_RELATIVE_IRI_PATH, graphI, aRelativeIRIPath+"_Grw"))
-        )
+              .getOWLDataPropertyAssertionAxiom(OMF_HAS_RELATIVE_IRI_PATH, graphI, aRelativeIRIPath)),
+          createAddOntologyHasRelativeIRIAnnotation(tboxOnt, aRelativeIRIPath)
+        ) ++
+          relativeIRIHashPrefix.fold[Seq[OWLOntologyChange]](Seq()){ prefix =>
+            val prefixSlash = if (prefix.endsWith("/")) prefix else prefix+'/'
+            if (!aRelativeIRIPath.startsWith(prefixSlash))
+              Seq()
+            else {
+              val suffix = aRelativeIRIPath.stripPrefix(prefixSlash)
+              val hashSuffix = hashMessage(suffix)
+              Seq (
+                new AddAxiom(o,
+                  owlDataFactory
+                    .getOWLDataPropertyAssertionAxiom(OMF_HAS_RELATIVE_IRI_HASH_PREFIX, graphI, prefix)),
+                createAddOntologyHasIRIHashPrefixAnnotation(tboxOnt, prefix),
+                new AddAxiom(o,
+                  owlDataFactory
+                    .getOWLDataPropertyAssertionAxiom(OMF_HAS_RELATIVE_IRI_HASH_SUFFIX, graphI, hashSuffix)),
+                createAddOntologyHasIRIHashSuffixAnnotation(tboxOnt, hashSuffix)
+                )
+            }
+          }
       } {
         val result = ontManager.applyChange(change)
         require(
@@ -1498,10 +1578,12 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
                 tgraph.structure2structureDataRelationships.toList,
                 tgraph.axioms.toList)(mg.ops)
 
-          // @todo cleanup this kludge
-          val i_mg = OMF_MODEL_TERMINOLOGY_GRAPH2Instance(mg)
-          val i_mg_dataValues: Set[OWLDataPropertyAssertionAxiom] = omfMetadata.get.getDataPropertyAssertionAxioms(i_mg).toSet
+          val i_mg =
+            OMF_MODEL_TERMINOLOGY_GRAPH2Instance(mg)
+          val i_mg_dataValues: Set[OWLDataPropertyAssertionAxiom] =
+            omfMetadata.get.getDataPropertyAssertionAxioms(i_mg).toSet
           require(i_mg_dataValues.nonEmpty)
+
           val i_mg_relativePath_dataValue = i_mg_dataValues.find { ax =>
             ax.getProperty match {
               case dp: OWLDataProperty =>
@@ -1511,7 +1593,18 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
             }
           }
           require(i_mg_relativePath_dataValue.isDefined)
-          val i_mg_relativePath_value = i_mg_relativePath_dataValue.get.getObject.getLiteral
+          val i_mg_relativePath_value: String = i_mg_relativePath_dataValue.get.getObject.getLiteral
+          require(!i_mg_relativePath_value.endsWith("_Grw"))
+
+          val i_mg_iriHashPrefix_dataValue = i_mg_dataValues.find { ax =>
+            ax.getProperty match {
+              case dp: OWLDataProperty =>
+                dp == OMF_HAS_RELATIVE_IRI_HASH_PREFIX
+              case _ =>
+                false
+            }
+          }
+          val i_mg_iriHashPrefix_value: Option[String] = i_mg_iriHashPrefix_dataValue.map(_.getObject.getLiteral)
 
 //          System.out
 //            .println(
@@ -1524,7 +1617,11 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
 
           val m2i: types.Mutable2IMutableTerminologyMap = Map(mg -> ig) ++ acc
 
-          val result = register(ig, itgraph, m2i, mg.getTerminologyGraphShortName, mg.getTerminologyGraphUUID, i_mg_relativePath_value)
+          val result =
+            register(
+              ig, itgraph, m2i,
+              mg.getTerminologyGraphShortName, mg.getTerminologyGraphUUID,
+              i_mg_relativePath_value, i_mg_iriHashPrefix_value)
           val delta = FiniteDuration.apply(java.lang.System.currentTimeMillis() - current, TimeUnit.MILLISECONDS)
           System.out.println(s"Registration in ${prettyDuration(delta)}: ${ig.kindIRI}")
           result
@@ -1604,10 +1701,9 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
                    }
           .to[Seq]
 
-        convert(acc,
-          extendedQueue ++
-          nestedQueue.to[Seq] ++
-          queue.tail.to[Seq],
+        convert(
+          acc,
+          extendedQueue ++ nestedQueue ++ queue.tail,
           queue.head +: visited)
       }
     }
@@ -1619,7 +1715,7 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
     } yield {
       require(m2i.contains(g))
       val delta = FiniteDuration.apply(java.lang.System.currentTimeMillis() - current, TimeUnit.MILLISECONDS)
-      System.out.println(s"conversion in ${prettyDuration(delta)}")
+      System.out.println(s"conversion in ${prettyDuration(delta)} => ${m2i.size} conversions")
       (m2i(g), m2i)
     }
 
@@ -1631,7 +1727,8 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
    m2i: types.Mutable2IMutableTerminologyMap,
    name: Option[String],
    uuid: Option[String],
-   relativeIRIPath: String)
+   relativeIRIPath: String,
+   relativeIRIHashPrefix: Option[String])
   : NonEmptyList[java.lang.Throwable] \/ types.Mutable2IMutableTerminologyMap = {
 
     val ok1 = immutableTBoxGraphs.put(g.kindIRI, g)
@@ -1666,12 +1763,27 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
           new AddAxiom(omfMetadata.get,
             owlDataFactory
               .getOWLDataPropertyAssertionAxiom(OMF_HAS_IRI, graphI, g.kindIRI.toString)),
-
-          // @todo kludge
           new AddAxiom(omfMetadata.get,
             owlDataFactory
-              .getOWLDataPropertyAssertionAxiom(OMF_HAS_RELATIVE_IRI_PATH, graphI, relativeIRIPath+"_Gro"))
-        )
+              .getOWLDataPropertyAssertionAxiom(OMF_HAS_RELATIVE_IRI_PATH, graphI, relativeIRIPath))
+        ) ++
+          relativeIRIHashPrefix.fold[Seq[OWLOntologyChange]](Seq()){ prefix =>
+            val prefixSlash = if (prefix.endsWith("/")) prefix else prefix+'/'
+            if (!relativeIRIPath.startsWith(prefixSlash))
+              Seq()
+            else {
+              val suffix = relativeIRIPath.stripPrefix(prefixSlash)
+              val hashSuffix = hashMessage(suffix)
+              Seq (
+                new AddAxiom(omfMetadata.get,
+                  owlDataFactory
+                    .getOWLDataPropertyAssertionAxiom(OMF_HAS_RELATIVE_IRI_HASH_PREFIX, graphI, prefix)),
+                new AddAxiom(omfMetadata.get,
+                  owlDataFactory
+                    .getOWLDataPropertyAssertionAxiom(OMF_HAS_RELATIVE_IRI_HASH_SUFFIX, graphI, hashSuffix))
+              )
+            }
+          }
       } {
         val result = ontManager.applyChange(change)
         require(result == ChangeApplied.SUCCESSFULLY, s"\nregister:\n$change")
@@ -1869,6 +1981,7 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
   def makeTerminologyGraph
   (iri: IRI,
    relativeIRIPath: Option[String],
+   relativeIRIHashPrefix: Option[String],
    kind: TerminologyKind)
   (implicit ops: OWLAPIOMFOps)
   : NonEmptyList[java.lang.Throwable] \/ types.MutableModelTerminologyGraph =
@@ -1882,7 +1995,10 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
         ).left
       else
       // not yet registered.
-        createOMFModelTerminologyGraph(omfMetadata.get, iri, relativeIRIPath, ontManager.createOntology(iri), kind)
+        createOMFModelTerminologyGraph(
+          omfMetadata.get,
+          iri, relativeIRIPath, relativeIRIHashPrefix,
+          ontManager.createOntology(iri), kind)
     ) { g =>
       g.right
     }

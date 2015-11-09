@@ -137,8 +137,47 @@ package object types {
             None
         })
 
+    val getOntologyRelativeIRI: Option[String] =
+      ont
+        .getAnnotations
+        .find(_.getProperty.getIRI == ops.AnnotationHasRelativeIRI)
+        .flatMap(_.getValue match {
+          case l: OWLLiteral =>
+            Some(l.getLiteral)
+          case _ =>
+            None
+        })
+
+    val getOntologyIRIHashPrefix: Option[String] =
+      ont
+        .getAnnotations
+        .find(_.getProperty.getIRI == ops.AnnotationHasIRIHashPrefix)
+        .flatMap(_.getValue match {
+          case l: OWLLiteral =>
+            Some(l.getLiteral)
+          case _ =>
+            None
+        })
+
+    val getOntologyIRIHashSuffix: Option[String] =
+      ont
+        .getAnnotations
+        .find(_.getProperty.getIRI == ops.AnnotationHasIRIHashSuffix)
+        .flatMap(_.getValue match {
+          case l: OWLLiteral =>
+            Some(l.getLiteral)
+          case _ =>
+            None
+        })
+
+
     ops
-    .resolveTerminologyGraph(o = omfMetadata, ont = ont, kind = kind)(omfStore)
+    .resolveTerminologyGraph(
+      o = omfMetadata,
+      ont = ont,
+      relativeIRIPath=getOntologyRelativeIRI,
+      relativeIRIHashPrefix=getOntologyIRIHashPrefix,
+      kind = kind)(omfStore)
     .flatMap { g: MutableModelTerminologyGraph =>
 
       for {

@@ -78,6 +78,15 @@ object OWLAPIOMFModule {
     AnnotationHasUUID <-
     OWLAPIIRIOps.makeIRI("http://imce.jpl.nasa.gov/foundation/annotation/annotation#hasUUID")
 
+    AnnotationHasRelativeIRI <-
+    OWLAPIIRIOps.makeIRI("http://imce.jpl.nasa.gov/foundation/annotation/annotation#hasRelativeIRI")
+
+    AnnotationHasIRIHashPrefix <-
+    OWLAPIIRIOps.makeIRI("http://imce.jpl.nasa.gov/foundation/annotation/annotation#hashIRIHashPrefix")
+
+    AnnotationHasIRIHashSuffix <-
+      OWLAPIIRIOps.makeIRI("http://imce.jpl.nasa.gov/foundation/annotation/annotation#hasIRIHashSuffix")
+
     AnnotationIsAbstract <-
     OWLAPIIRIOps.makeIRI("http://imce.jpl.nasa.gov/foundation/annotation/annotation#isAbstract")
 
@@ -101,6 +110,9 @@ object OWLAPIOMFModule {
       OMF_TBox_DataProperty_HasShortName,
       OMF_TBox_DataProperty_HasUUID,
       AnnotationHasUUID,
+      AnnotationHasRelativeIRI,
+      AnnotationHasIRIHashPrefix,
+      AnnotationHasIRIHashSuffix,
       AnnotationIsAbstract,
       AnnotationIsDerived,
       AnnotationIsDefinition,
