@@ -670,7 +670,7 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
       } {
         val result = ontManager.applyChange(change)
         require(
-          result == ChangeApplied.SUCCESSFULLY,
+          result == ChangeApplied.SUCCESSFULLY || result == ChangeApplied.NO_OPERATION,
           s"\ncreateOMFModelTerminologyGraph:\n$change")
       }
       mutableTBoxGraphs.put(iri, graphT)
