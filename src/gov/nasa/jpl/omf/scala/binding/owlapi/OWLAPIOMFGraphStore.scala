@@ -55,7 +55,7 @@ import scala.concurrent.duration.FiniteDuration
 import scala.language.postfixOps
 import scala.reflect.internal.FatalError
 import scala.util.control.Exception._
-import scala.{Boolean,Option,None,Some,StringContext,Unit}
+import scala.{Boolean,Option,None,Some,StringContext,Tuple2,Unit}
 import scala.Predef.{Set=>_,Map=>_,_}
 import scalaz._, Scalaz._
 
@@ -368,6 +368,78 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
   lazy val OMF_IS_SYMMETRIC = omfModelDataProperties("isSymmetric")
   lazy val OMF_IS_TRANSITIVE = omfModelDataProperties("isTransitive")
 
+  // @todo report errors if the graph isn't there...
+  def getModelTerminologyGraphRelativeIRIPath
+  (g: types.ModelTerminologyGraph)
+  : Option[String] = {
+    val i_g = OMF_MODEL_TERMINOLOGY_GRAPH2Instance(g)
+    val i_dataValues: Set[OWLDataPropertyAssertionAxiom] =
+      omfMetadata.get.getDataPropertyAssertionAxioms(i_g).toSet
+
+    val i_g_relativePath_dataValue = i_dataValues.find { ax =>
+      ax.getProperty match {
+        case dp: OWLDataProperty =>
+          dp == OMF_HAS_RELATIVE_IRI_PATH
+        case _ =>
+          false
+      }
+    }
+
+    i_g_relativePath_dataValue.map(_.getObject.getLiteral)
+  }
+
+  // @todo report errors if the graph isn't there...
+  def getModelTerminologyGraphIRIHashPrefix
+  (g: types.ModelTerminologyGraph)
+  : Option[String] = {
+    val i_g = OMF_MODEL_TERMINOLOGY_GRAPH2Instance(g)
+    val i_dataValues: Set[OWLDataPropertyAssertionAxiom] =
+      omfMetadata.get.getDataPropertyAssertionAxioms(i_g).toSet
+
+    val i_g_iriHashPrefix_dataValue = i_dataValues.find { ax =>
+      ax.getProperty match {
+        case dp: OWLDataProperty =>
+          dp == OMF_HAS_RELATIVE_IRI_HASH_PREFIX
+        case _ =>
+          false
+      }
+    }
+
+    i_g_iriHashPrefix_dataValue.map(_.getObject.getLiteral)
+  }
+
+  // @todo report errors if the graph isn't there...
+  def getModelTerminologyGraphIRIHashSuffix
+  (g: types.ModelTerminologyGraph)
+  : Option[String] = {
+    val i_g = OMF_MODEL_TERMINOLOGY_GRAPH2Instance(g)
+    val i_dataValues: Set[OWLDataPropertyAssertionAxiom] =
+      omfMetadata.get.getDataPropertyAssertionAxioms(i_g).toSet
+
+    val i_g_iriHashSuffix_dataValue = i_dataValues.find { ax =>
+      ax.getProperty match {
+        case dp: OWLDataProperty =>
+          dp == OMF_HAS_RELATIVE_IRI_HASH_SUFFIX
+        case _ =>
+          false
+      }
+    }
+
+    i_g_iriHashSuffix_dataValue.map(_.getObject.getLiteral)
+  }
+
+  def calculateRelativeIRIUnhashedPrefixHashedSuffix
+  (relativeIRIPath: String,
+   relativeIRIHashPrefix: Option[String])
+  : Option[(String,String)] =
+    relativeIRIHashPrefix.flatMap { prefix =>
+      val prefixSlash = if (prefix.endsWith("/")) prefix else prefix+'/'
+      if (!relativeIRIPath.startsWith(prefixSlash))
+        Option.empty[(String,String)]
+      else
+        Tuple2(prefixSlash, hashMessage(relativeIRIPath.stripPrefix(prefixSlash))).some
+    }
+
   protected val immutableTBoxGraphs = scala.collection.mutable.HashMap[IRI, types.ImmutableModelTerminologyGraph]()
   protected val mutableTBoxGraphs = scala.collection.mutable.HashMap[IRI, types.MutableModelTerminologyGraph]()
 
@@ -648,24 +720,18 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
               .getOWLDataPropertyAssertionAxiom(OMF_HAS_RELATIVE_IRI_PATH, graphI, aRelativeIRIPath)),
           createAddOntologyHasRelativeIRIAnnotation(tboxOnt, aRelativeIRIPath)
         ) ++
-          relativeIRIHashPrefix.fold[Seq[OWLOntologyChange]](Seq()){ prefix =>
-            val prefixSlash = if (prefix.endsWith("/")) prefix else prefix+'/'
-            if (!aRelativeIRIPath.startsWith(prefixSlash))
-              Seq()
-            else {
-              val suffix = aRelativeIRIPath.stripPrefix(prefixSlash)
-              val hashSuffix = hashMessage(suffix)
+          calculateRelativeIRIUnhashedPrefixHashedSuffix(aRelativeIRIPath, relativeIRIHashPrefix)
+            .fold[Seq[OWLOntologyChange]](Seq()){ case (unhashedPrefix, hashedSuffix) =>
               Seq (
                 new AddAxiom(o,
                   owlDataFactory
-                    .getOWLDataPropertyAssertionAxiom(OMF_HAS_RELATIVE_IRI_HASH_PREFIX, graphI, prefix)),
-                createAddOntologyHasIRIHashPrefixAnnotation(tboxOnt, prefix),
+                    .getOWLDataPropertyAssertionAxiom(OMF_HAS_RELATIVE_IRI_HASH_PREFIX, graphI, unhashedPrefix)),
+                createAddOntologyHasIRIHashPrefixAnnotation(tboxOnt, unhashedPrefix),
                 new AddAxiom(o,
                   owlDataFactory
-                    .getOWLDataPropertyAssertionAxiom(OMF_HAS_RELATIVE_IRI_HASH_SUFFIX, graphI, hashSuffix)),
-                createAddOntologyHasIRIHashSuffixAnnotation(tboxOnt, hashSuffix)
+                    .getOWLDataPropertyAssertionAxiom(OMF_HAS_RELATIVE_IRI_HASH_SUFFIX, graphI, hashedSuffix)),
+                createAddOntologyHasIRIHashSuffixAnnotation(tboxOnt, hashedSuffix)
                 )
-            }
           }
       } {
         val result = ontManager.applyChange(change)
@@ -1578,33 +1644,13 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
                 tgraph.structure2structureDataRelationships.toList,
                 tgraph.axioms.toList)(mg.ops)
 
-          val i_mg =
-            OMF_MODEL_TERMINOLOGY_GRAPH2Instance(mg)
-          val i_mg_dataValues: Set[OWLDataPropertyAssertionAxiom] =
-            omfMetadata.get.getDataPropertyAssertionAxioms(i_mg).toSet
-          require(i_mg_dataValues.nonEmpty)
-
-          val i_mg_relativePath_dataValue = i_mg_dataValues.find { ax =>
-            ax.getProperty match {
-              case dp: OWLDataProperty =>
-                dp == OMF_HAS_RELATIVE_IRI_PATH
-              case _ =>
-                false
-            }
-          }
+          val i_mg_relativePath_dataValue = getModelTerminologyGraphRelativeIRIPath(mg)
           require(i_mg_relativePath_dataValue.isDefined)
-          val i_mg_relativePath_value: String = i_mg_relativePath_dataValue.get.getObject.getLiteral
+          val i_mg_relativePath_value: String = i_mg_relativePath_dataValue.get
+          require(!i_mg_relativePath_value.endsWith("_Gro"))
           require(!i_mg_relativePath_value.endsWith("_Grw"))
 
-          val i_mg_iriHashPrefix_dataValue = i_mg_dataValues.find { ax =>
-            ax.getProperty match {
-              case dp: OWLDataProperty =>
-                dp == OMF_HAS_RELATIVE_IRI_HASH_PREFIX
-              case _ =>
-                false
-            }
-          }
-          val i_mg_iriHashPrefix_value: Option[String] = i_mg_iriHashPrefix_dataValue.map(_.getObject.getLiteral)
+          val i_mg_iriHashPrefix_value = getModelTerminologyGraphIRIHashPrefix(mg)
 
 //          System.out
 //            .println(
@@ -1767,22 +1813,16 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
             owlDataFactory
               .getOWLDataPropertyAssertionAxiom(OMF_HAS_RELATIVE_IRI_PATH, graphI, relativeIRIPath))
         ) ++
-          relativeIRIHashPrefix.fold[Seq[OWLOntologyChange]](Seq()){ prefix =>
-            val prefixSlash = if (prefix.endsWith("/")) prefix else prefix+'/'
-            if (!relativeIRIPath.startsWith(prefixSlash))
-              Seq()
-            else {
-              val suffix = relativeIRIPath.stripPrefix(prefixSlash)
-              val hashSuffix = hashMessage(suffix)
+          calculateRelativeIRIUnhashedPrefixHashedSuffix(relativeIRIPath, relativeIRIHashPrefix)
+          .fold[Seq[OWLOntologyChange]](Seq()){ case (unhashedPrefix, hashedSuffix) =>
               Seq (
                 new AddAxiom(omfMetadata.get,
                   owlDataFactory
-                    .getOWLDataPropertyAssertionAxiom(OMF_HAS_RELATIVE_IRI_HASH_PREFIX, graphI, prefix)),
+                    .getOWLDataPropertyAssertionAxiom(OMF_HAS_RELATIVE_IRI_HASH_PREFIX, graphI, unhashedPrefix)),
                 new AddAxiom(omfMetadata.get,
                   owlDataFactory
-                    .getOWLDataPropertyAssertionAxiom(OMF_HAS_RELATIVE_IRI_HASH_SUFFIX, graphI, hashSuffix))
+                    .getOWLDataPropertyAssertionAxiom(OMF_HAS_RELATIVE_IRI_HASH_SUFFIX, graphI, hashedSuffix))
               )
-            }
           }
       } {
         val result = ontManager.applyChange(change)
