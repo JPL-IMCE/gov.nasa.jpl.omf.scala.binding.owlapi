@@ -2,7 +2,8 @@
 .ensime*
 .idea
 .project
-bin*
+bin
+bin.tests
 owlapiLibs
 project/project
 project/target
