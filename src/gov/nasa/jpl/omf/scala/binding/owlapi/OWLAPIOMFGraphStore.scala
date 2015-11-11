@@ -368,6 +368,36 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
   lazy val OMF_IS_SYMMETRIC = omfModelDataProperties("isSymmetric")
   lazy val OMF_IS_TRANSITIVE = omfModelDataProperties("isTransitive")
 
+  lazy val OMF_MODEL_TERMINOLOGY_GRAPH_KIND =
+    omfModelDataProperties("kind")
+
+  lazy val OMF_MODEL_TERMINOLOGY_GRAPH_EXPORTED_OTI_PACKAGE_URI_PROVENANCE =
+    omfModelDataProperties("exportedOTIPackageURIProvenance")
+
+  lazy val OMF_MODEL_TERMINOLOGY_GRAPH_EXPORTED_OTI_PACKAGE_KIND_PROVENANCE =
+    omfModelDataProperties("exportedOTIPackageKindProvenance")
+
+  def createOntologyChangesForOMFModelTerminologyGraphProvenanceMetadata
+  ( omfGraph: types.ModelTerminologyGraph,
+    graphI: OWLNamedIndividual )
+  : Seq[OWLOntologyChange] =
+    new AddAxiom(omfMetadata.get,
+      owlDataFactory
+        .getOWLDataPropertyAssertionAxiom(OMF_MODEL_TERMINOLOGY_GRAPH_EXPORTED_OTI_PACKAGE_KIND_PROVENANCE,
+          graphI, omfGraph.mutabilityKind)) +:
+      omfGraph.extraProvenanceMetadata.fold[Seq[OWLOntologyChange]](Seq()) { info =>
+      Seq(
+        new AddAxiom(omfMetadata.get,
+          owlDataFactory
+            .getOWLDataPropertyAssertionAxiom(OMF_MODEL_TERMINOLOGY_GRAPH_KIND,
+              graphI, info.provenanceKind.literal)),
+        new AddAxiom(omfMetadata.get,
+          owlDataFactory
+            .getOWLDataPropertyAssertionAxiom(OMF_MODEL_TERMINOLOGY_GRAPH_EXPORTED_OTI_PACKAGE_URI_PROVENANCE,
+              graphI, info.provenanceURI))
+      )
+    }
+
   // @todo report errors if the graph isn't there...
   def getModelTerminologyGraphRelativeIRIPath
   (g: types.ModelTerminologyGraph)
@@ -676,12 +706,16 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
    relativeIRIPath: Option[String],
    relativeIRIHashPrefix: Option[String],
    tboxOnt: OWLOntology,
-   kind: TerminologyKind.TerminologyKind)
+   kind: TerminologyKind.TerminologyKind,
+   extraProvenanceMetadata: Option[OTI2OMFModelTerminologyGraphProvenance])
   : NonEmptyList[java.lang.Throwable] \/ types.MutableModelTerminologyGraph =
     Backbone
       .createBackbone(tboxOnt, kind, ops)
       .flatMap { backbone =>
-    val graphT = new types.MutableModelTerminologyGraph(kind = kind, ont = tboxOnt, backbone = backbone)
+    val graphT = new types.MutableModelTerminologyGraph(
+      kind = kind, ont = tboxOnt,
+      extraProvenanceMetadata = extraProvenanceMetadata,
+      backbone = backbone)
 
     val aRelativeIRIPath =
       relativeIRIPath.fold[String] (
@@ -1630,8 +1664,9 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
           val ig =
             types
               .ImmutableModelTerminologyGraph(
-                tgraph.kind,
-                mg.ont,
+                kind = mg.kind,
+                ont = mg.ont,
+                extraProvenanceMetadata = mg.extraProvenanceMetadata,
                 tgraph.aspects.toList,
                 tgraph.concepts.toList,
                 tgraph.reifiedRelationships.toList,
@@ -2022,7 +2057,8 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
   (iri: IRI,
    relativeIRIPath: Option[String],
    relativeIRIHashPrefix: Option[String],
-   kind: TerminologyKind)
+   kind: TerminologyKind,
+   extraProvenanceMetadata: Option[OTI2OMFModelTerminologyGraphProvenance])
   (implicit ops: OWLAPIOMFOps)
   : NonEmptyList[java.lang.Throwable] \/ types.MutableModelTerminologyGraph =
     mutableTBoxGraphs
@@ -2038,7 +2074,7 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
         createOMFModelTerminologyGraph(
           omfMetadata.get,
           iri, relativeIRIPath, relativeIRIHashPrefix,
-          ontManager.createOntology(iri), kind)
+          ontManager.createOntology(iri), kind, extraProvenanceMetadata)
     ) { g =>
       g.right
     }

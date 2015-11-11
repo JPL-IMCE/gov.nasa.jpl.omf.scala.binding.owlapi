@@ -55,13 +55,15 @@ import scalaz._, Scalaz._
 
 abstract class ModelTerminologyGraph
 ( val kind: TerminologyKind,
-  val ont: OWLOntology )
+  val ont: OWLOntology,
+  val extraProvenanceMetadata: Option[OTI2OMFModelTerminologyGraphProvenance] )
 ( implicit val ops: OWLAPIOMFOps ) {
 
   require(null != kind)
   require(null != ont)
   require(null != ops)
 
+  val mutabilityKind: String
   val isImmutableModelTerminologyGraph: Boolean
   val isMutableModelTerminologyGraph: Boolean
 

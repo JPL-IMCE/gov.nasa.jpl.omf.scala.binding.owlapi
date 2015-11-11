@@ -155,10 +155,12 @@ case class DuplicateModelTermAxiomException
 case class MutableModelTerminologyGraph
 (override val kind: TerminologyKind,
  override val ont: OWLOntology,
+ override val extraProvenanceMetadata: Option[OTI2OMFModelTerminologyGraphProvenance],
  backbone: OMFBackbone)
 (override implicit val ops: OWLAPIOMFOps)
-  extends ModelTerminologyGraph(kind, ont)(ops) {
+  extends ModelTerminologyGraph(kind, ont, extraProvenanceMetadata)(ops) {
 
+  override val mutabilityKind: String = "mutable"
   override val isImmutableModelTerminologyGraph = true
   override val isMutableModelTerminologyGraph = false
 

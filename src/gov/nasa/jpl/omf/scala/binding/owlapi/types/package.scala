@@ -177,7 +177,9 @@ package object types {
       ont = ont,
       relativeIRIPath=getOntologyRelativeIRI,
       relativeIRIHashPrefix=getOntologyIRIHashPrefix,
-      kind = kind)(omfStore)
+      kind = kind,
+      extraProvenanceMetadata = OTI2OMFModelTerminologyGraphProvenance.asOMFGraphOntologyProvenance(ont)
+    )(omfStore)
     .flatMap { g: MutableModelTerminologyGraph =>
 
       for {

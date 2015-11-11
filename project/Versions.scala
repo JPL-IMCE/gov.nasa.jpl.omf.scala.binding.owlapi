@@ -7,5 +7,5 @@ object Versions {
   val jpl_mbee_common_scala_libraries_revision="d44cf0591f31cb1005a9b4a2fab47bfd235e005c"
 
   // IMCE-LOADPROD
-  val imce_loadprod_revision = "cf14f61e5f56a014de0190b2a9d2bba8167241d5"
+  val imce_loadprod_revision = "52f77b445f956a732fee567439247886041a96ca"
 }

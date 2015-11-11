@@ -89,6 +89,7 @@ case class ReadOnlyImmutableTerminologyGraphException(val operation: ImmutableOp
 case class ImmutableModelTerminologyGraph
 (override val kind: TerminologyKind,
  override val ont: OWLOntology,
+ override val extraProvenanceMetadata: Option[OTI2OMFModelTerminologyGraphProvenance],
  override protected val aspects: List[ModelEntityAspect],
  override protected val concepts: List[ModelEntityConcept],
  override protected val reifiedRelationships: List[ModelEntityReifiedRelationship],
@@ -101,7 +102,7 @@ case class ImmutableModelTerminologyGraph
  override protected val s2st: List[ModelDataRelationshipFromStructureToStructure],
  override protected val ax: List[ModelTermAxiom])
 (override implicit val ops: OWLAPIOMFOps)
-  extends ModelTerminologyGraph(kind, ont)(ops) {
+  extends ModelTerminologyGraph(kind, ont, extraProvenanceMetadata)(ops) {
 
   require(null != kind)
   require(null != ont)
@@ -117,6 +118,7 @@ case class ImmutableModelTerminologyGraph
   require(null != s2st)
   require(null != ax)
 
+  override val mutabilityKind: String = "immutable"
   override val isImmutableModelTerminologyGraph = true
   override val isMutableModelTerminologyGraph = false
 
