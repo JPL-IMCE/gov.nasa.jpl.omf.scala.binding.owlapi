@@ -60,17 +60,47 @@ case class OTI2OMFModelTerminologyGraphProvenance
 
 sealed abstract class OMFModelTerminologyGraphProvenanceKind(val literal: String)
 
+/**
+  * Corresponds to exporting either
+  * - OTISerializableMetamodelArtifactKind
+  * - OTIBuiltInMetamodelArtifactKind
+  * (there is no existing OMF Graph Ontology corresponding to such a Metamodel)
+  */
 case object OMFModelTerminologyGraphOTIMetamodelProvenanceKind
 extends OMFModelTerminologyGraphProvenanceKind(literal="OTIMetamodel")
 
+/**
+  * Corresponds to exporting either
+  * - OTISerializableProfileArtifactKind
+  * - OTIBuiltInProfileArtifactKind
+  * (there is no existing OMF Graph Ontology corresponding to such a Profile)
+  */
 case object OMFModelTerminologyGraphOTIProfileProvenanceKind
   extends OMFModelTerminologyGraphProvenanceKind(literal="OTIProfile")
 
+/**
+  * Corresponds to exporting either
+  * - OTISerializableModelLibraryArtifactKind
+  * - OTIBuiltInModelLibraryArtifactKind
+  * (there is no existing OMF Graph Ontology corresponding to such a ModelLibrary)
+  */
 case object OMFModelTerminologyGraphOTIModelLibraryProvenanceKind
   extends OMFModelTerminologyGraphProvenanceKind(literal="OTIModelLibrary")
 
+/**
+  * Corresponds to exporting a UML Package/Profile
+  * that has a corresponding OMF Graph Ontology
+  * (in this case, the export should be redundant)
+  */
 case object OMFModelTerminologyGraphOMFGraphOntologyProvenanceKind
   extends OMFModelTerminologyGraphProvenanceKind(literal="OMFGraphOntology")
+
+/**
+  * Corresponds to an instance of the OMF Metadata ontology
+  * created as part of exporting an OTI artifact of some kind (Metamodel, Profile, ModelLibrary)
+  */
+case object OMFModelTerminologyGraphOMFMetadataOntologyProvenanceKind
+  extends OMFModelTerminologyGraphProvenanceKind(literal="OMFMetadataOntology")
 
 object OTI2OMFModelTerminologyGraphProvenance {
 
