@@ -141,7 +141,9 @@ abstract class ModelTerminologyGraph
 
   def getScalarDatatypeDefinitionMap: Map[OWLDatatype, ModelScalarDataType]
 
-  def getTerms: ( IRI, Iterable[ModelTypeTerm] ) = ( iri, iri2typeTerm.values.to[Iterable] )
+  def getTermAxioms: ( IRI, Iterable[ModelTermAxiom] ) = ( iri, ax.to[Iterable] )
+
+  def getTypeTerms: ( IRI, Iterable[ModelTypeTerm] ) = ( iri, iri2typeTerm.values.to[Iterable] )
 
   def fromTerminologyGraph
   ( nesting: Option[ModelTerminologyGraph],

@@ -414,10 +414,15 @@ trait OWLAPIImmutableTerminologyGraphOps
       case _                                                            => None
     }
 
-  override def getTerms
+  override def getTermAxioms
+  (graph: types.ModelTerminologyGraph)
+  : ( IRI, Iterable[types.ModelTermAxiom] ) =
+    graph.getTermAxioms
+
+  override def getTypeTerms
   (graph: types.ModelTerminologyGraph)
   : ( IRI, Iterable[types.ModelTypeTerm] ) =
-    graph.getTerms
+    graph.getTypeTerms
 
   override def getNestingGraph
   (graph: types.ModelTerminologyGraph)
