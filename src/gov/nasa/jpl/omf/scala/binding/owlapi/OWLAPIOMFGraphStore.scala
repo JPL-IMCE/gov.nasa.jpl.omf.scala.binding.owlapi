@@ -383,13 +383,13 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
   : Seq[OWLOntologyChange] =
     new AddAxiom(omfMetadata.get,
       owlDataFactory
-        .getOWLDataPropertyAssertionAxiom(OMF_MODEL_TERMINOLOGY_GRAPH_EXPORTED_OTI_PACKAGE_KIND_PROVENANCE,
+        .getOWLDataPropertyAssertionAxiom(OMF_MODEL_TERMINOLOGY_GRAPH_KIND,
           graphI, omfGraph.mutabilityKind)) +:
       omfGraph.extraProvenanceMetadata.fold[Seq[OWLOntologyChange]](Seq()) { info =>
       Seq(
         new AddAxiom(omfMetadata.get,
           owlDataFactory
-            .getOWLDataPropertyAssertionAxiom(OMF_MODEL_TERMINOLOGY_GRAPH_KIND,
+            .getOWLDataPropertyAssertionAxiom(OMF_MODEL_TERMINOLOGY_GRAPH_EXPORTED_OTI_PACKAGE_KIND_PROVENANCE,
               graphI, info.provenanceKind.literal)),
         new AddAxiom(omfMetadata.get,
           owlDataFactory
@@ -748,14 +748,14 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
               .getOWLObjectPropertyAssertionAxiom(OMF_HAS_TERMINOLOGY_KIND, graphI, okind)),
           new AddAxiom(o,
             owlDataFactory
-              .getOWLDataPropertyAssertionAxiom(OMF_HAS_IRI, graphI, graphT.kindIRI.toString)),
+              .getOWLDataPropertyAssertionAxiom(OMF_HAS_IRI, graphI, graphT.iri.toString)),
           new AddAxiom(o,
             owlDataFactory
               .getOWLDataPropertyAssertionAxiom(OMF_HAS_RELATIVE_IRI_PATH, graphI, aRelativeIRIPath)),
           createAddOntologyHasRelativeIRIAnnotation(tboxOnt, aRelativeIRIPath)
         ) ++
           calculateRelativeIRIUnhashedPrefixHashedSuffix(aRelativeIRIPath, relativeIRIHashPrefix)
-            .fold[Seq[OWLOntologyChange]](Seq()){ case (unhashedPrefix, hashedSuffix) =>
+            .fold[Seq[OWLOntologyChange]](Seq()) { case (unhashedPrefix, hashedSuffix) =>
               Seq (
                 new AddAxiom(o,
                   owlDataFactory
@@ -766,7 +766,8 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
                     .getOWLDataPropertyAssertionAxiom(OMF_HAS_RELATIVE_IRI_HASH_SUFFIX, graphI, hashedSuffix)),
                 createAddOntologyHasIRIHashSuffixAnnotation(tboxOnt, hashedSuffix)
                 )
-          }
+          } ++
+          createOntologyChangesForOMFModelTerminologyGraphProvenanceMetadata(graphT, graphI)
       } {
         val result = ontManager.applyChange(change)
         require(
@@ -1858,7 +1859,8 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
                   owlDataFactory
                     .getOWLDataPropertyAssertionAxiom(OMF_HAS_RELATIVE_IRI_HASH_SUFFIX, graphI, hashedSuffix))
               )
-          }
+          } ++
+          createOntologyChangesForOMFModelTerminologyGraphProvenanceMetadata(g, graphI)
       } {
         val result = ontManager.applyChange(change)
         require(result == ChangeApplied.SUCCESSFULLY, s"\nregister:\n$change")
