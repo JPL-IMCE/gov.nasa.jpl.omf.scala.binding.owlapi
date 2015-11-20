@@ -473,6 +473,12 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
   protected val immutableTBoxGraphs = scala.collection.mutable.HashMap[IRI, types.ImmutableModelTerminologyGraph]()
   protected val mutableTBoxGraphs = scala.collection.mutable.HashMap[IRI, types.MutableModelTerminologyGraph]()
 
+  def lookupTerminologyGraph
+  (iri: IRI)
+  : Option[types.ModelTerminologyGraph]
+  = immutableTBoxGraphs.get(iri)
+    .orElse(mutableTBoxGraphs.get(iri))
+
   protected val directExtensionAxioms = scala.collection.mutable.HashSet[types.TerminologyGraphDirectExtensionAxiom]()
   protected val directNestingAxioms = scala.collection.mutable.HashSet[types.TerminologyGraphDirectNestingAxiom]()
 
