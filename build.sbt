@@ -29,6 +29,7 @@ lazy val core =
     scalaSource in Test := baseDirectory.value / "test",
     classDirectory in Compile := baseDirectory.value / "bin",
     classDirectory in Test := baseDirectory.value / "bin.tests",
+    resourceDirectory in Test := baseDirectory.value / "gov-nasa-jpl-imce-ontologies",
 
     // TODO: Jenkins CI: This should be unnecessary since the repo is in the library dependency POM!!!
     resolvers += new MavenRepository("bintray-pchiusano-scalaz-stream", "http://dl.bintray.com/pchiusano/maven"),

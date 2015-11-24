@@ -1809,6 +1809,19 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
 
   }
 
+  /**
+    * Registers an immutable TBox graph in the store's OMF Metadata graph.
+    * @note postcondition: `lookupTerminologyGraph(g.iri)` should be `\/-(g)`
+    *
+    * @param g The immutable TBox graph to register in the store's current OMF Metadata graph
+    * @param info The TBox signature of `g`
+    * @param m2i The current map of mutable to immtable TBox graphs
+    * @param name The name of `g`
+    * @param uuid The uuid of `g`
+    * @param relativeIRIPath The relativeIRIPath of `g`
+    * @param relativeIRIHashPrefix The relativeIRIHashPrefix of `g`
+    * @return `m2i`
+    */
   def register
   (g: types.ImmutableModelTerminologyGraph,
    info: OWLAPITerminologyGraphSignature,
@@ -1819,8 +1832,8 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
    relativeIRIHashPrefix: Option[String])
   : NonEmptyList[java.lang.Throwable] \/ types.Mutable2IMutableTerminologyMap = {
 
-    val ok1 = immutableTBoxGraphs.put(g.kindIRI, g)
-    require(ok1.isEmpty, s"register g: ${g.kindIRI}")
+    val ok1 = immutableTBoxGraphs.put(g.iri, g)
+    require(ok1.isEmpty, s"register g: ${g.iri}")
 
     makeMetadataInstanceIRI(omfMetadata.get, "Gro", g.kindIRI)
     .flatMap { graphIRI =>
