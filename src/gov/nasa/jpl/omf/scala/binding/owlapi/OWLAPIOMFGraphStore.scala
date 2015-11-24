@@ -507,7 +507,7 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
     val axiom = directNestingAxioms.find { ax =>
       ax.nestedChild.kindIRI == childG.kindIRI &&
       ax.nestingParent.kindIRI == parentG.kindIRI
-                                         }
+    }
     (axiom, nestedChild2NestingParent.get(childG)) match {
       case (None, Some(_))                 =>
         NonEmptyList(
@@ -1129,7 +1129,7 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
       .get(scalarDT)
       .fold[NonEmptyList[java.lang.Throwable] \/ OWLNamedIndividual]{
       for {
-        scalarDIRI <- makeMetadataInstanceIRI(omfMetadata.get, "SC", tbox.kindIRI, scalarDT.iri)
+        scalarDIRI <- makeMetadataInstanceIRI(omfMetadata.get, "SC", tbox.iri, scalarDT.iri)
         scalarDI = owlDataFactory.getOWLNamedIndividual(scalarDIRI)
       } yield {
         for {
@@ -1191,7 +1191,7 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
       .get(structuredDT)
       .fold[NonEmptyList[java.lang.Throwable] \/ OWLNamedIndividual]{
       for {
-        structuredDIRI <- makeMetadataInstanceIRI(omfMetadata.get, "ST", tbox.kindIRI, structuredDT.iri)
+        structuredDIRI <- makeMetadataInstanceIRI(omfMetadata.get, "ST", tbox.iri, structuredDT.iri)
         structuredDI = owlDataFactory.getOWLNamedIndividual(structuredDIRI)
       } yield {
         for {
@@ -1252,7 +1252,7 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
     val subI = OMF_MODEL_ENTITY_DEFINITION2Instance(axiomT.sub)
     val supI = OMF_MODEL_ENTITY_ASPECT2Instance(axiomT.sup)
     for {
-      axiomIRI <- makeMetadataInstanceIRI(omfMetadata.get, "DefinitionAspectSubClass", tbox.kindIRI, axiomT.sub.iri, axiomT.sup.iri)
+      axiomIRI <- makeMetadataInstanceIRI(omfMetadata.get, "DefinitionAspectSubClass", tbox.iri, axiomT.sub.iri, axiomT.sup.iri)
       axiomI = owlDataFactory.getOWLNamedIndividual(axiomIRI)
     } yield {
     for {
@@ -1297,7 +1297,7 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
     for {
       axiomIRI <- makeMetadataInstanceIRI(omfMetadata.get,
                                                                 "ConceptSubClass",
-                                                                tbox.kindIRI,
+                                                                tbox.iri,
                                                                 axiomT.sub.iri,
                                                                 axiomT.sup.iri)
       axiomI = owlDataFactory.getOWLNamedIndividual(axiomIRI)
@@ -1346,7 +1346,7 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
     for {
       axiomIRI <- makeMetadataInstanceIRI(omfMetadata.get,
                                                                 "UniversalConceptRestriction",
-                                                                tbox.kindIRI,
+                                                                tbox.iri,
                                                                 axiomT.sub.iri,
                                                                 axiomT.rel.iri,
                                                                 axiomT.range.iri)
@@ -1398,7 +1398,7 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
     for {
       axiomIRI <-makeMetadataInstanceIRI(omfMetadata.get,
                                                                 "ExistentialConceptRestriction",
-                                                                tbox.kindIRI,
+                                                                tbox.iri,
                                                                 axiomT.sub.iri,
                                                                 axiomT.rel.iri,
                                                                 axiomT.range.iri)
@@ -1449,9 +1449,9 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
     for {
       axiomIRI <- makeMetadataInstanceIRI(omfMetadata.get,
                                                                 "ConceptDesignationTerminologyGraph",
-                                                                tbox.kindIRI,
+                                                                tbox.iri,
                                                                 axiomT.entityConceptDesignation.iri,
-                                                                axiomT.designationTerminologyGraph.kindIRI)
+                                                                axiomT.designationTerminologyGraph.iri)
       axiomI = owlDataFactory.getOWLNamedIndividual(axiomIRI)
     } yield {
     for {
@@ -1496,7 +1496,7 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
     for {
       axiomIRI <- makeMetadataInstanceIRI(omfMetadata.get,
                                                                 "RelationshipSubClass",
-                                                                tbox.kindIRI,
+                                                                tbox.iri,
                                                                 axiomT.sub.iri,
                                                                 axiomT.sup.iri)
       axiomI = owlDataFactory.getOWLNamedIndividual(axiomIRI)
@@ -1545,7 +1545,7 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
     for {
       axiomIRI <- makeMetadataInstanceIRI(omfMetadata.get,
                                                                 "ScalarDataTypeFacetRestriction",
-                                                                tbox.kindIRI,
+                                                                tbox.iri,
                                                                 axiomT.sub.iri,
                                                                 axiomT.sup.iri)
       axiomI = owlDataFactory.getOWLNamedIndividual(axiomIRI)
@@ -1835,7 +1835,7 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
     val ok1 = immutableTBoxGraphs.put(g.iri, g)
     require(ok1.isEmpty, s"register g: ${g.iri}")
 
-    makeMetadataInstanceIRI(omfMetadata.get, "Gro", g.kindIRI)
+    makeMetadataInstanceIRI(omfMetadata.get, "Gro", g.iri)
     .flatMap { graphIRI =>
 
       val graphI = owlDataFactory.getOWLNamedIndividual(graphIRI)
