@@ -1863,7 +1863,7 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
               .getOWLObjectPropertyAssertionAxiom(OMF_HAS_TERMINOLOGY_KIND, graphI, okind)),
           new AddAxiom(omfMetadata.get,
             owlDataFactory
-              .getOWLDataPropertyAssertionAxiom(OMF_HAS_IRI, graphI, g.kindIRI.toString)),
+              .getOWLDataPropertyAssertionAxiom(OMF_HAS_IRI, graphI, g.iri.toString)),
           new AddAxiom(omfMetadata.get,
             owlDataFactory
               .getOWLDataPropertyAssertionAxiom(OMF_HAS_RELATIVE_IRI_PATH, graphI, relativeIRIPath))
