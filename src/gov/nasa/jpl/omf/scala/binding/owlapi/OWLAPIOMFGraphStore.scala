@@ -347,16 +347,22 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
 
   /**
     * If specified, the prefix splits the relative IRI path in two:
-    * hashPrefix (not hashed) -- the value of this property
-    * hashSuffix (hashed with SHA-256)
+    * - hashPrefix (not hashed), the value of this property, and
+    * - hashSuffix (hashed with SHA-256)
     */
-  lazy val OMF_HAS_RELATIVE_IRI_HASH_PREFIX= omfModelDataProperties( "hasRelativeIRIHashPrefix" )
+  lazy val OMF_HAS_RELATIVE_IRI_HASH_PREFIX = omfModelDataProperties( "hasRelativeIRIHashPrefix" )
 
   /**
     * When there is both IRI relative path and IRI hash prefix,
     * this property has the SHA-256 hash of the IRI relative path stripped of the IRI hash prefix.
     */
   lazy val OMF_HAS_RELATIVE_IRI_HASH_SUFFIX = omfModelDataProperties( "hasRelativeIRIHashSuffix" )
+
+  /**
+    * If specified, the filename of the ontology relative to the IMCE catalog without the .owl extension
+    */
+  lazy val OMF_HAS_RELATIVE_FILENAME = omfModelDataProperties( "hasRelativeFilename" )
+
   lazy val OMF_HAS_SHORT_NAME = omfModelDataProperties("hasShortName")
   lazy val OMF_HAS_UUID = omfModelDataProperties("hasUUID")
   lazy val OMF_IS_ABSTRACT = omfModelDataProperties("isAbstract")
@@ -469,6 +475,26 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
       else
         Tuple2(prefixSlash, hashMessage(relativeIRIPath.stripPrefix(prefixSlash))).some
     }
+
+  // @todo report errors if the graph isn't there...
+  def getModelTerminologyGraphRelativeFilename
+  (g: types.ModelTerminologyGraph)
+  : Option[String] = {
+    val i_g = OMF_MODEL_TERMINOLOGY_GRAPH2Instance(g)
+    val i_dataValues: Set[OWLDataPropertyAssertionAxiom] =
+      omfMetadata.get.getDataPropertyAssertionAxioms(i_g).toSet
+
+    val i_g_relativeFilename_dataValue = i_dataValues.find { ax =>
+      ax.getProperty match {
+        case dp: OWLDataProperty =>
+          dp == OMF_HAS_RELATIVE_FILENAME
+        case _ =>
+          false
+      }
+    }
+
+    i_g_relativeFilename_dataValue.map(_.getObject.getLiteral)
+  }
 
   protected val immutableTBoxGraphs = scala.collection.mutable.HashMap[IRI, types.ImmutableModelTerminologyGraph]()
   protected val mutableTBoxGraphs = scala.collection.mutable.HashMap[IRI, types.MutableModelTerminologyGraph]()
@@ -761,7 +787,11 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
           createAddOntologyHasRelativeIRIAnnotation(tboxOnt, aRelativeIRIPath)
         ) ++
           calculateRelativeIRIUnhashedPrefixHashedSuffix(aRelativeIRIPath, relativeIRIHashPrefix)
-            .fold[Seq[OWLOntologyChange]](Seq()) { case (unhashedPrefix, hashedSuffix) =>
+            .fold[Seq[OWLOntologyChange]](Seq(
+            new AddAxiom(o,
+              owlDataFactory
+                .getOWLDataPropertyAssertionAxiom(OMF_HAS_RELATIVE_FILENAME, graphI, aRelativeIRIPath))
+          )) { case (unhashedPrefix, hashedSuffix) =>
               Seq (
                 new AddAxiom(o,
                   owlDataFactory
@@ -770,7 +800,10 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
                 new AddAxiom(o,
                   owlDataFactory
                     .getOWLDataPropertyAssertionAxiom(OMF_HAS_RELATIVE_IRI_HASH_SUFFIX, graphI, hashedSuffix)),
-                createAddOntologyHasIRIHashSuffixAnnotation(tboxOnt, hashedSuffix)
+                createAddOntologyHasIRIHashSuffixAnnotation(tboxOnt, hashedSuffix),
+                new AddAxiom(o,
+                  owlDataFactory
+                    .getOWLDataPropertyAssertionAxiom(OMF_HAS_RELATIVE_FILENAME, graphI, unhashedPrefix+hashedSuffix))
                 )
           } ++
           createOntologyChangesForOMFModelTerminologyGraphProvenanceMetadata(graphT, graphI)
@@ -1869,14 +1902,21 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
               .getOWLDataPropertyAssertionAxiom(OMF_HAS_RELATIVE_IRI_PATH, graphI, relativeIRIPath))
         ) ++
           calculateRelativeIRIUnhashedPrefixHashedSuffix(relativeIRIPath, relativeIRIHashPrefix)
-          .fold[Seq[OWLOntologyChange]](Seq()){ case (unhashedPrefix, hashedSuffix) =>
+          .fold[Seq[OWLOntologyChange]](Seq(
+            new AddAxiom(omfMetadata.get,
+              owlDataFactory
+                .getOWLDataPropertyAssertionAxiom(OMF_HAS_RELATIVE_FILENAME, graphI, relativeIRIPath))
+          )){ case (unhashedPrefix, hashedSuffix) =>
               Seq (
                 new AddAxiom(omfMetadata.get,
                   owlDataFactory
                     .getOWLDataPropertyAssertionAxiom(OMF_HAS_RELATIVE_IRI_HASH_PREFIX, graphI, unhashedPrefix)),
                 new AddAxiom(omfMetadata.get,
                   owlDataFactory
-                    .getOWLDataPropertyAssertionAxiom(OMF_HAS_RELATIVE_IRI_HASH_SUFFIX, graphI, hashedSuffix))
+                    .getOWLDataPropertyAssertionAxiom(OMF_HAS_RELATIVE_IRI_HASH_SUFFIX, graphI, hashedSuffix)),
+                new AddAxiom(omfMetadata.get,
+                  owlDataFactory
+                    .getOWLDataPropertyAssertionAxiom(OMF_HAS_RELATIVE_FILENAME, graphI, unhashedPrefix+hashedSuffix))
               )
           } ++
           createOntologyChangesForOMFModelTerminologyGraphProvenanceMetadata(g, graphI)
