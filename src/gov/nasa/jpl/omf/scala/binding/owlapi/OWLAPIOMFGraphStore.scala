@@ -751,7 +751,7 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
 
     val aRelativeIRIPath =
       relativeIRIPath.fold[String] (
-        iri.toString.stripPrefix("http://imce.jpl.nasa.gov")
+        iri.toString.stripPrefix("http://")
       ){ identity }
     System.out.println(s"\n*** createOMFModelTerminologyGraph\n=> iri=$iri\n=> rel=$aRelativeIRIPath")
 
