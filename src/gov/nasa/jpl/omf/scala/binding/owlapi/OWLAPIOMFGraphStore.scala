@@ -601,6 +601,16 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
     }
   }
 
+  def getDirectlyExtendingGraphsOfExtendedParentGraph
+  (extendedParentG: types.ModelTerminologyGraph)
+  : Iterable[types.TerminologyGraphDirectExtensionAxiom] =
+    directExtensionAxioms.filter(_.extendedParent.kindIRI == extendedParentG.kindIRI).to[Iterable]
+
+  def getDirectlyExtendedGraphsOfExtendingChildGraph
+  (extendingChildG: types.ModelTerminologyGraph)
+  : Iterable[types.TerminologyGraphDirectExtensionAxiom] =
+    directExtensionAxioms.filter(_.extendingChild.kindIRI == extendingChildG.kindIRI).to[Iterable]
+
   def createTerminologyGraphDirectExtensionAxiom
   (extendingG: types.ModelTerminologyGraph,
    extendedG: types.ModelTerminologyGraph)
@@ -612,7 +622,7 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
     if (extendedParents.contains(extendedG))
       directExtensionAxioms.find { ax =>
         ax.extendingChild.kindIRI == extendingG.kindIRI &&
-        ax.extendedParent.kindIRI == extendedG.kindIRI
+          ax.extendedParent.kindIRI == extendedG.kindIRI
       }
       .fold[NonEmptyList[java.lang.Throwable] \/ types.TerminologyGraphDirectExtensionAxiom]({
         System.out.println(s"directExtensionAxioms: ${directExtensionAxioms.size}")

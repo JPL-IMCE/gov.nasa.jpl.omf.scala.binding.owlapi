@@ -205,6 +205,18 @@ trait OWLAPIStoreOps
   : NonEmptyList[java.lang.Throwable] \/ types.TerminologyGraphDirectNestingAxiom =
     store.createTerminologyGraphDirectNestingAxiom(parentG, nestedG)
 
+  override def getDirectlyExtendingGraphsOfExtendedParentGraph
+  (extendedParentG: types.ModelTerminologyGraph)
+  (implicit store: OWLAPIOMFGraphStore)
+  : Iterable[types.TerminologyGraphDirectExtensionAxiom] =
+    store.getDirectlyExtendingGraphsOfExtendedParentGraph(extendedParentG)
+
+  def getDirectlyExtendedGraphsOfExtendingChildGraph
+  (extendingChildG: types.ModelTerminologyGraph)
+  (implicit store: OWLAPIOMFGraphStore)
+  : Iterable[types.TerminologyGraphDirectExtensionAxiom] =
+    store.getDirectlyExtendedGraphsOfExtendingChildGraph(extendingChildG)
+
   override def addTerminologyGraphExtension
   (extendingG: types.MutableModelTerminologyGraph,
    extendedG: types.ModelTerminologyGraph)

@@ -305,7 +305,7 @@ case class MutableModelTerminologyGraph
         val result = ontManager.applyChange(change)
         require(
                  result == ChangeApplied.SUCCESSFULLY,
-                 s"\naddTerminologyGraphExtension:\n$change")
+                 s"\naddTerminologyGraphExtension: result=$result\n$change")
       }
       axiom
     }
