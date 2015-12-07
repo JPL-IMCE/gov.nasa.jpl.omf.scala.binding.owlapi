@@ -41,7 +41,7 @@ package gov.nasa.jpl.omf.scala.binding.owlapi
 import java.lang.System
 import java.util.concurrent.TimeUnit
 
-import gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper
+import gov.nasa.jpl.omf.scala.binding.owlapi.types.{BuiltInDatatypeMaps, ResolverHelper}
 import gov.nasa.jpl.omf.scala.core.TerminologyKind._
 import gov.nasa.jpl.omf.scala.core._
 import org.semanticweb.owlapi.model._
@@ -506,7 +506,7 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
   ()
   : NonEmptyList[java.lang.Throwable] \/
     Option[(types.ImmutableModelTerminologyGraph, types.Mutable2IMutableTerminologyMap)] =
-    Option.empty[(types.ImmutableModelTerminologyGraph, types.Mutable2IMutableTerminologyMap)].right
+    BuiltInDatatypeMaps.loadBuiltinDatatypeMap()(this)
 
   def lookupTerminologyGraph
   (iri: IRI)

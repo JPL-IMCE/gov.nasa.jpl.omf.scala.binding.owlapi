@@ -1352,26 +1352,24 @@ case class MutableModelTerminologyGraph
   def createScalarDataTypeFacetRestrictionAxiom
   (sub: types.ModelScalarDataType,
    sup: types.ModelScalarDataType,
-   restrictions: Iterable[ConstrainingFacet])
+   fundamentalFacets: Iterable[FundamentalFacet],
+   constrainingFacets: Iterable[ConstrainingFacet] )
   (implicit store: OWLAPIOMFGraphStore)
   : NonEmptyList[java.lang.Throwable] \/ types.ScalarDataTypeFacetRestrictionAxiom =
     ax
     .find {
             case axiom: types.ScalarDataTypeFacetRestrictionAxiom =>
-              axiom.sub == sub &&
-              axiom.sup == sup &&
-              axiom.restrictions.toSet.diff(restrictions.toSet).isEmpty
-            case _                                                =>
+              axiom.sub == sub && axiom.sup == sup
+            case _ =>
               false
           }
     .fold[NonEmptyList[java.lang.Throwable] \/ types.ScalarDataTypeFacetRestrictionAxiom](
         for {
           axiom <-
           store
-          .createOMFScalarDataTypeFacetRestrictionAxiomInstance(this,
-                                                                ScalarDataTypeFacetRestrictionAxiom(sub,
-                                                                                                    sup,
-                                                                                                    restrictions))
+          .createOMFScalarDataTypeFacetRestrictionAxiomInstance(
+            this,
+            ScalarDataTypeFacetRestrictionAxiom(sub, sup, fundamentalFacets, constrainingFacets))
         } yield {
           ax += axiom
           axiom
@@ -1385,14 +1383,15 @@ case class MutableModelTerminologyGraph
   def addScalarDataTypeFacetRestrictionAxiom
   (sub: types.ModelScalarDataType,
    sup: types.ModelScalarDataType,
-   restrictions: Iterable[ConstrainingFacet])
+   fundamentalFacets: Iterable[FundamentalFacet],
+   constrainingFacets: Iterable[ConstrainingFacet] )
   (implicit store: OWLAPIOMFGraphStore)
   : NonEmptyList[java.lang.Throwable] \/ types.ScalarDataTypeFacetRestrictionAxiom =
     ( isTypeTermDefinedRecursively(sub),
       isTypeTermDefinedRecursively(sup) ) match {
       case (true, true) =>
         for {
-          axiom <- createScalarDataTypeFacetRestrictionAxiom(sub, sup, restrictions)
+          axiom <- createScalarDataTypeFacetRestrictionAxiom(sub, sup, fundamentalFacets, constrainingFacets)
         } yield {
 //          Try(for {
 //                restriction <- restrictions

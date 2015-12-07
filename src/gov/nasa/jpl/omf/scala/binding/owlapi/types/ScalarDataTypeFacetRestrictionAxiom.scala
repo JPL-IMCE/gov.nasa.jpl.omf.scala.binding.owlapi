@@ -43,12 +43,14 @@ import gov.nasa.jpl.omf.scala.core._
 import scala.Predef.require
 
 case class ScalarDataTypeFacetRestrictionAxiom
-(val sub: ModelScalarDataType,
- val sup: ModelScalarDataType,
- val restrictions: Iterable[ConstrainingFacet])
+(sub: ModelScalarDataType,
+ sup: ModelScalarDataType,
+ fundamentalFacets: Iterable[FundamentalFacet],
+ constrainingFacets: Iterable[ConstrainingFacet] )
   extends ModelTermAxiom {
 
   require(null != sub)
   require(null != sup)
-  require(null != restrictions)
+  require(null != fundamentalFacets)
+  require(null != constrainingFacets)
 }

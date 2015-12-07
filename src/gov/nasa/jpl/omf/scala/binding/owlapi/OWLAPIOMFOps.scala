@@ -649,11 +649,12 @@ trait OWLAPIImmutableTerminologyGraphOps
 
   override def fromScalarDataTypeFacetRestrictionAxiom
   (ax: types.ScalarDataTypeFacetRestrictionAxiom)
-  : (types.ModelScalarDataType, types.ModelScalarDataType, Iterable[ConstrainingFacet]) = {
+  : (types.ModelScalarDataType,
+     types.ModelScalarDataType,
+     Iterable[FundamentalFacet],
+     Iterable[ConstrainingFacet]) = {
     import ax._
-    (sub,
-      sup,
-      restrictions)
+    (sub, sup, fundamentalFacets, constrainingFacets)
   }
 }
 
@@ -889,9 +890,10 @@ trait OWLAPIMutableTerminologyGraphOps
   (graph: types.MutableModelTerminologyGraph,
    sub: types.ModelScalarDataType,
    sup: types.ModelScalarDataType,
-   restrictions: Iterable[ConstrainingFacet])
+   fundamentalFacets: Iterable[FundamentalFacet],
+   constrainingFacets: Iterable[ConstrainingFacet] )
   (implicit store: OWLAPIOMFGraphStore) =
-    graph.addScalarDataTypeFacetRestrictionAxiom(sub, sup, restrictions)
+    graph.addScalarDataTypeFacetRestrictionAxiom(sub, sup, fundamentalFacets, constrainingFacets)
 
 }
 
