@@ -340,7 +340,10 @@ case class ResolverHelper
       (acc, dataPropertyDPIRI) =>
         val (e2sc_dp, e2sc_source, e2sc_target) = dataPropertyDPIRI
         entityDefinitions.get(e2sc_source).fold[Acc](acc) { e2sc_sourceDef =>
-          DTs.get(e2sc_target).fold[Acc](acc) { e2sc_targetDef =>
+          DTs.get(e2sc_target).fold[Acc]({
+            System.out.println(s"DOPInfo_E2SC_append: $e2sc_dp (source: $e2sc_source) failed to find: $e2sc_target")
+            acc
+          }) { e2sc_targetDef =>
               acc
               .+++(
                 tboxG
@@ -357,7 +360,7 @@ case class ResolverHelper
           e2sc.right
         else {
           val message =
-            s"resolveDataRelationshipsFromEntity2Scalars: ${remainingDataPropertyDPIRIs.size} unresolved scalar data property relations" +
+            s"resolveDataRelationshipsFromEntity2Scalars: ${e2sc.size} resolved, ${remainingDataPropertyDPIRIs.size} unresolved scalar data property relations" +
               remainingDataPropertyDPIRIs
                 .map { case (e2sc_dp, e2sc_source, e2sc_target) =>
                   s"dp: $e2sc_dp domain: $e2sc_source range: $e2sc_target"

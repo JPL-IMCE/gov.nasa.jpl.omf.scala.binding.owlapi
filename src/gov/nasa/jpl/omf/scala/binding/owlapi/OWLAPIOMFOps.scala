@@ -186,6 +186,13 @@ trait OWLAPIStoreOps
   extends OMFStoreOps[OWLAPIOMF] {
   self: OWLAPIOMFOps =>
 
+  override def loadBuiltinDatatypeMap
+  ()
+  (implicit store: OWLAPIOMFGraphStore)
+  : NonEmptyList[java.lang.Throwable] \/
+    Option[(types.ImmutableModelTerminologyGraph, types.Mutable2IMutableTerminologyMap)] =
+    store.loadBuiltinDatatypeMap
+
   override def loadTerminologyGraph
   (iri: IRI)
   (implicit store: OWLAPIOMFGraphStore)

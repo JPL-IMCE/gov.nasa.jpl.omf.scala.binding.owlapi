@@ -336,6 +336,9 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
   // Data Properties
   lazy val OMF_HAS_IRI = omfModelDataProperties("hasIRI")
 
+  // Datatypes
+  lazy val OWL_REAL: OWLDatatype = ontManager.getOWLDataFactory.getDoubleOWLDatatype
+
   /**
     * The ontology IRI relative path.
     * If unspecified, it is computed by removing the IMCE catalog URI prefix: http://imce.jpl.nasa.gov
@@ -498,6 +501,12 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
 
   protected val immutableTBoxGraphs = scala.collection.mutable.HashMap[IRI, types.ImmutableModelTerminologyGraph]()
   protected val mutableTBoxGraphs = scala.collection.mutable.HashMap[IRI, types.MutableModelTerminologyGraph]()
+
+  def loadBuiltinDatatypeMap
+  ()
+  : NonEmptyList[java.lang.Throwable] \/
+    Option[(types.ImmutableModelTerminologyGraph, types.Mutable2IMutableTerminologyMap)] =
+    Option.empty[(types.ImmutableModelTerminologyGraph, types.Mutable2IMutableTerminologyMap)].right
 
   def lookupTerminologyGraph
   (iri: IRI)
@@ -2061,6 +2070,7 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
               ontManager.getOntology(iri)
             else
               ontManager.loadOntology(iri)
+          java.lang.System.out.println("registerImmutableOntologyAsTerminologyGraph: " + iri)
           registerImmutableOntologyAsTerminologyGraph(o)
         })
     ){ tbox =>
@@ -2093,15 +2103,15 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
           }
 
         allExtendedTGraphs.flatMap { extendedTGraphs =>
-          types
-          .immutableModelTerminologyGraphResolver(omfMetadata.get, extendedTGraphs, o, this)
-          .flatMap { iMTGR =>
-            iMTGR
-              .resolve
-              .map { case (g, m2i) =>
-                immutableTBoxGraphs.put(iri.get, g)
-                (g, m2i)
-              }
+          val resolver =
+          types.immutableModelTerminologyGraphResolver(omfMetadata.get, extendedTGraphs, o, this)
+
+          resolver.flatMap { iMTGR =>
+            val resolved = iMTGR.resolve
+            resolved.map { case (g, m2i) =>
+              immutableTBoxGraphs.put(iri.get, g)
+              (g, m2i)
+            }
           }
         }
 
