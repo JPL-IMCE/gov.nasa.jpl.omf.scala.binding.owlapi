@@ -1,11 +1,14 @@
 object Versions {
 
+  // this project
+  val version="1.0"
+
   // JPL Ontology Modeling Framework Core
-  val jpl_omf_core_revision="55e07c77d9656883cb36a9af5f53ac4996baeb3b"
+  val jpl_omf_core="1.1"
 
   // JPL MBEE Common Scala Libraries
-  val jpl_mbee_common_scala_libraries_revision="1bd3b24dd84bc505e4acf98ca06530419e7efe13"
+  val jpl_mbee_common_scala_libraries="1.3"
 
   // IMCE-LOADPROD
-  val imce_loadprod_revision = "857593315adaf7458eb5c7488a25b3eaa4a68bfc"
+  val ontologies="1.0"
 }

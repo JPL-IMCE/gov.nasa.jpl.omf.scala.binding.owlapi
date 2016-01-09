@@ -1,110 +1,127 @@
-import java.io.File
 
-import gov.nasa.jpl.mbee.sbt._
 import sbt.Keys._
 import sbt._
 import scala.language.postfixOps
 
-lazy val archivesToExtract = TaskKey[Map[File, (File, File)]]("archives-to-extract", "ZIP files to be extracted at a target directory according to the 'extract' attribute of the corresponding library dependency")
+import gov.nasa.jpl.imce.sbt._
+
+import java.io.File
+
+scmInfo := Some(ScmInfo(
+  url("https://github.jpl.nasa.gov/imce/imce.sbt.plugin"),
+  "git@github.jpl.nasa.gov:imce/imce.sbt.plugin.git"))
+
+developers := List(
+  Developer(
+    id="rouquett",
+    name="Nicolas F. Rouquette",
+    email="nicolas.f.rouquette@jpl.nasa.gov",
+    url=url("https://gateway.jpl.nasa.gov/personal/rouquett/default.aspx")))
+
+lazy val archivesToExtract = TaskKey[Map[File, (File, File)]](
+     "archives-to-extract", 
+     "ZIP files to be extracted at a target directory according to the 'extract' attribute of the corresponding library dependency")
 
 lazy val extractArchives = TaskKey[Unit]("extract-archives", "Extracts ZIP files")
 
 lazy val core =
   Project("omf-scala-core-binding-owlapi", file("."))
-  .settings(GitVersioning.buildSettings) // in principle, unnecessary; in practice: doesn't work without this
-  .enablePlugins(MBEEGitPlugin)
-  .settings(MBEEPlugin.mbeeDynamicScriptsProjectResourceSettings(Some("gov.nasa.jpl.omf.scala.binding.owlapi")))
-  .settings(MBEEPlugin.mbeeStrictScalacFatalWarningsSettings)
-  .settings(MBEEPlugin.mbeeScalaDoc(diagrams=false)) // Graphviz craches the build on sscae-build.
+  .enablePlugins(IMCEGitPlugin)
+  .settings(IMCEPlugin.libraryReleaseProcessSettings: _*)
+  //.settings(GitVersioning.buildSettings) // in principle, unnecessary; in practice: doesn't work without this
+  .settings(IMCEPlugin.dynamicScriptsProjectResourceSettings(Some("gov.nasa.jpl.omf.scala.binding.owlapi")))
+  .settings(IMCEPlugin.strictScalacFatalWarningsSettings)
+  .settings(IMCEPlugin.scalaDocSettings(diagrams=false))
   .settings(
-    MBEEKeys.mbeeLicenseYearOrRange := "2014-2015",
-    MBEEKeys.mbeeOrganizationInfo := MBEEPlugin.MBEEOrganizations.imce,
-    MBEEKeys.mbeeNexusJavadocRepositoryRestAPIURL := "https://oss.sonatype.org/service/local",
-    MBEEKeys.mbeeNexusJavadocRepositoryName := "releases",
-    MBEEKeys.mbeePOMRepositoryPathRegex := """\<repositoryPath\>\s*([^\"]*)\s*\<\/repositoryPath\>""".r,
-    MBEEKeys.targetJDK := MBEEKeys.jdk17.value,
+    IMCEKeys.licenseYearOrRange := "2014-2016",
+    IMCEKeys.organizationInfo := IMCEPlugin.Organizations.omf,
+    IMCEKeys.targetJDK := IMCEKeys.jdk18.value,
+    useGpg := true,
+    useGpgAgent := true,
+    git.useGitDescribe := true,
+    git.baseVersion := Versions.version,
     // include all test artifacts
-    // publishArtifact in Test := true,
+    publishArtifact in Test := true,
     scalaSource in Compile := baseDirectory.value / "src",
     scalaSource in Test := baseDirectory.value / "test",
     classDirectory in Compile := baseDirectory.value / "bin",
     classDirectory in Test := baseDirectory.value / "bin.tests",
     resourceDirectory in Test := baseDirectory.value / "gov-nasa-jpl-imce-ontologies",
 
+    IMCEKeys.nexusJavadocRepositoryRestAPIURL2RepositoryName := Map(
+       "https://oss.sonatype.org/service/local" -> "releases",
+       "https://cae-nexuspro.jpl.nasa.gov/nexus/service/local" -> "JPL"),
+    IMCEKeys.pomRepositoryPathRegex := """\<repositoryPath\>\s*([^\"]*)\s*\<\/repositoryPath\>""".r,
+
     // TODO: Jenkins CI: This should be unnecessary since the repo is in the library dependency POM!!!
-    resolvers += new MavenRepository("bintray-pchiusano-scalaz-stream", "http://dl.bintray.com/pchiusano/maven"),
+    //resolvers += new MavenRepository("bintray-pchiusano-scalaz-stream", "http://dl.bintray.com/pchiusano/maven"),
 
     libraryDependencies ++= Seq(
-      MBEEPlugin.MBEEOrganizations.imce.mbeeZipArtifactVersion(
-        "jpl-mbee-common-scala-libraries_core",
-        MBEEKeys.mbeeReleaseVersionPrefix.value, Versions.jpl_mbee_common_scala_libraries_revision),
-      MBEEPlugin.MBEEOrganizations.imce.mbeeZipArtifactVersion(
-        "jpl-mbee-common-scala-libraries_other",
-        MBEEKeys.mbeeReleaseVersionPrefix.value, Versions.jpl_mbee_common_scala_libraries_revision),
-      MBEEPlugin.MBEEOrganizations.imce.mbeeZipArtifactVersion(
-        "jpl-mbee-common-owlapi-libraries",
-        MBEEKeys.mbeeReleaseVersionPrefix.value, Versions.jpl_mbee_common_scala_libraries_revision),
-      MBEEPlugin.MBEEOrganizations.imce.mbeeArtifactVersion(
-        "omf-scala-core",
-        MBEEKeys.mbeeReleaseVersionPrefix.value, Versions.jpl_omf_core_revision)
-        % "compile" withSources() withJavadoc(),
-      // This form does get the test sources with IntelliJ
-      MBEEPlugin.MBEEOrganizations.imce.mbeeArtifactVersion(
-        "omf-scala-core",
-        MBEEKeys.mbeeReleaseVersionPrefix.value, Versions.jpl_omf_core_revision)
-        % "test" classifier "tests"
-        artifacts(
-          Artifact.classified("omf-scala-core", "tests-sources"),
-          Artifact.classified("omf-scala-core", "tests-javadoc")),
-        MBEEPlugin.MBEEOrganizations.imce.mbeeZipArtifactVersion(
-          "gov-nasa-jpl-imce-ontologies",
-          MBEEKeys.mbeeReleaseVersionPrefix.value, Versions.imce_loadprod_revision) % "runtime"
-      ),
 
-      archivesToExtract <<=
-        (libraryDependencies, update, scalaBinaryVersion, baseDirectory, streams)
-        .map { (deps, up, ver, base, s) =>
-          val artifact2extract = (for {
-            dep <- deps
-            tuple = (dep.name + "_" + ver + "-" + dep.revision, dep.name)
-            if dep.configurations == Some("runtime")
-          } yield dep.name + "_" + ver -> tuple) toMap
+      "gov.nasa.jpl.imce.thirdParty" %% "other-scala-libraries" % Versions.jpl_mbee_common_scala_libraries artifacts 
+      Artifact("other-scala-libraries", "zip", "zip"),
 
-          val artifactArchive2extractFolder = (for {
-            cReport <- up.configurations
-            mReport <- cReport.modules
-            (artifact, archive) <- mReport.artifacts
-            if artifact.extension == "zip"
-            (folder, extract) <- artifact2extract.get(artifact.name)
-            subFolder = new File(folder)
-            extractFolder = new File(base.getAbsolutePath + File.separator + extract)
-            tuple = (subFolder, extractFolder)
-          } yield archive -> tuple)
-          .toMap
+      "gov.nasa.jpl.imce.thirdParty" %% "all-owlapi-libraries" % Versions.jpl_mbee_common_scala_libraries artifacts 
+      Artifact("all-owlapi-libraries", "zip", "zip"),
 
-          artifactArchive2extractFolder
-        },
+      "gov.nasa.jpl.imce.omf" %% "omf-scala-core" % Versions.jpl_omf_core %
+      "compile" withSources() withJavadoc(),
 
-      extractArchives <<= (archivesToExtract, streams).map { (a2e, s) =>
-        a2e foreach { case (archive, (subFolder, extractFolder)) =>
-          val files = IO.unzip(archive, extractFolder)
-          require(files.nonEmpty)
-          require(extractFolder.exists)
-          val extractSubFolder = extractFolder / "scala-2.11" / subFolder.name
-          require(extractSubFolder.exists)
-          val extractPrefix = extractSubFolder.getAbsolutePath + "/"
-          for {
-            file <- files
-          } {
-            val to = file.getAbsolutePath.stripPrefix(extractPrefix)
-            IO.move(file, extractFolder / to)
-          }
-          IO.delete(extractSubFolder)
-          IO.delete(extractFolder / "scala-2.11")
-        }
+      "gov.nasa.jpl.imce.omf" %% "omf-scala-core" % Versions.jpl_omf_core %
+      "test" classifier "tests" withSources() withJavadoc()
+      artifacts(
+        Artifact.classified("omf-scala-core", "tests-sources"),
+        Artifact.classified("omf-scala-core", "tests-javadoc")),
+
+      "gov.nasa.jpl.imce.omf" %% "gov-nasa-jpl-imce-ontologies" % Versions.ontologies
+      artifacts Artifact("gov-nasa-jpl-imce-ontologies", "zip", "zip")
+    ),
+
+    archivesToExtract <<=
+      (libraryDependencies, update, scalaBinaryVersion, baseDirectory, streams)
+      .map { (deps, up, ver, base, s) =>
+        val artifact2extract = (for {
+          dep <- deps
+          tuple = (dep.name + "_" + ver + "-" + dep.revision, dep.name)
+          if dep.configurations == Some("runtime")
+        } yield dep.name + "_" + ver -> tuple) toMap
+
+        val artifactArchive2extractFolder = (for {
+          cReport <- up.configurations
+          mReport <- cReport.modules
+          (artifact, archive) <- mReport.artifacts
+          if artifact.extension == "zip"
+          (folder, extract) <- artifact2extract.get(artifact.name)
+          subFolder = new File(folder)
+          extractFolder = new File(base.getAbsolutePath + File.separator + extract)
+          tuple = (subFolder, extractFolder)
+        } yield archive -> tuple)
+        .toMap
+
+        artifactArchive2extractFolder
       },
 
-      test <<= (test in Test) dependsOn extractArchives,
+    extractArchives <<= (archivesToExtract, streams).map { (a2e, s) =>
+      a2e foreach { case (archive, (subFolder, extractFolder)) =>
+        val files = IO.unzip(archive, extractFolder)
+        require(files.nonEmpty)
+        require(extractFolder.exists)
+        val extractSubFolder = extractFolder / "scala-2.11" / subFolder.name
+        require(extractSubFolder.exists)
+        val extractPrefix = extractSubFolder.getAbsolutePath + "/"
+        for {
+          file <- files
+        } {
+          val to = file.getAbsolutePath.stripPrefix(extractPrefix)
+          IO.move(file, extractFolder / to)
+        }
+        IO.delete(extractSubFolder)
+        IO.delete(extractFolder / "scala-2.11")
+      }
+    },
 
-      unmanagedClasspath in Test += baseDirectory.value / "gov-nasa-jpl-imce-ontologies"
-    )
+    test <<= (test in Test) dependsOn extractArchives,
+
+    unmanagedClasspath in Test += baseDirectory.value / "gov-nasa-jpl-imce-ontologies"
+  )
+  .settings(versionWithGit: _*)
