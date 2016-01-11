@@ -72,8 +72,8 @@ lazy val core =
         Artifact.classified("omf-scala-core", "tests-sources"),
         Artifact.classified("omf-scala-core", "tests-javadoc")),
 
-      "gov.nasa.jpl.imce.omf" %% "gov-nasa-jpl-imce-ontologies" % Versions.ontologies
-      artifacts Artifact("gov-nasa-jpl-imce-ontologies", "zip", "zip")
+      "gov.nasa.jpl.imce.omf" %% "gov-nasa-jpl-imce-ontologies" % Versions.ontologies %
+      "runtime" artifacts Artifact("gov-nasa-jpl-imce-ontologies", "zip", "zip")
     ),
 
     archivesToExtract <<=

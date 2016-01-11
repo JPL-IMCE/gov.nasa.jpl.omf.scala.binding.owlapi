@@ -1,7 +1,7 @@
 object Versions {
 
   // this project
-  val version="1.1"
+  val version="1.2"
 
   // JPL Ontology Modeling Framework Core
   val jpl_omf_core="1.3"
