@@ -7,6 +7,8 @@ import gov.nasa.jpl.imce.sbt._
 
 import java.io.File
 
+useGpg := true
+
 scmInfo := Some(ScmInfo(
   url("https://github.jpl.nasa.gov/imce/imce.sbt.plugin"),
   "git@github.jpl.nasa.gov:imce/imce.sbt.plugin.git"))
@@ -27,8 +29,8 @@ lazy val extractArchives = TaskKey[Unit]("extract-archives", "Extracts ZIP files
 lazy val core =
   Project("omf-scala-core-binding-owlapi", file("."))
   .enablePlugins(IMCEGitPlugin)
-  .settings(IMCEPlugin.libraryReleaseProcessSettings: _*)
-  //.settings(GitVersioning.buildSettings) // in principle, unnecessary; in practice: doesn't work without this
+  .enablePlugins(IMCEReleasePlugin)
+  .settings(IMCEReleasePlugin.packageReleaseProcessSettings: _*)
   .settings(IMCEPlugin.dynamicScriptsProjectResourceSettings(Some("gov.nasa.jpl.omf.scala.binding.owlapi")))
   .settings(IMCEPlugin.strictScalacFatalWarningsSettings)
   .settings(IMCEPlugin.scalaDocSettings(diagrams=false))
@@ -36,9 +38,6 @@ lazy val core =
     IMCEKeys.licenseYearOrRange := "2014-2016",
     IMCEKeys.organizationInfo := IMCEPlugin.Organizations.omf,
     IMCEKeys.targetJDK := IMCEKeys.jdk18.value,
-    useGpg := true,
-    useGpgAgent := true,
-    git.useGitDescribe := true,
     git.baseVersion := Versions.version,
     // include all test artifacts
     publishArtifact in Test := true,
@@ -124,4 +123,3 @@ lazy val core =
 
     unmanagedClasspath in Test += baseDirectory.value / "gov-nasa-jpl-imce-ontologies"
   )
-  .settings(versionWithGit: _*)
