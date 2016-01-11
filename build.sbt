@@ -30,7 +30,6 @@ lazy val core =
   Project("omf-scala-core-binding-owlapi", file("."))
   .enablePlugins(IMCEGitPlugin)
   .enablePlugins(IMCEReleasePlugin)
-  .settings(IMCEReleasePlugin.packageReleaseProcessSettings: _*)
   .settings(IMCEPlugin.dynamicScriptsProjectResourceSettings(Some("gov.nasa.jpl.omf.scala.binding.owlapi")))
   .settings(IMCEPlugin.strictScalacFatalWarningsSettings)
   .settings(IMCEPlugin.scalaDocSettings(diagrams=false))
@@ -123,3 +122,4 @@ lazy val core =
 
     unmanagedClasspath in Test += baseDirectory.value / "gov-nasa-jpl-imce-ontologies"
   )
+  .settings(IMCEReleasePlugin.packageReleaseProcessSettings)
