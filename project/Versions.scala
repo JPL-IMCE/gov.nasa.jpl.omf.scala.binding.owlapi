@@ -10,5 +10,5 @@ object Versions {
   val jpl_mbee_common_scala_libraries="1.11"
 
   // IMCE-LOADPROD
-  val ontologies="1.3"
+  val ontologies="1.5"
 }
