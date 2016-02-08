@@ -43,8 +43,8 @@ lazy val core =
     resourceDirectory in Test := baseDirectory.value / "gov-nasa-jpl-imce-ontologies",
 
     IMCEKeys.nexusJavadocRepositoryRestAPIURL2RepositoryName := Map(
-       "https://oss.sonatype.org/service/local" -> "releases",
-       "https://cae-nexuspro.jpl.nasa.gov/nexus/service/local" -> "JPL"),
+      "https://oss.sonatype.org/service/local" -> "releases",
+      "https://cae-nexuspro.jpl.nasa.gov/nexus/service/local" -> "JPL"),
     IMCEKeys.pomRepositoryPathRegex := """\<repositoryPath\>\s*([^\"]*)\s*\<\/repositoryPath\>""".r,
 
     // TODO: Jenkins CI: This should be unnecessary since the repo is in the library dependency POM!!!
@@ -52,22 +52,20 @@ lazy val core =
 
     libraryDependencies ++= Seq(
 
-      "gov.nasa.jpl.imce.thirdParty" %% "other-scala-libraries" % Versions.jpl_mbee_common_scala_libraries artifacts 
-      Artifact("other-scala-libraries", "zip", "zip"),
+      "gov.nasa.jpl.imce.thirdParty" %% "owlapi-libraries"
+        % Versions_owlapi_libraries.version artifacts
+        Artifact("owlapi-libraries", "zip", "zip", Some("resource"), Seq(), None, Map()),
 
-      "gov.nasa.jpl.imce.thirdParty" %% "all-owlapi-libraries" % Versions.jpl_mbee_common_scala_libraries artifacts 
-      Artifact("all-owlapi-libraries", "zip", "zip"),
+      "gov.nasa.jpl.imce.omf" %% "omf-scala-core"
+        % Versions_omf_scala_core.version % "compile" withSources() withJavadoc() artifacts
+        Artifact("omf-scala-core", "zip", "zip", Some("resource"), Seq(), None, Map()),
 
-      "gov.nasa.jpl.imce.omf" %% "omf-scala-core" % Versions.jpl_omf_core %
-      "compile" withSources() withJavadoc(),
-
-      "gov.nasa.jpl.imce.omf" %% "omf-scala-core" % Versions.jpl_omf_core %
-      "test" classifier "tests" withSources() withJavadoc()
-      artifacts(
+      "gov.nasa.jpl.imce.omf" %% "omf-scala-core" % Versions_omf_scala_core.version %
+        "test" classifier "tests" withSources() withJavadoc() artifacts(
         Artifact.classified("omf-scala-core", "tests-sources"),
         Artifact.classified("omf-scala-core", "tests-javadoc")),
 
-      "gov.nasa.jpl.imce.omf" %% "imce-omf_ontologies" % Versions.ontologies %
+      "gov.nasa.jpl.imce.omf" %% "imce-omf_ontologies" % Versions_imce_omf_ontologies.version %
       "runtime" artifacts Artifact("imce-omf_ontologies", "zip", "zip")
     ),
 
