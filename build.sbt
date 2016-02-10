@@ -34,7 +34,6 @@ buildUTCDate in Global := {
 lazy val core =
   Project("omf-scala-core-binding-owlapi", file("."))
   .enablePlugins(IMCEGitPlugin)
-  .enablePlugins(IMCEReleasePlugin)
   .settings(dynamicScriptsResourceSettings(Some("gov.nasa.jpl.omf.scala.binding.owlapi")))
   .settings(IMCEPlugin.strictScalacFatalWarningsSettings)
   .settings(IMCEPlugin.scalaDocSettings(diagrams=false))
@@ -114,16 +113,19 @@ lazy val core =
 
     extractArchives <<= (archivesToExtract, streams).map { (a2e, s) =>
       a2e foreach { case (archive, (subFolder, extractFolder)) =>
+        s.log.info(s"*** Extracting: $archive")
+        s.log.info(s"*** Extract to: $extractFolder")
         val files = IO.unzip(archive, extractFolder)
         require(files.nonEmpty)
         require(extractFolder.exists, extractFolder)
       }
     },
 
-    test <<= (test in Test) dependsOn extractArchives,
+    compile <<= (compile in Test) dependsOn extractArchives,
 
     unmanagedClasspath in Test += baseDirectory.value / "target" / "extracted" / "imce-omf_ontologies"
   )
+  .enablePlugins(IMCEReleasePlugin)
   .settings(IMCEReleasePlugin.packageReleaseProcessSettings)
 
 def dynamicScriptsResourceSettings(dynamicScriptsProjectName: Option[String] = None): Seq[Setting[_]] = {
