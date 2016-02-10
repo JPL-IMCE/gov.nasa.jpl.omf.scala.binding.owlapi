@@ -62,7 +62,7 @@ lazy val core =
     classDirectory in Test := baseDirectory.value / "bin.tests",
     cleanFiles += (classDirectory in Test).value,
 
-    resourceDirectory in Test := baseDirectory.value / "gov-nasa-jpl-imce-ontologies",
+    resourceDirectory in Test := baseDirectory.value / "target" / "extracted" / "imce-omf_ontologies",
 
     IMCEKeys.nexusJavadocRepositoryRestAPIURL2RepositoryName := Map(
       "https://oss.sonatype.org/service/local" -> "releases",
@@ -104,7 +104,7 @@ lazy val core =
           if artifact.extension == "zip"
           (folder, extract) <- artifact2extract.get(artifact.name)
           subFolder = new File(folder)
-          extractFolder = new File(base.getAbsolutePath + File.separator + extract)
+          extractFolder = base / "target" / "extracted" / extract
           tuple = (subFolder, extractFolder)
         } yield archive -> tuple)
         .toMap
@@ -116,24 +116,13 @@ lazy val core =
       a2e foreach { case (archive, (subFolder, extractFolder)) =>
         val files = IO.unzip(archive, extractFolder)
         require(files.nonEmpty)
-        require(extractFolder.exists)
-        val extractSubFolder = extractFolder / "scala-2.11" / subFolder.name
-        require(extractSubFolder.exists)
-        val extractPrefix = extractSubFolder.getAbsolutePath + "/"
-        for {
-          file <- files
-        } {
-          val to = file.getAbsolutePath.stripPrefix(extractPrefix)
-          IO.move(file, extractFolder / to)
-        }
-        IO.delete(extractSubFolder)
-        IO.delete(extractFolder / "scala-2.11")
+        require(extractFolder.exists, extractFolder)
       }
     },
 
     test <<= (test in Test) dependsOn extractArchives,
 
-    unmanagedClasspath in Test += baseDirectory.value / "gov-nasa-jpl-imce-ontologies"
+    unmanagedClasspath in Test += baseDirectory.value / "target" / "extracted" / "imce-omf_ontologies"
   )
   .settings(IMCEReleasePlugin.packageReleaseProcessSettings)
 
