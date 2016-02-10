@@ -16,26 +16,9 @@ developers := List(
     email="nicolas.f.rouquette@jpl.nasa.gov",
     url=url("https://gateway.jpl.nasa.gov/personal/rouquett/default.aspx")))
 
-ivyLoggingLevel := UpdateLogging.Full
-
-logLevel in Compile := Level.Debug
-
-persistLogLevel := Level.Debug
-
 lazy val archivesToExtract = TaskKey[Map[File, (File, File)]](
      "archives-to-extract", 
      "ZIP files to be extracted at a target directory according to the 'extract' attribute of the corresponding library dependency")
-
-lazy val extractArchives = TaskKey[Unit]("extract-archives", "Extracts ZIP files")
-
-lazy val buildUTCDate = SettingKey[String]("build-utc-date", "The UDC Date of the build")
-
-buildUTCDate in Global := {
-  import java.util.{ Date, TimeZone }
-  val formatter = new java.text.SimpleDateFormat("yyyy-MM-dd-HH:mm")
-  formatter.setTimeZone(TimeZone.getTimeZone("UTC"))
-  formatter.format(new Date)
-}
 
 lazy val core =
   Project("omf-scala-core-binding-owlapi", file("."))
