@@ -37,7 +37,9 @@ lazy val core =
 
     projectID := {
       val previous = projectID.value
-      previous.extra("build.date.utc" -> buildUTCDate.value)
+      previous.extra(
+        "build.date.utc" -> buildUTCDate.value,
+        "zip.contents" -> "omf.owlapi")
     },
 
     IMCEKeys.targetJDK := IMCEKeys.jdk18.value,
@@ -74,8 +76,9 @@ lazy val core =
         Artifact.classified("omf-scala-core", "tests-sources"),
         Artifact.classified("omf-scala-core", "tests-javadoc")),
 
-      "gov.nasa.jpl.imce.omf" %% "imce-omf_ontologies" % Versions_imce_omf_ontologies.version %
-      "runtime" artifacts Artifact("imce-omf_ontologies", "zip", "zip")
+      "gov.nasa.jpl.imce.omf" %% "imce-omf_ontologies" % Versions_imce_omf_ontologies.version
+        % "runtime" extra("zip.contents" -> "omf.ontologies") artifacts
+        Artifact("imce-omf_ontologies", "zip", "zip", Some("resource"), Seq(), None, Map())
     ),
 
     archivesToExtract <<=
@@ -84,7 +87,7 @@ lazy val core =
         val artifact2extract = (for {
           dep <- deps
           tuple = (dep.name + "_" + ver + "-" + dep.revision, dep.name)
-          if dep.configurations == Some("runtime")
+          if dep.extraAttributes.get("e:zip.contents").iterator.contains("omf.ontologies")
         } yield dep.name + "_" + ver -> tuple) toMap
 
         val artifactArchive2extractFolder = (for {
@@ -134,7 +137,7 @@ def dynamicScriptsResourceSettings(dynamicScriptsProjectName: Option[String] = N
       require(
         QUALIFIED_NAME.pattern.matcher(projectName).matches,
         s"The project name, '$projectName` is not a valid Java qualified name")
-      Some("dynamicScripts/" + projectName)
+      Some(projectName)
     },
 
     // name the '*-resource.zip' in the same way as other artifacts
