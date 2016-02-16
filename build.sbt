@@ -39,7 +39,7 @@ lazy val core =
       val previous = projectID.value
       previous.extra(
         "build.date.utc" -> buildUTCDate.value,
-        "zip.contents" -> "omf.owlapi")
+        "artifact.kind" -> "generic.library")
     },
 
     IMCEKeys.targetJDK := IMCEKeys.jdk18.value,
@@ -76,8 +76,9 @@ lazy val core =
         Artifact.classified("omf-scala-core", "tests-sources"),
         Artifact.classified("omf-scala-core", "tests-javadoc")),
 
+      // extra("artifact.kind" -> "omf.ontologies")
       "gov.nasa.jpl.imce.omf" %% "imce-omf_ontologies" % Versions_imce_omf_ontologies.version
-        % "runtime" extra("zip.contents" -> "omf.ontologies") artifacts
+        % "runtime" artifacts
         Artifact("imce-omf_ontologies", "zip", "zip", Some("resource"), Seq(), None, Map())
     ),
 
@@ -87,7 +88,8 @@ lazy val core =
         val artifact2extract = (for {
           dep <- deps
           tuple = (dep.name + "_" + ver + "-" + dep.revision, dep.name)
-          if dep.extraAttributes.get("e:zip.contents").iterator.contains("omf.ontologies")
+          //if dep.extraAttributes.get("e:zip.contents").iterator.contains("omf.ontologies")
+          if dep.configurations == Some("runtime")
         } yield dep.name + "_" + ver -> tuple) toMap
 
         val artifactArchive2extractFolder = (for {
