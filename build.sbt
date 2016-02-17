@@ -73,7 +73,7 @@ lazy val core =
         Artifact.classified("omf-scala-core", "tests-javadoc")),
 
       // extra("artifact.kind" -> "omf.ontologies")
-      "gov.nasa.jpl.imce.omf" %% "imce-omf_ontologies" % Versions_imce_omf_ontologies.version
+      "gov.nasa.jpl.imce.omf" % "imce-omf_ontologies" % Versions_imce_omf_ontologies.version
         % "runtime" artifacts
         Artifact("imce-omf_ontologies", "zip", "zip", Some("resource"), Seq(), None, Map())
     ),
