@@ -16,10 +16,6 @@ developers := List(
     email="nicolas.f.rouquette@jpl.nasa.gov",
     url=url("https://gateway.jpl.nasa.gov/personal/rouquett/default.aspx")))
 
-lazy val archivesToExtract = TaskKey[Map[File, (File, File)]](
-     "archives-to-extract", 
-     "ZIP files to be extracted at a target directory according to the 'extract' attribute of the corresponding library dependency")
-
 lazy val core =
   Project("omf-scala-core-binding-owlapi", file("."))
   .enablePlugins(IMCEGitPlugin)
@@ -82,7 +78,7 @@ lazy val core =
         Artifact("imce-omf_ontologies", "zip", "zip", Some("resource"), Seq(), None, Map())
     ),
 
-    archivesToExtract <<=
+    extractArchives <<=
       (libraryDependencies, update, scalaBinaryVersion, baseDirectory, streams)
       .map { (deps, up, ver, base, s) =>
         val artifact2extract = (for {
@@ -92,7 +88,7 @@ lazy val core =
           if dep.configurations == Some("runtime")
         } yield dep.name + "_" + ver -> tuple) toMap
 
-        val artifactArchive2extractFolder = (for {
+        val artifactArchive2extractFolder: Map[File, (File, File)] = (for {
           cReport <- up.configurations
           mReport <- cReport.modules
           (artifact, archive) <- mReport.artifacts
@@ -104,17 +100,13 @@ lazy val core =
         } yield archive -> tuple)
         .toMap
 
-        artifactArchive2extractFolder
-      },
-
-    extractArchives <<= (archivesToExtract, streams).map { (a2e, s) =>
-      a2e foreach { case (archive, (subFolder, extractFolder)) =>
-        s.log.info(s"*** Extracting: $archive")
-        s.log.info(s"*** Extract to: $extractFolder")
-        val files = IO.unzip(archive, extractFolder)
-        require(files.nonEmpty)
-        require(extractFolder.exists, extractFolder)
-      }
+        artifactArchive2extractFolder foreach { case (archive, (subFolder, extractFolder)) =>
+          s.log.info(s"*** Extracting: $archive")
+          s.log.info(s"*** Extract to: $extractFolder")
+          val files = IO.unzip(archive, extractFolder)
+          require(files.nonEmpty)
+          require(extractFolder.exists, extractFolder)
+        }
     },
 
     compile <<= (compile in Compile) dependsOn extractArchives,
@@ -158,7 +150,6 @@ def dynamicScriptsResourceSettings(dynamicScriptsProjectName: Option[String] = N
       (base, bin, src, doc, binT, srcT, docT) =>
         val dir = base / "svn" / "org.omg.oti"
         (dir ** "*.md").pair(relativeTo(dir)) ++
-          com.typesafe.sbt.packager.MappingsHelper.directory(dir / "resources") ++
           addIfExists(bin, "lib/" + bin.name) ++
           addIfExists(binT, "lib/" + binT.name) ++
           addIfExists(src, "lib.sources/" + src.name) ++
