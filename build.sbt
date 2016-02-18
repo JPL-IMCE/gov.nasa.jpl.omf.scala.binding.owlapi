@@ -83,10 +83,12 @@ lazy val core =
       .map { (deps, up, ver, base, s) =>
         val artifact2extract = (for {
           dep <- deps
-          tuple = (dep.name + "_" + ver + "-" + dep.revision, dep.name)
-          //if dep.extraAttributes.get("e:zip.contents").iterator.contains("omf.ontologies")
-          if dep.configurations == Some("runtime")
-        } yield dep.name + "_" + ver -> tuple) toMap
+          tuple = (dep.name + "-" + dep.revision, dep.name)
+          //if dep.extraAttributes.get("artifact.kind").iterator.contains("omf.ontologies")
+          if dep.configurations.iterator.contains("runtime")
+        } yield dep.name -> tuple) toMap
+
+        s.log.info(s"artifact2extract: ${artifact2extract.mkString("\n")}")
 
         val artifactArchive2extractFolder: Map[File, (File, File)] = (for {
           cReport <- up.configurations
