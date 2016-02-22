@@ -190,7 +190,7 @@ trait OWLAPIStoreOps
   ()
   (implicit store: OWLAPIOMFGraphStore)
   : NonEmptyList[java.lang.Throwable] \/
-    Option[(types.ImmutableModelTerminologyGraph, types.Mutable2IMutableTerminologyMap)] =
+    (types.ImmutableModelTerminologyGraph, types.Mutable2IMutableTerminologyMap) =
     store.loadBuiltinDatatypeMap
 
   override def loadTerminologyGraph

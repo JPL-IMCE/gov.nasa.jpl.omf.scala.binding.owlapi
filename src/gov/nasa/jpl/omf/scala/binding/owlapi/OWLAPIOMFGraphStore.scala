@@ -41,9 +41,11 @@ package gov.nasa.jpl.omf.scala.binding.owlapi
 import java.lang.System
 import java.util.concurrent.TimeUnit
 
-import gov.nasa.jpl.omf.scala.binding.owlapi.types.{BuiltInDatatypeMaps, ResolverHelper}
+import gov.nasa.jpl.omf.scala.core.builtin.BuiltInDatatypeMaps
 import gov.nasa.jpl.omf.scala.core.TerminologyKind._
 import gov.nasa.jpl.omf.scala.core._
+import gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper
+
 import org.semanticweb.owlapi.model._
 import org.semanticweb.owlapi.model.parameters.{Imports, _}
 import org.semanticweb.owlapi.util.PriorityCollection
@@ -53,7 +55,6 @@ import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
 import scala.concurrent.duration.FiniteDuration
 import scala.language.postfixOps
-import scala.reflect.internal.FatalError
 import scala.util.control.Exception._
 import scala.{Boolean,Option,None,Some,StringContext,Tuple2,Unit}
 import scala.Predef.{Set=>_,Map=>_,_}
@@ -178,8 +179,11 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
 
   protected var omfMetadata: Option[OWLOntology] = None
 
-  def setOMFMetadataOntology(o: OWLOntology): Unit =
+  def setOMFMetadataOntology(o: OWLOntology): Unit = {
     omfMetadata = Some(o)
+    loadBuiltinDatatypeMap()
+    ()
+  }
 
   // OMF model.
 
@@ -324,8 +328,8 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
   lazy val OMF_HAS_DESIGNATION_TERMINOLOGY_GRAPH = omfModelObjectProperties("hasDesignationTerminologyGraph")
   lazy val OMF_HAS_ENTITY_CONCEPT_DESIGNATION = omfModelObjectProperties("hasEntityConceptDesignation")
 
-  lazy val OMF_HAS_GENERAL_SCALAR_DATATYPE = omfModelObjectProperties("hasGeneralScalarDataType")
-  lazy val OMF_HAS_SPECIFIC_SCALAR_DATATYPE = omfModelObjectProperties("hasSpecificScalarDataType")
+  lazy val OMF_HAS_RESTRICTED_SCALAR_DATATYPE = omfModelObjectProperties("hasRestrictedScalarDataType")
+  lazy val OMF_HAS_RESTRICTING_SCALAR_DATATYPE = omfModelObjectProperties("hasRestrictingScalarDataType")
 
   // Named Individuals
   lazy val OMF_TOPLEVEL_DEFINITION_TBOX = omfNamedIndividuals("ToplevelDefinitionTBox")
@@ -502,11 +506,29 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
   protected val immutableTBoxGraphs = scala.collection.mutable.HashMap[IRI, types.ImmutableModelTerminologyGraph]()
   protected val mutableTBoxGraphs = scala.collection.mutable.HashMap[IRI, types.MutableModelTerminologyGraph]()
 
+  type ImmutableModelTerminologyGraphConversionMap =
+  (types.ImmutableModelTerminologyGraph, types.Mutable2IMutableTerminologyMap)
+
+  private var builtInDatatypeMap
+  : Option[NonEmptyList[java.lang.Throwable] \/ ImmutableModelTerminologyGraphConversionMap]
+  = None
+
   def loadBuiltinDatatypeMap
   ()
-  : NonEmptyList[java.lang.Throwable] \/
-    Option[(types.ImmutableModelTerminologyGraph, types.Mutable2IMutableTerminologyMap)] =
-    BuiltInDatatypeMaps.loadBuiltinDatatypeMap()(this)
+  : NonEmptyList[java.lang.Throwable] \/ ImmutableModelTerminologyGraphConversionMap
+  = builtInDatatypeMap.getOrElse {
+    val loaded = BuiltInDatatypeMaps.createBuiltInDatatypeMaps[OWLAPIOMF]()(ops, this)
+    builtInDatatypeMap = Some(loaded)
+    loaded
+  }
+
+  def getBuiltinDatatypeMapTerminologyGraph
+  : types.ImmutableModelTerminologyGraph
+  = {
+    val result = loadBuiltinDatatypeMap()
+    require(result.isRight)
+    result.toOption.get._1
+  }
 
   def lookupTerminologyGraph
   (iri: IRI)
@@ -733,7 +755,7 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
                             nestingParent2NestedChildren(g).to[Iterable],
                             extendingChild2ExtendedParents(g).to[Iterable])
 
-  // OMF Ontology Instance Model Constructors  
+  // OMF Ontology Instance Model Constructors
 
   val owlDataFactory = ontManager.getOWLDataFactory
 
@@ -1617,11 +1639,11 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
                        .getOWLClassAssertionAxiom(OMF_SCALAR_DATA_TYPE_FACET_RESTRICTION_AXIOM, axiomI)),
           new AddAxiom(omfMetadata.get,
                        owlDataFactory
-                       .getOWLObjectPropertyAssertionAxiom(OMF_HAS_GENERAL_SCALAR_DATATYPE,
+                       .getOWLObjectPropertyAssertionAxiom(OMF_HAS_RESTRICTED_SCALAR_DATATYPE,
                                                            axiomI, supI)),
           new AddAxiom(omfMetadata.get,
                        owlDataFactory
-                       .getOWLObjectPropertyAssertionAxiom(OMF_HAS_SPECIFIC_SCALAR_DATATYPE,
+                       .getOWLObjectPropertyAssertionAxiom(OMF_HAS_RESTRICTING_SCALAR_DATATYPE,
                                                            axiomI, subI)))
     } {
       val result = ontManager.applyChange(change)
@@ -1863,8 +1885,8 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
 
   /**
     * Registers an immutable TBox graph in the store's OMF Metadata graph.
-    * @note postcondition: `lookupTerminologyGraph(g.iri)` should be `\/-(g)`
     *
+    * @note postcondition: `lookupTerminologyGraph(g.iri)` should be `\/-(g)`
     * @param g The immutable TBox graph to register in the store's current OMF Metadata graph
     * @param info The TBox signature of `g`
     * @param m2i The current map of mutable to immtable TBox graphs
@@ -2102,18 +2124,31 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
                 }
           }
 
-        allExtendedTGraphs.flatMap { extendedTGraphs =>
-          val resolver =
-          types.immutableModelTerminologyGraphResolver(omfMetadata.get, extendedTGraphs, o, this)
+        val result =
+          allExtendedTGraphs.flatMap { allExtTGraphs =>
+            val closure0: Set[types.ModelTerminologyGraph] = Set()
+            val closureN: Set[types.ModelTerminologyGraph] = (closure0 /: allExtTGraphs) { (acc, tgraph) =>
+              acc ++ terminologyGraphImportClosure[OWLAPIOMF, types.ImmutableModelTerminologyGraph](tgraph)(ops, this)
+            }
+            val builtInDatatypes = getBuiltinDatatypeMapTerminologyGraph
+            val allExtTGraphsWithBuiltins = if (closureN.contains(builtInDatatypes))
+              allExtTGraphs
+            else
+              allExtTGraphs + builtInDatatypes
 
-          resolver.flatMap { iMTGR =>
-            val resolved = iMTGR.resolve
-            resolved.map { case (g, m2i) =>
-              immutableTBoxGraphs.put(iri.get, g)
-              (g, m2i)
+            val resolver =
+              types.immutableModelTerminologyGraphResolver(omfMetadata.get, allExtTGraphsWithBuiltins, o, this)
+
+            resolver.flatMap { iMTGR =>
+              val resolved = iMTGR.resolve
+              resolved.map { case (g, m2i) =>
+                immutableTBoxGraphs.put(iri.get, g)
+                (g, m2i)
+              }
             }
           }
-        }
+
+        result
 
       }) { g =>
         (g, Map[types.MutableModelTerminologyGraph, types.ImmutableModelTerminologyGraph]()).right

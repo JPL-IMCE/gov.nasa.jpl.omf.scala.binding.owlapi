@@ -1407,7 +1407,7 @@ case class MutableModelTerminologyGraph
 //                     s"\naddScalarDataTypeFacetRestrictionAxiom:\n$change")
 //          })
 //          .flatMap { _ => axiom }
-          ???
+          axiom
         }
 
       case (false, true) =>
