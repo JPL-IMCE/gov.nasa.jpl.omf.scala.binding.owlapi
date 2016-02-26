@@ -94,11 +94,11 @@ abstract class ModelInstanceGraph
       s2st.to[Iterable] )
 
   def save
-  : NonEmptyList[java.lang.Throwable] \/ Unit =
+  : Set[java.lang.Throwable] \/ Unit =
     nonFatalCatch[Unit]
       .withApply {
         (cause: java.lang.Throwable) =>
-          NonEmptyList(
+          Set(
             OMFError.omfException(
               s"saving ModelInstanceGraph failed: ${cause.getMessage}",
               cause)
@@ -109,11 +109,11 @@ abstract class ModelInstanceGraph
       })
 
   def save( os: OutputStream )
-  : NonEmptyList[java.lang.Throwable] \/ Unit =
+  : Set[java.lang.Throwable] \/ Unit =
     nonFatalCatch[Unit]
       .withApply {
         (cause: java.lang.Throwable) =>
-          NonEmptyList(
+          Set(
             OMFError.omfException(
               s"saving ModelInstanceGraph failed: ${cause.getMessage}",
               cause)

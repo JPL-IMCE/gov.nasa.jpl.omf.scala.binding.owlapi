@@ -1,5 +1,5 @@
 object Versions_omf_scala_core {
 
   // https://github.jpl.nasa.gov/imce/gov.nasa.jpl.omf.scala.core
-  val version="2.1.0"
+  val version="2.2.0"
 }

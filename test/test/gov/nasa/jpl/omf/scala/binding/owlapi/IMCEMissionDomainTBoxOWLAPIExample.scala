@@ -44,7 +44,6 @@ import org.semanticweb.owlapi.apibinding.OWLManager
 import test.gov.nasa.jpl.omf.scala.core.{functionalAPI => testFunctionalAPI}
 import scala.{transient,Option,None,Some,StringContext,Unit}
 import scala.Predef._
-import scalaz._, Scalaz._
 import java.lang.IllegalArgumentException
 
 abstract class IMCEMissionDomainTBoxOWLAPIExample(override val store: OWLAPIOMFGraphStore)
@@ -53,7 +52,7 @@ abstract class IMCEMissionDomainTBoxOWLAPIExample(override val store: OWLAPIOMFG
 abstract class IMCEMissionDomainTBoxOWLAPIExampleCatalogTest(@transient val catalogManager: CatalogManager)
   extends IMCEMissionDomainTBoxOWLAPIExample(
     store = OWLAPIOMFGraphStore(
-      OWLAPIOMFModule.owlAPIOMFModule(catalogManager).valueOr { (errors: NonEmptyList[java.lang.Throwable]) =>
+      OWLAPIOMFModule.owlAPIOMFModule(catalogManager).valueOr { (errors: Set[java.lang.Throwable]) =>
         val message = s"${errors.size} errors" + errors.map(_.getMessage).toList.mkString("\n => ","\n => ","\n")
         throw new scala.IllegalArgumentException(message)
       },
@@ -71,7 +70,7 @@ class IMCEMissionDomainTBoxOWLAPIExampleLocalCatalog
     }) { p =>
       if (p.toFile.exists() && p.toFile.canRead)
         store.catalogIRIMapper.parseCatalog(p.toFile.toURI)
-        .valueOr { (errors: NonEmptyList[java.lang.Throwable]) =>
+        .valueOr { (errors: Set[java.lang.Throwable]) =>
           val message = s"${errors.size} errors" + errors.map(_.getMessage).toList.mkString("\n => ","\n => ","\n")
           throw new scala.IllegalArgumentException(message)
         }
@@ -80,7 +79,7 @@ class IMCEMissionDomainTBoxOWLAPIExampleLocalCatalog
     }
   }){ testCatalogURL =>
       store.catalogIRIMapper.parseCatalog(testCatalogURL.toURI)
-      .valueOr { (errors: NonEmptyList[java.lang.Throwable]) =>
+      .valueOr { (errors: Set[java.lang.Throwable]) =>
         val message = s"${errors.size} errors" + errors.map(_.getMessage).toList.mkString("\n => ","\n => ","\n")
         throw new scala.IllegalArgumentException(message)
       }
@@ -88,7 +87,7 @@ class IMCEMissionDomainTBoxOWLAPIExampleLocalCatalog
 
   val metadataIRI =
     store.omfModule.ops.makeIRI("http://imce.jpl.nasa.gov/test/OWLAPIOMFVocabularySave")
-    .valueOr { (errors: NonEmptyList[java.lang.Throwable]) =>
+    .valueOr { (errors: Set[java.lang.Throwable]) =>
       val message = s"${errors.size} errors" + errors.map(_.getMessage).toList.mkString("\n => ","\n => ","\n")
       throw new scala.IllegalArgumentException(message)
     }

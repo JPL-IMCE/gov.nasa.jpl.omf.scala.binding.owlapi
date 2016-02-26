@@ -207,11 +207,11 @@ abstract class ModelTerminologyGraph
       find( _.getProperty.getIRI == ops.AnnotationHasUUID )
 
 
-  def save( saveIRI: IRI ): NonEmptyList[java.lang.Throwable] \/ Unit =
+  def save( saveIRI: IRI ): Set[java.lang.Throwable] \/ Unit =
     nonFatalCatch[Unit]
       .withApply {
         (cause: java.lang.Throwable) =>
-          NonEmptyList(
+          Set(
             OMFError.omfException(
               s"saving ModelTerminologyGraph failed: ${cause.getMessage}",
               cause)
@@ -221,11 +221,11 @@ abstract class ModelTerminologyGraph
         ontManager.saveOntology(ont, saveIRI).right
       })
 
-  def save( os: OutputStream ): NonEmptyList[java.lang.Throwable] \/ Unit =
+  def save( os: OutputStream ): Set[java.lang.Throwable] \/ Unit =
     nonFatalCatch[Unit]
       .withApply {
         (cause: java.lang.Throwable) =>
-          NonEmptyList(
+          Set(
             OMFError.omfException(
               s"saving ModelTerminologyGraph failed: ${cause.getMessage}",
               cause)

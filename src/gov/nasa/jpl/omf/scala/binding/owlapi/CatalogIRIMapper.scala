@@ -49,6 +49,7 @@ import org.semanticweb.owlapi.model.{IRI, OWLOntologyIRIMapper}
 
 import gov.nasa.jpl.omf.scala.core.OMFError
 
+import scala.collection.immutable.Set
 import scala.{Option,None,Some,StringContext,Unit}
 import scala.Predef.{Set=>_,Map=>_,_}
 import scala.util.control.Exception._
@@ -56,7 +57,7 @@ import scalaz._, Scalaz._
 
 class CatalogURIMapperException
 (override val message: String,
- override val cause: OMFError.OptionThrowableNel = OMFError.emptyThrowableNel)
+ override val cause: OMFError.Throwables = OMFError.emptyThrowables)
   extends OMFError.OMFException(message, cause)
 
 @HasPriority(0)
@@ -79,12 +80,12 @@ case class CatalogIRIMapper
     this(catalogManager, new CatalogResolver(catalogManager))
 
   def parseCatalog(catalogURI: URI)
-  : NonEmptyList[java.lang.Throwable] \/ Unit =
+  : Set[java.lang.Throwable] \/ Unit =
 
     nonFatalCatch[Unit]
       .withApply {
         (cause: java.lang.Throwable) =>
-          NonEmptyList(
+          Set(
             catalogURIMapperException(
               s"parseCatalog: catalogURI:$catalogURI failed: ${cause.getMessage}",
               cause)

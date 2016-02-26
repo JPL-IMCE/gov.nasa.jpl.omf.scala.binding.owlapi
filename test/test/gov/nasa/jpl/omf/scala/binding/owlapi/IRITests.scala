@@ -44,14 +44,13 @@ import gov.nasa.jpl.omf.scala.binding.owlapi._
 
 import test.gov.nasa.jpl.omf.scala.core.{ functionalAPI => testFunctionalAPI }
 
+import scala.collection.immutable.Set
 import scala.{None,StringContext}
-import scalaz._, Scalaz._
-
 
 class IRIBasicTests 
 extends testFunctionalAPI.IRITests[OWLAPIOMF]()({
   val om = OWLAPIOMFModule.owlAPIOMFModule(new CatalogManager())
-    .valueOr { (errors: NonEmptyList[java.lang.Throwable]) =>
+    .valueOr { (errors: Set[java.lang.Throwable]) =>
       val message = s"${errors.size} errors" + errors.map(_.getMessage).toList.mkString("\n => ","\n => ","\n")
       throw new scala.IllegalArgumentException(message)
     }

@@ -316,9 +316,9 @@ case class ResolverHelper
   (entityDefinitions: Map[OWLClass, ModelEntityDefinition],
    dataPropertyDPIRIs: Iterable[DOPInfo],
    DTs: Map[OWLDatatype, ModelScalarDataType])
-  : NonEmptyList[java.lang.Throwable] \/ List[ModelDataRelationshipFromEntityToScalar] = {
+  : Set[java.lang.Throwable] \/ List[ModelDataRelationshipFromEntityToScalar] = {
 
-    type Acc = NonEmptyList[java.lang.Throwable] \/ (List[DOPInfo], List[ModelDataRelationshipFromEntityToScalar])
+    type Acc = Set[java.lang.Throwable] \/ (List[DOPInfo], List[ModelDataRelationshipFromEntityToScalar])
 
     def DOPInfo_E2SC_append
     ( x1: (List[DOPInfo], List[ModelDataRelationshipFromEntityToScalar]),
@@ -336,7 +336,7 @@ case class ResolverHelper
       Semigroup.instance(DOPInfo_E2SC_append _)
 
     ( (dataPropertyDPIRIs.to[List], List.empty[ModelDataRelationshipFromEntityToScalar])
-      .right[NonEmptyList[java.lang.Throwable]] /: dataPropertyDPIRIs ) {
+      .right[Set[java.lang.Throwable]] /: dataPropertyDPIRIs ) {
       (acc, dataPropertyDPIRI) =>
         val (e2sc_dp, e2sc_source, e2sc_target) = dataPropertyDPIRI
         entityDefinitions.get(e2sc_source).fold[Acc](acc) { e2sc_sourceDef =>
@@ -366,7 +366,7 @@ case class ResolverHelper
                   s"dp: $e2sc_dp domain: $e2sc_source range: $e2sc_target"
                 }
                 .mkString("\n","\n","\n")
-          NonEmptyList(
+          Set(
             OMFError.omfOpsError(omfStore.ops, message)
           ).left
         }
@@ -403,7 +403,7 @@ case class ResolverHelper
    targetROPs: Iterable[ROPInfo],
    chains: Chains,
    entityReifiedRelationships: Map[OWLClass, ModelEntityReifiedRelationship])
-  : NonEmptyList[java.lang.Throwable] \/ Map[OWLClass, ModelEntityReifiedRelationship] = {
+  : Set[java.lang.Throwable] \/ Map[OWLClass, ModelEntityReifiedRelationship] = {
 
     val rcs = RCs.values.toSet
     val (resolvableROPs, unresolvedROPs) = ROPs.partition {
@@ -428,8 +428,8 @@ case class ResolverHelper
     val remainingTargetROPs = scala.collection.mutable.HashSet[ROPInfo]()
     remainingTargetROPs ++= resolvableTargetROPs
 
-    val m: NonEmptyList[java.lang.Throwable] \/ Map[OWLClass, ModelEntityReifiedRelationship] =
-    ( Map[OWLClass, ModelEntityReifiedRelationship]().right[NonEmptyList[java.lang.Throwable]] /: chains ) {
+    val m: Set[java.lang.Throwable] \/ Map[OWLClass, ModelEntityReifiedRelationship] =
+    ( Map[OWLClass, ModelEntityReifiedRelationship]().right[Set[java.lang.Throwable]] /: chains ) {
       case (acc1, (chainOP, chainSource, chainTarget)) =>
 
         val chainOP_iri = chainOP.getIRI
@@ -447,7 +447,7 @@ case class ResolverHelper
 
             entityDefinitions
             .get(r_source)
-            .fold[NonEmptyList[java.lang.Throwable] \/ Map[OWLClass, ModelEntityReifiedRelationship]](
+            .fold[Set[java.lang.Throwable] \/ Map[OWLClass, ModelEntityReifiedRelationship]](
               acc2
             ){ r_sourceDef =>
 
@@ -455,7 +455,7 @@ case class ResolverHelper
 
               entityDefinitions
               .get(r_target)
-              .fold[NonEmptyList[java.lang.Throwable] \/ Map[OWLClass, ModelEntityReifiedRelationship]](
+              .fold[Set[java.lang.Throwable] \/ Map[OWLClass, ModelEntityReifiedRelationship]](
                   acc2
               ){ r_targetDef =>
 
@@ -484,7 +484,7 @@ case class ResolverHelper
                         val resolvedTargetROP = (t_iri, t_op, t_source, t_target, t_inv_op)
 
                         val newERR
-                        : NonEmptyList[java.lang.Throwable] \/ Map[OWLClass, ModelEntityReifiedRelationship] =
+                        : Set[java.lang.Throwable] \/ Map[OWLClass, ModelEntityReifiedRelationship] =
                           tboxG
                           .createEntityReifiedRelationship(
                             r = rc,
@@ -498,7 +498,7 @@ case class ResolverHelper
 
                             val rcIRI = rc.getIRI
                             val entry
-                            : NonEmptyList[java.lang.Throwable] \/ Map[OWLClass, ModelEntityReifiedRelationship]
+                            : Set[java.lang.Throwable] \/ Map[OWLClass, ModelEntityReifiedRelationship]
                             = ( tboxG.setTermShortName(_rr, getOWLTermShortName(rcIRI)) +++
                                 tboxG.setTermUUID(_rr, getOWLTermUUID(rcIRI)) +++
                                 omfStore.registerOMFModelEntityReifiedRelationshipInstance(tboxG, _rr).map(_ => ())
@@ -548,7 +548,7 @@ case class ResolverHelper
       val trops = remainingTargetROPs.toList.sortBy(_._1.toString).map(ropInfoToString).mkString("\n")
 
       m +++
-      NonEmptyList(
+      Set(
         OMFError
         .omfOpsError(
           omfStore.ops,
@@ -750,14 +750,14 @@ case class ResolverHelper
   (conceptCMs: Map[OWLClass, ModelEntityConcept],
    allConceptsIncludingImported: Map[OWLClass, ModelEntityConcept])
   (implicit reasoner: OWLReasoner, backbone: OMFBackbone)
-  : NonEmptyList[java.lang.Throwable] \/ Unit = {
+  : Set[java.lang.Throwable] \/ Unit = {
     val sub_sup = for {
       (subC, subM) <- conceptCMs
       supC <- reasoner.getSuperClasses(subC, true).getFlattened
       supM <- findEntityConcept(supC.getIRI, allConceptsIncludingImported)
     } yield (subM, supM)
 
-    ( ().right[NonEmptyList[java.lang.Throwable]] /: sub_sup ) {
+    ( ().right[Set[java.lang.Throwable]] /: sub_sup ) {
       case (acc, (subM, supM)) =>
         acc +++ tboxG.createEntityConceptSubClassAxiom(sub = subM, sup = supM)(omfStore).map(_ => ())
     }
@@ -767,14 +767,14 @@ case class ResolverHelper
   (reifiedRelationshipCMs: Map[OWLClass, ModelEntityReifiedRelationship],
    allReifiedRelationshipsIncludingImported: Map[OWLClass, ModelEntityReifiedRelationship])
   (implicit reasoner: OWLReasoner, backbone: OMFBackbone)
-  : NonEmptyList[java.lang.Throwable] \/ Unit = {
+  : Set[java.lang.Throwable] \/ Unit = {
     val sub_sup = for {
       (subC, subM) <- reifiedRelationshipCMs
       supC <- reasoner.getSuperClasses(subC, true).getFlattened
       supM <- findEntityReifiedRelationship(supC.getIRI, allReifiedRelationshipsIncludingImported)
     } yield (subM, supM)
 
-    ( ().right[NonEmptyList[java.lang.Throwable]] /: sub_sup ) {
+    ( ().right[Set[java.lang.Throwable]] /: sub_sup ) {
       case (acc, (subM, supM)) =>
         acc +++ tboxG.createEntityReifiedRelationshipSubClassAxiom(sub = subM, sup = supM)(omfStore).map(_ => ())
     }
@@ -784,7 +784,7 @@ case class ResolverHelper
   (allEntityDefinitions: Map[OWLClass, ModelEntityDefinition],
    allAspectsIncludingImported: Map[OWLClass, ModelEntityAspect])
   (implicit reasoner: OWLReasoner, backbone: OMFBackbone)
-  : NonEmptyList[java.lang.Throwable] \/ Unit = {
+  : Set[java.lang.Throwable] \/ Unit = {
 
     val sub_sup = for {
       (subC, subM) <- allEntityDefinitions
@@ -792,7 +792,7 @@ case class ResolverHelper
       supM <- findEntityAspect(supC.getIRI, allAspectsIncludingImported)
     } yield (subM, supM)
 
-    ( ().right[NonEmptyList[java.lang.Throwable]] /: sub_sup ) {
+    ( ().right[Set[java.lang.Throwable]] /: sub_sup ) {
       case (acc, (subM, supM)) =>
         acc +++ tboxG.createEntityDefinitionAspectSubClassAxiom(sub = subM, sup = supM)(omfStore).map(_ => ())
     }
@@ -809,11 +809,11 @@ case class ImmutableModelTerminologyGraphResolver(resolver: ResolverHelper) {
   import resolver._
   import resolver.omfStore.ops._
 
-  def resolve: NonEmptyList[java.lang.Throwable] \/ (ImmutableModelTerminologyGraph, Mutable2IMutableTerminologyMap) = {
+  def resolve: Set[java.lang.Throwable] \/ (ImmutableModelTerminologyGraph, Mutable2IMutableTerminologyMap) = {
     val dTs = ont.getDatatypesInSignature(Imports.EXCLUDED).filter(ont.isDeclared)
 
     ( Map[OWLDatatype, ModelScalarDataType]()
-      .right[NonEmptyList[java.lang.Throwable]] /: dTs ) {
+      .right[Set[java.lang.Throwable]] /: dTs ) {
       (acc, scalarDatatypeDT) =>
         acc +++
           tboxG
@@ -860,7 +860,7 @@ case class ImmutableModelTerminologyGraphResolver(resolver: ResolverHelper) {
    tCs: Set[OWLClass],
    tOPs: Set[OWLObjectProperty],
    tDPs: Set[OWLDataProperty])
-  : NonEmptyList[java.lang.Throwable] \/ (ImmutableModelTerminologyGraph, Mutable2IMutableTerminologyMap) = {
+  : Set[java.lang.Throwable] \/ (ImmutableModelTerminologyGraph, Mutable2IMutableTerminologyMap) = {
 
     implicit val _backbone = backbone
 
@@ -1037,8 +1037,8 @@ case class ImmutableModelTerminologyGraphResolver(resolver: ResolverHelper) {
       }
     } yield Tuple3(head_op, hasSource, hasTarget)
 
-    val aspectCMs: NonEmptyList[java.lang.Throwable] \/ Map[OWLClass, ModelEntityAspect] =
-      (Map[OWLClass, ModelEntityAspect]().right[NonEmptyList[java.lang.Throwable]] /: aspectCIRIs) {
+    val aspectCMs: Set[java.lang.Throwable] \/ Map[OWLClass, ModelEntityAspect] =
+      (Map[OWLClass, ModelEntityAspect]().right[Set[java.lang.Throwable]] /: aspectCIRIs) {
         case (acc, (aspectIRI, aspectC)) =>
           acc +++
             tboxG
@@ -1064,8 +1064,8 @@ case class ImmutableModelTerminologyGraphResolver(resolver: ResolverHelper) {
 
     val allAspectsIncludingImported = aspectCMs +++ importedAspectDefinitions.right
 
-    val conceptCMs: NonEmptyList[java.lang.Throwable] \/ Map[OWLClass, ModelEntityConcept] =
-      (Map[OWLClass, ModelEntityConcept]().right[NonEmptyList[java.lang.Throwable]] /: conceptCIRIs) {
+    val conceptCMs: Set[java.lang.Throwable] \/ Map[OWLClass, ModelEntityConcept] =
+      (Map[OWLClass, ModelEntityConcept]().right[Set[java.lang.Throwable]] /: conceptCIRIs) {
         case (acc, (conceptIRI, conceptC)) =>
           acc +++
             tboxG
@@ -1091,8 +1091,8 @@ case class ImmutableModelTerminologyGraphResolver(resolver: ResolverHelper) {
 
     val allConceptsIncludingImported = conceptCMs +++ importedConceptDefinitions.right
 
-    val structuredDatatypeSCs: NonEmptyList[java.lang.Throwable] \/ Map[OWLClass, ModelStructuredDataType] =
-      (Map[OWLClass, ModelStructuredDataType]().right[NonEmptyList[java.lang.Throwable]] /: structuredDatatypeCIRIs) {
+    val structuredDatatypeSCs: Set[java.lang.Throwable] \/ Map[OWLClass, ModelStructuredDataType] =
+      (Map[OWLClass, ModelStructuredDataType]().right[Set[java.lang.Throwable]] /: structuredDatatypeCIRIs) {
         case (acc, (structuredDatatypeIRI, structuredDatatypeC)) =>
           acc +++
             tboxG
@@ -1131,7 +1131,7 @@ case class ImmutableModelTerminologyGraphResolver(resolver: ResolverHelper) {
       resolveDataPropertyDPIRIs(reasoner.getSubDataProperties(backbone.topDataPropertyDP, false), tDPs)
 
     val allEntityDefinitionsExceptRelationships =
-      importedEntityDefinitionMaps.right[NonEmptyList[java.lang.Throwable]] +++
+      importedEntityDefinitionMaps.right[Set[java.lang.Throwable]] +++
         aspectCMs.map(_.toMap[OWLClass, ModelEntityDefinition]) +++
         conceptCMs.map(_.toMap[OWLClass, ModelEntityDefinition])
 

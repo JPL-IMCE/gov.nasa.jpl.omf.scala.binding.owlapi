@@ -96,7 +96,7 @@ package object types {
    imports: Iterable[ImmutableModelTerminologyGraph],
    ont: OWLOntology,
    omfStore: OWLAPIOMFGraphStore)
-  : NonEmptyList[java.lang.Throwable] \/ ImmutableModelTerminologyGraphResolver = {
+  : Set[java.lang.Throwable] \/ ImmutableModelTerminologyGraphResolver = {
     implicit val ops = omfStore.ops
 
     val ontOps = new OWLOntologyOps(ont)
@@ -186,8 +186,8 @@ package object types {
         _ <- omfStore.ops.setTerminologyGraphShortName(g, getOntologyShortName)(omfStore)
         _ <- omfStore.ops.setTerminologyGraphUUID(g, getOntologyUUID)(omfStore)
         _ <- {
-          (().right[NonEmptyList[java.lang.Throwable]] /: imports) {
-            (acc: NonEmptyList[java.lang.Throwable] \/ Unit, importG: ImmutableModelTerminologyGraph) =>
+          (().right[Set[java.lang.Throwable]] /: imports) {
+            (acc: Set[java.lang.Throwable] \/ Unit, importG: ImmutableModelTerminologyGraph) =>
             acc +++
             omfStore.createTerminologyGraphDirectExtensionAxiom(extendingG = g, extendedG = importG).map(_ => ())
           }

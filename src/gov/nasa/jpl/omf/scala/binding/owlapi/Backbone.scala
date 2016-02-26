@@ -229,7 +229,7 @@ object Backbone {
    * @todo needs: annotation:isAbstract, annotation:noMapping
    */
   def createBackbone( ont: OWLOntology, kind: TerminologyKind, ops: OWLAPIOMFOps )
-  : NonEmptyList[java.lang.Throwable] \/ OMFBackbone = {
+  : Set[java.lang.Throwable] \/ OMFBackbone = {
 
     import ops._
 
@@ -326,12 +326,12 @@ object Backbone {
     bOPs: Set[OWLObjectProperty],
     bDPs: Set[OWLDataProperty],
     ops: OWLAPIOMFOps )
-  : NonEmptyList[java.lang.Throwable] \/ Backbone = {
+  : Set[java.lang.Throwable] \/ Backbone = {
     import ops._
     val bIRI = toBackboneIRI(ont.getOntologyID.getOntologyIRI.get)
 
     def lookup[T <: OWLEntity](fragment: String, set: Set[T])
-    : NonEmptyList[java.lang.Throwable] \/ Option[T] =
+    : Set[java.lang.Throwable] \/ Option[T] =
       withFragment(bIRI, fragment)
         .flatMap { iri =>
           set

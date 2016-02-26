@@ -48,7 +48,6 @@ import scala.{transient,Option,None,Some,StringContext,Unit}
 import scala.Predef._
 import scala.util.Failure
 import scala.util.Success
-import scalaz._, Scalaz._
 import java.lang.IllegalArgumentException
 
 abstract class IMCE_OWL2_MOF2_LoadTestFromOWLAPI( override val loadStore: OWLAPIOMFGraphStore )
@@ -58,7 +57,7 @@ abstract class IMCE_OWL2_MOF2_LoadTestFromOWLAPI( override val loadStore: OWLAPI
 abstract class IMCE_OWL2_MOF2_LoadTestFromOWLAPICatalog( @transient val catalogManager: CatalogManager )
   extends IMCE_OWL2_MOF2_LoadTestFromOWLAPI(
       loadStore = OWLAPIOMFGraphStore(
-        OWLAPIOMFModule.owlAPIOMFModule(catalogManager).valueOr { (errors: NonEmptyList[java.lang.Throwable]) =>
+        OWLAPIOMFModule.owlAPIOMFModule(catalogManager).valueOr { (errors: Set[java.lang.Throwable]) =>
           val message = s"${errors.size} errors" + errors.map(_.getMessage).toList.mkString("\n => ","\n => ","\n")
           throw new scala.IllegalArgumentException(message)
         },
@@ -76,7 +75,7 @@ class IMCE_OWL2_MOF2_LoadTestFromOWLAPILocalCatalog
     }) { p =>
       if (p.toFile.exists() && p.toFile.canRead)
         store.catalogIRIMapper.parseCatalog(p.toFile.toURI)
-          .valueOr { (errors: NonEmptyList[java.lang.Throwable]) =>
+          .valueOr { (errors: Set[java.lang.Throwable]) =>
             val message = s"${errors.size} errors" + errors.map(_.getMessage).toList.mkString("\n => ","\n => ","\n")
             throw new scala.IllegalArgumentException(message)
           }
@@ -85,7 +84,7 @@ class IMCE_OWL2_MOF2_LoadTestFromOWLAPILocalCatalog
     }
   }){ testCatalogURL =>
     store.catalogIRIMapper.parseCatalog(testCatalogURL.toURI)
-      .valueOr { (errors: NonEmptyList[java.lang.Throwable]) =>
+      .valueOr { (errors: Set[java.lang.Throwable]) =>
         val message = s"${errors.size} errors" + errors.map(_.getMessage).toList.mkString("\n => ","\n => ","\n")
         throw new scala.IllegalArgumentException(message)
       }
@@ -93,7 +92,7 @@ class IMCE_OWL2_MOF2_LoadTestFromOWLAPILocalCatalog
 
   val metadataIRI =
     store.omfModule.ops.makeIRI("http://imce.jpl.nasa.gov/test/IMCE_OWL2_MOF2_LoadTest")
-      .valueOr { (errors: NonEmptyList[java.lang.Throwable]) =>
+      .valueOr { (errors: Set[java.lang.Throwable]) =>
         val message = s"${errors.size} errors" + errors.map(_.getMessage).toList.mkString("\n => ","\n => ","\n")
         throw new scala.IllegalArgumentException(message)
       }

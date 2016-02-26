@@ -43,6 +43,7 @@ import org.semanticweb.owlapi.apibinding.OWLManager
 import org.semanticweb.owlapi.model.{IRI,OWLDataFactory}
 import org.apache.xml.resolver.CatalogManager
 
+import scala.collection.immutable.Set
 import scala.Predef.require
 import scalaz._
 
@@ -64,7 +65,7 @@ case class OWLAPIOMFModule
 object OWLAPIOMFModule {
   
   def owlAPIOMFModule(catalogManager: CatalogManager)
-  : NonEmptyList[java.lang.Throwable] \/ OWLAPIOMFModule = 
+  : Set[java.lang.Throwable] \/ OWLAPIOMFModule =
   for {
     rdfs_label <-
     OWLAPIIRIOps.makeIRI("http://www.w3.org/2000/01/rdf-schema#label")

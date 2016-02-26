@@ -49,8 +49,6 @@ import scala.Predef._
 import scala.{transient,Option,None,Some,StringContext,Unit}
 import java.lang.IllegalArgumentException
 
-import scalaz._, Scalaz._
-
 abstract class OWLAPIOMFVocabularyImmutabilityTest(
                                         override val saveStore: OWLAPIOMFGraphStore,
                                         override val loadStore: OWLAPIOMFGraphStore )
@@ -61,13 +59,13 @@ abstract class OWLAPIOMFVocabularyImmutabilityTest(
 abstract class OWLAPIOMFVocabularyImmutabilityCatalogTest( @transient val catalogManager: CatalogManager )
   extends OWLAPIOMFVocabularyImmutabilityTest(
       saveStore = OWLAPIOMFGraphStore(
-        OWLAPIOMFModule.owlAPIOMFModule(catalogManager).valueOr { (errors: NonEmptyList[java.lang.Throwable]) =>
+        OWLAPIOMFModule.owlAPIOMFModule(catalogManager).valueOr { (errors: Set[java.lang.Throwable]) =>
           val message = s"${errors.size} errors" + errors.map(_.getMessage).toList.mkString("\n => ","\n => ","\n")
           throw new scala.IllegalArgumentException(message)
         },
         OWLManager.createOWLOntologyManager() ),
       loadStore = OWLAPIOMFGraphStore(
-        OWLAPIOMFModule.owlAPIOMFModule(catalogManager).valueOr { (errors: NonEmptyList[java.lang.Throwable]) =>
+        OWLAPIOMFModule.owlAPIOMFModule(catalogManager).valueOr { (errors: Set[java.lang.Throwable]) =>
           val message = s"${errors.size} errors" + errors.map(_.getMessage).toList.mkString("\n => ","\n => ","\n")
           throw new scala.IllegalArgumentException(message)
         },
@@ -86,7 +84,7 @@ class OWLAPIOWFVocabularyImmutabilityTestLocalCatalog
     }) { p =>
       if (p.toFile.exists() && p.toFile.canRead)
         saveStore.catalogIRIMapper.parseCatalog(p.toFile.toURI)
-          .valueOr { (errors: NonEmptyList[java.lang.Throwable]) =>
+          .valueOr { (errors: Set[java.lang.Throwable]) =>
             val message = s"${errors.size} errors" + errors.map(_.getMessage).toList.mkString("\n => ","\n => ","\n")
             throw new scala.IllegalArgumentException(message)
           }
@@ -95,7 +93,7 @@ class OWLAPIOWFVocabularyImmutabilityTestLocalCatalog
     }
   }){ testCatalogURL =>
     saveStore.catalogIRIMapper.parseCatalog(testCatalogURL.toURI)
-      .valueOr { (errors: NonEmptyList[java.lang.Throwable]) =>
+      .valueOr { (errors: Set[java.lang.Throwable]) =>
         val message = s"${errors.size} errors" + errors.map(_.getMessage).toList.mkString("\n => ","\n => ","\n")
         throw new scala.IllegalArgumentException(message)
       }
@@ -103,7 +101,7 @@ class OWLAPIOWFVocabularyImmutabilityTestLocalCatalog
 
   val saveMetadataIRI =
     saveStore.omfModule.ops.makeIRI("http://imce.jpl.nasa.gov/test/OWLAPIOMFVocabularySave")
-    .valueOr { (errors: NonEmptyList[java.lang.Throwable]) =>
+    .valueOr { (errors: Set[java.lang.Throwable]) =>
       val message = s"${errors.size} errors" + errors.map(_.getMessage).toList.mkString("\n => ","\n => ","\n")
       throw new scala.IllegalArgumentException(message)
     }
@@ -126,7 +124,7 @@ class OWLAPIOWFVocabularyImmutabilityTestLocalCatalog
     }) { p =>
       if (p.toFile.exists() && p.toFile.canRead)
         loadStore.catalogIRIMapper.parseCatalog(p.toFile.toURI)
-          .valueOr { (errors: NonEmptyList[java.lang.Throwable]) =>
+          .valueOr { (errors: Set[java.lang.Throwable]) =>
             val message = s"${errors.size} errors" + errors.map(_.getMessage).toList.mkString("\n => ","\n => ","\n")
             throw new scala.IllegalArgumentException(message)
           }
@@ -135,7 +133,7 @@ class OWLAPIOWFVocabularyImmutabilityTestLocalCatalog
     }
   }){ testCatalogURL =>
     loadStore.catalogIRIMapper.parseCatalog(testCatalogURL.toURI)
-      .valueOr { (errors: NonEmptyList[java.lang.Throwable]) =>
+      .valueOr { (errors: Set[java.lang.Throwable]) =>
         val message = s"${errors.size} errors" + errors.map(_.getMessage).toList.mkString("\n => ","\n => ","\n")
         throw new scala.IllegalArgumentException(message)
       }
@@ -143,7 +141,7 @@ class OWLAPIOWFVocabularyImmutabilityTestLocalCatalog
 
   val loadMetadataIRI =
     loadStore.omfModule.ops.makeIRI("http://imce.jpl.nasa.gov/test/OWLAPIOMFVocabularyLoad")
-    .valueOr { (errors: NonEmptyList[java.lang.Throwable]) =>
+    .valueOr { (errors: Set[java.lang.Throwable]) =>
       val message = s"${errors.size} errors" + errors.map(_.getMessage).toList.mkString("\n => ","\n => ","\n")
       throw new scala.IllegalArgumentException(message)
     }

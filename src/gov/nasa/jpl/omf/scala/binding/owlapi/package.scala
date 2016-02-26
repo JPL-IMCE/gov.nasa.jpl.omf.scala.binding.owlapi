@@ -43,6 +43,7 @@ import org.semanticweb.owlapi.model.parameters.ChangeApplied
 import org.semanticweb.owlapi.model.{OWLOntologyChange, OWLOntologyManager}
 
 import scala.concurrent.duration.Duration
+import scala.collection.immutable.Set
 import scala.{Option,None,StringContext,Unit}
 import scala.Predef.String
 import scalaz._, Scalaz._
@@ -68,7 +69,7 @@ package object owlapi {
 
   def catalogURIMapperException
   (message: String,
-   cause: OMFError.OptionThrowableNel = OMFError.emptyThrowableNel)
+   cause: OMFError.Throwables = OMFError.emptyThrowables)
   : java.lang.Throwable =
     new CatalogURIMapperException(message, cause)
 
@@ -76,7 +77,7 @@ package object owlapi {
   (message: String,
    cause: java.lang.Throwable)
   : java.lang.Throwable =
-    new CatalogURIMapperException(message, cause.wrapNel.some)
+    new CatalogURIMapperException(message, Set[java.lang.Throwable](cause))
 
 
   def applyOntologyChange
@@ -84,29 +85,29 @@ package object owlapi {
    ontChange: OWLOntologyChange,
    ifError: String,
    ifSuccess: Option[() => Unit] = None)
-  : NonEmptyList[java.lang.Throwable] \/ Unit =
+  : Set[java.lang.Throwable] \/ Unit =
   ontManager.applyChange(ontChange) match {
     case ChangeApplied.SUCCESSFULLY =>
       ifSuccess
-      .fold[NonEmptyList[java.lang.Throwable] \/ Unit](
+      .fold[Set[java.lang.Throwable] \/ Unit](
         \/-(())
       ){ callback =>
         \/.fromTryCatchNonFatal[Unit](callback())
-        .fold[NonEmptyList[java.lang.Throwable] \/ Unit](
+        .fold[Set[java.lang.Throwable] \/ Unit](
         l = (t: java.lang.Throwable) =>
           -\/(
-            NonEmptyList(OMFError.omfBindingException(ifError, t))
+            Set(OMFError.omfBindingException(ifError, t))
           ),
         r = (_: Unit) =>
           \/-(())
         )
       }
     case ChangeApplied.NO_OPERATION =>
-      NonEmptyList(
+      Set(
         OMFError.omfBindingError(s"$ifError (no-operation change)")
       ).left
     case ChangeApplied.UNSUCCESSFULLY =>
-      NonEmptyList(
+      Set(
         OMFError.omfBindingError(s"$ifError (unsuccessful change)")
       ).left
   }
