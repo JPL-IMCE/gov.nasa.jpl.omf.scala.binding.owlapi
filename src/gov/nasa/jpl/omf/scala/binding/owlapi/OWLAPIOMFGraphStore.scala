@@ -942,7 +942,7 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
         } {
           val result = ontManager.applyChange(change)
           require(
-            result == ChangeApplied.SUCCESSFULLY,
+            result == ChangeApplied.SUCCESSFULLY || result == ChangeApplied.NO_OPERATION,
             s"\nsetTerminologyGraphShortName:\n$change")
         }
         \/-(())
@@ -979,7 +979,7 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
         } {
           val result = ontManager.applyChange(change)
           require(
-            result == ChangeApplied.SUCCESSFULLY,
+            result == ChangeApplied.SUCCESSFULLY || result == ChangeApplied.NO_OPERATION,
             s"\nsetTerminologyGraphUUID:\n$change")
         }
         \/-(())
@@ -1024,7 +1024,7 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
           } {
             val result = ontManager.applyChange(change)
             require(
-              result == ChangeApplied.SUCCESSFULLY,
+              result == ChangeApplied.SUCCESSFULLY || result == ChangeApplied.NO_OPERATION,
               s"\nsetTermShortName:\n$change")
           }
           \/-(())
@@ -1067,7 +1067,7 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
           } {
             val result = ontManager.applyChange(change)
             require(
-              result == ChangeApplied.SUCCESSFULLY,
+              result == ChangeApplied.SUCCESSFULLY || result == ChangeApplied.NO_OPERATION,
               s"\nsetTermUUID:\n$change")
           }
           \/-(())

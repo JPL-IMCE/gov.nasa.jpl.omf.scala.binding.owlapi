@@ -289,7 +289,6 @@ case class MutableModelTerminologyGraph
 
   override protected val iri2typeTerm = scala.collection.mutable.HashMap[IRI, ModelTypeTerm]()
 
-
   def addTerminologyGraphExtension
   (extendedG: ModelTerminologyGraph)
   (implicit store: OWLAPIOMFGraphStore)
@@ -305,8 +304,8 @@ case class MutableModelTerminologyGraph
       } {
         val result = ontManager.applyChange(change)
         require(
-                 result == ChangeApplied.SUCCESSFULLY,
-                 s"\naddTerminologyGraphExtension: result=$result\n$change")
+          result == ChangeApplied.SUCCESSFULLY || result == ChangeApplied.NO_OPERATION,
+          s"\naddTerminologyGraphExtension: result=$result\n$change")
       }
       axiom
     }
