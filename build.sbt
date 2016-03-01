@@ -4,6 +4,7 @@ import sbt._
 import scala.language.postfixOps
 
 import gov.nasa.jpl.imce.sbt._
+import gov.nasa.jpl.imce.sbt.ProjectHelper._
 
 import java.io.File
 
@@ -94,7 +95,7 @@ def docSettings(diagrams:Boolean): Seq[Setting[_]] =
   )
 
 lazy val core =
-  Project("omf-scala-core-binding-owlapi", file("."))
+  Project("omf-scala-binding-owlapi", file("."))
   .enablePlugins(IMCEGitPlugin)
   .enablePlugins(IMCEReleasePlugin)
   .settings(IMCEReleasePlugin.packageReleaseProcessSettings)
@@ -122,12 +123,8 @@ lazy val core =
     // include all test artifacts
     publishArtifact in Test := true,
     scalaSource in Compile := baseDirectory.value / "src",
-    classDirectory in Compile := baseDirectory.value / "bin",
-    cleanFiles += (classDirectory in Compile).value,
 
     scalaSource in Test := baseDirectory.value / "test",
-    classDirectory in Test := baseDirectory.value / "bin.tests",
-    cleanFiles += (classDirectory in Test).value,
 
     resourceDirectory in Test := baseDirectory.value / "target" / "extracted" / "imce-omf_ontologies",
 
@@ -141,15 +138,6 @@ lazy val core =
       "gov.nasa.jpl.imce.thirdParty" %% "owlapi-libraries"
         % Versions_owlapi_libraries.version artifacts
         Artifact("owlapi-libraries", "zip", "zip", Some("resource"), Seq(), None, Map()),
-
-      "gov.nasa.jpl.imce.omf" %% "omf-scala-core"
-        % Versions_omf_scala_core.version % "compile" withSources() withJavadoc() artifacts
-        Artifact("omf-scala-core", "zip", "zip", Some("resource"), Seq(), None, Map()),
-
-      "gov.nasa.jpl.imce.omf" %% "omf-scala-core" % Versions_omf_scala_core.version %
-        "test" classifier "tests" withSources() withJavadoc() artifacts(
-        Artifact.classified("omf-scala-core", "tests-sources"),
-        Artifact.classified("omf-scala-core", "tests-javadoc")),
 
       // extra("artifact.kind" -> "omf.ontologies")
       "gov.nasa.jpl.imce.omf" % "imce-omf_ontologies" % Versions_imce_omf_ontologies.version
@@ -193,6 +181,20 @@ lazy val core =
     compile <<= (compile in Compile) dependsOn extractArchives,
 
     unmanagedClasspath in Test += baseDirectory.value / "target" / "extracted" / "imce-omf_ontologies"
+  )
+  .dependsOnSourceProjectOrLibraryArtifacts(
+    "omf-scala-core",
+    "gov.nasa.jpl.omf.scala.core",
+    Seq(
+      "gov.nasa.jpl.imce.omf" %% "omf-scala-core"
+        % Versions_omf_scala_core.version % "compile" withSources() withJavadoc() artifacts
+        Artifact("omf-scala-core", "zip", "zip", Some("resource"), Seq(), None, Map()),
+
+      "gov.nasa.jpl.imce.omf" %% "omf-scala-core" % Versions_omf_scala_core.version %
+        "test" classifier "tests" withSources() withJavadoc() artifacts(
+        Artifact.classified("omf-scala-core", "tests-sources"),
+        Artifact.classified("omf-scala-core", "tests-javadoc"))
+    )
   )
 
 def dynamicScriptsResourceSettings(dynamicScriptsProjectName: Option[String] = None): Seq[Setting[_]] = {

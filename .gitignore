@@ -2,14 +2,7 @@
 .ensime*
 .idea
 .project
-bin
-bin.tests
-owlapiLibs
+links.json
 project/project
 project/target
 target
-omf-scala-core
-sbt.staging
-gov-nasa-jpl-imce-ontologies
-jpl-mbee-common-owlapi-libraries
-jpl-mbee-common-scala-libraries_core
