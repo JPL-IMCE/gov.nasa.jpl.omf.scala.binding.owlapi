@@ -61,6 +61,13 @@ case class OTI2OMFModelTerminologyGraphProvenance
 sealed abstract class OMFModelTerminologyGraphProvenanceKind(val literal: String)
 
 /**
+  * Corresponds to built-in W3C vocabularies
+  * (e.g., XML Schema 1.1 Datatypes, RDFS, OWL Datatypes)
+  */
+case object OMFModelTerminologyGraphW3CProvenanceKind
+  extends OMFModelTerminologyGraphProvenanceKind(literal="W3C")
+
+/**
   * Corresponds to exporting either
   * - OTISerializableMetamodelArtifactKind
   * - OTIBuiltInMetamodelArtifactKind

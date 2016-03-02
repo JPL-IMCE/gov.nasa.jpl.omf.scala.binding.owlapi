@@ -65,7 +65,8 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
   require(null != omfModule)
   require(null != ontManager)
 
-  val LOG: Boolean = "true" equalsIgnoreCase java.lang.System.getProperty("gov.nasa.jpl.omf.scala.binding.owlapi.log.GraphStore")
+  val LOG: Boolean =
+    "true" equalsIgnoreCase java.lang.System.getProperty("gov.nasa.jpl.omf.scala.binding.owlapi.log.GraphStore")
 
   implicit val ops = omfModule.ops
 
@@ -513,11 +514,24 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
   : Option[Set[java.lang.Throwable] \/ ImmutableModelTerminologyGraphConversionMap]
   = None
 
+  def makeW3CTerminologyGraphDefinition
+  (iri: IRI)
+  : Set[java.lang.Throwable] \/ types.MutableModelTerminologyGraph
+  = ops.makeTerminologyGraphWithPath(
+    iri,
+    relativeIRIPath=Option.empty[String],
+    relativeIRIHashPrefix=Option.empty[String],
+    isDefinition,
+    extraProvenanceMetadata=
+      OTI2OMFModelTerminologyGraphProvenance(
+        provenanceKind=OMFModelTerminologyGraphW3CProvenanceKind,
+        provenanceURI=iri.toString))(this)
+
   def loadBuiltinDatatypeMap
   ()
   : Set[java.lang.Throwable] \/ ImmutableModelTerminologyGraphConversionMap
   = builtInDatatypeMap.getOrElse {
-    val loaded = BuiltInDatatypeMaps.createBuiltInDatatypeMaps[OWLAPIOMF]()(ops, this)
+    val loaded = BuiltInDatatypeMaps.createBuiltInDatatypeMaps[OWLAPIOMF](makeW3CTerminologyGraphDefinition)(ops, this)
     builtInDatatypeMap = Some(loaded)
     loaded
   }
