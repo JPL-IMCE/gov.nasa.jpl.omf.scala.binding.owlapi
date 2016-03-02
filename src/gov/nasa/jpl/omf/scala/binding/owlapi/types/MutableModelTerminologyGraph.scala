@@ -179,7 +179,7 @@ case class MutableModelTerminologyGraph
         .fold[Set[java.lang.Throwable] \/ Unit](
           \/-(())
         ){ annotation =>
-          applyOntologyChange(
+          applyOntologyChangeOrNoOp(
             ontManager,
             new RemoveOntologyAnnotation(ont, annotation),
             ifError="Failed to remove the tbox ontology 'rdfs:label' annotation")
@@ -189,7 +189,7 @@ case class MutableModelTerminologyGraph
         .fold[Set[java.lang.Throwable] \/ Unit](
           \/-(())
         ){ label =>
-          applyOntologyChange(
+          applyOntologyChangeOrNoOp(
             ontManager,
             new AddOntologyAnnotation(
               ont,
@@ -213,7 +213,7 @@ case class MutableModelTerminologyGraph
           .fold[Set[java.lang.Throwable] \/ Unit](
           \/-(())
         ) { annotation =>
-          applyOntologyChange(
+          applyOntologyChangeOrNoOp(
             ontManager,
             new RemoveOntologyAnnotation(ont, annotation),
             ifError = "Failed to remove the tbox ontology 'uuid' annotation")
@@ -223,7 +223,7 @@ case class MutableModelTerminologyGraph
         .fold[Set[java.lang.Throwable] \/ Unit](
           \/-(())
         ) { id =>
-          applyOntologyChange(
+          applyOntologyChangeOrNoOp(
             ontManager,
             new AddOntologyAnnotation(
               ont,
@@ -321,7 +321,7 @@ case class MutableModelTerminologyGraph
         .fold[Set[java.lang.Throwable] \/ Unit](
             \/-(())
         ){ annotationAssertionAxiom =>
-          applyOntologyChange(
+          applyOntologyChangeOrNoOp(
             ontManager,
             new RemoveAxiom(ont, annotationAssertionAxiom),
             ifError="Failed to remove a tbox term 'rdfs:label' annotation assertion axiom")
@@ -331,7 +331,7 @@ case class MutableModelTerminologyGraph
         .fold[Set[java.lang.Throwable] \/ Unit](
           \/-(())
         ){ label =>
-          applyOntologyChange(
+          applyOntologyChangeOrNoOp(
             ontManager,
             new AddAxiom(
               ont,
@@ -360,7 +360,7 @@ case class MutableModelTerminologyGraph
         .fold[Set[java.lang.Throwable] \/ Unit](
           \/-(())
         ){ annotationAssertionAxiom =>
-          applyOntologyChange(
+          applyOntologyChangeOrNoOp(
             ontManager,
             new RemoveAxiom(ont, annotationAssertionAxiom),
             ifError="Failed to remove a tbox term 'uuid' annotation assertion axiom")
@@ -371,7 +371,7 @@ case class MutableModelTerminologyGraph
         .fold[Set[java.lang.Throwable] \/ Unit](
           \/-(())
         ){ id =>
-          applyOntologyChange(
+          applyOntologyChangeOrNoOp(
             ontManager,
             new AddAxiom(
               ont,

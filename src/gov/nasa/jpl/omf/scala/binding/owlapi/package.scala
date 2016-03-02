@@ -112,4 +112,32 @@ package object owlapi {
       ).left
   }
 
+  def applyOntologyChangeOrNoOp
+  (ontManager: OWLOntologyManager,
+   ontChange: OWLOntologyChange,
+   ifError: String,
+   ifSuccess: Option[() => Unit] = None)
+  : Set[java.lang.Throwable] \/ Unit =
+    ontManager.applyChange(ontChange) match {
+      case ChangeApplied.SUCCESSFULLY | ChangeApplied.NO_OPERATION =>
+        ifSuccess
+          .fold[Set[java.lang.Throwable] \/ Unit](
+          \/-(())
+        ){ callback =>
+          \/.fromTryCatchNonFatal[Unit](callback())
+            .fold[Set[java.lang.Throwable] \/ Unit](
+            l = (t: java.lang.Throwable) =>
+              -\/(
+                Set(OMFError.omfBindingException(ifError, t))
+              ),
+            r = (_: Unit) =>
+              \/-(())
+          )
+        }
+      case ChangeApplied.UNSUCCESSFULLY =>
+        Set(
+          OMFError.omfBindingError(s"$ifError (unsuccessful change)")
+        ).left
+    }
+
 }
