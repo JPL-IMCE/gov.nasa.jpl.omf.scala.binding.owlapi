@@ -162,8 +162,8 @@ case class MutableModelTerminologyGraph
   extends ModelTerminologyGraph(kind, ont, extraProvenanceMetadata)(ops) {
 
   override val mutabilityKind: String = "mutable"
-  override val isImmutableModelTerminologyGraph = true
-  override val isMutableModelTerminologyGraph = false
+  override val isImmutableModelTerminologyGraph = false
+  override val isMutableModelTerminologyGraph = true
 
   override val kindIRI: IRI = makeKindIRI("mutable")
 

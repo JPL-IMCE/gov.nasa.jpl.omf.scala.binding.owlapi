@@ -267,7 +267,7 @@ trait OWLAPIStoreOps
   override def asImmutableTerminologyGraph
   (g: types.MutableModelTerminologyGraph)
   (implicit store: OWLAPIOMFGraphStore) =
-    store.asImmutableTerminologyGraph(g)
+    store.asImmutableTerminologyGraph(Map(), g)
 
   def resolveTerminologyGraph
   (o: OWLOntology,

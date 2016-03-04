@@ -1807,76 +1807,105 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
     }
   }
 
-  // OMF API
-  def asImmutableTerminologyGraph
-  (g: types.MutableModelTerminologyGraph)
-  : Set[java.lang.Throwable] \/ (types.ImmutableModelTerminologyGraph, types.Mutable2IMutableTerminologyMap) = {
+  object Conversions {
 
     def convert1
     (acc: types.Mutable2IMutableTerminologyMap,
      mg: types.MutableModelTerminologyGraph)
     : Set[java.lang.Throwable] \/ types.Mutable2IMutableTerminologyMap = {
-//      System.out
-//      .println(s"convert1: acc=${acc.size}, m=${mg.kindIRI}")
-//      for {
-//        (m, i) <- acc
-//      } {
-//        System.out.println(s"acc.m: ${m.kindIRI}")
-//        System.out.println(s"acc.i: ${i.kindIRI}")
-//      }
+      //      System.out
+      //      .println(s"convert1: acc=${acc.size}, m=${mg.kindIRI}")
+      //      for {
+      //        (m, i) <- acc
+      //      } {
+      //        System.out.println(s"acc.m: ${m.kindIRI}")
+      //        System.out.println(s"acc.i: ${i.kindIRI}")
+      //      }
+
+      immutableTBoxGraphs
+        .get(mg.iri)
+        .fold[Set[java.lang.Throwable] \/ types.Mutable2IMutableTerminologyMap](
+        convert1New(acc, mg)
+      ) {
+        ig =>
+          val acc1 =
+            if (acc.contains(mg))
+              acc
+            else
+              acc + (mg -> ig)
+
+          \/-(acc1)
+      }
+    }
+
+    def convert1New
+    (acc: types.Mutable2IMutableTerminologyMap,
+     mg: types.MutableModelTerminologyGraph)
+    : Set[java.lang.Throwable] \/ types.Mutable2IMutableTerminologyMap
+    = {
 
       require(!acc.contains(mg), s"convert1: acc=${acc.size}, m=${mg.kindIRI}")
       val tgraph = fromTerminologyGraph(mg)
-      val tn0: Set[java.lang.Throwable] \/ List[types.ImmutableModelTerminologyGraph] =
-        List().right
-      val tnN: Set[java.lang.Throwable] \/ List[types.ImmutableModelTerminologyGraph] =
-        (tn0 /: tgraph.nested) { (tni, ni) =>
-          tni +++
+
+      val tn0
+      : Set[java.lang.Throwable] \/ List[types.ImmutableModelTerminologyGraph]
+      = List().right
+
+      val tnN
+      : Set[java.lang.Throwable] \/ List[types.ImmutableModelTerminologyGraph]
+      = (tn0 /: tgraph.nested) { (tni, ni) =>
+        tni +++
           (ni match {
-            case g: types.ImmutableModelTerminologyGraph =>
-              List(g)
-              .right
-            case g: types.MutableModelTerminologyGraph   =>
+
+            case ng: types.ImmutableModelTerminologyGraph =>
+              List(ng).right
+
+            case ng: types.MutableModelTerminologyGraph =>
               acc
-                .get(g)
+                .get(ng)
                 .fold[Set[java.lang.Throwable] \/ List[types.ImmutableModelTerminologyGraph]](
                 Set(
                   OMFError.omfError(
-                       s"""No Immutable graph available for a nested mutable graph:
+                    s"""No Immutable graph available for a nested mutable graph:
                            |mutable graph to convert:
                            |$mg
+                           |
                            |nested mutable graph that should have been converted:
-                           |$g
-                           |""".stripMargin)
+                           |$ng
+                           |""".
+                        stripMargin
+                    )
                 ).left
-              ){ g =>
-                List(g)
-                .right
+              ){
+                nig =>
+                List(nig).right
               }
           })
         }
 
-      val ti0: Set[java.lang.Throwable] \/ List[types.ImmutableModelTerminologyGraph] =
-        List().right
-      val tiN: Set[java.lang.Throwable] \/ List[types.ImmutableModelTerminologyGraph] =
-        (ti0 /: tgraph.imports) { (tii, ni) =>
+      val ti0
+      : Set[java.lang.Throwable] \/ List[types.ImmutableModelTerminologyGraph]
+      = List().right
+
+      val tiN
+      : Set[java.lang.Throwable] \/ List[types.ImmutableModelTerminologyGraph]
+      = (ti0 /: tgraph.imports) { (tii, ni) =>
           tii +++
             (ni match {
               case g: types.ImmutableModelTerminologyGraph =>
-                List(g)
-                  .right
+                List(g).right
               case g: types.MutableModelTerminologyGraph =>
                 acc
                   .get(g)
                   .fold[Set[java.lang.Throwable] \/ List[types.ImmutableModelTerminologyGraph]](
                   Set(
-                    OMFError.omfError(
+                    OMFError.
+                      omfError(
                       s"""No Immutable graph available for an imported mutable graph:
                            |mutable graph to convert:
                            |$mg
                            |imported mutable graph that should have been converted:
                            |$g
-
                            |""".
                         stripMargin)
                    ).left
@@ -1913,15 +1942,18 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
 
           val i_mg_relativePath_dataValue = getModelTerminologyGraphRelativeIRIPath(mg)
           require(i_mg_relativePath_dataValue.isDefined)
-          val i_mg_relativePath_value: String = i_mg_relativePath_dataValue.get
-          require(!i_mg_relativePath_value.endsWith("_Gro"))
+          val i_mg_relativePath_value: String =
+
+            i_mg_relativePath_dataValue.get
+          require(!i_mg_relativePath_value.
+            endsWith("_Gro"))
           require(!i_mg_relativePath_value.endsWith("_Grw"))
 
-          val i_mg_iriHashPrefix_value = getModelTerminologyGraphIRIHashPrefix(mg)
-
-//          System.out
+          val i_mg_iriHashPrefix_value =
+            getModelTerminologyGraphIRIHashPrefix(mg)
+          //          System.out
 //            .println(
-//              s"""### Mutable TBox:
+          //              s"""### Mutable TBox:
 //                        |${mg.kindIRI}
 //                        |#-- Immutable TBox:
 //                        |${ig.kindIRI}
@@ -1936,24 +1968,25 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
               mg.getTerminologyGraphShortName, mg.getTerminologyGraphUUID,
               i_mg_relativePath_value, i_mg_iriHashPrefix_value)
           val delta = FiniteDuration.apply(java.lang.System.currentTimeMillis() - current, TimeUnit.MILLISECONDS)
-          System.out.println(s"Registration in ${prettyDuration(delta)}: ${ig.kindIRI}")
+          System.out.println(s"\nRegistration in ${prettyDuration(delta)}: ${ig.kindIRI}")
           result
         }
       }
     }
 
+    @scala.annotation.tailrec
     def convert
     (acc: types.Mutable2IMutableTerminologyMap,
      queue: Seq[types.MutableModelTerminologyGraph],
      visited: Seq[types.MutableModelTerminologyGraph])
     : Set[java.lang.Throwable] \/ types.Mutable2IMutableTerminologyMap = {
-//      System.out
-//      .println(s"convert: acc=${acc.size}, queue=${queue.size}, visited=${visited.size}")
+      //      System.out
+      //      .println(s"convert: acc=${acc.size}, queue=${queue.size}, visited=${visited.size}")
 //      for {
 //        (m, i) <- acc
 //      } {
-//        System.out.println(s"acc.m: ${m.kindIRI}")
-//        System.out.println(s"acc.i: ${i.kindIRI}")
+      //        System.out.println(s"acc.m: ${m.kindIRI}")
+      //        System.out.println(s"acc.i: ${i.kindIRI}")
 //      }
 //      for {qm <- queue} {
 //        System.out.println(s"q.m: ${qm.kindIRI}")
@@ -1967,10 +2000,12 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
         else if (acc.contains(visited.head))
           convert(acc, Seq(), visited.tail)
         else
-          for {
-            acc1 <- convert1(acc, visited.head)
-            result <- convert(acc1, visited.tail, Seq())
-          } yield result
+          convert1(acc, visited.head) match {
+            case -\/(nels) =>
+              -\/(nels)
+            case \/-(acc1) =>
+              convert(acc1, Seq(visited.head), visited.tail)
+          }
       } else {
         val mg = queue.head
         val mgInfo = fromTerminologyGraph(mg)
@@ -1979,39 +2014,51 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
           case Some(mgParent) =>
 
             val ok1 = visited.contains(mgParent)
-            val ok2 = acc.exists {
+            val ok2 = queue.contains(mgParent)
+            val ok3 = acc.find {
               case (m: types.MutableModelTerminologyGraph, _: types.ImmutableModelTerminologyGraph) =>
                 m.equals(mgParent)
             }
-            val ok3 = queue.contains(mgParent)
-            require(ok1 || ok2 || ok3,
-                    s"queue.head: ${queue.head.kindIRI}, nesting parent: ${mgParent.kindIRI} (ok1=$ok1, ok2=$ok2, ok3=$ok3")
-          case None           =>
+            val ok = ok3.isEmpty
+            if (!ok)
+              require(ok,
+                    s"queue.head:\n ${queue.head.kindIRI}"+
+                    s"\nnesting parent:\n${mgParent.kindIRI}"+
+                    s"\n(ok1=$ok1, ok2= $ok2)\nacc=$ok3)")
+          case None =>
             ()
         }
-
         val nestedQueue =
           mgInfo
           .nested
           .flatMap {
-                     case _: types.ImmutableModelTerminologyGraph =>
-                       None
-                     case m: types.MutableModelTerminologyGraph   =>
-                       if (queue.contains(m)) None
-                       else Some(m)
-                   }
+            case _: types.ImmutableModelTerminologyGraph =>
+              None
+
+            case mn: types.MutableModelTerminologyGraph   =>
+              if (queue.contains(mn))
+                None
+              else if (acc.contains(mn))
+                None
+              else
+                Some(mn)
+          }
           .to[Seq]
 
         val extendedQueue =
           mgInfo
           .imports
           .flatMap {
-                     case _: types.ImmutableModelTerminologyGraph =>
-                       None
-                     case m: types.MutableModelTerminologyGraph   =>
-                       if (queue.contains(m)) None
-                       else Some(m)
-                   }
+            case _: types.ImmutableModelTerminologyGraph =>
+              None
+            case me: types.MutableModelTerminologyGraph =>
+              if (queue.contains(me))
+                None
+              else if (acc.contains(me))
+                None
+              else
+                Some(me)
+          }
           .to[Seq]
 
         convert(
@@ -2021,10 +2068,17 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
       }
     }
 
+  }
+
+  // OMF API
+  def asImmutableTerminologyGraph
+  (m2i: types.Mutable2IMutableTerminologyMap,
+   g: types.MutableModelTerminologyGraph)
+  : Set[java.lang.Throwable] \/ (types.ImmutableModelTerminologyGraph, types.Mutable2IMutableTerminologyMap) = {
 
     val current: java.lang.Long = java.lang.System.currentTimeMillis()
     for {
-      m2i <- convert(Map(), Seq(g), Seq())
+      m2i <- Conversions.convert(m2i, Seq(g), Seq())
     } yield {
       require(m2i.contains(g))
       val delta = FiniteDuration.apply(java.lang.System.currentTimeMillis() - current, TimeUnit.MILLISECONDS)
@@ -2058,7 +2112,10 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
   : Set[java.lang.Throwable] \/ types.Mutable2IMutableTerminologyMap = {
 
     val ok1 = immutableTBoxGraphs.put(g.iri, g)
-    require(ok1.isEmpty, s"register g: ${g.iri}")
+    if (ok1.nonEmpty)
+      require(
+        ok1.isEmpty,
+        s"register g: ${g.iri}")
 
     makeMetadataInstanceIRI(omfMetadata.get, "Gro", g.iri)
     .flatMap { graphIRI =>
