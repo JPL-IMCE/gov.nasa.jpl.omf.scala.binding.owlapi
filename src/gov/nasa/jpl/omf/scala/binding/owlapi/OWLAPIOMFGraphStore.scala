@@ -619,6 +619,8 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
 
           for {
             change <- Seq(
+              new AddImport(childG.ont,
+                owlDataFactory.getOWLImportsDeclaration(parentG.iri)),
               new AddAxiom(omfMetadata.get,
                 owlDataFactory.getOWLDeclarationAxiom(directNestingI)),
               new AddAxiom(omfMetadata.get,
@@ -636,8 +638,11 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
           } {
             val result = ontManager.applyChange(change)
             require(
-              result == ChangeApplied.SUCCESSFULLY,
-              s"\ncreateTerminologyGraphDirectNestingAxiom:\n$change")
+              result == ChangeApplied.SUCCESSFULLY || result == ChangeApplied.NO_OPERATION,
+              s"\ncreateTerminologyGraphDirectNestingAxiom (result=$result)"+
+                s"\nnesting parent=${parentG.iri}"+
+                s"\nnested child=${childG.iri}"+
+                s"\n$change")
           }
 
           for {
