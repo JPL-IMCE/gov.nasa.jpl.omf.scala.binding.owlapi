@@ -665,8 +665,8 @@ case class MutableModelTerminologyGraph
       } {
         val result = ontManager.applyChange(change)
         require(
-                 result == ChangeApplied.SUCCESSFULLY,
-                 s"\nmakeEntityReifiedRelationship:\n$change")
+          result == ChangeApplied.SUCCESSFULLY || result == ChangeApplied.NO_OPERATION,
+          s"\nmakeEntityReifiedRelationship (result=$result):\n$change")
       }
 
       result
