@@ -180,11 +180,14 @@ lazy val core =
 
     compile <<= (compile in Compile) dependsOn extractArchives,
 
+    compile in Test <<= (compile in Test) dependsOn extractArchives,
+
     unmanagedClasspath in Test += baseDirectory.value / "target" / "extracted" / "imce-omf_ontologies"
   )
   .dependsOnSourceProjectOrLibraryArtifacts(
     "omf-scala-core",
     "gov.nasa.jpl.omf.scala.core",
+    Some("compile->compile;test->test"),
     Seq(
       "gov.nasa.jpl.imce.omf" %% "omf-scala-core"
         % Versions_omf_scala_core.version % "compile" withSources() withJavadoc() artifacts
