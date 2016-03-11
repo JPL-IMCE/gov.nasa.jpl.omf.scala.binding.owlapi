@@ -42,17 +42,18 @@ import scala.Predef.require
 
 /**
   * Corresponds to an axiom: TerminologyGraphDirectNestingAxiom(nestingParent, nestingContext, nestedChild)
-  * The nestingParent is not explicitly represented because this would otherwise lead to a circularity problem
-  * for constructing immutable terminology graphs from a set of terms & axioms.
   *
+  * @param nestingParent
   * @param nestingContext
   * @param nestedChild
   */
 case class TerminologyGraphDirectNestingAxiom
-( nestingContext: ModelEntityConcept,
+( nestingParent: ModelTerminologyGraph,
+  nestingContext: ModelEntityConcept,
   nestedChild: ModelTerminologyGraph )
 extends TerminologyGraphAxiom {
 
+  require(null != nestingParent)
   require(null != nestingContext)
   require(null != nestedChild)
 

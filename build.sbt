@@ -135,6 +135,10 @@ lazy val core =
 
     libraryDependencies ++= Seq(
 
+      "gov.nasa.jpl.imce.thirdParty" %% "scala-graph-libraries"
+        % Versions_scala_graph_libraries.version artifacts
+        Artifact("scala-graph-libraries", "zip", "zip", Some("resource"), Seq(), None, Map()),
+
       "gov.nasa.jpl.imce.thirdParty" %% "owlapi-libraries"
         % Versions_owlapi_libraries.version artifacts
         Artifact("owlapi-libraries", "zip", "zip", Some("resource"), Seq(), None, Map()),

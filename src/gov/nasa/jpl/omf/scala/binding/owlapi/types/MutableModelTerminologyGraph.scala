@@ -277,9 +277,6 @@ case class MutableModelTerminologyGraph
   override protected val ax =
     scala.collection.mutable.ListBuffer[ModelTermAxiom]()
 
-  override protected val nested =
-    scala.collection.mutable.ListBuffer[TerminologyGraphDirectNestingAxiom]()
-
   override def getEntityDefinitionMap: Map[OWLClass, ModelEntityDefinition] =
     (aspects.map (a => a.e -> a) ++
      concepts.map (c => c.e -> c) ++
@@ -318,38 +315,29 @@ case class MutableModelTerminologyGraph
    nestedGraph: ModelTerminologyGraph)
   (implicit store: OWLAPIOMFGraphStore)
   : Set[java.lang.Throwable] \/ types.TerminologyGraphDirectNestingAxiom
-  = nested
-    .find { ax => ax.nestingContext == parentContext && ax.nestedChild == nestedGraph } match {
-    case Some(ax) =>
-      \/-(ax)
-
-    case None =>
-
-      for {
+  = for {
         axiom <- store.createTerminologyGraphDirectNestingAxiom(this, parentContext, nestedGraph)
       } yield {
-        for {
-          change <- Seq(
-            new AddImport(nestedGraph.ont,
-              owlDataFactory.getOWLImportsDeclaration(iri)),
-            new AddOntologyAnnotation(
-              nestedGraph.ont,
-              owlDataFactory
-                .getOWLAnnotation(store.ANNOTATION_HAS_CONTEXT, parentContext.iri)),
-            new AddAxiom(
-              ont,
-              owlDataFactory
-                .getOWLAnnotationAssertionAxiom(store.ANNOTATION_HAS_GRAPH, parentContext.iri, nestedGraph.iri))
-          )
-        } {
-          val result = ontManager.applyChange(change)
-          require(
-            result == ChangeApplied.SUCCESSFULLY || result == ChangeApplied.NO_OPERATION,
-            s"\naddNestedTerminologyGraph: result=$result\n$change")
-          nested += axiom
-        }
-        axiom
-      }
+    for {
+      change <- Seq(
+        new AddImport(nestedGraph.ont,
+          owlDataFactory.getOWLImportsDeclaration(iri)),
+        new AddOntologyAnnotation(
+          nestedGraph.ont,
+          owlDataFactory
+            .getOWLAnnotation(store.ANNOTATION_HAS_CONTEXT, parentContext.iri)),
+        new AddAxiom(
+          ont,
+          owlDataFactory
+            .getOWLAnnotationAssertionAxiom(store.ANNOTATION_HAS_GRAPH, parentContext.iri, nestedGraph.iri))
+      )
+    } {
+      val result = ontManager.applyChange(change)
+      require(
+        result == ChangeApplied.SUCCESSFULLY || result == ChangeApplied.NO_OPERATION,
+        s"\naddNestedTerminologyGraph: result=$result\n$change")
+    }
+    axiom
   }
 
   def setTermShortName

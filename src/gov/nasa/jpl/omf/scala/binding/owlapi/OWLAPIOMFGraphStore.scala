@@ -45,7 +45,6 @@ import gov.nasa.jpl.omf.scala.core.builtin.BuiltInDatatypeMaps
 import gov.nasa.jpl.omf.scala.core.TerminologyKind._
 import gov.nasa.jpl.omf.scala.core._
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper
-
 import org.semanticweb.owlapi.model._
 import org.semanticweb.owlapi.model.parameters.{Imports, _}
 import org.semanticweb.owlapi.util.PriorityCollection
@@ -56,9 +55,10 @@ import scala.collection.JavaConverters._
 import scala.concurrent.duration.FiniteDuration
 import scala.language.postfixOps
 import scala.util.control.Exception._
-import scala.{annotation,Boolean,Option,None,Some,StringContext,Tuple2,Unit}
-import scala.Predef.{Set=>_,Map=>_,_}
-import scalaz._, Scalaz._
+import scala.{Boolean, None, Option, Some, StringContext, Tuple2, Unit, annotation}
+import scala.Predef.{Map => _, Set => _, _}
+import scalaz._
+import Scalaz._
 
 case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntologyManager) {
 
@@ -679,6 +679,7 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
       else {
 
         val axiom = types.TerminologyGraphDirectNestingAxiom(
+          nestingParent = parentG,
           nestingContext = parentC,
           nestedChild = childG)
         val parentIG = OMF_MODEL_TERMINOLOGY_GRAPH2Instance(parentG)
@@ -880,9 +881,7 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
   : OWLAPITerminologyGraphSignature = {
     val result
     : OWLAPITerminologyGraphSignature
-    = g.fromTerminologyGraph(
-      lookupNestingAxiomsForNestingParent(g),
-      extendingChild2ExtendedParents(g).to[Iterable])
+    = g.fromTerminologyGraph(extendingChild2ExtendedParents(g).to[Iterable])
 
     result
   }
@@ -1902,14 +1901,6 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
     (acc: types.Mutable2IMutableTerminologyMap,
      mg: types.MutableModelTerminologyGraph)
     : Set[java.lang.Throwable] \/ types.Mutable2IMutableTerminologyMap = {
-      //      System.out
-      //      .println(s"convert1: acc=${acc.size}, m=${mg.kindIRI}")
-      //      for {
-      //        (m, i) <- acc
-      //      } {
-      //        System.out.println(s"acc.m: ${m.kindIRI}")
-      //        System.out.println(s"acc.i: ${i.kindIRI}")
-      //      }
 
       immutableTBoxGraphs
         .get(mg.iri)
@@ -1932,44 +1923,29 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
      mg: types.MutableModelTerminologyGraph)
     : Set[java.lang.Throwable] \/ types.Mutable2IMutableTerminologyMap
     = {
-
       require(!acc.contains(mg), s"convert1: acc=${acc.size}, m=${mg.kindIRI}")
       val tgraph = fromTerminologyGraph(mg)
 
-      val ga0
-      : Set[java.lang.Throwable] \/ Vector[types.TerminologyGraphDirectNestingAxiom]
-      = Vector().right
-
-      val gaN
-      : Set[java.lang.Throwable] \/ Vector[types.TerminologyGraphDirectNestingAxiom]
-      = (ga0 /: tgraph.nested) { (gai, ax) =>
-        gai +++
-          (ax.nestedChild match {
-
-            case _: types.ImmutableModelTerminologyGraph =>
-              Vector(ax).right
-
-            case ng: types.MutableModelTerminologyGraph =>
-              acc
-                .get(ng)
-                .fold[Set[java.lang.Throwable] \/ Vector[types.TerminologyGraphDirectNestingAxiom]](
-                Set(
-                  OMFError.omfError(
-                    s"""No Immutable graph available for a nested mutable graph:
-                           |mutable graph to convert:
-                           |$mg
-                           |
-                           |nested mutable graph that should have been converted:
-                           |$ng
-                           |""".
-                        stripMargin
-                    )
-                ).left
-              ){
-                nig =>
-                Vector(ax.copy(nestedChild = nig)).right
+      val nesting =
+        lookupNestingAxiomForNestedChildIfAny(mg)
+          .fold[Set[java.lang.Throwable] \/ Option[types.TerminologyGraphDirectNestingAxiom]](
+          \/-(None)
+        ) { ax =>
+          require(ax.nestedChild == mg)
+          ax.nestingParent match {
+            case ipg: types.ImmutableModelTerminologyGraph =>
+              -\/(Set(OMFError.omfError(
+                s"nesting parent graph ${ipg} should have be a mutable graph" +
+                  s"when converting a mutable nested child graph $mg")))
+            case mpg: types.MutableModelTerminologyGraph =>
+              acc.get(mpg).fold[Set[java.lang.Throwable] \/ Option[types.TerminologyGraphDirectNestingAxiom]](
+                -\/(Set(OMFError.omfError(
+                  s"nesting parent graph ${ax.nestingParent} should have been converted " +
+                    s"prior to converting nested child graph $mg")))
+              ) { ig =>
+                \/-(Some(ax.copy(nestingParent = ig)))
               }
-          })
+          }
         }
 
       val ti0
@@ -1979,38 +1955,32 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
       val tiN
       : Set[java.lang.Throwable] \/ Vector[types.ImmutableModelTerminologyGraph]
       = (ti0 /: tgraph.imports) { (tii, ni) =>
-          tii +++
-            (ni match {
-              case g: types.ImmutableModelTerminologyGraph =>
+        tii +++
+          (ni match {
+            case g: types.ImmutableModelTerminologyGraph =>
+              Vector(g).right
+            case g: types.MutableModelTerminologyGraph =>
+              acc
+                .get(g)
+                .fold[Set[java.lang.Throwable] \/ Vector[types.ImmutableModelTerminologyGraph]](
+                Set(OMFError.omfError(
+                  s"""No Immutable graph available for an imported mutable graph:
+                      |mutable graph to convert:
+                      |$mg
+                      |imported mutable graph that should have been converted:
+                      |$g
+                      |""".stripMargin)).left) { g =>
                 Vector(g).right
-              case g: types.MutableModelTerminologyGraph =>
-                acc
-                  .get(g)
-                  .fold[Set[java.lang.Throwable] \/ Vector[types.ImmutableModelTerminologyGraph]](
-                  Set(
-                    OMFError.
-                      omfError(
-                      s"""No Immutable graph available for an imported mutable graph:
-                           |mutable graph to convert:
-                           |$mg
-                           |imported mutable graph that should have been converted:
-                           |$g
-                           |""".
-                        stripMargin)
-                   ).left
-                 ){ g =>
-                   Vector(g)
-                   .right
-                 }
-             })
-          }
+              }
+          })
+      }
 
-      gaN.flatMap { ns =>
+      nesting.flatMap { ns =>
         tiN.flatMap { is =>
 
           val current: java.lang.Long = java.lang.System.currentTimeMillis()
 
-          val itgraph = tgraph.copy(nested = ns, imports = is)
+          val itgraph = tgraph.copy(imports = is)
           val ig =
             types
               .ImmutableModelTerminologyGraph(
@@ -2027,38 +1997,28 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
                 tgraph.entity2structureDataRelationships.toVector,
                 tgraph.structure2scalarDataRelationships.toVector,
                 tgraph.structure2structureDataRelationships.toVector,
-                tgraph.axioms.toVector,
-                ns)(mg.ops)
+                tgraph.axioms.toVector)(mg.ops)
 
           val i_mg_relativePath_dataValue = getModelTerminologyGraphRelativeIRIPath(mg)
           require(i_mg_relativePath_dataValue.isDefined)
-          val i_mg_relativePath_value: String =
 
-            i_mg_relativePath_dataValue.get
-          require(!i_mg_relativePath_value.
-            endsWith("_Gro"))
+          val i_mg_relativePath_value: String = i_mg_relativePath_dataValue.get
+          require(!i_mg_relativePath_value.endsWith("_Gro"))
           require(!i_mg_relativePath_value.endsWith("_Grw"))
 
-          val i_mg_iriHashPrefix_value =
-            getModelTerminologyGraphIRIHashPrefix(mg)
-          //          System.out
-//            .println(
-          //              s"""### Mutable TBox:
-//                        |${mg.kindIRI}
-//                        |#-- Immutable TBox:
-//                        |${ig.kindIRI}
-//                        |#--- relIRI: $i_mg_relativePath_value
-//                        |""".stripMargin)
+          val i_mg_iriHashPrefix_value = getModelTerminologyGraphIRIHashPrefix(mg)
 
           val m2i: types.Mutable2IMutableTerminologyMap = Map(mg -> ig) ++ acc
 
           val result =
             register(
-              ig, itgraph, m2i,
+              ig, itgraph, m2i, ns,
               mg.getTerminologyGraphShortName, mg.getTerminologyGraphUUID,
               i_mg_relativePath_value, i_mg_iriHashPrefix_value)
+
           val delta = FiniteDuration.apply(java.lang.System.currentTimeMillis() - current, TimeUnit.MILLISECONDS)
           System.out.println(s"\nRegistration in ${prettyDuration(delta)}: ${ig.kindIRI}")
+
           result
         }
       }
@@ -2069,6 +2029,7 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
     (acc: types.Mutable2IMutableTerminologyMap,
      queue: Seq[types.MutableModelTerminologyGraph],
      visited: Seq[types.MutableModelTerminologyGraph])
+    (implicit store: OWLAPIOMFGraphStore)
     : Set[java.lang.Throwable] \/ types.Mutable2IMutableTerminologyMap = {
       //      System.out
       //      .println(s"convert: acc=${acc.size}, queue=${queue.size}, visited=${visited.size}")
@@ -2101,8 +2062,7 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
         val mgInfo = fromTerminologyGraph(mg)
 
         val nestedQueue =
-          mgInfo
-          .nested
+          lookupNestingAxiomsForNestingParent(mg)
           .map(_.nestedChild)
           .flatMap {
             case _: types.ImmutableModelTerminologyGraph =>
@@ -2151,7 +2111,7 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
 
     val current: java.lang.Long = java.lang.System.currentTimeMillis()
     for {
-      m2i <- Conversions.convert(m2i, Seq(g), Seq())
+      m2i <- Conversions.convert(m2i, Seq(g), Seq())(this)
     } yield {
       require(m2i.contains(g))
       val delta = FiniteDuration.apply(java.lang.System.currentTimeMillis() - current, TimeUnit.MILLISECONDS)
@@ -2178,6 +2138,7 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
   (g: types.ImmutableModelTerminologyGraph,
    info: OWLAPITerminologyGraphSignature,
    m2i: types.Mutable2IMutableTerminologyMap,
+   nesting: Option[types.TerminologyGraphDirectNestingAxiom],
    name: Option[String],
    uuid: Option[String],
    relativeIRIPath: String,
@@ -2272,15 +2233,11 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
           setTerminologyGraphUUID(g, id)
         }
 
-        _ <- {
-          (().right[Set[java.lang.Throwable]] /: info.nested) {
-            (acc: Set[java.lang.Throwable] \/ Unit, n: types.TerminologyGraphDirectNestingAxiom) =>
-              acc +++ createTerminologyGraphDirectNestingAxiom(
-                parentG = g,
-                parentC = n.nestingContext,
-                childG = immutableTBoxGraphs(n.nestedChild.iri))
-                .map(_ => ())
-          }
+        _ <- nesting.fold[Set[java.lang.Throwable] \/ Unit](\/-(())) { ns =>
+          createTerminologyGraphDirectNestingAxiom(
+            parentG = ns.nestingParent,
+            parentC = ns.nestingContext,
+            childG = g).map(_ => ())
         }
 
         _ <- {
@@ -2367,6 +2324,14 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
   (implicit ops: OWLAPIOMFOps)
   : Set[java.lang.Throwable] \/ (types.ImmutableModelTerminologyGraph, types.Mutable2IMutableTerminologyMap)
   = loadBuiltinDatatypeMap()
+    .flatMap { _ => OWLAPIOMFLoader.loadTerminologyGraph(iri)(ops, this) }
+
+  protected def loadTerminologyGraph
+  (iri: IRI,
+   nestingGraphAndContext: Option[(types.ImmutableModelTerminologyGraph, types.ModelEntityConcept)] = None)
+  (implicit ops: OWLAPIOMFOps)
+  : Set[java.lang.Throwable] \/ (types.ImmutableModelTerminologyGraph, types.Mutable2IMutableTerminologyMap)
+  = loadBuiltinDatatypeMap()
     .flatMap { _ =>
 
       immutableTBoxGraphs
@@ -2378,7 +2343,7 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
               Set(
                 OMFError.omfOpsException(
                   ops,
-                  s"setTerminologyGraphShortName failed: ${cause.getMessage}",
+                  s"loadTerminologyGraph failed: ${cause.getMessage}",
                   cause)
               ).left
           }
@@ -2389,158 +2354,105 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
               else
                 ontManager.loadOntology(iri)
 
-            registerImmutableOntologyAsTerminologyGraph(o)
+            registerImmutableOntologyAsTerminologyGraph(o, nestingGraphAndContext)
           }
       ) { tbox =>
         (tbox, Map[types.MutableModelTerminologyGraph, types.ImmutableModelTerminologyGraph]()).right
       }
     }
-  protected def registerImmutableOntologyAsTerminologyGraph
-  (o: OWLOntology)
-  (implicit ops: OWLAPIOMFOps)
-  : Set[java.lang.Throwable] \/ (types.ImmutableModelTerminologyGraph, types.Mutable2IMutableTerminologyMap)
-  = getOntologyContextClasses2NestedOntologyGraphs(o).flatMap { context2nested =>
-      java.lang.System.out.println("registerImmutableOntologyAsTerminologyGraph: " + o.getOntologyID.getOntologyIRI.get)
-      registerImmutableOntologyAsTerminologyGraph(o, context2nested, extendedTGraphs=Nil)
-  }
 
   protected def registerImmutableOntologyAsTerminologyGraph
   (o: OWLOntology,
-   context2nested: Map[OWLClass, types.ImmutableModelTerminologyGraph],
-   extendedTGraphs: Iterable[types.ImmutableModelTerminologyGraph])
+   nestingGraphAndContext: Option[(types.ImmutableModelTerminologyGraph, types.ModelEntityConcept)])
   (implicit ops: OWLAPIOMFOps)
   : Set[java.lang.Throwable] \/ (types.ImmutableModelTerminologyGraph, types.Mutable2IMutableTerminologyMap)
   = {
-    val iri = o.getOntologyID.getOntologyIRI
-    if (!iri.isPresent)
-      Set(
-        OMFError.omfOpsError(ops, "An ontology must have an OntologyID with an Ontology IRI")
-      ).left
-    else
-      immutableTBoxGraphs
-        .get(iri.get)
-        .fold[Set[java.lang.Throwable] \/ (types.ImmutableModelTerminologyGraph, types.Mutable2IMutableTerminologyMap)]{
-
-          val allExtendedTGraphs =
-            (extendedTGraphs.to[Set].right[Set[java.lang.Throwable]] /: o.getDirectImports) {
-              (acc: Set[java.lang.Throwable] \/ Set[types.ImmutableModelTerminologyGraph], i: OWLOntology) =>
-                acc +++
-                  registerImmutableOntologyAsTerminologyGraph(i).map {
-                    case (eg: types.ImmutableModelTerminologyGraph, _: types.Mutable2IMutableTerminologyMap) =>
-                      Set(eg)
-                  }
-            }
-
-          val result =
-            allExtendedTGraphs.flatMap { allExtTGraphs =>
-              val closure0: Set[types.ModelTerminologyGraph] = Set()
-              val closureN: Set[types.ModelTerminologyGraph] = (closure0 /: allExtTGraphs) { (acc, tgraph) =>
-                acc ++ terminologyGraphImportClosure[OWLAPIOMF, types.ImmutableModelTerminologyGraph](tgraph)(ops, this)
-              }
-              val builtInDatatypes = getBuiltinDatatypeMapTerminologyGraph
-              val allExtTGraphsWithBuiltins = if (closureN.contains(builtInDatatypes))
-                allExtTGraphs
-              else
-                allExtTGraphs + builtInDatatypes
-
-              val resolver =
-                types.immutableModelTerminologyGraphResolver(
-                  omfMetadata.get, context2nested, allExtTGraphsWithBuiltins, o, this)
-
-              resolver.flatMap { iMTGR =>
-                val resolved = iMTGR.resolve
-                resolved.map { case (g, m2i) =>
-                  immutableTBoxGraphs.put(iri.get, g)
-                  (g, m2i)
-                }
-              }
-            }
-
-          result
-      } { g =>
-        (g, Map[types.MutableModelTerminologyGraph, types.ImmutableModelTerminologyGraph]()).right
-      }
+    // @todo IMCEI-128
+    scala.Predef.???
+//    val r0
+//    : Set[java.lang.Throwable] \/ (types.ImmutableModelTerminologyGraph, types.Mutable2IMutableTerminologyMap)
+//    = registerImmutableOntologyAsTerminologyGraph(o, nestingGraphAndContext, extendedTGraphs=Nil)
+//
+//    val rN
+//    : Set[java.lang.Throwable] \/ (types.ImmutableModelTerminologyGraph, types.Mutable2IMutableTerminologyMap)
+//    = ( r0 /: getOntologyContextClasses2NestedGraphIRIs(o) ) { case ( ri, (contextIRI, nestedIRI)) =>
+//
+//      for {
+//        (ig, m2i) <- ri
+//        parentC <- ig
+//          .concepts
+//          .find(_.iri == contextIRI)
+//          .fold[Set[java.lang.Throwable] \/ types.ModelEntityConcept](
+//          -\/(Set(OMFError.omfError(
+//            s"Cannot find concept in parent graph $ig with "+
+//            s"IRI $contextIRI as the context for nested graph $nestedIRI")))) { c =>
+//          \/-(c)
+//        }
+//        (_, nested_m2i) <- loadTerminologyGraph(nestedIRI, Some((ig, parentC)))
+//      } yield (ig, m2i ++ nested_m2i)
+//
+//    }
+//
+//    rN
   }
 
-  /**
-    * Workaround to a bizarre behavior of `ont.getClassesInSignature(Imports.EXCLUDED)`
-    *
-    * @param ont an ontology
-    * @return the classes that are declared in `ont` in the sense that their IRI (without fragment)
-    *         is the same as the ontology IRI (with '#')
-    */
-  def getOntologyDirectlyDeclaredClasses
-  (ont: OWLOntology)
-  : Set[OWLClass]
-  = {
-    val ontNS = ont.getOntologyID.getOntologyIRI.get.toString
-    val ontPrefix = (if (ontNS.endsWith("/")) ontNS.stripSuffix("/") else ontNS) + "#"
-
-    val declaredClasses =
-      ont
-      .getClassesInSignature(Imports.EXCLUDED)
-      .filter{ c =>
-        val cNS = c .getIRI.getNamespace
-        ontPrefix == cNS
-      }
-
-    declaredClasses.toSet
-  }
-
-  def getOntologyContextClasses2NestedGraphIRIs
-  (ont: OWLOntology)
-  (implicit ops: OWLAPIOMFOps)
-  : Map[OWLClass, IRI]
-  = getOntologyDirectlyDeclaredClasses(ont)
-    .flatMap { c =>
-      ont
-        .getAnnotationAssertionAxioms(c.getIRI)
-        .flatMap { a =>
-          if (ops.AnnotationHasGraph == a.getProperty.getIRI)
-            a.getValue match {
-              case iri: IRI =>
-                Some(c -> iri)
-              case _ =>
-                require(false, s"${c.getIRI} has an annotation ${a} with a non-IRI value!")
-                None
-            }
-          else
-            None
-        }
-    }
-    .toMap
-
-  def getOntologyContextClasses2NestedOntologyGraphs
-  (ont: OWLOntology)
-  : Set[java.lang.Throwable] \/ Map[OWLClass, types.ImmutableModelTerminologyGraph]
-  = {
-    val c2n = getOntologyContextClasses2NestedGraphIRIs(ont)
-    if (c2n.isEmpty)
-      \/-(Map())
-    else
-      getOntologyContextClasses2NestedOntologyGraphs(Map(), c2n)
-  }
-
-  @annotation.tailrec
-  final def getOntologyContextClasses2NestedOntologyGraphs
-  (acc: Map[OWLClass, types.ImmutableModelTerminologyGraph],
-   c2n: Map[OWLClass, IRI])
-  : Set[java.lang.Throwable] \/ Map[OWLClass, types.ImmutableModelTerminologyGraph]
-  = if (c2n.isEmpty)
-    \/-(acc)
-  else {
-    val ((c, gIRI), rest) = (c2n.head, c2n.tail)
-    System.out.println(s"# Nested ontology graph: $gIRI")
-    val nestedG = loadTerminologyGraph(gIRI)
-    System.out.println(s"# Loaded ontology graph: $gIRI")
-    nestedG match {
-      case -\/(nels) =>
-        -\/(nels)
-      case \/-((ig, _)) =>
-        getOntologyContextClasses2NestedOntologyGraphs( acc + (c -> ig), rest)
-    }
-  }
-
+  // @todo IMCEI-128
+//  protected def registerImmutableOntologyAsTerminologyGraph
+//  (o: OWLOntology,
+//   nestingGraphAndContext: Option[(types.ImmutableModelTerminologyGraph, types.ModelEntityConcept)],
+//   extendedTGraphs: Iterable[types.ImmutableModelTerminologyGraph])
+//  (implicit ops: OWLAPIOMFOps)
+//  : Set[java.lang.Throwable] \/ (types.ImmutableModelTerminologyGraph, types.Mutable2IMutableTerminologyMap)
+//  = {
+//    val iri = o.getOntologyID.getOntologyIRI
+//    if (!iri.isPresent)
+//      Set(
+//        OMFError.omfOpsError(ops, "An ontology must have an OntologyID with an Ontology IRI")
+//      ).left
+//    else
+//      immutableTBoxGraphs
+//        .get(iri.get)
+//        .fold[Set[java.lang.Throwable] \/ (types.ImmutableModelTerminologyGraph, types.Mutable2IMutableTerminologyMap)]{
+//
+//          val allExtendedTGraphs =
+//            (extendedTGraphs.to[Set].right[Set[java.lang.Throwable]] /: o.getDirectImports) {
+//              (acc: Set[java.lang.Throwable] \/ Set[types.ImmutableModelTerminologyGraph], i: OWLOntology) =>
+//                acc +++
+//                  registerImmutableOntologyAsTerminologyGraph(i).map {
+//                    case (eg: types.ImmutableModelTerminologyGraph, _: types.Mutable2IMutableTerminologyMap) =>
+//                      Set(eg)
+//                  }
+//            }
+//
+//          val result =
+//            allExtendedTGraphs.flatMap { allExtTGraphs =>
+//              val closure0: Set[types.ModelTerminologyGraph] = Set()
+//              val closureN: Set[types.ModelTerminologyGraph] = (closure0 /: allExtTGraphs) { (acc, tgraph) =>
+//                acc ++ terminologyGraphImportClosure[OWLAPIOMF, types.ImmutableModelTerminologyGraph](tgraph)(ops, this)
+//              }
+//              val builtInDatatypes = getBuiltinDatatypeMapTerminologyGraph
+//              val allExtTGraphsWithBuiltins = if (closureN.contains(builtInDatatypes))
+//                allExtTGraphs
+//              else
+//                allExtTGraphs + builtInDatatypes
+//
+//              val resolver =
+//                types.immutableModelTerminologyGraphResolver(omfMetadata.get, allExtTGraphsWithBuiltins, o, this)
+//
+//              resolver.flatMap { iMTGR =>
+//                val resolved = iMTGR.resolve
+//                resolved.map { case (g, m2i) =>
+//                  immutableTBoxGraphs.put(iri.get, g)
+//                  (g, m2i)
+//                }
+//              }
+//            }
+//
+//          result
+//      } { g =>
+//        (g, Map[types.MutableModelTerminologyGraph, types.ImmutableModelTerminologyGraph]()).right
+//      }
+//  }
 
   def saveOMFMetadataOntology( saveIRI: IRI ): Set[java.lang.Throwable] \/ Unit =
     nonFatalCatch[Unit]

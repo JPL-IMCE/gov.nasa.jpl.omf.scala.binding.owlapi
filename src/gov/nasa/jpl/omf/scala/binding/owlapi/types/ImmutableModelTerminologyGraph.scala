@@ -100,8 +100,7 @@ case class ImmutableModelTerminologyGraph
  override protected val e2st: Vector[ModelDataRelationshipFromEntityToStructure],
  override protected val s2sc: Vector[ModelDataRelationshipFromStructureToScalar],
  override protected val s2st: Vector[ModelDataRelationshipFromStructureToStructure],
- override protected val ax: Vector[ModelTermAxiom],
- override protected val nested: Vector[TerminologyGraphDirectNestingAxiom])
+ override protected val ax: Vector[ModelTermAxiom])
 (override implicit val ops: OWLAPIOMFOps)
   extends ModelTerminologyGraph(kind, ont, extraProvenanceMetadata)(ops) {
 
@@ -118,7 +117,6 @@ case class ImmutableModelTerminologyGraph
   require(null != s2sc)
   require(null != s2st)
   require(null != ax)
-  require(null != nested)
 
   override val mutabilityKind: String = "immutable"
   override val isImmutableModelTerminologyGraph = true
@@ -154,7 +152,6 @@ case class ResolverHelper
 ( omfMetadata: OWLOntology,
   tboxG: MutableModelTerminologyGraph,
   imports: Iterable[ImmutableModelTerminologyGraph],
-  context2nested: Map[OWLClass, ImmutableModelTerminologyGraph],
   ont: OWLOntology,
   omfStore: OWLAPIOMFGraphStore) {
 
@@ -837,38 +834,25 @@ case class ImmutableModelTerminologyGraphResolver(resolver: ResolverHelper) {
         filter(ont.isDeclared).
         partition { c => isBackboneIRI(c.getIRI) }
 
-      val foreignContexts = context2nested.keySet -- tCs
-      if (foreignContexts.nonEmpty) {
+      val (bOPs, tOPs) = ont.
+        getObjectPropertiesInSignature(Imports.EXCLUDED).
+        filter(ont.isDeclared).
+        partition { c => isBackboneIRI(c.getIRI) }
 
-        val messageHead =
-          s"There are ${foreignContexts.size} foreign OWLClasses annotated as contexts for nested graphs\n"
+      val (bDPs, tDPs) = ont.
+        getDataPropertiesInSignature(Imports.EXCLUDED).
+        filter(ont.isDeclared).
+        partition { c => isBackboneIRI(c.getIRI) }
 
-        val errorMessage = foreignContexts.map(_.getIRI.toString).mkString(messageHead, "\n", "\n")
+      Backbone
+        .resolveBackbone(ont, bCs.toSet, bOPs.toSet, bDPs.toSet, resolver.omfStore.ops)
+        .flatMap {
+          case backbone: OMFBackbone =>
+            resolve(backbone, scalarDatatypeSCs, tCs.toSet, tOPs.toSet, tDPs.toSet)
 
-        -\/(Set(OMFError.omfError(errorMessage)))
-
-      } else {
-
-        val (bOPs, tOPs) = ont.
-          getObjectPropertiesInSignature(Imports.EXCLUDED).
-          filter(ont.isDeclared).
-          partition { c => isBackboneIRI(c.getIRI) }
-
-        val (bDPs, tDPs) = ont.
-          getDataPropertiesInSignature(Imports.EXCLUDED).
-          filter(ont.isDeclared).
-          partition { c => isBackboneIRI(c.getIRI) }
-
-        Backbone
-          .resolveBackbone(ont, bCs.toSet, bOPs.toSet, bDPs.toSet, resolver.omfStore.ops)
-          .flatMap {
-            case backbone: OMFBackbone =>
-              resolve(backbone, scalarDatatypeSCs, tCs.toSet, tOPs.toSet, tDPs.toSet)
-
-            case _: NoBackbone =>
-              asImmutableTerminologyGraph(tboxG)
-          }
-      }
+          case _: NoBackbone =>
+            asImmutableTerminologyGraph(tboxG)
+        }
     }
   }
 
@@ -1186,28 +1170,29 @@ case class ImmutableModelTerminologyGraphResolver(resolver: ResolverHelper) {
                     resolveDataRelationshipsFromEntity2Scalars(_allEntityDefinitions, dataPropertyDPIRIs, _allScalarDefinitions)
                       .flatMap { dataRelationshipsFromEntity2Scalars =>
 
-                        val n0
-                        : Set[java.lang.Throwable] \/ Unit = \/-(())
-
-                        val nN
-                        : Set[java.lang.Throwable] \/ Unit
-                        = ( n0 /: resolver.context2nested ) { case (acc, (c, ng)) =>
-
-                          val inc
-                          : Set[java.lang.Throwable] \/ Unit
-                          = _conceptCMs
-                            .get(c)
-                            .fold[Set[java.lang.Throwable] \/ Unit](
-                            -\/(Set(OMFError.omfError(s"Contextualized class $c is not a concept in $tboxG")))
-                          ) { cc =>
-                            addNestedTerminologyGraph(tboxG, cc, ng)
-                              .map(_ => ())
-                          }
-
-                          acc +++ inc
-                        }
-
-                        val result = nN.flatMap { _ =>
+                        // @todo IMCEI-128
+//                        val n0
+//                        : Set[java.lang.Throwable] \/ Unit = \/-(())
+//
+//                        val nN
+//                        : Set[java.lang.Throwable] \/ Unit
+//                        = ( n0 /: resolver.context2nested ) { case (acc, (c, ng)) =>
+//
+//                          val inc
+//                          : Set[java.lang.Throwable] \/ Unit
+//                          = _conceptCMs
+//                            .get(c)
+//                            .fold[Set[java.lang.Throwable] \/ Unit](
+//                            -\/(Set(OMFError.omfError(s"Contextualized class $c is not a concept in $tboxG")))
+//                          ) { cc =>
+//                            addNestedTerminologyGraph(tboxG, cc, ng)
+//                              .map(_ => ())
+//                          }
+//
+//                          acc +++ inc
+//                        }
+//
+//                        val result = nN.flatMap { _ =>
 
                           asImmutableTerminologyGraph(tboxG)
                             .flatMap { itboxG =>
@@ -1223,9 +1208,9 @@ case class ImmutableModelTerminologyGraphResolver(resolver: ResolverHelper) {
                               itboxG.right
 
                             }
-                        }
-
-                        result
+//                        }
+//
+//                        result
                       }
                   }
                 }

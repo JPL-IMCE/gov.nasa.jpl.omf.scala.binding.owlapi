@@ -53,9 +53,19 @@ import org.semanticweb.owlapi.model.OWLLiteral
 import scala.collection.JavaConversions._
 import scala.collection.immutable._
 import scala.language.postfixOps
-import scala.{Option,None,Some,StringContext}
+import scala.{Enumeration,Option,None,Some,StringContext}
 import scala.Predef.{Set=>_,Map=>_,_}
 import scalaz._, Scalaz._
+
+/**
+  * Used for calculating the declared entities of an OWL ontology
+  * to determine whether the result should include or exclude
+  * backbone declarations.
+  */
+object BackboneDeclaractions extends Enumeration {
+  type BackboneDeclaractions = Value
+  val include, exclude = Value
+}
 
 sealed abstract class Backbone( val ont: OWLOntology ) {
 
@@ -115,7 +125,8 @@ class OMFBackbone
    *     (indirect specializations via the backbone OWL Class `StructuredDatatype`)
    * -- `ModelStructuredDataRelationship`
    *     (indirect specializations via the backbone OWL Class `ReifiedStructuredDataProperty`)
-   * @see gov.nasa.jpl.omf.scala.core.OMF#ModelEntityDefinition
+    *
+    * @see gov.nasa.jpl.omf.scala.core.OMF#ModelEntityDefinition
    * @see gov.nasa.jpl.omf.scala.core.OMF#ModelDataTypeDefinition
    */
   lazy val ThingC = df.getOWLClass( Thing )
@@ -123,35 +134,40 @@ class OMFBackbone
   /**
    * The IRI of the OWL Class that is the parent of any OMF `ModelEntityAspect` defined
    * in the ontology representing an OMF modeling domain
-   * @see gov.nasa.jpl.omf.scala.core.OMF#ModelEntityAspect
+    *
+    * @see gov.nasa.jpl.omf.scala.core.OMF#ModelEntityAspect
    */
   lazy val AspectC = df.getOWLClass( Aspect )
 
   /**
    * The IRI of the OWL Class that is the parent of any OMF `ModelEntityConcept` defined
    * in the ontology representing an OMF modeling domain
-   * @see gov.nasa.jpl.omf.scala.core.OMF#ModelEntityConcept
+    *
+    * @see gov.nasa.jpl.omf.scala.core.OMF#ModelEntityConcept
    */
   lazy val EntityC = df.getOWLClass( Entity )
 
   /**
    * The IRI of the OWL Class that is the parent of any OMF `ModelStructuredDataType` defined
    * in the ontology representing an OMF modeling domain
-   * @see gov.nasa.jpl.omf.scala.core.OMF#ModelStructuredDataType
+    *
+    * @see gov.nasa.jpl.omf.scala.core.OMF#ModelStructuredDataType
    */
   lazy val StructuredDatatypeC = df.getOWLClass( StructuredDatatype )
 
   /**
    * The IRI of the OWL Class that is the parent of any OMF `ModelEntityReifiedRelationship` defined
    * in the ontology representing an OMF modeling domain
-   * @see gov.nasa.jpl.omf.scala.core.OMF#ModelEntityReifiedRelationship
+    *
+    * @see gov.nasa.jpl.omf.scala.core.OMF#ModelEntityReifiedRelationship
    */
   lazy val ReifiedObjectPropertyC = df.getOWLClass( ReifiedObjectProperty )
 
   /**
    * The IRI of the OWL Class that is the parent of any OMF `ModelStructuredDataRelationship` defined
    * in the ontology representing an OMF modeling domain
-   * @see gov.nasa.jpl.omf.scala.core.OMF#ModelStructuredDataRelationship
+    *
+    * @see gov.nasa.jpl.omf.scala.core.OMF#ModelStructuredDataRelationship
    */
   lazy val ReifiedStructuredDataPropertyC = df.getOWLClass( ReifiedStructuredDataProperty )
 
@@ -165,7 +181,8 @@ class OMFBackbone
    * The IRI of the OWL ObjectProperty that is the parent of
    * any unreified object property chain for an OMF `ModelEntityReifiedRelationship` defined
    * in the ontology representing an OMF modeling domain
-   * @see gov.nasa.jpl.omf.scala.core.OMF#ModelEntityReifiedRelationship
+    *
+    * @see gov.nasa.jpl.omf.scala.core.OMF#ModelEntityReifiedRelationship
    */
   lazy val topReifiedObjectPropertyOP = df.getOWLObjectProperty( topReifiedObjectProperty )
 
@@ -173,7 +190,8 @@ class OMFBackbone
    * The IRI of the OWL ObjectProperty that is the parent of
    * any unreified object property source for an OMF `ModelEntityReifiedelationship` defined
    * in the ontology representing an OMF modeling domain
-   * @see gov.nasa.jpl.omf.scala.core.OMF#ModelEntityReifiedRelationship
+    *
+    * @see gov.nasa.jpl.omf.scala.core.OMF#ModelEntityReifiedRelationship
    */
   lazy val topReifiedObjectPropertySourceOP = df.getOWLObjectProperty( topReifiedObjectPropertySource )
 
@@ -181,7 +199,8 @@ class OMFBackbone
    * The IRI of the OWL ObjectProperty that is the parent of
    * any unreified object property target for an OMF `ModelEntityReifiedRelationship` defined
    * in the ontology representing an OMF modeling domain
-   * @see gov.nasa.jpl.omf.scala.core.OMF#ModelEntityReifiedRelationship
+    *
+    * @see gov.nasa.jpl.omf.scala.core.OMF#ModelEntityReifiedRelationship
    */
   lazy val topReifiedObjectPropertyTargetOP = df.getOWLObjectProperty( topReifiedObjectPropertyTarget )
 
@@ -189,7 +208,8 @@ class OMFBackbone
    * The IRI of the OWL ObjectProperty that is the parent of
    * any unreified object property chain for an OMF `ModelStructuredDataRelationship` defined
    * in the ontology representing an OMF modeling domain
-   * @see gov.nasa.jpl.omf.scala.core.OMF#ModelStructuredDataRelationship
+    *
+    * @see gov.nasa.jpl.omf.scala.core.OMF#ModelStructuredDataRelationship
    */
   lazy val topReifiedStructuredDataPropertyOP = df.getOWLObjectProperty( topReifiedStructuredDataProperty )
 
@@ -197,7 +217,8 @@ class OMFBackbone
    * The IRI of the OWL ObjectProperty that is the parent of
    * any unreified object property source for an OMF `ModelStructuredDataRelationship` defined
    * in the ontology representing an OMF modeling domain
-   * @see gov.nasa.jpl.omf.scala.core.OMF#ModelStructuredDataRelationship
+    *
+    * @see gov.nasa.jpl.omf.scala.core.OMF#ModelStructuredDataRelationship
    */
   lazy val topReifiedStructuredDataPropertySourceOP = df.getOWLObjectProperty( topReifiedStructuredDataPropertySource )
 
@@ -205,7 +226,8 @@ class OMFBackbone
    * The IRI of the OWL ObjectProperty that is the parent of
    * any unreified object property target for an OMF `ModelStructuredDataRelationship` defined
    * in the ontology representing an OMF modeling domain
-   * @see gov.nasa.jpl.omf.scala.core.OMF#ModelStructuredDataRelationship
+    *
+    * @see gov.nasa.jpl.omf.scala.core.OMF#ModelStructuredDataRelationship
    */
   lazy val topReifiedStructuredDataPropertyTargetOP = df.getOWLObjectProperty( topReifiedStructuredDataPropertyTarget )
 

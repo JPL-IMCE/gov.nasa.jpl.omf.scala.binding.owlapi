@@ -231,7 +231,6 @@ trait OWLAPIOMFabox extends OMFabox {
 case class OWLAPITerminologyGraphSignature
 ( override val iri: OWLAPIOMF#IRI,
   override val kind: TerminologyKind,
-  override val nested: Iterable[OWLAPIOMF#TerminologyGraphDirectNestingAxiom],
   override val imports: Iterable[OWLAPIOMF#ModelTerminologyGraph],
   override val aspects: Iterable[OWLAPIOMF#ModelEntityAspect],
   override val concepts: Iterable[OWLAPIOMF#ModelEntityConcept],
@@ -248,7 +247,6 @@ case class OWLAPITerminologyGraphSignature
 {
   require(null != iri)
   require(null != kind)
-  require(null != nested)
   require(null != imports)
   require(null != aspects)
   require(null != concepts)

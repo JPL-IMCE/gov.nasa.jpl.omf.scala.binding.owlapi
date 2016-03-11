@@ -92,7 +92,6 @@ package object types {
 
   def immutableModelTerminologyGraphResolver
   (omfMetadata: OWLOntology,
-   context2nested: Map[OWLClass, ImmutableModelTerminologyGraph],
    imports: Iterable[ImmutableModelTerminologyGraph],
    ont: OWLOntology,
    omfStore: OWLAPIOMFGraphStore)
@@ -191,7 +190,7 @@ package object types {
             omfStore.createTerminologyGraphDirectExtensionAxiom(extendingG = g, extendedG = importG).map(_ => ())
           }
         }
-        resolver = ResolverHelper(omfMetadata, g, imports, context2nested, ont, omfStore)
+        resolver = ResolverHelper(omfMetadata, g, imports, ont, omfStore)
       } yield
         ImmutableModelTerminologyGraphResolver(resolver)
     }
