@@ -113,7 +113,11 @@ class OWLAPIOWFVocabularyImmutabilityTestLocalCatalog
 
   override def postOMFSave(): Unit = {
     val saveIRI = saveStore.catalogIRIMapper.resolveIRI(saveMetadataIRI, saveStore.catalogIRIMapper.saveResolutionStrategy)
-    saveStore.ontManager.saveOntology(saveMetadataOnt, saveIRI)
+    saveStore.saveOMFMetadataOntology(saveIRI).fold[Unit](
+      (nels: Set[java.lang.Throwable]) =>
+        fail("Errors during saving the metadata ontology", nels.head),
+      identity
+    )
   }
 
   Option.apply(classOf[OWLAPIOWFVocabularyMutabilityTestLocalCatalog].getResource(catalogFile))
@@ -153,7 +157,11 @@ class OWLAPIOWFVocabularyImmutabilityTestLocalCatalog
 
   override def postOMFLoad(): Unit = {
     val loadIRI = loadStore.catalogIRIMapper.resolveIRI(loadMetadataIRI, saveStore.catalogIRIMapper.saveResolutionStrategy)
-    loadStore.ontManager.saveOntology(loadMetadataOnt, loadIRI)
+    loadStore.saveOMFMetadataOntology(loadIRI).fold[Unit](
+      (nels: Set[java.lang.Throwable]) =>
+        fail("Errors during saving the metadata ontology", nels.head),
+      identity
+    )
   }
 
 

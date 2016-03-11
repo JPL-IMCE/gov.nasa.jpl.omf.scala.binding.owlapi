@@ -40,20 +40,21 @@ package gov.nasa.jpl.omf.scala.binding.owlapi
 
 import java.net.URI
 
+import gov.nasa.jpl.omf.scala.binding.owlapi.types.{EntityConceptDesignationTerminologyGraphAxiom, ModelEntityConcept, ModelTerminologyGraph, MutableModelTerminologyGraph, TerminologyGraphDirectNestingAxiom}
 import gov.nasa.jpl.omf.scala.core._
 import gov.nasa.jpl.omf.scala.core.RelationshipCharacteristics._
 import gov.nasa.jpl.omf.scala.core.TerminologyKind._
-
 import org.apache.commons.codec.binary.Hex
 import org.apache.commons.codec.digest.DigestUtils
 import org.semanticweb.owlapi.model._
 
 import scala.util.control.Exception._
-import scala.{AnyVal,Boolean,Option,None,Some,StringContext,Unit}
+import scala.{AnyVal, Boolean, None, Option, Some, StringContext, Unit}
 import scala.collection.JavaConversions._
 import scala.collection.immutable._
-import scala.Predef.{Set=>_,Map=>_,_}
-import scalaz._, Scalaz._
+import scala.Predef.{Map => _, Set => _, _}
+import scalaz._
+import Scalaz._
 
 object OWLAPIIRIOps {
 
@@ -205,13 +206,6 @@ trait OWLAPIStoreOps
   : OWLAPITerminologyGraphSignature =
     store.fromTerminologyGraph(graph)
 
-  override def addNestedTerminologyGraph
-  (parentG: types.MutableModelTerminologyGraph,
-   nestedG: types.ModelTerminologyGraph)
-  (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ types.TerminologyGraphDirectNestingAxiom =
-    store.createTerminologyGraphDirectNestingAxiom(parentG, nestedG)
-
   override def getDirectlyExtendingGraphsOfExtendedParentGraph
   (extendedParentG: types.ModelTerminologyGraph)
   (implicit store: OWLAPIOMFGraphStore)
@@ -224,12 +218,73 @@ trait OWLAPIStoreOps
   : Iterable[types.TerminologyGraphDirectExtensionAxiom] =
     store.getDirectlyExtendedGraphsOfExtendingChildGraph(extendingChildG)
 
-  override def addTerminologyGraphExtension
-  (extendingG: types.MutableModelTerminologyGraph,
-   extendedG: types.ModelTerminologyGraph)
+  def isTerminologyGraphDirectNestingAxiom
+  ( axiom: types.TerminologyGraphAxiom)
+  ( implicit store: OWLAPIOMFGraphStore )
+  : Boolean
+  = axiom match {
+    case _: types.TerminologyGraphDirectNestingAxiom =>
+      true
+    case _ =>
+      false
+  }
+
+  /**
+    * Find the axiom TerminologyGraphDirectNestingAxiom(nestedChild==nestedG), if any.
+    */
+  override def lookupNestingAxiomForNestedChildIfAny
+  (nestedG: ModelTerminologyGraph)
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ types.TerminologyGraphDirectExtensionAxiom =
-    extendingG.addTerminologyGraphExtension(extendedG)
+  : Option[TerminologyGraphDirectNestingAxiom]
+  = store.lookupNestingAxiomForNestedChildIfAny(nestedG)
+
+  /**
+    * Find the axiom TerminologyGraphDirectNestingAxiom(nestingContext=nestingC), if any.
+    */
+  override def lookupNestingAxiomForNestingContextIfAny
+  (nestingC: ModelEntityConcept)
+  (implicit store: OWLAPIOMFGraphStore)
+  : Option[TerminologyGraphDirectNestingAxiom]
+  = store.lookupNestingAxiomForNestingContextIfAny(nestingC)
+
+  /**
+    * Find the axioms TerminologyGraphDirectNestingAxiom(nestingParent=nestingG)
+    */
+  override def lookupNestingAxiomsForNestingParent
+  (nestingG: ModelTerminologyGraph)
+  (implicit store: OWLAPIOMFGraphStore)
+  : Set[TerminologyGraphDirectNestingAxiom]
+  = store.lookupNestingAxiomsForNestingParent(nestingG)
+
+  override def getNestingGraph
+  (nestedG: ModelTerminologyGraph)
+  (implicit store: OWLAPIOMFGraphStore)
+  : Option[ModelTerminologyGraph]
+  = store.getNestingGraph(nestedG)
+
+  override def getNestedGraphs
+  (nestingG: ModelTerminologyGraph)
+  (implicit store: OWLAPIOMFGraphStore)
+  : Iterable[ModelTerminologyGraph]
+  = store.getNestedGraphs(nestingG)
+
+  override def getNestingParentGraphOfAxiom
+  (axiom: TerminologyGraphDirectNestingAxiom)
+  (implicit store: OWLAPIOMFGraphStore)
+  : ModelTerminologyGraph
+  = store.getNestingParentGraphOfAxiom(axiom)
+
+  override def getNestingContextConceptOfAxiom
+  (axiom: TerminologyGraphDirectNestingAxiom)
+  (implicit store: OWLAPIOMFGraphStore)
+  : ModelEntityConcept
+  = store.getNestingContextConceptOfAxiom(axiom)
+
+  override def getNestedChildGraphOfAxiom
+  (axiom: TerminologyGraphDirectNestingAxiom)
+  (implicit store: OWLAPIOMFGraphStore)
+  : ModelTerminologyGraph
+  = store.getNestedChildGraphOfAxiom(axiom)
 
   def makeTerminologyGraphWithPath
   (iri: IRI,
@@ -269,7 +324,7 @@ trait OWLAPIStoreOps
   (implicit store: OWLAPIOMFGraphStore) =
     store.asImmutableTerminologyGraph(Map(), g)
 
-  def resolveTerminologyGraph
+  def createOMFTerminologyGraph
   (o: OWLOntology,
    ont: OWLOntology,
    relativeIRIPath: Option[String],
@@ -442,6 +497,24 @@ trait OWLAPIImmutableTerminologyGraphOps
   (graph: types.ModelTerminologyGraph)
   : ( IRI, Iterable[types.ModelTypeTerm] ) =
     graph.getTypeTerms
+
+  override def lookupNestingAxiomForNestedChildIfAny
+  (nestedG: types.ModelTerminologyGraph)
+  (implicit store: OWLAPIOMFGraphStore)
+  : Option[types.TerminologyGraphDirectNestingAxiom]
+  = store.lookupNestingAxiomForNestedChildIfAny(nestedG)
+
+  override def lookupNestingAxiomForNestingContextIfAny
+  (nestingC: types.ModelEntityConcept)
+  (implicit store: OWLAPIOMFGraphStore)
+  : Option[types.TerminologyGraphDirectNestingAxiom]
+  = store.lookupNestingAxiomForNestingContextIfAny(nestingC)
+
+  override def lookupNestingAxiomsForNestingParent
+  (nestingG: types.ModelTerminologyGraph)
+  (implicit store: OWLAPIOMFGraphStore)
+  : Set[types.TerminologyGraphDirectNestingAxiom]
+  = store.lookupNestingAxiomsForNestingParent(nestingG)
 
   override def getNestingGraph
   (graph: types.ModelTerminologyGraph)
@@ -895,6 +968,21 @@ trait OWLAPIMutableTerminologyGraphOps
   (implicit store: OWLAPIOMFGraphStore) =
     graph.addScalarDataTypeFacetRestrictionAxiom(sub, sup, fundamentalFacets, constrainingFacets)
 
+  override def addTerminologyGraphExtension
+  (extendingG: types.MutableModelTerminologyGraph,
+   extendedG: types.ModelTerminologyGraph)
+  (implicit store: OWLAPIOMFGraphStore)
+  : Set[java.lang.Throwable] \/ types.TerminologyGraphDirectExtensionAxiom
+  = extendingG.addTerminologyGraphExtension(extendedG)
+
+  override def addNestedTerminologyGraph
+  (nestingParent: types.MutableModelTerminologyGraph,
+   nestingContext: types.ModelEntityConcept,
+   nestedChild: types.ModelTerminologyGraph )
+  (implicit store: OWLAPIOMFGraphStore)
+  : Set[java.lang.Throwable] \/ types.TerminologyGraphDirectNestingAxiom
+  = nestingParent.addNestedTerminologyGraph(nestingContext, nestedChild)
+
 }
 
 trait OWLAPIImmutableInstanceGraphOps
@@ -1069,7 +1157,9 @@ class OWLAPIOMFOps
   val AnnotationIsDerived: IRI,
   val AnnotationIsDefinition: IRI,
   val AnnotationIsDesignation: IRI,
-  val AnnotationIsToplevel: IRI)
+  val AnnotationIsToplevel: IRI,
+  val AnnotationHasContext: IRI,
+  val AnnotationHasGraph: IRI)
   extends OMFOps[OWLAPIOMF]
           with OWLAPIIRIOps
           with OWLAPIMutableTerminologyGraphOps

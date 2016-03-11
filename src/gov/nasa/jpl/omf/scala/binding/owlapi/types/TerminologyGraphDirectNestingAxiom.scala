@@ -40,11 +40,20 @@ package gov.nasa.jpl.omf.scala.binding.owlapi.types
 
 import scala.Predef.require
 
+/**
+  * Corresponds to an axiom: TerminologyGraphDirectNestingAxiom(nestingParent, nestingContext, nestedChild)
+  * The nestingParent is not explicitly represented because this would otherwise lead to a circularity problem
+  * for constructing immutable terminology graphs from a set of terms & axioms.
+  *
+  * @param nestingContext
+  * @param nestedChild
+  */
 case class TerminologyGraphDirectNestingAxiom
-( nestedChild: ModelTerminologyGraph,
-  nestingParent: ModelTerminologyGraph )
+( nestingContext: ModelEntityConcept,
+  nestedChild: ModelTerminologyGraph )
 extends TerminologyGraphAxiom {
 
+  require(null != nestingContext)
   require(null != nestedChild)
-  require(null != nestingParent)
+
 }

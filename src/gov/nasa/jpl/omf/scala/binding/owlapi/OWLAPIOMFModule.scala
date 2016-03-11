@@ -103,6 +103,12 @@ object OWLAPIOMFModule {
     AnnotationIsToplevel <-
     OWLAPIIRIOps.makeIRI("http://imce.jpl.nasa.gov/foundation/annotation/annotation#isToplevel")
 
+    AnnotationHasContext <-
+    OWLAPIIRIOps.makeIRI("http://imce.jpl.nasa.gov/foundation/annotation/annotation#hasContext")
+
+    AnnotationHasGraph <-
+    OWLAPIIRIOps.makeIRI("http://imce.jpl.nasa.gov/foundation/annotation/annotation#hasGraph")
+
     omfOntologyIRI <-
     OWLAPIIRIOps.makeIRI( "http://imce.jpl.nasa.gov/foundation/omf/omf.owl" )
 
@@ -118,7 +124,9 @@ object OWLAPIOMFModule {
       AnnotationIsDerived,
       AnnotationIsDefinition,
       AnnotationIsDesignation,
-      AnnotationIsToplevel)
+      AnnotationIsToplevel,
+      AnnotationHasContext,
+      AnnotationHasGraph)
 
   } yield
     OWLAPIOMFModule(catalogManager, ops, omfOntologyIRI)

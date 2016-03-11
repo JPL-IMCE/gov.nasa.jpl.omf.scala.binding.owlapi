@@ -47,12 +47,12 @@ case class ImmutableModelInstanceGraph(
   override val tboxes: Iterable[types.ImmutableModelTerminologyGraph],
   override val imports: Iterable[ImmutableModelInstanceGraph],
   override protected val ont: OWLOntology,
-  override protected val objects: List[ModelInstanceObject],
-  override protected val relations: List[ModelInstanceRelation],
-  override protected val dataLiterals: List[ModelInstanceDataLiteral],
-  override protected val dataObjects: List[ModelInstanceDataStructure],
-  override protected val e2sc: List[ModelInstanceDataRelationshipFromEntityToScalar],
-  override protected val e2st: List[ModelInstanceDataRelationshipFromEntityToStructure],
-  override protected val s2sc: List[ModelInstanceDataRelationshipFromStructureToScalar],
-  override protected val s2st: List[ModelInstanceDataRelationshipFromStructureToStructure] )
+  override protected val objects: Vector[ModelInstanceObject],
+  override protected val relations: Vector[ModelInstanceRelation],
+  override protected val dataLiterals: Vector[ModelInstanceDataLiteral],
+  override protected val dataObjects: Vector[ModelInstanceDataStructure],
+  override protected val e2sc: Vector[ModelInstanceDataRelationshipFromEntityToScalar],
+  override protected val e2st: Vector[ModelInstanceDataRelationshipFromEntityToStructure],
+  override protected val s2sc: Vector[ModelInstanceDataRelationshipFromStructureToScalar],
+  override protected val s2st: Vector[ModelInstanceDataRelationshipFromStructureToStructure] )
   extends ModelInstanceGraph( tboxes, imports, ont )

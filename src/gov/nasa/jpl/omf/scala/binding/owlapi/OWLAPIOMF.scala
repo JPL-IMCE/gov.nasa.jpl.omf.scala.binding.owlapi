@@ -43,7 +43,7 @@ import gov.nasa.jpl.omf.scala.core.RelationshipCharacteristics._
 import gov.nasa.jpl.omf.scala.core.TerminologyKind._
 
 import scala.collection.immutable._
-import scala.{Boolean,Option}
+import scala.Boolean
 import scala.Predef.require
 
 trait OWLAPIOMF
@@ -228,12 +228,10 @@ trait OWLAPIOMFabox extends OMFabox {
     
 }
 
-
 case class OWLAPITerminologyGraphSignature
 ( override val iri: OWLAPIOMF#IRI,
   override val kind: TerminologyKind,
-  override val nesting: Option[OWLAPIOMF#ModelTerminologyGraph],
-  override val nested: Iterable[OWLAPIOMF#ModelTerminologyGraph],
+  override val nested: Iterable[OWLAPIOMF#TerminologyGraphDirectNestingAxiom],
   override val imports: Iterable[OWLAPIOMF#ModelTerminologyGraph],
   override val aspects: Iterable[OWLAPIOMF#ModelEntityAspect],
   override val concepts: Iterable[OWLAPIOMF#ModelEntityConcept],
@@ -245,12 +243,11 @@ case class OWLAPITerminologyGraphSignature
   override val entity2structureDataRelationships: Iterable[OWLAPIOMF#ModelDataRelationshipFromEntityToStructure],
   override val structure2scalarDataRelationships: Iterable[OWLAPIOMF#ModelDataRelationshipFromStructureToScalar],
   override val structure2structureDataRelationships: Iterable[OWLAPIOMF#ModelDataRelationshipFromStructureToStructure],
-  override val axioms: Iterable[OWLAPIOMF#ModelTermAxiom] )
+  override val axioms: Iterable[OWLAPIOMF#ModelTermAxiom])
   extends TerminologyGraphSignature[OWLAPIOMF]
 {
   require(null != iri)
   require(null != kind)
-  require(null != nesting)
   require(null != nested)
   require(null != imports)
   require(null != aspects)

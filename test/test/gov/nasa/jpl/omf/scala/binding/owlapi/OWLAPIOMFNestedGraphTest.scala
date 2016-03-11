@@ -48,15 +48,15 @@ import scala.collection.immutable.Set
 import scala.{transient,Option,None,Some,StringContext,Unit}
 import java.lang.IllegalArgumentException
 
-abstract class OWLAPIOMFVocabularyMutabilityTest
-( override val saveStore: OWLAPIOMFGraphStore,
-  override val loadStore: OWLAPIOMFGraphStore )
-  extends testFunctionalAPI.OMFVocabularyMutabilityTest[OWLAPIOMF](
+abstract class OWLAPIOMFNestedGraphTest
+(override val saveStore: OWLAPIOMFGraphStore,
+ override val loadStore: OWLAPIOMFGraphStore )
+  extends testFunctionalAPI.OMFNestedGraphTest[OWLAPIOMF](
     saveStore, saveStore.omfModule.ops,
     loadStore, loadStore.omfModule.ops )
 
-abstract class OWLAPIOMFVocabularyMutabilityCatalogTest( @transient val catalogManager: CatalogManager )
-  extends OWLAPIOMFVocabularyMutabilityTest(
+abstract class OWLAPIOMFNestedGraphCatalogTest( @transient val catalogManager: CatalogManager )
+  extends OWLAPIOMFNestedGraphTest(
     saveStore = OWLAPIOMFGraphStore(
       OWLAPIOMFModule.owlAPIOMFModule(catalogManager).valueOr { (errors: Set[java.lang.Throwable]) =>
         val message = s"${errors.size} errors" + errors.map(_.getMessage).toList.mkString("\n => ","\n => ","\n")
@@ -70,8 +70,8 @@ abstract class OWLAPIOMFVocabularyMutabilityCatalogTest( @transient val catalogM
       },
       OWLManager.createOWLOntologyManager()) )
 
-class OWLAPIOWFVocabularyMutabilityTestLocalCatalog
-  extends OWLAPIOMFVocabularyMutabilityCatalogTest( catalogManager = new CatalogManager() ) {
+class OWLAPIOWFNestedGraphTestLocalCatalog
+  extends OWLAPIOMFNestedGraphCatalogTest( catalogManager = new CatalogManager() ) {
 
   val catalogFile = "/ontologies/imce.local.catalog.xml"
 
@@ -99,7 +99,7 @@ class OWLAPIOWFVocabularyMutabilityTestLocalCatalog
   }
 
   val saveMetadataIRI =
-    saveStore.omfModule.ops.makeIRI("http://imce.jpl.nasa.gov/test/OWLAPIOMFVocabularySave")
+    saveStore.omfModule.ops.makeIRI("http://imce.jpl.nasa.gov/test/nestedGraph/metadata")
       .valueOr { (errors: Set[java.lang.Throwable]) =>
         val message = s"${errors.size} errors" + errors.map(_.getMessage).toList.mkString("\n => ","\n => ","\n")
         throw new scala.IllegalArgumentException(message)
@@ -117,9 +117,10 @@ class OWLAPIOWFVocabularyMutabilityTestLocalCatalog
         fail("Errors during saving the metadata ontology", nels.head),
       identity
     )
+
   }
 
-  Option.apply(classOf[OWLAPIOWFVocabularyMutabilityTestLocalCatalog].getResource(catalogFile))
+  Option.apply(classOf[OWLAPIOWFNestedGraphTestLocalCatalog].getResource(catalogFile))
     .fold[Unit]({
     Option.apply(java.nio.file.Paths.get("ontologies", "imce.local.catalog.xml"))
       .fold[Unit]({
@@ -143,7 +144,7 @@ class OWLAPIOWFVocabularyMutabilityTestLocalCatalog
   }
 
   val loadMetadataIRI =
-    loadStore.omfModule.ops.makeIRI("http://imce.jpl.nasa.gov/test/OWLAPIOMFVocabularyLoad")
+    loadStore.omfModule.ops.makeIRI("http://imce.jpl.nasa.gov/test/nestedGraphTest/load")
       .valueOr { (errors: Set[java.lang.Throwable]) =>
         val message = s"${errors.size} errors" + errors.map(_.getMessage).toList.mkString("\n => ","\n => ","\n")
         throw new scala.IllegalArgumentException(message)

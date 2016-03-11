@@ -81,6 +81,7 @@ abstract class ModelTerminologyGraph
   protected val s2sc: scala.collection.Seq[ModelDataRelationshipFromStructureToScalar]
   protected val s2st: scala.collection.Seq[ModelDataRelationshipFromStructureToStructure]
   protected val ax: scala.collection.Seq[ModelTermAxiom]
+  protected val nested: scala.collection.Seq[TerminologyGraphDirectNestingAxiom]
 
   protected val iri2typeTerm: scala.collection.Map[IRI, ModelTypeTerm]
 
@@ -146,12 +147,11 @@ abstract class ModelTerminologyGraph
   def getTypeTerms: ( IRI, Iterable[ModelTypeTerm] ) = ( iri, iri2typeTerm.values.to[Iterable] )
 
   def fromTerminologyGraph
-  ( nesting: Option[ModelTerminologyGraph],
-    nested: Iterable[ModelTerminologyGraph],
+  ( nested: Iterable[TerminologyGraphDirectNestingAxiom],
     extended: Iterable[ModelTerminologyGraph] )
   : OWLAPITerminologyGraphSignature =
     OWLAPITerminologyGraphSignature(
-      iri, kind, nesting, nested,
+      iri, kind, nested,
       extended,
       aspects.to[Iterable],
       concepts.to[Iterable],
@@ -163,7 +163,7 @@ abstract class ModelTerminologyGraph
       e2st.to[Iterable],
       s2sc.to[Iterable],
       s2st.to[Iterable],
-      ax.to[Iterable] )
+      ax.to[Iterable])
 
   def getTerminologyGraphShortNameAnnotation
   : Option[OWLAnnotation] =

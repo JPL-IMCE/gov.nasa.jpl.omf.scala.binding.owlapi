@@ -90,17 +90,18 @@ case class ImmutableModelTerminologyGraph
 (override val kind: TerminologyKind,
  override val ont: OWLOntology,
  override val extraProvenanceMetadata: Option[OTI2OMFModelTerminologyGraphProvenance],
- override protected val aspects: List[ModelEntityAspect],
- override protected val concepts: List[ModelEntityConcept],
- override protected val reifiedRelationships: List[ModelEntityReifiedRelationship],
- override protected val unreifiedRelationships: List[ModelEntityUnreifiedRelationship],
- override protected val sc: List[ModelScalarDataType],
- override protected val st: List[ModelStructuredDataType],
- override protected val e2sc: List[ModelDataRelationshipFromEntityToScalar],
- override protected val e2st: List[ModelDataRelationshipFromEntityToStructure],
- override protected val s2sc: List[ModelDataRelationshipFromStructureToScalar],
- override protected val s2st: List[ModelDataRelationshipFromStructureToStructure],
- override protected val ax: List[ModelTermAxiom])
+ override protected val aspects: Vector[ModelEntityAspect],
+ override protected val concepts: Vector[ModelEntityConcept],
+ override protected val reifiedRelationships: Vector[ModelEntityReifiedRelationship],
+ override protected val unreifiedRelationships: Vector[ModelEntityUnreifiedRelationship],
+ override protected val sc: Vector[ModelScalarDataType],
+ override protected val st: Vector[ModelStructuredDataType],
+ override protected val e2sc: Vector[ModelDataRelationshipFromEntityToScalar],
+ override protected val e2st: Vector[ModelDataRelationshipFromEntityToStructure],
+ override protected val s2sc: Vector[ModelDataRelationshipFromStructureToScalar],
+ override protected val s2st: Vector[ModelDataRelationshipFromStructureToStructure],
+ override protected val ax: Vector[ModelTermAxiom],
+ override protected val nested: Vector[TerminologyGraphDirectNestingAxiom])
 (override implicit val ops: OWLAPIOMFOps)
   extends ModelTerminologyGraph(kind, ont, extraProvenanceMetadata)(ops) {
 
@@ -117,6 +118,7 @@ case class ImmutableModelTerminologyGraph
   require(null != s2sc)
   require(null != s2st)
   require(null != ax)
+  require(null != nested)
 
   override val mutabilityKind: String = "immutable"
   override val isImmutableModelTerminologyGraph = true
@@ -152,6 +154,7 @@ case class ResolverHelper
 ( omfMetadata: OWLOntology,
   tboxG: MutableModelTerminologyGraph,
   imports: Iterable[ImmutableModelTerminologyGraph],
+  context2nested: Map[OWLClass, ImmutableModelTerminologyGraph],
   ont: OWLOntology,
   omfStore: OWLAPIOMFGraphStore) {
 
@@ -171,7 +174,6 @@ case class ResolverHelper
     ont.getOntologyID.getOntologyIRI.get
 
   val provenance = s"load($getOntologyIRI)"
-
 
   def isAnnotatedAbstract(iri: IRI): Boolean = {
     for {
@@ -316,14 +318,14 @@ case class ResolverHelper
   (entityDefinitions: Map[OWLClass, ModelEntityDefinition],
    dataPropertyDPIRIs: Iterable[DOPInfo],
    DTs: Map[OWLDatatype, ModelScalarDataType])
-  : Set[java.lang.Throwable] \/ List[ModelDataRelationshipFromEntityToScalar] = {
+  : Set[java.lang.Throwable] \/ Vector[ModelDataRelationshipFromEntityToScalar] = {
 
-    type Acc = Set[java.lang.Throwable] \/ (List[DOPInfo], List[ModelDataRelationshipFromEntityToScalar])
+    type Acc = Set[java.lang.Throwable] \/ (Vector[DOPInfo], Vector[ModelDataRelationshipFromEntityToScalar])
 
     def DOPInfo_E2SC_append
-    ( x1: (List[DOPInfo], List[ModelDataRelationshipFromEntityToScalar]),
-      x2: => (List[DOPInfo], List[ModelDataRelationshipFromEntityToScalar]) )
-    : (List[DOPInfo], List[ModelDataRelationshipFromEntityToScalar])
+    ( x1: (Vector[DOPInfo], Vector[ModelDataRelationshipFromEntityToScalar]),
+      x2: => (Vector[DOPInfo], Vector[ModelDataRelationshipFromEntityToScalar]) )
+    : (Vector[DOPInfo], Vector[ModelDataRelationshipFromEntityToScalar])
     = {
       val (dop1, e2sc1) = x1
       val (dop2, e2sc2) = x2
@@ -332,10 +334,10 @@ case class ResolverHelper
     }
 
     implicit val DOPInfo_E2SC_Semigroup
-    : Semigroup[(List[DOPInfo], List[ModelDataRelationshipFromEntityToScalar])] =
+    : Semigroup[(Vector[DOPInfo], Vector[ModelDataRelationshipFromEntityToScalar])] =
       Semigroup.instance(DOPInfo_E2SC_append _)
 
-    ( (dataPropertyDPIRIs.to[List], List.empty[ModelDataRelationshipFromEntityToScalar])
+    ( (dataPropertyDPIRIs.to[Vector], Vector.empty[ModelDataRelationshipFromEntityToScalar])
       .right[Set[java.lang.Throwable]] /: dataPropertyDPIRIs ) {
       (acc, dataPropertyDPIRI) =>
         val (e2sc_dp, e2sc_source, e2sc_target) = dataPropertyDPIRI
@@ -349,7 +351,7 @@ case class ResolverHelper
                 tboxG
                   .createDataRelationshipFromEntityToScalar(e2sc_dp, e2sc_sourceDef, e2sc_targetDef)
                   .map(r =>
-                    (List(dataPropertyDPIRI), List(r))
+                    (Vector(dataPropertyDPIRI), Vector(r))
                   )
               )(M1=DOPInfo_E2SC_Semigroup, M2=implicitly)
           }
@@ -809,7 +811,9 @@ case class ImmutableModelTerminologyGraphResolver(resolver: ResolverHelper) {
   import resolver._
   import resolver.omfStore.ops._
 
-  def resolve: Set[java.lang.Throwable] \/ (ImmutableModelTerminologyGraph, Mutable2IMutableTerminologyMap) = {
+  def resolve
+  : Set[java.lang.Throwable] \/ (ImmutableModelTerminologyGraph, Mutable2IMutableTerminologyMap)
+  = {
     val dTs = ont.getDatatypesInSignature(Imports.EXCLUDED).filter(ont.isDeclared)
 
     ( Map[OWLDatatype, ModelScalarDataType]()
@@ -833,24 +837,38 @@ case class ImmutableModelTerminologyGraphResolver(resolver: ResolverHelper) {
         filter(ont.isDeclared).
         partition { c => isBackboneIRI(c.getIRI) }
 
-      val (bOPs, tOPs) = ont.
-        getObjectPropertiesInSignature(Imports.EXCLUDED).
-        filter(ont.isDeclared).
-        partition { c => isBackboneIRI(c.getIRI) }
+      val foreignContexts = context2nested.keySet -- tCs
+      if (foreignContexts.nonEmpty) {
 
-      val (bDPs, tDPs) = ont.
-        getDataPropertiesInSignature(Imports.EXCLUDED).
-        filter(ont.isDeclared).
-        partition { c => isBackboneIRI(c.getIRI) }
+        val messageHead =
+          s"There are ${foreignContexts.size} foreign OWLClasses annotated as contexts for nested graphs\n"
 
-      Backbone
-        .resolveBackbone(ont, bCs.toSet, bOPs.toSet, bDPs.toSet, resolver.omfStore.ops)
-        .flatMap {
-          case backbone: OMFBackbone =>
-            resolve(backbone, scalarDatatypeSCs, tCs.toSet, tOPs.toSet, tDPs.toSet)
-          case _: NoBackbone =>
-            asImmutableTerminologyGraph(tboxG)
-        }
+        val errorMessage = foreignContexts.map(_.getIRI.toString).mkString(messageHead, "\n", "\n")
+
+        -\/(Set(OMFError.omfError(errorMessage)))
+
+      } else {
+
+        val (bOPs, tOPs) = ont.
+          getObjectPropertiesInSignature(Imports.EXCLUDED).
+          filter(ont.isDeclared).
+          partition { c => isBackboneIRI(c.getIRI) }
+
+        val (bDPs, tDPs) = ont.
+          getDataPropertiesInSignature(Imports.EXCLUDED).
+          filter(ont.isDeclared).
+          partition { c => isBackboneIRI(c.getIRI) }
+
+        Backbone
+          .resolveBackbone(ont, bCs.toSet, bOPs.toSet, bDPs.toSet, resolver.omfStore.ops)
+          .flatMap {
+            case backbone: OMFBackbone =>
+              resolve(backbone, scalarDatatypeSCs, tCs.toSet, tOPs.toSet, tDPs.toSet)
+
+            case _: NoBackbone =>
+              asImmutableTerminologyGraph(tboxG)
+          }
+      }
     }
   }
 
@@ -1168,20 +1186,46 @@ case class ImmutableModelTerminologyGraphResolver(resolver: ResolverHelper) {
                     resolveDataRelationshipsFromEntity2Scalars(_allEntityDefinitions, dataPropertyDPIRIs, _allScalarDefinitions)
                       .flatMap { dataRelationshipsFromEntity2Scalars =>
 
-                        asImmutableTerminologyGraph(tboxG)
-                          .flatMap { itboxG =>
+                        val n0
+                        : Set[java.lang.Throwable] \/ Unit = \/-(())
 
-                            val iimports = fromTerminologyGraph(itboxG._1).imports
-                            require(imports.forall(i1 =>
-                              iimports.exists(i2 => i2.kindIRI == i1.kindIRI)
-                            ))
-                            require(iimports.forall(i2 =>
-                              imports.exists(i1 => i1.kindIRI == i2.kindIRI)
-                            ))
+                        val nN
+                        : Set[java.lang.Throwable] \/ Unit
+                        = ( n0 /: resolver.context2nested ) { case (acc, (c, ng)) =>
 
-                            itboxG.right
-
+                          val inc
+                          : Set[java.lang.Throwable] \/ Unit
+                          = _conceptCMs
+                            .get(c)
+                            .fold[Set[java.lang.Throwable] \/ Unit](
+                            -\/(Set(OMFError.omfError(s"Contextualized class $c is not a concept in $tboxG")))
+                          ) { cc =>
+                            addNestedTerminologyGraph(tboxG, cc, ng)
+                              .map(_ => ())
                           }
+
+                          acc +++ inc
+                        }
+
+                        val result = nN.flatMap { _ =>
+
+                          asImmutableTerminologyGraph(tboxG)
+                            .flatMap { itboxG =>
+
+                              val iimports = fromTerminologyGraph(itboxG._1).imports
+                              require(imports.forall(i1 =>
+                                iimports.exists(i2 => i2.kindIRI == i1.kindIRI)
+                              ))
+                              require(iimports.forall(i2 =>
+                                imports.exists(i1 => i1.kindIRI == i2.kindIRI)
+                              ))
+
+                              itboxG.right
+
+                            }
+                        }
+
+                        result
                       }
                   }
                 }
