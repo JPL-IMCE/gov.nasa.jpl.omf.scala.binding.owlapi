@@ -121,6 +121,18 @@ object OWLAPIOMFLoader {
         }
     }
 
+  case class NestedOntologyToNestingContextIRI
+  (nestingC: IRI,
+   nestedG: IRI)
+
+  def getNestedOntologyToNestingContextIRIIfAny
+  (ont: OWLOntology,
+   ontIRI: IRI)
+  (implicit ops: OWLAPIOMFOps)
+  : Option[NestedOntologyToNestingContextIRI]
+  = getOntologyParentContextIfAny(ont)
+    .map { iri => NestedOntologyToNestingContextIRI(nestingC = iri, nestedG = ontIRI) }
+
   def getOntologyParentContextIfAny
   (ont: OWLOntology)
   (implicit ops: OWLAPIOMFOps)
@@ -157,7 +169,8 @@ object OWLAPIOMFLoader {
   case class OntologyLoaderState
   (ontologies: Map[IRI, OWLOntology],
    extensions: Set[ExtendingOntologyToExtendedGraphIRI],
-   nestings: Set[NestingOntologyAndContextToNestedGraphIRI],
+   nesting2nested: Set[NestingOntologyAndContextToNestedGraphIRI],
+   nested2nesting: Set[NestedOntologyToNestingContextIRI],
    queue: Set[IRI]) {}
 
 
@@ -171,7 +184,8 @@ object OWLAPIOMFLoader {
       OntologyLoaderState(
         ontologies = Map(),
         extensions = Set(),
-        nestings = Set(),
+        nesting2nested = Set(),
+        nested2nesting = Set(),
         queue = Set(iri)))
 
     private object Internal {
@@ -182,7 +196,14 @@ object OWLAPIOMFLoader {
       (implicit ops: OWLAPIOMFOps, store: OWLAPIOMFGraphStore)
       : Set[java.lang.Throwable] \/ OntologyLoaderState
       = if (s.queue.isEmpty)
-        \/-(s)
+        validateNestingRelationsStep(
+          OntologyLoaderState(
+            ontologies = Map(),
+            extensions = Set(),
+            nesting2nested = Set(),
+            nested2nesting = Set(),
+            queue = Set()),
+          s)
       else
         loadOneOntology(s, s.queue.head) match {
           case -\/(nels) =>
@@ -217,6 +238,7 @@ object OWLAPIOMFLoader {
 
             val es = getOntologyDirectlyExtendedGraphs(ont, iri)
             val ns = getOntologyContextClasses2NestedGraphIRIs(ont, iri)
+            val nc = getNestedOntologyToNestingContextIRIIfAny(ont, iri)
 
             // in principle, we should exclude the known ontology IRIs
             // i.e., -- s.ontologies.keySet
@@ -226,7 +248,8 @@ object OWLAPIOMFLoader {
             \/-(OntologyLoaderState(
               s.ontologies + (iri -> ont),
               s.extensions ++ es,
-              s.nestings ++ ns,
+              s.nesting2nested ++ ns,
+              s.nested2nesting ++ nc,
               s.queue - iri ++ newIRIs))
 
           }
@@ -236,9 +259,49 @@ object OWLAPIOMFLoader {
 
       }
 
+      @annotation.tailrec
+      def validateNestingRelationsStep
+      (acc: OntologyLoaderState,
+       s: OntologyLoaderState)
+      : Set[java.lang.Throwable] \/ OntologyLoaderState
+      = s
+        .nesting2nested
+        .headOption match {
+        case None =>
+          \/-(acc.copy(extensions = s.extensions))
+
+        case Some(n2n) =>
+          val ext = s.extensions.filter(e => e.extendedG == n2n.nestingG && e.extendingG == n2n.nestedG)
+          val nst = s.nested2nesting.filter(n => n.nestingC == n2n.nestingC && n.nestedG == n2n.nestedG)
+          if (ext.isDefined && nst.isDefined)
+            validateNestingRelationsStep(
+              acc.copy(extensions = acc.extensions ++ ext, nested2nesting = acc.nested2nesting ++ nst),
+              s.copy(nesting2nested = s.nesting2nested - n2n))
+          else
+            -\/(Set(OMFError.omfError(s"Inconsistency detected\n$n2n\n$ext\n$nst")))
+      }
+
     }
 
   }
+
+  /**
+    * The type of a directed graph of OMF documents.
+    *
+    * A node is an OMF document is specified by its OWL Ontology document IRI.
+    * A directed edge corresponds to a relationship among OMF documents (extension or nesting).
+    */
+  type OMFDocumentGraph = Graph[IRI, DiEdge]
+
+  /**
+    * The type of a node in an OMF document graph.
+    */
+  type OMFDocumentNode = OMFDocumentGraph#NodeT
+
+  /**
+    * The type of a topological ordering of OMF document graph nodes.
+    */
+  type OMFDocumentTopologicalOrder = OMFDocumentGraph#TopologicalOrder[Graph[IRI, DiEdge]#NodeT
 
   def loadTerminologyGraph
   (iri: IRI)
@@ -247,17 +310,47 @@ object OWLAPIOMFLoader {
   = OntologyLoaderState
     .loadAllOntologies(iri)
     .flatMap { s =>
+
       implicit val graphConfig = CoreConfig(orderHint = 5000, Hints(64, 0, 64, 75))
 
-      val g0 = Graph[IRI, DiEdge](s.ontologies.keys.toSeq: _*)
-      val g1 = (g0 /: s.extensions) { (gi, e) =>
+      // Add nodes for every OMF document ontology document IRI loaded.
+      val g0: OMFDocumentGraph = Graph[IRI, DiEdge](s.ontologies.keys.toSeq: _*)
+
+      // Add edges for every OMF document extension relationship
+      val g1: OMFDocumentGraph = (g0 /: s.extensions) { (gi, e) =>
         gi + e.extendingG ~> e.extendedG
       }
-      val g2 = (g1 /: s.nestings) { (gj, n) =>
+
+      // Add edges for every OMF document nesting relationship
+      val g2: OMFDocumentGraph = (g1 /: s.nesting2nested) { (gj, n) =>
         gj + n.nestedG ~> n.nestingG
       }
 
+      g2
+        .topologicalSort()
+        .fold(
+          (cycleNode: OMFDocumentNode) =>
+            -\/(Set(
+              OMFError.omfError(
+                s"Graph with ${g2.nodes.size} ontologies, ${g2.edges.size} edges has a cycle involving\n"+
+                cycleNode.value
+              )
+            )),
+          (order: OMFDocumentTopologicalOrder) =>
+            loadTerminologyGraphs(order, s)
+        )
+
+
       scala.Predef.???
     }
+
+  def loadTerminologyGraphs
+  (queue: OMFDocumentTopologicalOrder,
+   s: OntologyLoaderState)
+  (implicit ops: OWLAPIOMFOps, store: OWLAPIOMFGraphStore)
+  : Set[java.lang.Throwable] \/ (types.ImmutableModelTerminologyGraph, types.Mutable2IMutableTerminologyMap)
+  = {
+    scala.Predef.???
+  }
 
 }
