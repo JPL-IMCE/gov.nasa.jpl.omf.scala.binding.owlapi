@@ -38,8 +38,7 @@
  */
 package gov.nasa.jpl.omf.scala.binding.owlapi
 
-
-import gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader.OntologyLoaderState
+import gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader.OntologyLoadedState
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.AxiomExceptionKind._
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.AxiomScopeAccessKind._
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.EntityExceptionKind._
@@ -55,6 +54,13 @@ import scalaz._
 import Scalaz._
 
 package object types {
+
+  type UnitNES
+  = Set[java.lang.Throwable] \/ Unit
+
+  val rightUnitNES
+  : UnitNES
+  = \/-(())
 
   type NestingConceptAndGraphOptionNES
   = Set[java.lang.Throwable] \/ Option[(types.ModelEntityConcept, types.ImmutableModelTerminologyGraph)]
@@ -112,7 +118,7 @@ package object types {
 
   def immutableModelTerminologyGraphResolver
   (omfMetadata: OWLOntology,
-   s: OntologyLoaderState,
+   s: OntologyLoadedState,
    ont: OWLOntology,
    extensions: Set[ImmutableModelTerminologyGraph],
    nesting: Option[(ModelEntityConcept, ImmutableModelTerminologyGraph)],
