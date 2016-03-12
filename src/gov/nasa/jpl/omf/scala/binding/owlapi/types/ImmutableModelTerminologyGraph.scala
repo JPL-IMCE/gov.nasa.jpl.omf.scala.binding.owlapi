@@ -808,7 +808,7 @@ case class ImmutableModelTerminologyGraphResolver(resolver: ResolverHelper) {
   import resolver._
   import resolver.omfStore.ops._
 
-  def resolve
+  def resolve()
   : Set[java.lang.Throwable] \/ (ImmutableModelTerminologyGraph, Mutable2IMutableTerminologyMap)
   = {
     val dTs = ont.getDatatypesInSignature(Imports.EXCLUDED).filter(ont.isDeclared)

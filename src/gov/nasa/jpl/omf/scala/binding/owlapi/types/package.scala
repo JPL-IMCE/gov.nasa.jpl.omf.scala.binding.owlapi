@@ -39,23 +39,43 @@
 package gov.nasa.jpl.omf.scala.binding.owlapi
 
 
+import gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader.OntologyLoaderState
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.AxiomExceptionKind._
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.AxiomScopeAccessKind._
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.EntityExceptionKind._
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.RelationshipScopeAccessKind._
 import gov.nasa.jpl.omf.scala.core.TerminologyKind
-
 import org.semanticweb.owlapi.model._
 
-import scala.{Option,None,Some,Unit}
+import scala.{None, Option, Some, Unit}
 import scala.collection.JavaConversions._
 import scala.collection.immutable._
 import scala.Predef.String
-import scalaz._, Scalaz._
+import scalaz._
+import Scalaz._
 
 package object types {
 
-  type Mutable2IMutableTerminologyMap = Map[MutableModelTerminologyGraph, ImmutableModelTerminologyGraph]
+  type NestingConceptAndGraphOptionNES
+  = Set[java.lang.Throwable] \/ Option[(types.ModelEntityConcept, types.ImmutableModelTerminologyGraph)]
+
+  val emptyNestingConceptAndGraphNES
+  : NestingConceptAndGraphOptionNES
+  = \/-(None)
+
+  type ImmutableModelTerminologyGraphsNES
+  = Set[java.lang.Throwable] \/ Set[types.ImmutableModelTerminologyGraph]
+
+  val emptyImmutableTerminologyGraphsNES
+  : ImmutableModelTerminologyGraphsNES
+  = \/-(Set())
+
+  type Mutable2IMutableTerminologyMap
+  = Map[MutableModelTerminologyGraph, ImmutableModelTerminologyGraph]
+
+  val emptyMutable2ImmutableTerminologyMapNES
+  : Set[java.lang.Throwable] \/ types.Mutable2IMutableTerminologyMap
+  = \/-(Map())
 
   def entityAlreadyDefinedException
   (kind: EntityExceptionKind,
@@ -92,8 +112,11 @@ package object types {
 
   def immutableModelTerminologyGraphResolver
   (omfMetadata: OWLOntology,
-   imports: Iterable[ImmutableModelTerminologyGraph],
+   s: OntologyLoaderState,
    ont: OWLOntology,
+   extensions: Set[ImmutableModelTerminologyGraph],
+   nesting: Option[(ModelEntityConcept, ImmutableModelTerminologyGraph)],
+   m2i: Mutable2IMutableTerminologyMap,
    omfStore: OWLAPIOMFGraphStore)
   : Set[java.lang.Throwable] \/ ImmutableModelTerminologyGraphResolver = {
     implicit val ops = omfStore.ops
@@ -184,13 +207,20 @@ package object types {
         _ <- omfStore.ops.setTerminologyGraphShortName(g, getOntologyShortName)(omfStore)
         _ <- omfStore.ops.setTerminologyGraphUUID(g, getOntologyUUID)(omfStore)
         _ <- {
-          (().right[Set[java.lang.Throwable]] /: imports) {
+          (().right[Set[java.lang.Throwable]] /: extensions) {
             (acc: Set[java.lang.Throwable] \/ Unit, importG: ImmutableModelTerminologyGraph) =>
             acc +++
-            omfStore.createTerminologyGraphDirectExtensionAxiom(extendingG = g, extendedG = importG).map(_ => ())
+            omfStore
+              .createTerminologyGraphDirectExtensionAxiom(extendingG=g, extendedG=importG)
+              .map(_ => ())
           }
         }
-        resolver = ResolverHelper(omfMetadata, g, imports, ont, omfStore)
+        _ <- nesting.fold[Set[java.lang.Throwable] \/ Unit](\/-(())){ case (nestingC, nestingG) =>
+          omfStore
+            .createTerminologyGraphDirectNestingAxiom(parentG=nestingG, parentC=nestingC, childG=g)
+            .map(_ => ())
+        }
+        resolver = ResolverHelper(omfMetadata, g, extensions, ont, omfStore)
       } yield
         ImmutableModelTerminologyGraphResolver(resolver)
     }

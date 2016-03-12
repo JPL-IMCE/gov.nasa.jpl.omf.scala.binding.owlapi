@@ -60,7 +60,7 @@ import scala.collection.JavaConversions._
 import scala.concurrent.duration.FiniteDuration
 import scala.language.postfixOps
 import scala.util.control.Exception._
-import scala.{Boolean, None, Option, Some, StringContext, Tuple2, Unit, annotation}
+import scala.{Boolean, Int, None, Option, Some, StringContext, Tuple2, Unit, annotation}
 import scala.Predef.{Map => _, Set => _, _}
 import scalaz._
 import Scalaz._
@@ -301,7 +301,7 @@ object OWLAPIOMFLoader {
   /**
     * The type of a topological ordering of OMF document graph nodes.
     */
-  type OMFDocumentTopologicalOrder = OMFDocumentGraph#TopologicalOrder[Graph[IRI, DiEdge]#NodeT
+  type OMFDocumentTopologicalOrder = OMFDocumentGraph#TopologicalOrder[Graph[IRI, DiEdge]#NodeT]
 
   def loadTerminologyGraph
   (iri: IRI)
@@ -318,12 +318,22 @@ object OWLAPIOMFLoader {
 
       // Add edges for every OMF document extension relationship
       val g1: OMFDocumentGraph = (g0 /: s.extensions) { (gi, e) =>
-        gi + e.extendingG ~> e.extendedG
+
+        // load the extended parent graph before the extending child graph
+        // because terms in the extending child graph can reference
+        // terms in scope of the extended parent graph
+        gi + e.extendedG ~> e.extendingG
+
       }
 
       // Add edges for every OMF document nesting relationship
       val g2: OMFDocumentGraph = (g1 /: s.nesting2nested) { (gj, n) =>
+
+        // load the nesting parent graph before the nested child graph
+        // because terms in the nested child graph can reference
+        // terms in scope of the nesting parent graph
         gj + n.nestedG ~> n.nestingG
+
       }
 
       g2
@@ -337,20 +347,51 @@ object OWLAPIOMFLoader {
               )
             )),
           (order: OMFDocumentTopologicalOrder) =>
-            loadTerminologyGraphs(order, s)
+            loadTerminologyGraphs(order, s).flatMap { m2i =>
+              store.lookupTerminologyGraph(iri) match {
+                case Some(ig: types.ImmutableModelTerminologyGraph) =>
+                  \/-((ig, m2i))
+                case other =>
+                  -\/(Set(OMFError.omfError(
+                    s"BUG: There should have been an OMF graph for $iri, instead got $other")))
+              }
+            }
         )
-
-
-      scala.Predef.???
     }
 
   def loadTerminologyGraphs
   (queue: OMFDocumentTopologicalOrder,
    s: OntologyLoaderState)
   (implicit ops: OWLAPIOMFOps, store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ (types.ImmutableModelTerminologyGraph, types.Mutable2IMutableTerminologyMap)
-  = {
-    scala.Predef.???
+  : Set[java.lang.Throwable] \/ types.Mutable2IMutableTerminologyMap
+  = ( types.emptyMutable2ImmutableTerminologyMapNES /: queue.toLayered )( loadTerminologyGraphLayer(s) )
+
+  def loadTerminologyGraphLayer
+  (s: OntologyLoaderState)
+  (acc: Set[java.lang.Throwable] \/ types.Mutable2IMutableTerminologyMap,
+   layer: (Int, scala.collection.Iterable[OMFDocumentNode]))
+  (implicit ops: OWLAPIOMFOps, store: OWLAPIOMFGraphStore)
+  : Set[java.lang.Throwable] \/ types.Mutable2IMutableTerminologyMap
+  = ( acc /: layer._2 )( loadTerminologyGraphFromOntologyDocument(s, layer._1) )
+
+  def loadTerminologyGraphFromOntologyDocument
+  (s: OntologyLoaderState, layer: Int)
+  (acc: Set[java.lang.Throwable] \/ types.Mutable2IMutableTerminologyMap,
+   node: OMFDocumentNode)
+  (implicit ops: OWLAPIOMFOps, store: OWLAPIOMFGraphStore)
+  : Set[java.lang.Throwable] \/ types.Mutable2IMutableTerminologyMap
+  = acc.flatMap { m2i =>
+    val ontIRI = node.value
+    assert(s.ontologies.contains(ontIRI))
+    val ont = s.ontologies(ontIRI)
+
+    store
+      .lookupTerminologyGraph(ontIRI)
+      .fold[Set[java.lang.Throwable] \/ types.Mutable2IMutableTerminologyMap](
+      store.convertTerminologyGraphFromOntologyDocument(s, m2i, ontIRI, ont)
+    ) { _ =>
+      \/-(m2i)
+    }
   }
 
 }
