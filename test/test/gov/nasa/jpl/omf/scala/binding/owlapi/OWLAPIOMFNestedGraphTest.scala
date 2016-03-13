@@ -99,7 +99,7 @@ class OWLAPIOWFNestedGraphTestLocalCatalog
   }
 
   val saveMetadataIRI =
-    saveStore.omfModule.ops.makeIRI("http://imce.jpl.nasa.gov/test/nestedGraph/metadata")
+    saveStore.omfModule.ops.makeIRI("http://imce.jpl.nasa.gov/test/nestedGraph/saveMetadata")
       .valueOr { (errors: Set[java.lang.Throwable]) =>
         val message = s"${errors.size} errors" + errors.map(_.getMessage).toList.mkString("\n => ","\n => ","\n")
         throw new scala.IllegalArgumentException(message)
@@ -144,7 +144,7 @@ class OWLAPIOWFNestedGraphTestLocalCatalog
   }
 
   val loadMetadataIRI =
-    loadStore.omfModule.ops.makeIRI("http://imce.jpl.nasa.gov/test/nestedGraphTest/load")
+    loadStore.omfModule.ops.makeIRI("http://imce.jpl.nasa.gov/test/nestedGraph/loadMetadata")
       .valueOr { (errors: Set[java.lang.Throwable]) =>
         val message = s"${errors.size} errors" + errors.map(_.getMessage).toList.mkString("\n => ","\n => ","\n")
         throw new scala.IllegalArgumentException(message)

@@ -146,11 +146,13 @@ abstract class ModelTerminologyGraph
   def getTypeTerms: ( IRI, Iterable[ModelTypeTerm] ) = ( iri, iri2typeTerm.values.to[Iterable] )
 
   def fromTerminologyGraph
-  ( extended: Iterable[ModelTerminologyGraph] )
+  ( extended: Iterable[ModelTerminologyGraph],
+    nesting: Option[(ModelEntityConcept, ModelTerminologyGraph)])
   : OWLAPITerminologyGraphSignature =
     OWLAPITerminologyGraphSignature(
       iri, kind,
       extended,
+      nesting,
       aspects.to[Iterable],
       concepts.to[Iterable],
       reifiedRelationships.to[Iterable],

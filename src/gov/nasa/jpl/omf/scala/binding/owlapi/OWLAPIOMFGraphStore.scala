@@ -884,7 +884,10 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
   : OWLAPITerminologyGraphSignature = {
     val result
     : OWLAPITerminologyGraphSignature
-    = g.fromTerminologyGraph(extendingChild2ExtendedParents(g).to[Iterable])
+    = g.fromTerminologyGraph(
+      extendingChild2ExtendedParents(g).to[Iterable],
+      lookupNestingAxiomForNestedChildIfAny(g)
+        .map(ax => (ax.nestingContext, ax.nestingParent)))
 
     result
   }
@@ -1961,6 +1964,9 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
         val current: java.lang.Long = java.lang.System.currentTimeMillis()
 
         val itgraph = tgraph.copy(imports = is)
+
+        // @todo IMCEI-128 can we already pass the imports & nesting?
+        // to do that, the import & nesting objects must not refer to the extending graph or to the nested graph respectively.
         val ig =
           types
             .ImmutableModelTerminologyGraph(
@@ -1993,7 +1999,6 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
         val result =
           register(
             ig, itgraph, m2i,
-            lookupNestingAxiomForNestedChildIfAny(mg),
             mg.getTerminologyGraphShortName,
             mg.getTerminologyGraphUUID,
             i_mg_relativePath_value, i_mg_iriHashPrefix_value)
@@ -2105,7 +2110,6 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
   (g: types.ImmutableModelTerminologyGraph,
    info: OWLAPITerminologyGraphSignature,
    m2i: types.Mutable2IMutableTerminologyMap,
-   nesting: Option[types.TerminologyGraphDirectNestingAxiom],
    name: Option[String],
    uuid: Option[String],
    relativeIRIPath: String,
@@ -2211,13 +2215,15 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
             setTerminologyGraphUUID(g, id)
           }
 
-          _ <- nesting.fold[Set[java.lang.Throwable] \/ Unit](\/-(())) { ns =>
+          _ <- info.nesting.fold[Set[java.lang.Throwable] \/ Unit](\/-(())) {
+            case (nestingC, nestingG) =>
             createTerminologyGraphDirectNestingAxiom(
-              parentG = ns.nestingParent,
-              parentC = ns.nestingContext,
+              parentG = nestingG,
+              parentC = nestingC,
               childG = g).map(_ => ())
           }
 
+          // @todo IMCEI-128 move to the constructor
           _ <- {
             (().right[Set[java.lang.Throwable]] /: info.imports) {
               (acc: Set[java.lang.Throwable] \/ Unit, i: types.ModelTerminologyGraph) =>
@@ -2225,6 +2231,7 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
             }
           }
 
+          // @todo IMCEI-128 move to the constructor
           _ <- {
             (().right[Set[java.lang.Throwable]] /: info.aspects) {
               (acc: Set[java.lang.Throwable] \/ Unit, a: types.ModelEntityAspect) =>

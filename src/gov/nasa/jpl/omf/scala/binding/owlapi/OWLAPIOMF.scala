@@ -43,7 +43,7 @@ import gov.nasa.jpl.omf.scala.core.RelationshipCharacteristics._
 import gov.nasa.jpl.omf.scala.core.TerminologyKind._
 
 import scala.collection.immutable._
-import scala.Boolean
+import scala.{Boolean,Option}
 import scala.Predef.require
 
 trait OWLAPIOMF
@@ -232,6 +232,7 @@ case class OWLAPITerminologyGraphSignature
 ( override val iri: OWLAPIOMF#IRI,
   override val kind: TerminologyKind,
   override val imports: Iterable[OWLAPIOMF#ModelTerminologyGraph],
+  override val nesting: Option[(OWLAPIOMF#ModelEntityConcept, OWLAPIOMF#ModelTerminologyGraph)],
   override val aspects: Iterable[OWLAPIOMF#ModelEntityAspect],
   override val concepts: Iterable[OWLAPIOMF#ModelEntityConcept],
   override val reifiedRelationships: Iterable[OWLAPIOMF#ModelEntityReifiedRelationship],
@@ -248,6 +249,7 @@ case class OWLAPITerminologyGraphSignature
   require(null != iri)
   require(null != kind)
   require(null != imports)
+  require(null != nesting)
   require(null != aspects)
   require(null != concepts)
   require(null != reifiedRelationships)
