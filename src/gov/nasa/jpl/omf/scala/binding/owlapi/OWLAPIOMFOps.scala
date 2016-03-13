@@ -200,6 +200,50 @@ trait OWLAPIStoreOps
   : Set[java.lang.Throwable] \/ (types.ImmutableModelTerminologyGraph, types.Mutable2IMutableTerminologyMap) =
     store.loadTerminologyGraph(iri)(this)
 
+  override def isTerminologyGraphMutable
+  ( graph: types.ModelTerminologyGraph )
+  ( implicit store: OWLAPIOMFGraphStore )
+  : Boolean
+  = graph match {
+    case _: types.MutableModelTerminologyGraph =>
+      true
+    case _ =>
+      false
+  }
+
+  override def asMutableTerminologyGraph
+  ( graph: types.ModelTerminologyGraph )
+  ( implicit store: OWLAPIOMFGraphStore )
+  : Option[types.MutableModelTerminologyGraph]
+  = graph match {
+    case g: types.MutableModelTerminologyGraph =>
+      Some(g)
+    case _ =>
+      None
+  }
+
+  override def isTerminologyGraphImmutable
+  ( graph: types.ModelTerminologyGraph )
+  ( implicit store: OWLAPIOMFGraphStore )
+  : Boolean
+  = graph match {
+    case _: types.ImmutableModelTerminologyGraph =>
+      true
+    case _ =>
+      false
+  }
+
+  override def asImmutableTerminologyGraph
+  ( graph: types.ModelTerminologyGraph )
+  ( implicit store: OWLAPIOMFGraphStore )
+  : Option[types.ImmutableModelTerminologyGraph]
+  = graph match {
+    case g: types.ImmutableModelTerminologyGraph =>
+      Some(g)
+    case _ =>
+      None
+  }
+
   override def fromTerminologyGraph
   (graph: types.ModelTerminologyGraph)
   (implicit store: OWLAPIOMFGraphStore)
