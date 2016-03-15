@@ -611,12 +611,12 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
   = directNestingAxioms.get(nestedG).map(_._2)
 
   /**
-    * Find the axiom TerminologyGraphDirectNestingAxiom(nestingContext=nestingC), if any.
+    * Find the axioms TerminologyGraphDirectNestingAxiom(nestingContext=nestingC)
     */
-  def lookupNestingAxiomForNestingContextIfAny
+  def lookupNestingAxiomsForNestingContext
   (nestingC: types.ModelEntityConcept)
-  : Option[types.TerminologyGraphDirectNestingAxiom]
-  = directNestingAxioms.values.map(_._2).find(_.nestingContext == nestingC)
+  : Set[types.TerminologyGraphDirectNestingAxiom]
+  = directNestingAxioms.values.map(_._2).filter(_.nestingContext == nestingC).to[Set]
 
   /**
     * Find the axioms TerminologyGraphDirectNestingAxiom(nestingParent=nestingG)
@@ -662,7 +662,7 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
       .filter(ax => ax.nestingContext==parentC && ax.nestedChild==childG)
 
     val pCAxiom =
-      lookupNestingAxiomForNestingContextIfAny(parentC)
+      lookupNestingAxiomsForNestingContext(parentC)
       .filter(ax => ax.nestingParent == parentG && ax.nestedChild == childG)
 
     val cGAxiom =
@@ -1961,52 +1961,75 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
 
       tiN.flatMap { is =>
 
-        val current: java.lang.Long = java.lang.System.currentTimeMillis()
+        val ins
+        : Set[java.lang.Throwable] \/ Option[(OWLAPIOMF#ModelEntityConcept, OWLAPIOMF#ModelTerminologyGraph)]
+        = tgraph
+          .nesting
+          .fold[Set[java.lang.Throwable] \/ Option[(OWLAPIOMF#ModelEntityConcept, OWLAPIOMF#ModelTerminologyGraph)]](
+          \/-(None)
+        ){ ns =>
+          immutableTBoxGraphs
+            .get(ns._2.iri)
+            .fold[Set[java.lang.Throwable] \/ Option[(OWLAPIOMF#ModelEntityConcept, OWLAPIOMF#ModelTerminologyGraph)]](
+            -\/(Set(OMFError.omfError(
+              s"Cannot convert mutable graph because there is no immutable graph for the nesting parent\n"+
+              s"nesting parent: ${ns._2.iri}\n"+
+              s"mutable graph: ${mg.iri}"
+            )))
+          ){ iparent =>
+            \/-(Some((ns._1, iparent)))
+          }
+        }
 
-        val itgraph = tgraph.copy(imports = is)
+        ins.flatMap { inesting =>
 
-        // @todo IMCEI-128 can we already pass the imports & nesting?
-        // to do that, the import & nesting objects must not refer to the extending graph or to the nested graph respectively.
-        val ig =
-          types
-            .ImmutableModelTerminologyGraph(
-              kind = mg.kind,
-              ont = mg.ont,
-              extraProvenanceMetadata = mg.extraProvenanceMetadata,
-              tgraph.aspects.toVector,
-              tgraph.concepts.toVector,
-              tgraph.reifiedRelationships.toVector,
-              tgraph.unreifiedRelationships.toVector,
-              tgraph.scalarDataTypes.toVector,
-              tgraph.structuredDataTypes.toVector,
-              tgraph.entity2scalarDataRelationships.toVector,
-              tgraph.entity2structureDataRelationships.toVector,
-              tgraph.structure2scalarDataRelationships.toVector,
-              tgraph.structure2structureDataRelationships.toVector,
-              tgraph.axioms.toVector)(mg.ops)
+          val current: java.lang.Long = java.lang.System.currentTimeMillis()
 
-        val i_mg_relativePath_dataValue = getModelTerminologyGraphRelativeIRIPath(mg)
-        require(i_mg_relativePath_dataValue.isDefined)
+          val itgraph = tgraph.copy(imports = is, nesting = inesting)
 
-        val i_mg_relativePath_value: String = i_mg_relativePath_dataValue.get
-        require(!i_mg_relativePath_value.endsWith("_Gro"))
-        require(!i_mg_relativePath_value.endsWith("_Grw"))
+          // @todo IMCEI-128 can we already pass the imports & nesting?
+          // to do that, the import & nesting objects must not refer to the extending graph or to the nested graph respectively.
+          val ig =
+            types
+              .ImmutableModelTerminologyGraph(
+                kind = mg.kind,
+                ont = mg.ont,
+                extraProvenanceMetadata = mg.extraProvenanceMetadata,
+                tgraph.aspects.toVector,
+                tgraph.concepts.toVector,
+                tgraph.reifiedRelationships.toVector,
+                tgraph.unreifiedRelationships.toVector,
+                tgraph.scalarDataTypes.toVector,
+                tgraph.structuredDataTypes.toVector,
+                tgraph.entity2scalarDataRelationships.toVector,
+                tgraph.entity2structureDataRelationships.toVector,
+                tgraph.structure2scalarDataRelationships.toVector,
+                tgraph.structure2structureDataRelationships.toVector,
+                tgraph.axioms.toVector)(mg.ops)
 
-        val i_mg_iriHashPrefix_value = getModelTerminologyGraphIRIHashPrefix(mg)
+          val i_mg_relativePath_dataValue = getModelTerminologyGraphRelativeIRIPath(mg)
+          require(i_mg_relativePath_dataValue.isDefined)
 
-        val m2i: types.Mutable2IMutableTerminologyMap = Map(mg -> ig) ++ acc
+          val i_mg_relativePath_value: String = i_mg_relativePath_dataValue.get
+          require(!i_mg_relativePath_value.endsWith("_Gro"))
+          require(!i_mg_relativePath_value.endsWith("_Grw"))
 
-        val result =
-          register(
-            ig, itgraph, m2i,
-            mg.getTerminologyGraphShortName,
-            mg.getTerminologyGraphUUID,
-            i_mg_relativePath_value, i_mg_iriHashPrefix_value)
+          val i_mg_iriHashPrefix_value = getModelTerminologyGraphIRIHashPrefix(mg)
 
-        val delta = FiniteDuration.apply(java.lang.System.currentTimeMillis() - current, TimeUnit.MILLISECONDS)
-        System.out.println(s"\nRegistration in ${prettyDuration(delta)}: ${ig.kindIRI}")
+          val m2i: types.Mutable2IMutableTerminologyMap = Map(mg -> ig) ++ acc
 
-        result
+          val result =
+            register(
+              ig, itgraph, m2i,
+              mg.getTerminologyGraphShortName,
+              mg.getTerminologyGraphUUID,
+              i_mg_relativePath_value, i_mg_iriHashPrefix_value)
+
+          val delta = FiniteDuration.apply(java.lang.System.currentTimeMillis() - current, TimeUnit.MILLISECONDS)
+          System.out.println(s"\nRegistration in ${prettyDuration(delta)}: ${ig.kindIRI}")
+
+          result
+        }
       }
     }
 
@@ -2020,35 +2043,41 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
       if (queue.isEmpty) {
         if (visited.isEmpty)
           \/-(acc)
-        else if (acc.contains(visited.head))
-          convert(acc, Seq(), visited.tail)
-        else
-          convert1(acc, visited.head) match {
-            case -\/(nels) =>
-              -\/(nels)
-            case \/-(acc1) =>
-              convert(acc1, Seq(visited.head), visited.tail)
-          }
+        else {
+          val mg = visited.head
+
+          val nestedQueue =
+            lookupNestingAxiomsForNestingParent(mg)
+              .map(_.nestedChild)
+              .flatMap {
+                case _: types.ImmutableModelTerminologyGraph =>
+                  None
+
+                case mn: types.MutableModelTerminologyGraph   =>
+                  if (queue.contains(mn))
+                    None
+                  else if (acc.contains(mn))
+                    None
+                  else if (visited.contains(mn))
+                    None
+                  else
+                    Some(mn)
+              }
+              .to[Seq]
+
+          if (acc.contains(mg))
+            convert(acc, nestedQueue, visited.tail)
+          else
+            convert1(acc, mg) match {
+              case -\/(nels) =>
+                -\/(nels)
+              case \/-(acc1) =>
+                convert(acc1, nestedQueue, visited.tail)
+            }
+        }
       } else {
         val mg = queue.head
         val mgInfo = fromTerminologyGraph(mg)
-
-        val nestedQueue =
-          lookupNestingAxiomsForNestingParent(mg)
-          .map(_.nestedChild)
-          .flatMap {
-            case _: types.ImmutableModelTerminologyGraph =>
-              None
-
-            case mn: types.MutableModelTerminologyGraph   =>
-              if (queue.contains(mn))
-                None
-              else if (acc.contains(mn))
-                None
-              else
-                Some(mn)
-          }
-          .to[Seq]
 
         val extendedQueue =
           mgInfo
@@ -2068,7 +2097,7 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
 
         convert(
           acc,
-          extendedQueue ++ nestedQueue ++ queue.tail,
+          extendedQueue ++ queue.tail,
           queue.head +: visited)
       }
     }

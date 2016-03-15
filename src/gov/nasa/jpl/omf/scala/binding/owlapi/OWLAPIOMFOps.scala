@@ -283,13 +283,13 @@ trait OWLAPIStoreOps
   = store.lookupNestingAxiomForNestedChildIfAny(nestedG)
 
   /**
-    * Find the axiom TerminologyGraphDirectNestingAxiom(nestingContext=nestingC), if any.
+    * Find the axioms TerminologyGraphDirectNestingAxiom(nestingContext=nestingC).
     */
-  override def lookupNestingAxiomForNestingContextIfAny
+  override def lookupNestingAxiomsForNestingContext
   (nestingC: ModelEntityConcept)
   (implicit store: OWLAPIOMFGraphStore)
-  : Option[TerminologyGraphDirectNestingAxiom]
-  = store.lookupNestingAxiomForNestingContextIfAny(nestingC)
+  : Set[TerminologyGraphDirectNestingAxiom]
+  = store.lookupNestingAxiomsForNestingContext(nestingC)
 
   /**
     * Find the axioms TerminologyGraphDirectNestingAxiom(nestingParent=nestingG)
@@ -548,11 +548,11 @@ trait OWLAPIImmutableTerminologyGraphOps
   : Option[types.TerminologyGraphDirectNestingAxiom]
   = store.lookupNestingAxiomForNestedChildIfAny(nestedG)
 
-  override def lookupNestingAxiomForNestingContextIfAny
+  override def lookupNestingAxiomsForNestingContext
   (nestingC: types.ModelEntityConcept)
   (implicit store: OWLAPIOMFGraphStore)
-  : Option[types.TerminologyGraphDirectNestingAxiom]
-  = store.lookupNestingAxiomForNestingContextIfAny(nestingC)
+  : Set[types.TerminologyGraphDirectNestingAxiom]
+  = store.lookupNestingAxiomsForNestingContext(nestingC)
 
   override def lookupNestingAxiomsForNestingParent
   (nestingG: types.ModelTerminologyGraph)
