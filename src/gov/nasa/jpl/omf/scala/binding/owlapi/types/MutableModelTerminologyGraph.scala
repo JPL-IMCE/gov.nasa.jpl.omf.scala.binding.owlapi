@@ -85,14 +85,15 @@ object AxiomExceptionKind extends Enumeration {
   EntityConceptSubClassAxiomException,
   EntityReifiedRelationshipSubClassAxiomException,
   EntityConceptDesignationTerminologyGraphAxiomException,
-  ScalarDataTypeFacetRestrictionAxiomException = Value
+  ScalarDataTypeFacetRestrictionAxiomException,
+  ModelScalarDataRelationshipRestrictionAxiomFromEntityToLiteralException = Value
 }
 
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.AxiomExceptionKind._
 
 object AxiomScopeAccessKind extends Enumeration {
   type AxiomScopeAccessKind = Value
-  val Sub, Sup, Rel, Range = Value
+  val Sub, Sup, Domain, Rel, Range = Value
 }
 
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.AxiomScopeAccessKind._
@@ -889,33 +890,42 @@ case class MutableModelTerminologyGraph
 
   def createDataRelationshipFromEntityToScalar
   (esc: OWLDataProperty, source: ModelEntityDefinition, target: ModelScalarDataType)
-  : Set[java.lang.Throwable] \/ types.ModelDataRelationshipFromEntityToScalar =
+  (implicit store: OWLAPIOMFGraphStore)
+  : Set[java.lang.Throwable] \/ types.ModelDataRelationshipFromEntityToScalar
+  = {
+    val escIRI: IRI = esc.getIRI
     iri2typeTerm
-      .get(esc.getIRI)
-      .fold[Set[java.lang.Throwable] \/ types.ModelDataRelationshipFromEntityToScalar]({
-      val _esc = types.ModelDataRelationshipFromEntityToScalar(esc, source, target)
-      e2sc += _esc
-      iri2typeTerm += esc.getIRI -> _esc
-      \/-(_esc)
-    }){
+      .get(escIRI)
+      .fold[Set[java.lang.Throwable] \/ types.ModelDataRelationshipFromEntityToScalar](
+      for {
+        _esc <- store.createDataRelationshipFromEntityToScalar(
+          this, types.ModelDataRelationshipFromEntityToScalar(esc, source, target))
+      } yield {
+        e2sc += _esc
+        iri2typeTerm += escIRI -> _esc
+        _esc
+      }) {
       case t: types.ModelDataRelationshipFromEntityToScalar =>
         Set(
-          entityAlreadyDefinedException(EntityAspect, esc.getIRI, t)
+          entityAlreadyDefinedException(EntityAspect, escIRI, t)
         ).left
-      case t                                                =>
+      case t =>
         Set(
-          entityConflictException(EntityAspect, esc.getIRI, t)
+          entityConflictException(EntityAspect, escIRI, t)
         ).left
     }
+  }
 
   protected def makeDataRelationshipFromEntityToScalar
   (dIRI: IRI,
    source: types.ModelEntityDefinition,
    target: types.ModelScalarDataType)
-  : Set[java.lang.Throwable] \/ types.ModelDataRelationshipFromEntityToScalar = {
+  (implicit store: OWLAPIOMFGraphStore)
+  : Set[java.lang.Throwable] \/ types.ModelDataRelationshipFromEntityToScalar
+  = {
     val escDP = owlDataFactory.getOWLDataProperty(dIRI)
     for {
-      result <- createDataRelationshipFromEntityToScalar(escDP, source, target)
+      term <- createDataRelationshipFromEntityToScalar(escDP, source, target)
     } yield {
       for {
         change <- Seq(
@@ -938,7 +948,7 @@ case class MutableModelTerminologyGraph
                  result == ChangeApplied.SUCCESSFULLY,
                  s"\nmakeDataRelationshipFromEntityToScalar:\n$change")
       }
-      result
+      term
     }
   }
 
@@ -976,6 +986,90 @@ case class MutableModelTerminologyGraph
         entityConflictException(DataRelationshipFromEntityToScalar, dIRI, term)
       ).left
     }
+
+  def addScalarDataRelationshipRestrictionAxiomFromEntityToLiteral
+  ( entityDomain: types.ModelEntityDefinition,
+    scalarDataProperty: types.ModelDataRelationshipFromEntityToScalar,
+    literalRange: String )
+  ( implicit store: OWLAPIOMFGraphStore )
+  : Set[java.lang.Throwable] \/ types.ModelScalarDataRelationshipRestrictionAxiomFromEntityToLiteral
+  = ( isTypeTermDefinedRecursively( entityDomain ),
+      isTypeTermDefinedRecursively( scalarDataProperty ) ) match {
+    case (true, true) =>
+      for {
+        axiom <-
+        createScalarDataRelationshipRestrictionAxiomFromEntityToLiteral(entityDomain, scalarDataProperty, literalRange)
+      } yield {
+        val restrictedEntityC = owlDataFactory.getOWLClass(entityDomain.iri)
+        val restrictingDP = owlDataFactory.getOWLDataProperty(scalarDataProperty.iri)
+        for {
+          change <- Seq(
+            new AddAxiom(ont,
+              owlDataFactory.getOWLSubClassOfAxiom(
+                restrictedEntityC,
+                owlDataFactory.getOWLDataAllValuesFrom(
+                  restrictingDP,
+                  owlDataFactory.getOWLDataOneOf(owlDataFactory.getOWLLiteral(literalRange)))))
+          )
+        } {
+          val result = ontManager.applyChange(change)
+          require(
+            result == ChangeApplied.SUCCESSFULLY || result == ChangeApplied.NO_OPERATION,
+            s"\naddScalarDataRelationshipRestrictionAxiomFromEntityToLiteral:\n$change")
+        }
+        axiom
+      }
+    case (false, true) =>
+      Set(
+        axiomScopeException(
+          ModelScalarDataRelationshipRestrictionAxiomFromEntityToLiteralException,
+          Map(Domain -> entityDomain))
+      ).left
+    case (true, false) =>
+      Set(
+        axiomScopeException(
+          ModelScalarDataRelationshipRestrictionAxiomFromEntityToLiteralException,
+          Map(Rel -> scalarDataProperty))
+      ).left
+    case (false, false) =>
+      Set(
+        axiomScopeException(
+          ModelScalarDataRelationshipRestrictionAxiomFromEntityToLiteralException,
+          Map(Domain -> entityDomain, Rel -> scalarDataProperty))
+      ).left
+  }
+
+  def
+  createScalarDataRelationshipRestrictionAxiomFromEntityToLiteral
+  ( entityDomain: types.ModelEntityDefinition,
+    scalarDataProperty: types.ModelDataRelationshipFromEntityToScalar,
+    literalRange: String )
+  ( implicit store: OWLAPIOMFGraphStore )
+  : Set[java.lang.Throwable] \/ types.ModelScalarDataRelationshipRestrictionAxiomFromEntityToLiteral
+  = ax
+    .find {
+      case axiom: types.ModelScalarDataRelationshipRestrictionAxiomFromEntityToLiteral =>
+        axiom.restrictedEntity == entityDomain && axiom.restrictingDataProperty == scalarDataProperty
+      case _ =>
+        false
+    }
+    .fold[Set[java.lang.Throwable] \/ types.ModelScalarDataRelationshipRestrictionAxiomFromEntityToLiteral](
+    for {
+      axiom <-
+      store
+      .createOMFScalarDataRelationshipRestrictionAxiomFromEntityToLiteral(
+        this,
+        types.ModelScalarDataRelationshipRestrictionAxiomFromEntityToLiteral(
+          entityDomain, scalarDataProperty, literalRange))
+    } yield {
+      ax += axiom
+      axiom
+    }
+  ){ other =>
+    Set(
+      duplicateModelTermAxiomException(ModelScalarDataRelationshipRestrictionAxiomFromEntityToLiteralException, other)
+    ).left
+  }
 
   def addDataRelationshipFromEntityToStructure
   (dIRI: IRI,

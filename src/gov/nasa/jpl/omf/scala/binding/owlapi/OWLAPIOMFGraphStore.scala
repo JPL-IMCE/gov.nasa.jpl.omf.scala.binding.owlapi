@@ -258,6 +258,15 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
 
   // ModelTypeTerm  
   // ModelDataRelationship
+  lazy val OMF_HAS_MODEL_DATA_RELATIONSHIP_FROM_ENTITY =
+    omfModelObjectProperties("hasModelDataRelationshipFromEntity")
+  lazy val OMF_HAS_MODEL_DATA_RELATIONSHIP_FROM_STRUCTURE =
+    omfModelObjectProperties("hasModelDataRelationshipFromStructure")
+  lazy val OMF_HAS_MODEL_DATA_RELATIONSHIP_TO_SCALAR =
+    omfModelObjectProperties("hasModelDataRelationshipToScalar")
+  lazy val OMF_HAS_MODEL_DATA_RELATIONSHIP_TO_STRUCTURE =
+    omfModelObjectProperties("hasModelDataRelationshipToStructure")
+
   lazy val OMF_MODEL_DATA_RELATIONSHIP_FROM_ENTITY_TO_SCALAR =
     omfModelClasses("ModelDataRelationshipFromEntityToScalar")
   protected val OMF_MODEL_DATA_RELATIONSHIP_FROM_ENTITY_TO_SCALAR2Instance =
@@ -353,6 +362,17 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
 
   // Data Properties
   lazy val OMF_HAS_IRI = omfModelDataProperties("hasIRI")
+
+  // tbox:ModelScalarDataRelationshipRestrictionAxiomFromEntityToLiteral
+
+  lazy val OMF_MODEL_SCALAR_DATA_RELATIONSHIP_RESTRICTION_AXIOM_FROM_ENTITY_TO_LITERAL =
+    omfModelClasses("ModelScalarDataRelationshipRestrictionAxiomFromEntityToLiteral")
+  protected val OMF_MODEL_SCALAR_DATA_RELATIONSHIP_RESTRICTION_AXIOM_FROM_ENTITY_TO_LITERAL2Instance =
+    scala.collection.mutable.HashMap[types.ModelScalarDataRelationshipRestrictionAxiomFromEntityToLiteral, OWLNamedIndividual]()
+
+  lazy val OMF_HAS_RESTRICTED_ENTITY_DOMAIN = omfModelObjectProperties("hasRestrictedEntityDomain")
+  lazy val OMF_HAS_RESTRICTING_SCALAR_DATA_RELATIONSHIP = omfModelObjectProperties("hasRestrictingScalarDataRelationship")
+  lazy val OMF_HAS_LITERAL_RESTRICTION = omfModelDataProperties("hasLiteralRestriction")
 
   // Datatypes
   lazy val OWL_REAL: OWLDatatype = ontManager.getOWLDataFactory.getDoubleOWLDatatype
@@ -1611,6 +1631,48 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
     }
   }
 
+  def createDataRelationshipFromEntityToScalar
+  (tbox: types.ModelTerminologyGraph,
+   e2sc: types.ModelDataRelationshipFromEntityToScalar)
+  : Set[java.lang.Throwable] \/ types.ModelDataRelationshipFromEntityToScalar
+  = {
+    val entityI = OMF_MODEL_ENTITY_DEFINITION2Instance(e2sc.source)
+    val scalarI = OMF_MODEL_SCALAR_DATA_TYPE2Instance(e2sc.target)
+    for {
+      termIRI <- makeMetadataInstanceIRI(
+        omfMetadata.get,
+        "EntityToScalar",
+        tbox.iri,
+        e2sc.source.iri,
+        e2sc.target.iri)
+      termI = owlDataFactory.getOWLNamedIndividual(termIRI)
+    } yield {
+      for {
+        change <- Seq(
+          new AddAxiom(omfMetadata.get,
+            owlDataFactory
+            .getOWLDeclarationAxiom(termI)),
+          new AddAxiom(omfMetadata.get,
+            owlDataFactory
+            .getOWLClassAssertionAxiom(OMF_MODEL_DATA_RELATIONSHIP_FROM_ENTITY_TO_SCALAR, termI)),
+          new AddAxiom(omfMetadata.get,
+            owlDataFactory
+            .getOWLObjectPropertyAssertionAxiom(OMF_HAS_MODEL_DATA_RELATIONSHIP_FROM_ENTITY, termI, entityI)),
+          new AddAxiom(omfMetadata.get,
+            owlDataFactory
+              .getOWLObjectPropertyAssertionAxiom(OMF_HAS_MODEL_DATA_RELATIONSHIP_TO_SCALAR, termI, scalarI))
+        )
+      } {
+        val result = ontManager.applyChange(change)
+        require(
+          result == ChangeApplied.SUCCESSFULLY || result == ChangeApplied.NO_OPERATION,
+          s"\ncreateDataRelationshipFromEntityToScalar:\n$change")
+      }
+      OMF_MODEL_DATA_RELATIONSHIP_FROM_ENTITY_TO_SCALAR2Instance += (e2sc -> termI)
+      e2sc
+    }
+  }
+
   /**
     * Create an OMF EntityConceptUniversalRestrictionAxiom.
     *
@@ -1841,6 +1903,52 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
     }
     OMF_ENTITY_REIFIED_RELATIONSHIP_SUB_CLASS_AXIOM2Instance += (axiomT -> axiomI)
     axiomT
+    }
+  }
+
+  def createOMFScalarDataRelationshipRestrictionAxiomFromEntityToLiteral
+  (tbox: types.ModelTerminologyGraph,
+   axiomT: types.ModelScalarDataRelationshipRestrictionAxiomFromEntityToLiteral)
+  : Set[java.lang.Throwable] \/ types.ModelScalarDataRelationshipRestrictionAxiomFromEntityToLiteral
+  = {
+    val entityI = OMF_MODEL_TYPE_TERM2Instance(axiomT.restrictedEntity)
+    val dpropI = OMF_MODEL_DATA_RELATIONSHIP_FROM_ENTITY_TO_SCALAR2Instance(axiomT.restrictingDataProperty)
+    for {
+      axiomIRI <- makeMetadataInstanceIRI(
+        omfMetadata.get,
+        "ScalarDataRelationshipRestrictionAxiomFromEntityToLiteral",
+        tbox.iri,
+        axiomT.restrictedEntity.iri,
+        axiomT.restrictingDataProperty.iri)
+      axiomI = owlDataFactory.getOWLNamedIndividual(axiomIRI)
+    } yield {
+      for {
+        change <- Seq(
+          new AddAxiom(omfMetadata.get,
+            owlDataFactory
+              .getOWLDeclarationAxiom(axiomI)),
+          new AddAxiom(omfMetadata.get,
+            owlDataFactory
+            .getOWLClassAssertionAxiom(OMF_MODEL_SCALAR_DATA_RELATIONSHIP_RESTRICTION_AXIOM_FROM_ENTITY_TO_LITERAL,
+              axiomI)),
+          new AddAxiom(omfMetadata.get,
+            owlDataFactory
+            .getOWLObjectPropertyAssertionAxiom(OMF_HAS_RESTRICTED_ENTITY_DOMAIN, axiomI, entityI)),
+          new AddAxiom(omfMetadata.get,
+            owlDataFactory
+              .getOWLObjectPropertyAssertionAxiom(OMF_HAS_RESTRICTING_SCALAR_DATA_RELATIONSHIP, axiomI, dpropI)),
+          new AddAxiom(omfMetadata.get,
+            owlDataFactory
+            .getOWLDataPropertyAssertionAxiom(OMF_HAS_LITERAL_RESTRICTION, axiomI, axiomT.literalRestriction))
+        )
+      } {
+        val result = ontManager.applyChange(change)
+        require(
+          result == ChangeApplied.SUCCESSFULLY || result == ChangeApplied.NO_OPERATION,
+          s"\ncreateOMFScalarDataRelationshipRestrictionAxiomFromEntityToLiteral:\n$change")
+      }
+      OMF_MODEL_SCALAR_DATA_RELATIONSHIP_RESTRICTION_AXIOM_FROM_ENTITY_TO_LITERAL2Instance += (axiomT -> axiomI)
+      axiomT
     }
   }
 
@@ -2317,7 +2425,9 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
                   createOMFEntityConceptUniversalRestrictionAxiomInstance(g, ax).map(_ => ())
                 case ax: types.EntityConceptExistentialRestrictionAxiom =>
                   createOMFEntityConceptExistentialRestrictionAxiomInstance(g, ax).map(_ => ())
-                  //        case ax: types.ScalarDataTypeFacetRestriction =>
+                case ax: types.ModelScalarDataRelationshipRestrictionAxiomFromEntityToLiteral =>
+                  createOMFScalarDataRelationshipRestrictionAxiomFromEntityToLiteral(g, ax).map(_ => ())
+                // case ax: types.ScalarDataTypeFacetRestriction =>
                 case ax =>
                   Set(
                     OMFError

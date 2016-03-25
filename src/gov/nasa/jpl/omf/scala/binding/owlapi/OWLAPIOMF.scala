@@ -143,7 +143,10 @@ trait OWLAPIOMFtbox extends OMFtbox {
   
   type ModelTermAxiom =
   types.ModelTermAxiom
-   
+
+  type ModelScalarDataRelationshipRestrictionAxiomFromEntityToLiteral =
+  types.ModelScalarDataRelationshipRestrictionAxiomFromEntityToLiteral
+
   type EntityDefinitionAspectSubClassAxiom =
   types.EntityDefinitionAspectSubClassAxiom
 

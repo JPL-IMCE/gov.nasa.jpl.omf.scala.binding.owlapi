@@ -40,7 +40,6 @@ package gov.nasa.jpl.omf.scala.binding.owlapi
 
 import java.net.URI
 
-import gov.nasa.jpl.omf.scala.binding.owlapi.types.{EntityConceptDesignationTerminologyGraphAxiom, ModelEntityConcept, ModelTerminologyGraph, MutableModelTerminologyGraph, TerminologyGraphDirectNestingAxiom}
 import gov.nasa.jpl.omf.scala.core._
 import gov.nasa.jpl.omf.scala.core.RelationshipCharacteristics._
 import gov.nasa.jpl.omf.scala.core.TerminologyKind._
@@ -277,57 +276,57 @@ trait OWLAPIStoreOps
     * Find the axiom TerminologyGraphDirectNestingAxiom(nestedChild==nestedG), if any.
     */
   override def lookupNestingAxiomForNestedChildIfAny
-  (nestedG: ModelTerminologyGraph)
+  (nestedG: types.ModelTerminologyGraph)
   (implicit store: OWLAPIOMFGraphStore)
-  : Option[TerminologyGraphDirectNestingAxiom]
+  : Option[types.TerminologyGraphDirectNestingAxiom]
   = store.lookupNestingAxiomForNestedChildIfAny(nestedG)
 
   /**
     * Find the axioms TerminologyGraphDirectNestingAxiom(nestingContext=nestingC).
     */
   override def lookupNestingAxiomsForNestingContext
-  (nestingC: ModelEntityConcept)
+  (nestingC: types.ModelEntityConcept)
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[TerminologyGraphDirectNestingAxiom]
+  : Set[types.TerminologyGraphDirectNestingAxiom]
   = store.lookupNestingAxiomsForNestingContext(nestingC)
 
   /**
     * Find the axioms TerminologyGraphDirectNestingAxiom(nestingParent=nestingG)
     */
   override def lookupNestingAxiomsForNestingParent
-  (nestingG: ModelTerminologyGraph)
+  (nestingG: types.ModelTerminologyGraph)
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[TerminologyGraphDirectNestingAxiom]
+  : Set[types.TerminologyGraphDirectNestingAxiom]
   = store.lookupNestingAxiomsForNestingParent(nestingG)
 
   override def getNestingGraph
-  (nestedG: ModelTerminologyGraph)
+  (nestedG: types.ModelTerminologyGraph)
   (implicit store: OWLAPIOMFGraphStore)
-  : Option[ModelTerminologyGraph]
+  : Option[types.ModelTerminologyGraph]
   = store.getNestingGraph(nestedG)
 
   override def getNestedGraphs
-  (nestingG: ModelTerminologyGraph)
+  (nestingG: types.ModelTerminologyGraph)
   (implicit store: OWLAPIOMFGraphStore)
-  : Iterable[ModelTerminologyGraph]
+  : Iterable[types.ModelTerminologyGraph]
   = store.getNestedGraphs(nestingG)
 
   override def getNestingParentGraphOfAxiom
-  (axiom: TerminologyGraphDirectNestingAxiom)
+  (axiom: types.TerminologyGraphDirectNestingAxiom)
   (implicit store: OWLAPIOMFGraphStore)
-  : ModelTerminologyGraph
+  : types.ModelTerminologyGraph
   = store.getNestingParentGraphOfAxiom(axiom)
 
   override def getNestingContextConceptOfAxiom
-  (axiom: TerminologyGraphDirectNestingAxiom)
+  (axiom: types.TerminologyGraphDirectNestingAxiom)
   (implicit store: OWLAPIOMFGraphStore)
-  : ModelEntityConcept
+  : types.ModelEntityConcept
   = store.getNestingContextConceptOfAxiom(axiom)
 
   override def getNestedChildGraphOfAxiom
-  (axiom: TerminologyGraphDirectNestingAxiom)
+  (axiom: types.TerminologyGraphDirectNestingAxiom)
   (implicit store: OWLAPIOMFGraphStore)
-  : ModelTerminologyGraph
+  : types.ModelTerminologyGraph
   = store.getNestedChildGraphOfAxiom(axiom)
 
   def makeTerminologyGraphWithPath
@@ -701,20 +700,43 @@ trait OWLAPIImmutableTerminologyGraphOps
 
   override def foldTermAxiom[T]
   (t: types.ModelTermAxiom)
-  (funEntityDefinitionAspectSubClassAxiom: types.EntityDefinitionAspectSubClassAxiom => T,
-   funEntityConceptDesignationTerminologyGraphAxiom: types.EntityConceptDesignationTerminologyGraphAxiom => T,
-   funEntityConceptSubClassAxiom: types.EntityConceptSubClassAxiom => T,
-   funEntityConceptRestrictionAxiom: types.EntityConceptRestrictionAxiom => T,
-   funEntityReifiedRelationshipSubClassAxiom: types.EntityReifiedRelationshipSubClassAxiom => T,
-   funScalarDataTypeFacetRestriction: types.ScalarDataTypeFacetRestrictionAxiom => T)
+  (funEntityDefinitionAspectSubClassAxiom
+   : types.EntityDefinitionAspectSubClassAxiom => T,
+   funEntityConceptDesignationTerminologyGraphAxiom
+   : types.EntityConceptDesignationTerminologyGraphAxiom => T,
+   funEntityConceptSubClassAxiom
+   : types.EntityConceptSubClassAxiom => T,
+   funEntityConceptRestrictionAxiom
+   : types.EntityConceptRestrictionAxiom => T,
+   funEntityReifiedRelationshipSubClassAxiom
+   : types.EntityReifiedRelationshipSubClassAxiom => T,
+   funScalarDataTypeFacetRestriction
+   : types.ScalarDataTypeFacetRestrictionAxiom => T,
+   funModelScalarDataRelationshipRestrictionAxiomFromEntityToLiteral
+   : types.ModelScalarDataRelationshipRestrictionAxiomFromEntityToLiteral => T)
   : T = t match {
-    case ax: types.EntityDefinitionAspectSubClassAxiom           => funEntityDefinitionAspectSubClassAxiom(ax)
-    case ax: types.EntityConceptDesignationTerminologyGraphAxiom => funEntityConceptDesignationTerminologyGraphAxiom(ax)
-    case ax: types.EntityConceptSubClassAxiom                    => funEntityConceptSubClassAxiom(ax)
-    case ax: types.EntityConceptRestrictionAxiom                 => funEntityConceptRestrictionAxiom(ax)
-    case ax: types.EntityReifiedRelationshipSubClassAxiom        => funEntityReifiedRelationshipSubClassAxiom(ax)
-    case ax: types.ScalarDataTypeFacetRestrictionAxiom           => funScalarDataTypeFacetRestriction(ax)
+    case ax: types.EntityDefinitionAspectSubClassAxiom =>
+      funEntityDefinitionAspectSubClassAxiom(ax)
+    case ax: types.EntityConceptDesignationTerminologyGraphAxiom =>
+      funEntityConceptDesignationTerminologyGraphAxiom(ax)
+    case ax: types.EntityConceptSubClassAxiom =>
+      funEntityConceptSubClassAxiom(ax)
+    case ax: types.EntityConceptRestrictionAxiom =>
+      funEntityConceptRestrictionAxiom(ax)
+    case ax: types.EntityReifiedRelationshipSubClassAxiom =>
+      funEntityReifiedRelationshipSubClassAxiom(ax)
+    case ax: types.ScalarDataTypeFacetRestrictionAxiom =>
+      funScalarDataTypeFacetRestriction(ax)
+    case ax: types.ModelScalarDataRelationshipRestrictionAxiomFromEntityToLiteral =>
+      funModelScalarDataRelationshipRestrictionAxiomFromEntityToLiteral(ax)
   }
+
+  // scalar data relationship restriction from entity to literal axiom
+
+  override def fromModelScalarDataRelationshipRestrictionAxiomFromEntityToLiteral
+  ( ax: types.ModelScalarDataRelationshipRestrictionAxiomFromEntityToLiteral )
+  : ( types.ModelEntityDefinition, types.ModelDataRelationshipFromEntityToScalar, String )
+  = ( ax.restrictedEntity, ax.restrictingDataProperty, ax.literalRestriction )
 
   // entity definition aspect subclass axiom
 
@@ -903,6 +925,15 @@ trait OWLAPIMutableTerminologyGraphOps
       dIRI <- withFragment(graph.iri, dataRelationshipName)
       d <- graph.addDataRelationshipFromEntityToScalar(dIRI, source, target)
     } yield d
+
+  override def addScalarDataRelationshipRestrictionAxiomFromEntityToLiteral
+  ( graph: types.MutableModelTerminologyGraph,
+    entityDomain: types.ModelEntityDefinition,
+    scalaDataProperty: types.ModelDataRelationshipFromEntityToScalar,
+    literalRange: String )
+  ( implicit store: OWLAPIOMFGraphStore )
+  : Set[java.lang.Throwable] \/ types.ModelScalarDataRelationshipRestrictionAxiomFromEntityToLiteral
+  = graph.addScalarDataRelationshipRestrictionAxiomFromEntityToLiteral( entityDomain, scalaDataProperty, literalRange )
 
   // data relationship from entity to structure
 

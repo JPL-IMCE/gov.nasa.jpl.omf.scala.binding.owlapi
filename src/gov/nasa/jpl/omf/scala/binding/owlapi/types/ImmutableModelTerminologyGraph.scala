@@ -44,7 +44,6 @@ import java.lang.System
 import gov.nasa.jpl.omf.scala.binding.owlapi._
 import gov.nasa.jpl.omf.scala.core.TerminologyKind._
 import gov.nasa.jpl.omf.scala.core._
-
 import org.semanticweb.owlapi.model._
 import org.semanticweb.owlapi.model.parameters.Imports
 import org.semanticweb.owlapi.reasoner.structural.StructuralReasonerFactory
@@ -53,10 +52,11 @@ import org.semanticweb.owlapi.reasoner.{NodeSet, OWLReasoner}
 import scala.collection.JavaConversions._
 import scala.collection.immutable._
 import scala.util.Try
-import scala.{Boolean,Enumeration,Option,None,Some,StringContext,Tuple3,Unit}
-import scala.Predef.{Set=>_,Map=>_,_}
+import scala.{Boolean, Enumeration, None, Option, Some, StringContext, Tuple3, Unit}
+import scala.Predef.{Map => _, Set => _, _}
 import scala.language.postfixOps
-import scalaz._, Scalaz._
+import scalaz._
+import Scalaz._
 
 object ImmutableOperation extends Enumeration {
   type ImmutableOperation = Value
@@ -889,6 +889,9 @@ case class ImmutableModelTerminologyGraphResolver(resolver: ResolverHelper) {
     val importedEntityDefinitionMaps: Map[OWLClass, ModelEntityDefinition] =
       importClosure.flatMap(_.getEntityDefinitionMap).toMap
 
+    val allImportedDataRelationshipsFromEntityToScalar =
+      importClosure.flatMap(_.getDataRelationshipsFromEntityToScalar)
+
     val allImportedReifiedRelationships: Map[OWLClass, ModelEntityReifiedRelationship] =
       importedEntityDefinitionMaps flatMap {
         case (rrC, rrE: ModelEntityReifiedRelationship) =>
@@ -1168,31 +1171,95 @@ case class ImmutableModelTerminologyGraphResolver(resolver: ResolverHelper) {
                     ).flatMap { _ =>
 
                     resolveDataRelationshipsFromEntity2Scalars(_allEntityDefinitions, dataPropertyDPIRIs, _allScalarDefinitions)
-                      .flatMap { dataRelationshipsFromEntity2Scalars =>
+                      .flatMap { dataRelationshipsFromEntity2Scalar =>
 
-                        // @todo IMCEI-128
-//                        val n0
-//                        : Set[java.lang.Throwable] \/ Unit = \/-(())
-//
-//                        val nN
-//                        : Set[java.lang.Throwable] \/ Unit
-//                        = ( n0 /: resolver.context2nested ) { case (acc, (c, ng)) =>
-//
-//                          val inc
-//                          : Set[java.lang.Throwable] \/ Unit
-//                          = _conceptCMs
-//                            .get(c)
-//                            .fold[Set[java.lang.Throwable] \/ Unit](
-//                            -\/(Set(OMFError.omfError(s"Contextualized class $c is not a concept in $tboxG")))
-//                          ) { cc =>
-//                            addNestedTerminologyGraph(tboxG, cc, ng)
-//                              .map(_ => ())
-//                          }
-//
-//                          acc +++ inc
-//                        }
-//
-//                        val result = nN.flatMap { _ =>
+                        val allDataRelationshipsFromEntityToScalar =
+                          dataRelationshipsFromEntity2Scalar ++ allImportedDataRelationshipsFromEntityToScalar
+
+                        val entityDefinitions
+                        : Set[java.lang.Throwable] \/ Map[OWLClass, ModelEntityDefinition]
+                        = \/-(_allEntityDefinitions)
+
+                        type RestrictionInfoValidation
+                        = Set[java.lang.Throwable] \/
+                          Set[(ModelEntityDefinition, ModelDataRelationshipFromEntityToScalar, String)]
+
+                        val restrictions
+                        : RestrictionInfoValidation
+                        = entityDefinitions.flatMap { pairs =>
+                          val r0
+                          : RestrictionInfoValidation
+                          = \/-(Set())
+
+                          val restrictionTuples
+                          = pairs.map { case (entityO, entityC) =>
+                            val restrictions
+                              = getSingleDataPropertyRestrictionsIfAny(resolver.ont, entityO)
+                                  .flatMap { restrictions =>
+                                    val r1
+                                    : RestrictionInfoValidation
+                                    = \/-(Set())
+
+                                    val r2
+                                    : RestrictionInfoValidation
+                                    = (r1 /:
+                                      restrictions.map {
+                                        case (restrictedC, restrictingDP, restrictingLiteral) =>
+                                          val r =
+                                            allDataRelationshipsFromEntityToScalar
+                                              .find {
+                                                _.dp == restrictingDP
+                                              }
+                                              .fold[RestrictionInfoValidation](
+                                              -\/(Set(OMFError.omfError(
+                                                s"Unresolved restrincting data property $restrictingDP " +
+                                                  s"for entity $restrictedC with " +
+                                                  s"literal restriction $restrictingLiteral")))
+                                            ) { restrictingSC =>
+                                              \/-(Set((entityC, restrictingSC, restrictingLiteral)))
+                                            }
+                                          r
+                                      })
+                                    { _ +++ _ }
+
+                                    r2
+                                  }
+                              restrictions
+                          }
+
+                          ( r0 /: restrictionTuples ) { _ +++ _ }
+                        }
+
+                        type RestrictionAxiomValidation
+                        = Set[java.lang.Throwable] \/
+                          Set[ModelScalarDataRelationshipRestrictionAxiomFromEntityToLiteral]
+
+                        val restrictionAxioms
+                        : RestrictionAxiomValidation
+                        = restrictions.flatMap { tuples =>
+
+                          val a0
+                          : RestrictionAxiomValidation
+                          = \/-(Set())
+
+                          val axioms
+                          = tuples
+                            .map { case ( restrictedC, restrictingE2SC, restrictingLiteral ) =>
+                              tboxG
+                                .addScalarDataRelationshipRestrictionAxiomFromEntityToLiteral(
+                                  restrictedC, restrictingE2SC, restrictingLiteral)
+                                .map(Set(_))
+                            }
+
+                          val aN
+                          : RestrictionAxiomValidation
+                          = ( a0 /: axioms )
+                          { _ +++ _ }
+
+                          aN
+                        }
+
+                        restrictionAxioms.flatMap { _ =>
 
                           asImmutableTerminologyGraph(tboxG)
                             .flatMap { itboxG =>
@@ -1208,9 +1275,7 @@ case class ImmutableModelTerminologyGraphResolver(resolver: ResolverHelper) {
                               itboxG.right
 
                             }
-//                        }
-//
-//                        result
+                        }
                       }
                   }
                 }

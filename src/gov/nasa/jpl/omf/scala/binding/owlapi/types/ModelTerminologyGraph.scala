@@ -139,6 +139,10 @@ abstract class ModelTerminologyGraph
 
   def getEntityDefinitionMap: Map[OWLClass, ModelEntityDefinition]
 
+  def getDataRelationshipsFromEntityToScalar
+  : Seq[ModelDataRelationshipFromEntityToScalar]
+  = e2sc.to[Seq]
+
   def getScalarDatatypeDefinitionMap: Map[OWLDatatype, ModelScalarDataType]
 
   def getTermAxioms: ( IRI, Iterable[ModelTermAxiom] ) = ( iri, ax.to[Iterable] )

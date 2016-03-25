@@ -43,10 +43,11 @@ import gov.nasa.jpl.omf.scala.binding.owlapi.types.AxiomExceptionKind._
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.AxiomScopeAccessKind._
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.EntityExceptionKind._
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.RelationshipScopeAccessKind._
+import gov.nasa.jpl.omf.scala.core.OMFError
 import gov.nasa.jpl.omf.scala.core.TerminologyKind
 import org.semanticweb.owlapi.model._
 
-import scala.{None, Option, Some, Unit}
+import scala.{None, Option, Some, StringContext, Unit}
 import scala.collection.JavaConversions._
 import scala.collection.immutable._
 import scala.Predef.String
@@ -257,4 +258,58 @@ package object types {
   implicit def OWLDatatype2ModelScalarDataTypeSemigroup
   : Semigroup[Map[OWLDatatype, ModelScalarDataType]] =
     Semigroup.instance(_ ++ _)
+
+  def getSingleDataPropertyRestrictionsIfAny
+  ( ont: OWLOntology, entity: OWLClass )
+  : Set[java.lang.Throwable] \/ Set[(OWLClass, OWLDataProperty, String)]
+  = {
+    val restrictions
+    : Set[java.lang.Throwable] \/ Set[(OWLClass, OWLDataProperty, String)]
+    = ont.getSubClassAxiomsForSubClass(entity).to[Set]
+      .map { sup =>
+        val restriction
+        : Set[java.lang.Throwable] \/ Set[(OWLClass, OWLDataProperty, String)]
+        = sup.getSuperClass match {
+
+          case restriction: OWLDataAllValuesFrom =>
+
+            val restrictingProperty
+            : Option[OWLDataProperty]
+            = restriction.getProperty match {
+              case dp: OWLDataProperty =>
+                Some(dp)
+              case _ =>
+                None
+            }
+
+            val literalRestriction
+            : Option[String]
+            = restriction.getFiller match {
+              case oneOf: OWLDataOneOf =>
+                val values = oneOf.getValues
+                if (1 == values.size)
+                  Some(values.head.getLiteral)
+                else
+                  None
+              case _ =>
+                None
+            }
+
+            (restrictingProperty, literalRestriction) match {
+              case (Some(dp), Some(literal)) =>
+                \/-(Set((entity, dp, literal)))
+              case (_, _) =>
+                -\/(Set(OMFError.omfError(s"Ill-formed data property restriction: $restriction}")))
+            }
+
+          case _ =>
+            \/-(Set())
+        }
+
+        restriction
+      }
+      .fold[Set[java.lang.Throwable] \/ Set[(OWLClass, OWLDataProperty, String)]](\/-(Set())){ _ +++ _ }
+
+    restrictions
+  }
 }
