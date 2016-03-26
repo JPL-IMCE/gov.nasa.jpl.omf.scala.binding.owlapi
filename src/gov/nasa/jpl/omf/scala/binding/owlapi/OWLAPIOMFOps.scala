@@ -88,16 +88,6 @@ trait OWLAPIIRIOps
   : Set[java.lang.Throwable] \/IRI =
     OWLAPIIRIOps.makeIRI(s)
 
-  def withFragment
-  (iri: IRI, fragment: Option[String])
-  : Set[java.lang.Throwable] \/ IRI =
-    fragment
-    .fold[Set[java.lang.Throwable] \/ IRI](
-      iri.right
-    ){ _fragment =>
-      withFragment(iri, _fragment)
-    }
-
   override def withFragment
   (iri: IRI, fragment: String)
   : Set[java.lang.Throwable] \/ IRI = {
@@ -883,11 +873,13 @@ trait OWLAPIMutableTerminologyGraphOps
       rIRISource = toSourceIRI(rIRI)
       rIRITarget = toTargetIRI(rIRI)
       uIRI <- withFragment(graph.iri, unreifiedRelationshipName)
-      uiIRI <- withFragment(graph.iri, unreifiedInverseRelationshipName)
+      uiIRI <- unreifiedInverseRelationshipName.fold[Set[java.lang.Throwable] \/ Option[IRI]](\/-(None)) { uName =>
+        withFragment(graph.iri, uName).map(Some(_))
+      }
       result <- graph.addEntityReifiedRelationship(
                                                     rIRI,
                                                     rIRISource, rIRITarget,
-                                                    uIRI, uiIRI.some,
+                                                    uIRI, uiIRI,
                                                     source, target,
                                                     characteristics, isAbstract)
       _ <- store.registerOMFModelEntityReifiedRelationshipInstance(graph, result)
