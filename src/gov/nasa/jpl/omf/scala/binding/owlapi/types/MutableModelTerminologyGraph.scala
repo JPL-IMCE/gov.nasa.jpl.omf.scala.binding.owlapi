@@ -1007,7 +1007,7 @@ case class MutableModelTerminologyGraph
             new AddAxiom(ont,
               owlDataFactory.getOWLSubClassOfAxiom(
                 restrictedEntityC,
-                owlDataFactory.getOWLDataAllValuesFrom(
+                owlDataFactory.getOWLDataSomeValuesFrom(
                   restrictingDP,
                   owlDataFactory.getOWLDataOneOf(owlDataFactory.getOWLLiteral(literalRange)))))
           )

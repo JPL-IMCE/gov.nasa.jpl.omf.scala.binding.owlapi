@@ -39,7 +39,6 @@
 package gov.nasa.jpl.omf.scala.binding.owlapi
 
 import java.lang.System
-import java.util.concurrent.TimeUnit
 
 import gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader._
 import gov.nasa.jpl.omf.scala.core.builtin.BuiltInDatatypeMaps
@@ -53,7 +52,6 @@ import org.semanticweb.owlapi.util.PriorityCollection
 import scala.collection.immutable._
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
-import scala.concurrent.duration.FiniteDuration
 import scala.language.postfixOps
 import scala.util.control.Exception._
 import scala.{Boolean, None, Option, Some, StringContext, Tuple2, Unit, annotation}
@@ -2091,8 +2089,6 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
 
         ins.flatMap { inesting =>
 
-          val current: java.lang.Long = java.lang.System.currentTimeMillis()
-
           val itgraph = tgraph.copy(imports = is, nesting = inesting)
 
           // @todo IMCEI-128 can we already pass the imports & nesting?
@@ -2132,9 +2128,6 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
               mg.getTerminologyGraphShortName,
               mg.getTerminologyGraphUUID,
               i_mg_relativePath_value, i_mg_iriHashPrefix_value)
-
-          val delta = FiniteDuration.apply(java.lang.System.currentTimeMillis() - current, TimeUnit.MILLISECONDS)
-          System.out.println(s"\nRegistration in ${prettyDuration(delta)}: ${ig.kindIRI}")
 
           result
         }
@@ -2216,19 +2209,13 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
   def asImmutableTerminologyGraph
   (m2i: types.Mutable2IMutableTerminologyMap,
    g: types.MutableModelTerminologyGraph)
-  : Set[java.lang.Throwable] \/ (types.ImmutableModelTerminologyGraph, types.Mutable2IMutableTerminologyMap) = {
-
-    val current: java.lang.Long = java.lang.System.currentTimeMillis()
-    for {
+  : Set[java.lang.Throwable] \/ (types.ImmutableModelTerminologyGraph, types.Mutable2IMutableTerminologyMap)
+  = for {
       m2i <- Conversions.convert(m2i, Seq(g), Seq())(this)
     } yield {
       require(m2i.contains(g))
-      val delta = FiniteDuration.apply(java.lang.System.currentTimeMillis() - current, TimeUnit.MILLISECONDS)
-      System.out.println(s"conversion in ${prettyDuration(delta)} => ${m2i.size} conversions")
       (m2i(g), m2i)
     }
-
-  }
 
   /**
     * Registers an immutable TBox graph in the store's OMF Metadata graph.
