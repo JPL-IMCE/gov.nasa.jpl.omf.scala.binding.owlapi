@@ -271,7 +271,7 @@ package object types {
         : Set[java.lang.Throwable] \/ Set[(OWLClass, OWLDataProperty, String)]
         = sup.getSuperClass match {
 
-          case restriction: OWLDataAllValuesFrom =>
+          case restriction: OWLDataSomeValuesFrom =>
 
             val restrictingProperty
             : Option[OWLDataProperty]

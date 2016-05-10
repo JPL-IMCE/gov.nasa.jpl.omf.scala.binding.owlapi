@@ -70,12 +70,6 @@ object OWLAPIOMFModule {
     rdfs_label <-
     OWLAPIIRIOps.makeIRI("http://www.w3.org/2000/01/rdf-schema#label")
 
-    OMF_TBox_DataProperty_HasShortName <-
-    OWLAPIIRIOps.makeIRI("http://imce.jpl.nasa.gov/foundation/omf/omfMetadata#hasShortName")
-
-    OMF_TBox_DataProperty_HasUUID <-
-    OWLAPIIRIOps.makeIRI("http://imce.jpl.nasa.gov/foundation/omf/omfMetadata#hasUUID")
-
     AnnotationHasUUID <-
     OWLAPIIRIOps.makeIRI("http://imce.jpl.nasa.gov/foundation/annotation/annotation#hasUUID")
 
@@ -114,8 +108,6 @@ object OWLAPIOMFModule {
 
     ops = new OWLAPIOMFOps(
       rdfs_label,
-      OMF_TBox_DataProperty_HasShortName,
-      OMF_TBox_DataProperty_HasUUID,
       AnnotationHasUUID,
       AnnotationHasRelativeIRI,
       AnnotationHasIRIHashPrefix,

@@ -204,37 +204,31 @@ case class ResolverHelper
     false
   }
 
-  def getOWLTermShortName(entityIRI: IRI): Option[String] = {
-    for {
-      aaa <- ont.getAnnotationAssertionAxioms(entityIRI)
-      if aaa.getProperty.getIRI == rdfs_label
-    } {
-      aaa.getValue match {
+  def getOWLTermShortName(entityIRI: IRI)
+  : Option[String]
+  = ont
+    .getAnnotationAssertionAxioms(entityIRI)
+    .find(_.getProperty.getIRI == rdfs_label)
+    .flatMap { a =>
+      a.getValue match {
         case l: OWLLiteral =>
           Some(l.getLiteral)
         case _ =>
-          ()
+          None
       }
     }
 
-    None
-  }
-
-  def getOWLTermUUID(entityIRI: IRI): Option[String] = {
-    for {
-      aaa <- ont.getAnnotationAssertionAxioms(entityIRI)
-      if aaa.getProperty.getIRI == AnnotationHasUUID
-    } {
-      aaa.getValue match {
-        case l: OWLLiteral =>
-          Some(l.getLiteral)
-        case _ =>
-          ()
-      }
-    }
-
-    None
-  }
+  def getOWLTermUUID(entityIRI: IRI)
+  : Option[String]
+  = ont
+    .getAnnotationAssertionAxioms(entityIRI)
+    .find(_.getProperty.getIRI == AnnotationHasUUID)
+    .flatMap(_.getValue match {
+      case l: OWLLiteral =>
+        Some(l.getLiteral)
+      case _ =>
+        None
+    })
 
 
   // Lookup of entity aspects

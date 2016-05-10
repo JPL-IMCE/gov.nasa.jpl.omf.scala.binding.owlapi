@@ -593,21 +593,32 @@ trait OWLAPIImmutableTerminologyGraphOps
   override def getTermShortName
   (graph: types.ModelTerminologyGraph,
    term: types.ModelTypeTerm)
-  : Option[String] =
-    graph.getTermShortNameAnnotationAssertionAxiom(term) match {
-      case None    => None
-      case Some(a) => Some(a.getValue.asLiteral.toString)
+  : Option[String]
+  = graph
+    .getTermShortNameAnnotationAssertionAxiom(term)
+    .flatMap { a =>
+      a.getValue match {
+        case l: OWLLiteral =>
+          Some(l.getLiteral)
+        case _ =>
+          None
+      }
     }
 
   override def getTermShortUUID
   (graph: types.ModelTerminologyGraph,
    term: types.ModelTypeTerm)
-  : Option[String] =
-    graph.getTermUUIDAnnotationAssertionAxiom(term) match {
-      case None    => None
-      case Some(a) => Some(a.getValue.asLiteral.toString)
+  : Option[String]
+  = graph
+    .getTermUUIDAnnotationAssertionAxiom(term)
+    .flatMap { a =>
+      a.getValue match {
+        case l: OWLLiteral =>
+          Some(l.getLiteral)
+        case _ =>
+          None
+      }
     }
-
 
   override def fromEntityDefinition
   (e: types.ModelEntityDefinition) =
@@ -1220,8 +1231,6 @@ trait OWLAPIMutableInstanceGraphOps
 
 class OWLAPIOMFOps
 ( val rdfs_label: IRI,
-  val OMF_TBox_DataProperty_HasShortName: IRI,
-  val OMF_TBox_DataProperty_HasUUID: IRI,
   val AnnotationHasUUID: IRI,
   val AnnotationHasRelativeIRI: IRI,
   val AnnotationHasIRIHashPrefix: IRI,

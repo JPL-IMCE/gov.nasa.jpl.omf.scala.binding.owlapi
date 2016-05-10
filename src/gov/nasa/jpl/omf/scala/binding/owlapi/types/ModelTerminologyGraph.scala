@@ -171,7 +171,7 @@ abstract class ModelTerminologyGraph
 
   def getTerminologyGraphShortNameAnnotation
   : Option[OWLAnnotation] =
-    ont.getAnnotations.find( _.getProperty.getIRI == ops.OMF_TBox_DataProperty_HasShortName )
+    ont.getAnnotations.find( _.getProperty.getIRI == ops.rdfs_label )
 
   def getTerminologyGraphShortName
   : Option[String] =
@@ -186,7 +186,7 @@ abstract class ModelTerminologyGraph
 
   def getTerminologyGraphUUIDAnnotation
   : Option[OWLAnnotation] =
-    ont.getAnnotations.find( _.getProperty.getIRI == ops.OMF_TBox_DataProperty_HasUUID )
+    ont.getAnnotations.find( _.getProperty.getIRI == ops.AnnotationHasUUID )
 
   def getTerminologyGraphUUID
   : Option[String] =
