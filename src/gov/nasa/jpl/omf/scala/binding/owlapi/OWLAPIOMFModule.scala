@@ -103,6 +103,12 @@ object OWLAPIOMFModule {
     AnnotationHasGraph <-
     OWLAPIIRIOps.makeIRI("http://imce.jpl.nasa.gov/foundation/annotation/annotation#hasGraph")
 
+    AnnotationHasRestrictedSourceProperty <-
+    OWLAPIIRIOps.makeIRI("http://imce.jpl.nasa.gov/foundation/annotation/annotation#hasRestrictedSourceProperty")
+
+    AnnotationHasRestroctedTargetProperty <-
+    OWLAPIIRIOps.makeIRI("http://imce.jpl.nasa.gov/foundation/annotation/annotation#hasRestrictedTargetProperty")
+
     omfOntologyIRI <-
     OWLAPIIRIOps.makeIRI( "http://imce.jpl.nasa.gov/foundation/omf/omf.owl" )
 
@@ -118,7 +124,9 @@ object OWLAPIOMFModule {
       AnnotationIsDesignation,
       AnnotationIsToplevel,
       AnnotationHasContext,
-      AnnotationHasGraph)
+      AnnotationHasGraph,
+      AnnotationHasRestrictedSourceProperty,
+      AnnotationHasRestroctedTargetProperty)
 
   } yield
     OWLAPIOMFModule(catalogManager, ops, omfOntologyIRI)

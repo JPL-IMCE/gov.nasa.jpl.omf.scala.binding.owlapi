@@ -38,6 +38,7 @@
  */
 package gov.nasa.jpl.omf.scala.binding.owlapi
 
+import gov.nasa.jpl.omf.scala.core._
 import gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader.OntologyLoadedState
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.AxiomExceptionKind._
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.AxiomScopeAccessKind._
@@ -45,12 +46,13 @@ import gov.nasa.jpl.omf.scala.binding.owlapi.types.EntityExceptionKind._
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.RelationshipScopeAccessKind._
 import gov.nasa.jpl.omf.scala.core.OMFError
 import gov.nasa.jpl.omf.scala.core.TerminologyKind
+import org.semanticweb.owlapi.model.parameters.{Imports, Navigation}
 import org.semanticweb.owlapi.model._
 
-import scala.{None, Option, Some, StringContext, Unit}
+import scala.{Boolean, Option, None, Some, StringContext, Tuple2, Tuple5, Unit}
 import scala.collection.JavaConversions._
 import scala.collection.immutable._
-import scala.Predef.String
+import scala.Predef.{classOf,String}
 import scalaz._
 import Scalaz._
 
@@ -312,4 +314,101 @@ package object types {
 
     restrictions
   }
+
+  def getObjectPropertyRestrictionsIfAny
+  ( ont: OWLOntology, entity: OWLClass )
+  : Set[(OWLClass, OWLObjectProperty, Boolean, OWLClass, RestrictionKind)]
+  = ont
+    .getAxioms[OWLSubClassOfAxiom](classOf[OWLSubClassOfAxiom], entity, Imports.EXCLUDED, Navigation.IN_SUB_POSITION)
+    .to[Set]
+    .flatMap { ax =>
+
+      // @todo Check if there is a known bug in the OWL API for getAxioms() w.r.t. the 'forSubPosition' argument.
+      // The filter below should be unecessay if forSubPosition == Navigation.IN_SUB_POSITION worked as intended...
+      if (ax.getSubClass != entity)
+        None
+
+      else
+        ax.getSuperClass match {
+
+          case restriction: OWLObjectSomeValuesFrom =>
+
+            val restrictingProperty
+            : Option[(OWLObjectProperty, Boolean)]
+            = restriction.getProperty match {
+              case op: OWLObjectProperty =>
+                Some(Tuple2(op, false))
+
+              case inv: OWLObjectInverseOf =>
+                inv.getInverse match {
+                  case op: OWLObjectProperty =>
+                    Some(Tuple2(op, true))
+                  case _ =>
+                    None
+                }
+
+              case _ =>
+                None
+            }
+
+            val rangeRestriction
+            : Option[OWLClass]
+            = restriction.getFiller match {
+              case c: OWLClass =>
+                Some(c)
+
+              case _ =>
+                None
+            }
+
+            (restrictingProperty, rangeRestriction) match {
+              case (Some(Tuple2(op, isInverse)), Some(range)) =>
+                Some(Tuple5(entity, op, isInverse, range, ExistentialRestrictionKind))
+
+              case _ =>
+                None
+            }
+
+          case restriction: OWLObjectAllValuesFrom =>
+
+            val restrictingProperty
+            : Option[(OWLObjectProperty, Boolean)]
+            = restriction.getProperty match {
+              case op: OWLObjectProperty =>
+                Some(Tuple2(op, false))
+
+              case inv: OWLObjectInverseOf =>
+                inv.getInverse match {
+                  case op: OWLObjectProperty =>
+                    Some(Tuple2(op, true))
+                  case _ =>
+                    None
+                }
+
+              case _ =>
+                None
+            }
+
+            val rangeRestriction
+            : Option[OWLClass]
+            = restriction.getFiller match {
+              case c: OWLClass =>
+                Some(c)
+
+              case _ =>
+                None
+            }
+
+            (restrictingProperty, rangeRestriction) match {
+              case (Some(Tuple2(op, isInverse)), Some(range)) =>
+                Some(Tuple5(entity, op, isInverse, range, UniversalRestrictionKind))
+
+              case _ =>
+                None
+            }
+
+          case _ =>
+            None
+        }
+    }
 }

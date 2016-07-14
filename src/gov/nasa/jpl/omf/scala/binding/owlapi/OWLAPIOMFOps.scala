@@ -717,6 +717,10 @@ trait OWLAPIImmutableTerminologyGraphOps
    : types.EntityConceptRestrictionAxiom => T,
    funEntityReifiedRelationshipSubClassAxiom
    : types.EntityReifiedRelationshipSubClassAxiom => T,
+   funEntityReifiedRelationshipContextualizationAxiom
+   : types.EntityReifiedRelationshipContextualizationAxiom => T,
+   funEntityReifiedRelationshipRestrictionAxiom
+   : types.EntityReifiedRelationshipRestrictionAxiom => T,
    funScalarDataTypeFacetRestriction
    : types.ScalarDataTypeFacetRestrictionAxiom => T,
    funModelScalarDataRelationshipRestrictionAxiomFromEntityToLiteral
@@ -732,6 +736,8 @@ trait OWLAPIImmutableTerminologyGraphOps
       funEntityConceptRestrictionAxiom(ax)
     case ax: types.EntityReifiedRelationshipSubClassAxiom =>
       funEntityReifiedRelationshipSubClassAxiom(ax)
+    case ax: types.EntityReifiedRelationshipRestrictionAxiom =>
+      funEntityReifiedRelationshipRestrictionAxiom(ax)
     case ax: types.ScalarDataTypeFacetRestrictionAxiom =>
       funScalarDataTypeFacetRestriction(ax)
     case ax: types.ModelScalarDataRelationshipRestrictionAxiomFromEntityToLiteral =>
@@ -789,6 +795,25 @@ trait OWLAPIImmutableTerminologyGraphOps
   : (types.ModelEntityReifiedRelationship, types.ModelEntityReifiedRelationship) = {
     import ax._
     (sub, sup)
+  }
+
+  override def fromEntityReifiedRelationshipContextualizationAxiom
+  (ax: types.EntityReifiedRelationshipContextualizationAxiom)
+  : (types.ModelEntityDefinition, types.ModelEntityReifiedRelationship, String, types.ModelEntityDefinition)
+  = (ax.domain, ax.rel, ax.contextName, ax.range)
+
+  override def fromEntityReifiedRelationshipRestrictionAxiom
+  (ax: types.EntityReifiedRelationshipRestrictionAxiom)
+  : (types.ModelEntityDefinition, types.ModelEntityReifiedRelationship, types.ModelEntityDefinition, RestrictionKind) = {
+    import ax._
+    ax match {
+      case _ : types.EntityReifiedRelationshipExistentialRestrictionAxiom =>
+        (domain, rel, range, ExistentialRestrictionKind)
+      case _ : types.EntityReifiedRelationshipUniversalRestrictionAxiom =>
+        (domain, rel, range, UniversalRestrictionKind)
+
+    }
+
   }
 
   // scalar datatype facet restriction axiom
@@ -1041,6 +1066,31 @@ trait OWLAPIMutableTerminologyGraphOps
   (implicit store: OWLAPIOMFGraphStore) =
     graph.addEntityReifiedRelationshipSubClassAxiom(sub, sup)
 
+  override def addEntityReifiedRelationshipContextualizationAxiom
+  (graph: types.MutableModelTerminologyGraph,
+   domain: types.ModelEntityDefinition,
+   rel: types.ModelEntityReifiedRelationship,
+   contextName: String,
+   range: types.ModelEntityDefinition)
+  (implicit store: OWLAPIOMFGraphStore)
+  = graph.addEntityReifiedRelationshipContextualizationAxiom(domain, rel, contextName, range)
+
+  override def addEntityReifiedRelationshipExistentialRestrictionAxiom
+  (graph: types.MutableModelTerminologyGraph,
+   domain: types.ModelEntityDefinition,
+   rel: types.ModelEntityReifiedRelationship,
+   range: types.ModelEntityDefinition)
+  (implicit store: OWLAPIOMFGraphStore)
+  = graph.addEntityReifiedRelationshipExistentialRestrictionAxiom(domain, rel, range)
+
+  override def addEntityReifiedRelationshipUniversalRestrictionAxiom
+  (graph: types.MutableModelTerminologyGraph,
+   domain: types.ModelEntityDefinition,
+   rel: types.ModelEntityReifiedRelationship,
+   range: types.ModelEntityDefinition)
+  (implicit store: OWLAPIOMFGraphStore)
+  = graph.addEntityReifiedRelationshipUniversalRestrictionAxiom(domain, rel, range)
+
   // scalar datatype facet restriction axiom
 
   override def addScalarDataTypeFacetRestrictionAxiom
@@ -1241,7 +1291,9 @@ class OWLAPIOMFOps
   val AnnotationIsDesignation: IRI,
   val AnnotationIsToplevel: IRI,
   val AnnotationHasContext: IRI,
-  val AnnotationHasGraph: IRI)
+  val AnnotationHasGraph: IRI,
+  val AnnotationHasRestrictedSourceProperty: IRI,
+  val AnnotationHasRestrictedTargetProperty: IRI)
   extends OMFOps[OWLAPIOMF]
           with OWLAPIIRIOps
           with OWLAPIMutableTerminologyGraphOps
