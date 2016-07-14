@@ -449,19 +449,13 @@ case class ImmutableModelTerminologyGraphResolver(resolver: ResolverHelper) {
                       for {
                         dPair <- _allEntityDefinitions
                         (d, domain) = dPair
+
+                        // the restriction could be for an entity definition or a datatype
                         restriction <- getObjectPropertyRestrictionsIfAny(resolver.ont, d)
                         (_, op, isInverse, r, k) = restriction
-                        range <- _allEntityDefinitionsIncludingImported.get(r) match {
-                          case None =>
-                            require(false,
-                              s"Failed to resolve object property restriction:\n" +
-                                s"domain=$d,\n"+
-                                s"relation=$op\n" +
-                                s"range=$r")
-                            None
-                          case Some(range) =>
-                            Some(range)
-                        }
+
+                        // filter restrictions to an entity definition range only
+                        range <- _allEntityDefinitionsIncludingImported.get(r)
                         relInfo <- _allEntityReifiedRelationshipsIncludingImported.find { case (relC, relRR) =>
                           relRR.unreified == op
                         }
