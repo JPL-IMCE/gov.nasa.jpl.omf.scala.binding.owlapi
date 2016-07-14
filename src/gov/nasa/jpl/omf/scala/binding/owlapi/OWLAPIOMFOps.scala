@@ -91,10 +91,12 @@ trait OWLAPIIRIOps
   override def withFragment
   (iri: IRI, fragment: String)
   : Set[java.lang.Throwable] \/ IRI = {
+    val uriConfig = com.netaporter.uri.config.UriConfig.conservative
+    val safeFragment = uriConfig.fragmentEncoder.encode(fragment, uriConfig.charset)
     val u = iri.toURI
     Option.apply(u.getFragment)
     .fold[Set[java.lang.Throwable] \/ IRI](
-      org.semanticweb.owlapi.model.IRI.create(u.resolve("#" + fragment)).right
+      org.semanticweb.owlapi.model.IRI.create(u.resolve("#" + safeFragment)).right
     ){ f =>
       Set(
         OMFError

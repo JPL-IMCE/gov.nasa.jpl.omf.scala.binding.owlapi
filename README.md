@@ -10,6 +10,9 @@ The OWL API binding for OMF implements the OMF Core functional API using the OWL
 
 - See 'OMF Scala Core' (and its dependencies)
 
+- This currently includes a slightly modified copy of https://github.com/NET-A-PORTER/scala-uri
+  (this dependency should go into the third-party library aggregate but I need to fix this ASAP...)
+  
 ## Building the OWL API Scala binding for OMF Scala
 
 ### Updating license header
