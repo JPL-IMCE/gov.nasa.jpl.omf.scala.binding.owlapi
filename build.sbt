@@ -191,14 +191,14 @@ lazy val core =
   .dependsOnSourceProjectOrLibraryArtifacts(
     "omf-scala-core",
     "gov.nasa.jpl.omf.scala.core",
-    Some("compile->compile;test->test"),
+    Some("compile;test"),
     Seq(
       "gov.nasa.jpl.imce.omf" %% "omf-scala-core"
-        % Versions_omf_scala_core.version % "compile" withSources() withJavadoc() artifacts
+        % Versions_omf_scala_core.version artifacts
         Artifact("omf-scala-core", "zip", "zip", Some("resource"), Seq(), None, Map()),
 
-      "gov.nasa.jpl.imce.omf" %% "omf-scala-core" % Versions_omf_scala_core.version %
-        "test" classifier "tests" withSources() withJavadoc() artifacts(
+      "gov.nasa.jpl.imce.omf" %% "omf-scala-core"
+        % Versions_omf_scala_core.version % "test" classifier "tests" artifacts(
         Artifact.classified("omf-scala-core", "tests-sources"),
         Artifact.classified("omf-scala-core", "tests-javadoc"))
     )
