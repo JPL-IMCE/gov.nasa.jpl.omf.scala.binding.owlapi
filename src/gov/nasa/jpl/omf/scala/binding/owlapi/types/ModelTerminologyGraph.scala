@@ -43,11 +43,12 @@ import java.io.OutputStream
 import gov.nasa.jpl.omf.scala.core._
 import gov.nasa.jpl.omf.scala.core.TerminologyKind._
 import gov.nasa.jpl.omf.scala.binding.owlapi._
+
 import org.semanticweb.owlapi.model._
-import org.semanticweb.owlapi.model.parameters.Imports
+
 import scala.collection.immutable._
 import scala.collection.JavaConversions._
-import scala.language.postfixOps
+import scala.compat.java8.StreamConverters._
 import scala.{Boolean,Option,None,Some,StringContext,Unit}
 import scala.Predef.{Set=>_,Map=>_,_}
 import scala.util.control.Exception._
@@ -134,8 +135,9 @@ abstract class ModelTerminologyGraph
 
   val kindIRI: IRI
 
-  protected def makeKindIRI(kind: String): IRI =
-    iri.resolve(iri.getRemainder.or("")+"?kind="+kind)
+  protected def makeKindIRI(kind: String)
+  : IRI
+  = iri.resolve(iri.getRemainder.orElse("") + "?kind=" + kind)
 
   def getEntityDefinitionMap: Map[OWLClass, ModelEntityDefinition]
 
@@ -171,7 +173,7 @@ abstract class ModelTerminologyGraph
 
   def getTerminologyGraphShortNameAnnotation
   : Option[OWLAnnotation] =
-    ont.getAnnotations.find( _.getProperty.getIRI == ops.rdfs_label )
+    ont.annotations.toScala[Set].find( _.getProperty.getIRI == ops.rdfs_label )
 
   def getTerminologyGraphShortName
   : Option[String] =
@@ -186,7 +188,7 @@ abstract class ModelTerminologyGraph
 
   def getTerminologyGraphUUIDAnnotation
   : Option[OWLAnnotation] =
-    ont.getAnnotations.find( _.getProperty.getIRI == ops.AnnotationHasUUID )
+    ont.annotations.toScala[Set].find( _.getProperty.getIRI == ops.AnnotationHasUUID )
 
   def getTerminologyGraphUUID
   : Option[String] =
@@ -201,25 +203,25 @@ abstract class ModelTerminologyGraph
   def getTermShortNameAnnotationAssertionAxiom
   ( term: types.ModelTypeTerm )
   : Option[OWLAnnotationAssertionAxiom] =
-    ont.getAnnotationAssertionAxioms( term.iri ).
+    ont.annotationAssertionAxioms( term.iri ).toScala[Set].
       find( _.getProperty.getIRI == ops.rdfs_label )
 
   def getTermUUIDAnnotationAssertionAxiom
   ( term: types.ModelTypeTerm )
   : Option[OWLAnnotationAssertionAxiom] =
-    ont.getAnnotationAssertionAxioms( term.iri ).
+    ont.annotationAssertionAxioms( term.iri ).toScala[Set].
       find( _.getProperty.getIRI == ops.AnnotationHasUUID )
 
   def getTermIDAnnotationAssertionAxiom
   ( term: types.ModelTypeTerm )
   : Option[OWLAnnotationAssertionAxiom] =
-    ont.getAnnotationAssertionAxioms( term.iri ).
+    ont.annotationAssertionAxioms( term.iri ).toScala[Set].
       find( _.getProperty.getIRI == ops.AnnotationHasID )
 
   def getTermURLAnnotationAssertionAxiom
   ( term: types.ModelTypeTerm )
   : Option[OWLAnnotationAssertionAxiom] =
-    ont.getAnnotationAssertionAxioms( term.iri ).
+    ont.annotationAssertionAxioms( term.iri ).toScala[Set].
       find( _.getProperty.getIRI == ops.AnnotationHasURL )
 
 

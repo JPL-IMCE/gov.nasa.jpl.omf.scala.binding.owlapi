@@ -50,8 +50,8 @@ import org.semanticweb.owlapi.model.parameters.{Imports, Navigation}
 import org.semanticweb.owlapi.model._
 
 import scala.{Boolean, Option, None, Some, StringContext, Tuple2, Tuple5, Unit}
-import scala.collection.JavaConversions._
 import scala.collection.immutable._
+import scala.compat.java8.StreamConverters._
 import scala.Predef.{classOf,String}
 import scalaz._
 import Scalaz._
@@ -148,7 +148,8 @@ package object types {
 
     val getOntologyShortName: Option[String] =
       ont
-        .getAnnotations
+        .annotations
+        .toScala[Set]
         .find(_.getProperty.getIRI == ops.rdfs_label)
         .flatMap(_.getValue match {
           case l: OWLLiteral =>
@@ -159,7 +160,8 @@ package object types {
 
     val getOntologyUUID: Option[String] =
       ont
-        .getAnnotations
+        .annotations
+        .toScala[Set]
         .find(_.getProperty.getIRI == ops.AnnotationHasUUID)
         .flatMap(_.getValue match {
           case l: OWLLiteral =>
@@ -170,7 +172,8 @@ package object types {
 
     val getOntologyRelativeIRI: Option[String] =
       ont
-        .getAnnotations
+        .annotations
+        .toScala[Set]
         .find(_.getProperty.getIRI == ops.AnnotationHasRelativeIRI)
         .flatMap(_.getValue match {
           case l: OWLLiteral =>
@@ -181,7 +184,8 @@ package object types {
 
     val getOntologyIRIHashPrefix: Option[String] =
       ont
-        .getAnnotations
+        .annotations
+        .toScala[Set]
         .find(_.getProperty.getIRI == ops.AnnotationHasIRIHashPrefix)
         .flatMap(_.getValue match {
           case l: OWLLiteral =>
@@ -192,7 +196,8 @@ package object types {
 
     val getOntologyIRIHashSuffix: Option[String] =
       ont
-        .getAnnotations
+        .annotations
+        .toScala[Set]
         .find(_.getProperty.getIRI == ops.AnnotationHasIRIHashSuffix)
         .flatMap(_.getValue match {
           case l: OWLLiteral =>
@@ -267,7 +272,7 @@ package object types {
   = {
     val restrictions
     : Set[java.lang.Throwable] \/ Set[(OWLClass, OWLDataProperty, String)]
-    = ont.getSubClassAxiomsForSubClass(entity).to[Set]
+    = ont.subClassAxiomsForSubClass(entity).toScala[Set]
       .map { sup =>
         val restriction
         : Set[java.lang.Throwable] \/ Set[(OWLClass, OWLDataProperty, String)]
@@ -288,7 +293,7 @@ package object types {
             : Option[String]
             = restriction.getFiller match {
               case oneOf: OWLDataOneOf =>
-                val values = oneOf.getValues
+                val values = oneOf.values.toScala[Set]
                 if (1 == values.size)
                   Some(values.head.getLiteral)
                 else
@@ -319,8 +324,8 @@ package object types {
   ( ont: OWLOntology, entity: OWLClass )
   : Set[(OWLClass, OWLObjectProperty, Boolean, OWLClass, RestrictionKind)]
   = ont
-    .getAxioms[OWLSubClassOfAxiom](classOf[OWLSubClassOfAxiom], entity, Imports.EXCLUDED, Navigation.IN_SUB_POSITION)
-    .to[Set]
+    .axioms[OWLSubClassOfAxiom](classOf[OWLSubClassOfAxiom], entity, Imports.EXCLUDED, Navigation.IN_SUB_POSITION)
+    .toScala[Set]
     .flatMap { ax =>
 
       // @todo Check if there is a known bug in the OWL API for getAxioms() w.r.t. the 'forSubPosition' argument.

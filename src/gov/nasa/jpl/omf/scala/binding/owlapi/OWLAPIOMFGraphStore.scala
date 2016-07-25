@@ -44,7 +44,6 @@ import gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader._
 import gov.nasa.jpl.omf.scala.core.builtin.BuiltInDatatypeMaps
 import gov.nasa.jpl.omf.scala.core.TerminologyKind._
 import gov.nasa.jpl.omf.scala.core._
-import gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper
 import org.semanticweb.owlapi.model._
 import org.semanticweb.owlapi.model.parameters.{Imports, _}
 import org.semanticweb.owlapi.util.PriorityCollection
@@ -52,9 +51,10 @@ import org.semanticweb.owlapi.util.PriorityCollection
 import scala.collection.immutable._
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
-import scala.language.postfixOps
+import scala.compat.java8.StreamConverters._
+
 import scala.util.control.Exception._
-import scala.{Boolean, None, Option, Some, StringContext, Tuple2, Unit, annotation}
+import scala.{Boolean, None, Option, Some, StringContext, Tuple2, Unit}
 import scala.Predef.{Map => _, Set => _, _}
 import scalaz._
 import Scalaz._
@@ -84,13 +84,13 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
 
   protected lazy val omfModelClasses =
     omfModelOntology
-    .getClassesInSignature(Imports.EXCLUDED)
+    .classesInSignature(Imports.EXCLUDED).toScala[Set]
     .map { c => c.getIRI.getRemainder.get -> c }
     .toMap
 
   protected lazy val omfModelObjectPropertiesMap =
     omfModelOntology
-    .getObjectPropertiesInSignature(Imports.EXCLUDED)
+    .objectPropertiesInSignature(Imports.EXCLUDED).toScala[Set]
     .map { op => op.getIRI.getRemainder.get -> op }
     .toMap
 
@@ -105,25 +105,25 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
 
   protected lazy val omfModelDataTypes =
     omfModelOntology
-    .getDatatypesInSignature(Imports.EXCLUDED)
+    .datatypesInSignature(Imports.EXCLUDED).toScala[Set]
     .map { dt => dt.getIRI.getRemainder.get -> dt }
     .toMap
 
   protected lazy val omfModelDataProperties =
     omfModelOntology
-    .getDataPropertiesInSignature(Imports.EXCLUDED)
+    .dataPropertiesInSignature(Imports.EXCLUDED).toScala[Set]
     .map { dp => dp.getIRI.getRemainder.get -> dp }
     .toMap
 
   protected lazy val omfNamedIndividuals =
     omfModelOntology
-    .getIndividualsInSignature(Imports.EXCLUDED)
+    .individualsInSignature(Imports.EXCLUDED).toScala[Set]
     .map { dp => dp.getIRI.getRemainder.get -> dp }
     .toMap
 
   protected lazy val allAnnotationProperties =
     omfModelOntology
-    .getAnnotationPropertiesInSignature(Imports.INCLUDED)
+    .annotationPropertiesInSignature(Imports.INCLUDED).toScala[Set]
     .map { ap => ap.getIRI.getShortForm -> ap }
     .toMap
 
@@ -484,7 +484,7 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
   : Option[String] = {
     val i_g = OMF_MODEL_TERMINOLOGY_GRAPH2Instance(g)
     val i_dataValues: Set[OWLDataPropertyAssertionAxiom] =
-      omfMetadata.get.getDataPropertyAssertionAxioms(i_g).toSet
+      omfMetadata.get.dataPropertyAssertionAxioms(i_g).toScala[Set]
 
     val i_g_relativePath_dataValue = i_dataValues.find { ax =>
       ax.getProperty match {
@@ -504,7 +504,7 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
   : Option[String] = {
     val i_g = OMF_MODEL_TERMINOLOGY_GRAPH2Instance(g)
     val i_dataValues: Set[OWLDataPropertyAssertionAxiom] =
-      omfMetadata.get.getDataPropertyAssertionAxioms(i_g).toSet
+      omfMetadata.get.dataPropertyAssertionAxioms(i_g).toScala[Set]
 
     val i_g_iriHashPrefix_dataValue = i_dataValues.find { ax =>
       ax.getProperty match {
@@ -524,7 +524,7 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
   : Option[String] = {
     val i_g = OMF_MODEL_TERMINOLOGY_GRAPH2Instance(g)
     val i_dataValues: Set[OWLDataPropertyAssertionAxiom] =
-      omfMetadata.get.getDataPropertyAssertionAxioms(i_g).toSet
+      omfMetadata.get.dataPropertyAssertionAxioms(i_g).toScala[Set]
 
     val i_g_iriHashSuffix_dataValue = i_dataValues.find { ax =>
       ax.getProperty match {
@@ -556,7 +556,7 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
   : Option[String] = {
     val i_g = OMF_MODEL_TERMINOLOGY_GRAPH2Instance(g)
     val i_dataValues: Set[OWLDataPropertyAssertionAxiom] =
-      omfMetadata.get.getDataPropertyAssertionAxioms(i_g).toSet
+      omfMetadata.get.dataPropertyAssertionAxioms(i_g).toScala[Set]
 
     val i_g_relativeFilename_dataValue = i_dataValues.find { ax =>
       ax.getProperty match {

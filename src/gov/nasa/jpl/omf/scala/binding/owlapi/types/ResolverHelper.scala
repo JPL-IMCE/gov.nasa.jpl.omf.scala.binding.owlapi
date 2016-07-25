@@ -38,20 +38,17 @@
  */
 package gov.nasa.jpl.omf.scala.binding.owlapi.types
 
-import java.lang.IllegalArgumentException
 import java.lang.System
 
 import gov.nasa.jpl.omf.scala.binding.owlapi._
 import gov.nasa.jpl.omf.scala.core._
 import org.semanticweb.owlapi.model._
-import org.semanticweb.owlapi.model.parameters.Imports
-import org.semanticweb.owlapi.reasoner.structural.StructuralReasonerFactory
 import org.semanticweb.owlapi.reasoner.{NodeSet, OWLReasoner}
 
 import scala.collection.JavaConversions._
 import scala.collection.immutable._
-import scala.util.Try
-import scala.{Boolean, Enumeration, None, Option, Some, StringContext, Tuple3, Unit}
+import scala.compat.java8.StreamConverters._
+import scala.{Boolean, None, Option, Some, StringContext, Unit}
 import scala.Predef.{Map => _, Set => _, _}
 import scala.language.postfixOps
 import scalaz._
@@ -83,7 +80,7 @@ case class ResolverHelper
 
   def isAnnotatedAbstract(iri: IRI): Boolean = {
     for {
-      aaa <- ont.getAnnotationAssertionAxioms(iri)
+      aaa <- ont.annotationAssertionAxioms(iri).toScala[Set]
       if aaa.getProperty.getIRI == AnnotationIsAbstract
     } {
       aaa.getValue match {
@@ -99,7 +96,7 @@ case class ResolverHelper
 
   def isAnnotatedDerived(iri: IRI): Boolean = {
     for {
-      aaa <- ont.getAnnotationAssertionAxioms(iri)
+      aaa <- ont.annotationAssertionAxioms(iri).toScala[Set]
       if aaa.getProperty.getIRI == AnnotationIsDerived
     } {
       aaa.getValue match {
@@ -116,7 +113,8 @@ case class ResolverHelper
   def getOWLTermShortName(entityIRI: IRI)
   : Option[String]
   = ont
-    .getAnnotationAssertionAxioms(entityIRI)
+    .annotationAssertionAxioms(entityIRI)
+    .toScala[Set]
     .find(_.getProperty.getIRI == rdfs_label)
     .flatMap { a =>
       a.getValue match {
@@ -130,7 +128,8 @@ case class ResolverHelper
   def getOWLTermUUID(entityIRI: IRI)
   : Option[String]
   = ont
-    .getAnnotationAssertionAxioms(entityIRI)
+    .annotationAssertionAxioms(entityIRI)
+    .toScala[Set]
     .find(_.getProperty.getIRI == AnnotationHasUUID)
     .flatMap(_.getValue match {
       case l: OWLLiteral =>
@@ -209,8 +208,8 @@ case class ResolverHelper
       dataPropertyN <- subDPs.to[Iterable]
       dataPropertyDP <- dataPropertyN flatMap { case dp: OWLDataProperty => Some(dp) }
       if tDPs.contains(dataPropertyDP)
-      dataPropertyDomain <- reasoner.getDataPropertyDomains(dataPropertyDP, true).getFlattened
-      dataPropertyRange <- ont.getDataPropertyRangeAxioms(dataPropertyDP)
+      dataPropertyDomain <- reasoner.getDataPropertyDomains(dataPropertyDP, true).entities().toScala[Set]
+      dataPropertyRange <- ont.dataPropertyRangeAxioms(dataPropertyDP).toScala[Set]
       dataPropertyType = dataPropertyRange.getRange.asOWLDatatype
     } yield (dataPropertyDP, dataPropertyDomain, dataPropertyType)
 
@@ -625,8 +624,8 @@ case class ResolverHelper
               None
           }
       }
-      _d_ <- reasoner.getObjectPropertyDomains(_op_, true).getFlattened
-      _r_ <- reasoner.getObjectPropertyRanges(_op_, true).getFlattened
+      _d_ <- reasoner.getObjectPropertyDomains(_op_, true).entities().toScala[Set]
+      _r_ <- reasoner.getObjectPropertyRanges(_op_, true).entities().toScala[Set]
     } yield {
       val INV = (_n_ flatMap {
         case op: OWLObjectProperty =>
@@ -655,7 +654,7 @@ case class ResolverHelper
   : Set[java.lang.Throwable] \/ Unit = {
     val sub_sup = for {
       (subC, subM) <- conceptCMs
-      supC <- reasoner.getSuperClasses(subC, true).getFlattened
+      supC <- reasoner.getSuperClasses(subC, true).entities().toScala[Set]
       supM <- findEntityConcept(supC.getIRI, allConceptsIncludingImported)
     } yield (subM, supM)
 
@@ -672,7 +671,7 @@ case class ResolverHelper
   : Set[java.lang.Throwable] \/ Unit = {
     val sub_sup = for {
       (subC, subM) <- reifiedRelationshipCMs
-      supC <- reasoner.getSuperClasses(subC, true).getFlattened
+      supC <- reasoner.getSuperClasses(subC, true).entities().toScala[Set]
       supM <- findEntityReifiedRelationship(supC.getIRI, allReifiedRelationshipsIncludingImported)
     } yield (subM, supM)
 
@@ -690,7 +689,7 @@ case class ResolverHelper
 
     val sub_sup = for {
       (subC, subM) <- allEntityDefinitions
-      supC <- reasoner.getSuperClasses(subC, true).getFlattened
+      supC <- reasoner.getSuperClasses(subC, true).entities().toScala[Set]
       supM <- findEntityAspect(supC.getIRI, allAspectsIncludingImported)
     } yield (subM, supM)
 

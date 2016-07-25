@@ -38,16 +38,10 @@
  */
 package gov.nasa.jpl.omf.scala.binding.owlapi
 
-import java.lang.System
-import java.util.concurrent.TimeUnit
-
 import gov.nasa.jpl.omf.scala.binding.owlapi.BackboneDeclaractions.BackboneDeclaractions
-import gov.nasa.jpl.omf.scala.core.builtin.BuiltInDatatypeMaps
 import gov.nasa.jpl.omf.scala.core._
-import gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper
 import org.semanticweb.owlapi.model._
 import org.semanticweb.owlapi.model.parameters.Imports
-import org.semanticweb.owlapi.util.PriorityCollection
 
 import scalax.collection.config._
 import scalax.collection.mutable.ArraySet.Hints
@@ -56,11 +50,9 @@ import scalax.collection.GraphEdge._
 import scalax.collection.GraphPredef._
 
 import scala.collection.immutable._
-import scala.collection.JavaConversions._
-import scala.concurrent.duration.FiniteDuration
-import scala.language.postfixOps
+import scala.compat.java8.StreamConverters._
 import scala.util.control.Exception._
-import scala.{Boolean, Int, None, Option, Some, StringContext, Tuple2, Unit, annotation}
+import scala.{Int, None, Option, Some, StringContext, annotation}
 import scala.Predef.{Map => _, Set => _, _}
 import scalaz._
 import Scalaz._
@@ -80,8 +72,8 @@ object OWLAPIOMFLoader {
   (implicit ops: OWLAPIOMFOps)
   : Set[OWLClass]
   = ont
-    .getAxioms[OWLDeclarationAxiom](AxiomType.DECLARATION, Imports.EXCLUDED)
-    .to[Set]
+    .axioms[OWLDeclarationAxiom](AxiomType.DECLARATION, Imports.EXCLUDED)
+    .toScala[Set]
     .map(_.getEntity)
     .flatMap {
       case c: OWLClass =>
@@ -106,7 +98,7 @@ object OWLAPIOMFLoader {
   = getOntologyDirectlyDeclaredClasses(ont, BackboneDeclaractions.exclude)
     .flatMap { c =>
       ont
-        .getAnnotationAssertionAxioms(c.getIRI)
+        .annotationAssertionAxioms(c.getIRI).toScala[Set]
         .flatMap { a =>
           if (ops.AnnotationHasGraph == a.getProperty.getIRI)
             a.getValue match {
@@ -138,7 +130,8 @@ object OWLAPIOMFLoader {
   (implicit ops: OWLAPIOMFOps)
   : Option[IRI]
   = ont
-    .getAnnotations
+    .annotations
+    .toScala[Set]
     .find(ops.AnnotationHasContext == _.getProperty.getIRI)
     .flatMap { a =>
       a.getValue match {
@@ -153,7 +146,7 @@ object OWLAPIOMFLoader {
   def getOntologyDirectlyImportedDocuments
   (ont: OWLOntology)
   : Set[IRI]
-  = ont.getDirectImportsDocuments.to[Set]
+  = ont.directImportsDocuments.toScala[Set]
 
   case class ExtendingOntologyToExtendedGraphIRI
   (extendingG: IRI,

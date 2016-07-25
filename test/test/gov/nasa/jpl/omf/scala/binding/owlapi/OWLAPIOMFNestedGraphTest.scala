@@ -38,14 +38,13 @@
  */
 package test.gov.nasa.jpl.omf.scala.binding.owlapi
 
-import org.scalatest.{Failed,Outcome}
 import org.semanticweb.owlapi.apibinding.OWLManager
 import gov.nasa.jpl.omf.scala.binding.owlapi._
 import test.gov.nasa.jpl.omf.scala.core.{ functionalAPI => testFunctionalAPI }
 import org.apache.xml.resolver.CatalogManager
 import scala.Predef._
 import scala.collection.immutable.Set
-import scala.{transient,Option,None,Some,StringContext,Unit}
+import scala.{transient,Option,StringContext,Unit}
 import java.lang.IllegalArgumentException
 
 abstract class OWLAPIOMFNestedGraphTest

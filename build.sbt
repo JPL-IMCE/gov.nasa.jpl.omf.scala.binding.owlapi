@@ -10,6 +10,8 @@ import java.io.File
 
 useGpg := true
 
+updateOptions := updateOptions.value.withCachedResolution(true)
+
 developers := List(
   Developer(
     id="rouquett",
@@ -189,19 +191,14 @@ lazy val core =
     unmanagedClasspath in Test += baseDirectory.value / "target" / "extracted" / "imce-omf_ontologies"
   )
   .dependsOnSourceProjectOrLibraryArtifacts(
-    "omf-scala-core",
-    "gov.nasa.jpl.omf.scala.core",
-    Some("compile;test"),
-    Seq(
-      "gov.nasa.jpl.imce.omf" %% "omf-scala-core"
-        % Versions_omf_scala_core.version artifacts
-        Artifact("omf-scala-core", "zip", "zip", Some("resource"), Seq(), None, Map()),
-
-      "gov.nasa.jpl.imce.omf" %% "omf-scala-core"
-        % Versions_omf_scala_core.version % "test" classifier "tests" artifacts(
-        Artifact.classified("omf-scala-core", "tests-sources"),
-        Artifact.classified("omf-scala-core", "tests-javadoc"))
-    )
+      "omf-scala-core",
+      "gov.nasa.jpl.omf.scala.core",
+      Seq(
+        "gov.nasa.jpl.imce.omf" %% "omf-scala-core"
+          % Versions_omf_scala_core.version % "test->compile;compile->compile" artifacts(
+          Artifact("omf-scala-core"),
+          Artifact("omf-scala-core", "tests"))
+      )
   )
 
 def dynamicScriptsResourceSettings(dynamicScriptsProjectName: Option[String] = None): Seq[Setting[_]] = {

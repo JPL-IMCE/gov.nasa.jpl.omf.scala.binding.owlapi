@@ -38,16 +38,12 @@
  */
 package test.gov.nasa.jpl.omf.scala.binding.owlapi
 
-import java.net.URLClassLoader
-
 import org.semanticweb.owlapi.apibinding.OWLManager
 import gov.nasa.jpl.omf.scala.binding.owlapi._
 import test.gov.nasa.jpl.omf.scala.core.{ functionalAPI => testFunctionalAPI }
 import org.apache.xml.resolver.CatalogManager
-import scala.{transient,Option,None,Some,StringContext,Unit}
+import scala.{transient,Option,StringContext,Unit}
 import scala.Predef._
-import scala.util.Failure
-import scala.util.Success
 import java.lang.IllegalArgumentException
 
 abstract class IMCE_OWL2_MOF2_LoadTestFromOWLAPI( override val loadStore: OWLAPIOMFGraphStore )

@@ -42,7 +42,7 @@ import gov.nasa.jpl.omf.scala.binding.owlapi._
 import org.apache.xml.resolver.CatalogManager
 import org.semanticweb.owlapi.apibinding.OWLManager
 import test.gov.nasa.jpl.omf.scala.core.{functionalAPI => testFunctionalAPI}
-import scala.{transient,Option,None,Some,StringContext,Unit}
+import scala.{transient,Option,StringContext,Unit}
 import scala.Predef._
 import java.lang.IllegalArgumentException
 

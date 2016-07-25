@@ -38,22 +38,25 @@
  */
 package gov.nasa.jpl.omf.scala.binding.owlapi
 
+import java.util.stream.{Stream => JStream}
+
 import org.semanticweb.owlapi.model.OWLOntology
 import org.semanticweb.owlapi.model.OWLClass
 import org.semanticweb.owlapi.model.IRI
 import org.semanticweb.owlapi.model.AddAxiom
+import org.semanticweb.owlapi.model.AddOntologyAnnotation
+import org.semanticweb.owlapi.model.OWLAnnotation
 import org.semanticweb.owlapi.model.OWLObjectProperty
 import org.semanticweb.owlapi.model.OWLDataProperty
 import org.semanticweb.owlapi.model.OWLEntity
-import gov.nasa.jpl.omf.scala.core._
-import gov.nasa.jpl.omf.scala.core.TerminologyKind._
-import org.semanticweb.owlapi.model.AddOntologyAnnotation
 import org.semanticweb.owlapi.model.OWLLiteral
 
-import scala.collection.JavaConversions._
+import gov.nasa.jpl.omf.scala.core._
+import gov.nasa.jpl.omf.scala.core.TerminologyKind._
+
+import scala.compat.java8.FunctionConverters._
 import scala.collection.immutable._
-import scala.language.postfixOps
-import scala.{Enumeration,Option,None,Some,StringContext}
+import scala.{Boolean,Enumeration,Option}
 import scala.Predef.{Set=>_,Map=>_,_}
 import scalaz._, Scalaz._
 
@@ -361,17 +364,22 @@ object Backbone {
             .right
         }
 
-    val hasIsDesignation = ont.getAnnotations.
-      filter(_.getProperty.getIRI == ops.AnnotationIsDesignation).
-      flatMap(_.getValue match {
+    val aFilter = (a: OWLAnnotation) => a.getProperty.getIRI == ops.AnnotationIsDesignation
+
+    val mapper = (a: OWLAnnotation) =>
+      a.getValue match {
         case l: OWLLiteral if l.isBoolean =>
-          Some(l.parseBoolean)
+          JStream.of[Boolean](l.parseBoolean)
         case _ =>
-          None
-      }) headOption
+          JStream.of[Boolean]()
+      }
+
+    val hasIsDesignation = ont.annotations().
+      filter(aFilter.asJava).
+      flatMap(mapper.asJava).findFirst()
 
     val kind: TerminologyKind =
-      if (hasIsDesignation.getOrElse(false)) isDesignation else isDefinition
+      if (hasIsDesignation.orElse(false)) isDesignation else isDefinition
 
     for {
       _Thing <- lookup("Thing", bCs)

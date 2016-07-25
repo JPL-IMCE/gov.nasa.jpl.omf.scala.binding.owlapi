@@ -45,7 +45,7 @@ import gov.nasa.jpl.omf.scala.binding.owlapi._
 import test.gov.nasa.jpl.omf.scala.core.{ functionalAPI => testFunctionalAPI }
 
 import scala.collection.immutable.Set
-import scala.{None,StringContext}
+import scala.StringContext
 
 class IRIBasicTests 
 extends testFunctionalAPI.IRITests[OWLAPIOMF]()({

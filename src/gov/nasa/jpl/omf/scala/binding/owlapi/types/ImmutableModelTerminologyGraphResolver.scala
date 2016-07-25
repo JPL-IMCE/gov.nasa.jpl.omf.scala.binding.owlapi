@@ -38,7 +38,6 @@
  */
 package gov.nasa.jpl.omf.scala.binding.owlapi.types
 
-import java.lang.IllegalArgumentException
 import java.lang.System
 
 import gov.nasa.jpl.omf.scala.binding.owlapi._
@@ -46,14 +45,11 @@ import gov.nasa.jpl.omf.scala.core._
 import org.semanticweb.owlapi.model._
 import org.semanticweb.owlapi.model.parameters.Imports
 import org.semanticweb.owlapi.reasoner.structural.StructuralReasonerFactory
-import org.semanticweb.owlapi.reasoner.{NodeSet, OWLReasoner}
 
-import scala.collection.JavaConversions._
 import scala.collection.immutable._
-import scala.util.Try
-import scala.{Boolean, Enumeration, None, Option, Some, StringContext, Tuple2, Tuple3, Tuple4, Tuple5, Unit}
+import scala.compat.java8.StreamConverters._
+import scala.{Boolean, None, Some, StringContext, Tuple2, Tuple3, Tuple4, Tuple5, Unit}
 import scala.Predef.{Map => _, Set => _, _}
-import scala.language.postfixOps
 import scalaz._
 import Scalaz._
 
@@ -72,7 +68,7 @@ case class ImmutableModelTerminologyGraphResolver(resolver: ResolverHelper) {
   def resolve()
   : Set[java.lang.Throwable] \/ (ImmutableModelTerminologyGraph, Mutable2IMutableTerminologyMap)
   = {
-    val dTs = ont.getDatatypesInSignature(Imports.EXCLUDED).filter(ont.isDeclared)
+    val dTs = ont.datatypesInSignature(Imports.EXCLUDED).toScala[Set].filter(ont.isDeclared)
 
     ( Map[OWLDatatype, ModelScalarDataType]()
       .right[Set[java.lang.Throwable]] /: dTs ) {
@@ -91,17 +87,17 @@ case class ImmutableModelTerminologyGraphResolver(resolver: ResolverHelper) {
     }.flatMap { scalarDatatypeSCs =>
 
       val (bCs, tCs) = ont.
-        getClassesInSignature(Imports.EXCLUDED).
+        classesInSignature(Imports.EXCLUDED).toScala[Set].
         filter(ont.isDeclared).
         partition { c => isBackboneIRI(c.getIRI) }
 
       val (bOPs, tOPs) = ont.
-        getObjectPropertiesInSignature(Imports.EXCLUDED).
+        objectPropertiesInSignature(Imports.EXCLUDED).toScala[Set].
         filter(ont.isDeclared).
         partition { c => isBackboneIRI(c.getIRI) }
 
       val (bDPs, tDPs) = ont.
-        getDataPropertiesInSignature(Imports.EXCLUDED).
+        dataPropertiesInSignature(Imports.EXCLUDED).toScala[Set].
         filter(ont.isDeclared).
         partition { c => isBackboneIRI(c.getIRI) }
 
@@ -221,7 +217,7 @@ case class ImmutableModelTerminologyGraphResolver(resolver: ResolverHelper) {
         reasoner.getSubClasses(backbone.AspectC, false),
         aCs)
 
-    val subPropertyChainAxioms = ont.getLogicalAxioms(Imports.EXCLUDED).flatMap {
+    val subPropertyChainAxioms = ont.logicalAxioms(Imports.EXCLUDED).toScala[Set].flatMap {
       case ax: SWRLRule =>
         Some(ax)
       case _ =>
@@ -230,10 +226,10 @@ case class ImmutableModelTerminologyGraphResolver(resolver: ResolverHelper) {
 
     val chains: Chains = for {
       rule: SWRLRule <- subPropertyChainAxioms.toSet
-      variables: Set[SWRLVariable] = rule.getVariables.toSet
+      variables: Set[SWRLVariable] = rule.variables.toScala[Set]
       if 3 == variables.size
 
-      heads: Set[SWRLAtom] = rule.getHead.toSet
+      heads: Set[SWRLAtom] = rule.head.toScala[Set]
       if 1 == heads.size
       head: SWRLObjectPropertyAtom <- heads.head match {
         case opa: SWRLObjectPropertyAtom =>
@@ -255,7 +251,7 @@ case class ImmutableModelTerminologyGraphResolver(resolver: ResolverHelper) {
         case v: SWRLVariable => Some(v)
         case _ => None
       }
-      bodies: Set[SWRLAtom] = rule.getBody.toSet
+      bodies: Set[SWRLAtom] = rule.body.toScala[Set]
       if 2 == bodies.size
       body1: SWRLObjectPropertyAtom <- bodies.head match {
         case opa: SWRLObjectPropertyAtom =>

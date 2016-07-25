@@ -44,7 +44,7 @@ import test.gov.nasa.jpl.omf.scala.core.{ functionalAPI => testFunctionalAPI }
 import org.apache.xml.resolver.CatalogManager
 import scala.Predef._
 import scala.collection.immutable.Set
-import scala.{transient,Option,None,Some,StringContext,Unit}
+import scala.{transient,Option,StringContext,Unit}
 import java.lang.IllegalArgumentException
 
 abstract class IMCEFoundationLoadTestFromOWLAPI

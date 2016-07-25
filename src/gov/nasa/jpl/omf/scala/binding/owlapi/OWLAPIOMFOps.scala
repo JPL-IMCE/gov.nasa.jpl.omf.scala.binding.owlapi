@@ -47,10 +47,10 @@ import org.apache.commons.codec.binary.Hex
 import org.apache.commons.codec.digest.DigestUtils
 import org.semanticweb.owlapi.model._
 
-import scala.util.control.Exception._
-import scala.{AnyVal, Boolean, None, Option, Some, StringContext, Unit}
-import scala.collection.JavaConversions._
+import scala.{Boolean, None, Option, Some, StringContext, Unit}
 import scala.collection.immutable._
+import scala.compat.java8.StreamConverters._
+import scala.util.control.Exception._
 import scala.Predef.{Map => _, Set => _, _}
 import scalaz._
 import Scalaz._
@@ -79,7 +79,7 @@ trait OWLAPIIRIOps
 
   def iri2hash(prefix: String, iri: IRI)
   : String =
-    Hex.encodeHexString(DigestUtils.sha(prefix + iri.toString))
+    Hex.encodeHexString(DigestUtils.sha1(prefix + iri.toString))
 
   // IRI
 
@@ -1336,7 +1336,7 @@ final class OWLOntologyOps
 
   def isOntologyTBoxToplevel: Boolean = {
     for {
-      aaa <- ont.getAnnotations
+      aaa <- ont.annotations.toScala[Set]
       if aaa.getProperty.getIRI == ops.AnnotationIsToplevel
     } {
       aaa.getValue match {
@@ -1352,7 +1352,7 @@ final class OWLOntologyOps
 
   def isOntologyTBoxDefinition: Boolean = {
     for {
-      aaa <- ont.getAnnotations
+      aaa <- ont.annotations.toScala[Set]
       if aaa.getProperty.getIRI == ops.AnnotationIsDefinition
     } {
       aaa.getValue match {
@@ -1368,7 +1368,7 @@ final class OWLOntologyOps
 
   def isOntologyTBoxDesignation: Boolean = {
     for {
-      aaa <- ont.getAnnotations
+      aaa <- ont.annotations.toScala[Set]
       if aaa.getProperty.getIRI == ops.AnnotationIsDesignation
     } {
       aaa.getValue match {

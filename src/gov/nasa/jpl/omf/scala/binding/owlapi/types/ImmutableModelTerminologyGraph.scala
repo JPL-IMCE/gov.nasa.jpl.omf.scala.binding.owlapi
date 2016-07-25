@@ -39,19 +39,15 @@
 package gov.nasa.jpl.omf.scala.binding.owlapi.types
 
 import java.lang.IllegalArgumentException
-import java.lang.System
 
 import gov.nasa.jpl.omf.scala.binding.owlapi._
 import gov.nasa.jpl.omf.scala.core.TerminologyKind._
 import gov.nasa.jpl.omf.scala.core._
+
 import org.semanticweb.owlapi.model._
-import org.semanticweb.owlapi.model.parameters.Imports
-import org.semanticweb.owlapi.reasoner.structural.StructuralReasonerFactory
-import org.semanticweb.owlapi.reasoner.{NodeSet, OWLReasoner}
 
 import scala.collection.immutable._
-import scala.util.Try
-import scala.{Boolean, Enumeration, None, Option, Some, StringContext, Tuple3, Unit}
+import scala.{Enumeration, Option, StringContext}
 import scala.Predef.{Map => _, Set => _, _}
 import scala.language.postfixOps
 

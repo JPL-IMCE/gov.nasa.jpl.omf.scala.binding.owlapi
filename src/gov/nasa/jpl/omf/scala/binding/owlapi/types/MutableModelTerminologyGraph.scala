@@ -52,7 +52,6 @@ import scala.collection.JavaConversions._
 import scala.collection.immutable._
 import scala.{Boolean,Enumeration,Option,None,Some,StringContext,Unit}
 import scala.Predef.{Set=>_,Map=>_,_}
-import scala.language.postfixOps
 import scalaz._, Scalaz._
 
 object EntityExceptionKind extends Enumeration {
