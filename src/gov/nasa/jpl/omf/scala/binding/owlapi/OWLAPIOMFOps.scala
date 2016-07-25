@@ -571,7 +571,8 @@ trait OWLAPIImmutableTerminologyGraphOps
 
   def foldTerm[T]
   (t: types.ModelTypeTerm)
-  (funEntityConcept: types.ModelEntityConcept => T,
+  (funEntityAspect: types.ModelEntityAspect => T,
+   funEntityConcept: types.ModelEntityConcept => T,
    funEntityReifiedRelationship: types.ModelEntityReifiedRelationship => T,
    funEntityUnreifiedRelationship: types.ModelEntityUnreifiedRelationship => T,
    funScalarDataType: types.ModelScalarDataType => T,
@@ -581,6 +582,7 @@ trait OWLAPIImmutableTerminologyGraphOps
    funDataRelationshipFromStructureToScalar: types.ModelDataRelationshipFromStructureToScalar => T,
    funDataRelationshipFromStructureToStructure: types.ModelDataRelationshipFromStructureToStructure => T)
   : T = t match {
+    case et: types.ModelEntityAspect                              => funEntityAspect(et)
     case et: types.ModelEntityConcept                             => funEntityConcept(et)
     case et: types.ModelEntityReifiedRelationship                 => funEntityReifiedRelationship(et)
     case et: types.ModelEntityUnreifiedRelationship               => funEntityUnreifiedRelationship(et)
@@ -715,8 +717,8 @@ trait OWLAPIImmutableTerminologyGraphOps
    : types.EntityConceptDesignationTerminologyGraphAxiom => T,
    funEntityConceptSubClassAxiom
    : types.EntityConceptSubClassAxiom => T,
-   funEntityConceptRestrictionAxiom
-   : types.EntityConceptRestrictionAxiom => T,
+   funEntityDefinitionRestrictionAxiom
+   : types.EntityDefinitionRestrictionAxiom => T,
    funEntityReifiedRelationshipSubClassAxiom
    : types.EntityReifiedRelationshipSubClassAxiom => T,
    funEntityReifiedRelationshipContextualizationAxiom
@@ -734,8 +736,8 @@ trait OWLAPIImmutableTerminologyGraphOps
       funEntityConceptDesignationTerminologyGraphAxiom(ax)
     case ax: types.EntityConceptSubClassAxiom =>
       funEntityConceptSubClassAxiom(ax)
-    case ax: types.EntityConceptRestrictionAxiom =>
-      funEntityConceptRestrictionAxiom(ax)
+    case ax: types.EntityDefinitionRestrictionAxiom =>
+      funEntityDefinitionRestrictionAxiom(ax)
     case ax: types.EntityReifiedRelationshipSubClassAxiom =>
       funEntityReifiedRelationshipSubClassAxiom(ax)
     case ax: types.EntityReifiedRelationshipRestrictionAxiom =>
@@ -783,12 +785,18 @@ trait OWLAPIImmutableTerminologyGraphOps
 
   // entity concept restriction axiom
 
-  override def fromEntityConceptRestrictionAxiom
-  (ax: types.EntityConceptRestrictionAxiom)
-  : (types.ModelEntityConcept, types.ModelEntityReifiedRelationship, types.ModelEntityDefinition) = {
-    import ax._
-    (sub, rel, range)
-  }
+  override def fromEntityDefinitionRestrictionAxiom
+  (ax: types.EntityDefinitionRestrictionAxiom)
+  : (types.ModelEntityDefinition, types.ModelEntityReifiedRelationship, types.ModelEntityDefinition, RestrictionKind)
+  = (ax.sub,
+     ax.rel,
+     ax.range,
+     ax match {
+       case _: types.EntityDefinitionExistentialRestrictionAxiom =>
+         ExistentialRestrictionKind
+       case _: types.EntityDefinitionUniversalRestrictionAxiom =>
+         UniversalRestrictionKind
+     })
 
   // entity relationship subclass axiom
 
@@ -865,6 +873,22 @@ trait OWLAPIMutableTerminologyGraphOps
   (implicit store: OWLAPIOMFGraphStore)
   : Set[java.lang.Throwable] \/ Unit =
     graph.setTermUUID(term, uuid)
+
+  override def setTermID
+  (graph: types.MutableModelTerminologyGraph,
+   term: types.ModelTypeTerm,
+   id: Option[String])
+  (implicit store: OWLAPIOMFGraphStore)
+  : Set[java.lang.Throwable] \/ Unit =
+    graph.setTermID(term, id)
+
+  override def setTermURL
+  (graph: types.MutableModelTerminologyGraph,
+   term: types.ModelTypeTerm,
+   url: Option[String])
+  (implicit store: OWLAPIOMFGraphStore)
+  : Set[java.lang.Throwable] \/ Unit =
+    graph.setTermURL(term, url)
 
   // entity facet
 
@@ -1041,23 +1065,23 @@ trait OWLAPIMutableTerminologyGraphOps
 
   // entity concept restriction axioms
 
-  override def addEntityConceptUniversalRestrictionAxiom
+  override def addEntityDefinitionUniversalRestrictionAxiom
   (graph: types.MutableModelTerminologyGraph,
-   sub: types.ModelEntityConcept,
+   sub: types.ModelEntityDefinition,
    rel: types.ModelEntityReifiedRelationship,
    range: types.ModelEntityDefinition)
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ types.EntityConceptUniversalRestrictionAxiom =
-    graph.addEntityConceptUniversalRestrictionAxiom(sub, rel, range)
+  : Set[java.lang.Throwable] \/ types.EntityDefinitionUniversalRestrictionAxiom =
+    graph.addEntityDefinitionUniversalRestrictionAxiom(sub, rel, range)
 
-  override def addEntityConceptExistentialRestrictionAxiom
+  override def addEntityDefinitionExistentialRestrictionAxiom
   (graph: types.MutableModelTerminologyGraph,
-   sub: types.ModelEntityConcept,
+   sub: types.ModelEntityDefinition,
    rel: types.ModelEntityReifiedRelationship,
    range: types.ModelEntityDefinition)
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ types.EntityConceptExistentialRestrictionAxiom =
-    graph.addEntityConceptExistentialRestrictionAxiom(sub, rel, range)
+  : Set[java.lang.Throwable] \/ types.EntityDefinitionExistentialRestrictionAxiom =
+    graph.addEntityDefinitionExistentialRestrictionAxiom(sub, rel, range)
 
   // entity relationship subclass axiom
 
@@ -1284,6 +1308,8 @@ trait OWLAPIMutableInstanceGraphOps
 class OWLAPIOMFOps
 ( val rdfs_label: IRI,
   val AnnotationHasUUID: IRI,
+  val AnnotationHasID: IRI,
+  val AnnotationHasURL: IRI,
   val AnnotationHasRelativeIRI: IRI,
   val AnnotationHasIRIHashPrefix: IRI,
   val AnnotationHasIRIHashSuffix: IRI,

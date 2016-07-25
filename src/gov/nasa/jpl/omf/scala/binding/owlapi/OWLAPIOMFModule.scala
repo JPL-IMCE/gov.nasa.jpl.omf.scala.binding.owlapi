@@ -73,6 +73,12 @@ object OWLAPIOMFModule {
     AnnotationHasUUID <-
     OWLAPIIRIOps.makeIRI("http://imce.jpl.nasa.gov/foundation/annotation/annotation#hasUUID")
 
+    AnnotationHasID <-
+    OWLAPIIRIOps.makeIRI("http://imce.jpl.nasa.gov/foundation/annotation/annotation#hasOTIToolSpecificID")
+
+    AnnotationHasURL <-
+    OWLAPIIRIOps.makeIRI("http://imce.jpl.nasa.gov/foundation/annotation/annotation#hasOTIToolSpecificURL")
+
     AnnotationHasRelativeIRI <-
     OWLAPIIRIOps.makeIRI("http://imce.jpl.nasa.gov/foundation/annotation/annotation#hasRelativeIRI")
 
@@ -115,6 +121,8 @@ object OWLAPIOMFModule {
     ops = new OWLAPIOMFOps(
       rdfs_label,
       AnnotationHasUUID,
+      AnnotationHasID,
+      AnnotationHasURL,
       AnnotationHasRelativeIRI,
       AnnotationHasIRIHashPrefix,
       AnnotationHasIRIHashSuffix,

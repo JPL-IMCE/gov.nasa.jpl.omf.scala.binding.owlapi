@@ -38,8 +38,14 @@
  */
 package gov.nasa.jpl.omf.scala.binding.owlapi.types
 
-case class EntityConceptUniversalRestrictionAxiom(
-  override val sub: ModelEntityConcept,
-  override val rel: ModelEntityReifiedRelationship,
-  override val range: ModelEntityDefinition )
-  extends EntityConceptRestrictionAxiom( sub, rel, range )
+import scala.Predef.require
+
+abstract class EntityDefinitionRestrictionAxiom(
+  val sub: ModelEntityDefinition,
+  val rel: ModelEntityReifiedRelationship,
+  val range: ModelEntityDefinition ) extends ModelTermAxiom {
+
+  require(null != sub)
+  require(null != rel)
+  require(null != range)
+}

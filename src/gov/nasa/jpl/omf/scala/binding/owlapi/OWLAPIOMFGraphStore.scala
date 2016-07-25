@@ -134,6 +134,16 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
     .getOWLDataFactory
     .getOWLAnnotationProperty(omfModule.ops.AnnotationHasUUID)
 
+  lazy val ANNOTATION_HAS_ID: OWLAnnotationProperty =
+    ontManager
+      .getOWLDataFactory
+      .getOWLAnnotationProperty(omfModule.ops.AnnotationHasID)
+
+  lazy val ANNOTATION_HAS_URL: OWLAnnotationProperty =
+    ontManager
+      .getOWLDataFactory
+      .getOWLAnnotationProperty(omfModule.ops.AnnotationHasURL)
+
   lazy val ANNOTATION_HAS_RELATIVE_IRI: OWLAnnotationProperty =
     ontManager
       .getOWLDataFactory
@@ -209,15 +219,15 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
   // OMF model.
 
   // ModelTermAxiom
-  lazy val OMF_ENTITY_CONCEPT_EXISTENTIAL_RESTRICTION_AXIOM =
-    omfModelClasses("EntityConceptExistentialRestrictionAxiom")
-  protected val OMF_ENTITY_CONCEPT_EXISTENTIAL_RESTRICTION_AXIOM2Instance =
-    scala.collection.mutable.HashMap[types.EntityConceptExistentialRestrictionAxiom, OWLNamedIndividual]()
+  lazy val OMF_ENTITY_DEFINITION_EXISTENTIAL_RESTRICTION_AXIOM =
+    omfModelClasses("EntityDefinitionExistentialRestrictionAxiom")
+  protected val OMF_ENTITY_DEFINITION_EXISTENTIAL_RESTRICTION_AXIOM2Instance =
+    scala.collection.mutable.HashMap[types.EntityDefinitionExistentialRestrictionAxiom, OWLNamedIndividual]()
 
-  lazy val OMF_ENTITY_CONCEPT_UNIVERSAL_RESTRICTION_AXIOM =
-    omfModelClasses("EntityConceptUniversalRestrictionAxiom")
-  protected val OMF_ENTITY_CONCEPT_UNIVERSAL_RESTRICTION_AXIOM2Instance =
-    scala.collection.mutable.HashMap[types.EntityConceptUniversalRestrictionAxiom, OWLNamedIndividual]()
+  lazy val OMF_ENTITY_DEFINITION_UNIVERSAL_RESTRICTION_AXIOM =
+    omfModelClasses("EntityDefinitionUniversalRestrictionAxiom")
+  protected val OMF_ENTITY_DEFINITION_UNIVERSAL_RESTRICTION_AXIOM2Instance =
+    scala.collection.mutable.HashMap[types.EntityDefinitionUniversalRestrictionAxiom, OWLNamedIndividual]()
 
   lazy val OMF_ENTITY_CONCEPT_SUB_CLASS_AXIOM =
     omfModelClasses("EntityConceptSubClassAxiom")
@@ -341,7 +351,6 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
   lazy val OMF_HAS_SPECIFIC_REIFIED_RELATIONSHIP = omfModelObjectProperties("hasSpecificReifiedRelationship")
 
   lazy val OMF_HAS_RESTRICTED_RANGE = omfModelObjectProperties("hasRestrictedRange")
-  lazy val OMF_RESTRICTS_CONCEPT = omfModelObjectProperties("restrictsConcept")
   lazy val OMF_RESTRICTS_RELATIONSHIP = omfModelObjectProperties("restrictsReifiedRelationship")
 
   lazy val OMF_HAS_SOURCE = omfModelObjectProperties("hasSource")
@@ -428,6 +437,8 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
 
   lazy val OMF_HAS_SHORT_NAME = omfModelDataProperties("hasShortName")
   lazy val OMF_HAS_UUID = omfModelDataProperties("hasUUID")
+  lazy val OMF_HAS_ID = omfModelDataProperties("hasOTIToolSpecificID")
+  lazy val OMF_HAS_URL = omfModelDataProperties("hasOTIToolSpecificURL")
   lazy val OMF_IS_ABSTRACT = omfModelDataProperties("isAbstract")
   lazy val OMF_IS_ASYMMETRIC = omfModelDataProperties("isAsymmetric")
   lazy val OMF_IS_FUNCTIONAL = omfModelDataProperties("isFunctional")
@@ -1204,8 +1215,8 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
   (tbox: types.MutableModelTerminologyGraph,
    termT: types.ModelTypeTerm,
    id: String)
-  : Set[java.lang.Throwable] \/ Unit =
-    OMF_MODEL_TYPE_TERM2Instance.get(termT)
+  : Set[java.lang.Throwable] \/ Unit
+  = OMF_MODEL_TYPE_TERM2Instance.get(termT)
     .fold[Set[java.lang.Throwable] \/ Unit]{
       Set(
         OMFError
@@ -1239,6 +1250,56 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
           \/-(())
         })
     }
+
+  def setTermID
+  (tbox: types.MutableModelTerminologyGraph,
+   termT: types.ModelTypeTerm,
+   id: String)
+  : Set[java.lang.Throwable] \/ Unit
+  = OMF_MODEL_TYPE_TERM2Instance.get(termT)
+    .fold[Set[java.lang.Throwable] \/ Unit]{
+    Set(
+      OMFError
+        .omfError(s"setTermUUID: no definition for $termT to set ID=$id")
+    ).left
+  } { termI =>
+    applyOntologyChangeOrNoOp(
+      ontManager,
+      new AddAxiom(
+        omfMetadata.get,
+        owlDataFactory
+          .getOWLDataPropertyAssertionAxiom(OMF_HAS_ID,
+            termI,
+            owlDataFactory.getOWLLiteral(id))),
+      ifError = {
+        "Failed to set a tbox term 'id' data property axiom"
+      })
+  }
+
+  def setTermURL
+  (tbox: types.MutableModelTerminologyGraph,
+   termT: types.ModelTypeTerm,
+   url: String)
+  : Set[java.lang.Throwable] \/ Unit
+  = OMF_MODEL_TYPE_TERM2Instance.get(termT)
+    .fold[Set[java.lang.Throwable] \/ Unit]{
+    Set(
+      OMFError
+        .omfError(s"setTermURL: no definition for $termT to set URL=$url")
+    ).left
+  } { termI =>
+    applyOntologyChangeOrNoOp(
+      ontManager,
+      new AddAxiom(
+        omfMetadata.get,
+        owlDataFactory
+          .getOWLDataPropertyAssertionAxiom(OMF_HAS_URL,
+            termI,
+            owlDataFactory.getOWLLiteral(url))),
+      ifError = {
+        "Failed to set a tbox term 'url' data property axiom"
+      })
+  }
 
   def createOMFModelEntityAspectInstance
   (tbox: types.ModelTerminologyGraph,
@@ -1559,10 +1620,6 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
   /**
     * Create an OMF EntityDefinitionAspectSubClassAxiom.
     *
-    * The OWL representation of this axiom may not result in OWL axioms per se.
-    * This can happen when converting a mutable OMF TBox graph into an immutable OMF TBox graph
-    * because some of the OMF Axioms are independent of the mutability of the OMF TBox graph.
-    *
     * @param tbox OMF metadata graph where the EntityDefinitionAspectSubClassAxiomI will be added, if it isn't there
     * @param axiomT The OMF axiom to represent in the OMF metadata graph, tbox.
     * @return
@@ -1613,10 +1670,6 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
   /**
     * Create an OMF EntityConceptSubClassAxiom.
     *
-    * The OWL representation of this axiom may not result in OWL axioms per se.
-    * This can happen when converting a mutable OMF TBox graph into an immutable OMF TBox graph
-    * because some of the OMF Axioms are independent of the mutability of the OMF TBox graph.
-    *
     * @param tbox OMF metadata graph where the EntityConceptSubClassAxiom will be added, if it isn't there
     * @param axiomT The OMF axiom to represent in the OMF metadata graph, tbox.
     * @return
@@ -1629,10 +1682,10 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
     val supI = OMF_MODEL_ENTITY_CONCEPT2Instance(axiomT.sup)
     for {
       axiomIRI <- makeMetadataInstanceIRI(omfMetadata.get,
-                                                                "ConceptSubClass",
-                                                                tbox.iri,
-                                                                axiomT.sub.iri,
-                                                                axiomT.sup.iri)
+        "ConceptSubClass",
+        tbox.iri,
+        axiomT.sub.iri,
+        axiomT.sup.iri)
       axiomI = owlDataFactory.getOWLNamedIndividual(axiomIRI)
     } yield {
     for {
@@ -1712,30 +1765,26 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
   }
 
   /**
-    * Create an OMF EntityConceptUniversalRestrictionAxiom.
+    * Create an OMF EntityDefinitionUniversalRestrictionAxiom.
     *
-    * The OWL representation of this axiom may not result in OWL axioms per se.
-    * This can happen when converting a mutable OMF TBox graph into an immutable OMF TBox graph
-    * because some of the OMF Axioms are independent of the mutability of the OMF TBox graph.
-    *
-    * @param tbox OMF metadata graph where the EntityConceptUniversalRestrictionAxiom will be added, if it isn't there
+    * @param tbox OMF metadata graph where the EntityDefinitionUniversalRestrictionAxiom will be added, if it isn't there
     * @param axiomT The OMF axiom to represent in the OMF metadata graph, tbox.
     * @return
     */
-  def createOMFEntityConceptUniversalRestrictionAxiomInstance
+  def createOMFEntityDefinitionUniversalRestrictionAxiomInstance
   (tbox: types.ModelTerminologyGraph,
-   axiomT: types.EntityConceptUniversalRestrictionAxiom)
-  : Set[java.lang.Throwable] \/ types.EntityConceptUniversalRestrictionAxiom = {
-    val subI = OMF_MODEL_ENTITY_CONCEPT2Instance(axiomT.sub)
+   axiomT: types.EntityDefinitionUniversalRestrictionAxiom)
+  : Set[java.lang.Throwable] \/ types.EntityDefinitionUniversalRestrictionAxiom = {
+    val subI = OMF_MODEL_ENTITY_DEFINITION2Instance(axiomT.sub)
     val relI = OMF_MODEL_ENTITY_RELATIONSHIP2Instance(axiomT.rel)
     val rangeI = OMF_MODEL_ENTITY_DEFINITION2Instance(axiomT.range)
     for {
       axiomIRI <- makeMetadataInstanceIRI(omfMetadata.get,
-                                                                "UniversalConceptRestriction",
-                                                                tbox.iri,
-                                                                axiomT.sub.iri,
-                                                                axiomT.rel.iri,
-                                                                axiomT.range.iri)
+        "UniversalDefinitionRestriction",
+        tbox.iri,
+        axiomT.sub.iri,
+        axiomT.rel.iri,
+        axiomT.range.iri)
       axiomI = owlDataFactory.getOWLNamedIndividual(axiomIRI)
     } yield {
     for {
@@ -1750,10 +1799,10 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
                                                                       axiomI)),
                      new AddAxiom(omfMetadata.get,
                                   owlDataFactory
-                                  .getOWLClassAssertionAxiom(OMF_ENTITY_CONCEPT_UNIVERSAL_RESTRICTION_AXIOM, axiomI)),
+                                  .getOWLClassAssertionAxiom(OMF_ENTITY_DEFINITION_UNIVERSAL_RESTRICTION_AXIOM, axiomI)),
                      new AddAxiom(omfMetadata.get,
                                   owlDataFactory
-                                  .getOWLObjectPropertyAssertionAxiom(OMF_RESTRICTS_CONCEPT, axiomI, subI)),
+                                  .getOWLObjectPropertyAssertionAxiom(OMF_HAS_RESTRICTED_ENTITY_DOMAIN, axiomI, subI)),
                      new AddAxiom(omfMetadata.get,
                                   owlDataFactory
                                   .getOWLObjectPropertyAssertionAxiom(OMF_RESTRICTS_RELATIONSHIP, axiomI, relI)),
@@ -1767,38 +1816,34 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
       val result = ontManager.applyChange(change)
       require(
                result == ChangeApplied.SUCCESSFULLY || result == ChangeApplied.NO_OPERATION,
-               s"\ncreateOMFEntityConceptUniversalRestrictionAxiomInstance:\n$change")
+               s"\ncreateOMFEntityDefinitionUniversalRestrictionAxiomInstance:\n$change")
     }
-    OMF_ENTITY_CONCEPT_UNIVERSAL_RESTRICTION_AXIOM2Instance += (axiomT -> axiomI)
+    OMF_ENTITY_DEFINITION_UNIVERSAL_RESTRICTION_AXIOM2Instance += (axiomT -> axiomI)
     axiomT
     }
   }
 
   /**
-    * Create an OMF EntityConceptExistentialRestrictionAxiom.
+    * Create an OMF EntityDefinitionExistentialRestrictionAxiom.
     *
-    * The OWL representation of this axiom may not result in OWL axioms per se.
-    * This can happen when converting a mutable OMF TBox graph into an immutable OMF TBox graph
-    * because some of the OMF Axioms are independent of the mutability of the OMF TBox graph.
-    *
-    * @param tbox OMF metadata graph where the EntityConceptExistentialRestrictionAxiom will be added, if it isn't there
+    * @param tbox OMF metadata graph where the EntityDefinitionExistentialRestrictionAxiom will be added, if it isn't there
     * @param axiomT The OMF axiom to represent in the OMF metadata graph, tbox.
     * @return
     */
-  def createOMFEntityConceptExistentialRestrictionAxiomInstance
+  def createOMFEntityDefinitionExistentialRestrictionAxiomInstance
   (tbox: types.ModelTerminologyGraph,
-   axiomT: types.EntityConceptExistentialRestrictionAxiom)
-  : Set[java.lang.Throwable] \/ types.EntityConceptExistentialRestrictionAxiom = {
-    val subI = OMF_MODEL_ENTITY_CONCEPT2Instance(axiomT.sub)
+   axiomT: types.EntityDefinitionExistentialRestrictionAxiom)
+  : Set[java.lang.Throwable] \/ types.EntityDefinitionExistentialRestrictionAxiom = {
+    val subI = OMF_MODEL_ENTITY_DEFINITION2Instance(axiomT.sub)
     val relI = OMF_MODEL_ENTITY_RELATIONSHIP2Instance(axiomT.rel)
     val rangeI = OMF_MODEL_ENTITY_DEFINITION2Instance(axiomT.range)
     for {
       axiomIRI <-makeMetadataInstanceIRI(omfMetadata.get,
-                                                                "ExistentialConceptRestriction",
-                                                                tbox.iri,
-                                                                axiomT.sub.iri,
-                                                                axiomT.rel.iri,
-                                                                axiomT.range.iri)
+        "ExistentialDefinitionRestriction",
+        tbox.iri,
+        axiomT.sub.iri,
+        axiomT.rel.iri,
+        axiomT.range.iri)
       axiomI = owlDataFactory.getOWLNamedIndividual(axiomIRI)
     } yield {
     for {
@@ -1813,10 +1858,10 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
                                                                       axiomI)),
                      new AddAxiom(omfMetadata.get,
                                   owlDataFactory
-                                  .getOWLClassAssertionAxiom(OMF_ENTITY_CONCEPT_EXISTENTIAL_RESTRICTION_AXIOM, axiomI)),
+                                  .getOWLClassAssertionAxiom(OMF_ENTITY_DEFINITION_EXISTENTIAL_RESTRICTION_AXIOM, axiomI)),
                      new AddAxiom(omfMetadata.get,
                                   owlDataFactory
-                                  .getOWLObjectPropertyAssertionAxiom(OMF_RESTRICTS_CONCEPT, axiomI, subI)),
+                                  .getOWLObjectPropertyAssertionAxiom(OMF_HAS_RESTRICTED_ENTITY_DOMAIN, axiomI, subI)),
                      new AddAxiom(omfMetadata.get,
                                   owlDataFactory
                                   .getOWLObjectPropertyAssertionAxiom(OMF_RESTRICTS_RELATIONSHIP, axiomI, relI)),
@@ -1830,9 +1875,9 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
       val result = ontManager.applyChange(change)
       require(
                result == ChangeApplied.SUCCESSFULLY || result == ChangeApplied.NO_OPERATION,
-               s"\ncreateOMFEntityConceptExistentialRestrictionAxiomInstance:\n$change")
+               s"\ncreateOMFEntityDefinitionExistentialRestrictionAxiomInstance:\n$change")
     }
-    OMF_ENTITY_CONCEPT_EXISTENTIAL_RESTRICTION_AXIOM2Instance += (axiomT -> axiomI)
+    OMF_ENTITY_DEFINITION_EXISTENTIAL_RESTRICTION_AXIOM2Instance += (axiomT -> axiomI)
     axiomT
     }
   }
@@ -1886,10 +1931,6 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
 
   /**
     * Create an OMF EntityReifiedRelationshipSubClassAxiom.
-    *
-    * The OWL representation of this axiom may not result in OWL axioms per se.
-    * This can happen when converting a mutable OMF TBox graph into an immutable OMF TBox graph
-    * because some of the OMF Axioms are independent of the mutability of the OMF TBox graph.
     *
     * @param tbox OMF metadata graph where the EntityReifiedRelationshipSubClassAxiom will be added, if it isn't there
     * @param axiomT The OMF axiom to represent in the OMF metadata graph, tbox.
@@ -2146,10 +2187,6 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
   /**
     * Create an OMF ScalarDataTypeFacetRestrictionAxiom.
     *
-    * The OWL representation of this axiom may not result in OWL axioms per se.
-    * This can happen when converting a mutable OMF TBox graph into an immutable OMF TBox graph
-    * because some of the OMF Axioms are independent of the mutability of the OMF TBox graph.
-    *
     * @param tbox OMF metadata graph where the ScalarDataTypeFacetRestrictionAxiom will be added, if it isn't there
     * @param axiomT The OMF axiom to represent in the OMF metadata graph, tbox.
     * @return
@@ -2162,10 +2199,10 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
     val supI = OMF_MODEL_SCALAR_DATA_TYPE2Instance(axiomT.sup)
     for {
       axiomIRI <- makeMetadataInstanceIRI(omfMetadata.get,
-                                                                "ScalarDataTypeFacetRestriction",
-                                                                tbox.iri,
-                                                                axiomT.sub.iri,
-                                                                axiomT.sup.iri)
+        "ScalarDataTypeFacetRestriction",
+        tbox.iri,
+        axiomT.sub.iri,
+        axiomT.sup.iri)
       axiomI = owlDataFactory.getOWLNamedIndividual(axiomIRI)
     } yield {
     for {
@@ -2601,10 +2638,10 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
                           |des. g:${ax.designationTerminologyGraph.kindIRI}""".stripMargin)
                     \/-(())
                 case ax:
-                  types.EntityConceptUniversalRestrictionAxiom =>
-                  createOMFEntityConceptUniversalRestrictionAxiomInstance(g, ax).map(_ => ())
-                case ax: types.EntityConceptExistentialRestrictionAxiom =>
-                  createOMFEntityConceptExistentialRestrictionAxiomInstance(g, ax).map(_ => ())
+                  types.EntityDefinitionUniversalRestrictionAxiom =>
+                  createOMFEntityDefinitionUniversalRestrictionAxiomInstance(g, ax).map(_ => ())
+                case ax: types.EntityDefinitionExistentialRestrictionAxiom =>
+                  createOMFEntityDefinitionExistentialRestrictionAxiomInstance(g, ax).map(_ => ())
                 case ax: types.ModelScalarDataRelationshipRestrictionAxiomFromEntityToLiteral =>
                   createOMFScalarDataRelationshipRestrictionAxiomFromEntityToLiteral(g, ax).map(_ => ())
                 // case ax: types.ScalarDataTypeFacetRestriction =>

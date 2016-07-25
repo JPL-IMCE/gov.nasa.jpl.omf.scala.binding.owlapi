@@ -347,8 +347,8 @@ case class MutableModelTerminologyGraph
   (term: types.ModelTypeTerm,
    shortName: Option[String])
   (implicit omfStore: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ Unit =
-    for {
+  : Set[java.lang.Throwable] \/ Unit
+  = for {
       c1 <-
       getTermShortNameAnnotationAssertionAxiom(term)
         .fold[Set[java.lang.Throwable] \/ Unit](
@@ -403,7 +403,7 @@ case class MutableModelTerminologyGraph
       uuid
         .fold[Set[java.lang.Throwable] \/ Unit](
         \/-(())
-      ) { id =>
+      ) { _uuid =>
         applyOntologyChangeOrNoOp(
           ontManager,
           new AddAxiom(
@@ -411,12 +411,95 @@ case class MutableModelTerminologyGraph
             owlDataFactory
               .getOWLAnnotationAssertionAxiom(omfStore.ANNOTATION_HAS_UUID,
                 term.iri,
-                owlDataFactory.getOWLLiteral(id))),
+                owlDataFactory.getOWLLiteral(_uuid))),
           ifError = "Failed to add a tbox term 'uuid' annotation assertion axiom",
           ifSuccess = (() => {
-            omfStore.setTermUUID(this, term, id)
+            omfStore.setTermUUID(this, term, _uuid)
             if (LOG)
-              System.out.println(s"setTermUUID: ${term.iri} name='$id'")
+              System.out.println(s"setTermUUID: ${term.iri} name='${_uuid}'")
+          }).some)
+      }
+
+    } yield ()
+
+  def setTermID
+  (term: types.ModelTypeTerm,
+   id: Option[String])
+  (implicit omfStore: OWLAPIOMFGraphStore)
+  : Set[java.lang.Throwable] \/ Unit
+  = for {
+      c1 <-
+      getTermIDAnnotationAssertionAxiom(term)
+        .fold[Set[java.lang.Throwable] \/ Unit](
+        \/-(())
+      ) { annotationAssertionAxiom =>
+        applyOntologyChangeOrNoOp(
+          ontManager,
+          new RemoveAxiom(ont, annotationAssertionAxiom),
+          ifError = "Failed to remove a tbox term 'id' annotation assertion axiom")
+      }
+
+      c2 <-
+      id
+        .fold[Set[java.lang.Throwable] \/ Unit](
+        \/-(())
+      ) { _id =>
+        applyOntologyChangeOrNoOp(
+          ontManager,
+          new AddAxiom(
+            ont,
+            owlDataFactory
+              .getOWLAnnotationAssertionAxiom(omfStore.ANNOTATION_HAS_ID,
+                term.iri,
+                owlDataFactory.getOWLLiteral(_id))),
+          ifError = {
+            System.out.println(s"@@setTermID(F): ${term.iri} name='${_id}'")
+            "Failed to add a tbox term 'id' annotation assertion axiom"
+          },
+          ifSuccess = (() => {
+            omfStore.setTermID(this, term, _id)
+            //if (LOG)
+              System.out.println(s"@@setTermID(S): ${term.iri} name='${_id}'")
+          }).some)
+      }
+
+    } yield ()
+
+  def setTermURL
+  (term: types.ModelTypeTerm,
+   url: Option[String])
+  (implicit omfStore: OWLAPIOMFGraphStore)
+  : Set[java.lang.Throwable] \/ Unit =
+    for {
+      c1 <-
+      getTermURLAnnotationAssertionAxiom(term)
+        .fold[Set[java.lang.Throwable] \/ Unit](
+        \/-(())
+      ) { annotationAssertionAxiom =>
+        applyOntologyChangeOrNoOp(
+          ontManager,
+          new RemoveAxiom(ont, annotationAssertionAxiom),
+          ifError = "Failed to remove a tbox term 'url' annotation assertion axiom")
+      }
+
+      c2 <-
+      url
+        .fold[Set[java.lang.Throwable] \/ Unit](
+        \/-(())
+      ) { _url =>
+        applyOntologyChangeOrNoOp(
+          ontManager,
+          new AddAxiom(
+            ont,
+            owlDataFactory
+              .getOWLAnnotationAssertionAxiom(omfStore.ANNOTATION_HAS_URL,
+                term.iri,
+                owlDataFactory.getOWLLiteral(_url))),
+          ifError = "Failed to add a tbox term 'url' annotation assertion axiom",
+          ifSuccess = (() => {
+            omfStore.setTermURL(this, term, _url)
+            if (LOG)
+              System.out.println(s"setTermURL: ${term.iri} name='${_url}'")
           }).some)
       }
 
@@ -1162,12 +1245,12 @@ case class MutableModelTerminologyGraph
         ).left
     }
 
-  def addEntityConceptUniversalRestrictionAxiom
-  (sub: types.ModelEntityConcept,
+  def addEntityDefinitionUniversalRestrictionAxiom
+  (sub: types.ModelEntityDefinition,
    rel: types.ModelEntityReifiedRelationship,
    range: types.ModelEntityDefinition)
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ types.EntityConceptUniversalRestrictionAxiom =
+  : Set[java.lang.Throwable] \/ types.EntityDefinitionUniversalRestrictionAxiom =
     (isTypeTermDefinedRecursively(sub),
       isTypeTermDefinedRecursively(rel),
       isTypeTermDefinedRecursively(range)) match {
@@ -1177,13 +1260,13 @@ case class MutableModelTerminologyGraph
         for {
           axiom <-
           store
-            .createOMFEntityConceptUniversalRestrictionAxiomInstance(this,
-              EntityConceptUniversalRestrictionAxiom(sub,
+            .createOMFEntityDefinitionUniversalRestrictionAxiomInstance(this,
+              EntityDefinitionUniversalRestrictionAxiom(sub,
                 rel,
                 range))
           _ <- store.applyModelTermAxiomChanges(
             axiom,
-            "addEntityConceptUniversalRestrictionAxiom",
+            "addEntityDefinitionUniversalRestrictionAxiom",
             Seq(
               new AddAxiom(ont,
                 owlDataFactory
@@ -1220,12 +1303,12 @@ case class MutableModelTerminologyGraph
 
     }
 
-  def addEntityConceptExistentialRestrictionAxiom
-  (sub: types.ModelEntityConcept,
+  def addEntityDefinitionExistentialRestrictionAxiom
+  (sub: types.ModelEntityDefinition,
    rel: types.ModelEntityReifiedRelationship,
    range: types.ModelEntityDefinition)
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ types.EntityConceptExistentialRestrictionAxiom =
+  : Set[java.lang.Throwable] \/ types.EntityDefinitionExistentialRestrictionAxiom =
     (isTypeTermDefinedRecursively(sub),
       isTypeTermDefinedRecursively(rel),
       isTypeTermDefinedRecursively(range)) match {
@@ -1235,8 +1318,8 @@ case class MutableModelTerminologyGraph
         for {
           axiom <-
           store
-            .createOMFEntityConceptExistentialRestrictionAxiomInstance(this,
-              EntityConceptExistentialRestrictionAxiom(sub,
+            .createOMFEntityDefinitionExistentialRestrictionAxiomInstance(this,
+              EntityDefinitionExistentialRestrictionAxiom(sub,
                 rel,
                 range))
         } yield {
@@ -1254,7 +1337,7 @@ case class MutableModelTerminologyGraph
             val result = ontManager.applyChange(change)
             require(
               result == ChangeApplied.SUCCESSFULLY,
-              s"\naddEntityConceptExistentialRestrictionAxiom:\n$change")
+              s"\naddEntityDefinitionExistentialRestrictionAxiom:\n$change")
           }
           ax += axiom
           axiom

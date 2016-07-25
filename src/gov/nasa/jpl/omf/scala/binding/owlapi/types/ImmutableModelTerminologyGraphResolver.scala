@@ -524,20 +524,11 @@ case class ImmutableModelTerminologyGraphResolver(resolver: ResolverHelper) {
                     : Set[java.lang.Throwable] \/ Unit
                     = forwardOnly.foldLeft(ra) { case (acc, (domain, rel, range, kind)) =>
                       acc.flatMap { _ =>
-                        domain match {
-                          case concept: ModelEntityConcept =>
-                            kind match {
-                              case ExistentialRestrictionKind =>
-                                tboxG.addEntityConceptExistentialRestrictionAxiom(concept, rel, range).map { _ => () }
-                              case UniversalRestrictionKind =>
-                                tboxG.addEntityConceptUniversalRestrictionAxiom(concept, rel, range).map { _ => () }
-                            }
-                          case _ =>
-                            val message = s"Ill-formed relationship restriction (domain must be an OMF ModelEntityConcept!):\n" +
-                              s"domain=$domain\n" +
-                              s"rel=$rel\n" +
-                              s"range=$range"
-                            -\/(Set(OMFError.omfError(message)))
+                        kind match {
+                          case ExistentialRestrictionKind =>
+                            tboxG.addEntityDefinitionExistentialRestrictionAxiom(domain, rel, range).map { _ => () }
+                          case UniversalRestrictionKind =>
+                            tboxG.addEntityDefinitionUniversalRestrictionAxiom(domain, rel, range).map { _ => () }
                         }
                       }
                     }

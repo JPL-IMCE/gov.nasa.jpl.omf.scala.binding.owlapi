@@ -97,8 +97,8 @@ package object owlapi {
   def applyOntologyChangeOrNoOp
   (ontManager: OWLOntologyManager,
    ontChange: OWLOntologyChange,
-   ifError: String,
-   ifSuccess: Option[() => Unit] = None)
+   ifError: => String,
+   ifSuccess: => Option[() => Unit] = None)
   : Set[java.lang.Throwable] \/ Unit
   = ontManager.applyChange(ontChange) match {
       case ChangeApplied.SUCCESSFULLY | ChangeApplied.NO_OPERATION =>

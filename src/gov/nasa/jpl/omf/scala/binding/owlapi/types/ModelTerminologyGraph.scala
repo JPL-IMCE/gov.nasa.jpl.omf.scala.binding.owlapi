@@ -210,6 +210,18 @@ abstract class ModelTerminologyGraph
     ont.getAnnotationAssertionAxioms( term.iri ).
       find( _.getProperty.getIRI == ops.AnnotationHasUUID )
 
+  def getTermIDAnnotationAssertionAxiom
+  ( term: types.ModelTypeTerm )
+  : Option[OWLAnnotationAssertionAxiom] =
+    ont.getAnnotationAssertionAxioms( term.iri ).
+      find( _.getProperty.getIRI == ops.AnnotationHasID )
+
+  def getTermURLAnnotationAssertionAxiom
+  ( term: types.ModelTypeTerm )
+  : Option[OWLAnnotationAssertionAxiom] =
+    ont.getAnnotationAssertionAxioms( term.iri ).
+      find( _.getProperty.getIRI == ops.AnnotationHasURL )
+
 
   def save( saveIRI: IRI ): Set[java.lang.Throwable] \/ Unit =
     nonFatalCatch[Unit]
