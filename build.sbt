@@ -27,9 +27,9 @@ lazy val core =
   .settings(IMCEReleasePlugin.packageReleaseProcessSettings)
   .settings(dynamicScriptsResourceSettings(Some("gov.nasa.jpl.omf.scala.binding.owlapi")))
   .settings(IMCEPlugin.strictScalacFatalWarningsSettings)
-  //.settings(IMCEPlugin.scalaDocSettings(diagrams=false))
+  //.settings(IMCEPlugin.scalaDocSettings(diagrams=true))
   .settings(
-    IMCEKeys.licenseYearOrRange := "2014-2016",
+    IMCEKeys.licenseYearOrRange := "2015",
     IMCEKeys.organizationInfo := IMCEPlugin.Organizations.omf,
 
     buildInfoPackage := "gov.nasa.jpl.omf.scala.binding.owlapi",
@@ -44,6 +44,8 @@ lazy val core =
 
     IMCEKeys.targetJDK := IMCEKeys.jdk18.value,
     git.baseVersion := Versions.version,
+
+    scalacOptions in (Compile,doc) ++= Seq("-diagrams"),
 
     // include all test artifacts
     publishArtifact in Test := true,
