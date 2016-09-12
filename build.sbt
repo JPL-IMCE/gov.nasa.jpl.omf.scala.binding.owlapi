@@ -75,37 +75,41 @@ lazy val core =
         Artifact("imce-omf_ontologies", "zip", "zip", Some("resource"), Seq(), None, Map())
     ),
 
-    extractArchives <<=
-      (libraryDependencies, update, scalaBinaryVersion, baseDirectory, streams)
-      .map { (deps, up, ver, base, s) =>
-        val artifact2extract = (for {
-          dep <- deps
-          tuple = (dep.name + "-" + dep.revision, dep.name)
-          //if dep.extraAttributes.get("artifact.kind").iterator.contains("omf.ontologies")
-          if dep.configurations.iterator.contains("runtime")
-        } yield dep.name -> tuple) toMap
+    extractArchives := {
+      val deps = libraryDependencies.value
+      val up = update.value
+      val ver = scalaBinaryVersion.value
+      val base = baseDirectory.value
+      val s = streams.value
 
-        s.log.info(s"artifact2extract: ${artifact2extract.mkString("\n")}")
+      val artifact2extract = (for {
+        dep <- deps
+        tuple = (dep.name + "-" + dep.revision, dep.name)
+        //if dep.extraAttributes.get("artifact.kind").iterator.contains("omf.ontologies")
+        if dep.configurations.iterator.contains("runtime")
+      } yield dep.name -> tuple) toMap
 
-        val artifactArchive2extractFolder: Map[File, (File, File)] = (for {
-          cReport <- up.configurations
-          mReport <- cReport.modules
-          (artifact, archive) <- mReport.artifacts
-          if artifact.extension == "zip"
-          (folder, extract) <- artifact2extract.get(artifact.name)
-          subFolder = new File(folder)
-          extractFolder = base / "target" / "extracted" / extract
-          tuple = (subFolder, extractFolder)
-        } yield archive -> tuple)
+      s.log.info(s"artifact2extract: ${artifact2extract.mkString("\n")}")
+
+      val artifactArchive2extractFolder: Map[File, (File, File)] = (for {
+        cReport <- up.configurations
+        mReport <- cReport.modules
+        (artifact, archive) <- mReport.artifacts
+        if artifact.extension == "zip"
+        (folder, extract) <- artifact2extract.get(artifact.name)
+        subFolder = new File(folder)
+        extractFolder = base / "target" / "extracted" / extract
+        tuple = (subFolder, extractFolder)
+      } yield archive -> tuple)
         .toMap
 
-        artifactArchive2extractFolder foreach { case (archive, (subFolder, extractFolder)) =>
-          s.log.info(s"*** Extracting: $archive")
-          s.log.info(s"*** Extract to: $extractFolder")
-          val files = IO.unzip(archive, extractFolder)
-          require(files.nonEmpty)
-          require(extractFolder.exists, extractFolder)
-        }
+      artifactArchive2extractFolder foreach { case (archive, (subFolder, extractFolder)) =>
+        s.log.info(s"*** Extracting: $archive")
+        s.log.info(s"*** Extract to: $extractFolder")
+        val files = IO.unzip(archive, extractFolder)
+        require(files.nonEmpty)
+        require(extractFolder.exists, extractFolder)
+      }
     },
 
     resolvers += Resolver.bintrayRepo("jpl-imce", "gov.nasa.jpl.imce"),
@@ -153,23 +157,23 @@ def dynamicScriptsResourceSettings(dynamicScriptsProjectName: Option[String] = N
       normalizedName.value + "_" + scalaBinaryVersion.value + "-" + version.value + "-resource",
 
     // contents of the '*-resource.zip' to be produced by 'universal:packageBin'
-    mappings in packageBin in Universal <++= (
-      baseDirectory,
-      packageBin in Compile,
-      packageSrc in Compile,
-      packageDoc in Compile,
-      packageBin in Test,
-      packageSrc in Test,
-      packageDoc in Test) map {
-      (base, bin, src, doc, binT, srcT, docT) =>
-        val dir = base / "svn" / "org.omg.oti"
-        (dir ** "*.md").pair(relativeTo(dir)) ++
-          addIfExists(bin, "lib/" + bin.name) ++
-          addIfExists(binT, "lib/" + binT.name) ++
-          addIfExists(src, "lib.sources/" + src.name) ++
-          addIfExists(srcT, "lib.sources/" + srcT.name) ++
-          addIfExists(doc, "lib.javadoc/" + doc.name) ++
-          addIfExists(docT, "lib.javadoc/" + docT.name)
+    mappings in Universal in packageBin ++= {
+      val dir = baseDirectory.value
+      val bin = (packageBin in Compile).value
+      val src = (packageSrc in Compile).value
+      val doc = (packageDoc in Compile).value
+      val binT = (packageBin in Test).value
+      val srcT = (packageSrc in Test).value
+      val docT = (packageDoc in Test).value
+
+      addIfExists(dir / ".classpath", ".classpath") ++
+        addIfExists(dir / "README.md", "README.md") ++
+        addIfExists(bin, "lib/" + bin.name) ++
+        addIfExists(binT, "lib/" + binT.name) ++
+        addIfExists(src, "lib.sources/" + src.name) ++
+        addIfExists(srcT, "lib.sources/" + srcT.name) ++
+        addIfExists(doc, "lib.javadoc/" + doc.name) ++
+        addIfExists(docT, "lib.javadoc/" + docT.name)
     },
 
     artifacts <+= (name in Universal) { n => Artifact(n, "zip", "zip", Some("resource"), Seq(), None, Map()) },
