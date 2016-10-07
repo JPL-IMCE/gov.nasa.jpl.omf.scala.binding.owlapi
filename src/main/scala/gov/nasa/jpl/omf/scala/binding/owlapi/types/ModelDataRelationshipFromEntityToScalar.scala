@@ -18,16 +18,22 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.types
 
+import java.util.UUID
+
+import gov.nasa.jpl.imce.omf.schema.tables.LocalName
+
 import scala.Predef.require
 import org.semanticweb.owlapi.model.OWLDataProperty
 
-case class ModelDataRelationshipFromEntityToScalar(
-    val dp: OWLDataProperty,
-    val source: ModelEntityDefinition,
-    val target: ModelScalarDataType) 
+case class ModelDataRelationshipFromEntityToScalar
+(dp: OWLDataProperty,
+ override val name: LocalName,
+ override val uuid: UUID,
+ source: ModelEntityDefinition,
+ target: ModelScalarDataType)
   extends ModelDataRelationship
-  with ModelDataRelationshipFromEntity
-  with ModelDataRelationshipToScalar {
+    with ModelDataRelationshipFromEntity
+    with ModelDataRelationshipToScalar {
 
   require(null != dp)
   require(null != source)

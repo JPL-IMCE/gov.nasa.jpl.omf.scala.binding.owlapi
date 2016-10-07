@@ -19,23 +19,27 @@
 package gov.nasa.jpl.omf.scala.binding.owlapi.types
 
 import java.io.OutputStream
+import java.util.UUID
 
+import gov.nasa.jpl.imce.omf.schema.tables.LocalName
 import gov.nasa.jpl.omf.scala.core._
 import gov.nasa.jpl.omf.scala.core.TerminologyKind._
 import gov.nasa.jpl.omf.scala.binding.owlapi._
-
 import org.semanticweb.owlapi.model._
 
 import scala.collection.immutable._
 import scala.collection.JavaConversions._
 import scala.compat.java8.StreamConverters._
-import scala.{Boolean,Option,None,Some,StringContext,Unit}
-import scala.Predef.{Set=>_,Map=>_,_}
+import scala.{Boolean, None, Option, Some, StringContext, Unit}
+import scala.Predef.{Map => _, Set => _, _}
 import scala.util.control.Exception._
-import scalaz._, Scalaz._
+import scalaz._
+import Scalaz._
 
 abstract class ModelTerminologyGraph
-( val kind: TerminologyKind,
+( val uuid: UUID,
+  val name: LocalName,
+  val kind: TerminologyKind,
   val ont: OWLOntology,
   val extraProvenanceMetadata: Option[OTI2OMFModelTerminologyGraphProvenance] )
 ( implicit val ops: OWLAPIOMFOps ) {
@@ -134,9 +138,9 @@ abstract class ModelTerminologyGraph
   def fromTerminologyGraph
   ( extended: Iterable[ModelTerminologyGraph],
     nesting: Option[(ModelEntityConcept, ModelTerminologyGraph)])
-  : OWLAPITerminologyGraphSignature =
-    OWLAPITerminologyGraphSignature(
-      iri, kind,
+  : OWLAPITerminologyGraphSignature
+  = OWLAPITerminologyGraphSignature(
+      uuid, name, iri, kind,
       extended,
       nesting,
       aspects.to[Iterable],
@@ -152,8 +156,8 @@ abstract class ModelTerminologyGraph
       ax.to[Iterable])
 
   def getTerminologyGraphShortNameAnnotation
-  : Option[OWLAnnotation] =
-    ont.annotations.toScala[Set].find( _.getProperty.getIRI == ops.rdfs_label )
+  : Option[OWLAnnotation]
+  = ont.annotations.toScala[Set].find( _.getProperty.getIRI == ops.rdfs_label )
 
   def getTerminologyGraphShortName
   : Option[String] =
@@ -167,30 +171,31 @@ abstract class ModelTerminologyGraph
 
 
   def getTerminologyGraphUUIDAnnotation
-  : Option[OWLAnnotation] =
-    ont.annotations.toScala[Set].find( _.getProperty.getIRI == ops.AnnotationHasUUID )
+  : Option[OWLAnnotation]
+  = ont.annotations.toScala[Set].find( _.getProperty.getIRI == ops.AnnotationHasUUID )
 
   def getTerminologyGraphUUID
-  : Option[String] =
-    getTerminologyGraphUUIDAnnotation.
-      flatMap ( _.getValue match {
+  : UUID
+  = getTerminologyGraphUUIDAnnotation
+    .flatMap ( _.getValue match {
       case l: OWLLiteral =>
         Some( l.getLiteral )
       case _  =>
         None
     } )
+    .fold[UUID]({
+    throw OMFError.omfBindingError(s"Missing UUID annotation on graph $iri")
+  })( UUID.fromString )
 
-  def getTermShortNameAnnotationAssertionAxiom
+  def getTermLocalNameAnnotationAssertionAxiom
   ( term: types.ModelTypeTerm )
-  : Option[OWLAnnotationAssertionAxiom] =
-    ont.annotationAssertionAxioms( term.iri ).toScala[Set].
-      find( _.getProperty.getIRI == ops.rdfs_label )
+  : Option[OWLAnnotationAssertionAxiom]
+  = findAnnotationAssertionAxiom(ont, term.iri, ops.rdfs_label)
 
   def getTermUUIDAnnotationAssertionAxiom
   ( term: types.ModelTypeTerm )
-  : Option[OWLAnnotationAssertionAxiom] =
-    ont.annotationAssertionAxioms( term.iri ).toScala[Set].
-      find( _.getProperty.getIRI == ops.AnnotationHasUUID )
+  : Option[OWLAnnotationAssertionAxiom]
+  = findAnnotationAssertionAxiom(ont, term.iri, ops.AnnotationHasUUID )
 
   def getTermIDAnnotationAssertionAxiom
   ( term: types.ModelTypeTerm )

@@ -18,10 +18,17 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.types
 
+import java.util.UUID
+
+import gov.nasa.jpl.imce.omf.schema.tables.LocalName
+
 import scala.Predef.require
 import org.semanticweb.owlapi.model.OWLClass
 
-abstract class ModelEntityDefinition(val e: OWLClass) 
+abstract class ModelEntityDefinition
+(val e: OWLClass,
+ override val name: LocalName,
+ override val uuid: UUID)
   extends ModelTypeTerm {
 
   require(null != e)

@@ -18,11 +18,14 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.types
 
+import java.util.UUID
+
 import scala.Predef.require
 
 case class EntityConceptDesignationTerminologyGraphAxiom
-( val entityConceptDesignation: ModelEntityConcept,
-  val designationTerminologyGraph: ModelTerminologyGraph)
+(override val uuid: UUID,
+ entityConceptDesignation: ModelEntityConcept,
+ designationTerminologyGraph: ModelTerminologyGraph)
   extends ModelTermAxiom {
 
   require( null != entityConceptDesignation )

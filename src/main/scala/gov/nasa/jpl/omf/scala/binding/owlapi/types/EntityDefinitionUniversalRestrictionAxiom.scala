@@ -18,8 +18,11 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.types
 
-case class EntityDefinitionUniversalRestrictionAxiom(
-  override val sub: ModelEntityDefinition,
-  override val rel: ModelEntityReifiedRelationship,
-  override val range: ModelEntityDefinition )
-  extends EntityDefinitionRestrictionAxiom( sub, rel, range )
+import java.util.UUID
+
+case class EntityDefinitionUniversalRestrictionAxiom
+(override val uuid: UUID,
+ override val sub: ModelEntityDefinition,
+ override val rel: ModelEntityReifiedRelationship,
+ override val range: ModelEntityDefinition )
+  extends EntityDefinitionRestrictionAxiom(uuid, sub, rel, range)

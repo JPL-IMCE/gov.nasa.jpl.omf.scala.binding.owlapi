@@ -18,6 +18,9 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.types
 
+import java.util.UUID
+
+import gov.nasa.jpl.imce.omf.schema.tables.LocalName
 import gov.nasa.jpl.omf.scala.core.RelationshipCharacteristics._
 import org.semanticweb.owlapi.model.OWLObjectProperty
 import org.semanticweb.owlapi.model.IRI
@@ -26,12 +29,14 @@ import scala.collection.immutable._
 import scala.Predef.require
 
 case class ModelEntityUnreifiedRelationship
-( val e: OWLObjectProperty,
-  val source: ModelEntityDefinition,
-  val rSource: OWLObjectProperty,
-  val target: ModelEntityDefinition,
-  val rTarget: OWLObjectProperty,
-  val characteristics: Iterable[RelationshipCharacteristics] )
+( e: OWLObjectProperty,
+  override val name: LocalName,
+  override val uuid: UUID,
+  source: ModelEntityDefinition,
+  rSource: OWLObjectProperty,
+  target: ModelEntityDefinition,
+  rTarget: OWLObjectProperty,
+  characteristics: Iterable[RelationshipCharacteristics] )
   extends ModelTypeTerm {
 
   require(null != e)

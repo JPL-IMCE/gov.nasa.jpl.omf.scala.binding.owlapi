@@ -19,11 +19,12 @@
 package gov.nasa.jpl.omf.scala.binding.owlapi.types
 
 import java.lang.IllegalArgumentException
+import java.util.UUID
 
+import gov.nasa.jpl.imce.omf.schema.tables.LocalName
 import gov.nasa.jpl.omf.scala.binding.owlapi._
 import gov.nasa.jpl.omf.scala.core.TerminologyKind._
 import gov.nasa.jpl.omf.scala.core._
-
 import org.semanticweb.owlapi.model._
 
 import scala.collection.immutable._
@@ -60,7 +61,9 @@ case class ReadOnlyImmutableTerminologyGraphException(operation: ImmutableOperat
 }
 
 case class ImmutableModelTerminologyGraph
-(override val kind: TerminologyKind,
+(override val uuid: UUID,
+ override val name: LocalName,
+ override val kind: TerminologyKind,
  override val ont: OWLOntology,
  override val extraProvenanceMetadata: Option[OTI2OMFModelTerminologyGraphProvenance],
  override protected val aspects: Vector[ModelEntityAspect],
@@ -75,7 +78,7 @@ case class ImmutableModelTerminologyGraph
  override protected val s2st: Vector[ModelDataRelationshipFromStructureToStructure],
  override protected val ax: Vector[ModelTermAxiom])
 (override implicit val ops: OWLAPIOMFOps)
-  extends ModelTerminologyGraph(kind, ont, extraProvenanceMetadata)(ops) {
+  extends ModelTerminologyGraph(uuid, name, kind, ont, extraProvenanceMetadata)(ops) {
 
   require(null != kind)
   require(null != ont)

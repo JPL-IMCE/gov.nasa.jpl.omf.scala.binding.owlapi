@@ -19,6 +19,7 @@
 package gov.nasa.jpl.omf.scala.binding.owlapi.types
 
 import java.lang.System
+import java.util.UUID
 
 import gov.nasa.jpl.omf.scala.binding.owlapi._
 import gov.nasa.jpl.omf.scala.core._
@@ -28,7 +29,7 @@ import org.semanticweb.owlapi.reasoner.{NodeSet, OWLReasoner}
 import scala.collection.JavaConversions._
 import scala.collection.immutable._
 import scala.compat.java8.StreamConverters._
-import scala.{Boolean, None, Option, Some, StringContext, Unit}
+import scala.{Boolean, None, Option, Some, StringContext, Tuple3, Unit}
 import scala.Predef.{Map => _, Set => _, _}
 import scala.language.postfixOps
 import scalaz._
@@ -57,38 +58,6 @@ case class ResolverHelper
     ont.getOntologyID.getOntologyIRI.get
 
   val provenance = s"load($getOntologyIRI)"
-
-  def isAnnotatedAbstract(iri: IRI): Boolean = {
-    for {
-      aaa <- ont.annotationAssertionAxioms(iri).toScala[Set]
-      if aaa.getProperty.getIRI == AnnotationIsAbstract
-    } {
-      aaa.getValue match {
-        case l: OWLLiteral if l.isBoolean =>
-          return l.parseBoolean
-        case _ =>
-          ()
-      }
-    }
-
-    false
-  }
-
-  def isAnnotatedDerived(iri: IRI): Boolean = {
-    for {
-      aaa <- ont.annotationAssertionAxioms(iri).toScala[Set]
-      if aaa.getProperty.getIRI == AnnotationIsDerived
-    } {
-      aaa.getValue match {
-        case l: OWLLiteral if l.isBoolean =>
-          return l.parseBoolean
-        case _ =>
-          ()
-      }
-    }
-
-    false
-  }
 
   def getOWLTermShortName(entityIRI: IRI)
   : Option[String]
@@ -157,16 +126,16 @@ case class ResolverHelper
 
   def findDirectEntityReifiedRelationship
   (iri: IRI, relationships: Map[OWLClass, ModelEntityReifiedRelationship])
-  : Option[ModelEntityReifiedRelationship] =
-    (for {
+  : Option[ModelEntityReifiedRelationship]
+  = (for {
       (conceptC, conceptM) <- relationships
       if iri == conceptC.getIRI
     } yield conceptM) headOption
 
   def findImportedEntityReifiedRelationship
   (iri: IRI)
-  : Option[ModelEntityReifiedRelationship] =
-    (for {
+  : Option[ModelEntityReifiedRelationship]
+  = (for {
       g <- imports
       conceptM <- omfStore.ops.lookupEntityReifiedRelationship(g, iri, recursively = true)
     } yield conceptM) headOption
@@ -183,8 +152,8 @@ case class ResolverHelper
   def resolveDataPropertyDPIRIs
   (subDPs: NodeSet[OWLDataProperty], tDPs: Set[OWLDataProperty])
   (implicit reasoner: OWLReasoner)
-  : Iterable[DOPInfo] =
-    for {
+  : Iterable[DOPInfo]
+  = for {
       dataPropertyN <- subDPs.to[Iterable]
       dataPropertyDP <- dataPropertyN flatMap { case dp: OWLDataProperty => Some(dp) }
       if tDPs.contains(dataPropertyDP)
@@ -258,8 +227,8 @@ case class ResolverHelper
 
   type ROPInfo = (IRI, OWLObjectProperty, OWLClass, OWLClass, Option[OWLObjectProperty])
 
-  def ropInfoToString(ropInfo: ROPInfo): String =
-    s"""|ROPInfo
+  def ropInfoToString(ropInfo: ROPInfo): String
+  =s"""|ROPInfo
         |iri=${ropInfo._1}
         |obj. prop=${ropInfo._2}
         |domain=${ropInfo._3}
@@ -284,7 +253,8 @@ case class ResolverHelper
    targetROPs: Iterable[ROPInfo],
    chains: Chains,
    entityReifiedRelationships: Map[OWLClass, ModelEntityReifiedRelationship])
-  : Set[java.lang.Throwable] \/ Map[OWLClass, ModelEntityReifiedRelationship] = {
+  : Set[java.lang.Throwable] \/ Map[OWLClass, ModelEntityReifiedRelationship]
+  = {
 
     val rcs = RCs.values.toSet
     val (resolvableROPs, unresolvedROPs) = ROPs.partition {
@@ -372,18 +342,15 @@ case class ResolverHelper
                                 u = r_op, ui = r_inv_op,
                                 source = r_sourceDef, rSource = chainSource,
                                 target = r_targetDef, rTarget = chainTarget,
-                                characteristics = Iterable(),
-                                isAbstract = isAnnotatedAbstract(rc.getIRI)
+                                characteristics = Iterable()
                               )
                               .flatMap { _rr =>
 
                                 val rcIRI = rc.getIRI
                                 val entry
                                 : Set[java.lang.Throwable] \/ Map[OWLClass, ModelEntityReifiedRelationship]
-                                = ( tboxG.setTermShortName(_rr, getOWLTermShortName(rcIRI)) +++
-                                  tboxG.setTermUUID(_rr, getOWLTermUUID(rcIRI)) +++
-                                  omfStore.registerOMFModelEntityReifiedRelationshipInstance(tboxG, _rr).map(_ => ())
-                                  ).map[Map[OWLClass, ModelEntityReifiedRelationship]] { _ =>
+                                = omfStore.registerOMFModelEntityReifiedRelationshipInstance(tboxG, _rr)
+                                  .map[Map[OWLClass, ModelEntityReifiedRelationship]] { _ =>
                                   if (LOG1) {
                                     System.out.println(s"rop=$r_iri $s_iri $t_iri")
                                   }
@@ -517,8 +484,8 @@ case class ResolverHelper
 
   def resolveThingCIRIs
   (thingSubClasses: NodeSet[OWLClass], tCs: Set[OWLClass])
-  : Map[IRI, OWLClass] =
-    (for {
+  : Map[IRI, OWLClass]
+  = (for {
       thingN <- thingSubClasses
       if !thingN.isBottomNode
       thingC = thingN.getRepresentativeElement
@@ -528,8 +495,8 @@ case class ResolverHelper
 
   def resolveAspectCIRIs
   (entitySubClasses: NodeSet[OWLClass], tCs: Set[OWLClass])
-  : Map[IRI, OWLClass] =
-    (for {
+  : Map[IRI, OWLClass]
+  = (for {
       aspectN <- entitySubClasses
       if !aspectN.isBottomNode
       aspectC = aspectN.getRepresentativeElement
@@ -539,8 +506,8 @@ case class ResolverHelper
 
   def resolveConceptCIRIs
   (entitySubClasses: NodeSet[OWLClass], tCs: Set[OWLClass])
-  : Map[IRI, OWLClass] =
-    (for {
+  : Map[IRI, OWLClass]
+  = (for {
       conceptN <- entitySubClasses
       if !conceptN.isBottomNode
       conceptC = conceptN.getRepresentativeElement
@@ -550,8 +517,8 @@ case class ResolverHelper
 
   def resolveReifiedObjectPropertyCIRIs
   (reifiedObjectPropertySubClasses: NodeSet[OWLClass], tCs: Set[OWLClass])
-  : Map[IRI, OWLClass] =
-    (for {
+  : Map[IRI, OWLClass]
+  = (for {
       reifiedObjectPropertyN <- reifiedObjectPropertySubClasses
       if !reifiedObjectPropertyN.isBottomNode
       reifiedObjectPropertyC = reifiedObjectPropertyN.getRepresentativeElement
@@ -561,8 +528,8 @@ case class ResolverHelper
 
   def resolveReifiedStructuredDataPropertyCIRIs
   (reifiedStructuredDataPropertySubClasses: NodeSet[OWLClass], tCs: Set[OWLClass])
-  : Map[IRI, OWLClass] =
-    (for {
+  : Map[IRI, OWLClass]
+  = (for {
       reifiedStructuredDataPropertyN <- reifiedStructuredDataPropertySubClasses
       if !reifiedStructuredDataPropertyN.isBottomNode
       reifiedStructuredDataPropertyC = reifiedStructuredDataPropertyN.getRepresentativeElement
@@ -572,8 +539,8 @@ case class ResolverHelper
 
   def resolveStructuredDatatypeCIRIs
   (structuredDatatypeSubClasses: NodeSet[OWLClass], tCs: Set[OWLClass])
-  : Map[IRI, OWLClass] =
-    (for {
+  : Map[IRI, OWLClass]
+  = (for {
       structuredDatatypeN <- structuredDatatypeSubClasses
       if !structuredDatatypeN.isBottomNode
       structuredDatatypeC = structuredDatatypeN.getRepresentativeElement
@@ -584,19 +551,19 @@ case class ResolverHelper
   def resolveDomainRangeForObjectProperties
   (subOPs: NodeSet[OWLObjectPropertyExpression], tOPs: Set[OWLObjectProperty])
   (implicit reasoner: OWLReasoner)
-  : Iterable[ROPInfo] =
-    (for {
+  : Iterable[ROPInfo]
+  = (for {
       _n_ <- subOPs
       _op_ <- _n_ flatMap {
         case op: OWLObjectProperty =>
-          if (tOPs.contains(op) && !isAnnotatedDerived(op.getIRI))
+          if (tOPs.contains(op) && !isAnnotatedDerived(ont, op.getIRI).fold(_ => false, identity))
             Some(op)
           else
             None
         case inv: OWLObjectInverseOf =>
           inv.getInverse match {
             case op: OWLObjectProperty =>
-              if (tOPs.contains(op) && !isAnnotatedDerived(op.getIRI))
+              if (tOPs.contains(op) && !isAnnotatedDerived(ont, op.getIRI).fold(_ => false, identity))
                 Some(op)
               else
                 None
@@ -609,14 +576,14 @@ case class ResolverHelper
     } yield {
       val INV = (_n_ flatMap {
         case op: OWLObjectProperty =>
-          if (tOPs.contains(op) && isAnnotatedDerived(op.getIRI))
+          if (tOPs.contains(op) && isAnnotatedDerived(ont, op.getIRI).fold(_ => false, identity))
             Some(op)
           else
             None
         case inv: OWLObjectInverseOf =>
           inv.getInverse match {
             case op: OWLObjectProperty =>
-              if (tOPs.contains(op) && isAnnotatedDerived(op.getIRI))
+              if (tOPs.contains(op) && isAnnotatedDerived(ont, op.getIRI).fold(_ => false, identity))
                 Some(op)
               else
                 None
@@ -631,7 +598,8 @@ case class ResolverHelper
   (conceptCMs: Map[OWLClass, ModelEntityConcept],
    allConceptsIncludingImported: Map[OWLClass, ModelEntityConcept])
   (implicit reasoner: OWLReasoner, backbone: OMFBackbone)
-  : Set[java.lang.Throwable] \/ Unit = {
+  : Set[java.lang.Throwable] \/ Unit
+  = {
     val sub_sup = for {
       (subC, subM) <- conceptCMs
       supC <- reasoner.getSuperClasses(subC, true).entities().toScala[Set]
@@ -640,7 +608,11 @@ case class ResolverHelper
 
     ( ().right[Set[java.lang.Throwable]] /: sub_sup ) {
       case (acc, (subM, supM)) =>
-        acc +++ tboxG.createEntityConceptSubClassAxiom(sub = subM, sup = supM)(omfStore).map(_ => ())
+        for {
+          _ <- acc
+          uuid <- conceptSpecializationAxiomUUID(tboxG, subM, supM)
+          next <- tboxG.createEntityConceptSubClassAxiom(uuid, sub = subM, sup = supM)(omfStore).map(_ => ())
+        } yield next
     }
   }
 
@@ -648,7 +620,8 @@ case class ResolverHelper
   (reifiedRelationshipCMs: Map[OWLClass, ModelEntityReifiedRelationship],
    allReifiedRelationshipsIncludingImported: Map[OWLClass, ModelEntityReifiedRelationship])
   (implicit reasoner: OWLReasoner, backbone: OMFBackbone)
-  : Set[java.lang.Throwable] \/ Unit = {
+  : Set[java.lang.Throwable] \/ Unit
+  = {
     val sub_sup = for {
       (subC, subM) <- reifiedRelationshipCMs
       supC <- reasoner.getSuperClasses(subC, true).entities().toScala[Set]

@@ -301,11 +301,7 @@ case class ImmutableModelTerminologyGraphResolver(resolver: ResolverHelper) {
             tboxG
               .createModelEntityAspect(aspectC)
               .flatMap { aspectM =>
-
-                (tboxG.setTermShortName(aspectM, getOWLTermShortName(aspectIRI)) +++
-                  tboxG.setTermUUID(aspectM, getOWLTermUUID(aspectIRI)) +++
-                  resolver.omfStore.registerOMFModelEntityAspectInstance(tboxG, aspectM).map(_ => ())
-                  )
+                resolver.omfStore.registerOMFModelEntityAspectInstance(tboxG, aspectM)
                   .map { _ =>
                     Map(aspectC -> aspectM)
                   }
@@ -326,7 +322,7 @@ case class ImmutableModelTerminologyGraphResolver(resolver: ResolverHelper) {
         case (acc, (conceptIRI, conceptC)) =>
           acc +++
             tboxG
-              .createModelEntityConcept(conceptC, isAnnotatedAbstract(conceptIRI))
+              .createModelEntityConcept(conceptC)
               .flatMap { conceptM =>
 
                 (tboxG.setTermShortName(conceptM, getOWLTermShortName(conceptIRI)) +++
@@ -509,20 +505,7 @@ case class ImmutableModelTerminologyGraphResolver(resolver: ResolverHelper) {
                       }
                     }
 
-                    val rc
-                    : Set[java.lang.Throwable] \/ Unit
-                    = restrictions.foldLeft(rb) { case (acc, (domain, rel, range, kind)) =>
-                      acc.flatMap { _ =>
-                        kind match {
-                          case ExistentialRestrictionKind =>
-                            tboxG.addEntityReifiedRelationshipExistentialRestrictionAxiom(domain, rel, range).map { _ => () }
-                          case UniversalRestrictionKind =>
-                            tboxG.addEntityReifiedRelationshipUniversalRestrictionAxiom(domain, rel, range).map { _ => () }
-                        }
-                      }
-                    }
-
-                    rc
+                    rb
                   }
 
                   restrictionsAdded.flatMap { _ =>

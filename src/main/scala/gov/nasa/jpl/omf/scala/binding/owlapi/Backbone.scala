@@ -273,11 +273,11 @@ object Backbone {
       topDataProperty = _topDataProperty ) {
 
       kind match {
-        case _ @ ( `isDefinition` | `isToplevelDefinition` ) =>
+        case `isDefinition` =>
           val defP = df.getOWLAnnotationProperty( ops.AnnotationIsDefinition )
           om.applyChange( new AddOntologyAnnotation( ont, df.getOWLAnnotation( defP, df.getOWLLiteral( true ) ) ) )
 
-        case _ @ ( `isDesignation` | `isToplevelDesignation` ) =>
+        case `isDesignation` =>
           val desP = df.getOWLAnnotationProperty( ops.AnnotationIsDesignation )
           om.applyChange( new AddOntologyAnnotation( ont, df.getOWLAnnotation( desP, df.getOWLLiteral( true ) ) ) )
       }

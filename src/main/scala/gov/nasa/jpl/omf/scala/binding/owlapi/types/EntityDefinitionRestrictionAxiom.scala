@@ -18,12 +18,16 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.types
 
+import java.util.UUID
+
 import scala.Predef.require
 
-abstract class EntityDefinitionRestrictionAxiom(
-  val sub: ModelEntityDefinition,
-  val rel: ModelEntityReifiedRelationship,
-  val range: ModelEntityDefinition ) extends ModelTermAxiom {
+abstract class EntityDefinitionRestrictionAxiom
+(override val uuid: UUID,
+ val sub: ModelEntityDefinition,
+ val rel: ModelEntityReifiedRelationship,
+ val range: ModelEntityDefinition)
+  extends ModelTermAxiom {
 
   require(null != sub)
   require(null != rel)

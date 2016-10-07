@@ -18,22 +18,28 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.types
 
+import java.util.UUID
+
+import gov.nasa.jpl.imce.omf.schema.tables.LocalName
 import gov.nasa.jpl.omf.scala.core.RelationshipCharacteristics._
 import org.semanticweb.owlapi.model.OWLClass
 import org.semanticweb.owlapi.model.OWLObjectProperty
+
 import scala.collection.immutable._
-import scala.{Boolean,Option}
+import scala.{Boolean, Option}
 import scala.Predef.require
 
-case class ModelEntityReifiedRelationship(
-  override val e: OWLClass,
-  val unreified: OWLObjectProperty,
-  val inverse: Option[OWLObjectProperty],
-  val source: ModelEntityDefinition, val rSource: OWLObjectProperty,
-  val target: ModelEntityDefinition, val rTarget: OWLObjectProperty,
-  val characteristics: Iterable[RelationshipCharacteristics],
-  val isAbstract: Boolean )
-  extends ModelEntityDefinition( e ) {
+case class ModelEntityReifiedRelationship
+(override val e: OWLClass,
+ override val name: LocalName,
+ override val uuid: UUID,
+ unreified: OWLObjectProperty,
+ inverse: Option[OWLObjectProperty],
+ source: ModelEntityDefinition, rSource: OWLObjectProperty,
+ target: ModelEntityDefinition, rTarget: OWLObjectProperty,
+ characteristics: Iterable[RelationshipCharacteristics],
+ isAbstract: Boolean)
+  extends ModelEntityDefinition(e, name, uuid) {
 
   require(null != e)
   require(null != inverse)

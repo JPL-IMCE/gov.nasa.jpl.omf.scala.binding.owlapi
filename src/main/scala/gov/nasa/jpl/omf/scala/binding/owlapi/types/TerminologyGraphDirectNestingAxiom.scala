@@ -18,6 +18,8 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.types
 
+import java.util.UUID
+
 import scala.Predef.require
 
 /**
@@ -28,9 +30,10 @@ import scala.Predef.require
   * @param nestedChild
   */
 case class TerminologyGraphDirectNestingAxiom
-( nestingParent: ModelTerminologyGraph,
-  nestingContext: ModelEntityConcept,
-  nestedChild: ModelTerminologyGraph )
+(override val uuid: UUID,
+ nestingParent: ModelTerminologyGraph,
+ nestingContext: ModelEntityConcept,
+ nestedChild: ModelTerminologyGraph )
 extends TerminologyGraphAxiom {
 
   require(null != nestingParent)

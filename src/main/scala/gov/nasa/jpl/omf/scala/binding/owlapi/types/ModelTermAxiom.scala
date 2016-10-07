@@ -18,4 +18,8 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.types
 
-abstract class ModelTermAxiom
+import java.util.UUID
+
+abstract class ModelTermAxiom {
+  val uuid: UUID
+}

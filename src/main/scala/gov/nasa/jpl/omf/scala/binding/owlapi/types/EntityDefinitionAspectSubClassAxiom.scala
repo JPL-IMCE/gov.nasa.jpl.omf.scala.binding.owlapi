@@ -18,11 +18,15 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.types
 
+import java.util.UUID
+
 import scala.Predef.require
 
-case class EntityDefinitionAspectSubClassAxiom(
-    val sub: ModelEntityDefinition,
-    val sup: ModelEntityAspect) extends ModelTermAxiom {
+case class EntityDefinitionAspectSubClassAxiom
+(override val uuid: UUID,
+ sub: ModelEntityDefinition,
+ sup: ModelEntityAspect)
+  extends ModelTermAxiom {
 
     require( null != sub )
     require( null != sup )

@@ -18,6 +18,7 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi
 
+import gov.nasa.jpl.imce.omf.schema.tables.LocalName
 import gov.nasa.jpl.omf.scala.core._
 import gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader.OntologyLoadedState
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.AxiomExceptionKind._
@@ -29,10 +30,10 @@ import gov.nasa.jpl.omf.scala.core.TerminologyKind
 import org.semanticweb.owlapi.model.parameters.{Imports, Navigation}
 import org.semanticweb.owlapi.model._
 
-import scala.{Boolean, Option, None, Some, StringContext, Tuple2, Tuple5, Unit}
+import scala.{Boolean, None, Option, Some, StringContext, Tuple2, Tuple5, Unit}
 import scala.collection.immutable._
 import scala.compat.java8.StreamConverters._
-import scala.Predef.{classOf,String}
+import scala.Predef.{String, classOf}
 import scalaz._
 import Scalaz._
 
@@ -107,36 +108,35 @@ package object types {
    nesting: Option[(ModelEntityConcept, ImmutableModelTerminologyGraph)],
    m2i: Mutable2IMutableTerminologyMap,
    omfStore: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ ImmutableModelTerminologyGraphResolver = {
+  : Set[java.lang.Throwable] \/ ImmutableModelTerminologyGraphResolver
+  = {
     implicit val ops = omfStore.ops
 
     val ontOps = new OWLOntologyOps(ont)
 
     val isTboxDef = ontOps.isOntologyTBoxDefinition
-    val IsTboxTop = ontOps.isOntologyTBoxToplevel
     val kind =
       if (isTboxDef)
-        if (IsTboxTop)
-          TerminologyKind.isToplevelDefinition
-        else
-          TerminologyKind.isDefinition
-      else
-      if (IsTboxTop)
-        TerminologyKind.isToplevelDesignation
+        TerminologyKind.isDefinition
       else
         TerminologyKind.isDesignation
 
-    val getOntologyShortName: Option[String] =
-      ont
+    val localName
+    : Set[java.lang.Throwable] \/ LocalName
+    = ont
         .annotations
         .toScala[Set]
         .find(_.getProperty.getIRI == ops.rdfs_label)
-        .flatMap(_.getValue match {
-          case l: OWLLiteral =>
-            Some(l.getLiteral)
-          case _ =>
-            None
-        })
+        .fold {
+          ops.lastSegment(ont.getOntologyID.getOntologyIRI.get)
+        } { l =>
+          l.getValue match {
+            case l: OWLLiteral =>
+              \/-(l.getLiteral)
+            case _ =>
+              -\/(Set[java.lang.Throwable](OMFError.omfBindingError(s"invalid rdfs:label on OMF terminology graph: ${ont.getOntologyID}")))
+          }
+        }
 
     val getOntologyUUID: Option[String] =
       ont
@@ -187,7 +187,7 @@ package object types {
         })
 
     ops
-    .createOMFTerminologyGraph(
+      .createOMFTerminologyGraph(
       o = omfMetadata,
       ont = ont,
       relativeIRIPath=getOntologyRelativeIRI,
@@ -198,8 +198,6 @@ package object types {
     .flatMap { g: MutableModelTerminologyGraph =>
 
       for {
-        _ <- omfStore.ops.setTerminologyGraphShortName(g, getOntologyShortName)(omfStore)
-        _ <- omfStore.ops.setTerminologyGraphUUID(g, getOntologyUUID)(omfStore)
         _ <- {
           (().right[Set[java.lang.Throwable]] /: extensions) {
             (acc: Set[java.lang.Throwable] \/ Unit, importG: ImmutableModelTerminologyGraph) =>

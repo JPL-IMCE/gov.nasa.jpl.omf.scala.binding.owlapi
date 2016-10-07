@@ -18,4 +18,8 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.types
 
-abstract class TerminologyGraphAxiom
+import java.util.UUID
+
+abstract class TerminologyGraphAxiom {
+  val uuid: UUID
+}

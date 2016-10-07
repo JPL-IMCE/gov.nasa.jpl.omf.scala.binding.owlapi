@@ -18,11 +18,14 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.types
 
+import java.util.UUID
+
 import scala.Predef.require
 
 case class TerminologyGraphDirectExtensionAxiom
-( extendingChild: ModelTerminologyGraph,
-  extendedParent: ModelTerminologyGraph )
+(override val uuid: UUID,
+ extendingChild: ModelTerminologyGraph,
+ extendedParent: ModelTerminologyGraph )
 extends TerminologyGraphAxiom {
 
   require(null != extendingChild)

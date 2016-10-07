@@ -18,13 +18,16 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.types
 
-import scala.Predef.{require,String}
+import java.util.UUID
+
+import scala.Predef.{String, require}
 
 case class ModelScalarDataRelationshipRestrictionAxiomFromEntityToLiteral
-(restrictedEntity: ModelEntityDefinition,
+(override val uuid: UUID,
+ restrictedEntity: ModelEntityDefinition,
  restrictingDataProperty: ModelDataRelationshipFromEntityToScalar,
- literalRestriction: String
-) extends ModelTermAxiom {
+ literalRestriction: String)
+  extends ModelTermAxiom {
 
   require(null != restrictedEntity)
   require(null != restrictingDataProperty)

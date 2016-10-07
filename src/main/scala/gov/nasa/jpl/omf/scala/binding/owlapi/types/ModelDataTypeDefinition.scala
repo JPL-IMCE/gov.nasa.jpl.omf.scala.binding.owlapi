@@ -18,10 +18,17 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.types
 
+import java.util.UUID
+
+import gov.nasa.jpl.imce.omf.schema.tables.LocalName
 import gov.nasa.jpl.omf.scala.binding.owlapi._
+
 import scala.Predef.require
 
-abstract class ModelDataTypeDefinition(override val iri: OWLAPIOMF#IRI)
+abstract class ModelDataTypeDefinition
+(override val iri: OWLAPIOMF#IRI,
+ override val name: LocalName,
+ override val uuid: UUID)
   extends ModelTypeTerm {
 
   require(null != iri)

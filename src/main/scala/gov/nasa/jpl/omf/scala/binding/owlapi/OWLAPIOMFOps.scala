@@ -19,7 +19,9 @@
 package gov.nasa.jpl.omf.scala.binding.owlapi
 
 import java.net.URI
+import java.util.UUID
 
+import gov.nasa.jpl.imce.omf.schema.tables.LocalName
 import gov.nasa.jpl.omf.scala.core._
 import gov.nasa.jpl.omf.scala.core.RelationshipCharacteristics._
 import gov.nasa.jpl.omf.scala.core.TerminologyKind._
@@ -27,7 +29,7 @@ import org.apache.commons.codec.binary.Hex
 import org.apache.commons.codec.digest.DigestUtils
 import org.semanticweb.owlapi.model._
 
-import scala.{Boolean, None, Option, Some, StringContext, Unit}
+import scala.{Boolean, None, Option, Some, StringContext, Tuple3, Unit}
 import scala.collection.immutable._
 import scala.compat.java8.StreamConverters._
 import scala.util.control.Exception._
@@ -353,20 +355,20 @@ trait OWLAPIStoreOps
    kind: TerminologyKind.TerminologyKind,
    extraProvenanceMetadata: Option[OTI2OMFModelTerminologyGraphProvenance])
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ types.MutableModelTerminologyGraph =
-    store.createOMFModelTerminologyGraph(
+  : Set[java.lang.Throwable] \/ types.MutableModelTerminologyGraph
+  = store.createOMFModelTerminologyGraph(
       o, ont.getOntologyID.getOntologyIRI.get,
       relativeIRIPath, relativeIRIHashPrefix, ont, kind, extraProvenanceMetadata)
 
   override def loadInstanceGraph
   (iri: IRI)
   (implicit store: OWLAPIOMFGraphStore):
-  Set[java.lang.Throwable] \/ instances.ImmutableModelInstanceGraph =
-    store.loadInstanceGraph(iri)
+  Set[java.lang.Throwable] \/ instances.ImmutableModelInstanceGraph
+  = store.loadInstanceGraph(iri)
 
   override def fromInstanceGraph
-  (graph: instances.ModelInstanceGraph) =
-    graph.fromInstanceGraph
+  (graph: instances.ModelInstanceGraph)
+  = graph.fromInstanceGraph
 
   override def asImmutableInstanceGraph
   (g: instances.MutableModelInstanceGraph)
@@ -574,12 +576,12 @@ trait OWLAPIImmutableTerminologyGraphOps
     case sst: types.ModelDataRelationshipFromStructureToStructure => funDataRelationshipFromStructureToStructure(sst)
   }
 
-  override def getTermShortName
+  override def getTermLocalName
   (graph: types.ModelTerminologyGraph,
    term: types.ModelTypeTerm)
-  : Option[String]
+  : LocalName
   = graph
-    .getTermShortNameAnnotationAssertionAxiom(term)
+    .getTermLocalNameAnnotationAssertionAxiom(term)
     .flatMap { a =>
       a.getValue match {
         case l: OWLLiteral =>
@@ -588,11 +590,14 @@ trait OWLAPIImmutableTerminologyGraphOps
           None
       }
     }
+    .fold[LocalName]({
+    throw OMFError.omfBindingError(s"Missing LocalName annotation on OMF term: ${term.iri}")
+  })(identity)
 
-  override def getTermShortUUID
+  override def getTermUUID
   (graph: types.ModelTerminologyGraph,
    term: types.ModelTypeTerm)
-  : Option[String]
+  : UUID
   = graph
     .getTermUUIDAnnotationAssertionAxiom(term)
     .flatMap { a =>
@@ -603,6 +608,9 @@ trait OWLAPIImmutableTerminologyGraphOps
           None
       }
     }
+    .fold[UUID]({
+    throw OMFError.omfBindingError(s"Missing UUID annotation on OMF term: ${term.iri}")
+  })(UUID.fromString)
 
   override def fromEntityDefinition
   (e: types.ModelEntityDefinition) =
@@ -620,71 +628,78 @@ trait OWLAPIImmutableTerminologyGraphOps
   // entity concept
 
   override def fromEntityConcept
-  (c: types.ModelEntityConcept) =
-    OWLAPIEntityConceptSignature(c.iri, c.isAbstract)
+  (c: types.ModelEntityConcept)
+  = OWLAPIEntityConceptSignature(c.uuid, c.name, c.iri, c.isAbstract)
 
   // entity relationship
 
   override def fromEntityReifiedRelationship
-  (r: types.ModelEntityReifiedRelationship) =
-    OWLAPIEntityReifiedRelationshipSignature(r.iri, r.source, r.target, r.characteristics, r.isAbstract)
+  (r: types.ModelEntityReifiedRelationship)
+  = OWLAPIEntityReifiedRelationshipSignature(r.uuid, r.name, r.iri, r.source, r.target, r.characteristics, r.isAbstract)
 
 
   override def fromEntityUnreifiedRelationship
-  (r: types.ModelEntityUnreifiedRelationship) =
-    OWLAPIEntityUnreifiedRelationshipSignature(r.iri, r.source, r.target, r.characteristics)
+  (r: types.ModelEntityUnreifiedRelationship)
+  = OWLAPIEntityUnreifiedRelationshipSignature(r.uuid, r.name, r.iri, r.source, r.target, r.characteristics)
 
 
   // datatype definition
 
   override def fromDataTypeDefinition
   (dt: types.ModelDataTypeDefinition)
-  : IRI = dt match {
-    case d: types.ModelScalarDataType     => fromScalarDataType(d)
-    case d: types.ModelStructuredDataType => fromStructuredDataType(d)
+  = dt match {
+    case d: types.ModelScalarDataType =>
+      fromScalarDataType(d)
+    case d: types.ModelStructuredDataType =>
+      fromStructuredDataType(d)
   }
 
   // scalar datatype
 
   override def fromScalarDataType
-  (dt: types.ModelScalarDataType) = dt.iri
+  (dt: types.ModelScalarDataType)
+  = Tuple3(dt.uuid, dt.name, dt.iri)
 
   // structured datatype
 
   override def fromStructuredDataType
   (dt: types.ModelStructuredDataType)
-  : IRI = dt.iri
+  = Tuple3(dt.uuid, dt.name, dt.iri)
 
   // data relationship from entity to scalar
 
   override def fromDataRelationshipFromEntityToScalar
-  (esc: types.ModelDataRelationshipFromEntityToScalar) = {
+  (esc: types.ModelDataRelationshipFromEntityToScalar)
+  = {
     import esc._
-    (iri, source, target)
+    (uuid, name, iri, source, target)
   }
 
   // data relationship from entity to structure
 
   override def fromDataRelationshipFromEntityToStructure
-  (est: types.ModelDataRelationshipFromEntityToStructure) = {
+  (est: types.ModelDataRelationshipFromEntityToStructure)
+  = {
     import est._
-    (iri, source, target)
+    (uuid, name, iri, source, target)
   }
 
   // data relationship from structure to scalar
 
   override def fromDataRelationshipFromStructureToScalar
-  (ssc: types.ModelDataRelationshipFromStructureToScalar) = {
+  (ssc: types.ModelDataRelationshipFromStructureToScalar)
+  = {
     import ssc._
-    (iri, source, target)
+    (uuid, name, iri, source, target)
   }
 
   // data relationship from structure to structure
 
   override def fromDataRelationshipFromStructureToStructure
-  (sst: types.ModelDataRelationshipFromStructureToStructure) = {
+  (sst: types.ModelDataRelationshipFromStructureToStructure)
+  = {
     import sst._
-    (iri, source, target)
+    (uuid, name, iri, source, target)
   }
 
   // model term axioms
@@ -701,15 +716,14 @@ trait OWLAPIImmutableTerminologyGraphOps
    : types.EntityDefinitionRestrictionAxiom => T,
    funEntityReifiedRelationshipSubClassAxiom
    : types.EntityReifiedRelationshipSubClassAxiom => T,
-   funEntityReifiedRelationshipContextualizationAxiom
-   : types.EntityReifiedRelationshipContextualizationAxiom => T,
    funEntityReifiedRelationshipRestrictionAxiom
    : types.EntityReifiedRelationshipRestrictionAxiom => T,
    funScalarDataTypeFacetRestriction
    : types.ScalarDataTypeFacetRestrictionAxiom => T,
    funModelScalarDataRelationshipRestrictionAxiomFromEntityToLiteral
    : types.ModelScalarDataRelationshipRestrictionAxiomFromEntityToLiteral => T)
-  : T = t match {
+  : T
+  = t match {
     case ax: types.EntityDefinitionAspectSubClassAxiom =>
       funEntityDefinitionAspectSubClassAxiom(ax)
     case ax: types.EntityConceptDesignationTerminologyGraphAxiom =>
@@ -739,7 +753,8 @@ trait OWLAPIImmutableTerminologyGraphOps
 
   override def fromEntityDefinitionAspectSubClassAxiom
   (ax: types.EntityDefinitionAspectSubClassAxiom)
-  : (types.ModelEntityDefinition, types.ModelEntityAspect) = {
+  : (types.ModelEntityDefinition, types.ModelEntityAspect)
+  = {
     import ax._
     (sub, sup)
   }
@@ -749,7 +764,8 @@ trait OWLAPIImmutableTerminologyGraphOps
 
   override def fromEntityConceptDesignationTerminologyGraphAxiom
   (ax: types.EntityConceptDesignationTerminologyGraphAxiom)
-  : (types.ModelEntityConcept, types.ModelTerminologyGraph) = {
+  : (types.ModelEntityConcept, types.ModelTerminologyGraph)
+  = {
     import ax._
     (entityConceptDesignation, designationTerminologyGraph)
   }
@@ -758,7 +774,8 @@ trait OWLAPIImmutableTerminologyGraphOps
 
   override def fromEntityConceptSubClassAxiom
   (ax: types.EntityConceptSubClassAxiom)
-  : (types.ModelEntityConcept, types.ModelEntityConcept) = {
+  : (types.ModelEntityConcept, types.ModelEntityConcept)
+  = {
     import ax._
     (sub, sup)
   }
@@ -767,8 +784,9 @@ trait OWLAPIImmutableTerminologyGraphOps
 
   override def fromEntityDefinitionRestrictionAxiom
   (ax: types.EntityDefinitionRestrictionAxiom)
-  : (types.ModelEntityDefinition, types.ModelEntityReifiedRelationship, types.ModelEntityDefinition, RestrictionKind)
-  = (ax.sub,
+  : (UUID, types.ModelEntityDefinition, types.ModelEntityReifiedRelationship, types.ModelEntityDefinition, RestrictionKind)
+  = (ax.uuid,
+    ax.sub,
      ax.rel,
      ax.range,
      ax match {
@@ -782,25 +800,22 @@ trait OWLAPIImmutableTerminologyGraphOps
 
   override def fromEntityReifiedRelationshipSubClassAxiom
   (ax: types.EntityReifiedRelationshipSubClassAxiom)
-  : (types.ModelEntityReifiedRelationship, types.ModelEntityReifiedRelationship) = {
+  : (UUID, types.ModelEntityReifiedRelationship, types.ModelEntityReifiedRelationship)
+  = {
     import ax._
-    (sub, sup)
+    (uuid, sub, sup)
   }
-
-  override def fromEntityReifiedRelationshipContextualizationAxiom
-  (ax: types.EntityReifiedRelationshipContextualizationAxiom)
-  : (types.ModelEntityDefinition, types.ModelEntityReifiedRelationship, String, types.ModelEntityDefinition)
-  = (ax.domain, ax.rel, ax.contextName, ax.range)
 
   override def fromEntityReifiedRelationshipRestrictionAxiom
   (ax: types.EntityReifiedRelationshipRestrictionAxiom)
-  : (types.ModelEntityDefinition, types.ModelEntityReifiedRelationship, types.ModelEntityDefinition, RestrictionKind) = {
+  : (UUID, types.ModelEntityDefinition, types.ModelEntityReifiedRelationship, types.ModelEntityDefinition, RestrictionKind)
+  = {
     import ax._
     ax match {
       case _ : types.EntityReifiedRelationshipExistentialRestrictionAxiom =>
-        (domain, rel, range, ExistentialRestrictionKind)
+        (uuid, domain, rel, range, ExistentialRestrictionKind)
       case _ : types.EntityReifiedRelationshipUniversalRestrictionAxiom =>
-        (domain, rel, range, UniversalRestrictionKind)
+        (uuid, domain, rel, range, UniversalRestrictionKind)
 
     }
 
@@ -810,12 +825,13 @@ trait OWLAPIImmutableTerminologyGraphOps
 
   override def fromScalarDataTypeFacetRestrictionAxiom
   (ax: types.ScalarDataTypeFacetRestrictionAxiom)
-  : (types.ModelScalarDataType,
+  : (UUID, types.ModelScalarDataType,
      types.ModelScalarDataType,
      Iterable[FundamentalFacet],
-     Iterable[ConstrainingFacet]) = {
+     Iterable[ConstrainingFacet])
+  = {
     import ax._
-    (sub, sup, fundamentalFacets, constrainingFacets)
+    (uuid, sub, sup, fundamentalFacets, constrainingFacets)
   }
 }
 
@@ -824,62 +840,41 @@ trait OWLAPIMutableTerminologyGraphOps
           with OWLAPIImmutableTerminologyGraphOps {
   self: OWLAPIOMFOps =>
 
-  override def setTerminologyGraphShortName
-  (graph: types.MutableModelTerminologyGraph,
-   name: Option[String])
-  (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ Unit =
-    graph.setTerminologyGraphShortName(name)
-
-  override def setTerminologyGraphUUID
-  (graph: types.MutableModelTerminologyGraph,
-   uuid: Option[String])
-  (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ Unit =
-    graph.setTerminologyGraphUUID(uuid)
-
-  override def setTermShortName
-  (graph: types.MutableModelTerminologyGraph,
-   term: types.ModelTypeTerm,
-   name: Option[String])
-  (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ Unit =
-    graph.setTermShortName(term, name)
-
   override def setTermUUID
   (graph: types.MutableModelTerminologyGraph,
    term: types.ModelTypeTerm,
    uuid: Option[String])
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ Unit =
-    graph.setTermUUID(term, uuid)
+  : Set[java.lang.Throwable] \/ Unit
+  = graph.setTermUUID(term, uuid)
 
   override def setTermID
   (graph: types.MutableModelTerminologyGraph,
    term: types.ModelTypeTerm,
    id: Option[String])
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ Unit =
-    graph.setTermID(term, id)
+  : Set[java.lang.Throwable] \/ Unit
+  = graph.setTermID(term, id)
 
   override def setTermURL
   (graph: types.MutableModelTerminologyGraph,
    term: types.ModelTypeTerm,
    url: Option[String])
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ Unit =
-    graph.setTermURL(term, url)
+  : Set[java.lang.Throwable] \/ Unit
+  = graph.setTermURL(term, url)
 
   // entity facet
 
   override def addEntityAspect
   (graph: types.MutableModelTerminologyGraph,
+   uuid: UUID,
    aspectName: String)
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ types.ModelEntityAspect =
-    for {
+  : Set[java.lang.Throwable] \/ types.ModelEntityAspect
+  = for {
       aspectIRI <- withFragment(graph.iri, aspectName)
-      result <- graph.addEntityAspect(aspectIRI)
+      result <- graph.addEntityAspect(aspectIRI, aspectName, uuid)
       _ <- store.registerOMFModelEntityAspectInstance(graph, result)
     } yield result
 
@@ -887,13 +882,14 @@ trait OWLAPIMutableTerminologyGraphOps
 
   override def addEntityConcept
   (graph: types.MutableModelTerminologyGraph,
+   uuid: UUID,
    conceptName: String,
    isAbstract: Boolean)
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ types.ModelEntityConcept =
-    for {
+  : Set[java.lang.Throwable] \/ types.ModelEntityConcept
+  = for {
       conceptIRI <- withFragment(graph.iri, conceptName)
-      result <- graph.addEntityConcept(conceptIRI, isAbstract)
+      result <- graph.addEntityConcept(conceptIRI, conceptName, uuid, isAbstract)
       _ <- store.registerOMFModelEntityConceptInstance(graph, result)
     } yield result
 
@@ -901,6 +897,7 @@ trait OWLAPIMutableTerminologyGraphOps
 
   override def addEntityReifiedRelationship
   (graph: types.MutableModelTerminologyGraph,
+   uuid: UUID,
    source: types.ModelEntityDefinition,
    target: types.ModelEntityDefinition,
    characteristics: Iterable[RelationshipCharacteristics],
@@ -909,8 +906,8 @@ trait OWLAPIMutableTerminologyGraphOps
    unreifiedInverseRelationshipName: Option[String],
    isAbstract: Boolean)
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ types.ModelEntityReifiedRelationship =
-    for {
+  : Set[java.lang.Throwable] \/ types.ModelEntityReifiedRelationship
+  = for {
       rIRI <- withFragment(graph.iri, reifiedRelationshipName)
       rIRISource = toSourceIRI(rIRI)
       rIRITarget = toTargetIRI(rIRI)
@@ -919,7 +916,7 @@ trait OWLAPIMutableTerminologyGraphOps
         withFragment(graph.iri, uName).map(Some(_))
       }
       result <- graph.addEntityReifiedRelationship(
-                                                    rIRI,
+                                                    rIRI, reifiedRelationshipName, uuid,
                                                     rIRISource, rIRITarget,
                                                     uIRI, uiIRI,
                                                     source, target,
@@ -931,12 +928,13 @@ trait OWLAPIMutableTerminologyGraphOps
 
   override def addScalarDataType
   (graph: types.MutableModelTerminologyGraph,
+   uuid: UUID,
    scalarName: String)
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ types.ModelScalarDataType =
-    for {
+  : Set[java.lang.Throwable] \/ types.ModelScalarDataType
+  = for {
       scalarIRI <- withFragment(graph.iri, scalarName)
-      result <- graph.addScalarDataType(scalarIRI)
+      result <- graph.addScalarDataType(scalarIRI, scalarName, uuid)
       _ <- store.registerOMFModelScalarDataTypeInstance(graph, result)
     } yield result
 
@@ -944,12 +942,13 @@ trait OWLAPIMutableTerminologyGraphOps
 
   override def addStructuredDataType
   (graph: types.MutableModelTerminologyGraph,
+   uuid: UUID,
    structureName: String)
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ types.ModelStructuredDataType =
-    for {
+  : Set[java.lang.Throwable] \/ types.ModelStructuredDataType
+  = for {
       structureIRI <- withFragment(graph.iri, structureName)
-      result <- graph.addStructuredDataType(structureIRI)
+      result <- graph.addStructuredDataType(structureIRI, structureName, uuid)
       _ <- store.registerOMFModelStructuredDataTypeInstance(graph, result)
     } yield result
 
@@ -957,61 +956,66 @@ trait OWLAPIMutableTerminologyGraphOps
 
   override def addDataRelationshipFromEntityToScalar
   (graph: types.MutableModelTerminologyGraph,
+   uuid: UUID,
    source: types.ModelEntityDefinition,
    target: types.ModelScalarDataType,
    dataRelationshipName: String)
-  (implicit store: OWLAPIOMFGraphStore) =
-    for {
+  (implicit store: OWLAPIOMFGraphStore)
+  = for {
       dIRI <- withFragment(graph.iri, dataRelationshipName)
-      d <- graph.addDataRelationshipFromEntityToScalar(dIRI, source, target)
+      d <- graph.addDataRelationshipFromEntityToScalar(dIRI, dataRelationshipName, uuid, source, target)
     } yield d
 
   override def addScalarDataRelationshipRestrictionAxiomFromEntityToLiteral
   ( graph: types.MutableModelTerminologyGraph,
+    uuid: UUID,
     entityDomain: types.ModelEntityDefinition,
     scalaDataProperty: types.ModelDataRelationshipFromEntityToScalar,
     literalRange: String )
   ( implicit store: OWLAPIOMFGraphStore )
   : Set[java.lang.Throwable] \/ types.ModelScalarDataRelationshipRestrictionAxiomFromEntityToLiteral
-  = graph.addScalarDataRelationshipRestrictionAxiomFromEntityToLiteral( entityDomain, scalaDataProperty, literalRange )
+  = graph.addScalarDataRelationshipRestrictionAxiomFromEntityToLiteral(uuid, entityDomain, scalaDataProperty, literalRange )
 
   // data relationship from entity to structure
 
   override def addDataRelationshipFromEntityToStructure
   (graph: types.MutableModelTerminologyGraph,
+   uuid: UUID,
    source: types.ModelEntityDefinition,
    target: types.ModelStructuredDataType,
    dataRelationshipName: String)
-  (implicit store: OWLAPIOMFGraphStore) =
-    for {
+  (implicit store: OWLAPIOMFGraphStore)
+  = for {
       dIRI <- withFragment(graph.iri, dataRelationshipName)
-      d <- graph.addDataRelationshipFromEntityToStructure(dIRI, source, target)
+      d <- graph.addDataRelationshipFromEntityToStructure(dIRI, dataRelationshipName, uuid, source, target)
     } yield d
 
   // data relationship from structure to scalar
 
   override def addDataRelationshipFromStructureToScalar
   (graph: types.MutableModelTerminologyGraph,
+   uuid: UUID,
    source: types.ModelStructuredDataType,
    target: types.ModelScalarDataType,
    dataRelationshipName: String)
-  (implicit store: OWLAPIOMFGraphStore) =
-    for {
+  (implicit store: OWLAPIOMFGraphStore)
+  = for {
       dIRI <- withFragment(graph.iri, dataRelationshipName)
-      d <- graph.addDataRelationshipFromStructureToScalar(dIRI, source, target)
+      d <- graph.addDataRelationshipFromStructureToScalar(dIRI, dataRelationshipName, uuid, source, target)
     } yield d
 
   // data relationship from structure to structure
 
   override def addDataRelationshipFromStructureToStructure
   (graph: types.MutableModelTerminologyGraph,
+   uuid: UUID,
    source: types.ModelStructuredDataType,
    target: types.ModelStructuredDataType,
    dataRelationshipName: String)
-  (implicit store: OWLAPIOMFGraphStore) =
-    for {
+  (implicit store: OWLAPIOMFGraphStore)
+  = for {
       dIRI <- withFragment(graph.iri, dataRelationshipName)
-      d <- graph.addDataRelationshipFromStructureToStructure(dIRI, source, target)
+      d <- graph.addDataRelationshipFromStructureToStructure(dIRI, dataRelationshipName, uuid, source, target)
     } yield d
 
   // model term axioms
@@ -1020,108 +1024,112 @@ trait OWLAPIMutableTerminologyGraphOps
 
   override def addEntityDefinitionAspectSubClassAxiom
   (graph: types.MutableModelTerminologyGraph,
+   uuid: UUID,
    sub: types.ModelEntityDefinition,
    sup: types.ModelEntityAspect)
-  (implicit store: OWLAPIOMFGraphStore) =
-    graph.addEntityDefinitionAspectSubClassAxiom(sub, sup)
+  (implicit store: OWLAPIOMFGraphStore)
+  = graph.addEntityDefinitionAspectSubClassAxiom(uuid, sub, sup)
 
   // entity concept subclass axiom
 
   override def addEntityConceptDesignationTerminologyGraphAxiom
   (graph: types.MutableModelTerminologyGraph,
+   uuid: UUID,
    entityConceptDesignation: types.ModelEntityConcept,
    designationTerminologyGraph: types.ModelTerminologyGraph)
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ types.EntityConceptDesignationTerminologyGraphAxiom =
-    graph.addEntityConceptDesignationTerminologyGraphAxiom(entityConceptDesignation, designationTerminologyGraph)
+  : Set[java.lang.Throwable] \/ types.EntityConceptDesignationTerminologyGraphAxiom
+  = graph.addEntityConceptDesignationTerminologyGraphAxiom(uuid, entityConceptDesignation, designationTerminologyGraph)
 
   override def addEntityConceptSubClassAxiom
   (graph: types.MutableModelTerminologyGraph,
+   uuid: UUID,
    sub: types.ModelEntityConcept,
    sup: types.ModelEntityConcept)
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ types.EntityConceptSubClassAxiom =
-    graph.addEntityConceptSubClassAxiom(sub, sup)
+  : Set[java.lang.Throwable] \/ types.EntityConceptSubClassAxiom
+  = graph.addEntityConceptSubClassAxiom(uuid, sub, sup)
 
   // entity concept restriction axioms
 
   override def addEntityDefinitionUniversalRestrictionAxiom
   (graph: types.MutableModelTerminologyGraph,
+   uuid: UUID,
    sub: types.ModelEntityDefinition,
    rel: types.ModelEntityReifiedRelationship,
    range: types.ModelEntityDefinition)
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ types.EntityDefinitionUniversalRestrictionAxiom =
-    graph.addEntityDefinitionUniversalRestrictionAxiom(sub, rel, range)
+  : Set[java.lang.Throwable] \/ types.EntityDefinitionUniversalRestrictionAxiom
+  = graph.addEntityDefinitionUniversalRestrictionAxiom(uuid, sub, rel, range)
 
   override def addEntityDefinitionExistentialRestrictionAxiom
   (graph: types.MutableModelTerminologyGraph,
+   uuid: UUID,
    sub: types.ModelEntityDefinition,
    rel: types.ModelEntityReifiedRelationship,
    range: types.ModelEntityDefinition)
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ types.EntityDefinitionExistentialRestrictionAxiom =
-    graph.addEntityDefinitionExistentialRestrictionAxiom(sub, rel, range)
+  : Set[java.lang.Throwable] \/ types.EntityDefinitionExistentialRestrictionAxiom
+  = graph.addEntityDefinitionExistentialRestrictionAxiom(uuid, sub, rel, range)
 
   // entity relationship subclass axiom
 
   override def addEntityReifiedRelationshipSubClassAxiom
   (graph: types.MutableModelTerminologyGraph,
+   uuid: UUID,
    sub: types.ModelEntityReifiedRelationship,
    sup: types.ModelEntityReifiedRelationship)
-  (implicit store: OWLAPIOMFGraphStore) =
-    graph.addEntityReifiedRelationshipSubClassAxiom(sub, sup)
-
-  override def addEntityReifiedRelationshipContextualizationAxiom
-  (graph: types.MutableModelTerminologyGraph,
-   domain: types.ModelEntityDefinition,
-   rel: types.ModelEntityReifiedRelationship,
-   contextName: String,
-   range: types.ModelEntityDefinition)
   (implicit store: OWLAPIOMFGraphStore)
-  = graph.addEntityReifiedRelationshipContextualizationAxiom(domain, rel, contextName, range)
+  = graph.addEntityReifiedRelationshipSubClassAxiom(uuid, sub, sup)
 
+  /*
   override def addEntityReifiedRelationshipExistentialRestrictionAxiom
   (graph: types.MutableModelTerminologyGraph,
+   uuid: UUID,
    domain: types.ModelEntityDefinition,
    rel: types.ModelEntityReifiedRelationship,
    range: types.ModelEntityDefinition)
   (implicit store: OWLAPIOMFGraphStore)
-  = graph.addEntityReifiedRelationshipExistentialRestrictionAxiom(domain, rel, range)
+  = graph.addEntityReifiedRelationshipExistentialRestrictionAxiom(uuid, domain, rel, range)
 
   override def addEntityReifiedRelationshipUniversalRestrictionAxiom
   (graph: types.MutableModelTerminologyGraph,
+   uuid: UUID,
    domain: types.ModelEntityDefinition,
    rel: types.ModelEntityReifiedRelationship,
    range: types.ModelEntityDefinition)
   (implicit store: OWLAPIOMFGraphStore)
-  = graph.addEntityReifiedRelationshipUniversalRestrictionAxiom(domain, rel, range)
+  = graph.addEntityReifiedRelationshipUniversalRestrictionAxiom(uuid, domain, rel, range)
+*/
 
   // scalar datatype facet restriction axiom
 
   override def addScalarDataTypeFacetRestrictionAxiom
   (graph: types.MutableModelTerminologyGraph,
+   uuid: UUID,
    sub: types.ModelScalarDataType,
    sup: types.ModelScalarDataType,
    fundamentalFacets: Iterable[FundamentalFacet],
    constrainingFacets: Iterable[ConstrainingFacet] )
-  (implicit store: OWLAPIOMFGraphStore) =
-    graph.addScalarDataTypeFacetRestrictionAxiom(sub, sup, fundamentalFacets, constrainingFacets)
+  (implicit store: OWLAPIOMFGraphStore)
+  = graph.addScalarDataTypeFacetRestrictionAxiom(uuid, sub, sup, fundamentalFacets, constrainingFacets)
 
   override def addTerminologyGraphExtension
-  (extendingG: types.MutableModelTerminologyGraph,
+  (uuid: UUID,
+   extendingG: types.MutableModelTerminologyGraph,
    extendedG: types.ModelTerminologyGraph)
   (implicit store: OWLAPIOMFGraphStore)
   : Set[java.lang.Throwable] \/ types.TerminologyGraphDirectExtensionAxiom
-  = extendingG.addTerminologyGraphExtension(extendedG)
+  = extendingG.addTerminologyGraphExtension(uuid, extendedG)
 
   override def addNestedTerminologyGraph
-  (nestingParent: types.MutableModelTerminologyGraph,
+  (uuid: UUID,
+   nestingParent: types.MutableModelTerminologyGraph,
    nestingContext: types.ModelEntityConcept,
    nestedChild: types.ModelTerminologyGraph )
   (implicit store: OWLAPIOMFGraphStore)
   : Set[java.lang.Throwable] \/ types.TerminologyGraphDirectNestingAxiom
-  = nestingParent.addNestedTerminologyGraph(nestingContext, nestedChild)
+  = nestingParent.addNestedTerminologyGraph(uuid, nestingContext, nestedChild)
 
 }
 
@@ -1308,6 +1316,69 @@ class OWLAPIOMFOps
           with OWLAPIMutableInstanceGraphOps
           with OWLAPIStoreOps {
 
+  def getTermLocalNameFromAssertionOrFromIRI
+  (ont: OWLOntology,
+   termIRI: IRI)
+  : Set[java.lang.Throwable] \/ LocalName
+  = findAnnotationAssertionAxiom(ont, termIRI, rdfs_label)
+    .fold {
+      lastSegment(termIRI)
+    }{ ax =>
+      ax.getValue match {
+        case l: OWLLiteral =>
+          \/-(l.getLiteral)
+        case _ =>
+          -\/(Set[java.lang.Throwable](OMFError.omfBindingError(s"Missing LocalName annotation on OMF term: $termIRI")))
+      }
+    }
+
+  def getTermUUIDFromAssertionOrFromIRI
+  (ont: OWLOntology,
+   termIRI: IRI)
+  : Set[java.lang.Throwable] \/ UUID
+  = findAnnotationAssertionAxiom(ont, termIRI, AnnotationHasUUID)
+    .fold[Set[java.lang.Throwable] \/ UUID] {
+      \/-(generateUUID(fromIRI(termIRI)))
+  } { ax =>
+    ax.getValue match {
+      case l: OWLLiteral =>
+        \/-(generateUUID(l.getLiteral))
+      case _ =>
+        -\/(Set[java.lang.Throwable](OMFError.omfBindingError(s"Missing LocalName annotation on OMF term: $termIRI")))
+    }
+  }
+
+  def isAnnotatedAbstract
+  (ont: OWLOntology,
+   termIRI: IRI)
+  : Set[java.lang.Throwable] \/ Boolean
+  = findAnnotationAssertionAxiom(ont, termIRI, AnnotationIsAbstract)
+    .fold[Set[java.lang.Throwable] \/ Boolean] {
+    \/-(false)
+  } { ax =>
+    ax.getValue match {
+      case l: OWLLiteral if l.isBoolean =>
+        \/-(l.parseBoolean)
+      case _ =>
+        -\/(Set[java.lang.Throwable](OMFError.omfBindingError(s"Invalid 'isAbstract' annotation on $termIRI")))
+    }
+  }
+
+  def isAnnotatedDerived
+  (ont: OWLOntology,
+   termIRI: IRI)
+  : Set[java.lang.Throwable] \/ Boolean
+  = findAnnotationAssertionAxiom(ont, termIRI, AnnotationIsDerived)
+    .fold[Set[java.lang.Throwable] \/ Boolean]{
+    \/-(false)
+  } { ax =>
+    ax.getValue match {
+      case l: OWLLiteral if l.isBoolean =>
+        \/-(l.parseBoolean)
+      case _ =>
+        -\/(Set[java.lang.Throwable](OMFError.omfBindingError(s"Invalid 'isDerived' annotation on $termIRI")))
+    }
+  }
 }
 
 final class OWLOntologyOps

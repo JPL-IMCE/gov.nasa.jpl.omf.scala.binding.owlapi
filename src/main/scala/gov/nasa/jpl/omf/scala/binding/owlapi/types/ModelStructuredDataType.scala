@@ -18,8 +18,13 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.types
 
+import java.util.UUID
+
+import gov.nasa.jpl.imce.omf.schema.tables.LocalName
 import org.semanticweb.owlapi.model.OWLClass
 
 case class ModelStructuredDataType
-( val sc: OWLClass )
-  extends ModelDataTypeDefinition(sc.getIRI)
+(sc: OWLClass,
+ override val name: LocalName,
+ override val uuid: UUID )
+  extends ModelDataTypeDefinition(sc.getIRI, name, uuid)

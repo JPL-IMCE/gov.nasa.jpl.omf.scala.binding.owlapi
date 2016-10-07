@@ -20,12 +20,14 @@ package gov.nasa.jpl.omf.scala.binding
 
 import gov.nasa.jpl.omf.scala.core.OMFError
 import org.semanticweb.owlapi.model.parameters.ChangeApplied
-import org.semanticweb.owlapi.model.{OWLOntologyChange, OWLOntologyManager}
+import org.semanticweb.owlapi.model._
 
-import scala.collection.immutable.Set
-import scala.{Option,None,StringContext,Unit}
+import scala.collection.immutable._
+import scala.compat.java8.StreamConverters._
+import scala.{None, Option, StringContext, Unit}
 import scala.Predef.String
-import scalaz._, Scalaz._
+import scalaz._
+import Scalaz._
 
 package object owlapi {
 
@@ -101,5 +103,27 @@ package object owlapi {
           OMFError.omfBindingError(s"$ifError (unsuccessful change)")
         ).left
     }
+
+  def applyOntologyChangesOrNoOp
+  (ontManager: OWLOntologyManager,
+   ontChanges: Seq[OWLOntologyChange],
+   ifError: => String,
+   ifSuccess: => Option[() => Unit] = None)
+  : Set[java.lang.Throwable] \/ Unit
+  = ontChanges.foldLeft[Set[java.lang.Throwable] \/ Unit](\/-(())) { case (acc, ontChange) =>
+      acc.flatMap { _ =>
+        applyOntologyChangeOrNoOp(ontManager, ontChange, ifError, ifSuccess)
+      }
+  }
+
+  def findAnnotationAssertionAxiom
+  ( ont: OWLOntology,
+    resourceIRI: IRI,
+    annotationProperty: IRI)
+  : Option[OWLAnnotationAssertionAxiom]
+  = ont
+    .annotationAssertionAxioms( resourceIRI )
+    .toScala[Set]
+    .find( _.getProperty.getIRI == annotationProperty )
 
 }

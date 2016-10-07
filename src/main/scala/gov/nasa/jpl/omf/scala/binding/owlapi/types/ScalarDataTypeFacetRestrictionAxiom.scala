@@ -18,12 +18,16 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.types
 
+import java.util.UUID
+
 import scala.collection.immutable._
 import gov.nasa.jpl.omf.scala.core._
+
 import scala.Predef.require
 
 case class ScalarDataTypeFacetRestrictionAxiom
-(sub: ModelScalarDataType,
+(override val uuid: UUID,
+ sub: ModelScalarDataType,
  sup: ModelScalarDataType,
  fundamentalFacets: Iterable[FundamentalFacet],
  constrainingFacets: Iterable[ConstrainingFacet] )

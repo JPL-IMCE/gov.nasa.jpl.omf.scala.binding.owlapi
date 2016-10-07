@@ -18,20 +18,26 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.types
 
+import java.util.UUID
+
+import gov.nasa.jpl.imce.omf.schema.tables.LocalName
+
 import scala.Predef.require
 import org.semanticweb.owlapi.model.OWLClass
 import org.semanticweb.owlapi.model.OWLObjectProperty
 
-case class ModelDataRelationshipFromEntityToStructure(
-  val c: OWLClass,
-  val source: ModelEntityDefinition,
-  val rSource: OWLObjectProperty,
-  val target: ModelStructuredDataType,
-  val rTarget: OWLObjectProperty,
-  val unreified: OWLObjectProperty )
+case class ModelDataRelationshipFromEntityToStructure
+(c: OWLClass,
+ override val name: LocalName,
+ override val uuid: UUID,
+ source: ModelEntityDefinition,
+ rSource: OWLObjectProperty,
+ target: ModelStructuredDataType,
+ rTarget: OWLObjectProperty,
+ unreified: OWLObjectProperty)
   extends ModelDataRelationship
-  with ModelDataRelationshipFromEntity
-  with ModelDataRelationshipToStructure {
+    with ModelDataRelationshipFromEntity
+    with ModelDataRelationshipToStructure {
 
   require(null != c)
   require(null != source)

@@ -18,15 +18,20 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.types
 
+import java.util.UUID
+
+import gov.nasa.jpl.imce.omf.schema.tables.LocalName
 import org.semanticweb.owlapi.model.OWLClass
 
 import scala.Boolean
 import scala.Predef.require
 
-case class ModelEntityConcept(
-  override val e: OWLClass,
-  val isAbstract: Boolean )
-  extends ModelEntityDefinition( e ) {
+case class ModelEntityConcept
+(override val e: OWLClass,
+ override val name: LocalName,
+ override val uuid: UUID,
+ isAbstract: Boolean )
+  extends ModelEntityDefinition(e, name, uuid) {
 
   require(null != e)
 

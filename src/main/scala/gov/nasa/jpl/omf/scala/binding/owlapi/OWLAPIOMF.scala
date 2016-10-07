@@ -18,12 +18,15 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi
 
+import java.util.UUID
+
+import gov.nasa.jpl.imce.omf.schema.tables.LocalName
 import gov.nasa.jpl.omf.scala.core._
 import gov.nasa.jpl.omf.scala.core.RelationshipCharacteristics._
 import gov.nasa.jpl.omf.scala.core.TerminologyKind._
 
 import scala.collection.immutable._
-import scala.{Boolean,Option}
+import scala.{Boolean, Option}
 import scala.Predef.require
 
 trait OWLAPIOMF
@@ -148,9 +151,6 @@ trait OWLAPIOMFtbox extends OMFtbox {
   type EntityReifiedRelationshipSubClassAxiom =
   types.EntityReifiedRelationshipSubClassAxiom
 
-  type EntityReifiedRelationshipContextualizationAxiom =
-  types.EntityReifiedRelationshipContextualizationAxiom
-
   type EntityReifiedRelationshipRestrictionAxiom =
   types.EntityReifiedRelationshipRestrictionAxiom
 
@@ -224,7 +224,9 @@ trait OWLAPIOMFabox extends OMFabox {
 }
 
 case class OWLAPITerminologyGraphSignature
-( override val iri: OWLAPIOMF#IRI,
+( override val uuid: UUID,
+  override val name: LocalName,
+  override val iri: OWLAPIOMF#IRI,
   override val kind: TerminologyKind,
   override val imports: Iterable[OWLAPIOMF#ModelTerminologyGraph],
   override val nesting: Option[(OWLAPIOMF#ModelEntityConcept, OWLAPIOMF#ModelTerminologyGraph)],
@@ -259,7 +261,9 @@ case class OWLAPITerminologyGraphSignature
 }
 
 case class OWLAPIEntityConceptSignature
-( override val iri: OWLAPIOMF#IRI,
+( override val uuid: UUID,
+  override val name: LocalName,
+  override val iri: OWLAPIOMF#IRI,
   override val isAbstract: Boolean)
   extends EntityConceptSignature[OWLAPIOMF]
 {
@@ -267,7 +271,9 @@ case class OWLAPIEntityConceptSignature
 }
 
 case class OWLAPIEntityReifiedRelationshipSignature
-( override val iri: OWLAPIOMF#IRI,
+( override val uuid: UUID,
+  override val name: LocalName,
+  override val iri: OWLAPIOMF#IRI,
   override val source: OWLAPIOMF#ModelEntityDefinition,
   override val target: OWLAPIOMF#ModelEntityDefinition,
   override val characteristics: Iterable[RelationshipCharacteristics],
@@ -281,7 +287,9 @@ case class OWLAPIEntityReifiedRelationshipSignature
 }
 
 case class OWLAPIEntityUnreifiedRelationshipSignature
-( override val iri: OWLAPIOMF#IRI,
+( override val uuid: UUID,
+  override val name: LocalName,
+  override val iri: OWLAPIOMF#IRI,
   override val source: OWLAPIOMF#ModelEntityDefinition,
   override val target: OWLAPIOMF#ModelEntityDefinition,
   override val characteristics: Iterable[RelationshipCharacteristics] )
