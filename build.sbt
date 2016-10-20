@@ -20,6 +20,48 @@ resolvers ++= {
 import scala.io.Source
 import scala.util.control.Exception._
 
+// @see https://github.com/jrudolph/sbt-dependency-graph/issues/113
+def zipFileSelector
+( a: Artifact, f: File)
+: Boolean
+= a.`type` == "zip" || a.extension == "zip"
+
+// @see https://github.com/jrudolph/sbt-dependency-graph/issues/113
+def fromConfigurationReport
+(report: ConfigurationReport,
+ rootInfo: sbt.ModuleID,
+ selector: (Artifact, File) => Boolean)
+: net.virtualvoid.sbt.graph.ModuleGraph = {
+  implicit def id(sbtId: sbt.ModuleID): net.virtualvoid.sbt.graph.ModuleId
+  = net.virtualvoid.sbt.graph.ModuleId(sbtId.organization, sbtId.name, sbtId.revision)
+
+  def moduleEdges(orgArt: OrganizationArtifactReport)
+  : Seq[(net.virtualvoid.sbt.graph.Module, Seq[net.virtualvoid.sbt.graph.Edge])]
+  = {
+    val chosenVersion = orgArt.modules.find(!_.evicted).map(_.module.revision)
+    orgArt.modules.map(moduleEdge(chosenVersion))
+  }
+
+  def moduleEdge(chosenVersion: Option[String])(report: ModuleReport)
+  : (net.virtualvoid.sbt.graph.Module, Seq[net.virtualvoid.sbt.graph.Edge]) = {
+    val evictedByVersion = if (report.evicted) chosenVersion else None
+
+    val jarFile = report.artifacts.find(selector.tupled).map(_._2)
+    (net.virtualvoid.sbt.graph.Module(
+      id = report.module,
+      license = report.licenses.headOption.map(_._1),
+      evictedByVersion = evictedByVersion,
+      jarFile = jarFile,
+      error = report.problem),
+      report.callers.map(caller ⇒ net.virtualvoid.sbt.graph.Edge(caller.caller, report.module)))
+  }
+
+  val (nodes, edges) = report.details.flatMap(moduleEdges).unzip
+  val root = net.virtualvoid.sbt.graph.Module(rootInfo)
+
+  net.virtualvoid.sbt.graph.ModuleGraph(root +: nodes, edges.flatten)
+}
+
 lazy val core =
   Project("omf-scala-binding-owlapi", file("."))
   .enablePlugins(IMCEGitPlugin)
@@ -77,34 +119,24 @@ lazy val core =
       val base = baseDirectory.value
       val s = streams.value
 
-      val artifact2extract = (for {
-        dep <- deps
-        tuple = (dep.name + "-" + dep.revision, dep.name)
-        //if dep.extraAttributes.get("artifact.kind").iterator.contains("omf.ontologies")
-        if dep.configurations.iterator.contains("runtime")
-      } yield dep.name -> tuple) toMap
+      // @see https://github.com/jrudolph/sbt-dependency-graph/issues/113
+      val g = fromConfigurationReport(
+        net.virtualvoid.sbt.graph.DependencyGraphKeys.ignoreMissingUpdate.value.configuration("test").get,
+        CrossVersion(scalaVersion.value, scalaBinaryVersion.value)(projectID.value),
+        zipFileSelector)
 
-      s.log.info(s"artifact2extract: ${artifact2extract.mkString("\n")}")
+      for {
+        module <- g.nodes
+        if module.id.name == "imce-omf_ontologies"
+        archive <- module.jarFile
+        extractFolder = base / "target" / "extracted" / module.id.name
+        _ = s.log.info(s"*** Extracting: $archive")
+        _ = s.log.info(s"*** Extract to: $extractFolder")
+        files = IO.unzip(archive, extractFolder)
+        _ = require(files.nonEmpty)
+        _ = s.log.info(s"*** Extracted ${files.size} files")
+      } yield ()
 
-      val artifactArchive2extractFolder: Map[File, (File, File)] = (for {
-        cReport <- up.configurations
-        mReport <- cReport.modules
-        (artifact, archive) <- mReport.artifacts
-        if artifact.extension == "zip"
-        (folder, extract) <- artifact2extract.get(artifact.name)
-        subFolder = new File(folder)
-        extractFolder = base / "target" / "extracted" / extract
-        tuple = (subFolder, extractFolder)
-      } yield archive -> tuple)
-        .toMap
-
-      artifactArchive2extractFolder foreach { case (archive, (subFolder, extractFolder)) =>
-        s.log.info(s"*** Extracting: $archive")
-        s.log.info(s"*** Extract to: $extractFolder")
-        val files = IO.unzip(archive, extractFolder)
-        require(files.nonEmpty)
-        require(extractFolder.exists, extractFolder)
-      }
     },
 
     resolvers += Resolver.bintrayRepo("jpl-imce", "gov.nasa.jpl.imce"),
