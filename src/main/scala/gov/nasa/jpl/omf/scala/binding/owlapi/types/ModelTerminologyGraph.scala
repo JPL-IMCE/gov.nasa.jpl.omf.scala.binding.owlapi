@@ -30,7 +30,7 @@ import org.semanticweb.owlapi.model._
 import scala.collection.immutable._
 import scala.collection.JavaConversions._
 import scala.compat.java8.StreamConverters._
-import scala.{Boolean, None, Option, Some, StringContext, Unit}
+import scala.{Boolean, Option, None, Some, StringContext, Unit}
 import scala.Predef.{Map => _, Set => _, _}
 import scala.util.control.Exception._
 import scalaz._
@@ -66,53 +66,65 @@ abstract class ModelTerminologyGraph
   protected val s2sc: scala.collection.Seq[ModelDataRelationshipFromStructureToScalar]
   protected val s2st: scala.collection.Seq[ModelDataRelationshipFromStructureToStructure]
   protected val ax: scala.collection.Seq[ModelTermAxiom]
+  protected val gx: scala.collection.Seq[TerminologyGraphAxiom]
 
   protected val iri2typeTerm: scala.collection.Map[IRI, ModelTypeTerm]
 
+  def getImports
+  : Iterable[ModelTerminologyGraph]
+  = gx
+    .flatMap {
+      case ax: TerminologyGraphDirectExtensionAxiom =>
+        Some(ax.extendedParent)
+      case _ =>
+        None
+    }
+    .to[Iterable]
+
   def isTypeTermDefined
-  ( t: ModelTypeTerm )
+  (t: ModelTypeTerm)
   : Boolean =
-    iri2typeTerm.values.contains( t )
+    iri2typeTerm.values.contains(t)
 
   def isTypeTermDefinedRecursively
-  ( t: ModelTypeTerm )
-  ( implicit store: OWLAPIOMFGraphStore )
+  (t: ModelTypeTerm)
+  (implicit store: OWLAPIOMFGraphStore)
   : Boolean =
     terminologyGraphImportClosure[OWLAPIOMF, ModelTerminologyGraph](this, onlyCompatibleKind = true).
-      exists ( _.isTypeTermDefined( t ) )
+      exists(_.isTypeTermDefined(t))
 
   def lookupTypeTerm
-  ( iri: IRI, recursively: Boolean )
-  ( implicit store: OWLAPIOMFGraphStore )
+  (iri: IRI, recursively: Boolean)
+  (implicit store: OWLAPIOMFGraphStore)
   : Option[ModelTypeTerm] =
-  if (recursively)
-    lookupTypeTermRecursively(iri)
-  else
-    iri2typeTerm.get( iri )
+    if (recursively)
+      lookupTypeTermRecursively(iri)
+    else
+      iri2typeTerm.get(iri)
 
   def lookupTypeTerm
-  ( iri: Option[IRI], recursively: Boolean )
-  ( implicit store: OWLAPIOMFGraphStore )
+  (iri: Option[IRI], recursively: Boolean)
+  (implicit store: OWLAPIOMFGraphStore)
   : Option[ModelTypeTerm] =
     for {
       _iri <- iri
-      _t <- lookupTypeTerm( _iri, recursively )
+      _t <- lookupTypeTerm(_iri, recursively)
     } yield _t
 
   def lookupTypeTermRecursively
-  ( iri: IRI )
-  ( implicit store: OWLAPIOMFGraphStore )
+  (iri: IRI)
+  (implicit store: OWLAPIOMFGraphStore)
   : Option[ModelTypeTerm] =
     terminologyGraphImportClosure[OWLAPIOMF, ModelTerminologyGraph](this, onlyCompatibleKind = true).
-      flatMap(_.lookupTypeTerm( iri, recursively=false )).headOption
+      flatMap(_.lookupTypeTerm(iri, recursively = false)).headOption
 
   def lookupTypeTermRecursively
-  ( iri: Option[IRI] )
-  ( implicit store: OWLAPIOMFGraphStore )
+  (iri: Option[IRI])
+  (implicit store: OWLAPIOMFGraphStore)
   : Option[ModelTypeTerm] =
     for {
       _iri <- iri
-      _t <- lookupTypeTermRecursively( _iri )
+      _t <- lookupTypeTermRecursively(_iri)
     } yield _t
 
   val iri: IRI = ont.getOntologyID.getOntologyIRI.get
@@ -131,110 +143,104 @@ abstract class ModelTerminologyGraph
 
   def getScalarDatatypeDefinitionMap: Map[OWLDatatype, ModelScalarDataType]
 
-  def getTermAxioms: ( IRI, Iterable[ModelTermAxiom] ) = ( iri, ax.to[Iterable] )
+  def getNestingAxiomIfAny
+  : Option[TerminologyGraphDirectNestingAxiom]
+  = gx
+    .flatMap {
+      case n: TerminologyGraphDirectNestingAxiom =>
+        Some(n)
+      case _ =>
+        None
+    }
+    .headOption
 
-  def getTypeTerms: ( IRI, Iterable[ModelTypeTerm] ) = ( iri, iri2typeTerm.values.to[Iterable] )
+  def getTermAxioms: (IRI, Iterable[ModelTermAxiom]) = (iri, ax.to[Iterable])
+
+  def getTypeTerms: (IRI, Iterable[ModelTypeTerm]) = (iri, iri2typeTerm.values.to[Iterable])
 
   def fromTerminologyGraph
-  ( extended: Iterable[ModelTerminologyGraph],
-    nesting: Option[(ModelEntityConcept, ModelTerminologyGraph)])
+  (extended: Iterable[ModelTerminologyGraph],
+   nesting: Option[types.TerminologyGraphDirectNestingAxiom])
   : OWLAPITerminologyGraphSignature
   = OWLAPITerminologyGraphSignature(
-      uuid, name, iri, kind,
-      extended,
-      nesting,
-      aspects.to[Iterable],
-      concepts.to[Iterable],
-      reifiedRelationships.to[Iterable],
-      unreifiedRelationships.to[Iterable],
-      sc.to[Iterable],
-      st.to[Iterable],
-      e2sc.to[Iterable],
-      e2st.to[Iterable],
-      s2sc.to[Iterable],
-      s2st.to[Iterable],
-      ax.to[Iterable])
+    uuid, name, iri, kind,
+    extended,
+    nesting.map(_.nestingContext),
+    aspects.to[Iterable],
+    concepts.to[Iterable],
+    reifiedRelationships.to[Iterable],
+    unreifiedRelationships.to[Iterable],
+    sc.to[Iterable],
+    st.to[Iterable],
+    e2sc.to[Iterable],
+    e2st.to[Iterable],
+    s2sc.to[Iterable],
+    s2st.to[Iterable],
+    ax.to[Iterable],
+    gx.to[Iterable])
 
   def getTerminologyGraphShortNameAnnotation
   : Option[OWLAnnotation]
-  = ont.annotations.toScala[Set].find( _.getProperty.getIRI == ops.rdfs_label )
+  = ont.annotations.toScala[Set].find(_.getProperty.getIRI == ops.rdfs_label)
 
-  def getTerminologyGraphShortName
-  : Option[String] =
-    getTerminologyGraphShortNameAnnotation.
-      flatMap ( _.getValue match {
-      case l: OWLLiteral =>
-        Some( l.getLiteral )
-      case _  =>
-        None
-  } )
-
+  def getTerminologyGraphLocalName
+  : LocalName
+  = name
 
   def getTerminologyGraphUUIDAnnotation
   : Option[OWLAnnotation]
-  = ont.annotations.toScala[Set].find( _.getProperty.getIRI == ops.AnnotationHasUUID )
+  = ont.annotations.toScala[Set].find(_.getProperty.getIRI == ops.AnnotationHasUUID)
 
-  def getTerminologyGraphUUID
-  : UUID
-  = getTerminologyGraphUUIDAnnotation
-    .flatMap ( _.getValue match {
-      case l: OWLLiteral =>
-        Some( l.getLiteral )
-      case _  =>
-        None
-    } )
-    .fold[UUID]({
-    throw OMFError.omfBindingError(s"Missing UUID annotation on graph $iri")
-  })( UUID.fromString )
 
   def getTermLocalNameAnnotationAssertionAxiom
-  ( term: types.ModelTypeTerm )
+  (term: types.ModelTypeTerm)
   : Option[OWLAnnotationAssertionAxiom]
   = findAnnotationAssertionAxiom(ont, term.iri, ops.rdfs_label)
 
   def getTermUUIDAnnotationAssertionAxiom
-  ( term: types.ModelTypeTerm )
+  (term: types.ModelTypeTerm)
   : Option[OWLAnnotationAssertionAxiom]
-  = findAnnotationAssertionAxiom(ont, term.iri, ops.AnnotationHasUUID )
+  = findAnnotationAssertionAxiom(ont, term.iri, ops.AnnotationHasUUID)
 
   def getTermIDAnnotationAssertionAxiom
-  ( term: types.ModelTypeTerm )
-  : Option[OWLAnnotationAssertionAxiom] =
-    ont.annotationAssertionAxioms( term.iri ).toScala[Set].
-      find( _.getProperty.getIRI == ops.AnnotationHasID )
+  (term: types.ModelTypeTerm)
+  : Option[OWLAnnotationAssertionAxiom]
+  = ont.annotationAssertionAxioms(term.iri)
+    .toScala[Set]
+    .find(_.getProperty.getIRI == ops.AnnotationHasID)
 
   def getTermURLAnnotationAssertionAxiom
-  ( term: types.ModelTypeTerm )
-  : Option[OWLAnnotationAssertionAxiom] =
-    ont.annotationAssertionAxioms( term.iri ).toScala[Set].
-      find( _.getProperty.getIRI == ops.AnnotationHasURL )
+  (term: types.ModelTypeTerm)
+  : Option[OWLAnnotationAssertionAxiom]
+  = ont.annotationAssertionAxioms(term.iri)
+    .toScala[Set]
+    .find(_.getProperty.getIRI == ops.AnnotationHasURL)
 
+  def save(saveIRI: IRI): Set[java.lang.Throwable] \/ Unit
+  = nonFatalCatch[Unit]
+    .withApply {
+      (cause: java.lang.Throwable) =>
+        Set(
+          OMFError.omfException(
+            s"saving ModelTerminologyGraph failed: ${cause.getMessage}",
+            cause)
+        ).left
+    }
+    .apply({
+      ontManager.saveOntology(ont, saveIRI).right
+    })
 
-  def save( saveIRI: IRI ): Set[java.lang.Throwable] \/ Unit =
-    nonFatalCatch[Unit]
-      .withApply {
-        (cause: java.lang.Throwable) =>
-          Set(
-            OMFError.omfException(
-              s"saving ModelTerminologyGraph failed: ${cause.getMessage}",
-              cause)
-          ).left
-      }
-      .apply({
-        ontManager.saveOntology(ont, saveIRI).right
-      })
-
-  def save( os: OutputStream ): Set[java.lang.Throwable] \/ Unit =
-    nonFatalCatch[Unit]
-      .withApply {
-        (cause: java.lang.Throwable) =>
-          Set(
-            OMFError.omfException(
-              s"saving ModelTerminologyGraph failed: ${cause.getMessage}",
-              cause)
-          ).left
-      }
-      .apply({
-        ontManager.saveOntology(ont, os).right
-      })
+  def save(os: OutputStream): Set[java.lang.Throwable] \/ Unit
+  = nonFatalCatch[Unit]
+    .withApply {
+      (cause: java.lang.Throwable) =>
+        Set(
+          OMFError.omfException(
+            s"saving ModelTerminologyGraph failed: ${cause.getMessage}",
+            cause)
+        ).left
+    }
+    .apply {
+      ontManager.saveOntology(ont, os).right
+    }
 }

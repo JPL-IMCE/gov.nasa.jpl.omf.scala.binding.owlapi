@@ -53,6 +53,13 @@ package object types {
   : NestingConceptAndGraphOptionNES
   = \/-(None)
 
+  type MutableModelTerminologyGraphsNES
+  = Set[java.lang.Throwable] \/ Set[types.MutableModelTerminologyGraph]
+
+  val emptyMutableTerminologyGraphsNES
+  : MutableModelTerminologyGraphsNES
+  = \/-(Set())
+
   type ImmutableModelTerminologyGraphsNES
   = Set[java.lang.Throwable] \/ Set[types.ImmutableModelTerminologyGraph]
 
@@ -60,55 +67,59 @@ package object types {
   : ImmutableModelTerminologyGraphsNES
   = \/-(Set())
 
-  type Mutable2IMutableTerminologyMap
+  type Mutable2ImmutableTerminologyMap
   = Map[MutableModelTerminologyGraph, ImmutableModelTerminologyGraph]
 
   val emptyMutable2ImmutableTerminologyMapNES
-  : Set[java.lang.Throwable] \/ types.Mutable2IMutableTerminologyMap
+  : Set[java.lang.Throwable] \/ types.Mutable2ImmutableTerminologyMap
   = \/-(Map())
 
   def entityAlreadyDefinedException
   (kind: EntityExceptionKind,
    iri: IRI,
    term: ModelTypeTerm)
-  : java.lang.Throwable =
-    EntityAlreadyDefinedException(kind, iri, term)
+  : java.lang.Throwable
+  = EntityAlreadyDefinedException(kind, iri, term)
 
   def entityConflictException
   (kind: EntityExceptionKind,
    iri: IRI,
    conflictingTerm: ModelTypeTerm)
-  : java.lang.Throwable =
-    EntityConflictException(kind, iri, conflictingTerm)
+  : java.lang.Throwable
+  = EntityConflictException(kind, iri, conflictingTerm)
 
   def entityScopeException
   (kind: EntityExceptionKind,
    iri: IRI,
    unaccessibleTerms: Map[RelationshipScopeAccessKind, ModelTypeTerm])
-  : java.lang.Throwable =
-    EntityScopeException(kind, iri, unaccessibleTerms)
+  : java.lang.Throwable
+  = EntityScopeException(kind, iri, unaccessibleTerms)
 
   def axiomScopeException
   (kind: AxiomExceptionKind,
    unaccessibleTerms: Map[AxiomScopeAccessKind, ModelTypeTerm])
-  : java.lang.Throwable =
-    AxiomScopeException(kind, unaccessibleTerms)
+  : java.lang.Throwable
+  = AxiomScopeException(kind, unaccessibleTerms)
 
   def duplicateModelTermAxiomException
   (kind: AxiomExceptionKind,
    axiom: ModelTermAxiom)
-  : java.lang.Throwable =
-    DuplicateModelTermAxiomException(kind, axiom)
+  : java.lang.Throwable
+  = DuplicateModelTermAxiomException(kind, axiom)
 
-  def immutableModelTerminologyGraphResolver
+  def duplicateTerminologyGraphAxiomException
+  (kind: AxiomExceptionKind,
+   axiom: TerminologyGraphAxiom)
+  : java.lang.Throwable
+  = DuplicateTerminologyGraphAxiomException(kind, axiom)
+
+  def mutableModelTerminologyGraphResolver
   (omfMetadata: OWLOntology,
    s: OntologyLoadedState,
    ont: OWLOntology,
-   extensions: Set[ImmutableModelTerminologyGraph],
-   nesting: Option[(ModelEntityConcept, ImmutableModelTerminologyGraph)],
-   m2i: Mutable2IMutableTerminologyMap,
+   mgraphs: Set[types.MutableModelTerminologyGraph],
    omfStore: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ ImmutableModelTerminologyGraphResolver
+  : Set[java.lang.Throwable] \/ (MutableModelTerminologyGraph, Set[types.MutableModelTerminologyGraph])
   = {
     implicit val ops = omfStore.ops
 
@@ -124,19 +135,19 @@ package object types {
     val localName
     : Set[java.lang.Throwable] \/ LocalName
     = ont
-        .annotations
-        .toScala[Set]
-        .find(_.getProperty.getIRI == ops.rdfs_label)
-        .fold {
-          ops.lastSegment(ont.getOntologyID.getOntologyIRI.get)
-        } { l =>
-          l.getValue match {
-            case l: OWLLiteral =>
-              \/-(l.getLiteral)
-            case _ =>
-              -\/(Set[java.lang.Throwable](OMFError.omfBindingError(s"invalid rdfs:label on OMF terminology graph: ${ont.getOntologyID}")))
-          }
+      .annotations
+      .toScala[Set]
+      .find(_.getProperty.getIRI == ops.rdfs_label)
+      .fold {
+        ops.lastSegment(ont.getOntologyID.getOntologyIRI.get)
+      } { l =>
+        l.getValue match {
+          case l: OWLLiteral =>
+            \/-(l.getLiteral)
+          case _ =>
+            -\/(Set[java.lang.Throwable](OMFError.omfBindingError(s"invalid rdfs:label on OMF terminology graph: ${ont.getOntologyID}")))
         }
+      }
 
     val getOntologyUUID: Option[String] =
       ont
@@ -188,61 +199,201 @@ package object types {
 
     ops
       .createOMFTerminologyGraph(
-      o = omfMetadata,
-      ont = ont,
-      relativeIRIPath=getOntologyRelativeIRI,
-      relativeIRIHashPrefix=getOntologyIRIHashPrefix,
-      kind = kind,
-      extraProvenanceMetadata = OTI2OMFModelTerminologyGraphProvenance.asOMFGraphOntologyProvenance(ont)
-    )(omfStore)
-    .flatMap { g: MutableModelTerminologyGraph =>
-
-      for {
-        _ <- {
-          (().right[Set[java.lang.Throwable]] /: extensions) {
-            (acc: Set[java.lang.Throwable] \/ Unit, importG: ImmutableModelTerminologyGraph) =>
-            acc +++
-            omfStore
-              .createTerminologyGraphDirectExtensionAxiom(extendingG=g, extendedG=importG)
-              .map(_ => ())
-          }
-        }
-        _ <- nesting.fold[Set[java.lang.Throwable] \/ Unit](\/-(())){ case (nestingC, nestingG) =>
-          omfStore
-            .createTerminologyGraphDirectNestingAxiom(parentG=nestingG, parentC=nestingC, childG=g)
-            .map(_ => ())
-        }
-        resolver = ResolverHelper(omfMetadata, g, extensions, ont, omfStore)
-      } yield
-        ImmutableModelTerminologyGraphResolver(resolver)
-    }
-
-
+        o = omfMetadata,
+        ont = ont,
+        relativeIRIPath = getOntologyRelativeIRI,
+        relativeIRIHashPrefix = getOntologyIRIHashPrefix,
+        kind = kind,
+        extraProvenanceMetadata = OTI2OMFModelTerminologyGraphProvenance.asOMFGraphOntologyProvenance(ont)
+      )(omfStore)
+      .map { g: MutableModelTerminologyGraph =>
+        (g, mgraphs + g)
+      }
   }
 
+  // loading mutable graphs (incl. converting extended mutable graphs => immutable graphs)
+
+  type ModelTerminologyGraphsLoadState =
+    (Set[MutableModelTerminologyGraph], Set[MutableModelTerminologyGraph], Mutable2ImmutableTerminologyMap)
+
+  def modelTerminologyGraphsInitialState
+  (mgraphs: Set[types.MutableModelTerminologyGraph])
+  : ModelTerminologyGraphsLoadState
+  = (mgraphs, Set.empty[MutableModelTerminologyGraph], Map.empty[MutableModelTerminologyGraph, ImmutableModelTerminologyGraph])
+
+  def loadMutableModelTerminologyGraphResolver
+  (omfMetadata: OWLOntology,
+   s: OntologyLoadedState,
+   mGraph: MutableModelTerminologyGraph,
+   extIGraphs: Set[ImmutableModelTerminologyGraph],
+   otherMGraphs: Set[MutableModelTerminologyGraph],
+   resultMGraphs: Set[MutableModelTerminologyGraph],
+   m2i: Mutable2ImmutableTerminologyMap,
+   omfStore: OWLAPIOMFGraphStore)
+  : Set[java.lang.Throwable] \/ ModelTerminologyGraphsLoadState
+  = {
+    implicit val ops = omfStore.ops
+    for {
+      _ <- extIGraphs.foldLeft {
+        ().right[Set[java.lang.Throwable]]
+      } { (acc: Set[java.lang.Throwable] \/ Unit,
+           extIGraph: ImmutableModelTerminologyGraph) =>
+
+        acc.flatMap { _ =>
+          mGraph
+            .createTerminologyGraphDirectExtensionAxiom(extendedG = extIGraph)(omfStore)
+            .map(_ => ())
+        }
+      }
+
+      result = (otherMGraphs, resultMGraphs, m2i)
+    } yield result
+  }
+
+  def immutableModelTerminologyGraphResolver
+  (omfMetadata: OWLOntology,
+   s: OntologyLoadedState,
+   ont: OWLOntology,
+   extensions: Set[ImmutableModelTerminologyGraph],
+   nesting: Option[(ModelEntityConcept, ImmutableModelTerminologyGraph)],
+   m2i: Mutable2ImmutableTerminologyMap,
+   omfStore: OWLAPIOMFGraphStore)
+  : Set[java.lang.Throwable] \/ ImmutableModelTerminologyGraphResolver
+  = {
+    implicit val ops = omfStore.ops
+
+    val ontOps = new OWLOntologyOps(ont)
+
+    val isTboxDef = ontOps.isOntologyTBoxDefinition
+    val kind =
+      if (isTboxDef)
+        TerminologyKind.isDefinition
+      else
+        TerminologyKind.isDesignation
+
+    val localName
+    : Set[java.lang.Throwable] \/ LocalName
+    = ont
+      .annotations
+      .toScala[Set]
+      .find(_.getProperty.getIRI == ops.rdfs_label)
+      .fold {
+        ops.lastSegment(ont.getOntologyID.getOntologyIRI.get)
+      } { l =>
+        l.getValue match {
+          case l: OWLLiteral =>
+            \/-(l.getLiteral)
+          case _ =>
+            -\/(Set[java.lang.Throwable](OMFError.omfBindingError(
+              s"invalid rdfs:label on OMF terminology graph: ${ont.getOntologyID}")))
+        }
+      }
+
+    val getOntologyUUID: Option[String] =
+      ont
+        .annotations
+        .toScala[Set]
+        .find(_.getProperty.getIRI == ops.AnnotationHasUUID)
+        .flatMap(_.getValue match {
+          case l: OWLLiteral =>
+            Some(l.getLiteral)
+          case _ =>
+            None
+        })
+
+    val getOntologyRelativeIRI: Option[String] =
+      ont
+        .annotations
+        .toScala[Set]
+        .find(_.getProperty.getIRI == ops.AnnotationHasRelativeIRI)
+        .flatMap(_.getValue match {
+          case l: OWLLiteral =>
+            Some(l.getLiteral)
+          case _ =>
+            None
+        })
+
+    val getOntologyIRIHashPrefix: Option[String] =
+      ont
+        .annotations
+        .toScala[Set]
+        .find(_.getProperty.getIRI == ops.AnnotationHasIRIHashPrefix)
+        .flatMap(_.getValue match {
+          case l: OWLLiteral =>
+            Some(l.getLiteral)
+          case _ =>
+            None
+        })
+
+    val getOntologyIRIHashSuffix: Option[String] =
+      ont
+        .annotations
+        .toScala[Set]
+        .find(_.getProperty.getIRI == ops.AnnotationHasIRIHashSuffix)
+        .flatMap(_.getValue match {
+          case l: OWLLiteral =>
+            Some(l.getLiteral)
+          case _ =>
+            None
+        })
+
+    ops
+      .createOMFTerminologyGraph(
+        o = omfMetadata,
+        ont = ont,
+        relativeIRIPath=getOntologyRelativeIRI,
+        relativeIRIHashPrefix=getOntologyIRIHashPrefix,
+        kind = kind,
+        extraProvenanceMetadata = OTI2OMFModelTerminologyGraphProvenance.asOMFGraphOntologyProvenance(ont)
+      )(omfStore)
+      .flatMap { g: MutableModelTerminologyGraph =>
+
+        for {
+          _ <- {
+            (().right[Set[java.lang.Throwable]] /: extensions) {
+              (acc: Set[java.lang.Throwable] \/ Unit, importG: ImmutableModelTerminologyGraph) =>
+                acc +++
+                  g
+                    .createTerminologyGraphDirectExtensionAxiom(extendedG=importG)(omfStore)
+                    .map(_ => ())
+            }
+          }
+          _ <- nesting.fold[Set[java.lang.Throwable] \/ Unit](\/-(())){ case (nestingC, nestingG) =>
+            g
+              .createTerminologyGraphDirectNestingAxiom(parentC=nestingC)(omfStore)
+              .map(_ => ())
+          }
+          resolver = ResolverHelper(omfMetadata, g, extensions, ont, omfStore)
+        } yield
+          ImmutableModelTerminologyGraphResolver(resolver)
+      }
+  }
+
+  type ModelTerminologyGraphsConversionState = (Set[MutableModelTerminologyGraph], Mutable2ImmutableTerminologyMap)
+
   implicit def OWLClass2ModelEntityDefinitionSemigroup
-  : Semigroup[Map[OWLClass, ModelEntityDefinition]] =
-    Semigroup.instance(_ ++ _)
+  : Semigroup[Map[OWLClass, ModelEntityDefinition]]
+  = Semigroup.instance(_ ++ _)
 
   implicit def OWLClass2ModelEntityAspectSemigroup
-  : Semigroup[Map[OWLClass, ModelEntityAspect]] =
-    Semigroup.instance(_ ++ _)
+  : Semigroup[Map[OWLClass, ModelEntityAspect]]
+  = Semigroup.instance(_ ++ _)
 
   implicit def OWLClass2ModelEntityConceptSemigroup
-  : Semigroup[Map[OWLClass, ModelEntityConcept]] =
-    Semigroup.instance(_ ++ _)
+  : Semigroup[Map[OWLClass, ModelEntityConcept]]
+  = Semigroup.instance(_ ++ _)
 
   implicit def OWLClass2ModelEntityReifiedRelationshipSemigroup
-  : Semigroup[Map[OWLClass, ModelEntityReifiedRelationship]] =
-    Semigroup.instance(_ ++ _)
+  : Semigroup[Map[OWLClass, ModelEntityReifiedRelationship]]
+  = Semigroup.instance(_ ++ _)
 
   implicit def OWLClass2ModelStructuredDataTypeSemigroup
-  : Semigroup[Map[OWLClass, ModelStructuredDataType]] =
-    Semigroup.instance(_ ++ _)
+  : Semigroup[Map[OWLClass, ModelStructuredDataType]]
+  = Semigroup.instance(_ ++ _)
 
   implicit def OWLDatatype2ModelScalarDataTypeSemigroup
-  : Semigroup[Map[OWLDatatype, ModelScalarDataType]] =
-    Semigroup.instance(_ ++ _)
+  : Semigroup[Map[OWLDatatype, ModelScalarDataType]]
+  = Semigroup.instance(_ ++ _)
 
   def getSingleDataPropertyRestrictionsIfAny
   ( ont: OWLOntology, entity: OWLClass )

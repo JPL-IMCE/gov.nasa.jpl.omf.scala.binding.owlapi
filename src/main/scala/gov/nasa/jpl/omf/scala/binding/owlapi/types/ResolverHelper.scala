@@ -19,7 +19,6 @@
 package gov.nasa.jpl.omf.scala.binding.owlapi.types
 
 import java.lang.System
-import java.util.UUID
 
 import gov.nasa.jpl.omf.scala.binding.owlapi._
 import gov.nasa.jpl.omf.scala.core._
@@ -29,7 +28,7 @@ import org.semanticweb.owlapi.reasoner.{NodeSet, OWLReasoner}
 import scala.collection.JavaConversions._
 import scala.collection.immutable._
 import scala.compat.java8.StreamConverters._
-import scala.{Boolean, None, Option, Some, StringContext, Tuple3, Unit}
+import scala.{Boolean, None, Option, Some, StringContext, Unit}
 import scala.Predef.{Map => _, Set => _, _}
 import scala.language.postfixOps
 import scalaz._
@@ -49,78 +48,64 @@ case class ResolverHelper
 
   import omfStore.ops._
 
-  val LOG: Boolean = "true" equalsIgnoreCase java.lang.System.getProperty("gov.nasa.jpl.omf.scala.binding.owlapi.log.ResolverHelper1")
-  val LOG1: Boolean = "true" equalsIgnoreCase java.lang.System.getProperty("gov.nasa.jpl.omf.scala.binding.owlapi.log.ResolverHelper2")
+  val LOG
+  : Boolean
+  = "true" equalsIgnoreCase java.lang.System.getProperty("gov.nasa.jpl.omf.scala.binding.owlapi.log.ResolverHelper1")
+
+  val LOG1
+  : Boolean
+  = "true" equalsIgnoreCase java.lang.System.getProperty("gov.nasa.jpl.omf.scala.binding.owlapi.log.ResolverHelper2")
 
   implicit val store = omfStore
 
-  def getOntologyIRI: IRI =
-    ont.getOntologyID.getOntologyIRI.get
+  val getOntologyIRI: IRI = tboxG.iri
+
+  val importClosure
+  : Set[ModelTerminologyGraph]
+  = terminologyGraphImportClosure[OWLAPIOMF, ModelTerminologyGraph](
+    tboxG, onlyCompatibleKind = true)(omfStore.ops, omfStore) + store.getBuiltinDatatypeMapTerminologyGraph
 
   val provenance = s"load($getOntologyIRI)"
 
-  def getOWLTermShortName(entityIRI: IRI)
-  : Option[String]
-  = ont
-    .annotationAssertionAxioms(entityIRI)
-    .toScala[Set]
-    .find(_.getProperty.getIRI == rdfs_label)
-    .flatMap { a =>
-      a.getValue match {
-        case l: OWLLiteral =>
-          Some(l.getLiteral)
-        case _ =>
-          None
-      }
-    }
-
-  def getOWLTermUUID(entityIRI: IRI)
-  : Option[String]
-  = ont
-    .annotationAssertionAxioms(entityIRI)
-    .toScala[Set]
-    .find(_.getProperty.getIRI == AnnotationHasUUID)
-    .flatMap(_.getValue match {
-      case l: OWLLiteral =>
-        Some(l.getLiteral)
-      case _ =>
-        None
-    })
-
-
   // Lookup of entity aspects
 
-  def findDirectEntityAspect(iri: IRI, aspects: Map[OWLClass, ModelEntityAspect]): Option[ModelEntityAspect] =
-    (for {
+  def findDirectEntityAspect(iri: IRI, aspects: Map[OWLClass, ModelEntityAspect])
+  : Option[ModelEntityAspect]
+  = (for {
       (aspectC, aspectM) <- aspects
       if iri == aspectC.getIRI
     } yield aspectM) headOption
 
-  def findImportedEntityAspect(iri: IRI): Option[ModelEntityAspect] =
-    (for {
-      g <- imports
-      aspectM <- omfStore.ops.lookupEntityAspect(g, iri, recursively = true)
+  def findImportedEntityAspect(iri: IRI)
+  : Option[ModelEntityAspect]
+  = (for {
+      g <- importClosure
+      aspectM <- omfStore.ops.lookupEntityAspect(g, iri, recursively = false)
     } yield aspectM) headOption
 
-  def findEntityAspect(iri: IRI, aspects: Map[OWLClass, ModelEntityAspect]): Option[ModelEntityAspect] =
-    findDirectEntityAspect(iri, aspects) orElse findImportedEntityAspect(iri)
+  def findEntityAspect(iri: IRI, aspects: Map[OWLClass, ModelEntityAspect])
+  : Option[ModelEntityAspect]
+  = findDirectEntityAspect(iri, aspects) orElse findImportedEntityAspect(iri)
 
   // Lookup of entity concepts
 
-  def findDirectEntityConcept(iri: IRI, concepts: Map[OWLClass, ModelEntityConcept]): Option[ModelEntityConcept] =
-    (for {
+  def findDirectEntityConcept(iri: IRI, concepts: Map[OWLClass, ModelEntityConcept])
+  : Option[ModelEntityConcept]
+  = (for {
       (conceptC, conceptM) <- concepts
       if iri == conceptC.getIRI
     } yield conceptM) headOption
 
-  def findImportedEntityConcept(iri: IRI): Option[ModelEntityConcept] =
-    (for {
-      g <- imports
-      conceptM <- omfStore.ops.lookupEntityConcept(g, iri, recursively = true)
+  def findImportedEntityConcept(iri: IRI)
+  : Option[ModelEntityConcept]
+  = (for {
+      g <- importClosure
+      conceptM <- omfStore.ops.lookupEntityConcept(g, iri, recursively = false)
     } yield conceptM) headOption
 
-  def findEntityConcept(iri: IRI, concepts: Map[OWLClass, ModelEntityConcept]): Option[ModelEntityConcept] =
-    findDirectEntityConcept(iri, concepts) orElse findImportedEntityConcept(iri)
+  def findEntityConcept(iri: IRI, concepts: Map[OWLClass, ModelEntityConcept])
+  : Option[ModelEntityConcept]
+  = findDirectEntityConcept(iri, concepts) orElse findImportedEntityConcept(iri)
 
   // Lookup of entity relationships
 
@@ -136,14 +121,14 @@ case class ResolverHelper
   (iri: IRI)
   : Option[ModelEntityReifiedRelationship]
   = (for {
-      g <- imports
-      conceptM <- omfStore.ops.lookupEntityReifiedRelationship(g, iri, recursively = true)
+      g <- importClosure
+      conceptM <- omfStore.ops.lookupEntityReifiedRelationship(g, iri, recursively = false)
     } yield conceptM) headOption
 
   def findEntityReifiedRelationship
   (iri: IRI, relationships: Map[OWLClass, ModelEntityReifiedRelationship])
-  : Option[ModelEntityReifiedRelationship] =
-    findDirectEntityReifiedRelationship(iri, relationships) orElse findImportedEntityReifiedRelationship(iri)
+  : Option[ModelEntityReifiedRelationship]
+  = findDirectEntityReifiedRelationship(iri, relationships) orElse findImportedEntityReifiedRelationship(iri)
 
   // ------
 
@@ -158,7 +143,7 @@ case class ResolverHelper
       dataPropertyDP <- dataPropertyN flatMap { case dp: OWLDataProperty => Some(dp) }
       if tDPs.contains(dataPropertyDP)
       dataPropertyDomain <- reasoner.getDataPropertyDomains(dataPropertyDP, true).entities().toScala[Set]
-      dataPropertyRange <- ont.dataPropertyRangeAxioms(dataPropertyDP).toScala[Set]
+      dataPropertyRange <- tboxG.ont.dataPropertyRangeAxioms(dataPropertyDP).toScala[Set]
       dataPropertyType = dataPropertyRange.getRange.asOWLDatatype
     } yield (dataPropertyDP, dataPropertyDomain, dataPropertyType)
 
@@ -166,8 +151,8 @@ case class ResolverHelper
   (entityDefinitions: Map[OWLClass, ModelEntityDefinition],
    dataPropertyDPIRIs: Iterable[DOPInfo],
    DTs: Map[OWLDatatype, ModelScalarDataType])
-  : Set[java.lang.Throwable] \/ Vector[ModelDataRelationshipFromEntityToScalar] = {
-
+  : Set[java.lang.Throwable] \/ Vector[ModelDataRelationshipFromEntityToScalar]
+  = {
     type Acc = Set[java.lang.Throwable] \/ (Vector[DOPInfo], Vector[ModelDataRelationshipFromEntityToScalar])
 
     def DOPInfo_E2SC_append
@@ -182,40 +167,44 @@ case class ResolverHelper
     }
 
     implicit val DOPInfo_E2SC_Semigroup
-    : Semigroup[(Vector[DOPInfo], Vector[ModelDataRelationshipFromEntityToScalar])] =
-      Semigroup.instance(DOPInfo_E2SC_append _)
+    : Semigroup[(Vector[DOPInfo], Vector[ModelDataRelationshipFromEntityToScalar])]
+    = Semigroup.instance(DOPInfo_E2SC_append _)
 
-    ( (dataPropertyDPIRIs.to[Vector], Vector.empty[ModelDataRelationshipFromEntityToScalar])
-      .right[Set[java.lang.Throwable]] /: dataPropertyDPIRIs ) {
-      (acc, dataPropertyDPIRI) =>
-        val (e2sc_dp, e2sc_source, e2sc_target) = dataPropertyDPIRI
-        entityDefinitions.get(e2sc_source).fold[Acc](acc) { e2sc_sourceDef =>
-          DTs.get(e2sc_target).fold[Acc]({
-            System.out.println(s"DOPInfo_E2SC_append: $e2sc_dp (source: $e2sc_source) failed to find: $e2sc_target")
-            acc
-          }) { e2sc_targetDef =>
-            acc
-              .+++(
-                tboxG
-                  .createDataRelationshipFromEntityToScalar(e2sc_dp, e2sc_sourceDef, e2sc_targetDef)
-                  .map(r =>
-                    (Vector(dataPropertyDPIRI), Vector(r))
-                  )
-              )(M1=DOPInfo_E2SC_Semigroup, M2=implicitly)
+    dataPropertyDPIRIs
+      .foldLeft[Set[java.lang.Throwable] \/ (Vector[DOPInfo], Vector[ModelDataRelationshipFromEntityToScalar])] {
+      (dataPropertyDPIRIs.to[Vector], Vector.empty[ModelDataRelationshipFromEntityToScalar])
+        .right[Set[java.lang.Throwable]]
+      } {
+        (acc, dataPropertyDPIRI) =>
+          val (e2sc_dp, e2sc_source, e2sc_target) = dataPropertyDPIRI
+          entityDefinitions.get(e2sc_source).fold[Acc](acc) { e2sc_sourceDef =>
+            DTs.get(e2sc_target).fold[Acc]({
+              System.out.println(s"DOPInfo_E2SC_append: $e2sc_dp (source: $e2sc_source) failed to find: $e2sc_target")
+              acc
+            }) { e2sc_targetDef =>
+              acc
+                .+++(
+                  tboxG
+                    .createDataRelationshipFromEntityToScalar(e2sc_dp, e2sc_sourceDef, e2sc_targetDef)
+                    .map(r =>
+                      (Vector(dataPropertyDPIRI), Vector(r))
+                    )
+                )(M1=DOPInfo_E2SC_Semigroup, M2=implicitly)
+            }
           }
-        }
-    }
+      }
       .flatMap { case (remainingDataPropertyDPIRIs, e2sc) =>
         if (remainingDataPropertyDPIRIs.isEmpty)
           e2sc.right
         else {
           val message =
-            s"resolveDataRelationshipsFromEntity2Scalars: ${e2sc.size} resolved, ${remainingDataPropertyDPIRIs.size} unresolved scalar data property relations" +
-              remainingDataPropertyDPIRIs
-                .map { case (e2sc_dp, e2sc_source, e2sc_target) =>
-                  s"dp: $e2sc_dp domain: $e2sc_source range: $e2sc_target"
-                }
-                .mkString("\n","\n","\n")
+            s"resolveDataRelationshipsFromEntity2Scalars: ${e2sc.size} resolved, "+
+            s"${remainingDataPropertyDPIRIs.size} unresolved scalar data property relations" +
+            remainingDataPropertyDPIRIs
+              .map { case (e2sc_dp, e2sc_source, e2sc_target) =>
+                s"dp: $e2sc_dp domain: $e2sc_source range: $e2sc_target"
+              }
+              .mkString("\n","\n","\n")
           Set(
             OMFError.omfOpsError(omfStore.ops, message)
           ).left
@@ -227,8 +216,9 @@ case class ResolverHelper
 
   type ROPInfo = (IRI, OWLObjectProperty, OWLClass, OWLClass, Option[OWLObjectProperty])
 
-  def ropInfoToString(ropInfo: ROPInfo): String
-  =s"""|ROPInfo
+  def ropInfoToString(ropInfo: ROPInfo)
+  : String
+  = s"""|ROPInfo
         |iri=${ropInfo._1}
         |obj. prop=${ropInfo._2}
         |domain=${ropInfo._3}
@@ -238,8 +228,9 @@ case class ResolverHelper
 
   type Chains = Set[(OWLObjectProperty, OWLObjectProperty, OWLObjectProperty)]
 
-  def chainToString(chain: (OWLObjectProperty, OWLObjectProperty, OWLObjectProperty)): String =
-    s"""|Chain
+  def chainToString(chain: (OWLObjectProperty, OWLObjectProperty, OWLObjectProperty))
+  : String
+  = s"""|Chain
         |obj. prop=${chain._1}
         |hasSource=${chain._2}
         |hasTarget=${chain._3}
@@ -279,8 +270,8 @@ case class ResolverHelper
     val remainingTargetROPs = scala.collection.mutable.HashSet[ROPInfo]()
     remainingTargetROPs ++= resolvableTargetROPs
 
-    val m: Set[java.lang.Throwable] \/ Map[OWLClass, ModelEntityReifiedRelationship] =
-      ( Map[OWLClass, ModelEntityReifiedRelationship]().right[Set[java.lang.Throwable]] /: chains ) {
+    val m: Set[java.lang.Throwable] \/ Map[OWLClass, ModelEntityReifiedRelationship]
+    = ( Map[OWLClass, ModelEntityReifiedRelationship]().right[Set[java.lang.Throwable]] /: chains ) {
         case (acc1, (chainOP, chainSource, chainTarget)) =>
 
           val chainOP_iri = chainOP.getIRI
@@ -335,8 +326,8 @@ case class ResolverHelper
                           val resolvedTargetROP = (t_iri, t_op, t_source, t_target, t_inv_op)
 
                           val newERR
-                          : Set[java.lang.Throwable] \/ Map[OWLClass, ModelEntityReifiedRelationship] =
-                            tboxG
+                          : Set[java.lang.Throwable] \/ Map[OWLClass, ModelEntityReifiedRelationship]
+                          = tboxG
                               .createEntityReifiedRelationship(
                                 r = rc,
                                 u = r_op, ui = r_inv_op,
@@ -556,14 +547,14 @@ case class ResolverHelper
       _n_ <- subOPs
       _op_ <- _n_ flatMap {
         case op: OWLObjectProperty =>
-          if (tOPs.contains(op) && !isAnnotatedDerived(ont, op.getIRI).fold(_ => false, identity))
+          if (tOPs.contains(op) && !isAnnotatedDerived(tboxG.ont, op.getIRI).fold(_ => false, identity))
             Some(op)
           else
             None
         case inv: OWLObjectInverseOf =>
           inv.getInverse match {
             case op: OWLObjectProperty =>
-              if (tOPs.contains(op) && !isAnnotatedDerived(ont, op.getIRI).fold(_ => false, identity))
+              if (tOPs.contains(op) && !isAnnotatedDerived(tboxG.ont, op.getIRI).fold(_ => false, identity))
                 Some(op)
               else
                 None
@@ -576,14 +567,14 @@ case class ResolverHelper
     } yield {
       val INV = (_n_ flatMap {
         case op: OWLObjectProperty =>
-          if (tOPs.contains(op) && isAnnotatedDerived(ont, op.getIRI).fold(_ => false, identity))
+          if (tOPs.contains(op) && isAnnotatedDerived(tboxG.ont, op.getIRI).fold(_ => false, identity))
             Some(op)
           else
             None
         case inv: OWLObjectInverseOf =>
           inv.getInverse match {
             case op: OWLObjectProperty =>
-              if (tOPs.contains(op) && isAnnotatedDerived(ont, op.getIRI).fold(_ => false, identity))
+              if (tOPs.contains(op) && isAnnotatedDerived(tboxG.ont, op.getIRI).fold(_ => false, identity))
                 Some(op)
               else
                 None
@@ -630,7 +621,11 @@ case class ResolverHelper
 
     ( ().right[Set[java.lang.Throwable]] /: sub_sup ) {
       case (acc, (subM, supM)) =>
-        acc +++ tboxG.createEntityReifiedRelationshipSubClassAxiom(sub = subM, sup = supM)(omfStore).map(_ => ())
+        for {
+          _ <- acc
+          uuid <- reifiedRelationshipSubClassAxiomUUID(tboxG, subM, supM)
+          next <- tboxG.createEntityReifiedRelationshipSubClassAxiom(uuid, sub = subM, sup = supM)(omfStore).map(_ => ())
+        } yield next
     }
   }
 
@@ -638,7 +633,8 @@ case class ResolverHelper
   (allEntityDefinitions: Map[OWLClass, ModelEntityDefinition],
    allAspectsIncludingImported: Map[OWLClass, ModelEntityAspect])
   (implicit reasoner: OWLReasoner, backbone: OMFBackbone)
-  : Set[java.lang.Throwable] \/ Unit = {
+  : Set[java.lang.Throwable] \/ Unit
+  = {
 
     val sub_sup = for {
       (subC, subM) <- allEntityDefinitions
@@ -648,7 +644,11 @@ case class ResolverHelper
 
     ( ().right[Set[java.lang.Throwable]] /: sub_sup ) {
       case (acc, (subM, supM)) =>
-        acc +++ tboxG.createEntityDefinitionAspectSubClassAxiom(sub = subM, sup = supM)(omfStore).map(_ => ())
+        for {
+          _ <- acc
+          uuid <- aspectSpecializationAxiomUUID(tboxG, subM, supM)
+          next <- tboxG.createEntityDefinitionAspectSubClassAxiom(uuid, sub = subM, sup = supM)(omfStore).map(_ => ())
+        } yield next
     }
   }
 }

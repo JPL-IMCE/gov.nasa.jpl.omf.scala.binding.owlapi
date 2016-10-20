@@ -61,8 +61,8 @@ trait OWLAPIOMFtbox extends OMFtbox {
   type MutableModelTerminologyGraph =
   types.MutableModelTerminologyGraph
 
-  override type Mutable2IMutableTerminologyMap =
-  types.Mutable2IMutableTerminologyMap
+  override type Mutable2ImmutableTerminologyMap =
+  types.Mutable2ImmutableTerminologyMap
 
   type ModelTypeTerm =
   types.ModelTypeTerm
@@ -229,7 +229,7 @@ case class OWLAPITerminologyGraphSignature
   override val iri: OWLAPIOMF#IRI,
   override val kind: TerminologyKind,
   override val imports: Iterable[OWLAPIOMF#ModelTerminologyGraph],
-  override val nesting: Option[(OWLAPIOMF#ModelEntityConcept, OWLAPIOMF#ModelTerminologyGraph)],
+  override val nesting: Option[OWLAPIOMF#ModelEntityConcept],
   override val aspects: Iterable[OWLAPIOMF#ModelEntityAspect],
   override val concepts: Iterable[OWLAPIOMF#ModelEntityConcept],
   override val reifiedRelationships: Iterable[OWLAPIOMF#ModelEntityReifiedRelationship],
@@ -240,7 +240,8 @@ case class OWLAPITerminologyGraphSignature
   override val entity2structureDataRelationships: Iterable[OWLAPIOMF#ModelDataRelationshipFromEntityToStructure],
   override val structure2scalarDataRelationships: Iterable[OWLAPIOMF#ModelDataRelationshipFromStructureToScalar],
   override val structure2structureDataRelationships: Iterable[OWLAPIOMF#ModelDataRelationshipFromStructureToStructure],
-  override val axioms: Iterable[OWLAPIOMF#ModelTermAxiom])
+  override val axioms: Iterable[OWLAPIOMF#ModelTermAxiom],
+  override val gaxioms: Iterable[OWLAPIOMF#TerminologyGraphAxiom])
   extends TerminologyGraphSignature[OWLAPIOMF]
 {
   require(null != iri)

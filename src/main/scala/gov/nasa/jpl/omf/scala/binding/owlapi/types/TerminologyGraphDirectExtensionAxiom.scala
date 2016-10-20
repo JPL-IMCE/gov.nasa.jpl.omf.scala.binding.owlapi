@@ -24,10 +24,8 @@ import scala.Predef.require
 
 case class TerminologyGraphDirectExtensionAxiom
 (override val uuid: UUID,
- extendingChild: ModelTerminologyGraph,
  extendedParent: ModelTerminologyGraph )
 extends TerminologyGraphAxiom {
 
-  require(null != extendingChild)
   require(null != extendedParent)
 }

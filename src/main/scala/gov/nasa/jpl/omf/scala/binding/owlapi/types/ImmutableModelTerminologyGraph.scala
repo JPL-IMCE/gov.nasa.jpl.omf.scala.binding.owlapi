@@ -76,7 +76,8 @@ case class ImmutableModelTerminologyGraph
  override protected val e2st: Vector[ModelDataRelationshipFromEntityToStructure],
  override protected val s2sc: Vector[ModelDataRelationshipFromStructureToScalar],
  override protected val s2st: Vector[ModelDataRelationshipFromStructureToStructure],
- override protected val ax: Vector[ModelTermAxiom])
+ override protected val ax: Vector[ModelTermAxiom],
+ override protected val gx: Vector[TerminologyGraphAxiom])
 (override implicit val ops: OWLAPIOMFOps)
   extends ModelTerminologyGraph(uuid, name, kind, ont, extraProvenanceMetadata)(ops) {
 

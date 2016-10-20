@@ -70,7 +70,9 @@ object AxiomExceptionKind extends Enumeration {
   EntityReifiedRelationshipSubClassAxiomException,
   EntityConceptDesignationTerminologyGraphAxiomException,
   ScalarDataTypeFacetRestrictionAxiomException,
-  ModelScalarDataRelationshipRestrictionAxiomFromEntityToLiteralException = Value
+  ModelScalarDataRelationshipRestrictionAxiomFromEntityToLiteralException,
+  TerminologyGraphDirectExtensionAxiomException,
+  TerminologyGraphDirectNestingAxiomException = Value
 }
 
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.AxiomExceptionKind._
@@ -137,6 +139,13 @@ case class DuplicateModelTermAxiomException
   extends MutableModelTerminologyGraphException(
                                                  s"""Cannot create $kind because
                                                      |the axiom is already asserted $axiom""".stripMargin)
+
+case class DuplicateTerminologyGraphAxiomException
+(kind: AxiomExceptionKind,
+ axiom: TerminologyGraphAxiom)
+  extends MutableModelTerminologyGraphException(
+    s"""Cannot create $kind because
+       |the axiom is already asserted $axiom""".stripMargin)
 
 case class MutableModelTerminologyGraph
 (override val uuid: UUID,
@@ -258,6 +267,9 @@ case class MutableModelTerminologyGraph
   override protected val ax =
     scala.collection.mutable.ListBuffer[ModelTermAxiom]()
 
+  override protected val gx =
+    scala.collection.mutable.ListBuffer[TerminologyGraphAxiom]()
+
   override def getEntityDefinitionMap: Map[OWLClass, ModelEntityDefinition] =
     (aspects.map(a => a.e -> a) ++
       concepts.map(c => c.e -> c) ++
@@ -270,58 +282,103 @@ case class MutableModelTerminologyGraph
 
   override protected val iri2typeTerm = scala.collection.mutable.HashMap[IRI, ModelTypeTerm]()
 
+  def createTerminologyGraphDirectExtensionAxiom
+  (extendedG: types.ModelTerminologyGraph)
+  (implicit store: OWLAPIOMFGraphStore)
+  : Set[java.lang.Throwable] \/ types.TerminologyGraphDirectExtensionAxiom
+  = for {
+    uuid <- ops.terminologyGraphExtensionUUID(this, extendedG)
+    ax <- createTerminologyGraphDirectExtensionAxiom(uuid, extendedG)
+  } yield ax
+
+  def createTerminologyGraphDirectExtensionAxiom
+  (uuid: UUID,
+   extendedG: types.ModelTerminologyGraph)
+  (implicit store: OWLAPIOMFGraphStore)
+  : Set[java.lang.Throwable] \/ types.TerminologyGraphDirectExtensionAxiom
+  = gx
+    .find {
+      case axiom: types.TerminologyGraphDirectExtensionAxiom =>
+        axiom.extendedParent == extendedG
+      case _ =>
+        false
+    }
+    .fold[Set[java.lang.Throwable] \/ types.TerminologyGraphDirectExtensionAxiom](
+    for {
+      axiom <- store
+        .createOMFTerminologyGraphDirectExtensionAxiom(uuid, this, extendedG)
+    } yield {
+      gx += axiom
+      axiom
+    }
+  ) { other =>
+    Set(
+      duplicateTerminologyGraphAxiomException(TerminologyGraphDirectExtensionAxiomException, other)
+    ).left
+  }
+
   def addTerminologyGraphExtension
   (uuid: UUID,
    extendedG: ModelTerminologyGraph)
   (implicit store: OWLAPIOMFGraphStore)
   : Set[java.lang.Throwable] \/ types.TerminologyGraphDirectExtensionAxiom
   = for {
-      axiom <- store.createTerminologyGraphDirectExtensionAxiom(this, extendedG)
-    } yield {
-      for {
-        change <- Seq(
-          new AddImport(ont,
-            ontManager.getOWLDataFactory.getOWLImportsDeclaration(extendedG.iri))
-        )
-      } {
-        val result = ontManager.applyChange(change)
-        require(
-          result == ChangeApplied.SUCCESSFULLY || result == ChangeApplied.NO_OPERATION,
-          s"\naddTerminologyGraphExtension: result=$result\n$change")
-      }
-      axiom
-    }
+    axiom <- createTerminologyGraphDirectExtensionAxiom(uuid, extendedG)
+    _ <- applyOntologyChangeOrNoOp(ontManager,
+      new AddImport(ont, owlDataFactory
+        .getOWLImportsDeclaration(extendedG.iri)),
+      "addTerminologyGraphExtension error")
+  } yield axiom
 
-  def addNestedTerminologyGraph
-  (uuid: UUID,
-   parentContext: ModelEntityConcept,
-   nestedGraph: ModelTerminologyGraph)
+  def createTerminologyGraphDirectNestingAxiom
+  (parentC: types.ModelEntityConcept)
   (implicit store: OWLAPIOMFGraphStore)
   : Set[java.lang.Throwable] \/ types.TerminologyGraphDirectNestingAxiom
   = for {
-    axiom <- store.createTerminologyGraphDirectNestingAxiom(uuid, this, parentContext, nestedGraph)
-  } yield {
-    for {
-      change <- Seq(
-        new AddImport(nestedGraph.ont,
-          owlDataFactory.getOWLImportsDeclaration(iri)),
-        new AddOntologyAnnotation(
-          nestedGraph.ont,
-          owlDataFactory
-            .getOWLAnnotation(store.ANNOTATION_HAS_CONTEXT, parentContext.iri)),
-        new AddAxiom(
-          ont,
-          owlDataFactory
-            .getOWLAnnotationAssertionAxiom(store.ANNOTATION_HAS_GRAPH, parentContext.iri, nestedGraph.iri))
-      )
-    } {
-      val result = ontManager.applyChange(change)
-      require(
-        result == ChangeApplied.SUCCESSFULLY || result == ChangeApplied.NO_OPERATION,
-        s"\naddNestedTerminologyGraph: result=$result\n$change")
+    uuid <- ops.terminologyNestingAxiomUUID(parentC, this)
+    ax <- createTerminologyGraphDirectNestingAxiom(uuid, parentC)
+  } yield ax
+
+  def createTerminologyGraphDirectNestingAxiom
+  (uuid: UUID,
+   parentC: types.ModelEntityConcept)
+  (implicit store: OWLAPIOMFGraphStore)
+  : Set[java.lang.Throwable] \/ types.TerminologyGraphDirectNestingAxiom
+  = gx
+    .find {
+      case axiom: types.TerminologyGraphDirectNestingAxiom =>
+        axiom.nestingContext == parentC
+      case _ =>
+        false
     }
-    axiom
+    .fold[Set[java.lang.Throwable] \/ types.TerminologyGraphDirectNestingAxiom](
+    for {
+      axiom <- store
+        .createOMFTerminologyGraphDirectNestingAxiom(uuid, parentC, this)
+    } yield {
+      gx += axiom
+      axiom
+    }
+  ) { other =>
+    Set(
+      duplicateTerminologyGraphAxiomException(TerminologyGraphDirectNestingAxiomException, other)
+    ).left
   }
+
+  def addNestedTerminologyGraph
+  (uuid: UUID,
+   parentContext: ModelEntityConcept)
+  (implicit store: OWLAPIOMFGraphStore)
+  : Set[java.lang.Throwable] \/ types.TerminologyGraphDirectNestingAxiom
+  = for {
+    axiom <- createTerminologyGraphDirectNestingAxiom(uuid, parentContext)
+    _ <- applyOntologyChangesOrNoOp(ontManager,
+      Seq(
+        new AddOntologyAnnotation(ont, owlDataFactory
+          .getOWLAnnotation(store.ANNOTATION_HAS_CONTEXT, parentContext.iri))
+      ),
+      "addNestedTerminologyGraph error")
+  } yield axiom
 
   def setTermShortName
   (term: types.ModelTypeTerm,
@@ -501,12 +558,12 @@ case class MutableModelTerminologyGraph
   : Set[java.lang.Throwable] \/ types.ModelEntityAspect
   = iri2typeTerm
       .get(a.getIRI)
-      .fold[Set[java.lang.Throwable] \/ types.ModelEntityAspect]({
+      .fold[Set[java.lang.Throwable] \/ types.ModelEntityAspect] {
       val _a = types.ModelEntityAspect(a, name, uuid)
       aspects += _a
       iri2typeTerm += a.getIRI -> _a
       \/-(_a)
-    }) {
+    } {
       case t: types.ModelEntityAspect =>
         Set(
           entityAlreadyDefinedException(EntityAspect, a.getIRI, t)
@@ -523,28 +580,21 @@ case class MutableModelTerminologyGraph
   : Set[java.lang.Throwable] \/ types.ModelEntityAspect
   = iri2typeTerm
       .get(aspectIRI)
-      .fold[Set[java.lang.Throwable] \/ types.ModelEntityAspect]({
+      .fold[Set[java.lang.Throwable] \/ types.ModelEntityAspect]{
       val aspectC = owlDataFactory.getOWLClass(aspectIRI)
       for {
         result <- createModelEntityAspect(aspectC, name, uuid)
-      } yield {
-        for {
-          change <- Seq(
+        _ <- applyOntologyChanges(ontManager,
+          Seq(
             new AddAxiom(ont, owlDataFactory.getOWLDeclarationAxiom(aspectC)),
             new AddAxiom(ont, owlDataFactory.getOWLSubClassOfAxiom(aspectC, backbone.AspectC)),
             new AddAxiom(ont, owlDataFactory.getOWLAnnotationAssertionAxiom(
                 store.RDFS_LABEL, aspectIRI, owlDataFactory.getOWLLiteral(name))),
             new AddAxiom(ont, owlDataFactory.getOWLAnnotationAssertionAxiom(
-                store.ANNOTATION_HAS_UUID, aspectIRI, owlDataFactory.getOWLLiteral(uuid.toString))))
-        } {
-          val result = ontManager.applyChange(change)
-          require(
-            result == ChangeApplied.SUCCESSFULLY,
-            s"\naddEntityAspect:\n$change")
-        }
-        result
-      }
-    }) {
+                store.ANNOTATION_HAS_UUID, aspectIRI, owlDataFactory.getOWLLiteral(uuid.toString)))),
+          "addAspect Error")
+      } yield result
+    } {
       case t: types.ModelEntityAspect =>
         Set(
           entityAlreadyDefinedException(EntityAspect, aspectIRI, t)
@@ -573,15 +623,12 @@ case class MutableModelTerminologyGraph
   : Set[java.lang.Throwable] \/ types.ModelEntityConcept
   = iri2typeTerm
       .get(c.getIRI)
-      .fold[Set[java.lang.Throwable] \/ types.ModelEntityConcept]({
+      .fold[Set[java.lang.Throwable] \/ types.ModelEntityConcept]{
       val _c = types.ModelEntityConcept(c, name, uuid, isAbstract)
       concepts += _c
       iri2typeTerm += c.getIRI -> _c
-      for {
-        _ <- setTermShortName(_c, Some(name))
-        _ <- setTermUUID(_c, Some(uuid.toString))
-      } yield _c
-    }) {
+      \/-(_c)
+    } {
       case t: types.ModelEntityConcept =>
         Set(
           entityAlreadyDefinedException(EntityConcept, c.getIRI, t)
@@ -599,14 +646,13 @@ case class MutableModelTerminologyGraph
   : Set[java.lang.Throwable] \/ types.ModelEntityConcept
   = iri2typeTerm
       .get(conceptIRI)
-      .fold[Set[java.lang.Throwable] \/ types.ModelEntityConcept]({
+      .fold[Set[java.lang.Throwable] \/ types.ModelEntityConcept] {
       val conceptC = owlDataFactory.getOWLClass(conceptIRI)
       for {
         result <- createModelEntityConcept(conceptC, name, uuid, isAbstract)
-      } yield {
-        for {
-          change <-
-          Seq(new AddAxiom(ont,
+        _ <- applyOntologyChanges(ontManager,
+          Seq(
+            new AddAxiom(ont,
             owlDataFactory
               .getOWLDeclarationAxiom(conceptC)),
             new AddAxiom(ont,
@@ -616,16 +662,10 @@ case class MutableModelTerminologyGraph
                   owlDataFactory.getOWLLiteral(isAbstract))),
             new AddAxiom(ont,
               owlDataFactory
-                .getOWLSubClassOfAxiom(conceptC, backbone.EntityC)))
-        } {
-          val result = ontManager.applyChange(change)
-          require(
-            result == ChangeApplied.SUCCESSFULLY,
-            s"\naddEntityConcept:\n$change")
-        }
-        result
-      }
-    }) {
+                .getOWLSubClassOfAxiom(conceptC, backbone.EntityC))),
+          "addConcept Error")
+      } yield result
+    } {
       case t: types.ModelEntityConcept =>
         Set(
           entityAlreadyDefinedException(EntityConcept, conceptIRI, t)
@@ -662,29 +702,23 @@ case class MutableModelTerminologyGraph
   (implicit store: OWLAPIOMFGraphStore)
   : Set[java.lang.Throwable] \/ types.ModelEntityReifiedRelationship
   = iri2typeTerm
-      .get(r.getIRI)
-      .fold[Set[java.lang.Throwable] \/ types.ModelEntityReifiedRelationship]({
-      val _r = types.ModelEntityReifiedRelationship(r, name, uuid,
-        u, ui,
-        source, rSource,
-        target, rTarget,
-        characteristics, isAbstract)
-      reifiedRelationships += _r
-      iri2typeTerm += r.getIRI -> _r
-      for {
-        _ <- setTermShortName(_r, Some(name))
-        _ <- setTermUUID(_r, Some(uuid.toString))
-      } yield _r
-    }) {
-      case t: types.ModelEntityReifiedRelationship =>
-        Set(
-          entityAlreadyDefinedException(EntityReifiedRelationship, r.getIRI, t)
-        ).left
-      case t =>
-        Set(
-          entityConflictException(EntityReifiedRelationship, r.getIRI, t)
-        ).left
-    }
+    .get(r.getIRI)
+    .fold[Set[java.lang.Throwable] \/ types.ModelEntityReifiedRelationship] {
+    val _r = types.ModelEntityReifiedRelationship(r, name, uuid, u, ui,
+      source, rSource, target, rTarget, characteristics, isAbstract)
+    reifiedRelationships += _r
+    iri2typeTerm += r.getIRI -> _r
+    \/-(_r)
+  } {
+    case t: types.ModelEntityReifiedRelationship =>
+      Set(
+        entityAlreadyDefinedException(EntityReifiedRelationship, r.getIRI, t)
+      ).left
+    case t =>
+      Set(
+        entityConflictException(EntityReifiedRelationship, r.getIRI, t)
+      ).left
+  }
 
   protected def makeEntityReifiedRelationship
   (rIRI: IRI, name: LocalName, uuid: UUID,
@@ -696,7 +730,6 @@ case class MutableModelTerminologyGraph
   (implicit store: OWLAPIOMFGraphStore)
   : Set[java.lang.Throwable] \/ types.ModelEntityReifiedRelationship
   = {
-
     val sourceC = owlDataFactory.getOWLClass(source.iri)
     val targetC = owlDataFactory.getOWLClass(target.iri)
     val r = owlDataFactory.getOWLClass(rIRI)
@@ -830,12 +863,12 @@ case class MutableModelTerminologyGraph
    characteristics: Iterable[RelationshipCharacteristics],
    isAbstract: Boolean)
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ types.ModelEntityReifiedRelationship =
-    (lookupTypeTerm(rIRI, recursively = true),
+  : Set[java.lang.Throwable] \/ types.ModelEntityReifiedRelationship
+  = ( lookupTypeTerm(rIRI, recursively = true),
       lookupTypeTerm(rIRISource, recursively = true),
       lookupTypeTerm(rIRITarget, recursively = true),
       lookupTypeTerm(uIRI, recursively = true),
-      lookupTypeTerm(uiIRI, recursively = true)) match {
+      lookupTypeTerm(uiIRI, recursively = true) ) match {
       case (None, None, None, None, None) =>
         (isTypeTermDefinedRecursively(source), isTypeTermDefinedRecursively(target)) match {
           case (true, true) =>
@@ -903,15 +936,12 @@ case class MutableModelTerminologyGraph
   : Set[java.lang.Throwable] \/ types.ModelScalarDataType
   = iri2typeTerm
       .get(dt.getIRI)
-      .fold[Set[java.lang.Throwable] \/ types.ModelScalarDataType]({
+      .fold[Set[java.lang.Throwable] \/ types.ModelScalarDataType]{
       val _dt = types.ModelScalarDataType(dt, name, uuid)
       sc += _dt
       iri2typeTerm += dt.getIRI -> _dt
-      for {
-        _ <- setTermShortName(_dt, Some(name))
-        _ <- setTermUUID(_dt, Some(uuid.toString))
-      } yield _dt
-    }) {
+      \/-(_dt)
+    } {
       case t: types.ModelScalarDataType =>
         Set(
           entityAlreadyDefinedException(ScalarDataType, dt.getIRI, t)
@@ -928,26 +958,19 @@ case class MutableModelTerminologyGraph
   : Set[java.lang.Throwable] \/ types.ModelScalarDataType
   = iri2typeTerm
       .get(scalarIRI)
-      .fold[Set[java.lang.Throwable] \/ types.ModelScalarDataType]({
+      .fold[Set[java.lang.Throwable] \/ types.ModelScalarDataType] {
       val scalarDT = owlDataFactory.getOWLDatatype(scalarIRI)
       for {
         result <- createModelScalarDataType(scalarDT, name, uuid)
-      } yield {
-        for {
-          change <- Seq(
+        _ <- applyOntologyChanges(ontManager,
+          Seq(
             new AddAxiom(ont,
               owlDataFactory
                 .getOWLDeclarationAxiom(scalarDT))
-          )
-        } {
-          val result = ontManager.applyChange(change)
-          require(
-            result == ChangeApplied.SUCCESSFULLY,
-            s"\naddScalarDataType:\n$change")
-        }
-        result
-      }
-    }) {
+          ),
+          "addScalarDataType error")
+      } yield result
+    } {
       case t: types.ModelScalarDataType =>
         Set(
           entityAlreadyDefinedException(ScalarDataType, scalarIRI, t)
@@ -974,15 +997,12 @@ case class MutableModelTerminologyGraph
   : Set[java.lang.Throwable] \/ types.ModelStructuredDataType
   = iri2typeTerm
       .get(dt.getIRI)
-      .fold[Set[java.lang.Throwable] \/ types.ModelStructuredDataType]({
+      .fold[Set[java.lang.Throwable] \/ types.ModelStructuredDataType]{
       val _st = types.ModelStructuredDataType(dt, name, uuid)
       st += _st
       iri2typeTerm += dt.getIRI -> _st
-      for {
-        _ <- setTermShortName(_st, Some(name))
-        _ <- setTermUUID(_st, Some(uuid.toString))
-      } yield _st
-    }) {
+      \/-(_st)
+    } {
       case t: types.ModelStructuredDataType =>
         Set(
           entityAlreadyDefinedException(StructuredDataType, dt.getIRI, t)
@@ -999,39 +1019,32 @@ case class MutableModelTerminologyGraph
   : Set[java.lang.Throwable] \/ types.ModelStructuredDataType
   = iri2typeTerm
       .get(structuredDataTypeIRI)
-      .fold[Set[java.lang.Throwable] \/ types.ModelStructuredDataType]({
+      .fold[Set[java.lang.Throwable] \/ types.ModelStructuredDataType]{
       val structuredDataTypeC = owlDataFactory
         .getOWLClass(structuredDataTypeIRI)
       for {
         result <- createModelStructuredDataType(structuredDataTypeC, name, uuid)
-      } yield {
-        for {
-          change <- Seq(
+        _ <- applyOntologyChanges(ontManager,
+          Seq(
             new AddAxiom(ont,
               owlDataFactory
                 .getOWLDeclarationAxiom(structuredDataTypeC)),
             new AddAxiom(ont,
               owlDataFactory
                 .getOWLSubClassOfAxiom(structuredDataTypeC, backbone.StructuredDatatypeC))
-          )
-        } {
-          val result = ontManager.applyChange(change)
-          require(
-            result == ChangeApplied.SUCCESSFULLY,
-            s"\naddStructuredDataType:\n$change")
-        }
-        result
-      }
-    }) {
-      case t: types.ModelStructuredDataType =>
-        Set(
-          entityAlreadyDefinedException(StructuredDataType, structuredDataTypeIRI, t)
-        ).left
-      case t =>
-        Set(
-          entityConflictException(StructuredDataType, structuredDataTypeIRI, t)
-        ).left
-    }
+          ),
+          "addStructuredDataType error")
+        } yield result
+      } {
+    case t: types.ModelStructuredDataType =>
+      Set(
+        entityAlreadyDefinedException(StructuredDataType, structuredDataTypeIRI, t)
+      ).left
+    case t =>
+      Set(
+        entityConflictException(StructuredDataType, structuredDataTypeIRI, t)
+      ).left
+  }
 
   def createDataRelationshipFromEntityToScalar
   (esc: OWLDataProperty,

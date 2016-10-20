@@ -65,34 +65,6 @@ object OWLAPIOMFLoader {
         None
     }
 
-  case class NestingOntologyAndContextToNestedGraphIRI
-  (nestingG: IRI,
-   nestingC: OWLClass,
-   nestedG: IRI)
-
-  def getOntologyContextClasses2NestedGraphIRIs
-  (ont: OWLOntology,
-   ontIRI: IRI)
-  (implicit ops: OWLAPIOMFOps)
-  : Set[NestingOntologyAndContextToNestedGraphIRI]
-  = getOntologyDirectlyDeclaredClasses(ont, BackboneDeclaractions.exclude)
-    .flatMap { c =>
-      ont
-        .annotationAssertionAxioms(c.getIRI).toScala[Set]
-        .flatMap { a =>
-          if (ops.AnnotationHasGraph == a.getProperty.getIRI)
-            a.getValue match {
-              case iri: IRI =>
-                Some(NestingOntologyAndContextToNestedGraphIRI(nestingG = ontIRI, nestingC = c, nestedG = iri))
-              case _ =>
-                require(false, s"${c.getIRI} has an annotation $a with a non-IRI value!")
-                None
-            }
-          else
-            None
-        }
-    }
-
   case class NestedOntologyToNestingContextIRI
   (nestingC: IRI,
    nestedG: IRI)
@@ -142,7 +114,7 @@ object OWLAPIOMFLoader {
   case class OntologyLoadedState
   (ontologies: Map[IRI, OWLOntology],
    extensions: Set[ExtendingOntologyToExtendedGraphIRI],
-   nesting2nested: Set[NestingOntologyAndContextToNestedGraphIRI]) {}
+   nested2context: Set[NestedOntologyToNestingContextIRI]) {}
 
   object OntologyLoadedState {
 
@@ -154,8 +126,7 @@ object OWLAPIOMFLoader {
       Internal.OntologyLoaderState(
         ontologies = Map(),
         extensions = Set(),
-        nesting2nested = Set(),
-        nested2nesting = Set(),
+        nested2context = Set(),
         queue = Set(iri)))
 
     private object Internal {
@@ -163,8 +134,7 @@ object OWLAPIOMFLoader {
       case class OntologyLoaderState
       (ontologies: Map[IRI, OWLOntology],
        extensions: Set[ExtendingOntologyToExtendedGraphIRI],
-       nesting2nested: Set[NestingOntologyAndContextToNestedGraphIRI],
-       nested2nesting: Set[NestedOntologyToNestingContextIRI],
+       nested2context: Set[NestedOntologyToNestingContextIRI],
        queue: Set[IRI]) {}
 
       @annotation.tailrec
@@ -173,12 +143,10 @@ object OWLAPIOMFLoader {
       (implicit ops: OWLAPIOMFOps, store: OWLAPIOMFGraphStore)
       : Set[java.lang.Throwable] \/ OntologyLoadedState
       = if (s.queue.isEmpty)
-        validateNestingRelationsStep(
           OntologyLoadedState(
             ontologies = s.ontologies,
-            extensions = Set(),
-            nesting2nested = Set()),
-          s)
+            extensions = s.extensions,
+            nested2context = s.nested2context).right
       else
         loadOneOntology(s, s.queue.head) match {
           case -\/(nels) =>
@@ -212,19 +180,17 @@ object OWLAPIOMFLoader {
             assert(null != ont)
 
             val es = getOntologyDirectlyExtendedGraphs(ont, iri)
-            val ns = getOntologyContextClasses2NestedGraphIRIs(ont, iri)
             val nc = getNestedOntologyToNestingContextIRIIfAny(ont, iri)
 
             // in principle, we should exclude the known ontology IRIs
             // i.e., -- s.ontologies.keySet
             // but this would be more expensive than tail recursive calls
-            val newIRIs = es.map(_.extendedG) ++ ns.map(_.nestedG)
+            val newIRIs = es.map(_.extendedG)
 
             \/-(OntologyLoaderState(
               s.ontologies + (iri -> ont),
               s.extensions ++ es,
-              s.nesting2nested ++ ns,
-              s.nested2nesting ++ nc,
+              s.nested2context ++ nc,
               s.queue - iri ++ newIRIs))
 
           }
@@ -232,35 +198,6 @@ object OWLAPIOMFLoader {
 
         \/-(s.copy(queue = s.queue - iri))
 
-      }
-
-      @annotation.tailrec
-      def validateNestingRelationsStep
-      (acc: OntologyLoadedState,
-       s: OntologyLoaderState)
-      : Set[java.lang.Throwable] \/ OntologyLoadedState
-      = s
-        .nesting2nested
-        .headOption match {
-        case None =>
-          if (s.nested2nesting.isEmpty)
-            \/-(acc.copy(extensions = s.extensions))
-          else
-            -\/(Set(OMFError.omfError(s"Residual nested2nesting detected\n$s\n$acc")))
-
-        case Some(n2n) =>
-          val ext = s.extensions.filter(e => e.extendedG == n2n.nestingG && e.extendingG == n2n.nestedG)
-          val nst = s.nested2nesting.filter(n => n.nestingC == n2n.nestingC.getIRI && n.nestedG == n2n.nestedG)
-          if (1 == ext.size && 1 == nst.size)
-            validateNestingRelationsStep(
-              acc.copy(
-                nesting2nested = acc.nesting2nested + n2n),
-              s.copy(
-                extensions = s.extensions -- ext,
-                nesting2nested = s.nesting2nested - n2n,
-                nested2nesting = s.nested2nesting -- nst))
-          else
-            -\/(Set(OMFError.omfError(s"Inconsistency detected\n$n2n\n$ext\n$nst")))
       }
 
     }
@@ -285,10 +222,23 @@ object OWLAPIOMFLoader {
     */
   type OMFDocumentTopologicalOrder = OMFDocumentGraph#TopologicalOrder[Graph[IRI, DiEdge]#NodeT]
 
+  /**
+    * Need to perform a 2-pass load:
+    * 1) Load Ontology => MutableGraph where nesting parent is loaded before nested children
+    * because a nested children graph can have references to its nesting parent graph.
+    * At the end of this pass, all TerminologyGraphs are mutable.
+    * 2) Convert MutableGraphs => ImmutableGraphs such that a nested graph is converted
+    * to an ImmutableGraph so that it can be added to its nesting parent MutableGraph.
+    *
+    * @param iri
+    * @param ops
+    * @param store
+    * @return
+    */
   def loadTerminologyGraph
   (iri: IRI)
   (implicit ops: OWLAPIOMFOps, store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ (types.ImmutableModelTerminologyGraph, types.Mutable2IMutableTerminologyMap)
+  : Set[java.lang.Throwable] \/ (types.ImmutableModelTerminologyGraph, types.Mutable2ImmutableTerminologyMap)
   = OntologyLoadedState
     .loadAllOntologies(iri)
     .flatMap { s =>
@@ -308,28 +258,19 @@ object OWLAPIOMFLoader {
 
       }
 
-      // Add edges for every OMF document nesting relationship
-      val g2: OMFDocumentGraph = (g1 /: s.nesting2nested) { (gj, n) =>
-
-        // load the nesting parent graph before the nested child graph
-        // because terms in the nested child graph can reference
-        // terms in scope of the nesting parent graph
-        gj + n.nestingG ~> n.nestedG
-
-      }
-
-      g2
+      g1
         .topologicalSort()
         .fold(
           (cycleNode: OMFDocumentNode) =>
             -\/(Set(
               OMFError.omfError(
-                s"Graph with ${g2.nodes.size} ontologies, ${g2.edges.size} edges has a cycle involving\n"+
-                cycleNode.value
+                s"Graph with ${g1.nodes.size} ontologies, ${g1.edges.size} edges has a cycle involving\n" +
+                  cycleNode.value
               )
             )),
-          (order: OMFDocumentTopologicalOrder) =>
-            loadTerminologyGraphs(order, s).flatMap { m2i =>
+          (lorder: OMFDocumentTopologicalOrder) =>
+
+            loadTerminologyGraphs(lorder, s).flatMap { m2i =>
               store.lookupTerminologyGraph(iri) match {
                 case Some(ig: types.ImmutableModelTerminologyGraph) =>
                   \/-((ig, m2i))
@@ -345,23 +286,35 @@ object OWLAPIOMFLoader {
   (queue: OMFDocumentTopologicalOrder,
    s: OntologyLoadedState)
   (implicit ops: OWLAPIOMFOps, store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ types.Mutable2IMutableTerminologyMap
-  = ( types.emptyMutable2ImmutableTerminologyMapNES /: queue.toLayered )( loadTerminologyGraphLayer(s) )
+  : Set[java.lang.Throwable] \/ types.Mutable2ImmutableTerminologyMap
+  = queue
+    .toLayered
+    .foldLeft[Set[java.lang.Throwable] \/ types.Mutable2ImmutableTerminologyMap]{
+    types.emptyMutable2ImmutableTerminologyMapNES
+  } {
+    loadTerminologyGraphLayer(s)
+  }
 
   def loadTerminologyGraphLayer
   (s: OntologyLoadedState)
-  (acc: Set[java.lang.Throwable] \/ types.Mutable2IMutableTerminologyMap,
+  (acc: Set[java.lang.Throwable] \/ types.Mutable2ImmutableTerminologyMap,
    layer: (Int, scala.collection.Iterable[OMFDocumentNode]))
   (implicit ops: OWLAPIOMFOps, store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ types.Mutable2IMutableTerminologyMap
-  = ( acc /: layer._2 )( loadTerminologyGraphFromOntologyDocument(s, layer._1) )
+  : Set[java.lang.Throwable] \/ types.Mutable2ImmutableTerminologyMap
+  = layer
+      ._2
+      .foldLeft {
+      acc
+    } {
+        loadTerminologyGraphFromOntologyDocument(s)
+      }
 
   def loadTerminologyGraphFromOntologyDocument
-  (s: OntologyLoadedState, layer: Int)
-  (acc: Set[java.lang.Throwable] \/ types.Mutable2IMutableTerminologyMap,
+  (s: OntologyLoadedState)
+  (acc: Set[java.lang.Throwable] \/ types.Mutable2ImmutableTerminologyMap,
    node: OMFDocumentNode)
   (implicit ops: OWLAPIOMFOps, store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ types.Mutable2IMutableTerminologyMap
+  : Set[java.lang.Throwable] \/ types.Mutable2ImmutableTerminologyMap
   = acc.flatMap { m2i =>
     val ontIRI = node.value
     assert(s.ontologies.contains(ontIRI))
@@ -369,9 +322,9 @@ object OWLAPIOMFLoader {
 
     store
       .lookupTerminologyGraph(ontIRI)
-      .fold[Set[java.lang.Throwable] \/ types.Mutable2IMutableTerminologyMap](
+      .fold[Set[java.lang.Throwable] \/ types.Mutable2ImmutableTerminologyMap] {
       store.convertTerminologyGraphFromOntologyDocument(s, m2i, ontIRI, ont)
-    ) { _ =>
+    } { _ =>
       \/-(m2i)
     }
   }

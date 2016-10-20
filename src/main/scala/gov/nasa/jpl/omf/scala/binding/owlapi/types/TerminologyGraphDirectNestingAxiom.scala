@@ -23,21 +23,16 @@ import java.util.UUID
 import scala.Predef.require
 
 /**
-  * Corresponds to an axiom: TerminologyGraphDirectNestingAxiom(nestingParent, nestingContext, nestedChild)
+  * Corresponds to an axiom: TerminologyGraphDirectNestingAxiom(nestingContext)
+  * The terminology graph that this axiom is asserted in corresponds to the nested child graph.
   *
-  * @param nestingParent
   * @param nestingContext
-  * @param nestedChild
   */
 case class TerminologyGraphDirectNestingAxiom
 (override val uuid: UUID,
- nestingParent: ModelTerminologyGraph,
- nestingContext: ModelEntityConcept,
- nestedChild: ModelTerminologyGraph )
+ nestingContext: ModelEntityConcept)
 extends TerminologyGraphAxiom {
 
-  require(null != nestingParent)
   require(null != nestingContext)
-  require(null != nestedChild)
 
 }

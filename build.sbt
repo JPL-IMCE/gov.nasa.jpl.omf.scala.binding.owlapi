@@ -67,12 +67,7 @@ lazy val core =
 
       "gov.nasa.jpl.imce" %% "imce.third_party.owlapi_libraries"
         % Versions_owlapi_libraries.version artifacts
-        Artifact("imce.third_party.owlapi_libraries", "zip", "zip", Some("resource"), Seq(), None, Map()),
-
-      // extra("artifact.kind" -> "omf.ontologies")
-      "gov.nasa.jpl.imce.omf" % "imce-omf_ontologies" % Versions_imce_omf_ontologies.version
-        % "runtime" artifacts
-        Artifact("imce-omf_ontologies", "zip", "zip", Some("resource"), Seq(), None, Map())
+        Artifact("imce.third_party.owlapi_libraries", "zip", "zip", Some("resource"), Seq(), None, Map())
     ),
 
     extractArchives := {
@@ -119,17 +114,27 @@ lazy val core =
 
     compile in Test <<= (compile in Test) dependsOn extractArchives,
 
-    unmanagedClasspath in Test += baseDirectory.value / "target" / "extracted" / "imce-omf_ontologies"
+    //unmanagedClasspath in Test += baseDirectory.value / "target" / "extracted" / "imce-omf_ontologies"
+    unmanagedClasspath in Test += new File("/opt/local/imce/users/nfr/github.imce/gov.nasa.jpl.imce.ontologies/gov.nasa.jpl.imce.ontologies/")
   )
   .dependsOnSourceProjectOrLibraryArtifacts(
-      "omf-scala-core",
-      "gov.nasa.jpl.omf.scala.core",
-      Seq(
-        "gov.nasa.jpl.imce" %% "gov.nasa.jpl.omf.scala.core"
-          % Versions_omf_scala_core.version % "test->compile;compile->compile" artifacts(
-          Artifact("gov.nasa.jpl.omf.scala.core"),
-          Artifact("gov.nasa.jpl.omf.scala.core", "tests"))
-      )
+    "omf-scala-core",
+    "gov.nasa.jpl.omf.scala.core",
+    Seq(
+      "gov.nasa.jpl.imce" %% "gov.nasa.jpl.omf.scala.core"
+        % Versions_omf_scala_core.version % "test->compile;compile->compile" artifacts(
+        Artifact("gov.nasa.jpl.omf.scala.core"),
+        Artifact("gov.nasa.jpl.omf.scala.core", "tests"))
+    )
+  )
+  .dependsOnSourceProjectOrLibraryArtifacts(
+    "imce-omf_ontologies",
+    "imce-omf_ontologies",
+    Seq(
+      "gov.nasa.jpl.imce.omf" % "imce-omf_ontologies"
+        % Versions_imce_omf_ontologies.version % "runtime" artifacts(
+      Artifact("imce-omf_ontologies", "zip", "zip", Some("resource"), Seq(), None, Map()))
+    )
   )
 
 def dynamicScriptsResourceSettings(dynamicScriptsProjectName: Option[String] = None): Seq[Setting[_]] = {

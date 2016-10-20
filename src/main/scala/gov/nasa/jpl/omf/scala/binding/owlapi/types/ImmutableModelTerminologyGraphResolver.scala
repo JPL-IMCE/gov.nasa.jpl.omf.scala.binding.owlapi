@@ -45,8 +45,10 @@ case class ImmutableModelTerminologyGraphResolver(resolver: ResolverHelper) {
   import resolver._
   import resolver.omfStore.ops._
 
+  val ont = tboxG.ont
+
   def resolve()
-  : Set[java.lang.Throwable] \/ (ImmutableModelTerminologyGraph, Mutable2IMutableTerminologyMap)
+  : Set[java.lang.Throwable] \/ (ImmutableModelTerminologyGraph, Mutable2ImmutableTerminologyMap)
   = {
     val dTs = ont.datatypesInSignature(Imports.EXCLUDED).toScala[Set].filter(ont.isDeclared)
 
@@ -58,10 +60,9 @@ case class ImmutableModelTerminologyGraphResolver(resolver: ResolverHelper) {
             .createModelScalarDataType(scalarDatatypeDT)
             .flatMap { scalarDatatypeSC =>
               val scIRI = scalarDatatypeDT.getIRI
-              (tboxG.setTermShortName(scalarDatatypeSC, getOWLTermShortName(scIRI)) +++
-                tboxG.setTermUUID(scalarDatatypeSC, getOWLTermUUID(scIRI)) +++
-                resolver.omfStore.registerOMFModelScalarDataTypeInstance(tboxG, scalarDatatypeSC).map(_ => ())
-                )
+
+              resolver.omfStore.registerOMFModelScalarDataTypeInstance(tboxG, scalarDatatypeSC).map(_ => ())
+
                 .map(_ => Map(scalarDatatypeDT -> scalarDatatypeSC))
             }
     }.flatMap { scalarDatatypeSCs =>
@@ -104,24 +105,12 @@ case class ImmutableModelTerminologyGraphResolver(resolver: ResolverHelper) {
    tCs: Set[OWLClass],
    tOPs: Set[OWLObjectProperty],
    tDPs: Set[OWLDataProperty])
-  : Set[java.lang.Throwable] \/ (ImmutableModelTerminologyGraph, Mutable2IMutableTerminologyMap) = {
+  : Set[java.lang.Throwable] \/ (ImmutableModelTerminologyGraph, Mutable2ImmutableTerminologyMap)
+  = {
 
     implicit val _backbone = backbone
 
-    val importClosure: Set[ModelTerminologyGraph] = imports.flatMap(
-      terminologyGraphImportClosure[OWLAPIOMF, ModelTerminologyGraph]
-        (_, onlyCompatibleKind = true)
-        (resolver.omfStore.ops, resolver.omfStore)).toSet[ModelTerminologyGraph]
-
     if (LOG) {
-      System.out.println(s"\n\n=>ont: ${backbone.ont.getOntologyID} with ${imports.size} imports")
-      System.out.println(
-        imports
-          .map(_.ont.getOntologyID.toString)
-          .toList
-          .sorted
-          .mkString("\n => imports: ", "\n => imports: ", "\n"))
-
       System.out.println(s"import closure: ${importClosure.size}")
       System.out.println(
         importClosure
@@ -131,21 +120,24 @@ case class ImmutableModelTerminologyGraphResolver(resolver: ResolverHelper) {
           .mkString("\n => imports: ", "\n => imports: ", "\n"))
     }
 
-    val importedScalarDatatypeDefinitionMaps: Map[OWLDatatype, ModelScalarDataType] =
-      importClosure.flatMap(_.getScalarDatatypeDefinitionMap).toMap
+    val importedScalarDatatypeDefinitionMaps: Map[OWLDatatype, ModelScalarDataType]
+    = resolver
+      .importClosure
+      .map(_.getScalarDatatypeDefinitionMap)
+      .foldLeft(Map.empty[OWLDatatype, ModelScalarDataType])(_ ++ _)
 
     if (LOG) {
       System.out.println(s"importedScalarDatatypeDefinitionMaps: ${importedScalarDatatypeDefinitionMaps.size}")
     }
 
-    val importedEntityDefinitionMaps: Map[OWLClass, ModelEntityDefinition] =
-      importClosure.flatMap(_.getEntityDefinitionMap).toMap
+    val importedEntityDefinitionMaps: Map[OWLClass, ModelEntityDefinition]
+    = resolver.importClosure.flatMap(_.getEntityDefinitionMap).toMap
 
-    val allImportedDataRelationshipsFromEntityToScalar =
-      importClosure.flatMap(_.getDataRelationshipsFromEntityToScalar)
+    val allImportedDataRelationshipsFromEntityToScalar
+    = resolver.importClosure.flatMap(_.getDataRelationshipsFromEntityToScalar)
 
-    val allImportedReifiedRelationships: Map[OWLClass, ModelEntityReifiedRelationship] =
-      importedEntityDefinitionMaps flatMap {
+    val allImportedReifiedRelationships: Map[OWLClass, ModelEntityReifiedRelationship]
+    = importedEntityDefinitionMaps flatMap {
         case (rrC, rrE: ModelEntityReifiedRelationship) =>
           Some(rrC -> rrE)
         case _ =>
@@ -324,11 +316,7 @@ case class ImmutableModelTerminologyGraphResolver(resolver: ResolverHelper) {
             tboxG
               .createModelEntityConcept(conceptC)
               .flatMap { conceptM =>
-
-                (tboxG.setTermShortName(conceptM, getOWLTermShortName(conceptIRI)) +++
-                  tboxG.setTermUUID(conceptM, getOWLTermUUID(conceptIRI)) +++
-                  resolver.omfStore.registerOMFModelEntityConceptInstance(tboxG, conceptM).map(_ => ())
-                  )
+                resolver.omfStore.registerOMFModelEntityConceptInstance(tboxG, conceptM)
                   .map { _ =>
                     Map(conceptC -> conceptM)
                   }
@@ -351,14 +339,8 @@ case class ImmutableModelTerminologyGraphResolver(resolver: ResolverHelper) {
             tboxG
               .createModelStructuredDataType(structuredDatatypeC)
               .flatMap { structuredDatatypeST =>
-
-                (tboxG.setTermShortName(structuredDatatypeST, getOWLTermShortName(structuredDatatypeIRI)) +++
-                  tboxG.setTermUUID(structuredDatatypeST, getOWLTermUUID(structuredDatatypeIRI)) +++
-                  resolver.omfStore.registerOMFModelStructuredDataTypeInstance(tboxG, structuredDatatypeST).map(_ => ())
-                  )
-                  .map { _ =>
-                    Map(structuredDatatypeC -> structuredDatatypeST)
-                  }
+                resolver.omfStore.registerOMFModelStructuredDataTypeInstance(tboxG, structuredDatatypeST)
+                  .map(_ => Map(structuredDatatypeC -> structuredDatatypeST))
               }
       }
 
@@ -423,7 +405,7 @@ case class ImmutableModelTerminologyGraphResolver(resolver: ResolverHelper) {
                         (d, domain) = dPair
 
                         // the restriction could be for an entity definition or a datatype
-                        restriction <- getObjectPropertyRestrictionsIfAny(resolver.ont, d)
+                        restriction <- getObjectPropertyRestrictionsIfAny(resolver.tboxG.ont, d)
                         (_, op, isInverse, r, k) = restriction
 
                         // filter restrictions to an entity definition range only
@@ -541,7 +523,7 @@ case class ImmutableModelTerminologyGraphResolver(resolver: ResolverHelper) {
                             val restrictionTuples
                             = pairs.map { case (entityO, entityC) =>
                               val restrictions
-                              = getSingleDataPropertyRestrictionsIfAny(resolver.ont, entityO)
+                              = getSingleDataPropertyRestrictionsIfAny(resolver.tboxG.ont, entityO)
                                 .flatMap { restrictions =>
                                   val r1
                                   : RestrictionInfoValidation
@@ -613,19 +595,7 @@ case class ImmutableModelTerminologyGraphResolver(resolver: ResolverHelper) {
                           restrictionAxioms.flatMap { _ =>
 
                             asImmutableTerminologyGraph(tboxG)
-                              .flatMap { itboxG =>
 
-                                val iimports = fromTerminologyGraph(itboxG._1).imports
-                                require(imports.forall(i1 =>
-                                  iimports.exists(i2 => i2.kindIRI == i1.kindIRI)
-                                ))
-                                require(iimports.forall(i2 =>
-                                  imports.exists(i1 => i1.kindIRI == i2.kindIRI)
-                                ))
-
-                                itboxG.right
-
-                              }
                           }
                         }
 

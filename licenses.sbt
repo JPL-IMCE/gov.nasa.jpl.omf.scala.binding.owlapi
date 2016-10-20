@@ -1,10 +1,8 @@
 
 import com.typesafe.sbt.license.{LicenseInfo, DepModuleInfo}
 
-import de.heikoseeberger.sbtheader.HeaderPlugin
 import de.heikoseeberger.sbtheader.HeaderPattern
 import de.heikoseeberger.sbtheader.license.CommentBlock
-import scala.util.matching.Regex
 
 licenses in GlobalScope += "Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0.html")
 

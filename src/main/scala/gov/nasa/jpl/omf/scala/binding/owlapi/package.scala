@@ -43,7 +43,6 @@ package object owlapi {
   : java.lang.Throwable
   = new CatalogURIMapperException(message, Set[java.lang.Throwable](cause))
 
-
   def applyOntologyChange
   (ontManager: OWLOntologyManager,
    ontChange: OWLOntologyChange,
@@ -74,6 +73,18 @@ package object owlapi {
       Set(
         OMFError.omfBindingError(s"$ifError (unsuccessful change)")
       ).left
+  }
+
+  def applyOntologyChanges
+  (ontManager: OWLOntologyManager,
+   ontChanges: Seq[OWLOntologyChange],
+   ifError: => String,
+   ifSuccess: => Option[() => Unit] = None)
+  : Set[java.lang.Throwable] \/ Unit
+  = ontChanges.foldLeft[Set[java.lang.Throwable] \/ Unit](\/-(())) { case (acc, ontChange) =>
+    acc.flatMap { _ =>
+      applyOntologyChange(ontManager, ontChange, ifError, ifSuccess)
+    }
   }
 
   def applyOntologyChangeOrNoOp
