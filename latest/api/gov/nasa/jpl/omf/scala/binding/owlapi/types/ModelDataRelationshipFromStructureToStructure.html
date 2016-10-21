@@ -1,0 +1,627 @@
+<!DOCTYPE html >
+<html>
+        <head>
+          <title>ModelDataRelationshipFromStructureToStructure - gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipFromStructureToStructure</title>
+          <meta name="description" content="ModelDataRelationshipFromStructureToStructure - gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipFromStructureToStructure" />
+          <meta name="keywords" content="ModelDataRelationshipFromStructureToStructure gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipFromStructureToStructure" />
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      <link href="../../../../../../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../../../../../../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../../../../../../../lib/jquery.js" id="jquery-js"></script>
+      <script type="text/javascript" src="../../../../../../../../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../../../../../../../lib/template.js"></script>
+      <script type="text/javascript" src="../../../../../../../../lib/tools.tooltip.js"></script>
+      <script type="text/javascript" src="../../../../../../../../lib/modernizr.custom.js"></script><script type="text/javascript" src="../../../../../../../../lib/diagrams.js" id="diagrams-js"></script>
+      <script type="text/javascript">
+         if(top === self) {
+            var url = '../../../../../../../../index.html';
+            var hash = 'gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipFromStructureToStructure';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
+    
+        </head>
+        <body class="type">
+      <div id="definition">
+        <img alt="Class" src="../../../../../../../../lib/class_big.png" />
+        <p id="owner"><a href="../../../../../../../package.html" class="extype" name="gov">gov</a>.<a href="../../../../../../package.html" class="extype" name="gov.nasa">nasa</a>.<a href="../../../../../package.html" class="extype" name="gov.nasa.jpl">jpl</a>.<a href="../../../../package.html" class="extype" name="gov.nasa.jpl.omf">omf</a>.<a href="../../../package.html" class="extype" name="gov.nasa.jpl.omf.scala">scala</a>.<a href="../../package.html" class="extype" name="gov.nasa.jpl.omf.scala.binding">binding</a>.<a href="../package.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi">owlapi</a>.<a href="package.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types">types</a></p>
+        <h1>ModelDataRelationshipFromStructureToStructure</h1><h3><span class="morelinks"><div>Related Doc:
+            <a href="package.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types">package types</a>
+          </div></span></h3><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipFromStructureToStructure" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      </div>
+
+      <h4 id="signature" class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ModelDataRelationshipFromStructureToStructure</span><span class="params">(<span name="c">c: <span class="extype" name="org.semanticweb.owlapi.model.OWLClass">OWLClass</span></span>, <span name="name">name: <span class="extype" name="gov.nasa.jpl.imce.omf.schema.tables.LocalName">LocalName</span></span>, <span name="uuid">uuid: <span class="extype" name="java.util.UUID">UUID</span></span>, <span name="source">source: <a href="ModelStructuredDataType.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelStructuredDataType">ModelStructuredDataType</a></span>, <span name="rSource">rSource: <span class="extype" name="org.semanticweb.owlapi.model.OWLObjectProperty">OWLObjectProperty</span></span>, <span name="target">target: <a href="ModelStructuredDataType.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelStructuredDataType">ModelStructuredDataType</a></span>, <span name="rTarget">rTarget: <span class="extype" name="org.semanticweb.owlapi.model.OWLObjectProperty">OWLObjectProperty</span></span>, <span name="unreified">unreified: <span class="extype" name="org.semanticweb.owlapi.model.OWLObjectProperty">OWLObjectProperty</span></span>)</span><span class="result"> extends <a href="ModelDataRelationship.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationship">ModelDataRelationship</a> with <a href="ModelDataRelationshipFromStructure.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipFromStructure">ModelDataRelationshipFromStructure</a> with <a href="ModelDataRelationshipToStructure.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipToStructure">ModelDataRelationshipToStructure</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      
+          <div id="comment" class="fullcommenttop"><div class="toggleContainer block">
+          <span class="toggle">Linear Supertypes</span>
+          <div class="superTypes hiddenContent"><span class="extype" name="scala.Serializable">Serializable</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="scala.Product">Product</span>, <span class="extype" name="scala.Equals">Equals</span>, <a href="ModelDataRelationshipToStructure.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipToStructure">ModelDataRelationshipToStructure</a>, <a href="ModelDataRelationshipTo.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipTo">ModelDataRelationshipTo</a>, <a href="ModelDataRelationshipFromStructure.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipFromStructure">ModelDataRelationshipFromStructure</a>, <a href="ModelDataRelationshipFrom.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipFrom">ModelDataRelationshipFrom</a>, <a href="ModelDataRelationship.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationship">ModelDataRelationship</a>, <a href="ModelTypeTerm.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelTypeTerm">ModelTypeTerm</a>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+        </div><div class="toggleContainer block diagram-container" id="inheritance-diagram-container">
+                <span class="toggle diagram-link">Type Hierarchy</span>
+                <div class="diagram" id="inheritance-diagram"><svg class="class-diagram" id="graph1" viewBox="0.00 0.00 818.50 118.00" height="118pt" width="819pt" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg"><g transform="scale(1 1) rotate(0) translate(4 114)" class="graph" id="graph0"><polygon points="-4,4 -4,-114 814.5,-114 814.5,4 -4,4" stroke="none" fill="white"></polygon><g class="cluster" id="clust1"></g><g class="cluster" id="clust2"></g><!-- node0 --><g class="node this class" id="graph1_0"><g id="a_this class|graph1_0"><a xlink:title="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipFromStructureToStructure (this class)" xlink:href="#inheritance-diagram"><polygon points="630,-49 366,-49 366,-24 630,-24 630,-49" stroke="#115f3b" fill="#0a955b"></polygon><image xlink:href="../../../../../../../../lib/class_diagram.png" y="-43.5" x="376" preserveAspectRatio="xMinYMin meet" height="15px" width="15px"></image><text fill="#ffffff" font-size="10.00" font-family="Arial" y="-33" x="397" text-anchor="start">ModelDataRelationshipFromStructureToStructure</text></a></g></g><!-- node1 --><g class="node trait" id="graph1_1"><g id="a_trait|graph1_1"><a xlink:title="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationship" xlink:href="ModelDataRelationship.html#inheritance-diagram"><polygon points="148,-110 0,-110 0,-85 148,-85 148,-110" stroke="#37657d" fill="#498aad"></polygon><image xlink:href="../../../../../../../../lib/trait_diagram.png" y="-104.5" x="10" preserveAspectRatio="xMinYMin meet" height="15px" width="15px"></image><text fill="#ffffff" font-size="10.00" font-family="Arial" y="-94" x="31" text-anchor="start">ModelDataRelationship</text></a></g></g><!-- node1&#45;&gt;node0 --><g class="edge inheritance" id="graph1_1_0"><g id="a_inheritance|graph1_1_0"><a xlink:title="ModelDataRelationshipFromStructureToStructure is a subtype of ModelDataRelationship"><path d="M153.649,-85.4168C228.268,-75.0334 339.348,-59.5765 415.027,-49.0457" stroke="#d4d4d4" fill="none"></path><polygon points="153.051,-83.733 148.34,-86.1555 153.534,-87.1996 153.051,-83.733" stroke="#d4d4d4" fill="none"></polygon></a></g></g><!-- node2 --><g class="node trait" id="graph1_2"><g id="a_trait|graph1_2"><a xlink:title="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipFromStructure" xlink:href="ModelDataRelationshipFromStructure.html#inheritance-diagram"><polygon points="379.5,-110 166.5,-110 166.5,-85 379.5,-85 379.5,-110" stroke="#37657d" fill="#498aad"></polygon><image xlink:href="../../../../../../../../lib/trait_diagram.png" y="-104.5" x="177" preserveAspectRatio="xMinYMin meet" height="15px" width="15px"></image><text fill="#ffffff" font-size="10.00" font-family="Arial" y="-94" x="198" text-anchor="start">ModelDataRelationshipFromStructure</text></a></g></g><!-- node2&#45;&gt;node0 --><g class="edge inheritance" id="graph1_2_0"><g id="a_inheritance|graph1_2_0"><a xlink:title="ModelDataRelationshipFromStructureToStructure is a subtype of ModelDataRelationshipFromStructure"><path d="M322.109,-83.6226C361.366,-73.3286 415.911,-59.0257 453.81,-49.0875" stroke="#d4d4d4" fill="none"></path><polygon points="321.309,-82.0231 316.916,-84.9841 322.197,-85.4086 321.309,-82.0231" stroke="#d4d4d4" fill="none"></polygon></a></g></g><!-- node3 --><g class="node trait" id="graph1_3"><g id="a_trait|graph1_3"><a xlink:title="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipToStructure" xlink:href="ModelDataRelationshipToStructure.html#inheritance-diagram"><polygon points="598,-110 398,-110 398,-85 598,-85 598,-110" stroke="#37657d" fill="#498aad"></polygon><image xlink:href="../../../../../../../../lib/trait_diagram.png" y="-104.5" x="408" preserveAspectRatio="xMinYMin meet" height="15px" width="15px"></image><text fill="#ffffff" font-size="10.00" font-family="Arial" y="-94" x="429" text-anchor="start">ModelDataRelationshipToStructure</text></a></g></g><!-- node3&#45;&gt;node0 --><g class="edge inheritance" id="graph1_3_0"><g id="a_inheritance|graph1_3_0"><a xlink:title="ModelDataRelationshipFromStructureToStructure is a subtype of ModelDataRelationshipToStructure"><path d="M498,-79.6874C498,-69.9173 498,-57.8534 498,-49.1323" stroke="#d4d4d4" fill="none"></path><polygon points="496.25,-79.8435 498,-84.8435 499.75,-79.8435 496.25,-79.8435" stroke="#d4d4d4" fill="none"></polygon></a></g></g><!-- node4 --><g class="node trait" id="graph1_4"><g id="a_trait|graph1_4"><a xlink:title="scala.Product"><polygon points="695.5,-110 616.5,-110 616.5,-85 695.5,-85 695.5,-110" stroke="#37657d" fill="#498aad"></polygon><image xlink:href="../../../../../../../../lib/trait_diagram.png" y="-104.5" x="627" preserveAspectRatio="xMinYMin meet" height="15px" width="15px"></image><text fill="#ffffff" font-size="10.00" font-family="Arial" y="-94" x="648" text-anchor="start">Product</text></a></g></g><!-- node4&#45;&gt;node0 --><g class="edge inheritance" id="graph1_4_0"><g id="a_inheritance|graph1_4_0"><a xlink:title="ModelDataRelationshipFromStructureToStructure is a subtype of Product"><path d="M620.156,-83.1152C592.7,-72.8627 555.21,-58.8634 529.031,-49.0875" stroke="#d4d4d4" fill="none"></path><polygon points="619.865,-84.8744 625.161,-84.9841 621.089,-81.5955 619.865,-84.8744" stroke="#d4d4d4" fill="none"></polygon></a></g></g><!-- node5 --><g class="node trait" id="graph1_5"><g id="a_trait|graph1_5"><a xlink:title="scala.Serializable"><polygon points="810.5,-110 713.5,-110 713.5,-85 810.5,-85 810.5,-110" stroke="#37657d" fill="#498aad"></polygon><image xlink:href="../../../../../../../../lib/trait_diagram.png" y="-104.5" x="724" preserveAspectRatio="xMinYMin meet" height="15px" width="15px"></image><text fill="#ffffff" font-size="10.00" font-family="Arial" y="-94" x="745" text-anchor="start">Serializable</text></a></g></g><!-- node5&#45;&gt;node0 --><g class="edge inheritance" id="graph1_5_0"><g id="a_inheritance|graph1_5_0"><a xlink:title="ModelDataRelationshipFromStructureToStructure is a subtype of Serializable"><path d="M708.284,-84.4952C661.909,-74.1311 595.35,-59.2563 549.602,-49.0323" stroke="#d4d4d4" fill="none"></path><polygon points="708.009,-86.227 713.271,-85.6097 708.773,-82.8113 708.009,-86.227" stroke="#d4d4d4" fill="none"></polygon></a></g></g></g></svg></div>
+              </div></div>
+        
+
+      <div id="mbrsel">
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
+        <div id="order">
+              <span class="filtertype">Ordering</span>
+              <ol>
+                
+                <li class="alpha in"><span>Alphabetic</span></li>
+                <li class="inherit out"><span>By Inheritance</span></li>
+              </ol>
+            </div>
+        <div id="ancestors">
+                <span class="filtertype">Inherited<br />
+                </span>
+                <ol id="linearization">
+                  <li class="in" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipFromStructureToStructure"><span>ModelDataRelationshipFromStructureToStructure</span></li><li class="in" name="scala.Serializable"><span>Serializable</span></li><li class="in" name="java.io.Serializable"><span>Serializable</span></li><li class="in" name="scala.Product"><span>Product</span></li><li class="in" name="scala.Equals"><span>Equals</span></li><li class="in" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipToStructure"><span>ModelDataRelationshipToStructure</span></li><li class="in" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipTo"><span>ModelDataRelationshipTo</span></li><li class="in" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipFromStructure"><span>ModelDataRelationshipFromStructure</span></li><li class="in" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipFrom"><span>ModelDataRelationshipFrom</span></li><li class="in" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationship"><span>ModelDataRelationship</span></li><li class="in" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelTypeTerm"><span>ModelTypeTerm</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                </ol>
+              </div><div id="ancestors">
+            <span class="filtertype"></span>
+            <ol>
+              <li class="hideall out"><span>Hide All</span></li>
+              <li class="showall in"><span>Show All</span></li>
+            </ol>
+          </div>
+        <div id="visbl">
+            <span class="filtertype">Visibility</span>
+            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+          </div>
+      </div>
+
+      <div id="template">
+        <div id="allMembers">
+        <div id="constructors" class="members">
+              <h3>Instance Constructors</h3>
+              <ol><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipFromStructureToStructure#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="&lt;init&gt;(c:org.semanticweb.owlapi.model.OWLClass,name:gov.nasa.jpl.imce.omf.schema.tables.LocalName,uuid:java.util.UUID,source:gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelStructuredDataType,rSource:org.semanticweb.owlapi.model.OWLObjectProperty,target:gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelStructuredDataType,rTarget:org.semanticweb.owlapi.model.OWLObjectProperty,unreified:org.semanticweb.owlapi.model.OWLObjectProperty):gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipFromStructureToStructure"></a>
+      <a id="&lt;init&gt;:ModelDataRelationshipFromStructureToStructure"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">new</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ModelDataRelationshipFromStructureToStructure</span><span class="params">(<span name="c">c: <span class="extype" name="org.semanticweb.owlapi.model.OWLClass">OWLClass</span></span>, <span name="name">name: <span class="extype" name="gov.nasa.jpl.imce.omf.schema.tables.LocalName">LocalName</span></span>, <span name="uuid">uuid: <span class="extype" name="java.util.UUID">UUID</span></span>, <span name="source">source: <a href="ModelStructuredDataType.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelStructuredDataType">ModelStructuredDataType</a></span>, <span name="rSource">rSource: <span class="extype" name="org.semanticweb.owlapi.model.OWLObjectProperty">OWLObjectProperty</span></span>, <span name="target">target: <a href="ModelStructuredDataType.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelStructuredDataType">ModelStructuredDataType</a></span>, <span name="rTarget">rTarget: <span class="extype" name="org.semanticweb.owlapi.model.OWLObjectProperty">OWLObjectProperty</span></span>, <span name="unreified">unreified: <span class="extype" name="org.semanticweb.owlapi.model.OWLObjectProperty">OWLObjectProperty</span></span>)</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipFromStructureToStructure@&lt;init&gt;(c:org.semanticweb.owlapi.model.OWLClass,name:gov.nasa.jpl.imce.omf.schema.tables.LocalName,uuid:java.util.UUID,source:gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelStructuredDataType,rSource:org.semanticweb.owlapi.model.OWLObjectProperty,target:gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelStructuredDataType,rTarget:org.semanticweb.owlapi.model.OWLObjectProperty,unreified:org.semanticweb.owlapi.model.OWLObjectProperty):gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipFromStructureToStructure" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li></ol>
+            </div>
+
+        
+
+        
+
+        <div id="values" class="values members">
+              <h3>Value Members</h3>
+              <ol><li name="scala.AnyRef#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="!=(x$1:Any):Boolean"></a>
+      <a id="!=(Any):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipFromStructureToStructure@!=(x$1:Any):Boolean" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.AnyRef###" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="##():Int"></a>
+      <a id="##():Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $hash$hash" class="name">##</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipFromStructureToStructure@##():Int" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.AnyRef#==" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="==(x$1:Any):Boolean"></a>
+      <a id="==(Any):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipFromStructureToStructure@==(x$1:Any):Boolean" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="asInstanceOf[T0]:T0"></a>
+      <a id="asInstanceOf[T0]:T0"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">asInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Any.asInstanceOf.T0">T0</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipFromStructureToStructure@asInstanceOf[T0]:T0" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipFromStructureToStructure#c" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="c:org.semanticweb.owlapi.model.OWLClass"></a>
+      <a id="c:OWLClass"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">c</span><span class="result">: <span class="extype" name="org.semanticweb.owlapi.model.OWLClass">OWLClass</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipFromStructureToStructure@c:org.semanticweb.owlapi.model.OWLClass" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipFromStructureToStructure">ModelDataRelationshipFromStructureToStructure</a> → <a href="ModelDataRelationshipToStructure.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipToStructure">ModelDataRelationshipToStructure</a></dd></dl></div>
+    </li><li name="scala.AnyRef#clone" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="clone():Object"></a>
+      <a id="clone():AnyRef"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">clone</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipFromStructureToStructure@clone():Object" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../../../../../../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.CloneNotSupportedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#eq" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="eq(x$1:AnyRef):Boolean"></a>
+      <a id="eq(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">eq</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipFromStructureToStructure@eq(x$1:AnyRef):Boolean" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.AnyRef#finalize" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="finalize():Unit"></a>
+      <a id="finalize():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">finalize</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipFromStructureToStructure@finalize():Unit" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../../../../../../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="symbol">classOf[java.lang.Throwable]</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#getClass" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getClass():Class[_]"></a>
+      <a id="getClass():Class[_]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getClass</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.Class">Class</span>[_]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipFromStructureToStructure@getClass():Class[_]" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipFromStructureToStructure#iri" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="iri:org.semanticweb.owlapi.model.IRI"></a>
+      <a id="iri:IRI"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">iri</span><span class="result">: <span class="extype" name="org.semanticweb.owlapi.model.IRI">IRI</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipFromStructureToStructure@iri:org.semanticweb.owlapi.model.IRI" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipFromStructureToStructure">ModelDataRelationshipFromStructureToStructure</a> → <a href="ModelTypeTerm.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelTypeTerm">ModelTypeTerm</a></dd></dl></div>
+    </li><li name="scala.Any#isInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="isInstanceOf[T0]:Boolean"></a>
+      <a id="isInstanceOf[T0]:Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">isInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipFromStructureToStructure@isInstanceOf[T0]:Boolean" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipFromStructureToStructure#name" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="name:gov.nasa.jpl.imce.omf.schema.tables.LocalName"></a>
+      <a id="name:LocalName"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">name</span><span class="result">: <span class="extype" name="gov.nasa.jpl.imce.omf.schema.tables.LocalName">LocalName</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipFromStructureToStructure@name:gov.nasa.jpl.imce.omf.schema.tables.LocalName" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipFromStructureToStructure">ModelDataRelationshipFromStructureToStructure</a> → <a href="ModelTypeTerm.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelTypeTerm">ModelTypeTerm</a></dd></dl></div>
+    </li><li name="scala.AnyRef#ne" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ne(x$1:AnyRef):Boolean"></a>
+      <a id="ne(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ne</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipFromStructureToStructure@ne(x$1:AnyRef):Boolean" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.AnyRef#notify" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="notify():Unit"></a>
+      <a id="notify():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">notify</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipFromStructureToStructure@notify():Unit" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.AnyRef#notifyAll" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="notifyAll():Unit"></a>
+      <a id="notifyAll():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">notifyAll</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipFromStructureToStructure@notifyAll():Unit" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipFromStructureToStructure#rSource" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="rSource:org.semanticweb.owlapi.model.OWLObjectProperty"></a>
+      <a id="rSource:OWLObjectProperty"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">rSource</span><span class="result">: <span class="extype" name="org.semanticweb.owlapi.model.OWLObjectProperty">OWLObjectProperty</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipFromStructureToStructure@rSource:org.semanticweb.owlapi.model.OWLObjectProperty" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipFromStructureToStructure">ModelDataRelationshipFromStructureToStructure</a> → <a href="ModelDataRelationshipToStructure.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipToStructure">ModelDataRelationshipToStructure</a></dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipFromStructureToStructure#rTarget" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="rTarget:org.semanticweb.owlapi.model.OWLObjectProperty"></a>
+      <a id="rTarget:OWLObjectProperty"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">rTarget</span><span class="result">: <span class="extype" name="org.semanticweb.owlapi.model.OWLObjectProperty">OWLObjectProperty</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipFromStructureToStructure@rTarget:org.semanticweb.owlapi.model.OWLObjectProperty" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipFromStructureToStructure">ModelDataRelationshipFromStructureToStructure</a> → <a href="ModelDataRelationshipToStructure.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipToStructure">ModelDataRelationshipToStructure</a></dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipFromStructureToStructure#source" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="source:gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelStructuredDataType"></a>
+      <a id="source:ModelStructuredDataType"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">source</span><span class="result">: <a href="ModelStructuredDataType.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelStructuredDataType">ModelStructuredDataType</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipFromStructureToStructure@source:gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelStructuredDataType" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipFromStructureToStructure">ModelDataRelationshipFromStructureToStructure</a> → <a href="ModelDataRelationshipFromStructure.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipFromStructure">ModelDataRelationshipFromStructure</a></dd></dl></div>
+    </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
+      <a id="synchronized[T0](⇒T0):T0"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">synchronized</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="params">(<span name="arg0">arg0: ⇒ <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>)</span><span class="result">: <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipFromStructureToStructure@synchronized[T0](x$1:=&gt;T0):T0" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipFromStructureToStructure#target" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="target:gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelStructuredDataType"></a>
+      <a id="target:ModelStructuredDataType"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">target</span><span class="result">: <a href="ModelStructuredDataType.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelStructuredDataType">ModelStructuredDataType</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipFromStructureToStructure@target:gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelStructuredDataType" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipFromStructureToStructure">ModelDataRelationshipFromStructureToStructure</a> → <a href="ModelDataRelationshipToStructure.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipToStructure">ModelDataRelationshipToStructure</a></dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipFromStructureToStructure#unreified" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="unreified:org.semanticweb.owlapi.model.OWLObjectProperty"></a>
+      <a id="unreified:OWLObjectProperty"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">unreified</span><span class="result">: <span class="extype" name="org.semanticweb.owlapi.model.OWLObjectProperty">OWLObjectProperty</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipFromStructureToStructure@unreified:org.semanticweb.owlapi.model.OWLObjectProperty" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipFromStructureToStructure">ModelDataRelationshipFromStructureToStructure</a> → <a href="ModelDataRelationshipToStructure.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipToStructure">ModelDataRelationshipToStructure</a></dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipFromStructureToStructure#uuid" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="uuid:java.util.UUID"></a>
+      <a id="uuid:UUID"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">uuid</span><span class="result">: <span class="extype" name="java.util.UUID">UUID</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipFromStructureToStructure@uuid:java.util.UUID" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipFromStructureToStructure">ModelDataRelationshipFromStructureToStructure</a> → <a href="ModelTypeTerm.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelTypeTerm">ModelTypeTerm</a></dd></dl></div>
+    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait():Unit"></a>
+      <a id="wait():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wait</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipFromStructureToStructure@wait():Unit" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait(x$1:Long,x$2:Int):Unit"></a>
+      <a id="wait(Long,Int):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>, <span name="arg1">arg1: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipFromStructureToStructure@wait(x$1:Long,x$2:Int):Unit" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait(x$1:Long):Unit"></a>
+      <a id="wait(Long):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipFromStructureToStructure@wait(x$1:Long):Unit" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li></ol>
+            </div>
+
+        
+
+        
+        </div>
+
+        <div id="inheritedMembers">
+        <div class="parent" name="scala.Serializable">
+              <h3>Inherited from <span class="extype" name="scala.Serializable">Serializable</span></h3>
+            </div><div class="parent" name="java.io.Serializable">
+              <h3>Inherited from <span class="extype" name="java.io.Serializable">Serializable</span></h3>
+            </div><div class="parent" name="scala.Product">
+              <h3>Inherited from <span class="extype" name="scala.Product">Product</span></h3>
+            </div><div class="parent" name="scala.Equals">
+              <h3>Inherited from <span class="extype" name="scala.Equals">Equals</span></h3>
+            </div><div class="parent" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipToStructure">
+              <h3>Inherited from <a href="ModelDataRelationshipToStructure.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipToStructure">ModelDataRelationshipToStructure</a></h3>
+            </div><div class="parent" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipTo">
+              <h3>Inherited from <a href="ModelDataRelationshipTo.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipTo">ModelDataRelationshipTo</a></h3>
+            </div><div class="parent" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipFromStructure">
+              <h3>Inherited from <a href="ModelDataRelationshipFromStructure.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipFromStructure">ModelDataRelationshipFromStructure</a></h3>
+            </div><div class="parent" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipFrom">
+              <h3>Inherited from <a href="ModelDataRelationshipFrom.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipFrom">ModelDataRelationshipFrom</a></h3>
+            </div><div class="parent" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationship">
+              <h3>Inherited from <a href="ModelDataRelationship.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationship">ModelDataRelationship</a></h3>
+            </div><div class="parent" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelTypeTerm">
+              <h3>Inherited from <a href="ModelTypeTerm.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelTypeTerm">ModelTypeTerm</a></h3>
+            </div><div class="parent" name="scala.AnyRef">
+              <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
+            </div><div class="parent" name="scala.Any">
+              <h3>Inherited from <span class="extype" name="scala.Any">Any</span></h3>
+            </div>
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
+        </div>
+
+      </div>
+
+      <div id="tooltip"></div>
+
+      <div id="footer">  </div>
+
+
+    </body>
+      </html>
