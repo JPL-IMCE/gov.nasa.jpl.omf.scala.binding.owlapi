@@ -96,11 +96,6 @@ lazy val core =
 
     resourceDirectory in Test := baseDirectory.value / "target" / "extracted" / "imce-omf_ontologies",
 
-    IMCEKeys.nexusJavadocRepositoryRestAPIURL2RepositoryName := Map(
-      "https://oss.sonatype.org/service/local" -> "releases",
-      "https://cae-nexuspro.jpl.nasa.gov/nexus/service/local" -> "JPL"),
-    IMCEKeys.pomRepositoryPathRegex := """\<repositoryPath\>\s*([^\"]*)\s*\<\/repositoryPath\>""".r,
-
     libraryDependencies ++= Seq(
 
       "gov.nasa.jpl.imce" %% "imce.third_party.scala_graph_libraries"

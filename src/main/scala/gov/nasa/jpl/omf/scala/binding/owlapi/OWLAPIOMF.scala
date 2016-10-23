@@ -151,15 +151,6 @@ trait OWLAPIOMFtbox extends OMFtbox {
   type EntityReifiedRelationshipSubClassAxiom =
   types.EntityReifiedRelationshipSubClassAxiom
 
-  type EntityReifiedRelationshipRestrictionAxiom =
-  types.EntityReifiedRelationshipRestrictionAxiom
-
-  type EntityReifiedRelationshipExistentialRestrictionAxiom =
-  types.EntityReifiedRelationshipExistentialRestrictionAxiom
-
-  type EntityReifiedRelationshipUniversalRestrictionAxiom =
-  types.EntityReifiedRelationshipUniversalRestrictionAxiom
-
   type ScalarDataTypeFacetRestrictionAxiom =
   types.ScalarDataTypeFacetRestrictionAxiom
 

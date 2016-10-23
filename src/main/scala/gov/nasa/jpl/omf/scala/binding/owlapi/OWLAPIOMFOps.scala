@@ -700,8 +700,6 @@ trait OWLAPIImmutableTerminologyGraphOps
    : types.EntityDefinitionRestrictionAxiom => T,
    funEntityReifiedRelationshipSubClassAxiom
    : types.EntityReifiedRelationshipSubClassAxiom => T,
-   funEntityReifiedRelationshipRestrictionAxiom
-   : types.EntityReifiedRelationshipRestrictionAxiom => T,
    funScalarDataTypeFacetRestriction
    : types.ScalarDataTypeFacetRestrictionAxiom => T,
    funModelScalarDataRelationshipRestrictionAxiomFromEntityToLiteral
@@ -718,8 +716,6 @@ trait OWLAPIImmutableTerminologyGraphOps
       funEntityDefinitionRestrictionAxiom(ax)
     case ax: types.EntityReifiedRelationshipSubClassAxiom =>
       funEntityReifiedRelationshipSubClassAxiom(ax)
-    case ax: types.EntityReifiedRelationshipRestrictionAxiom =>
-      funEntityReifiedRelationshipRestrictionAxiom(ax)
     case ax: types.ScalarDataTypeFacetRestrictionAxiom =>
       funScalarDataTypeFacetRestriction(ax)
     case ax: types.ModelScalarDataRelationshipRestrictionAxiomFromEntityToLiteral =>
@@ -778,21 +774,6 @@ trait OWLAPIImmutableTerminologyGraphOps
   = {
     import ax._
     (uuid, sub, sup)
-  }
-
-  override def fromEntityReifiedRelationshipRestrictionAxiom
-  (ax: types.EntityReifiedRelationshipRestrictionAxiom)
-  : (UUID, types.ModelEntityDefinition, types.ModelEntityReifiedRelationship, types.ModelEntityDefinition, RestrictionKind)
-  = {
-    import ax._
-    ax match {
-      case _ : types.EntityReifiedRelationshipExistentialRestrictionAxiom =>
-        (uuid, domain, rel, range, ExistentialRestrictionKind)
-      case _ : types.EntityReifiedRelationshipUniversalRestrictionAxiom =>
-        (uuid, domain, rel, range, UniversalRestrictionKind)
-
-    }
-
   }
 
   // scalar datatype facet restriction axiom

@@ -373,16 +373,6 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
   lazy val OMF_HAS_RESTRICTING_SCALAR_DATA_RELATIONSHIP = omfModelObjectProperties("hasRestrictingScalarDataRelationship")
   lazy val OMF_HAS_LITERAL_RESTRICTION = omfModelDataProperties("hasLiteralRestriction")
 
-  lazy val OMF_HAS_RESTRICTED_REIFIED_RELATIONSHIP = omfModelObjectProperties("hasRestrictedReifiedRelationship")
-
-  lazy val OMF_ENTITY_REIFIED_RELATIONSHIP_EXISTENTIAL_RESTRICTION_AXIOM = omfModelClasses("EntityReifiedRelationshipExistentialRestrictionAxiom")
-  protected val OMF_ENTITY_REIFIED_RELATIONSHIP_EXISTENTIAL_RESTRICTION_AXIOM2Instance =
-    scala.collection.mutable.HashMap[types.EntityReifiedRelationshipExistentialRestrictionAxiom, OWLNamedIndividual]()
-
-  lazy val OMF_ENTITY_REIFIED_RELATIONSHIP_UNIVERSAL_RESTRICTION_AXIOM = omfModelClasses("EntityReifiedRelationshipUniversalRestrictionAxiom")
-  protected val OMF_ENTITY_REIFIED_RELATIONSHIP_UNIVERSAL_RESTRICTION_AXIOM2Instance =
-    scala.collection.mutable.HashMap[types.EntityReifiedRelationshipUniversalRestrictionAxiom, OWLNamedIndividual]()
-
   // Datatypes
   lazy val OWL_REAL: OWLDatatype = ontManager.getOWLDataFactory.getDoubleOWLDatatype
 
@@ -1607,106 +1597,6 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
     //      OMF_HAS_PROVENANCE_FROM_RULE, axiomI, hasProvenanceFromRule ) ) )
     } yield {
       OMF_ENTITY_REIFIED_RELATIONSHIP_SUB_CLASS_AXIOM2Instance += (axiomT -> axiomI)
-      axiomT
-    }
-  }
-
-  def createOMFEntityReifiedRelationshipExistentialRestrictionAxiomInstance
-  (tbox: types.ModelTerminologyGraph,
-   axiomT: types.EntityReifiedRelationshipExistentialRestrictionAxiom)
-  : Set[java.lang.Throwable] \/ types.EntityReifiedRelationshipExistentialRestrictionAxiom
-  = {
-
-    val domainI = OMF_MODEL_ENTITY_DEFINITION2Instance(axiomT.domain)
-    val relI = OMF_MODEL_ENTITY_RELATIONSHIP2Instance(axiomT.rel)
-    val rangeI = OMF_MODEL_ENTITY_DEFINITION2Instance(axiomT.range)
-    for {
-      axiomIRI <- makeMetadataInstanceIRI(omfMetadata.get,
-        "EntityReifiedRelationshipExistentialRestriction",
-        tbox.iri,
-        axiomT.domain.iri,
-        axiomT.rel.iri,
-        axiomT.range.iri)
-      axiomI = owlDataFactory.getOWLNamedIndividual(axiomIRI)
-      _ <- applyModelTermAxiomChanges(
-        axiomT,
-        "createOMFEntityReifiedRelationshipExistentialRestrictionAxiomInstance",
-        Seq(
-          new AddAxiom(omfMetadata.get,
-            owlDataFactory
-              .getOWLDeclarationAxiom(axiomI)),
-          new AddAxiom(omfMetadata.get,
-            owlDataFactory
-              .getOWLObjectPropertyAssertionAxiom(OMF_DIRECTLY_ASSERTS_AXIOM,
-                OMF_MODEL_TERMINOLOGY_GRAPH2Instance(tbox),
-                axiomI)),
-          new AddAxiom(omfMetadata.get,
-            owlDataFactory
-              .getOWLClassAssertionAxiom(OMF_ENTITY_REIFIED_RELATIONSHIP_EXISTENTIAL_RESTRICTION_AXIOM, axiomI)),
-          new AddAxiom(omfMetadata.get,
-            owlDataFactory
-              .getOWLObjectPropertyAssertionAxiom(OMF_HAS_RESTRICTED_ENTITY_DOMAIN,
-                axiomI, domainI)),
-          new AddAxiom(omfMetadata.get,
-            owlDataFactory
-              .getOWLObjectPropertyAssertionAxiom(OMF_HAS_RESTRICTED_REIFIED_RELATIONSHIP,
-                axiomI, relI)),
-          new AddAxiom(omfMetadata.get,
-            owlDataFactory
-              .getOWLObjectPropertyAssertionAxiom(OMF_HAS_RESTRICTED_RANGE,
-                axiomI, rangeI))))
-      } yield {
-      OMF_ENTITY_REIFIED_RELATIONSHIP_EXISTENTIAL_RESTRICTION_AXIOM2Instance += (axiomT -> axiomI)
-      axiomT
-    }
-  }
-
-  def createOMFEntityReifiedRelationshipUniversalRestrictionAxiomInstance
-  (tbox: types.ModelTerminologyGraph,
-   axiomT: types.EntityReifiedRelationshipUniversalRestrictionAxiom)
-  : Set[java.lang.Throwable] \/ types.EntityReifiedRelationshipUniversalRestrictionAxiom
-  = {
-
-    val domainI = OMF_MODEL_ENTITY_DEFINITION2Instance(axiomT.domain)
-    val relI = OMF_MODEL_ENTITY_RELATIONSHIP2Instance(axiomT.rel)
-    val rangeI = OMF_MODEL_ENTITY_DEFINITION2Instance(axiomT.range)
-    for {
-      axiomIRI <- makeMetadataInstanceIRI(omfMetadata.get,
-        "EntityReifiedRelationshipUniversalRestriction",
-        tbox.iri,
-        axiomT.domain.iri,
-        axiomT.rel.iri,
-        axiomT.range.iri)
-      axiomI = owlDataFactory.getOWLNamedIndividual(axiomIRI)
-      _ <- applyModelTermAxiomChanges(
-        axiomT,
-        "createOMFEntityReifiedRelationshipUniversalRestrictionAxiomInstance",
-        Seq(
-          new AddAxiom(omfMetadata.get,
-            owlDataFactory
-              .getOWLDeclarationAxiom(axiomI)),
-          new AddAxiom(omfMetadata.get,
-            owlDataFactory
-              .getOWLObjectPropertyAssertionAxiom(OMF_DIRECTLY_ASSERTS_AXIOM,
-                OMF_MODEL_TERMINOLOGY_GRAPH2Instance(tbox),
-                axiomI)),
-          new AddAxiom(omfMetadata.get,
-            owlDataFactory
-              .getOWLClassAssertionAxiom(OMF_ENTITY_REIFIED_RELATIONSHIP_UNIVERSAL_RESTRICTION_AXIOM, axiomI)),
-          new AddAxiom(omfMetadata.get,
-            owlDataFactory
-              .getOWLObjectPropertyAssertionAxiom(OMF_HAS_RESTRICTED_ENTITY_DOMAIN,
-                axiomI, domainI)),
-          new AddAxiom(omfMetadata.get,
-            owlDataFactory
-              .getOWLObjectPropertyAssertionAxiom(OMF_HAS_RESTRICTED_REIFIED_RELATIONSHIP,
-                axiomI, relI)),
-          new AddAxiom(omfMetadata.get,
-            owlDataFactory
-              .getOWLObjectPropertyAssertionAxiom(OMF_HAS_RESTRICTED_RANGE,
-                axiomI, rangeI))))
-      } yield {
-      OMF_ENTITY_REIFIED_RELATIONSHIP_UNIVERSAL_RESTRICTION_AXIOM2Instance += (axiomT -> axiomI)
       axiomT
     }
   }
