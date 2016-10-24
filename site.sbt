@@ -9,10 +9,10 @@ import com.typesafe.sbt.SbtGhPages._
 preprocessVars in Preprocess := Map(
   "CI" -> "https://imce-jenkins.jpl.nasa.gov/job/omf.scala.binding.owlapi/",
   "GIT" -> "github.com",
-  "REPO" -> "gov.nasa.jpl.imce",
+  "REPO" -> organization.value,
   "VER" -> version.value,
-  "ORG" -> "JPL-IMCE",
-  "SUBJECT" -> "JPL-IMCE",
+  "ORG" -> organizationName.value,
+  "SUBJECT" -> organizationName.value,
   "ORG_NAME" -> organizationName.value,
   "DESC" -> description.value,
   "PKG" -> moduleName.value,
