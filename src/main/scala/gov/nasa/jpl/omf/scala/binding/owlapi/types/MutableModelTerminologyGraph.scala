@@ -24,7 +24,6 @@ import java.util.UUID
 import gov.nasa.jpl.imce.omf.schema.tables.LocalName
 import gov.nasa.jpl.omf.scala.binding.owlapi._
 import gov.nasa.jpl.omf.scala.core._
-import gov.nasa.jpl.omf.scala.core.ConstrainingFacet
 import gov.nasa.jpl.omf.scala.core.RelationshipCharacteristics._
 import gov.nasa.jpl.omf.scala.core.TerminologyKind._
 import org.semanticweb.owlapi.model._
@@ -88,14 +87,19 @@ sealed abstract class MutableModelTerminologyGraphException
 (override val message: String)
   extends OMFError.OMFException(message, OMFError.emptyThrowables) {
   require(null != message)
+
+  def this(kind: EntityExceptionKind, iri: IRI, message: String)
+  = this(s"Cannot create $kind with IRI=$iri because "+message)
+
+  def this(kind: AxiomExceptionKind, message: String)
+  = this(s"Cannot create $kind because "+message)
 }
 
 case class EntityAlreadyDefinedException
 (kind: EntityExceptionKind,
  iri: IRI,
  term: ModelTypeTerm)
-  extends MutableModelTerminologyGraphException(s"Cannot create $kind with IRI='$iri'" +
-                                                s" because it is already defined as: $term") {
+  extends MutableModelTerminologyGraphException(kind, iri, s"it is already defined as: $term") {
 
   require(null != kind)
   require(null != iri)
@@ -106,8 +110,7 @@ case class EntityConflictException
 (kind: EntityExceptionKind,
  iri: IRI,
  conflictingTerm: ModelTypeTerm)
-  extends MutableModelTerminologyGraphException(s"Cannot create $kind with IRI='$iri' " +
-                                                s"because this IRI refers to: $conflictingTerm") {
+  extends MutableModelTerminologyGraphException(kind, iri, s"this IRI refers to: $conflictingTerm") {
 
   require(null != kind)
   require(null != iri)
@@ -118,34 +121,28 @@ case class EntityScopeException
 (kind: EntityExceptionKind,
  iri: IRI,
  unaccessibleTerms: Map[RelationshipScopeAccessKind, ModelTypeTerm])
-  extends MutableModelTerminologyGraphException(
-                                                 s"""Cannot create $kind with IRI='$iri' because
-                                                     |there are ${unaccessibleTerms.size} terms out of scope of
-                                                     |the graph: """.stripMargin +
-                                                 (unaccessibleTerms.map { case (k, t) => s"$k: $t" } mkString ", "))
+  extends MutableModelTerminologyGraphException(kind, iri,
+    s"""|there are ${unaccessibleTerms.size} terms out of scope of
+        |the graph: """.stripMargin +
+      (unaccessibleTerms.map { case (k, t) => s"$k: $t" } mkString ", "))
 
 case class AxiomScopeException
 (kind: AxiomExceptionKind,
  unaccessibleTerms: Map[AxiomScopeAccessKind, ModelTypeTerm])
-  extends MutableModelTerminologyGraphException(
-                                                 s"""Cannot create $kind because
-                                                     |there are ${unaccessibleTerms.size} terms out of scope of
-                                                     |the graph: """.stripMargin +
-                                                 (unaccessibleTerms.map { case (k, t) => s"$k: $t" } mkString ", "))
+  extends MutableModelTerminologyGraphException(kind,
+    s"""|there are ${unaccessibleTerms.size} terms out of scope of
+        |the graph: """.stripMargin +
+      (unaccessibleTerms.map { case (k, t) => s"$k: $t" } mkString ", "))
 
 case class DuplicateModelTermAxiomException
 (kind: AxiomExceptionKind,
  axiom: ModelTermAxiom)
-  extends MutableModelTerminologyGraphException(
-                                                 s"""Cannot create $kind because
-                                                     |the axiom is already asserted $axiom""".stripMargin)
+  extends MutableModelTerminologyGraphException(kind, s"the axiom is already asserted $axiom")
 
 case class DuplicateTerminologyGraphAxiomException
 (kind: AxiomExceptionKind,
  axiom: TerminologyGraphAxiom)
-  extends MutableModelTerminologyGraphException(
-    s"""Cannot create $kind because
-       |the axiom is already asserted $axiom""".stripMargin)
+  extends MutableModelTerminologyGraphException(kind, s"the axiom is already asserted $axiom")
 
 case class MutableModelTerminologyGraph
 (override val uuid: UUID,

@@ -1856,10 +1856,10 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
    g: types.MutableModelTerminologyGraph)
   : Set[java.lang.Throwable] \/ (types.ImmutableModelTerminologyGraph, types.Mutable2ImmutableTerminologyMap)
   = for {
-      m2i <- Conversions.convert(m2i, Seq(g), Seq())(this)
+      next <- Conversions.convert(m2i, Seq(g), Seq())(this)
     } yield {
-      require(m2i.contains(g))
-      (m2i(g), m2i)
+      require(next.contains(g))
+      (next(g), m2i)
     }
 
   /**

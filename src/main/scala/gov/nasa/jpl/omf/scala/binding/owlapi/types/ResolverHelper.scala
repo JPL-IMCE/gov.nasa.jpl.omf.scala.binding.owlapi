@@ -337,7 +337,7 @@ case class ResolverHelper
                               )
                               .flatMap { _rr =>
 
-                                val rcIRI = rc.getIRI
+                                // val rcIRI = rc.getIRI
                                 val entry
                                 : Set[java.lang.Throwable] \/ Map[OWLClass, ModelEntityReifiedRelationship]
                                 = omfStore.registerOMFModelEntityReifiedRelationshipInstance(tboxG, _rr)
