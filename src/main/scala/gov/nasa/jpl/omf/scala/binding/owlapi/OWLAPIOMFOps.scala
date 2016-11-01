@@ -405,24 +405,29 @@ trait OWLAPIImmutableTerminologyGraphOps
 
   def getTerminologyGraphLocalName
   (graph: types.ModelTerminologyGraph)
+  : LocalName
   = graph.name
 
   def getTerminologyGraphUUID
   (graph: types.ModelTerminologyGraph)
+  : UUID
   = graph.uuid
 
   override def getTerminologyGraphKind
   (graph: types.ModelTerminologyGraph)
+  : TerminologyKind
   = graph.kind
 
   override def lookupTypeTerm
   (graph: types.ModelTerminologyGraph, iri: IRI, recursively: Boolean)
   (implicit store: OWLAPIOMFGraphStore)
+  : Option[types.ModelTypeTerm]
   = graph.lookupTypeTerm(iri, recursively)
 
   override def lookupEntityDefinition
   (graph: types.ModelTerminologyGraph, iri: IRI, recursively: Boolean)
   (implicit store: OWLAPIOMFGraphStore)
+  : Option[types.ModelEntityDefinition]
   = lookupTypeTerm(graph, iri, recursively) match {
       case Some(t: types.ModelEntityDefinition) => Some(t)
       case _                                    => None
@@ -431,6 +436,7 @@ trait OWLAPIImmutableTerminologyGraphOps
   override def lookupEntityAspect
   (graph: types.ModelTerminologyGraph, iri: IRI, recursively: Boolean)
   (implicit store: OWLAPIOMFGraphStore)
+  : Option[types.ModelEntityAspect]
   = lookupTypeTerm(graph, iri, recursively) match {
       case Some(t: types.ModelEntityAspect) => Some(t)
       case _                                => None
@@ -448,6 +454,7 @@ trait OWLAPIImmutableTerminologyGraphOps
   override def lookupEntityReifiedRelationship
   (graph: types.ModelTerminologyGraph, iri: IRI, recursively: Boolean)
   (implicit store: OWLAPIOMFGraphStore)
+  : Option[types.ModelEntityReifiedRelationship]
   = lookupTypeTerm(graph, iri, recursively) match {
       case Some(t: types.ModelEntityReifiedRelationship) => Some(t)
       case _                                             => None
@@ -456,6 +463,7 @@ trait OWLAPIImmutableTerminologyGraphOps
   override def lookupEntityUnreifiedRelationship
   (graph: types.ModelTerminologyGraph, iri: IRI, recursively: Boolean)
   (implicit store: OWLAPIOMFGraphStore)
+  : Option[types.ModelEntityUnreifiedRelationship]
   = lookupTypeTerm(graph, iri, recursively) match {
       case Some(t: types.ModelEntityUnreifiedRelationship) => Some(t)
       case _                                               => None
@@ -464,6 +472,7 @@ trait OWLAPIImmutableTerminologyGraphOps
   override def lookupScalarDataType
   (graph: types.ModelTerminologyGraph, iri: IRI, recursively: Boolean)
   (implicit store: OWLAPIOMFGraphStore)
+  : Option[types.ModelScalarDataType]
   = lookupTypeTerm(graph, iri, recursively) match {
       case Some(t: types.ModelScalarDataType) => Some(t)
       case _                                  => None
@@ -472,6 +481,7 @@ trait OWLAPIImmutableTerminologyGraphOps
   override def lookupStructuredDataType
   (graph: types.ModelTerminologyGraph, iri: IRI, recursively: Boolean)
   (implicit store: OWLAPIOMFGraphStore)
+  : Option[types.ModelStructuredDataType]
   = lookupTypeTerm(graph, iri, recursively) match {
       case Some(t: types.ModelStructuredDataType) => Some(t)
       case _                                      => None
@@ -480,6 +490,7 @@ trait OWLAPIImmutableTerminologyGraphOps
   override def lookupEntityDataRelationshipFromEntityToScalar
   (graph: types.ModelTerminologyGraph, iri: IRI, recursively: Boolean)
   (implicit store: OWLAPIOMFGraphStore)
+  : Option[types.ModelDataRelationshipFromEntityToScalar]
   = lookupTypeTerm(graph, iri, recursively) match {
       case Some(t: types.ModelDataRelationshipFromEntityToScalar) => Some(t)
       case _                                                      => None
@@ -488,6 +499,7 @@ trait OWLAPIImmutableTerminologyGraphOps
   override def lookupEntityDataRelationshipFromEntityToStructure
   (graph: types.ModelTerminologyGraph, iri: IRI, recursively: Boolean)
   (implicit store: OWLAPIOMFGraphStore)
+  : Option[types.ModelDataRelationshipFromEntityToStructure]
   = lookupTypeTerm(graph, iri, recursively) match {
       case Some(t: types.ModelDataRelationshipFromEntityToStructure) => Some(t)
       case _                                                         => None
@@ -496,6 +508,7 @@ trait OWLAPIImmutableTerminologyGraphOps
   override def lookupEntityDataRelationshipFromStructureToScalar
   (graph: types.ModelTerminologyGraph, iri: IRI, recursively: Boolean)
   (implicit store: OWLAPIOMFGraphStore)
+  : Option[types.ModelDataRelationshipFromStructureToScalar]
   = lookupTypeTerm(graph, iri, recursively) match {
       case Some(t: types.ModelDataRelationshipFromStructureToScalar) => Some(t)
       case _                                                         => None
@@ -504,6 +517,7 @@ trait OWLAPIImmutableTerminologyGraphOps
   override def lookupEntityDataRelationshipFromStructureToStructure
   (graph: types.ModelTerminologyGraph, iri: IRI, recursively: Boolean)
   (implicit store: OWLAPIOMFGraphStore)
+  : Option[types.ModelDataRelationshipFromStructureToStructure]
   = lookupTypeTerm(graph, iri, recursively) match {
       case Some(t: types.ModelDataRelationshipFromStructureToStructure) => Some(t)
       case _                                                            => None
@@ -594,6 +608,7 @@ trait OWLAPIImmutableTerminologyGraphOps
 
   override def fromEntityDefinition
   (e: types.ModelEntityDefinition)
+  : IRI
   = e match {
     case ea: types.ModelEntityAspect =>
       fromEntityAspect(ea)
@@ -613,17 +628,20 @@ trait OWLAPIImmutableTerminologyGraphOps
 
   override def fromEntityConcept
   (c: types.ModelEntityConcept)
+  : OWLAPIEntityConceptSignature
   = OWLAPIEntityConceptSignature(c.uuid, c.name, c.iri, c.isAbstract)
 
   // entity relationship
 
   override def fromEntityReifiedRelationship
   (r: types.ModelEntityReifiedRelationship)
+  : OWLAPIEntityReifiedRelationshipSignature
   = OWLAPIEntityReifiedRelationshipSignature(r.uuid, r.name, r.iri, r.source, r.target, r.characteristics, r.isAbstract)
 
 
   override def fromEntityUnreifiedRelationship
   (r: types.ModelEntityUnreifiedRelationship)
+  : OWLAPIEntityUnreifiedRelationshipSignature
   = OWLAPIEntityUnreifiedRelationshipSignature(r.uuid, r.name, r.iri, r.source, r.target, r.characteristics)
 
 
@@ -631,6 +649,7 @@ trait OWLAPIImmutableTerminologyGraphOps
 
   override def fromDataTypeDefinition
   (dt: types.ModelDataTypeDefinition)
+  : (UUID, LocalName, IRI)
   = dt match {
     case d: types.ModelScalarDataType =>
       fromScalarDataType(d)
@@ -642,18 +661,21 @@ trait OWLAPIImmutableTerminologyGraphOps
 
   override def fromScalarDataType
   (dt: types.ModelScalarDataType)
+  : (UUID, LocalName, IRI)
   = Tuple3(dt.uuid, dt.name, dt.iri)
 
   // structured datatype
 
   override def fromStructuredDataType
   (dt: types.ModelStructuredDataType)
+  : (UUID, LocalName, IRI)
   = Tuple3(dt.uuid, dt.name, dt.iri)
 
   // data relationship from entity to scalar
 
   override def fromDataRelationshipFromEntityToScalar
   (esc: types.ModelDataRelationshipFromEntityToScalar)
+  : (UUID, LocalName, IRI, types.ModelEntityDefinition, types.ModelScalarDataType)
   = {
     import esc._
     (uuid, name, iri, source, target)
@@ -663,6 +685,7 @@ trait OWLAPIImmutableTerminologyGraphOps
 
   override def fromDataRelationshipFromEntityToStructure
   (est: types.ModelDataRelationshipFromEntityToStructure)
+  : (UUID, LocalName, IRI, types.ModelEntityDefinition, types.ModelStructuredDataType)
   = {
     import est._
     (uuid, name, iri, source, target)
@@ -672,6 +695,7 @@ trait OWLAPIImmutableTerminologyGraphOps
 
   override def fromDataRelationshipFromStructureToScalar
   (ssc: types.ModelDataRelationshipFromStructureToScalar)
+  : (UUID, LocalName, IRI, types.ModelStructuredDataType, types.ModelScalarDataType)
   = {
     import ssc._
     (uuid, name, iri, source, target)
@@ -681,6 +705,7 @@ trait OWLAPIImmutableTerminologyGraphOps
 
   override def fromDataRelationshipFromStructureToStructure
   (sst: types.ModelDataRelationshipFromStructureToStructure)
+  : (UUID, LocalName, IRI, types.ModelStructuredDataType, types.ModelStructuredDataType)
   = {
     import sst._
     (uuid, name, iri, source, target)
@@ -916,6 +941,7 @@ trait OWLAPIMutableTerminologyGraphOps
    target: types.ModelStructuredDataType,
    dataRelationshipName: String)
   (implicit store: OWLAPIOMFGraphStore)
+  : Set[java.lang.Throwable] \/ types.ModelDataRelationshipFromEntityToStructure
   = for {
       dIRI <- withFragment(graph.iri, dataRelationshipName)
       d <- graph.addDataRelationshipFromEntityToStructure(dIRI, dataRelationshipName, uuid, source, target)
@@ -930,6 +956,7 @@ trait OWLAPIMutableTerminologyGraphOps
    target: types.ModelScalarDataType,
    dataRelationshipName: String)
   (implicit store: OWLAPIOMFGraphStore)
+  : Set[java.lang.Throwable] \/ types.ModelDataRelationshipFromStructureToScalar
   = for {
       dIRI <- withFragment(graph.iri, dataRelationshipName)
       d <- graph.addDataRelationshipFromStructureToScalar(dIRI, dataRelationshipName, uuid, source, target)
@@ -944,6 +971,7 @@ trait OWLAPIMutableTerminologyGraphOps
    target: types.ModelStructuredDataType,
    dataRelationshipName: String)
   (implicit store: OWLAPIOMFGraphStore)
+  : Set[java.lang.Throwable] \/ types.ModelDataRelationshipFromStructureToStructure
   = for {
       dIRI <- withFragment(graph.iri, dataRelationshipName)
       d <- graph.addDataRelationshipFromStructureToStructure(dIRI, dataRelationshipName, uuid, source, target)
@@ -959,6 +987,7 @@ trait OWLAPIMutableTerminologyGraphOps
    sub: types.ModelEntityDefinition,
    sup: types.ModelEntityAspect)
   (implicit store: OWLAPIOMFGraphStore)
+  : Set[java.lang.Throwable] \/ types.EntityDefinitionAspectSubClassAxiom
   = graph.addEntityDefinitionAspectSubClassAxiom(uuid, sub, sup)
 
   // entity concept subclass axiom
@@ -1011,6 +1040,7 @@ trait OWLAPIMutableTerminologyGraphOps
    sub: types.ModelEntityReifiedRelationship,
    sup: types.ModelEntityReifiedRelationship)
   (implicit store: OWLAPIOMFGraphStore)
+  : Set[java.lang.Throwable] \/ types.EntityReifiedRelationshipSubClassAxiom
   = graph.addEntityReifiedRelationshipSubClassAxiom(uuid, sub, sup)
 
   /*
@@ -1043,6 +1073,7 @@ trait OWLAPIMutableTerminologyGraphOps
    fundamentalFacets: Iterable[FundamentalFacet],
    constrainingFacets: Iterable[ConstrainingFacet] )
   (implicit store: OWLAPIOMFGraphStore)
+  : Set[java.lang.Throwable] \/ types.ScalarDataTypeFacetRestrictionAxiom
   = graph.addScalarDataTypeFacetRestrictionAxiom(uuid, sub, sup, fundamentalFacets, constrainingFacets)
 
   override def addTerminologyGraphExtension
