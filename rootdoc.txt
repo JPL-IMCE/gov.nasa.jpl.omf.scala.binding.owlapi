@@ -1,0 +1,23 @@
+= Binding of the Ontological Modeling Framework (OMF) for the OWL API =
+
+== 1. OMF Adapter ==
+
+ - [[gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMF]]
+ - [[gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFModule]]
+
+== 2. OMF Operations ==
+
+ - [[gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFOps]]
+ - [[gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore]]
+ - [[gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader]]
+
+== 3. OMF Terminology Graph Adaptation ==
+
+ - [[gov.nasa.jpl.omf.scala.binding.owlapi.types]]
+
+== 4. OMF Assertion Graph Adaptation ==
+
+(this is very incomplete)
+
+ - [[gov.nasa.jpl.omf.scala.binding.owlapi.instances]]
+

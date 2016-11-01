@@ -12,6 +12,11 @@ before_cache:
   - find $HOME/.ivy2 -name "ivydata-*.properties" -delete
   - find $HOME/.sbt -name "*.lock" -delete
 
+addons:
+  apt:
+    packages:
+      - graphviz
+
 jdk:
 - oraclejdk8
 

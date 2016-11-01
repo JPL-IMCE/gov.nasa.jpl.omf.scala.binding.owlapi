@@ -66,13 +66,17 @@ lazy val core =
   .settings(IMCEReleasePlugin.packageReleaseProcessSettings)
   .settings(dynamicScriptsResourceSettings(Some("gov.nasa.jpl.omf.scala.binding.owlapi")))
   .settings(IMCEPlugin.strictScalacFatalWarningsSettings)
-  //.settings(IMCEPlugin.scalaDocSettings(diagrams=true))
   .settings(
     IMCEKeys.licenseYearOrRange := "2015",
     IMCEKeys.organizationInfo := IMCEPlugin.Organizations.omf,
 
     buildInfoPackage := "gov.nasa.jpl.omf.scala.binding.owlapi",
     buildInfoKeys ++= Seq[BuildInfoKey](BuildInfoKey.action("buildDateUTC") { buildUTCDate.value }),
+
+    scalacOptions in (Compile,doc) ++= Seq(
+      "-diagrams",
+      "-doc-title", name.value,
+      "-doc-root-content", baseDirectory.value + "/rootdoc.txt"),
 
     projectID := {
       val previous = projectID.value
