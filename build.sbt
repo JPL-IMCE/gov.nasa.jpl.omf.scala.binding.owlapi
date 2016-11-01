@@ -17,9 +17,6 @@ resolvers ++= {
     Seq.empty[Resolver]
 }
 
-import scala.io.Source
-import scala.util.control.Exception._
-
 // @see https://github.com/jrudolph/sbt-dependency-graph/issues/113
 def zipFileSelector
 ( a: Artifact, f: File)
@@ -122,7 +119,7 @@ lazy val core =
 
       for {
         module <- g.nodes
-        if module.id.name == "imce-omf_ontologies"
+        if module.id.name == "gov.nasa.jpl.imce.ontologies"
         archive <- module.jarFile
         extractFolder = base / "target" / "extracted" / module.id.name
         _ = s.log.info(s"*** Extracting: $archive")
@@ -141,8 +138,9 @@ lazy val core =
 
     compile in Test <<= (compile in Test) dependsOn extractArchives,
 
-    //unmanagedClasspath in Test += baseDirectory.value / "target" / "extracted" / "imce-omf_ontologies"
-    unmanagedClasspath in Test += new File("/opt/local/imce/users/nfr/github.imce/gov.nasa.jpl.imce.ontologies/gov.nasa.jpl.imce.ontologies/")
+    unmanagedClasspath in Test += baseDirectory.value / "target" / "extracted" / "gov.nasa.jpl.imce.ontologies"
+    // for local development, use this instead:
+    //unmanagedClasspath in Test += baseDirectory.value / ".." / "gov.nasa.jpl.imce.ontologies" / "gov.nasa.jpl.imce.ontologies/"
   )
   .dependsOnSourceProjectOrLibraryArtifacts(
     "omf-scala-core",
@@ -160,7 +158,7 @@ lazy val core =
     Seq(
       "gov.nasa.jpl.imce" % "gov.nasa.jpl.imce.ontologies"
         % Versions_imce_omf_ontologies.version
-        % "runtime" artifacts Artifact("gov.nasa.jpl.imce.ontologies", "zip", "zip", Some("resource"), Seq(), None, Map())
+        % "test" artifacts Artifact("gov.nasa.jpl.imce.ontologies", "zip", "zip", Some("resource"), Seq(), None, Map())
     )
   )
 

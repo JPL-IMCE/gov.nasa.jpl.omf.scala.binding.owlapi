@@ -316,7 +316,7 @@ object Backbone {
           new AddAxiom(ont, b.df.getOWLSubObjectPropertyOfAxiom(bop, b.topObjectPropertyOP))
         )
       }
-      _ <- applyOntologyChanges(om,
+      _ <- applyOntologyChangesOrNoOp(om,
         changes1 ++ changes2 ++ changes3,
         "Error creating backbone ontology")
     } yield b
