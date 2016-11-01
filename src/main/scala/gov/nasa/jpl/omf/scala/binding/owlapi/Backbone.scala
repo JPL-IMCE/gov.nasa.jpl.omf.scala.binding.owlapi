@@ -242,84 +242,84 @@ object Backbone {
     val bIRI = toBackboneIRI( ont.getOntologyID.getOntologyIRI.get )
 
     for {
-      _Thing <- withFragment( bIRI, "Thing" )
-      _Aspect <- withFragment( bIRI, "Aspect" )
-      _Entity <- withFragment( bIRI, "Entity" )
-      _StructuredDatatype <- withFragment( bIRI, "StructuredDatatype" )
-      _ReifiedObjectProperty <- withFragment( bIRI, "ReifiedObjectProperty" )
-      _ReifiedStructuredDataProperty <- withFragment( bIRI, "ReifiedStructuredDataProperty" )
-      _topObjectProperty <- withFragment( bIRI, "topObjectProperty" )
-      _topReifiedObjectProperty <- withFragment( bIRI, "topReifiedObjectProperty" )
-      _topReifiedObjectPropertySource <- withFragment( bIRI, "topReifiedObjectPropertySource" )
-      _topReifiedObjectPropertyTarget <- withFragment( bIRI, "topReifiedObjectPropertyTarget" )
-      _topReifiedStructuredDataProperty <- withFragment( bIRI, "topReifiedStructuredDataProperty" )
-      _topReifiedStructuredDataPropertySource <- withFragment( bIRI, "topReifiedStructuredDataPropertySource" )
-      _topReifiedStructuredDataPropertyTarget <- withFragment( bIRI, "topReifiedStructuredDataPropertyTarget" )
-      _topDataProperty <- withFragment( bIRI, "topDataProperty" )
-    } yield new OMFBackbone( ont, kind,
-      Thing = _Thing,
-      Aspect = _Aspect,
-      Entity = _Entity,
-      StructuredDatatype = _StructuredDatatype,
-      ReifiedObjectProperty = _ReifiedObjectProperty,
-      ReifiedStructuredDataProperty = _ReifiedStructuredDataProperty,
-      topObjectProperty = _topObjectProperty,
-      topReifiedObjectProperty = _topReifiedObjectProperty,
-      topReifiedObjectPropertySource = _topReifiedObjectPropertySource,
-      topReifiedObjectPropertyTarget = _topReifiedObjectPropertyTarget,
-      topReifiedStructuredDataProperty = _topReifiedStructuredDataProperty,
-      topReifiedStructuredDataPropertySource = _topReifiedStructuredDataPropertySource,
-      topReifiedStructuredDataPropertyTarget = _topReifiedStructuredDataPropertyTarget,
-      topDataProperty = _topDataProperty ) {
+      _Thing <- withFragment(bIRI, "Thing")
+      _Aspect <- withFragment(bIRI, "Aspect")
+      _Entity <- withFragment(bIRI, "Entity")
+      _StructuredDatatype <- withFragment(bIRI, "StructuredDatatype")
+      _ReifiedObjectProperty <- withFragment(bIRI, "ReifiedObjectProperty")
+      _ReifiedStructuredDataProperty <- withFragment(bIRI, "ReifiedStructuredDataProperty")
+      _topObjectProperty <- withFragment(bIRI, "topObjectProperty")
+      _topReifiedObjectProperty <- withFragment(bIRI, "topReifiedObjectProperty")
+      _topReifiedObjectPropertySource <- withFragment(bIRI, "topReifiedObjectPropertySource")
+      _topReifiedObjectPropertyTarget <- withFragment(bIRI, "topReifiedObjectPropertyTarget")
+      _topReifiedStructuredDataProperty <- withFragment(bIRI, "topReifiedStructuredDataProperty")
+      _topReifiedStructuredDataPropertySource <- withFragment(bIRI, "topReifiedStructuredDataPropertySource")
+      _topReifiedStructuredDataPropertyTarget <- withFragment(bIRI, "topReifiedStructuredDataPropertyTarget")
+      _topDataProperty <- withFragment(bIRI, "topDataProperty")
+      b = new OMFBackbone(ont, kind,
+        Thing = _Thing,
+        Aspect = _Aspect,
+        Entity = _Entity,
+        StructuredDatatype = _StructuredDatatype,
+        ReifiedObjectProperty = _ReifiedObjectProperty,
+        ReifiedStructuredDataProperty = _ReifiedStructuredDataProperty,
+        topObjectProperty = _topObjectProperty,
+        topReifiedObjectProperty = _topReifiedObjectProperty,
+        topReifiedObjectPropertySource = _topReifiedObjectPropertySource,
+        topReifiedObjectPropertyTarget = _topReifiedObjectPropertyTarget,
+        topReifiedStructuredDataProperty = _topReifiedStructuredDataProperty,
+        topReifiedStructuredDataPropertySource = _topReifiedStructuredDataPropertySource,
+        topReifiedStructuredDataPropertyTarget = _topReifiedStructuredDataPropertyTarget,
+        topDataProperty = _topDataProperty)
+      changes1 =
+      Seq(
+        kind match {
+          case `isDefinition` =>
+            val defP = b.df.getOWLAnnotationProperty(ops.AnnotationIsDefinition)
+            new AddOntologyAnnotation(ont, b.df.getOWLAnnotation(defP, b.df.getOWLLiteral(true)))
 
-      kind match {
-        case `isDefinition` =>
-          val defP = df.getOWLAnnotationProperty( ops.AnnotationIsDefinition )
-          om.applyChange( new AddOntologyAnnotation( ont, df.getOWLAnnotation( defP, df.getOWLLiteral( true ) ) ) )
-
-        case `isDesignation` =>
-          val desP = df.getOWLAnnotationProperty( ops.AnnotationIsDesignation )
-          om.applyChange( new AddOntologyAnnotation( ont, df.getOWLAnnotation( desP, df.getOWLLiteral( true ) ) ) )
+          case `isDesignation` =>
+            val desP = b.df.getOWLAnnotationProperty(ops.AnnotationIsDesignation)
+            new AddOntologyAnnotation(ont, b.df.getOWLAnnotation(desP, b.df.getOWLLiteral(true)))
+        },
+        new AddAxiom(ont, b.df.getOWLDeclarationAxiom(b.ThingC)),
+        new AddAxiom(ont, b.df.getOWLDeclarationAxiom(b.topObjectPropertyOP)),
+        new AddAxiom(ont, b.df.getOWLFunctionalObjectPropertyAxiom(b.topReifiedObjectPropertySourceOP)),
+        new AddAxiom(ont, b.df.getOWLFunctionalObjectPropertyAxiom(b.topReifiedObjectPropertyTargetOP)),
+        new AddAxiom(ont, b.df.getOWLFunctionalObjectPropertyAxiom(b.topReifiedStructuredDataPropertySourceOP)),
+        new AddAxiom(ont, b.df.getOWLFunctionalObjectPropertyAxiom(b.topReifiedStructuredDataPropertyTargetOP)),
+        new AddAxiom(ont, b.df.getOWLDeclarationAxiom(b.topDataPropertyDP))
+      )
+      changes2 =
+      Seq(
+        b.AspectC,
+        b.EntityC,
+        b.ReifiedObjectPropertyC,
+        b.ReifiedStructuredDataPropertyC,
+        b.StructuredDatatypeC
+      ).flatMap { bc =>
+        Seq(
+          new AddAxiom(ont, b.df.getOWLDeclarationAxiom(bc)),
+          new AddAxiom(ont, b.df.getOWLSubClassOfAxiom(bc, b.ThingC))
+        )
       }
-
-      om.applyChange( new AddAxiom( ont, df.getOWLDeclarationAxiom( ThingC ) ) )
-
-      for {
-        c <- Seq( AspectC, EntityC, ReifiedObjectPropertyC, ReifiedStructuredDataPropertyC, StructuredDatatypeC )
-      } {
-        om.applyChange( new AddAxiom( ont, df.getOWLDeclarationAxiom( c ) ) )
-        om.applyChange( new AddAxiom( ont, df.getOWLSubClassOfAxiom( c, ThingC ) ) )
+      changes3 =
+      Seq(
+        b.topReifiedObjectPropertyOP,
+        b.topReifiedObjectPropertySourceOP,
+        b.topReifiedObjectPropertyTargetOP,
+        b.topReifiedStructuredDataPropertyOP, b.topReifiedStructuredDataPropertySourceOP,
+        b.topReifiedStructuredDataPropertyTargetOP
+      ).flatMap { bop =>
+        Seq(
+          new AddAxiom(ont, b.df.getOWLDeclarationAxiom(bop)),
+          new AddAxiom(ont, b.df.getOWLSubObjectPropertyOfAxiom(bop, b.topObjectPropertyOP))
+        )
       }
-
-      om.applyChange( new AddAxiom( ont, df.getOWLDeclarationAxiom( topObjectPropertyOP ) ) )
-
-      for {
-        op <- Seq(
-          topReifiedObjectPropertyOP,
-          topReifiedObjectPropertySourceOP,
-          topReifiedObjectPropertyTargetOP,
-          topReifiedStructuredDataPropertyOP,
-          topReifiedStructuredDataPropertySourceOP,
-          topReifiedStructuredDataPropertyTargetOP )
-      } {
-        om.applyChange( new AddAxiom( ont,
-          df.getOWLDeclarationAxiom( op ) ) )
-        om.applyChange( new AddAxiom( ont,
-          df.getOWLSubObjectPropertyOfAxiom( op, topObjectPropertyOP ) ) )
-      }
-
-      om.applyChange( new AddAxiom( ont,
-        df.getOWLFunctionalObjectPropertyAxiom( topReifiedObjectPropertySourceOP ) ) )
-      om.applyChange( new AddAxiom( ont,
-        df.getOWLFunctionalObjectPropertyAxiom( topReifiedObjectPropertyTargetOP ) ) )
-      om.applyChange( new AddAxiom( ont,
-        df.getOWLFunctionalObjectPropertyAxiom( topReifiedStructuredDataPropertySourceOP ) ) )
-      om.applyChange( new AddAxiom( ont,
-        df.getOWLFunctionalObjectPropertyAxiom( topReifiedStructuredDataPropertyTargetOP ) ) )
-
-      om.applyChange( new AddAxiom( ont,
-        df.getOWLDeclarationAxiom( topDataPropertyDP ) ) )
-    }
+      _ <- applyOntologyChanges(om,
+        changes1 ++ changes2 ++ changes3,
+        "Error creating backbone ontology")
+    } yield b
   }
 
   /**
