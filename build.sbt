@@ -167,7 +167,8 @@ lazy val core =
     Seq(
       "gov.nasa.jpl.imce" % "gov.nasa.jpl.imce.ontologies"
         % Versions_imce_omf_ontologies.version
-        % "test" artifacts Artifact("gov.nasa.jpl.imce.ontologies", "zip", "zip", Some("resource"), Seq(), None, Map())
+        % "test->compile;compile->compile" artifacts
+        Artifact("gov.nasa.jpl.imce.ontologies", "zip", "zip", Some("resource"), Seq(), None, Map())
     )
   )
 
