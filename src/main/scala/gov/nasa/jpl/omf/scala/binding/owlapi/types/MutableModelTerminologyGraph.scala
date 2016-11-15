@@ -1069,8 +1069,6 @@ case class MutableModelTerminologyGraph
       for {
         _esc <- store.createDataRelationshipFromEntityToScalar(
           this, types.ModelDataRelationshipFromEntityToScalar(esc, name, uuid, source, target))
-        _ <- setTermShortName(_esc, Some(name))
-        _ <- setTermUUID(_esc, Some(uuid.toString))
       } yield {
         e2sc += _esc
         iri2typeTerm += escIRI -> _esc
