@@ -61,9 +61,15 @@ dumpLicenseReport := {
   dumpLicenseReport.value
 }
 
-makeSite <<= makeSite.dependsOn(dumpLicenseReport)
+makeSite := {
+  val _ = dumpLicenseReport.value
+  makeSite.value
+}
 
-siteMappings <<= siteMappings.dependsOn(dumpLicenseReport)
+siteMappings := {
+  val _ = dumpLicenseReport.value
+  siteMappings.value
+}
 
 siteMappings += (licenseReportDir.value / "LicenseReportOfAggregatedSBTPluginsAndLibraries.html") -> "LicenseReportOfAggregatedSBTPluginsAndLibraries.html"
 siteMappings += dependencySvgFile.value -> "dependencies.svg"
@@ -71,7 +77,6 @@ siteMappings += dependencySvgFile.value -> "dependencies.svg"
 previewFixedPort := Some(4004)
 
 previewLaunchBrowser := false
-
 
 releasePublishArtifactsAction := {
   val _ = GhPagesKeys.pushSite.value
