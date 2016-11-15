@@ -254,6 +254,12 @@ trait OWLAPIStoreOps
   : OWLAPITerminologyGraphSignature
   = store.fromTerminologyGraph(graph)
 
+  def getTerminologyGraphAxiomUUID
+  (ax: types.TerminologyGraphAxiom)
+  (implicit store: OWLAPIOMFGraphStore)
+  : UUID
+  = ax.uuid
+
   def isTerminologyGraphDirectNestingAxiom
   ( axiom: types.TerminologyGraphAxiom)
   ( implicit store: OWLAPIOMFGraphStore )
@@ -522,6 +528,12 @@ trait OWLAPIImmutableTerminologyGraphOps
       case Some(t: types.ModelDataRelationshipFromStructureToStructure) => Some(t)
       case _                                                            => None
     }
+
+  override def getTermAxiomUUID
+  (graph: types.ModelTerminologyGraph,
+   ax: types.ModelTermAxiom)
+  : UUID
+  = ax.uuid
 
   override def getTermAxioms
   (graph: types.ModelTerminologyGraph)
