@@ -199,8 +199,8 @@ case class MutableModelTerminologyGraph
   def setTerminologyGraphUUID
   (uuid: UUID)
   (implicit omfStore: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ Unit =
-    for {
+  : Set[java.lang.Throwable] \/ Unit
+  = for {
       c1 <-
       getTerminologyGraphUUIDAnnotation
         .fold[Set[java.lang.Throwable] \/ Unit](
@@ -216,7 +216,7 @@ case class MutableModelTerminologyGraph
           ontManager,
           new AddOntologyAnnotation(
             ont,
-            owlDataFactory.getOWLAnnotation(omfStore.ANNOTATION_HAS_UUID, owlDataFactory.getOWLLiteral(uuid.toString))),
+            createOMFProvenanceAnnotation(uuid)),
           ifError = "Failed to add the tbox ontology 'uuid' annotation",
           ifSuccess = (() => {
             omfStore.setTerminologyGraphUUID(this, uuid)
@@ -278,6 +278,15 @@ case class MutableModelTerminologyGraph
       .toMap
 
   override protected val iri2typeTerm = scala.collection.mutable.HashMap[IRI, ModelTypeTerm]()
+
+  def createOMFProvenanceAnnotation
+  (uuid: UUID)
+  (implicit store: OWLAPIOMFGraphStore)
+  : OWLAnnotation
+  = owlDataFactory.getOWLAnnotation(
+      store.ANNOTATION_HAS_UUID,
+      owlDataFactory.getOWLLiteral(uuid.toString)
+    )
 
   def createTerminologyGraphDirectExtensionAxiom
   (extendedG: types.ModelTerminologyGraph)
@@ -372,7 +381,10 @@ case class MutableModelTerminologyGraph
     _ <- applyOntologyChangesOrNoOp(ontManager,
       Seq(
         new AddOntologyAnnotation(ont, owlDataFactory
-          .getOWLAnnotation(store.ANNOTATION_HAS_CONTEXT, parentContext.iri))
+          .getOWLAnnotation(
+            store.ANNOTATION_HAS_CONTEXT,
+            parentContext.iri,
+            java.util.Collections.singleton(createOMFProvenanceAnnotation(uuid))))
       ),
       "addNestedTerminologyGraph error")
   } yield axiom
@@ -659,7 +671,11 @@ case class MutableModelTerminologyGraph
                   owlDataFactory.getOWLLiteral(isAbstract))),
             new AddAxiom(ont,
               owlDataFactory
-                .getOWLSubClassOfAxiom(conceptC, backbone.EntityC))),
+                .getOWLSubClassOfAxiom(conceptC, backbone.EntityC)),
+            new AddAxiom(ont, owlDataFactory.getOWLAnnotationAssertionAxiom(
+              store.RDFS_LABEL, conceptIRI, owlDataFactory.getOWLLiteral(name))),
+            new AddAxiom(ont, owlDataFactory.getOWLAnnotationAssertionAxiom(
+              store.ANNOTATION_HAS_UUID, conceptIRI, owlDataFactory.getOWLLiteral(uuid.toString)))),
           "addConcept Error")
       } yield result
     } {
@@ -813,7 +829,11 @@ case class MutableModelTerminologyGraph
           new AddAxiom(ont,
             owlDataFactory
               .getOWLObjectPropertyRangeAxiom(u, targetC)),
-          new AddAxiom(ont, rule)
+          new AddAxiom(ont, rule),
+          new AddAxiom(ont, owlDataFactory.getOWLAnnotationAssertionAxiom(
+            store.RDFS_LABEL, rIRI, owlDataFactory.getOWLLiteral(name))),
+          new AddAxiom(ont, owlDataFactory.getOWLAnnotationAssertionAxiom(
+            store.ANNOTATION_HAS_UUID, rIRI, owlDataFactory.getOWLLiteral(uuid.toString)))
         ) ++
           (if (ui.isDefined)
             Seq(
@@ -963,7 +983,11 @@ case class MutableModelTerminologyGraph
           Seq(
             new AddAxiom(ont,
               owlDataFactory
-                .getOWLDeclarationAxiom(scalarDT))
+                .getOWLDeclarationAxiom(scalarDT)),
+            new AddAxiom(ont, owlDataFactory.getOWLAnnotationAssertionAxiom(
+              store.RDFS_LABEL, scalarIRI, owlDataFactory.getOWLLiteral(name))),
+            new AddAxiom(ont, owlDataFactory.getOWLAnnotationAssertionAxiom(
+              store.ANNOTATION_HAS_UUID, scalarIRI, owlDataFactory.getOWLLiteral(uuid.toString)))
           ),
           "addScalarDataType error")
       } yield result
@@ -1028,7 +1052,11 @@ case class MutableModelTerminologyGraph
                 .getOWLDeclarationAxiom(structuredDataTypeC)),
             new AddAxiom(ont,
               owlDataFactory
-                .getOWLSubClassOfAxiom(structuredDataTypeC, backbone.StructuredDatatypeC))
+                .getOWLSubClassOfAxiom(structuredDataTypeC, backbone.StructuredDatatypeC)),
+            new AddAxiom(ont, owlDataFactory.getOWLAnnotationAssertionAxiom(
+              store.RDFS_LABEL, structuredDataTypeIRI, owlDataFactory.getOWLLiteral(name))),
+            new AddAxiom(ont, owlDataFactory.getOWLAnnotationAssertionAxiom(
+              store.ANNOTATION_HAS_UUID, structuredDataTypeIRI, owlDataFactory.getOWLLiteral(uuid.toString)))
           ),
           "addStructuredDataType error")
         } yield result
@@ -1109,7 +1137,11 @@ case class MutableModelTerminologyGraph
               .getOWLDataPropertyDomainAxiom(escDP, source.e)),
           new AddAxiom(ont,
             owlDataFactory
-              .getOWLDataPropertyRangeAxiom(escDP, owlDataFactory.getOWLDatatype(target.iri)))
+              .getOWLDataPropertyRangeAxiom(escDP, owlDataFactory.getOWLDatatype(target.iri))),
+          new AddAxiom(ont, owlDataFactory.getOWLAnnotationAssertionAxiom(
+            store.RDFS_LABEL, dIRI, owlDataFactory.getOWLLiteral(name))),
+          new AddAxiom(ont, owlDataFactory.getOWLAnnotationAssertionAxiom(
+            store.ANNOTATION_HAS_UUID, dIRI, owlDataFactory.getOWLLiteral(uuid.toString)))
         )
       } {
         val result = ontManager.applyChange(change)
@@ -1191,7 +1223,8 @@ case class MutableModelTerminologyGraph
                 restrictedEntityC,
                 owlDataFactory.getOWLDataSomeValuesFrom(
                   restrictingDP,
-                  owlDataFactory.getOWLDataOneOf(owlDataFactory.getOWLLiteral(literalRange)))))
+                  owlDataFactory.getOWLDataOneOf(owlDataFactory.getOWLLiteral(literalRange))),
+                java.util.Collections.singleton(createOMFProvenanceAnnotation(uuid))))
           )
         } {
           val result = ontManager.applyChange(change)
@@ -1320,7 +1353,10 @@ case class MutableModelTerminologyGraph
             change <- Seq(
               new AddAxiom(ont,
                 owlDataFactory
-                  .getOWLSubClassOfAxiom(subC, supC))
+                  .getOWLSubClassOfAxiom(
+                    subC,
+                    supC,
+                    java.util.Collections.singleton(createOMFProvenanceAnnotation(uuid))))
             )
           } {
 
@@ -1381,11 +1417,10 @@ case class MutableModelTerminologyGraph
             ontManager,
             new AddAxiom(ont,
               owlDataFactory
-                .getOWLSubClassOfAxiom(subC,
-                  owlDataFactory
-                    .getOWLObjectAllValuesFrom(rel.unreified, rangeC),
-                  java.util.Collections.singleton(owlDataFactory
-                    .getOWLAnnotation(store.ANNOTATION_HAS_UUID, owlDataFactory.getOWLLiteral(uuid.toString))))),
+                .getOWLSubClassOfAxiom(
+                  subC,
+                  owlDataFactory.getOWLObjectAllValuesFrom(rel.unreified, rangeC),
+                  java.util.Collections.singleton(createOMFProvenanceAnnotation(uuid)))),
             ifError = {
               "addEntityDefinitionUniversalRestrictionAxiom Error"
             })
@@ -1452,11 +1487,10 @@ case class MutableModelTerminologyGraph
             Seq(
               new AddAxiom(ont,
                 owlDataFactory
-                .getOWLSubClassOfAxiom(subC,
-                  owlDataFactory
-                    .getOWLObjectSomeValuesFrom(rel.unreified, rangeC),
-                  java.util.Collections.singleton(owlDataFactory
-                    .getOWLAnnotation(store.ANNOTATION_HAS_UUID, owlDataFactory.getOWLLiteral(uuid.toString)))))
+                .getOWLSubClassOfAxiom(
+                  subC,
+                  owlDataFactory.getOWLObjectSomeValuesFrom(rel.unreified, rangeC),
+                  java.util.Collections.singleton(createOMFProvenanceAnnotation(uuid))))
             ))
           } yield {
           ax += axiom
@@ -1530,7 +1564,10 @@ case class MutableModelTerminologyGraph
             change <-
             Seq(new AddAxiom(ont,
               owlDataFactory
-                .getOWLSubClassOfAxiom(sub.e, sup.e))
+                .getOWLSubClassOfAxiom(
+                  sub.e,
+                  sup.e,
+                  java.util.Collections.singleton(createOMFProvenanceAnnotation(uuid))))
             )
           } {
 
@@ -1641,15 +1678,25 @@ case class MutableModelTerminologyGraph
           axiom <- createEntityReifiedRelationshipSubClassAxiom(uuid, sub, sup)
         } yield {
           for {
-            change <- Seq(new AddAxiom(ont,
-              owlDataFactory
-                .getOWLSubClassOfAxiom(sub.e, sup.e)),
+            change <- Seq(
               new AddAxiom(ont,
                 owlDataFactory
-                  .getOWLSubObjectPropertyOfAxiom(sub.rSource, sup.rSource)),
+                  .getOWLSubClassOfAxiom(
+                    sub.e,
+                    sup.e,
+                    java.util.Collections.singleton(createOMFProvenanceAnnotation(uuid)))),
               new AddAxiom(ont,
                 owlDataFactory
-                  .getOWLSubObjectPropertyOfAxiom(sub.rTarget, sup.rTarget))
+                  .getOWLSubObjectPropertyOfAxiom(
+                    sub.rSource,
+                    sup.rSource,
+                    java.util.Collections.singleton(createOMFProvenanceAnnotation(uuid)))),
+              new AddAxiom(ont,
+                owlDataFactory
+                  .getOWLSubObjectPropertyOfAxiom(
+                    sub.rTarget,
+                    sup.rTarget,
+                    java.util.Collections.singleton(createOMFProvenanceAnnotation(uuid))))
             )
           } {
             val result = ontManager.applyChange(change)
