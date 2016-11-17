@@ -604,19 +604,7 @@ trait OWLAPIImmutableTerminologyGraphOps
   (graph: types.ModelTerminologyGraph,
    term: types.ModelTypeTerm)
   : UUID
-  = graph
-    .getTermUUIDAnnotationAssertionAxiom(term)
-    .flatMap { a =>
-      a.getValue match {
-        case l: OWLLiteral =>
-          Some(l.getLiteral)
-        case _ =>
-          None
-      }
-    }
-    .fold[UUID]({
-    throw OMFError.omfBindingError(s"Missing UUID annotation on OMF term: ${term.iri}")
-  })(UUID.fromString)
+  = term.uuid
 
   override def fromEntityDefinition
   (e: types.ModelEntityDefinition)
