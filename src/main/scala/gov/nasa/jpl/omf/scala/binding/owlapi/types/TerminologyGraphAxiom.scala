@@ -19,7 +19,10 @@
 package gov.nasa.jpl.omf.scala.binding.owlapi.types
 
 import java.util.UUID
+import scala.{Any, Boolean}
 
 abstract class TerminologyGraphAxiom {
   val uuid: UUID
+
+  def canEqual(other: Any): Boolean
 }

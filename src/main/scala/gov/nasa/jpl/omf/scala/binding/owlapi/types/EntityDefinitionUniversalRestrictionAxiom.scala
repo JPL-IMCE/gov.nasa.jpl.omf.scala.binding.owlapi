@@ -20,9 +20,32 @@ package gov.nasa.jpl.omf.scala.binding.owlapi.types
 
 import java.util.UUID
 
+import scala.{Any, Boolean, Int}
+
 case class EntityDefinitionUniversalRestrictionAxiom
 (override val uuid: UUID,
  override val sub: ModelEntityDefinition,
  override val rel: ModelEntityReifiedRelationship,
  override val range: ModelEntityDefinition )
-  extends EntityDefinitionRestrictionAxiom(uuid, sub, rel, range)
+  extends EntityDefinitionRestrictionAxiom(uuid, sub, rel, range) {
+
+  override def canEqual(other: Any)
+  : Boolean
+  = other match {
+    case _: EntityDefinitionUniversalRestrictionAxiom => true
+    case _ => false
+  }
+
+  override val hashCode: Int = (uuid, sub, rel, range).##
+
+  override def equals(other: Any): Boolean = other match {
+    case that: EntityDefinitionUniversalRestrictionAxiom =>
+      (that canEqual this) &&
+        (this.uuid == that.uuid) &&
+        (this.sub == that.sub) &&
+        (this.rel == that.rel) &&
+        (this.range == that.range)
+    case _ =>
+      false
+  }
+}

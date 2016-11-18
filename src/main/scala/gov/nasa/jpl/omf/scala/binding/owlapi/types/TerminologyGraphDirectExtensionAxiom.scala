@@ -20,6 +20,7 @@ package gov.nasa.jpl.omf.scala.binding.owlapi.types
 
 import java.util.UUID
 
+import scala.{Any, Boolean, Int}
 import scala.Predef.require
 
 case class TerminologyGraphDirectExtensionAxiom
@@ -28,4 +29,22 @@ case class TerminologyGraphDirectExtensionAxiom
 extends TerminologyGraphAxiom {
 
   require(null != extendedParent)
+
+  override def canEqual(other: Any)
+  : Boolean
+  = other match {
+    case _: TerminologyGraphDirectExtensionAxiom => true
+    case _ => false
+  }
+
+  override val hashCode: Int = (uuid, extendedParent).##
+
+  override def equals(other: Any): Boolean = other match {
+    case that: TerminologyGraphDirectExtensionAxiom =>
+      (that canEqual this) &&
+        (this.uuid == that.uuid) &&
+        (this.extendedParent == that.extendedParent)
+    case _ =>
+      false
+  }
 }

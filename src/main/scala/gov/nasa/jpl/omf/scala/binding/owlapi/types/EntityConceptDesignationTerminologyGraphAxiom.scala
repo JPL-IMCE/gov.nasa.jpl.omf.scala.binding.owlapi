@@ -20,6 +20,7 @@ package gov.nasa.jpl.omf.scala.binding.owlapi.types
 
 import java.util.UUID
 
+import scala.{Any, Boolean, Int}
 import scala.Predef.require
 
 case class EntityConceptDesignationTerminologyGraphAxiom
@@ -30,4 +31,24 @@ case class EntityConceptDesignationTerminologyGraphAxiom
 
   require( null != entityConceptDesignation )
   require( null != designationTerminologyGraph )
+
+  override def canEqual(other: Any)
+  : Boolean
+  = other match {
+    case _: EntityConceptDesignationTerminologyGraphAxiom => true
+    case _ => false
+  }
+
+  override val hashCode: Int = (uuid, entityConceptDesignation, designationTerminologyGraph).##
+
+  override def equals(other: Any): Boolean = other match {
+    case that: EntityConceptDesignationTerminologyGraphAxiom =>
+      (that canEqual this) &&
+        (this.uuid == that.uuid) &&
+        (this.entityConceptDesignation == that.entityConceptDesignation) &&
+        (this.designationTerminologyGraph == that.designationTerminologyGraph)
+    case _ =>
+      false
+  }
+
 }

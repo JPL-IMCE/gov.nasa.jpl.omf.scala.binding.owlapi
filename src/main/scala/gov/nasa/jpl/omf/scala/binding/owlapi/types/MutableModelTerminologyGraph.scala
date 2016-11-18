@@ -31,7 +31,7 @@ import org.semanticweb.owlapi.model.parameters.ChangeApplied
 
 import scala.collection.JavaConversions._
 import scala.collection.immutable._
-import scala.{Boolean, Enumeration, None, Option, Some, StringContext, Unit}
+import scala.{Any, Boolean, Enumeration, Int, None, Option, Some, StringContext, Unit}
 import scala.Predef.{Map => _, Set => _, _}
 import scalaz._
 import Scalaz._
@@ -153,6 +153,39 @@ case class MutableModelTerminologyGraph
  backbone: OMFBackbone)
 (override implicit val ops: OWLAPIOMFOps)
   extends ModelTerminologyGraph(uuid, name, kind, ont, extraProvenanceMetadata)(ops) {
+
+  override def canEqual(other: Any)
+  : Boolean
+  = other match {
+    case _: MutableModelTerminologyGraph => true
+    case _ => false
+  }
+
+  override val hashCode: Int = (uuid, name, kind, extraProvenanceMetadata, ont).##
+
+  override def equals(other: Any): Boolean = other match {
+    case that: MutableModelTerminologyGraph =>
+      (that canEqual this) &&
+        (this.uuid == that.uuid) &&
+        (this.name == that.name) &&
+        (this.kind == that.kind) &&
+        (this.extraProvenanceMetadata == that.extraProvenanceMetadata) &&
+        (this.ont == that.ont) &&
+        (this.aspects == that.aspects) &&
+        (this.concepts == that.concepts) &&
+        (this.reifiedRelationships == that.reifiedRelationships) &&
+        (this.unreifiedRelationships == that.unreifiedRelationships) &&
+        (this.sc == that.sc) &&
+        (this.st == that.st) &&
+        (this.e2sc == that.e2sc) &&
+        (this.e2st == that.e2st) &&
+        (this.s2sc == that.s2sc) &&
+        (this.s2st == that.s2st) &&
+        (this.ax == that.ax) &&
+        (this.gx == that.gx)
+    case _ =>
+      false
+  }
 
   override val mutabilityKind: String = "mutable"
   override val isImmutableModelTerminologyGraph = false

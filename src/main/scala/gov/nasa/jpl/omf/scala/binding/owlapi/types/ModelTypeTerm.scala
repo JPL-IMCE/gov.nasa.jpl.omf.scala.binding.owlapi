@@ -23,8 +23,12 @@ import java.util.UUID
 import gov.nasa.jpl.imce.omf.schema.tables.LocalName
 import gov.nasa.jpl.omf.scala.binding.owlapi._
 
+import scala.{Any, Boolean}
+
 trait ModelTypeTerm {
   val iri: OWLAPIOMF#IRI
   val name: LocalName
   val uuid: UUID
+
+  def canEqual(other: Any): Boolean
 }

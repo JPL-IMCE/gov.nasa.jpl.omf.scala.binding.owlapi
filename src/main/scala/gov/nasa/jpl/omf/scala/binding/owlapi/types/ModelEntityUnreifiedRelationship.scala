@@ -25,6 +25,7 @@ import gov.nasa.jpl.omf.scala.core.RelationshipCharacteristics._
 import org.semanticweb.owlapi.model.OWLObjectProperty
 import org.semanticweb.owlapi.model.IRI
 
+import scala.{Any, Boolean, Int}
 import scala.collection.immutable._
 import scala.Predef.require
 
@@ -47,4 +48,30 @@ case class ModelEntityUnreifiedRelationship
   require(null != characteristics)
 
   override val iri: IRI = e.getIRI
+
+  override def canEqual(other: Any)
+  : Boolean
+  = other match {
+    case _: ModelEntityUnreifiedRelationship => true
+    case _ => false
+  }
+
+  override val hashCode
+  : Int
+  = (uuid, name, source, target, e, rSource, rTarget, characteristics).##
+
+  override def equals(other: Any): Boolean = other match {
+    case that: ModelEntityUnreifiedRelationship =>
+      (that canEqual this) &&
+        (this.uuid == that.uuid) &&
+        (this.name == that.name) &&
+        (this.source == that.source) &&
+        (this.target == that.target) &&
+        (this.e == that.e) &&
+        (this.rSource == that.rSource) &&
+        (this.rTarget == that.rTarget) &&
+        (this.characteristics.to[Set] == that.characteristics.to[Set])
+    case _ =>
+      false
+  }
 }

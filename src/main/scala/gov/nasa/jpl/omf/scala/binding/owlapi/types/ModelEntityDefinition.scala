@@ -21,7 +21,7 @@ package gov.nasa.jpl.omf.scala.binding.owlapi.types
 import java.util.UUID
 
 import gov.nasa.jpl.imce.omf.schema.tables.LocalName
-
+import scala.{Any,Boolean}
 import scala.Predef.require
 import org.semanticweb.owlapi.model.OWLClass
 
@@ -32,4 +32,12 @@ abstract class ModelEntityDefinition
   extends ModelTypeTerm {
 
   require(null != e)
+
+  override def canEqual(other: Any)
+  : Boolean
+  = other match {
+    case _: ModelEntityDefinition => true
+    case _ => false
+  }
+
 }

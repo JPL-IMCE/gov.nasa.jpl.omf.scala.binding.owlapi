@@ -20,6 +20,7 @@ package gov.nasa.jpl.omf.scala.binding.owlapi.types
 
 import java.util.UUID
 
+import scala.{Any, Boolean, Int}
 import scala.collection.immutable._
 import gov.nasa.jpl.omf.scala.core._
 
@@ -37,4 +38,25 @@ case class ScalarDataTypeFacetRestrictionAxiom
   require(null != sup)
   require(null != fundamentalFacets)
   require(null != constrainingFacets)
+
+  override def canEqual(other: Any)
+  : Boolean
+  = other match {
+    case _: ScalarDataTypeFacetRestrictionAxiom => true
+    case _ => false
+  }
+
+  override val hashCode: Int = (uuid, sub, sup, fundamentalFacets, constrainingFacets).##
+
+  override def equals(other: Any): Boolean = other match {
+    case that: ScalarDataTypeFacetRestrictionAxiom =>
+      (that canEqual this) &&
+        (this.uuid == that.uuid) &&
+        (this.sub == that.sub) &&
+        (this.sup == that.sup) &&
+        (this.fundamentalFacets == that.fundamentalFacets) &&
+        (this.constrainingFacets == that.constrainingFacets)
+    case _ =>
+      false
+  }
 }

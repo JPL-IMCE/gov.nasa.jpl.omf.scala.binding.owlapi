@@ -20,6 +20,7 @@ package gov.nasa.jpl.omf.scala.binding.owlapi.types
 
 import java.util.UUID
 
+import scala.{Any, Boolean, Int}
 import scala.Predef.require
 
 /**
@@ -35,4 +36,21 @@ extends TerminologyGraphAxiom {
 
   require(null != nestingContext)
 
+  override def canEqual(other: Any)
+  : Boolean
+  = other match {
+    case _: TerminologyGraphDirectNestingAxiom => true
+    case _ => false
+  }
+
+  override val hashCode: Int = (uuid, nestingContext).##
+
+  override def equals(other: Any): Boolean = other match {
+    case that: TerminologyGraphDirectNestingAxiom =>
+      (that canEqual this) &&
+        (this.uuid == that.uuid) &&
+        (this.nestingContext == that.nestingContext)
+    case _ =>
+      false
+  }
 }

@@ -26,7 +26,7 @@ import org.semanticweb.owlapi.model.OWLClass
 import org.semanticweb.owlapi.model.OWLObjectProperty
 
 import scala.collection.immutable._
-import scala.{Boolean, Option}
+import scala.{Any, Boolean, Int, Option}
 import scala.Predef.require
 
 case class ModelEntityReifiedRelationship
@@ -48,4 +48,33 @@ case class ModelEntityReifiedRelationship
   require(null != characteristics)
 
   override val iri = e.getIRI
+
+  override def canEqual(other: Any)
+  : Boolean
+  = other match {
+    case _: ModelEntityReifiedRelationship => true
+    case _ => false
+  }
+
+  override val hashCode
+  : Int
+  = (uuid, name, source, target, isAbstract, e, rSource, rTarget, unreified, inverse, characteristics).##
+
+  override def equals(other: Any): Boolean = other match {
+    case that: ModelEntityReifiedRelationship =>
+      (that canEqual this) &&
+        (this.uuid == that.uuid) &&
+        (this.name == that.name) &&
+        (this.source == that.source) &&
+        (this.target == that.target) &&
+        (this.isAbstract == that.isAbstract) &&
+        (this.e == that.e) &&
+        (this.rSource == that.rSource) &&
+        (this.rTarget == that.rTarget) &&
+        (this.unreified == that.unreified) &&
+        (this.inverse == that.inverse) &&
+        (this.characteristics.to[Set] == that.characteristics.to[Set])
+    case _ =>
+      false
+  }
 }

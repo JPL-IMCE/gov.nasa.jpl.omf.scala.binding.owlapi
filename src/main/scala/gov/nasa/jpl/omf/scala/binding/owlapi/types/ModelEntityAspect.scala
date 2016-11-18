@@ -22,6 +22,7 @@ import java.util.UUID
 
 import gov.nasa.jpl.imce.omf.schema.tables.LocalName
 
+import scala.{Any, Boolean, Int}
 import scala.Predef.require
 import org.semanticweb.owlapi.model.OWLClass
 
@@ -34,4 +35,23 @@ case class ModelEntityAspect
   require(null != e)
 
   override val iri = e.getIRI
+
+  override def canEqual(other: Any)
+  : Boolean
+  = other match {
+    case _: ModelEntityAspect => true
+    case _ => false
+  }
+
+  override val hashCode: Int = (uuid, name, e).##
+
+  override def equals(other: Any): Boolean = other match {
+    case that: ModelEntityReifiedRelationship =>
+      (that canEqual this) &&
+        (this.uuid == that.uuid) &&
+        (this.name == that.name) &&
+        (this.e == that.e)
+    case _ =>
+      false
+  }
 }
