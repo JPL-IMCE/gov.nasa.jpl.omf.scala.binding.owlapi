@@ -52,7 +52,7 @@ case class ModelDataRelationshipFromEntityToStructure
   override def canEqual(other: Any)
   : Boolean
   = other match {
-    case _: ModelDataRelationshipFromStructureToStructure => true
+    case _: ModelDataRelationshipFromEntityToStructure => true
     case _ => false
   }
 
@@ -61,7 +61,7 @@ case class ModelDataRelationshipFromEntityToStructure
   = (uuid, name, source, target, c, rSource, rTarget, unreified).##
 
   override def equals(other: Any): Boolean = other match {
-    case that: ModelDataRelationshipFromStructureToStructure =>
+    case that: ModelDataRelationshipFromEntityToStructure =>
       (that canEqual this) &&
         (this.uuid == that.uuid) &&
         (this.name == that.name) &&

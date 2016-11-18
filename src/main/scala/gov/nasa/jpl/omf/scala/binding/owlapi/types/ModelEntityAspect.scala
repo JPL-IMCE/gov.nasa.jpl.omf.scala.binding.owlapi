@@ -46,7 +46,7 @@ case class ModelEntityAspect
   override val hashCode: Int = (uuid, name, e).##
 
   override def equals(other: Any): Boolean = other match {
-    case that: ModelEntityReifiedRelationship =>
+    case that: ModelEntityAspect =>
       (that canEqual this) &&
         (this.uuid == that.uuid) &&
         (this.name == that.name) &&

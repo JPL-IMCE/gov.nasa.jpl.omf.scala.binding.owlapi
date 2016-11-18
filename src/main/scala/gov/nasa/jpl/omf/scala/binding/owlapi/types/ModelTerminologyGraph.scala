@@ -91,9 +91,12 @@ abstract class ModelTerminologyGraph
   def isTypeTermDefinedRecursively
   (t: ModelTypeTerm)
   (implicit store: OWLAPIOMFGraphStore)
-  : Boolean =
-    terminologyGraphImportClosure[OWLAPIOMF, ModelTerminologyGraph](this, onlyCompatibleKind = true).
-      exists(_.isTypeTermDefined(t))
+  : Boolean
+  = {
+    val closure = terminologyGraphImportClosure[OWLAPIOMF, ModelTerminologyGraph](this, onlyCompatibleKind = true)
+    val found = closure.exists(_.isTypeTermDefined(t))
+    found
+  }
 
   def lookupTypeTerm
   (iri: IRI, recursively: Boolean)
