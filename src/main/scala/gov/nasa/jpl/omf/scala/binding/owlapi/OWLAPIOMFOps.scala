@@ -1303,7 +1303,13 @@ class OWLAPIOMFOps
   } { ax =>
     ax.getValue match {
       case l: OWLLiteral =>
-        \/-(generateUUID(l.getLiteral))
+        nonFatalCatch[Set[java.lang.Throwable] \/ UUID]
+          .withApply { cause: java.lang.Throwable =>
+            Set[java.lang.Throwable](cause).left
+          }
+          .apply {
+            \/-(UUID.fromString(l.getLiteral))
+          }
       case _ =>
         -\/(Set[java.lang.Throwable](OMFError.omfBindingError(s"Missing LocalName annotation on OMF term: $termIRI")))
     }
