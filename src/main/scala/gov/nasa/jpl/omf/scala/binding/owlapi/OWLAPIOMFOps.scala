@@ -201,8 +201,8 @@ trait OWLAPIStoreOps
   override def loadTerminologyGraph
   (iri: IRI)
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ (types.ImmutableModelTerminologyGraph, types.Mutable2ImmutableTerminologyMap) =
-    store.loadTerminologyGraph(iri)(this)
+  : Set[java.lang.Throwable] \/ (types.ImmutableModelTerminologyGraph, types.Mutable2ImmutableTerminologyMap)
+  = store.loadTerminologyGraph(iri)
 
   override def isTerminologyGraphMutable
   ( graph: types.ModelTerminologyGraph )
@@ -1086,11 +1086,12 @@ trait OWLAPIMutableTerminologyGraphOps
 
   override def addNestedTerminologyGraph
   (uuid: UUID,
+   nestingGraph: types.ModelTerminologyGraph,
    nestingContext: types.ModelEntityConcept,
    nestedChild: types.MutableModelTerminologyGraph )
   (implicit store: OWLAPIOMFGraphStore)
   : Set[java.lang.Throwable] \/ types.TerminologyGraphDirectNestingAxiom
-  = nestedChild.addNestedTerminologyGraph(uuid, nestingContext)
+  = nestedChild.addNestedTerminologyGraph(uuid, nestingGraph, nestingContext)
 
 }
 
@@ -1299,7 +1300,7 @@ class OWLAPIOMFOps
   : Set[java.lang.Throwable] \/ UUID
   = findAnnotationAssertionAxiom(ont, termIRI, AnnotationHasUUID)
     .fold[Set[java.lang.Throwable] \/ UUID] {
-      \/-(generateUUID(fromIRI(termIRI)))
+    \/-(generateUUID(fromIRI(termIRI)))
   } { ax =>
     ax.getValue match {
       case l: OWLLiteral =>

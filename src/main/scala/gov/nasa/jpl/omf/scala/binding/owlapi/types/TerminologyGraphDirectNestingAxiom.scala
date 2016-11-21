@@ -24,13 +24,14 @@ import scala.{Any, Boolean, Int}
 import scala.Predef.require
 
 /**
-  * Corresponds to an axiom: TerminologyGraphDirectNestingAxiom(nestingContext)
+  * Corresponds to an axiom: TerminologyGraphDirectNestingAxiom(nestingParent,nestingContext)
   * The terminology graph that this axiom is asserted in corresponds to the nested child graph.
   *
   * @param nestingContext
   */
 case class TerminologyGraphDirectNestingAxiom
 (override val uuid: UUID,
+ nestingParent: ModelTerminologyGraph,
  nestingContext: ModelEntityConcept)
 extends TerminologyGraphAxiom {
 

@@ -105,7 +105,9 @@ lazy val core =
 
       "gov.nasa.jpl.imce" %% "imce.third_party.owlapi_libraries"
         % Versions_owlapi_libraries.version artifacts
-        Artifact("imce.third_party.owlapi_libraries", "zip", "zip", Some("resource"), Seq(), None, Map())
+        Artifact("imce.third_party.owlapi_libraries", "zip", "zip", Some("resource"), Seq(), None, Map()),
+
+      "com.github.scopt" %% "scopt" % "3.5.0" % "test"
     ),
 
     extractArchives := {
@@ -115,24 +117,28 @@ lazy val core =
       val base = baseDirectory.value
       val s = streams.value
 
-      // @see https://github.com/jrudolph/sbt-dependency-graph/issues/113
-      val g = fromConfigurationReport(
-        net.virtualvoid.sbt.graph.DependencyGraphKeys.ignoreMissingUpdate.value.configuration("test").get,
-        CrossVersion(scalaVersion.value, scalaBinaryVersion.value)(projectID.value),
-        zipFileSelector)
+      val e = base / "target" / "extracted"
+      if (e.exists()) {
+        s.log.warn(s"*** Skip extracting to existing folder: $e")
+      } else {
+        // @see https://github.com/jrudolph/sbt-dependency-graph/issues/113
+        val g = fromConfigurationReport(
+          net.virtualvoid.sbt.graph.DependencyGraphKeys.ignoreMissingUpdate.value.configuration("test").get,
+          CrossVersion(scalaVersion.value, scalaBinaryVersion.value)(projectID.value),
+          zipFileSelector)
 
-      for {
-        module <- g.nodes
-        if module.id.name == "gov.nasa.jpl.imce.ontologies"
-        archive <- module.jarFile
-        extractFolder = base / "target" / "extracted" / module.id.name
-        _ = s.log.info(s"*** Extracting: $archive")
-        _ = s.log.info(s"*** Extract to: $extractFolder")
-        files = IO.unzip(archive, extractFolder)
-        _ = require(files.nonEmpty)
-        _ = s.log.info(s"*** Extracted ${files.size} files")
-      } yield ()
-
+        for {
+          module <- g.nodes
+          if module.id.name == "gov.nasa.jpl.imce.ontologies"
+          archive <- module.jarFile
+          extractFolder = e / module.id.name
+          _ = s.log.info(s"*** Extracting: $archive")
+          _ = s.log.info(s"*** Extract to: $extractFolder")
+          files = IO.unzip(archive, extractFolder)
+          _ = require(files.nonEmpty)
+          _ = s.log.info(s"*** Extracted ${files.size} files")
+        } yield ()
+      }
     },
 
     resolvers += Resolver.bintrayRepo("jpl-imce", "gov.nasa.jpl.imce"),
@@ -154,7 +160,14 @@ lazy val core =
       "gov.nasa.jpl.imce" %% "gov.nasa.jpl.omf.scala.core"
         % Versions_omf_scala_core.version
         % "compile" artifacts
-        Artifact("gov.nasa.jpl.omf.scala.core", "zip", "zip", Some("resource"), Seq(), None, Map()),
+        Artifact("gov.nasa.jpl.omf.scala.core", "zip", "zip", Some("resource"), Seq(), None, Map())
+    )
+  )
+  .dependsOnSourceProjectOrLibraryArtifacts(
+    "omf-scala-core",
+    "gov.nasa.jpl.omf.scala.core",
+    Some("test->test"),
+    Seq(
       "gov.nasa.jpl.imce" %% "gov.nasa.jpl.omf.scala.core"
         % Versions_omf_scala_core.version
         % "test" artifacts(

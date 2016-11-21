@@ -360,7 +360,7 @@ package object types {
           }
           _ <- nesting.fold[Set[java.lang.Throwable] \/ Unit](\/-(())){ case (nestingC, nestingG) =>
             g
-              .createTerminologyGraphDirectNestingAxiom(parentC=nestingC)(omfStore)
+              .createTerminologyGraphDirectNestingAxiom(parentG=nestingG, parentC=nestingC)(omfStore)
               .map(_ => ())
           }
           resolver = ResolverHelper(omfMetadata, g, extensions, ont, omfStore)

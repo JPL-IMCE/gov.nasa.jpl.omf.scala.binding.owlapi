@@ -188,12 +188,17 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
 
   // OMF Metadata.
 
+  @scala.volatile
   protected var omfMetadata: Option[OWLOntology] = None
 
   def setOMFMetadataOntology(o: OWLOntology): Unit = {
     omfMetadata = Some(o)
-    loadBuiltinDatatypeMap()
-    ()
+    loadBuiltinDatatypeMap().fold[Unit](
+      l = (errors: Set[java.lang.Throwable]) =>
+        throw errors.toIterator.next(),
+      r = (_) =>
+        ()
+    )
   }
 
   // OMF model.
@@ -543,6 +548,7 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
   type ImmutableModelTerminologyGraphConversionMap =
   (types.ImmutableModelTerminologyGraph, types.Mutable2ImmutableTerminologyMap)
 
+  @scala.volatile
   private var builtInDatatypeMap
   : Option[ImmutableModelTerminologyGraphConversionMap]
   = None
@@ -573,7 +579,9 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
       BuiltInDatatypeMaps
         .createBuiltInDatatypeMaps[OWLAPIOMF](makeW3CTerminologyGraphDefinition)(ops, this)
         .map { builtInMap =>
+          require(builtInDatatypeMap.isEmpty)
           builtInDatatypeMap = Some(builtInMap)
+          require(builtInDatatypeMap.isDefined)
           builtInMap._2.values foreach { builtInG =>
             immutableTBoxGraphs += (builtInG.iri -> builtInG)
           }
@@ -591,6 +599,7 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
     require(result.isRight)
     result.toOption.get._1
   }
+
 
   def lookupTerminologyGraph
   (iri: IRI)
@@ -623,9 +632,24 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
   : Option[types.ModelTerminologyGraph]
   = lookupImmutableTerminologyGraph(uuid).orElse(lookupMutableTerminologyGraph(uuid))
 
-  protected val directExtensionAxioms = scala.collection.mutable.HashMap[types.ModelTerminologyGraph, scala.collection.mutable.HashSet[types.TerminologyGraphDirectExtensionAxiom]]()
+  protected val directExtensionAxioms = scala.collection.mutable.HashMap[
+    types.ModelTerminologyGraph,
+    scala.collection.mutable.HashSet[types.TerminologyGraphDirectExtensionAxiom]]()
+    .withDefaultValue(scala.collection.mutable.HashSet[types.TerminologyGraphDirectExtensionAxiom]())
 
-  protected val directNestingAxioms = scala.collection.mutable.HashMap[types.ModelTerminologyGraph, types.TerminologyGraphDirectNestingAxiom]()
+  /**
+    * TerminologyGraphDirectNestingAxiom(nestingParent=G1, nestingContext=C, nestedChild=G2)
+    *
+    * key = nestedChild
+    * value = (nestingParent, axiom)
+    */
+  protected val directNestingAxioms =
+  scala.collection.mutable.HashMap[types.ModelTerminologyGraph, types.TerminologyGraphDirectNestingAxiom]()
+
+  protected val directNestedAxioms = scala.collection.mutable.HashMap[
+    types.ModelTerminologyGraph,
+    scala.collection.mutable.HashSet[types.TerminologyGraphDirectNestingAxiom]]()
+    .withDefaultValue(scala.collection.mutable.HashSet[types.TerminologyGraphDirectNestingAxiom]())
 
   protected val extendingChild2ExtendedParents =
     scala.collection.mutable.HashMap[
@@ -655,7 +679,7 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
   def lookupNestingAxiomForNestedChildIfAny
   (nestedG: types.ModelTerminologyGraph)
   : Option[types.TerminologyGraphDirectNestingAxiom]
-  = nestedG.getNestingAxiomIfAny
+  = directNestingAxioms.get(nestedG)
 
   /**
     * Find the axioms TerminologyGraphDirectNestingAxiom(nestingContext=nestingC)
@@ -663,14 +687,26 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
   def lookupNestingAxiomsForNestingContext
   (nestingC: types.ModelEntityConcept)
   : Set[types.TerminologyGraphDirectNestingAxiom]
-  = directNestingAxioms
-    .flatMap { case (g, ax) =>
-      if (ax.nestingContext == nestingC)
-        Some(ax)
-      else
-        None
-    }
+  = directNestingAxioms.values.filter(_.nestingContext == nestingC).to[Set]
+
+  /**
+    * Find the axioms TerminologyGraphDirectNestingAxiom(nestingParent=nestingG)
+    */
+  def lookupNestingAxiomsForNestingParent
+  (nestingG: types.ModelTerminologyGraph)
+  : Set[types.TerminologyGraphDirectNestingAxiom]
+  = directNestedAxioms
+    .getOrElseUpdate(nestingG, scala.collection.mutable.HashSet[types.TerminologyGraphDirectNestingAxiom]())
     .to[Set]
+
+  def getNestingParentGraphOfAxiom
+  (axiom: types.TerminologyGraphDirectNestingAxiom)
+  : types.ModelTerminologyGraph
+  = {
+    val nestingParent = directNestingAxioms.find(_._2 == axiom).map(_._1)
+    require(nestingParent.isDefined)
+    nestingParent.get
+  }
 
   def getNestingContextConceptOfAxiom
   (axiom: types.TerminologyGraphDirectNestingAxiom)
@@ -679,18 +715,33 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
 
   def createOMFTerminologyGraphDirectNestingAxiom
   (uuid: UUID,
+   parentG: types.ModelTerminologyGraph,
    parentC: types.ModelEntityConcept,
    childG: types.ModelTerminologyGraph)
   : Set[java.lang.Throwable] \/ types.TerminologyGraphDirectNestingAxiom
   = lookupNestingAxiomForNestedChildIfAny(childG)
     .fold[Set[java.lang.Throwable] \/ types.TerminologyGraphDirectNestingAxiom] {
 
-    val axiom = types.TerminologyGraphDirectNestingAxiom(uuid, parentC)
-    val parentIC = OMF_MODEL_ENTITY_CONCEPT2Instance(parentC)
+    val axiom = types.TerminologyGraphDirectNestingAxiom(uuid, parentG, parentC)
+    registerTerminologyGraphDirectNestingAxiom(childG, axiom)
+  }{ _ =>
+    Set(
+      OMFError
+        .omfOpsError(ops, s"createTerminologyGraphDirectNestingAxiom inconsistency")
+    ).left
+  }
+
+  def registerTerminologyGraphDirectNestingAxiom
+  (childG: types.ModelTerminologyGraph,
+   axiom: types.TerminologyGraphDirectNestingAxiom)
+  : Set[java.lang.Throwable] \/ types.TerminologyGraphDirectNestingAxiom
+  = {
+    val parentIC = OMF_MODEL_ENTITY_CONCEPT2Instance(axiom.nestingContext)
+    val parentIG = OMF_MODEL_TERMINOLOGY_GRAPH2Instance(axiom.nestingParent)
     val nestedIG = OMF_MODEL_TERMINOLOGY_GRAPH2Instance(childG)
 
     for {
-      directNestingIRI <- makeMetadataInstanceIRI(omfMetadata.get, "DN", parentC.iri, childG.kindIRI)
+      directNestingIRI <- makeMetadataInstanceIRI(omfMetadata.get, "DN", axiom.nestingContext.iri, childG.kindIRI)
       directNestingI = owlDataFactory.getOWLNamedIndividual(directNestingIRI)
       _ <- applyOntologyChangesOrNoOp(
         ontManager,
@@ -698,25 +749,27 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
           new AddAxiom(omfMetadata.get, owlDataFactory
             .getOWLDeclarationAxiom(directNestingI)),
           new AddAxiom(omfMetadata.get, owlDataFactory
-              .getOWLClassAssertionAxiom(OMF_TERMINOLOGY_GRAPH_DIRECT_NESTING_AXIOM,
-                directNestingI)),
+            .getOWLClassAssertionAxiom(OMF_TERMINOLOGY_GRAPH_DIRECT_NESTING_AXIOM,
+              directNestingI)),
           new AddAxiom(omfMetadata.get, owlDataFactory
-              .getOWLObjectPropertyAssertionAxiom(OMF_HAS_DIRECT_NESTING_CONTEXT,
-                directNestingI, parentIC)),
+            .getOWLObjectPropertyAssertionAxiom(OMF_HAS_DIRECT_NESTING_PARENT,
+              directNestingI, parentIG)),
           new AddAxiom(omfMetadata.get, owlDataFactory
-              .getOWLObjectPropertyAssertionAxiom(OMF_HAS_DIRECT_NESTED_CHILD,
-                directNestingI, nestedIG))),
+            .getOWLObjectPropertyAssertionAxiom(OMF_HAS_DIRECT_NESTING_CONTEXT,
+              directNestingI, parentIC)),
+          new AddAxiom(omfMetadata.get, owlDataFactory
+            .getOWLObjectPropertyAssertionAxiom(OMF_HAS_DIRECT_NESTED_CHILD,
+              directNestingI, nestedIG))),
         "createTerminologyGraphDirectNestingAxiom error")
     } yield {
       directNestingAxioms += (childG -> axiom)
+      directNestedAxioms
+        .getOrElseUpdate(
+          axiom.nestingParent,
+          scala.collection.mutable.HashSet[types.TerminologyGraphDirectNestingAxiom]()) += axiom
       OMF_TERMINOLOGY_GRAPH_DIRECT_NESTING_AXIOM2Instance += (axiom -> directNestingI)
       axiom
     }
-  }{ _ =>
-    Set(
-      OMFError
-        .omfOpsError(ops, s"createTerminologyGraphDirectNestingAxiom inconsistency")
-    ).left
   }
 
   def getDirectlyExtendedGraphsOfExtendingChildGraph
@@ -753,7 +806,7 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
       directExtensionAxioms
         .getOrElseUpdate(extendingG, scala.collection.mutable.HashSet[types.TerminologyGraphDirectExtensionAxiom]())
         .find { ax => ax.extendedParent.kindIRI == extendedG.kindIRI }
-        .fold[Set[java.lang.Throwable] \/ types.TerminologyGraphDirectExtensionAxiom]({
+        .fold[Set[java.lang.Throwable] \/ types.TerminologyGraphDirectExtensionAxiom]{
         System.out.println(s"directExtensionAxioms: ${directExtensionAxioms.size}")
         directExtensionAxioms.foreach { case (g, axs) =>
           System.out.println(s"=> extending: ${g.kindIRI} extended: ${axs.size}")
@@ -770,7 +823,7 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
           OMFError
             .omfOpsError(ops, "Duplicate TerminologyGraphDirectExtensionAxiom not in directExtensionAxioms")
         ).left
-      }) { ax =>
+      } { ax =>
         \/-(ax)
       }
     } else {
@@ -779,53 +832,65 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
         types
           .TerminologyGraphDirectExtensionAxiom(uuid, extendedParent = extendedG)
 
-      for {
-        added <- Seq(
-          directExtensionAxioms
-            .getOrElseUpdate(extendingG, scala.collection.mutable.HashSet[types.TerminologyGraphDirectExtensionAxiom]())
-            .add(axiom),
-          extendedParents.add(extendedG))
-      } require(added)
-
-      val extendingI = OMF_MODEL_TERMINOLOGY_GRAPH2Instance(extendingG)
-      val extendedI = OMF_MODEL_TERMINOLOGY_GRAPH2Instance(axiom.extendedParent)
-      for {
-        directImportingIRI <-
-        makeMetadataInstanceIRI(omfMetadata.get, "DI", extendingG.kindIRI, axiom.extendedParent.kindIRI)
-
-        directImportingI = owlDataFactory.getOWLNamedIndividual(directImportingIRI)
-        _ = if (LOG) {
-          System.out.println(
-            s"""|## createTerminologyGraphDirectExtensionAxiom:
-                |extending: ${extendingG.kindIRI}
-                |extended: ${axiom.extendedParent.kindIRI}
-                |result: $directImportingI"""
-              .stripMargin)
-        }
-        _ <- applyOntologyChanges(ontManager,
-          Seq(
-            new AddAxiom(omfMetadata.get, owlDataFactory
-              .getOWLDeclarationAxiom(directImportingI)),
-            new AddAxiom(omfMetadata.get, owlDataFactory
-              .getOWLClassAssertionAxiom(
-                OMF_TERMINOLOGY_GRAPH_DIRECT_EXTENSION_AXIOM,
-                directImportingI)),
-            new AddAxiom(omfMetadata.get, owlDataFactory
-              .getOWLObjectPropertyAssertionAxiom(
-                OMF_HAS_DIRECT_EXTENDED_PARENT,
-                directImportingI, extendedI)),
-            new AddAxiom(omfMetadata.get, owlDataFactory
-              .getOWLObjectPropertyAssertionAxiom(
-                OMF_HAS_DIRECT_EXTENSIONING_CHILD,
-                directImportingI, extendingI))),
-          "createTerminologyGraphDirectExtensionAxiom errors")
-      } yield {
-        OMF_TERMINOLOGY_GRAPH_DIRECT_EXTENSION_AXIOM2Instance += (axiom -> directImportingI)
-        axiom
-      }
+      registerTerminologyGraphDirectExtensionAxiom(extendingG, axiom)
     }
 
     result
+  }
+
+  def registerTerminologyGraphDirectExtensionAxiom
+  ( extendingG: types.ModelTerminologyGraph,
+    axiom: types.TerminologyGraphDirectExtensionAxiom)
+  : Set[java.lang.Throwable] \/ types.TerminologyGraphDirectExtensionAxiom
+  = {
+    val extendedParents =
+      extendingChild2ExtendedParents
+        .getOrElseUpdate(extendingG, scala.collection.mutable.HashSet[types.ModelTerminologyGraph]())
+
+    for {
+      added <- Seq(
+        directExtensionAxioms
+          .getOrElseUpdate(extendingG, scala.collection.mutable.HashSet[types.TerminologyGraphDirectExtensionAxiom]())
+          .add(axiom),
+        extendedParents.add(axiom.extendedParent))
+    } require(added)
+
+    val extendingI = OMF_MODEL_TERMINOLOGY_GRAPH2Instance(extendingG)
+    val extendedI = OMF_MODEL_TERMINOLOGY_GRAPH2Instance(axiom.extendedParent)
+    for {
+      directImportingIRI <-
+      makeMetadataInstanceIRI(omfMetadata.get, "DI", extendingG.kindIRI, axiom.extendedParent.kindIRI)
+
+      directImportingI = owlDataFactory.getOWLNamedIndividual(directImportingIRI)
+      _ = if (LOG) {
+        System.out.println(
+          s"""|## createTerminologyGraphDirectExtensionAxiom:
+              |extending: ${extendingG.kindIRI}
+              |extended: ${axiom.extendedParent.kindIRI}
+              |result: $directImportingI"""
+            .stripMargin)
+      }
+      _ <- applyOntologyChanges(ontManager,
+        Seq(
+          new AddAxiom(omfMetadata.get, owlDataFactory
+            .getOWLDeclarationAxiom(directImportingI)),
+          new AddAxiom(omfMetadata.get, owlDataFactory
+            .getOWLClassAssertionAxiom(
+              OMF_TERMINOLOGY_GRAPH_DIRECT_EXTENSION_AXIOM,
+              directImportingI)),
+          new AddAxiom(omfMetadata.get, owlDataFactory
+            .getOWLObjectPropertyAssertionAxiom(
+              OMF_HAS_DIRECT_EXTENDED_PARENT,
+              directImportingI, extendedI)),
+          new AddAxiom(omfMetadata.get, owlDataFactory
+            .getOWLObjectPropertyAssertionAxiom(
+              OMF_HAS_DIRECT_EXTENSIONING_CHILD,
+              directImportingI, extendingI))),
+        "createTerminologyGraphDirectExtensionAxiom errors")
+    } yield {
+      OMF_TERMINOLOGY_GRAPH_DIRECT_EXTENSION_AXIOM2Instance += (axiom -> directImportingI)
+      axiom
+    }
   }
 
   def fromTerminologyGraph
@@ -878,10 +943,6 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
     result <- Backbone
       .createBackbone(tboxOnt, kind, ops)
       .flatMap { backbone =>
-        val graphT = new types.MutableModelTerminologyGraph(
-          uuid, name, kind = kind, ont = tboxOnt,
-          extraProvenanceMetadata = extraProvenanceMetadata,
-          backbone = backbone)
 
         val aRelativeIRIPath =
           relativeIRIPath.fold[String](
@@ -892,6 +953,10 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
         System.out.println(s"\n*** createOMFModelTerminologyGraph\n=> iri=$iri\n=> rel=$aRelativeIRIPath")
 
         for {
+          graphT <- types.MutableModelTerminologyGraph.initialize(
+            iri, uuid, name, kind = kind, ont = tboxOnt,
+            extraProvenanceMetadata = extraProvenanceMetadata,
+            backbone = backbone)(this)
           graphIRI <- makeMetadataInstanceIRI(o, "Grw", iri)
           graphI = owlDataFactory.getOWLNamedIndividual(graphIRI)
           okind = kind match {
@@ -907,14 +972,11 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
               new AddAxiom(o, owlDataFactory
                 .getOWLClassAssertionAxiom(OMF_MODEL_TERMINOLOGY_GRAPH, graphI)),
               new AddAxiom(o, owlDataFactory
-                .getOWLObjectPropertyAssertionAxiom(OMF_HAS_TERMINOLOGY_KIND, graphI,
-                  okind)),
+                .getOWLObjectPropertyAssertionAxiom(OMF_HAS_TERMINOLOGY_KIND, graphI, okind)),
               new AddAxiom(o, owlDataFactory
-                .getOWLDataPropertyAssertionAxiom(OMF_HAS_IRI, graphI,
-                  graphT.iri.toString)),
+                .getOWLDataPropertyAssertionAxiom(OMF_HAS_IRI, graphI, graphT.iri.toString)),
               new AddAxiom(o, owlDataFactory
-                .getOWLDataPropertyAssertionAxiom(OMF_HAS_RELATIVE_IRI_PATH, graphI,
-                  aRelativeIRIPath)),
+                .getOWLDataPropertyAssertionAxiom(OMF_HAS_RELATIVE_IRI_PATH, graphI, aRelativeIRIPath)),
               createAddOntologyHasRelativeIRIAnnotation(tboxOnt, aRelativeIRIPath)
             ) ++
               calculateRelativeIRIUnhashedPrefixHashedSuffix(aRelativeIRIPath, relativeIRIHashPrefix)
@@ -1712,11 +1774,11 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
       val tgraph = fromTerminologyGraph(mg)
 
       val tiN
-      : Set[java.lang.Throwable] \/ Vector[types.TerminologyGraphDirectExtensionAxiom]
+      : Set[java.lang.Throwable] \/ Vector[types.TerminologyGraphAxiom]
       = tgraph
         .gaxioms
-        .foldLeft[Set[java.lang.Throwable] \/ Vector[types.TerminologyGraphDirectExtensionAxiom]] {
-        Vector.empty[types.TerminologyGraphDirectExtensionAxiom].right
+        .foldLeft[Set[java.lang.Throwable] \/ Vector[types.TerminologyGraphAxiom]] {
+        Vector.empty[types.TerminologyGraphAxiom].right
       } {
         case (-\/(errors), _) =>
           -\/(errors)
@@ -1727,7 +1789,7 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
             case mg: types.MutableModelTerminologyGraph =>
               acc
                 .get(mg)
-                .fold[Set[java.lang.Throwable] \/ Vector[types.TerminologyGraphDirectExtensionAxiom]] {
+                .fold[Set[java.lang.Throwable] \/ Vector[types.TerminologyGraphAxiom]] {
                 Set[java.lang.Throwable](OMFError.omfError(
                   s"""No Immutable graph available for an imported mutable graph:
                        |mutable graph to convert:
@@ -1735,17 +1797,39 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
                        |""".
                     stripMargin)).left
                 }{ ig =>
-                  (es :+
-                    gax.copy(extendedParent=ig)).right
+                  (es :+ gax.copy(extendedParent=ig)).right
                 }
             }
+        case (\/-(es), gax: types.TerminologyGraphDirectNestingAxiom) =>
+          gax.nestingParent match {
+            case _: types.ImmutableModelTerminologyGraph =>
+              (es :+ gax).right
+            case mg: types.MutableModelTerminologyGraph =>
+              acc
+                .get(mg)
+                .fold[Set[java.lang.Throwable] \/ Vector[types.TerminologyGraphAxiom]] {
+                Set[java.lang.Throwable](OMFError.omfError(
+                  s"""No Immutable graph available for an imported mutable graph:
+                      |mutable graph to convert:
+                      |$mg
+                      |""".
+                    stripMargin)).left
+              }{ ig =>
+                (es :+ gax.copy(nestingParent=ig)).right
+              }
+          }
         case (\/-(es), _) =>
           \/-(es)
         }
 
       tiN.flatMap { is =>
 
-        val itgraph = tgraph.copy(imports = is.map(_.extendedParent))
+        val itgraph = tgraph.copy(imports = is.map {
+          case gax: types.TerminologyGraphDirectExtensionAxiom =>
+            gax.extendedParent
+          case gax: types.TerminologyGraphDirectNestingAxiom =>
+            gax.nestingParent
+        })
 
         val ig =
         types
@@ -2025,6 +2109,57 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
               })}
           }
 
+          _ <- {
+            info.gaxioms.foldLeft[Set[java.lang.Throwable] \/ Unit] {
+              ().right[Set[java.lang.Throwable]]
+            } { (acc: Set[java.lang.Throwable] \/ Unit, ax: types.TerminologyGraphAxiom) =>
+              ax match {
+                case axiom: types.TerminologyGraphDirectExtensionAxiom =>
+                  axiom.extendedParent match {
+                    case _: types.ImmutableModelTerminologyGraph =>
+                      acc +++
+                        registerTerminologyGraphDirectExtensionAxiom(g, axiom)
+                          .map(_ => ())
+                    case extMG: types.MutableModelTerminologyGraph =>
+                      m2i.get(extMG).fold[Set[java.lang.Throwable] \/ Unit] {
+                        Set(OMFError.omfError(
+                          s"""No Immutable graph available for an imported mutable graph:
+                              |mutable graph to convert:
+                              |$extMG
+                              |immutable graph registration:
+                              |$g
+                              |""".stripMargin)).left
+                      } { extIG =>
+                        acc +++
+                          registerTerminologyGraphDirectExtensionAxiom(g, axiom.copy(extendedParent = extIG))
+                            .map(_ => ())
+                      }
+                  }
+                case axiom: types.TerminologyGraphDirectNestingAxiom =>
+                  axiom.nestingParent match {
+                    case _: types.ImmutableModelTerminologyGraph =>
+                      acc +++
+                        registerTerminologyGraphDirectNestingAxiom(g, axiom)
+                          .map(_ => ())
+                    case npMG: types.MutableModelTerminologyGraph =>
+                      m2i.get(npMG).fold[Set[java.lang.Throwable] \/ Unit] {
+                        Set(OMFError.omfError(
+                          s"""No Immutable graph available for a nesting parent mutable graph:
+                              |mutable graph to convert:
+                              |$npMG
+                              |immutable graph registration:
+                              |$g
+                              |""".stripMargin)).left
+                      } { npIG =>
+                        acc +++
+                          registerTerminologyGraphDirectNestingAxiom(g, axiom.copy(nestingParent = npIG))
+                            .map(_ => ())
+                      }
+                  }
+              }
+            }
+          }
+
         } yield types.rightUnitNES)
           .foldLeft(types.rightUnitNES)( _ +++ _ )
 
@@ -2037,7 +2172,6 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
 
   def loadTerminologyGraph
   (iri: IRI)
-  (implicit ops: OWLAPIOMFOps)
   : Set[java.lang.Throwable] \/ (types.ImmutableModelTerminologyGraph, types.Mutable2ImmutableTerminologyMap)
   = {
     loadBuiltinDatatypeMap()
@@ -2237,6 +2371,13 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
   : Set[java.lang.Throwable] \/ Unit
   = g.save(os)
 
+  def isBuiltInIRI
+  (iri: IRI)
+  : Boolean
+  = "http://www.w3.org/2001/XMLSchema" == iri.toString ||
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns" == iri.toString ||
+    "http://www.w3.org/2002/07/owl" == iri.toString
+
   def makeTerminologyGraph
   (uuid: UUID,
    name: LocalName,
@@ -2250,12 +2391,18 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
   = mutableTBoxGraphs
     .get(iri)
     .fold[Set[java.lang.Throwable] \/ types.MutableModelTerminologyGraph](
-      if (ontManager.contains(iri))
-        Set(
-          OMFError
-          .omfOpsError(ops, s"makeTerminologyGraph(iri='$iri') --  already exists!")
-        ).left
-      else
+      if (ontManager.contains(iri)) {
+        if (isBuiltInIRI(iri))
+          createOMFModelTerminologyGraph(
+            omfMetadata.get,
+            iri, relativeIRIPath, relativeIRIHashPrefix,
+            ontManager.getOntology(iri), kind, extraProvenanceMetadata)
+        else
+          Set(
+            OMFError
+              .omfOpsError(ops, s"makeTerminologyGraph(iri='$iri') --  already exists!")
+          ).left
+      } else
       // not yet registered.
         createOMFModelTerminologyGraph(
           omfMetadata.get,

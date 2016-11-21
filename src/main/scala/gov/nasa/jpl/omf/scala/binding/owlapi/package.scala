@@ -18,7 +18,12 @@
 
 package gov.nasa.jpl.omf.scala.binding
 
+import java.nio.file.Path
+
 import gov.nasa.jpl.omf.scala.core.OMFError
+
+import org.apache.xml.resolver.CatalogManager
+import org.semanticweb.owlapi.apibinding.OWLManager
 import org.semanticweb.owlapi.model.parameters.ChangeApplied
 import org.semanticweb.owlapi.model._
 
@@ -136,5 +141,27 @@ package object owlapi {
     .annotationAssertionAxioms( resourceIRI )
     .toScala[Set]
     .find( _.getProperty.getIRI == annotationProperty )
+
+  def createOMFGraphStore()
+  : Set[java.lang.Throwable] \/ OWLAPIOMFGraphStore
+  = for {
+    module <- OWLAPIOMFModule.owlAPIOMFModule(new CatalogManager())
+    store = OWLAPIOMFGraphStore(module, OWLManager.createOWLOntologyManager())
+  } yield store
+
+  def loadCatalog(s: OWLAPIOMFGraphStore, cls: java.lang.Class[_], catalogPath: String)
+  : Set[java.lang.Throwable] \/ Unit
+  = Option.apply(cls.getResource(catalogPath))
+    .fold[Set[java.lang.Throwable] \/ Unit] {
+    Set[java.lang.Throwable](new java.lang.IllegalArgumentException(
+      s"Catalog '$catalogPath' not found on the classpath of ${cls.getName}")).left
+  } { url =>
+    s.catalogIRIMapper.parseCatalog(url.toURI)
+  }
+
+  def loadCatalog(s: OWLAPIOMFGraphStore, file: Path)
+  : Set[java.lang.Throwable] \/ Unit
+  = s.catalogIRIMapper.parseCatalog(file.toUri)
+
 
 }

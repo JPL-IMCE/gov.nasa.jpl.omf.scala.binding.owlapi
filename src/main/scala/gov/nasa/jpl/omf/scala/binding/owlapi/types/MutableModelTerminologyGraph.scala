@@ -144,7 +144,30 @@ case class DuplicateTerminologyGraphAxiomException
  axiom: TerminologyGraphAxiom)
   extends MutableModelTerminologyGraphException(kind, s"the axiom is already asserted $axiom")
 
-case class MutableModelTerminologyGraph
+object MutableModelTerminologyGraph {
+
+  def initialize
+  (iri: IRI,
+   uuid: UUID,
+   name: LocalName,
+   kind: TerminologyKind,
+   ont: OWLOntology,
+   extraProvenanceMetadata: Option[OTI2OMFModelTerminologyGraphProvenance],
+   backbone: OMFBackbone)
+  (implicit store: OWLAPIOMFGraphStore)
+  : Set[java.lang.Throwable] \/ MutableModelTerminologyGraph
+  = {
+    val mg = MutableModelTerminologyGraph(uuid, name, kind, ont, extraProvenanceMetadata, backbone)(store.ops)
+    // we cannot set the name & uuid annotations because the OWLAPI ontology object may be immutable.
+//      for {
+//        _ <- mg.setTerminologyGraphLocalName(Some(name))
+//        _ <- mg.setTerminologyGraphUUID(uuid)
+//      } yield mg
+    \/-(mg)
+  }
+}
+
+case class MutableModelTerminologyGraph private
 (override val uuid: UUID,
  override val name: LocalName,
  override val kind: TerminologyKind,
@@ -370,16 +393,18 @@ case class MutableModelTerminologyGraph
   } yield axiom
 
   def createTerminologyGraphDirectNestingAxiom
-  (parentC: types.ModelEntityConcept)
+  (parentG: types.ModelTerminologyGraph,
+   parentC: types.ModelEntityConcept)
   (implicit store: OWLAPIOMFGraphStore)
   : Set[java.lang.Throwable] \/ types.TerminologyGraphDirectNestingAxiom
   = for {
     uuid <- ops.terminologyNestingAxiomUUID(parentC, this)
-    ax <- createTerminologyGraphDirectNestingAxiom(uuid, parentC)
+    ax <- createTerminologyGraphDirectNestingAxiom(uuid, parentG, parentC)
   } yield ax
 
   def createTerminologyGraphDirectNestingAxiom
   (uuid: UUID,
+   parentG: types.ModelTerminologyGraph,
    parentC: types.ModelEntityConcept)
   (implicit store: OWLAPIOMFGraphStore)
   : Set[java.lang.Throwable] \/ types.TerminologyGraphDirectNestingAxiom
@@ -393,7 +418,7 @@ case class MutableModelTerminologyGraph
     .fold[Set[java.lang.Throwable] \/ types.TerminologyGraphDirectNestingAxiom](
     for {
       axiom <- store
-        .createOMFTerminologyGraphDirectNestingAxiom(uuid, parentC, this)
+        .createOMFTerminologyGraphDirectNestingAxiom(uuid, parentG, parentC, this)
     } yield {
       gx += axiom
       axiom
@@ -406,11 +431,12 @@ case class MutableModelTerminologyGraph
 
   def addNestedTerminologyGraph
   (uuid: UUID,
+   parentGraph: ModelTerminologyGraph,
    parentContext: ModelEntityConcept)
   (implicit store: OWLAPIOMFGraphStore)
   : Set[java.lang.Throwable] \/ types.TerminologyGraphDirectNestingAxiom
   = for {
-    axiom <- createTerminologyGraphDirectNestingAxiom(uuid, parentContext)
+    axiom <- createTerminologyGraphDirectNestingAxiom(uuid, parentGraph, parentContext)
     _ <- applyOntologyChangesOrNoOp(ontManager,
       Seq(
         new AddOntologyAnnotation(ont, owlDataFactory
@@ -804,92 +830,71 @@ case class MutableModelTerminologyGraph
 
       for {
         change <-
-        Seq(new AddAxiom(ont,
-          owlDataFactory
-            .getOWLDeclarationAxiom(r)),
-          new AddAxiom(ont,
-            owlDataFactory
-              .getOWLAnnotationAssertionAxiom(isAbstractAP,
-                rIRI,
-                owlDataFactory.getOWLLiteral(isAbstract))),
-          new AddAxiom(ont,
-            owlDataFactory
-              .getOWLSubClassOfAxiom(r, backbone.ReifiedObjectPropertyC)),
+        Seq(
+          new AddAxiom(ont, owlDataFactory.getOWLDeclarationAxiom(
+            r)),
+          new AddAxiom(ont, owlDataFactory.getOWLSubClassOfAxiom(
+            r, backbone.ReifiedObjectPropertyC)),
+          new AddAxiom(ont, owlDataFactory.getOWLAnnotationAssertionAxiom(store.RDFS_LABEL,
+            rIRI, owlDataFactory.getOWLLiteral(name))),
+          new AddAxiom(ont, owlDataFactory.getOWLAnnotationAssertionAxiom(store.ANNOTATION_HAS_UUID,
+            rIRI, owlDataFactory.getOWLLiteral(uuid.toString))),
+          new AddAxiom(ont, owlDataFactory.getOWLAnnotationAssertionAxiom(isAbstractAP,
+            rIRI, owlDataFactory.getOWLLiteral(isAbstract))),
 
-          new AddAxiom(ont,
-            owlDataFactory
-              .getOWLDeclarationAxiom(rSource)),
-          new AddAxiom(ont,
-            owlDataFactory
-              .getOWLSubObjectPropertyOfAxiom(rSource,
-                backbone.topReifiedObjectPropertySourceOP)),
-          new AddAxiom(ont,
-            owlDataFactory
-              .getOWLObjectPropertyDomainAxiom(rSource, r)),
-          new AddAxiom(ont,
-            owlDataFactory
-              .getOWLObjectPropertyRangeAxiom(rSource, sourceC)),
-          new AddAxiom(ont,
-            owlDataFactory
-              .getOWLFunctionalObjectPropertyAxiom(rSource)),
+          new AddAxiom(ont, owlDataFactory.getOWLDeclarationAxiom(
+            rSource)),
+          new AddAxiom(ont, owlDataFactory.getOWLSubObjectPropertyOfAxiom(
+            rSource, backbone.topReifiedObjectPropertySourceOP)),
+          new AddAxiom(ont, owlDataFactory.getOWLObjectPropertyDomainAxiom(
+            rSource, r)),
+          new AddAxiom(ont, owlDataFactory.getOWLObjectPropertyRangeAxiom(
+            rSource, sourceC)),
+          new AddAxiom(ont, owlDataFactory.getOWLFunctionalObjectPropertyAxiom(
+            rSource)),
+          new AddAxiom(ont, owlDataFactory.getOWLAnnotationAssertionAxiom(store.ANNOTATION_HAS_UUID,
+            rIRISource, owlDataFactory.getOWLLiteral(uuid.toString))),
 
-          new AddAxiom(ont,
-            owlDataFactory.getOWLDeclarationAxiom(rTarget)),
-          new AddAxiom(ont,
-            owlDataFactory
-              .getOWLSubObjectPropertyOfAxiom(rTarget,
-                backbone.topReifiedObjectPropertyTargetOP)),
-          new AddAxiom(ont,
-            owlDataFactory
-              .getOWLObjectPropertyDomainAxiom(rTarget, r)),
-          new AddAxiom(ont,
-            owlDataFactory
-              .getOWLObjectPropertyRangeAxiom(rTarget, targetC)),
-          new AddAxiom(ont,
-            owlDataFactory
-              .getOWLFunctionalObjectPropertyAxiom(rTarget)),
+          new AddAxiom(ont, owlDataFactory.getOWLDeclarationAxiom(
+            rTarget)),
+          new AddAxiom(ont, owlDataFactory.getOWLSubObjectPropertyOfAxiom(
+            rTarget, backbone.topReifiedObjectPropertyTargetOP)),
+          new AddAxiom(ont, owlDataFactory.getOWLObjectPropertyDomainAxiom(
+            rTarget, r)),
+          new AddAxiom(ont, owlDataFactory.getOWLObjectPropertyRangeAxiom(
+            rTarget, targetC)),
+          new AddAxiom(ont, owlDataFactory.getOWLFunctionalObjectPropertyAxiom(
+            rTarget)),
+          new AddAxiom(ont, owlDataFactory.getOWLAnnotationAssertionAxiom(store.ANNOTATION_HAS_UUID,
+            rIRITarget, owlDataFactory.getOWLLiteral(uuid.toString))),
 
-          new AddAxiom(ont,
-            owlDataFactory
-              .getOWLDeclarationAxiom(u)),
-          new AddAxiom(ont,
-            owlDataFactory
-              .getOWLSubObjectPropertyOfAxiom(u,
-                backbone.topReifiedObjectPropertyOP)),
-          new AddAxiom(ont,
-            owlDataFactory
-              .getOWLObjectPropertyDomainAxiom(u, sourceC)),
-          new AddAxiom(ont,
-            owlDataFactory
-              .getOWLObjectPropertyRangeAxiom(u, targetC)),
-          new AddAxiom(ont, rule),
-          new AddAxiom(ont, owlDataFactory.getOWLAnnotationAssertionAxiom(
-            store.RDFS_LABEL, rIRI, owlDataFactory.getOWLLiteral(name))),
-          new AddAxiom(ont, owlDataFactory.getOWLAnnotationAssertionAxiom(
-            store.ANNOTATION_HAS_UUID, rIRI, owlDataFactory.getOWLLiteral(uuid.toString)))
+          new AddAxiom(ont, owlDataFactory.getOWLDeclarationAxiom(
+            u)),
+          new AddAxiom(ont, owlDataFactory.getOWLSubObjectPropertyOfAxiom(
+            u, backbone.topReifiedObjectPropertyOP)),
+          new AddAxiom(ont, owlDataFactory.getOWLObjectPropertyDomainAxiom(
+            u, sourceC)),
+          new AddAxiom(ont, owlDataFactory.getOWLObjectPropertyRangeAxiom(
+            u, targetC)),
+          new AddAxiom(ont, owlDataFactory.getOWLAnnotationAssertionAxiom(store.ANNOTATION_HAS_UUID,
+            uIRI, owlDataFactory.getOWLLiteral(uuid.toString))),
+
+          new AddAxiom(ont, rule)
         ) ++
-          (if (ui.isDefined)
+          (if (ui.isDefined && uiIRI.isDefined)
             Seq(
-              new AddAxiom(ont,
-                owlDataFactory
-                  .getOWLDeclarationAxiom(ui.get)),
-              new AddAxiom(ont,
-                owlDataFactory
-                  .getOWLAnnotationAssertionAxiom(isDerivedAP,
-                    ui.get.getIRI,
-                    owlDataFactory.getOWLLiteral(true))),
-              new AddAxiom(ont,
-                owlDataFactory
-                  .getOWLSubObjectPropertyOfAxiom(ui.get,
-                    backbone.topReifiedObjectPropertyOP)),
-              new AddAxiom(ont,
-                owlDataFactory
-                  .getOWLObjectPropertyDomainAxiom(ui.get,
-                    targetC)),
-              new AddAxiom(ont,
-                owlDataFactory
-                  .getOWLObjectPropertyRangeAxiom(ui.get,
-                    sourceC))
+              new AddAxiom(ont, owlDataFactory.getOWLDeclarationAxiom(
+                ui.get)),
+              new AddAxiom(ont, owlDataFactory.getOWLAnnotationAssertionAxiom(isDerivedAP,
+                ui.get.getIRI, owlDataFactory.getOWLLiteral(true))),
+              new AddAxiom(ont, owlDataFactory.getOWLSubObjectPropertyOfAxiom(
+                ui.get, backbone.topReifiedObjectPropertyOP)),
+              new AddAxiom(ont, owlDataFactory.getOWLObjectPropertyDomainAxiom(
+                ui.get, targetC)),
+              new AddAxiom(ont, owlDataFactory.getOWLObjectPropertyRangeAxiom(
+                ui.get, sourceC)),
+              new AddAxiom(ont, owlDataFactory.getOWLAnnotationAssertionAxiom(store.ANNOTATION_HAS_UUID,
+                uiIRI.get, owlDataFactory.getOWLLiteral(uuid.toString)))
             )
           else
             Seq())
