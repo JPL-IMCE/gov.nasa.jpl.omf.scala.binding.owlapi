@@ -159,8 +159,9 @@ lazy val core =
     Seq(
       "gov.nasa.jpl.imce" %% "gov.nasa.jpl.omf.scala.core"
         % Versions_omf_scala_core.version
-        % "compile" artifacts
-        Artifact("gov.nasa.jpl.omf.scala.core", "zip", "zip", Some("resource"), Seq(), None, Map())
+        % "compile" artifacts(
+        Artifact("gov.nasa.jpl.omf.scala.core"),
+        Artifact("gov.nasa.jpl.omf.scala.core", "zip", "zip", Some("resource"), Seq(), None, Map()))
     )
   )
   .dependsOnSourceProjectOrLibraryArtifacts(
@@ -170,12 +171,8 @@ lazy val core =
     Seq(
       "gov.nasa.jpl.imce" %% "gov.nasa.jpl.omf.scala.core"
         % Versions_omf_scala_core.version
-        % "test" artifacts(
-        Artifact("gov.nasa.jpl.omf.scala.core", "tests"),
-        Artifact("gov.nasa.jpl.omf.scala.core", "tests-sources")),
-      "gov.nasa.jpl.imce" %% "gov.nasa.jpl.omf.scala.core"
-        % Versions_omf_scala_core.version
-        % "compile" withSources()
+        % "test->compile" artifacts
+        Artifact("gov.nasa.jpl.omf.scala.core", "tests")
     )
   )
   .dependsOnSourceProjectOrLibraryArtifacts(
