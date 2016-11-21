@@ -23,8 +23,30 @@ import java.util.UUID
 import gov.nasa.jpl.imce.omf.schema.tables.LocalName
 import org.semanticweb.owlapi.model.OWLDatatype
 
+import scala.{Any, Boolean, Int}
+
 case class ModelScalarDataType
 (sc: OWLDatatype,
  override val name: LocalName,
  override val uuid: UUID)
-  extends ModelDataTypeDefinition(sc.getIRI, name, uuid)
+  extends ModelDataTypeDefinition(sc.getIRI, name, uuid) {
+
+  override def canEqual(other: Any)
+  : Boolean
+  = other match {
+    case _: ModelScalarDataType => true
+    case _ => false
+  }
+
+  override val hashCode: Int = (uuid, name, sc).##
+
+  override def equals(other: Any): Boolean = other match {
+    case that: ModelScalarDataType =>
+      (that canEqual this) &&
+        (this.uuid == that.uuid) &&
+        (this.name == that.name) &&
+        (this.sc == that.sc)
+    case _ =>
+      false
+  }
+}

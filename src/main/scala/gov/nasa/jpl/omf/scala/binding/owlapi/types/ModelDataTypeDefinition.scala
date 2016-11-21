@@ -23,6 +23,7 @@ import java.util.UUID
 import gov.nasa.jpl.imce.omf.schema.tables.LocalName
 import gov.nasa.jpl.omf.scala.binding.owlapi._
 
+import scala.{Any, Boolean}
 import scala.Predef.require
 
 abstract class ModelDataTypeDefinition
@@ -32,4 +33,12 @@ abstract class ModelDataTypeDefinition
   extends ModelTypeTerm {
 
   require(null != iri)
+
+  override def canEqual(other: Any)
+  : Boolean
+  = other match {
+    case _: ModelDataTypeDefinition => true
+    case _ => false
+  }
+
 }

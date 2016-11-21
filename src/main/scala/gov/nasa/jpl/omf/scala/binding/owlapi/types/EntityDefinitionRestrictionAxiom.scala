@@ -20,6 +20,7 @@ package gov.nasa.jpl.omf.scala.binding.owlapi.types
 
 import java.util.UUID
 
+import scala.{Any, Boolean}
 import scala.Predef.require
 
 abstract class EntityDefinitionRestrictionAxiom
@@ -32,4 +33,11 @@ abstract class EntityDefinitionRestrictionAxiom
   require(null != sub)
   require(null != rel)
   require(null != range)
+
+  override def canEqual(other: Any)
+  : Boolean
+  = other match {
+    case _: EntityDefinitionRestrictionAxiom => true
+    case _ => false
+  }
 }

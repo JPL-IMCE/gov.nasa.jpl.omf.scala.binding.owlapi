@@ -20,6 +20,7 @@ package gov.nasa.jpl.omf.scala.binding.owlapi.types
 
 import java.util.UUID
 
+import scala.{Any, Boolean, Int}
 import scala.Predef.{String, require}
 
 case class ModelScalarDataRelationshipRestrictionAxiomFromEntityToLiteral
@@ -32,4 +33,24 @@ case class ModelScalarDataRelationshipRestrictionAxiomFromEntityToLiteral
   require(null != restrictedEntity)
   require(null != restrictingDataProperty)
   require(null != literalRestriction && literalRestriction.length > 0)
+
+  override def canEqual(other: Any)
+  : Boolean
+  = other match {
+    case _: ModelScalarDataRelationshipRestrictionAxiomFromEntityToLiteral => true
+    case _ => false
+  }
+
+  override val hashCode: Int = (uuid, restrictedEntity, restrictingDataProperty, literalRestriction).##
+
+  override def equals(other: Any): Boolean = other match {
+    case that: ModelScalarDataRelationshipRestrictionAxiomFromEntityToLiteral =>
+      (that canEqual this) &&
+        (this.uuid == that.uuid) &&
+        (this.restrictedEntity == that.restrictedEntity) &&
+        (this.restrictingDataProperty == that.restrictingDataProperty) &&
+        (this.literalRestriction == that.literalRestriction)
+    case _ =>
+      false
+  }
 }

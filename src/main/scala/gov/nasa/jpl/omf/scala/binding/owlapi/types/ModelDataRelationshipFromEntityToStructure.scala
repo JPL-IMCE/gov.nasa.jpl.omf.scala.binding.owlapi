@@ -22,6 +22,7 @@ import java.util.UUID
 
 import gov.nasa.jpl.imce.omf.schema.tables.LocalName
 
+import scala.{Any,Boolean,Int}
 import scala.Predef.require
 import org.semanticweb.owlapi.model.OWLClass
 import org.semanticweb.owlapi.model.OWLObjectProperty
@@ -47,4 +48,30 @@ case class ModelDataRelationshipFromEntityToStructure
   require(null != unreified)
 
   override val iri = c.getIRI
+
+  override def canEqual(other: Any)
+  : Boolean
+  = other match {
+    case _: ModelDataRelationshipFromEntityToStructure => true
+    case _ => false
+  }
+
+  override val hashCode
+  : Int
+  = (uuid, name, source, target, c, rSource, rTarget, unreified).##
+
+  override def equals(other: Any): Boolean = other match {
+    case that: ModelDataRelationshipFromEntityToStructure =>
+      (that canEqual this) &&
+        (this.uuid == that.uuid) &&
+        (this.name == that.name) &&
+        (this.source == that.source) &&
+        (this.target == that.target) &&
+        (this.c == that.c) &&
+        (this.rSource == that.rSource) &&
+        (this.rTarget == that.rTarget) &&
+        (this.unreified == that.unreified)
+    case _ =>
+      false
+  }
 }

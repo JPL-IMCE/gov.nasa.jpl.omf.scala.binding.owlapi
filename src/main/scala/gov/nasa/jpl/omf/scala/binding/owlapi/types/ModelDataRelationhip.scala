@@ -18,5 +18,14 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.types
 
+import scala.{Any, Boolean}
 
-trait ModelDataRelationship extends ModelTypeTerm
+trait ModelDataRelationship extends ModelTypeTerm {
+
+  override def canEqual(other: Any)
+  : Boolean
+  = other match {
+    case _: ModelDataRelationship => true
+    case _ => false
+  }
+}

@@ -30,7 +30,7 @@ import org.semanticweb.owlapi.model._
 import scala.collection.immutable._
 import scala.collection.JavaConversions._
 import scala.compat.java8.StreamConverters._
-import scala.{Boolean, Option, None, Some, StringContext, Unit}
+import scala.{Any, Boolean, Option, None, Some, StringContext, Unit}
 import scala.Predef.{Map => _, Set => _, _}
 import scala.util.control.Exception._
 import scalaz._
@@ -47,6 +47,8 @@ abstract class ModelTerminologyGraph
   require(null != kind)
   require(null != ont)
   require(null != ops)
+
+  def canEqual(other: Any): Boolean
 
   val mutabilityKind: String
   val isImmutableModelTerminologyGraph: Boolean
@@ -89,9 +91,12 @@ abstract class ModelTerminologyGraph
   def isTypeTermDefinedRecursively
   (t: ModelTypeTerm)
   (implicit store: OWLAPIOMFGraphStore)
-  : Boolean =
-    terminologyGraphImportClosure[OWLAPIOMF, ModelTerminologyGraph](this, onlyCompatibleKind = true).
-      exists(_.isTypeTermDefined(t))
+  : Boolean
+  = {
+    val closure = terminologyGraphImportClosure[OWLAPIOMF, ModelTerminologyGraph](this, onlyCompatibleKind = true)
+    val found = closure.exists(_.isTypeTermDefined(t))
+    found
+  }
 
   def lookupTypeTerm
   (iri: IRI, recursively: Boolean)

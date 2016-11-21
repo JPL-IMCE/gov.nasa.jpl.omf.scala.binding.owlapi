@@ -28,7 +28,7 @@ import gov.nasa.jpl.omf.scala.core._
 import org.semanticweb.owlapi.model._
 
 import scala.collection.immutable._
-import scala.{Enumeration, Option, StringContext}
+import scala.{Any, Boolean, Enumeration, Int, Option, StringContext}
 import scala.Predef.{Map => _, Set => _, _}
 import scala.language.postfixOps
 
@@ -94,6 +94,39 @@ case class ImmutableModelTerminologyGraph
   require(null != s2sc)
   require(null != s2st)
   require(null != ax)
+
+  override def canEqual(other: Any)
+  : Boolean
+  = other match {
+    case _: ImmutableModelTerminologyGraph => true
+    case _ => false
+  }
+
+  override val hashCode: Int = (uuid, name, kind, extraProvenanceMetadata, ont).##
+
+  override def equals(other: Any): Boolean = other match {
+    case that: ImmutableModelTerminologyGraph =>
+      (that canEqual this) &&
+        (this.uuid == that.uuid) &&
+        (this.name == that.name) &&
+        (this.kind == that.kind) &&
+        (this.extraProvenanceMetadata == that.extraProvenanceMetadata) &&
+        (this.ont == that.ont) &&
+        (this.aspects == that.aspects) &&
+        (this.concepts == that.concepts) &&
+        (this.reifiedRelationships == that.reifiedRelationships) &&
+        (this.unreifiedRelationships == that.unreifiedRelationships) &&
+        (this.sc == that.sc) &&
+        (this.st == that.st) &&
+        (this.e2sc == that.e2sc) &&
+        (this.e2st == that.e2st) &&
+        (this.s2sc == that.s2sc) &&
+        (this.s2st == that.s2st) &&
+        (this.ax == that.ax) &&
+        (this.gx == that.gx)
+    case _ =>
+      false
+  }
 
   override val mutabilityKind: String = "immutable"
   override val isImmutableModelTerminologyGraph = true

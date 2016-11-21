@@ -604,19 +604,7 @@ trait OWLAPIImmutableTerminologyGraphOps
   (graph: types.ModelTerminologyGraph,
    term: types.ModelTypeTerm)
   : UUID
-  = graph
-    .getTermUUIDAnnotationAssertionAxiom(term)
-    .flatMap { a =>
-      a.getValue match {
-        case l: OWLLiteral =>
-          Some(l.getLiteral)
-        case _ =>
-          None
-      }
-    }
-    .fold[UUID]({
-    throw OMFError.omfBindingError(s"Missing UUID annotation on OMF term: ${term.iri}")
-  })(UUID.fromString)
+  = term.uuid
 
   override def fromEntityDefinition
   (e: types.ModelEntityDefinition)
@@ -1315,7 +1303,13 @@ class OWLAPIOMFOps
   } { ax =>
     ax.getValue match {
       case l: OWLLiteral =>
-        \/-(generateUUID(l.getLiteral))
+        nonFatalCatch[Set[java.lang.Throwable] \/ UUID]
+          .withApply { cause: java.lang.Throwable =>
+            Set[java.lang.Throwable](cause).left
+          }
+          .apply {
+            \/-(UUID.fromString(l.getLiteral))
+          }
       case _ =>
         -\/(Set[java.lang.Throwable](OMFError.omfBindingError(s"Missing LocalName annotation on OMF term: $termIRI")))
     }

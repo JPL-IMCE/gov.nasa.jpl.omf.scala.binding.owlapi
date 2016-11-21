@@ -20,6 +20,7 @@ package gov.nasa.jpl.omf.scala.binding.owlapi.types
 
 import java.util.UUID
 
+import scala.{Any, Boolean, Int}
 import scala.Predef.require
 
 case class EntityReifiedRelationshipSubClassAxiom
@@ -30,4 +31,24 @@ case class EntityReifiedRelationshipSubClassAxiom
 
     require( null != sub )
     require( null != sup )
+
+    override def canEqual(other: Any)
+    : Boolean
+    = other match {
+        case _: EntityReifiedRelationshipSubClassAxiom => true
+        case _ => false
+    }
+
+    override val hashCode: Int = (uuid, sub, sup).##
+
+    override def equals(other: Any): Boolean = other match {
+        case that: EntityReifiedRelationshipSubClassAxiom =>
+            (that canEqual this) &&
+              (this.uuid == that.uuid) &&
+              (this.sub == that.sub) &&
+              (this.sup == that.sup)
+        case _ =>
+            false
+    }
+
 }
