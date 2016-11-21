@@ -45,11 +45,11 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <span class="name">TerminologyGraphDirectNestingAxiom</span><span class="params">(<span name="uuid">uuid: <span class="extype" name="java.util.UUID">UUID</span></span>, <span name="nestingContext">nestingContext: <a href="ModelEntityConcept.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityConcept">ModelEntityConcept</a></span>)</span><span class="result"> extends <a href="TerminologyGraphAxiom.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.TerminologyGraphAxiom">TerminologyGraphAxiom</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <span class="name">TerminologyGraphDirectNestingAxiom</span><span class="params">(<span name="uuid">uuid: <span class="extype" name="java.util.UUID">UUID</span></span>, <span name="nestingParent">nestingParent: <a href="ModelTerminologyGraph.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelTerminologyGraph">ModelTerminologyGraph</a></span>, <span name="nestingContext">nestingContext: <a href="ModelEntityConcept.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityConcept">ModelEntityConcept</a></span>)</span><span class="result"> extends <a href="TerminologyGraphAxiom.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.TerminologyGraphAxiom">TerminologyGraphAxiom</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
       
-          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Corresponds to an axiom: TerminologyGraphDirectNestingAxiom(nestingContext)
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Corresponds to an axiom: TerminologyGraphDirectNestingAxiom(nestingParent,nestingContext)
 The terminology graph that this axiom is asserted in corresponds to the nested child graph.
 </p></div><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
@@ -94,7 +94,7 @@ The terminology graph that this axiom is asserted in corresponds to the nested c
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.TerminologyGraphDirectNestingAxiom#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="&lt;init&gt;(uuid:java.util.UUID,nestingContext:gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityConcept):gov.nasa.jpl.omf.scala.binding.owlapi.types.TerminologyGraphDirectNestingAxiom"></a>
+      <a id="&lt;init&gt;(uuid:java.util.UUID,nestingParent:gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelTerminologyGraph,nestingContext:gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityConcept):gov.nasa.jpl.omf.scala.binding.owlapi.types.TerminologyGraphDirectNestingAxiom"></a>
       <a id="&lt;init&gt;:TerminologyGraphDirectNestingAxiom"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -102,10 +102,10 @@ The terminology graph that this axiom is asserted in corresponds to the nested c
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">TerminologyGraphDirectNestingAxiom</span><span class="params">(<span name="uuid">uuid: <span class="extype" name="java.util.UUID">UUID</span></span>, <span name="nestingContext">nestingContext: <a href="ModelEntityConcept.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityConcept">ModelEntityConcept</a></span>)</span>
+        <span class="name">TerminologyGraphDirectNestingAxiom</span><span class="params">(<span name="uuid">uuid: <span class="extype" name="java.util.UUID">UUID</span></span>, <span name="nestingParent">nestingParent: <a href="ModelTerminologyGraph.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelTerminologyGraph">ModelTerminologyGraph</a></span>, <span name="nestingContext">nestingContext: <a href="ModelEntityConcept.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityConcept">ModelEntityConcept</a></span>)</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.TerminologyGraphDirectNestingAxiom@&lt;init&gt;(uuid:java.util.UUID,nestingContext:gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityConcept):gov.nasa.jpl.omf.scala.binding.owlapi.types.TerminologyGraphDirectNestingAxiom" title="Permalink" target="_top">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.TerminologyGraphDirectNestingAxiom@&lt;init&gt;(uuid:java.util.UUID,nestingParent:gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelTerminologyGraph,nestingContext:gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityConcept):gov.nasa.jpl.omf.scala.binding.owlapi.types.TerminologyGraphDirectNestingAxiom" title="Permalink" target="_top">
         <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -187,6 +187,23 @@ The terminology graph that this axiom is asserted in corresponds to the nested c
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.TerminologyGraphDirectNestingAxiom#canEqual" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="canEqual(other:Any):Boolean"></a>
+      <a id="canEqual(Any):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">canEqual</span><span class="params">(<span name="other">other: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.TerminologyGraphDirectNestingAxiom@canEqual(other:Any):Boolean" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.TerminologyGraphDirectNestingAxiom">TerminologyGraphDirectNestingAxiom</a> → Equals → <a href="TerminologyGraphAxiom.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.TerminologyGraphAxiom">TerminologyGraphAxiom</a></dd></dl></div>
     </li><li name="scala.AnyRef#clone" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="clone():Object"></a>
       <a id="clone():AnyRef"></a>
@@ -227,6 +244,23 @@ The terminology graph that this axiom is asserted in corresponds to the nested c
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.TerminologyGraphDirectNestingAxiom#equals" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="equals(other:Any):Boolean"></a>
+      <a id="equals(Any):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">equals</span><span class="params">(<span name="other">other: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.TerminologyGraphDirectNestingAxiom@equals(other:Any):Boolean" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.TerminologyGraphDirectNestingAxiom">TerminologyGraphDirectNestingAxiom</a> → Equals → AnyRef → Any</dd></dl></div>
     </li><li name="scala.AnyRef#finalize" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="finalize():Unit"></a>
       <a id="finalize():Unit"></a>
@@ -267,6 +301,23 @@ The terminology graph that this axiom is asserted in corresponds to the nested c
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.TerminologyGraphDirectNestingAxiom#hashCode" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="hashCode:Int"></a>
+      <a id="hashCode:Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">hashCode</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.TerminologyGraphDirectNestingAxiom@hashCode:Int" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.TerminologyGraphDirectNestingAxiom">TerminologyGraphDirectNestingAxiom</a> → AnyRef → Any</dd></dl></div>
     </li><li name="scala.Any#isInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="isInstanceOf[T0]:Boolean"></a>
       <a id="isInstanceOf[T0]:Boolean"></a>
@@ -314,6 +365,23 @@ The terminology graph that this axiom is asserted in corresponds to the nested c
       </span>
       </h4><span class="permalink">
       <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.TerminologyGraphDirectNestingAxiom@nestingContext:gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityConcept" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.TerminologyGraphDirectNestingAxiom#nestingParent" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="nestingParent:gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelTerminologyGraph"></a>
+      <a id="nestingParent:ModelTerminologyGraph"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">nestingParent</span><span class="result">: <a href="ModelTerminologyGraph.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelTerminologyGraph">ModelTerminologyGraph</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.TerminologyGraphDirectNestingAxiom@nestingParent:gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelTerminologyGraph" title="Permalink" target="_top">
         <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>

@@ -2640,18 +2640,18 @@ These are distinguished with a suffix _Grw, _Gro; however, the suffix is not inc
     </span>
       
     </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore#createOMFTerminologyGraphDirectNestingAxiom" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="createOMFTerminologyGraphDirectNestingAxiom(uuid:java.util.UUID,parentC:gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityConcept,childG:gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelTerminologyGraph):scalaz.\/[scala.collection.immutable.Set[Throwable],gov.nasa.jpl.omf.scala.binding.owlapi.types.TerminologyGraphDirectNestingAxiom]"></a>
-      <a id="createOMFTerminologyGraphDirectNestingAxiom(UUID,ModelEntityConcept,ModelTerminologyGraph):\/[Set[Throwable],TerminologyGraphDirectNestingAxiom]"></a>
+      <a id="createOMFTerminologyGraphDirectNestingAxiom(uuid:java.util.UUID,parentG:gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelTerminologyGraph,parentC:gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityConcept,childG:gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelTerminologyGraph):scalaz.\/[scala.collection.immutable.Set[Throwable],gov.nasa.jpl.omf.scala.binding.owlapi.types.TerminologyGraphDirectNestingAxiom]"></a>
+      <a id="createOMFTerminologyGraphDirectNestingAxiom(UUID,ModelTerminologyGraph,ModelEntityConcept,ModelTerminologyGraph):\/[Set[Throwable],TerminologyGraphDirectNestingAxiom]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">createOMFTerminologyGraphDirectNestingAxiom</span><span class="params">(<span name="uuid">uuid: <span class="extype" name="java.util.UUID">UUID</span></span>, <span name="parentC">parentC: <a href="types/ModelEntityConcept.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityConcept">ModelEntityConcept</a></span>, <span name="childG">childG: <a href="types/ModelTerminologyGraph.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelTerminologyGraph">ModelTerminologyGraph</a></span>)</span><span class="result">: <span class="extype" name="scalaz.\/">\/</span>[<span class="extype" name="scala.collection.immutable.Set">Set</span>[<span class="extype" name="java.lang.Throwable">Throwable</span>], <a href="types/TerminologyGraphDirectNestingAxiom.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.TerminologyGraphDirectNestingAxiom">TerminologyGraphDirectNestingAxiom</a>]</span>
+        <span class="name">createOMFTerminologyGraphDirectNestingAxiom</span><span class="params">(<span name="uuid">uuid: <span class="extype" name="java.util.UUID">UUID</span></span>, <span name="parentG">parentG: <a href="types/ModelTerminologyGraph.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelTerminologyGraph">ModelTerminologyGraph</a></span>, <span name="parentC">parentC: <a href="types/ModelEntityConcept.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityConcept">ModelEntityConcept</a></span>, <span name="childG">childG: <a href="types/ModelTerminologyGraph.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelTerminologyGraph">ModelTerminologyGraph</a></span>)</span><span class="result">: <span class="extype" name="scalaz.\/">\/</span>[<span class="extype" name="scala.collection.immutable.Set">Set</span>[<span class="extype" name="java.lang.Throwable">Throwable</span>], <a href="types/TerminologyGraphDirectNestingAxiom.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.TerminologyGraphDirectNestingAxiom">TerminologyGraphDirectNestingAxiom</a>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore@createOMFTerminologyGraphDirectNestingAxiom(uuid:java.util.UUID,parentC:gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityConcept,childG:gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelTerminologyGraph):scalaz.\/[scala.collection.immutable.Set[Throwable],gov.nasa.jpl.omf.scala.binding.owlapi.types.TerminologyGraphDirectNestingAxiom]" title="Permalink" target="_top">
+      <a href="../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore@createOMFTerminologyGraphDirectNestingAxiom(uuid:java.util.UUID,parentG:gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelTerminologyGraph,parentC:gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityConcept,childG:gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelTerminologyGraph):scalaz.\/[scala.collection.immutable.Set[Throwable],gov.nasa.jpl.omf.scala.binding.owlapi.types.TerminologyGraphDirectNestingAxiom]" title="Permalink" target="_top">
         <img src="../../../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -2691,18 +2691,35 @@ These are distinguished with a suffix _Grw, _Gro; however, the suffix is not inc
     </span>
       
     </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore#directExtensionAxioms" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="directExtensionAxioms:scala.collection.mutable.HashMap[gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelTerminologyGraph,scala.collection.mutable.HashSet[gov.nasa.jpl.omf.scala.binding.owlapi.types.TerminologyGraphDirectExtensionAxiom]]"></a>
-      <a id="directExtensionAxioms:HashMap[ModelTerminologyGraph,HashSet[TerminologyGraphDirectExtensionAxiom]]"></a>
+      <a id="directExtensionAxioms:scala.collection.mutable.Map[gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelTerminologyGraph,scala.collection.mutable.HashSet[gov.nasa.jpl.omf.scala.binding.owlapi.types.TerminologyGraphDirectExtensionAxiom]]"></a>
+      <a id="directExtensionAxioms:Map[ModelTerminologyGraph,HashSet[TerminologyGraphDirectExtensionAxiom]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">directExtensionAxioms</span><span class="result">: <span class="extype" name="scala.collection.mutable.HashMap">HashMap</span>[<a href="types/ModelTerminologyGraph.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelTerminologyGraph">ModelTerminologyGraph</a>, <span class="extype" name="scala.collection.mutable.HashSet">HashSet</span>[<a href="types/TerminologyGraphDirectExtensionAxiom.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.TerminologyGraphDirectExtensionAxiom">TerminologyGraphDirectExtensionAxiom</a>]]</span>
+        <span class="name">directExtensionAxioms</span><span class="result">: <span class="extype" name="scala.collection.mutable.Map">Map</span>[<a href="types/ModelTerminologyGraph.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelTerminologyGraph">ModelTerminologyGraph</a>, <span class="extype" name="scala.collection.mutable.HashSet">HashSet</span>[<a href="types/TerminologyGraphDirectExtensionAxiom.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.TerminologyGraphDirectExtensionAxiom">TerminologyGraphDirectExtensionAxiom</a>]]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore@directExtensionAxioms:scala.collection.mutable.HashMap[gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelTerminologyGraph,scala.collection.mutable.HashSet[gov.nasa.jpl.omf.scala.binding.owlapi.types.TerminologyGraphDirectExtensionAxiom]]" title="Permalink" target="_top">
+      <a href="../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore@directExtensionAxioms:scala.collection.mutable.Map[gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelTerminologyGraph,scala.collection.mutable.HashSet[gov.nasa.jpl.omf.scala.binding.owlapi.types.TerminologyGraphDirectExtensionAxiom]]" title="Permalink" target="_top">
+        <img src="../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore#directNestedAxioms" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="directNestedAxioms:scala.collection.mutable.Map[gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelTerminologyGraph,scala.collection.mutable.HashSet[gov.nasa.jpl.omf.scala.binding.owlapi.types.TerminologyGraphDirectNestingAxiom]]"></a>
+      <a id="directNestedAxioms:Map[ModelTerminologyGraph,HashSet[TerminologyGraphDirectNestingAxiom]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">directNestedAxioms</span><span class="result">: <span class="extype" name="scala.collection.mutable.Map">Map</span>[<a href="types/ModelTerminologyGraph.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelTerminologyGraph">ModelTerminologyGraph</a>, <span class="extype" name="scala.collection.mutable.HashSet">HashSet</span>[<a href="types/TerminologyGraphDirectNestingAxiom.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.TerminologyGraphDirectNestingAxiom">TerminologyGraphDirectNestingAxiom</a>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore@directNestedAxioms:scala.collection.mutable.Map[gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelTerminologyGraph,scala.collection.mutable.HashSet[gov.nasa.jpl.omf.scala.binding.owlapi.types.TerminologyGraphDirectNestingAxiom]]" title="Permalink" target="_top">
         <img src="../../../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -2723,7 +2740,9 @@ These are distinguished with a suffix _Grw, _Gro; however, the suffix is not inc
         <img src="../../../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd></dl></div>
+      <p class="shortcomment cmt">TerminologyGraphDirectNestingAxiom(nestingParent=G1, nestingContext=C, nestedChild=G2)</p><div class="fullcomment"><div class="comment cmt"><p>TerminologyGraphDirectNestingAxiom(nestingParent=G1, nestingContext=C, nestedChild=G2)</p><p>key = nestedChild
+value = (nestingParent, axiom)
+</p></div><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd></dl></div>
     </li><li name="scala.AnyRef#eq" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a>
       <a id="eq(AnyRef):Boolean"></a>
@@ -2951,6 +2970,23 @@ These are distinguished with a suffix _Grw, _Gro; however, the suffix is not inc
       </a>
     </span>
       
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore#getNestingParentGraphOfAxiom" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="getNestingParentGraphOfAxiom(axiom:gov.nasa.jpl.omf.scala.binding.owlapi.types.TerminologyGraphDirectNestingAxiom):gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelTerminologyGraph"></a>
+      <a id="getNestingParentGraphOfAxiom(TerminologyGraphDirectNestingAxiom):ModelTerminologyGraph"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getNestingParentGraphOfAxiom</span><span class="params">(<span name="axiom">axiom: <a href="types/TerminologyGraphDirectNestingAxiom.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.TerminologyGraphDirectNestingAxiom">TerminologyGraphDirectNestingAxiom</a></span>)</span><span class="result">: <a href="types/ModelTerminologyGraph.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelTerminologyGraph">ModelTerminologyGraph</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore@getNestingParentGraphOfAxiom(axiom:gov.nasa.jpl.omf.scala.binding.owlapi.types.TerminologyGraphDirectNestingAxiom):gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelTerminologyGraph" title="Permalink" target="_top">
+        <img src="../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
     </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore#hashMessage" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="hashMessage(message:String):String"></a>
       <a id="hashMessage(String):String"></a>
@@ -2985,6 +3021,23 @@ These are distinguished with a suffix _Grw, _Gro; however, the suffix is not inc
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore#isBuiltInIRI" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="isBuiltInIRI(iri:org.semanticweb.owlapi.model.IRI):Boolean"></a>
+      <a id="isBuiltInIRI(IRI):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">isBuiltInIRI</span><span class="params">(<span name="iri">iri: <span class="extype" name="org.semanticweb.owlapi.model.IRI">IRI</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore@isBuiltInIRI(iri:org.semanticweb.owlapi.model.IRI):Boolean" title="Permalink" target="_top">
+        <img src="../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
     </li><li name="scala.Any#isInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="isInstanceOf[T0]:Boolean"></a>
       <a id="isInstanceOf[T0]:Boolean"></a>
@@ -3037,18 +3090,18 @@ These are distinguished with a suffix _Grw, _Gro; however, the suffix is not inc
     </span>
       
     </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore#loadTerminologyGraph" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="loadTerminologyGraph(iri:org.semanticweb.owlapi.model.IRI)(implicitops:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFOps):scalaz.\/[scala.collection.immutable.Set[Throwable],(gov.nasa.jpl.omf.scala.binding.owlapi.types.ImmutableModelTerminologyGraph,gov.nasa.jpl.omf.scala.binding.owlapi.types.Mutable2ImmutableTerminologyMap)]"></a>
-      <a id="loadTerminologyGraph(IRI)(OWLAPIOMFOps):\/[Set[Throwable],(ImmutableModelTerminologyGraph,Mutable2ImmutableTerminologyMap)]"></a>
+      <a id="loadTerminologyGraph(iri:org.semanticweb.owlapi.model.IRI):scalaz.\/[scala.collection.immutable.Set[Throwable],(gov.nasa.jpl.omf.scala.binding.owlapi.types.ImmutableModelTerminologyGraph,gov.nasa.jpl.omf.scala.binding.owlapi.types.Mutable2ImmutableTerminologyMap)]"></a>
+      <a id="loadTerminologyGraph(IRI):\/[Set[Throwable],(ImmutableModelTerminologyGraph,Mutable2ImmutableTerminologyMap)]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">loadTerminologyGraph</span><span class="params">(<span name="iri">iri: <span class="extype" name="org.semanticweb.owlapi.model.IRI">IRI</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="ops">ops: <a href="OWLAPIOMFOps.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFOps">OWLAPIOMFOps</a></span>)</span><span class="result">: <span class="extype" name="scalaz.\/">\/</span>[<span class="extype" name="scala.collection.immutable.Set">Set</span>[<span class="extype" name="java.lang.Throwable">Throwable</span>], (<a href="types/ImmutableModelTerminologyGraph.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ImmutableModelTerminologyGraph">ImmutableModelTerminologyGraph</a>, <a href="types/package.html#Mutable2ImmutableTerminologyMap=scala.collection.immutable.Map[gov.nasa.jpl.omf.scala.binding.owlapi.types.MutableModelTerminologyGraph,gov.nasa.jpl.omf.scala.binding.owlapi.types.ImmutableModelTerminologyGraph]" class="extmbr" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.Mutable2ImmutableTerminologyMap">Mutable2ImmutableTerminologyMap</a>)]</span>
+        <span class="name">loadTerminologyGraph</span><span class="params">(<span name="iri">iri: <span class="extype" name="org.semanticweb.owlapi.model.IRI">IRI</span></span>)</span><span class="result">: <span class="extype" name="scalaz.\/">\/</span>[<span class="extype" name="scala.collection.immutable.Set">Set</span>[<span class="extype" name="java.lang.Throwable">Throwable</span>], (<a href="types/ImmutableModelTerminologyGraph.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ImmutableModelTerminologyGraph">ImmutableModelTerminologyGraph</a>, <a href="types/package.html#Mutable2ImmutableTerminologyMap=scala.collection.immutable.Map[gov.nasa.jpl.omf.scala.binding.owlapi.types.MutableModelTerminologyGraph,gov.nasa.jpl.omf.scala.binding.owlapi.types.ImmutableModelTerminologyGraph]" class="extmbr" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.Mutable2ImmutableTerminologyMap">Mutable2ImmutableTerminologyMap</a>)]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore@loadTerminologyGraph(iri:org.semanticweb.owlapi.model.IRI)(implicitops:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFOps):scalaz.\/[scala.collection.immutable.Set[Throwable],(gov.nasa.jpl.omf.scala.binding.owlapi.types.ImmutableModelTerminologyGraph,gov.nasa.jpl.omf.scala.binding.owlapi.types.Mutable2ImmutableTerminologyMap)]" title="Permalink" target="_top">
+      <a href="../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore@loadTerminologyGraph(iri:org.semanticweb.owlapi.model.IRI):scalaz.\/[scala.collection.immutable.Set[Throwable],(gov.nasa.jpl.omf.scala.binding.owlapi.types.ImmutableModelTerminologyGraph,gov.nasa.jpl.omf.scala.binding.owlapi.types.Mutable2ImmutableTerminologyMap)]" title="Permalink" target="_top">
         <img src="../../../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -3138,6 +3191,24 @@ These are distinguished with a suffix _Grw, _Gro; however, the suffix is not inc
       </a>
     </span>
       <p class="shortcomment cmt">Find the axioms TerminologyGraphDirectNestingAxiom(nestingContext=nestingC)
+</p>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore#lookupNestingAxiomsForNestingParent" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="lookupNestingAxiomsForNestingParent(nestingG:gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelTerminologyGraph):scala.collection.immutable.Set[gov.nasa.jpl.omf.scala.binding.owlapi.types.TerminologyGraphDirectNestingAxiom]"></a>
+      <a id="lookupNestingAxiomsForNestingParent(ModelTerminologyGraph):Set[TerminologyGraphDirectNestingAxiom]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">lookupNestingAxiomsForNestingParent</span><span class="params">(<span name="nestingG">nestingG: <a href="types/ModelTerminologyGraph.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelTerminologyGraph">ModelTerminologyGraph</a></span>)</span><span class="result">: <span class="extype" name="scala.collection.immutable.Set">Set</span>[<a href="types/TerminologyGraphDirectNestingAxiom.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.TerminologyGraphDirectNestingAxiom">TerminologyGraphDirectNestingAxiom</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore@lookupNestingAxiomsForNestingParent(nestingG:gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelTerminologyGraph):scala.collection.immutable.Set[gov.nasa.jpl.omf.scala.binding.owlapi.types.TerminologyGraphDirectNestingAxiom]" title="Permalink" target="_top">
+        <img src="../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Find the axioms TerminologyGraphDirectNestingAxiom(nestingParent=nestingG)
 </p>
     </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore#lookupTerminologyGraph" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="lookupTerminologyGraph(uuid:java.util.UUID):Option[gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelTerminologyGraph]"></a>
@@ -3629,6 +3700,40 @@ These are distinguished with a suffix _Grw, _Gro; however, the suffix is not inc
       </span>
       </h4><span class="permalink">
       <a href="../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore@registerOMFModelStructuredDataTypeInstance(tbox:gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelTerminologyGraph,structuredDT:gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelStructuredDataType):scalaz.\/[scala.collection.immutable.Set[Throwable],org.semanticweb.owlapi.model.OWLNamedIndividual]" title="Permalink" target="_top">
+        <img src="../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore#registerTerminologyGraphDirectExtensionAxiom" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="registerTerminologyGraphDirectExtensionAxiom(extendingG:gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelTerminologyGraph,axiom:gov.nasa.jpl.omf.scala.binding.owlapi.types.TerminologyGraphDirectExtensionAxiom):scalaz.\/[scala.collection.immutable.Set[Throwable],gov.nasa.jpl.omf.scala.binding.owlapi.types.TerminologyGraphDirectExtensionAxiom]"></a>
+      <a id="registerTerminologyGraphDirectExtensionAxiom(ModelTerminologyGraph,TerminologyGraphDirectExtensionAxiom):\/[Set[Throwable],TerminologyGraphDirectExtensionAxiom]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">registerTerminologyGraphDirectExtensionAxiom</span><span class="params">(<span name="extendingG">extendingG: <a href="types/ModelTerminologyGraph.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelTerminologyGraph">ModelTerminologyGraph</a></span>, <span name="axiom">axiom: <a href="types/TerminologyGraphDirectExtensionAxiom.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.TerminologyGraphDirectExtensionAxiom">TerminologyGraphDirectExtensionAxiom</a></span>)</span><span class="result">: <span class="extype" name="scalaz.\/">\/</span>[<span class="extype" name="scala.collection.immutable.Set">Set</span>[<span class="extype" name="java.lang.Throwable">Throwable</span>], <a href="types/TerminologyGraphDirectExtensionAxiom.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.TerminologyGraphDirectExtensionAxiom">TerminologyGraphDirectExtensionAxiom</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore@registerTerminologyGraphDirectExtensionAxiom(extendingG:gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelTerminologyGraph,axiom:gov.nasa.jpl.omf.scala.binding.owlapi.types.TerminologyGraphDirectExtensionAxiom):scalaz.\/[scala.collection.immutable.Set[Throwable],gov.nasa.jpl.omf.scala.binding.owlapi.types.TerminologyGraphDirectExtensionAxiom]" title="Permalink" target="_top">
+        <img src="../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore#registerTerminologyGraphDirectNestingAxiom" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="registerTerminologyGraphDirectNestingAxiom(childG:gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelTerminologyGraph,axiom:gov.nasa.jpl.omf.scala.binding.owlapi.types.TerminologyGraphDirectNestingAxiom):scalaz.\/[scala.collection.immutable.Set[Throwable],gov.nasa.jpl.omf.scala.binding.owlapi.types.TerminologyGraphDirectNestingAxiom]"></a>
+      <a id="registerTerminologyGraphDirectNestingAxiom(ModelTerminologyGraph,TerminologyGraphDirectNestingAxiom):\/[Set[Throwable],TerminologyGraphDirectNestingAxiom]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">registerTerminologyGraphDirectNestingAxiom</span><span class="params">(<span name="childG">childG: <a href="types/ModelTerminologyGraph.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelTerminologyGraph">ModelTerminologyGraph</a></span>, <span name="axiom">axiom: <a href="types/TerminologyGraphDirectNestingAxiom.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.TerminologyGraphDirectNestingAxiom">TerminologyGraphDirectNestingAxiom</a></span>)</span><span class="result">: <span class="extype" name="scalaz.\/">\/</span>[<span class="extype" name="scala.collection.immutable.Set">Set</span>[<span class="extype" name="java.lang.Throwable">Throwable</span>], <a href="types/TerminologyGraphDirectNestingAxiom.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.TerminologyGraphDirectNestingAxiom">TerminologyGraphDirectNestingAxiom</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore@registerTerminologyGraphDirectNestingAxiom(childG:gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelTerminologyGraph,axiom:gov.nasa.jpl.omf.scala.binding.owlapi.types.TerminologyGraphDirectNestingAxiom):scalaz.\/[scala.collection.immutable.Set[Throwable],gov.nasa.jpl.omf.scala.binding.owlapi.types.TerminologyGraphDirectNestingAxiom]" title="Permalink" target="_top">
         <img src="../../../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
