@@ -1849,14 +1849,7 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
             tgraph.structure2scalarDataRelationships.toVector,
             tgraph.structure2structureDataRelationships.toVector,
             tgraph.axioms.toVector,
-            tgraph.gaxioms
-              .flatMap {
-                case _: types.TerminologyGraphDirectExtensionAxiom =>
-                  None
-                case gax: types.TerminologyGraphDirectNestingAxiom =>
-                  Some(gax)
-              }
-              .toVector ++ is)(mg.ops)
+            is)(mg.ops)
 
         val i_mg_relativePath_dataValue = getModelTerminologyGraphRelativeIRIPath(mg)
         require(i_mg_relativePath_dataValue.isDefined)
@@ -1943,7 +1936,7 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
       next <- Conversions.convert(m2i, Seq(g), Seq())(this)
     } yield {
       require(next.contains(g))
-      (next(g), m2i)
+      (next(g), next)
     }
 
   /**

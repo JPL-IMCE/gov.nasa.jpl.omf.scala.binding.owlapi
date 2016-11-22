@@ -439,6 +439,8 @@ case class MutableModelTerminologyGraph private
     axiom <- createTerminologyGraphDirectNestingAxiom(uuid, parentGraph, parentContext)
     _ <- applyOntologyChangesOrNoOp(ontManager,
       Seq(
+        new AddImport(ont, owlDataFactory
+          .getOWLImportsDeclaration(parentGraph.iri)),
         new AddOntologyAnnotation(ont, owlDataFactory
           .getOWLAnnotation(
             store.ANNOTATION_HAS_CONTEXT,
