@@ -1184,7 +1184,11 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
             new AddAxiom(omfMetadata.get, owlDataFactory
               .getOWLClassAssertionAxiom(OMF_MODEL_ENTITY_CONCEPT, conceptI)),
             new AddAxiom(omfMetadata.get, owlDataFactory
-              .getOWLDataPropertyAssertionAxiom(OMF_HAS_IRI, conceptI, conceptT.iri.toString))
+              .getOWLDataPropertyAssertionAxiom(OMF_HAS_IRI, conceptI, conceptT.iri.toString)),
+            new AddAxiom(omfMetadata.get, owlDataFactory
+              .getOWLDataPropertyAssertionAxiom(OMF_HAS_UUID, conceptI, conceptT.uuid.toString)),
+            new AddAxiom(omfMetadata.get, owlDataFactory
+              .getOWLDataPropertyAssertionAxiom(OMF_HAS_LOCAL_NAME, conceptI, conceptT.name))
           ),
           "Create Concept error")
       } yield {
@@ -1235,6 +1239,10 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
             new AddAxiom(omfMetadata.get, owlDataFactory
               .getOWLDataPropertyAssertionAxiom(OMF_HAS_IRI, relationshipI, relationshipT.iri.toString)),
             new AddAxiom(omfMetadata.get, owlDataFactory
+              .getOWLDataPropertyAssertionAxiom(OMF_HAS_UUID, relationshipI, relationshipT.uuid.toString)),
+            new AddAxiom(omfMetadata.get, owlDataFactory
+              .getOWLDataPropertyAssertionAxiom(OMF_HAS_LOCAL_NAME, relationshipI, relationshipT.name)),
+            new AddAxiom(omfMetadata.get, owlDataFactory
               .getOWLObjectPropertyAssertionAxiom(OMF_HAS_SOURCE, relationshipI, sourceI)),
             new AddAxiom(omfMetadata.get, owlDataFactory
               .getOWLObjectPropertyAssertionAxiom(OMF_HAS_TARGET, relationshipI, targetI))
@@ -1284,7 +1292,11 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
             new AddAxiom(omfMetadata.get, owlDataFactory
               .getOWLClassAssertionAxiom(OMF_MODEL_SCALAR_DATA_TYPE, scalarDI)),
             new AddAxiom(omfMetadata.get, owlDataFactory
-              .getOWLDataPropertyAssertionAxiom(OMF_HAS_IRI, scalarDI, scalarDT.iri.toString))
+              .getOWLDataPropertyAssertionAxiom(OMF_HAS_IRI, scalarDI, scalarDT.iri.toString)),
+            new AddAxiom(omfMetadata.get, owlDataFactory
+              .getOWLDataPropertyAssertionAxiom(OMF_HAS_UUID, scalarDI, scalarDT.uuid.toString)),
+            new AddAxiom(omfMetadata.get, owlDataFactory
+              .getOWLDataPropertyAssertionAxiom(OMF_HAS_LOCAL_NAME, scalarDI, scalarDT.name))
           ),
           "Create ScalarDataType error")
       } yield {
@@ -1324,15 +1336,16 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
         structuredDI = owlDataFactory.getOWLNamedIndividual(structuredDIRI)
         _ <- applyOntologyChanges(ontManager,
           Seq(
-            new AddAxiom(omfMetadata.get,
-              owlDataFactory.getOWLDeclarationAxiom(structuredDI)),
-            new AddAxiom(omfMetadata.get,
-              owlDataFactory
-                .getOWLClassAssertionAxiom(OMF_MODEL_STRUCTURED_DATA_TYPE, structuredDI)),
-            new AddAxiom(omfMetadata.get,
-              owlDataFactory
-                .getOWLDataPropertyAssertionAxiom(OMF_HAS_IRI, structuredDI, structuredDT.iri
-                  .toString))
+            new AddAxiom(omfMetadata.get, owlDataFactory
+              .getOWLDeclarationAxiom(structuredDI)),
+            new AddAxiom(omfMetadata.get, owlDataFactory
+              .getOWLClassAssertionAxiom(OMF_MODEL_STRUCTURED_DATA_TYPE, structuredDI)),
+            new AddAxiom(omfMetadata.get, owlDataFactory
+              .getOWLDataPropertyAssertionAxiom(OMF_HAS_IRI, structuredDI, structuredDT.iri.toString)),
+            new AddAxiom(omfMetadata.get, owlDataFactory
+              .getOWLDataPropertyAssertionAxiom(OMF_HAS_UUID, structuredDI, structuredDT.uuid.toString)),
+            new AddAxiom(omfMetadata.get, owlDataFactory
+              .getOWLDataPropertyAssertionAxiom(OMF_HAS_LOCAL_NAME, structuredDI, structuredDT.name))
           ),
           "Create StructuredDatatype error")
       } yield {
@@ -1380,13 +1393,15 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
       _ <- applyOntologyChangesOrNoOp(ontManager,
         Seq(
           new AddAxiom(omfMetadata.get, owlDataFactory
-              .getOWLDeclarationAxiom(axiomI)),
+            .getOWLDeclarationAxiom(axiomI)),
           new AddAxiom(omfMetadata.get, owlDataFactory
             .getOWLObjectPropertyAssertionAxiom(OMF_DIRECTLY_ASSERTS_AXIOM,
-                                                                      OMF_MODEL_TERMINOLOGY_GRAPH2Instance(tbox),
-                                                                      axiomI)),
+              OMF_MODEL_TERMINOLOGY_GRAPH2Instance(tbox),
+              axiomI)),
           new AddAxiom(omfMetadata.get, owlDataFactory
             .getOWLClassAssertionAxiom(OMF_ENTITY_DEFINITION_ASPECT_SUB_CLASS_AXIOM, axiomI)),
+          new AddAxiom(omfMetadata.get, owlDataFactory
+            .getOWLDataPropertyAssertionAxiom(OMF_HAS_UUID, axiomI, axiomT.uuid.toString)),
           new AddAxiom(omfMetadata.get, owlDataFactory
             .getOWLObjectPropertyAssertionAxiom(OMF_HAS_GENERAL_ASPECT, axiomI, supI)),
           new AddAxiom(omfMetadata.get, owlDataFactory
@@ -1433,6 +1448,8 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
           new AddAxiom(omfMetadata.get, owlDataFactory
             .getOWLClassAssertionAxiom(OMF_ENTITY_CONCEPT_SUB_CLASS_AXIOM, axiomI)),
           new AddAxiom(omfMetadata.get, owlDataFactory
+            .getOWLDataPropertyAssertionAxiom(OMF_HAS_UUID, axiomI, axiomT.uuid.toString)),
+          new AddAxiom(omfMetadata.get, owlDataFactory
             .getOWLObjectPropertyAssertionAxiom(OMF_HAS_GENERAL_CONCEPT, axiomI, supI)),
           new AddAxiom(omfMetadata.get, owlDataFactory
             .getOWLObjectPropertyAssertionAxiom(OMF_HAS_SPECIFIC_CONCEPT, axiomI, subI))
@@ -1468,6 +1485,12 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
             .getOWLDeclarationAxiom(termI)),
           new AddAxiom(omfMetadata.get, owlDataFactory
             .getOWLClassAssertionAxiom(OMF_MODEL_DATA_RELATIONSHIP_FROM_ENTITY_TO_SCALAR, termI)),
+          new AddAxiom(omfMetadata.get, owlDataFactory
+            .getOWLDataPropertyAssertionAxiom(OMF_HAS_IRI, termI, e2sc.iri.toString)),
+          new AddAxiom(omfMetadata.get, owlDataFactory
+            .getOWLDataPropertyAssertionAxiom(OMF_HAS_UUID, termI, e2sc.uuid.toString)),
+          new AddAxiom(omfMetadata.get, owlDataFactory
+            .getOWLDataPropertyAssertionAxiom(OMF_HAS_LOCAL_NAME, termI, e2sc.name)),
           new AddAxiom(omfMetadata.get, owlDataFactory
             .getOWLObjectPropertyAssertionAxiom(OMF_HAS_MODEL_DATA_RELATIONSHIP_FROM_ENTITY, termI, entityI)),
           new AddAxiom(omfMetadata.get, owlDataFactory
@@ -1508,17 +1531,18 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
           new AddAxiom(omfMetadata.get, owlDataFactory
             .getOWLDeclarationAxiom(axiomI)),
           new AddAxiom(omfMetadata.get, owlDataFactory
-              .getOWLObjectPropertyAssertionAxiom(OMF_DIRECTLY_ASSERTS_AXIOM,
-                OMF_MODEL_TERMINOLOGY_GRAPH2Instance(tbox),
-                axiomI)),
+            .getOWLObjectPropertyAssertionAxiom(OMF_DIRECTLY_ASSERTS_AXIOM,
+              OMF_MODEL_TERMINOLOGY_GRAPH2Instance(tbox), axiomI)),
           new AddAxiom(omfMetadata.get, owlDataFactory
-              .getOWLClassAssertionAxiom(OMF_ENTITY_DEFINITION_UNIVERSAL_RESTRICTION_AXIOM, axiomI)),
+            .getOWLClassAssertionAxiom(OMF_ENTITY_DEFINITION_UNIVERSAL_RESTRICTION_AXIOM, axiomI)),
           new AddAxiom(omfMetadata.get, owlDataFactory
-              .getOWLObjectPropertyAssertionAxiom(OMF_HAS_RESTRICTED_ENTITY_DOMAIN, axiomI, subI)),
+            .getOWLDataPropertyAssertionAxiom(OMF_HAS_UUID, axiomI, axiomT.uuid.toString)),
           new AddAxiom(omfMetadata.get, owlDataFactory
-              .getOWLObjectPropertyAssertionAxiom(OMF_RESTRICTS_RELATIONSHIP, axiomI, relI)),
+            .getOWLObjectPropertyAssertionAxiom(OMF_HAS_RESTRICTED_ENTITY_DOMAIN, axiomI, subI)),
           new AddAxiom(omfMetadata.get, owlDataFactory
-              .getOWLObjectPropertyAssertionAxiom(OMF_HAS_RESTRICTED_RANGE, axiomI, rangeI))),
+            .getOWLObjectPropertyAssertionAxiom(OMF_RESTRICTS_RELATIONSHIP, axiomI, relI)),
+          new AddAxiom(omfMetadata.get, owlDataFactory
+            .getOWLObjectPropertyAssertionAxiom(OMF_HAS_RESTRICTED_RANGE, axiomI, rangeI))),
         "createOMFEntityDefinitionUniversalRestrictionAxiomInstance error")
     //    ontManager.applyChange( new AddAxiom(
     // o, owlDataFactory.getOWLDataPropertyAssertionAxiom(
@@ -1557,17 +1581,18 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
           new AddAxiom(omfMetadata.get, owlDataFactory
             .getOWLDeclarationAxiom(axiomI)),
           new AddAxiom(omfMetadata.get, owlDataFactory
-              .getOWLObjectPropertyAssertionAxiom(OMF_DIRECTLY_ASSERTS_AXIOM,
-                OMF_MODEL_TERMINOLOGY_GRAPH2Instance(tbox),
-                axiomI)),
+            .getOWLObjectPropertyAssertionAxiom(OMF_DIRECTLY_ASSERTS_AXIOM,
+              OMF_MODEL_TERMINOLOGY_GRAPH2Instance(tbox), axiomI)),
           new AddAxiom(omfMetadata.get, owlDataFactory
-              .getOWLClassAssertionAxiom(OMF_ENTITY_DEFINITION_EXISTENTIAL_RESTRICTION_AXIOM, axiomI)),
+            .getOWLClassAssertionAxiom(OMF_ENTITY_DEFINITION_EXISTENTIAL_RESTRICTION_AXIOM, axiomI)),
           new AddAxiom(omfMetadata.get, owlDataFactory
-              .getOWLObjectPropertyAssertionAxiom(OMF_HAS_RESTRICTED_ENTITY_DOMAIN, axiomI, subI)),
+            .getOWLDataPropertyAssertionAxiom(OMF_HAS_UUID, axiomI, axiomT.uuid.toString)),
           new AddAxiom(omfMetadata.get, owlDataFactory
-              .getOWLObjectPropertyAssertionAxiom(OMF_RESTRICTS_RELATIONSHIP, axiomI, relI)),
+            .getOWLObjectPropertyAssertionAxiom(OMF_HAS_RESTRICTED_ENTITY_DOMAIN, axiomI, subI)),
           new AddAxiom(omfMetadata.get, owlDataFactory
-              .getOWLObjectPropertyAssertionAxiom(OMF_HAS_RESTRICTED_RANGE, axiomI, rangeI))),
+            .getOWLObjectPropertyAssertionAxiom(OMF_RESTRICTS_RELATIONSHIP, axiomI, relI)),
+          new AddAxiom(omfMetadata.get, owlDataFactory
+            .getOWLObjectPropertyAssertionAxiom(OMF_HAS_RESTRICTED_RANGE, axiomI, rangeI))),
         "createOMFEntityDefinitionExistentialRestrictionAxiomInstance error")
     //    ontManager.applyChange( new AddAxiom(
     //    o, owlDataFactory.getOWLDataPropertyAssertionAxiom(
@@ -1593,21 +1618,20 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
         axiomT.designationTerminologyGraph.iri)
       axiomI = owlDataFactory.getOWLNamedIndividual(axiomIRI)
       _ <- applyOntologyChanges(ontManager,
-        Seq(new AddAxiom(omfMetadata.get, owlDataFactory
-          .getOWLDeclarationAxiom(axiomI)),
+        Seq(
+          new AddAxiom(omfMetadata.get, owlDataFactory
+            .getOWLDeclarationAxiom(axiomI)),
           new AddAxiom(omfMetadata.get, owlDataFactory
             .getOWLObjectPropertyAssertionAxiom(OMF_DIRECTLY_ASSERTS_AXIOM,
-              OMF_MODEL_TERMINOLOGY_GRAPH2Instance(tbox),
-              axiomI)),
+              OMF_MODEL_TERMINOLOGY_GRAPH2Instance(tbox), axiomI)),
           new AddAxiom(omfMetadata.get, owlDataFactory
-            .getOWLClassAssertionAxiom(OMF_ENTITY_CONCEPT_DESIGNATION_TERMINOLOGY_GRAPH_AXIOM,
-              axiomI)),
+            .getOWLClassAssertionAxiom(OMF_ENTITY_CONCEPT_DESIGNATION_TERMINOLOGY_GRAPH_AXIOM, axiomI)),
           new AddAxiom(omfMetadata.get, owlDataFactory
-            .getOWLObjectPropertyAssertionAxiom(OMF_HAS_ENTITY_CONCEPT_DESIGNATION,
-              axiomI, cI)),
+            .getOWLDataPropertyAssertionAxiom(OMF_HAS_UUID, axiomI, axiomT.uuid.toString)),
           new AddAxiom(omfMetadata.get, owlDataFactory
-            .getOWLObjectPropertyAssertionAxiom(OMF_HAS_DESIGNATION_TERMINOLOGY_GRAPH,
-              axiomI, gI))
+            .getOWLObjectPropertyAssertionAxiom(OMF_HAS_ENTITY_CONCEPT_DESIGNATION, axiomI, cI)),
+          new AddAxiom(omfMetadata.get, owlDataFactory
+            .getOWLObjectPropertyAssertionAxiom(OMF_HAS_DESIGNATION_TERMINOLOGY_GRAPH, axiomI, gI))
         ),
         "createOMFEntityConceptDesignationTerminologyGraphAxiomInstance error")
     } yield {
@@ -1686,6 +1710,8 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
             .getOWLClassAssertionAxiom(OMF_MODEL_SCALAR_DATA_RELATIONSHIP_RESTRICTION_AXIOM_FROM_ENTITY_TO_LITERAL,
               axiomI)),
           new AddAxiom(omfMetadata.get, owlDataFactory
+            .getOWLDataPropertyAssertionAxiom(OMF_HAS_UUID, axiomI, axiomT.uuid.toString)),
+          new AddAxiom(omfMetadata.get, owlDataFactory
             .getOWLObjectPropertyAssertionAxiom(OMF_HAS_RESTRICTED_ENTITY_DOMAIN, axiomI, entityI)),
           new AddAxiom(omfMetadata.get, owlDataFactory
             .getOWLObjectPropertyAssertionAxiom(OMF_HAS_RESTRICTING_SCALAR_DATA_RELATIONSHIP, axiomI, dpropI)),
@@ -1725,16 +1751,15 @@ case class OWLAPIOMFGraphStore(omfModule: OWLAPIOMFModule, ontManager: OWLOntolo
           .getOWLDeclarationAxiom(axiomI)),
         new AddAxiom(omfMetadata.get, owlDataFactory
           .getOWLObjectPropertyAssertionAxiom(OMF_DIRECTLY_ASSERTS_AXIOM,
-                                                           OMF_MODEL_TERMINOLOGY_GRAPH2Instance(tbox),
-                                                           axiomI)),
+            OMF_MODEL_TERMINOLOGY_GRAPH2Instance(tbox), axiomI)),
         new AddAxiom(omfMetadata.get, owlDataFactory
           .getOWLClassAssertionAxiom(OMF_SCALAR_DATA_TYPE_FACET_RESTRICTION_AXIOM, axiomI)),
         new AddAxiom(omfMetadata.get, owlDataFactory
-          .getOWLObjectPropertyAssertionAxiom(OMF_HAS_RESTRICTED_SCALAR_DATATYPE,
-                                                           axiomI, supI)),
+          .getOWLDataPropertyAssertionAxiom(OMF_HAS_UUID, axiomI, axiomT.uuid.toString)),
         new AddAxiom(omfMetadata.get, owlDataFactory
-          .getOWLObjectPropertyAssertionAxiom(OMF_HAS_RESTRICTING_SCALAR_DATATYPE,
-                                                           axiomI, subI))),
+          .getOWLObjectPropertyAssertionAxiom(OMF_HAS_RESTRICTED_SCALAR_DATATYPE, axiomI, supI)),
+        new AddAxiom(omfMetadata.get, owlDataFactory
+          .getOWLObjectPropertyAssertionAxiom(OMF_HAS_RESTRICTING_SCALAR_DATATYPE, axiomI, subI))),
         "createOMFScalarDataTypeFacetRestrictionAxiomInstance error")
     } yield {
     OMF_SCALAR_DATA_TYPE_FACET_RESTRICTION_AXIOM2Instance += (axiomT -> axiomI)
