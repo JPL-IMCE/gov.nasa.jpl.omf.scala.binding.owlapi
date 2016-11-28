@@ -289,11 +289,23 @@ trait OWLAPIStoreOps
   : Set[types.TerminologyGraphDirectNestingAxiom]
   = store.lookupNestingAxiomsForNestingContext(nestingC)
 
+  override def getNestingGraphOfAxiom
+  (axiom: types.TerminologyGraphDirectNestingAxiom)
+  (implicit store: OWLAPIOMFGraphStore)
+  : types.ModelTerminologyGraph
+  = axiom.nestingParent
+
   override def getNestingContextConceptOfAxiom
   (axiom: types.TerminologyGraphDirectNestingAxiom)
   (implicit store: OWLAPIOMFGraphStore)
   : types.ModelEntityConcept
-  = store.getNestingContextConceptOfAxiom(axiom)
+  = axiom.nestingContext
+
+  override def getExtendedGraphOfTerminologogyGraphDirectExtensionAxiom
+  (gax: types.TerminologyGraphDirectExtensionAxiom)
+  (implicit store: OWLAPIOMFGraphStore)
+  : types.ModelTerminologyGraph
+  = gax.extendedParent
 
   override def getDirectlyExtendedGraphsOfExtendingChildGraph
   (extendingChildG: types.ModelTerminologyGraph)
@@ -530,8 +542,7 @@ trait OWLAPIImmutableTerminologyGraphOps
     }
 
   override def getTermAxiomUUID
-  (graph: types.ModelTerminologyGraph,
-   ax: types.ModelTermAxiom)
+  (ax: types.ModelTermAxiom)
   : UUID
   = ax.uuid
 
@@ -558,7 +569,6 @@ trait OWLAPIImmutableTerminologyGraphOps
   = store.lookupNestingAxiomsForNestingContext(nestingC)
 
   def foldTerm[T]
-  (t: types.ModelTypeTerm)
   (funEntityAspect: types.ModelEntityAspect => T,
    funEntityConcept: types.ModelEntityConcept => T,
    funEntityReifiedRelationship: types.ModelEntityReifiedRelationship => T,
@@ -569,6 +579,7 @@ trait OWLAPIImmutableTerminologyGraphOps
    funDataRelationshipFromEntityToStructure: types.ModelDataRelationshipFromEntityToStructure => T,
    funDataRelationshipFromStructureToScalar: types.ModelDataRelationshipFromStructureToScalar => T,
    funDataRelationshipFromStructureToStructure: types.ModelDataRelationshipFromStructureToStructure => T)
+  (t: types.ModelTypeTerm)
   : T = t match {
     case et: types.ModelEntityAspect                              => funEntityAspect(et)
     case et: types.ModelEntityConcept                             => funEntityConcept(et)
@@ -583,26 +594,12 @@ trait OWLAPIImmutableTerminologyGraphOps
   }
 
   override def getTermLocalName
-  (graph: types.ModelTerminologyGraph,
-   term: types.ModelTypeTerm)
+  (term: types.ModelTypeTerm)
   : LocalName
-  = graph
-    .getTermLocalNameAnnotationAssertionAxiom(term)
-    .flatMap { a =>
-      a.getValue match {
-        case l: OWLLiteral =>
-          Some(l.getLiteral)
-        case _ =>
-          None
-      }
-    }
-    .fold[LocalName]({
-    throw OMFError.omfBindingError(s"Missing LocalName annotation on OMF term: ${term.iri}")
-  })(identity)
+  = term.name
 
   override def getTermUUID
-  (graph: types.ModelTerminologyGraph,
-   term: types.ModelTypeTerm)
+  (term: types.ModelTypeTerm)
   : UUID
   = term.uuid
 
@@ -714,7 +711,6 @@ trait OWLAPIImmutableTerminologyGraphOps
   // model term axioms
 
   override def foldTermAxiom[T]
-  (t: types.ModelTermAxiom)
   (funEntityDefinitionAspectSubClassAxiom
    : types.EntityDefinitionAspectSubClassAxiom => T,
    funEntityConceptDesignationTerminologyGraphAxiom
@@ -729,6 +725,7 @@ trait OWLAPIImmutableTerminologyGraphOps
    : types.ScalarDataTypeFacetRestrictionAxiom => T,
    funModelScalarDataRelationshipRestrictionAxiomFromEntityToLiteral
    : types.ModelScalarDataRelationshipRestrictionAxiomFromEntityToLiteral => T)
+  (t: types.ModelTermAxiom)
   : T
   = t match {
     case ax: types.EntityDefinitionAspectSubClassAxiom =>
@@ -745,6 +742,20 @@ trait OWLAPIImmutableTerminologyGraphOps
       funScalarDataTypeFacetRestriction(ax)
     case ax: types.ModelScalarDataRelationshipRestrictionAxiomFromEntityToLiteral =>
       funModelScalarDataRelationshipRestrictionAxiomFromEntityToLiteral(ax)
+  }
+
+  def foldTerminologyGraphAxiom[T]
+  (funTerminologyGraphDirectExtensionAxiom
+   : types.TerminologyGraphDirectExtensionAxiom => T,
+   funTerminologyGraphDirectNestingAxiom
+   : types.TerminologyGraphDirectNestingAxiom => T)
+  (t: types.TerminologyGraphAxiom)
+  : T
+  = t match {
+    case gax: types.TerminologyGraphDirectExtensionAxiom =>
+      funTerminologyGraphDirectExtensionAxiom(gax)
+    case gax: types.TerminologyGraphDirectNestingAxiom =>
+      funTerminologyGraphDirectNestingAxiom(gax)
   }
 
   // scalar data relationship restriction from entity to literal axiom
