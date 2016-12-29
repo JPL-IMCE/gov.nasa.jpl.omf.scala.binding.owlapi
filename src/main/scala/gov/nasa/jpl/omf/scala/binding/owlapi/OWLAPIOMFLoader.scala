@@ -19,6 +19,7 @@
 package gov.nasa.jpl.omf.scala.binding.owlapi
 
 import gov.nasa.jpl.omf.scala.binding.owlapi.BackboneDeclaractions.BackboneDeclaractions
+import gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph
 import gov.nasa.jpl.omf.scala.core._
 import org.semanticweb.owlapi.model._
 import org.semanticweb.owlapi.model.parameters.Imports
@@ -28,7 +29,6 @@ import scalax.collection.mutable.ArraySet.Hints
 import scalax.collection.Graph
 import scalax.collection.GraphEdge._
 import scalax.collection.GraphPredef._
-
 import scala.collection.immutable._
 import scala.compat.java8.StreamConverters._
 import scala.util.control.Exception._
@@ -236,9 +236,10 @@ object OWLAPIOMFLoader {
     * @return
     */
   def loadTerminologyGraph
-  (iri: IRI)
+  (iri: IRI,
+   currentM2I: types.Mutable2ImmutableTerminologyMap)
   (implicit ops: OWLAPIOMFOps, store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ (types.ImmutableModelTerminologyGraph, types.Mutable2ImmutableTerminologyMap)
+  : Set[java.lang.Throwable] \/ (ImmutableTerminologyGraph, types.Mutable2ImmutableTerminologyMap)
   = OntologyLoadedState
     .loadAllOntologies(iri)
     .flatMap { s =>
@@ -268,35 +269,47 @@ object OWLAPIOMFLoader {
                   cycleNode.value
               )
             )),
-          (lorder: OMFDocumentTopologicalOrder) =>
+          (lorder: OMFDocumentTopologicalOrder) => {
 
-            loadTerminologyGraphs(lorder, s).flatMap { m2i =>
-              store.lookupTerminologyGraph(iri) match {
-                case Some(ig: types.ImmutableModelTerminologyGraph) =>
+            val nonBuiltinDatatypeMapRoots = g1
+              .degreeNodeSeq(
+                nodeDegree = g1.InDegree,
+                degreeFilter = {_ == 0})
+              .map(_._2.value)
+              .filterNot(store.isBuiltinDatatypeMap)
+              .to[Set]
+
+            loadTerminologyGraphs(lorder, s, nonBuiltinDatatypeMapRoots, currentM2I).flatMap { m2i =>
+              store.lookupTerminology(iri) match {
+                case Some(ig: ImmutableTerminologyGraph) =>
                   \/-((ig, m2i))
                 case other =>
                   -\/(Set(OMFError.omfError(
                     s"BUG: There should have been an OMF graph for $iri, instead got $other")))
               }
             }
+          }
         )
     }
 
   def loadTerminologyGraphs
   (queue: OMFDocumentTopologicalOrder,
-   s: OntologyLoadedState)
+   s: OntologyLoadedState,
+   nonBuiltinDatatypeMapRoots: Set[IRI],
+   currentM2I: types.Mutable2ImmutableTerminologyMap)
   (implicit ops: OWLAPIOMFOps, store: OWLAPIOMFGraphStore)
   : Set[java.lang.Throwable] \/ types.Mutable2ImmutableTerminologyMap
   = queue
     .toLayered
     .foldLeft[Set[java.lang.Throwable] \/ types.Mutable2ImmutableTerminologyMap]{
-    types.emptyMutable2ImmutableTerminologyMapNES
+    currentM2I.right
   } {
-    loadTerminologyGraphLayer(s)
+    loadTerminologyGraphLayer(s,nonBuiltinDatatypeMapRoots)
   }
 
   def loadTerminologyGraphLayer
-  (s: OntologyLoadedState)
+  (s: OntologyLoadedState,
+   nonBuiltinDatatypeMapRoots: Set[IRI])
   (acc: Set[java.lang.Throwable] \/ types.Mutable2ImmutableTerminologyMap,
    layer: (Int, scala.collection.Iterable[OMFDocumentNode]))
   (implicit ops: OWLAPIOMFOps, store: OWLAPIOMFGraphStore)
@@ -306,11 +319,12 @@ object OWLAPIOMFLoader {
       .foldLeft {
       acc
     } {
-        loadTerminologyGraphFromOntologyDocument(s)
+        loadTerminologyGraphFromOntologyDocument(s,nonBuiltinDatatypeMapRoots)
       }
 
   def loadTerminologyGraphFromOntologyDocument
-  (s: OntologyLoadedState)
+  (s: OntologyLoadedState,
+   nonBuiltinDatatypeMapRoots: Set[IRI])
   (acc: Set[java.lang.Throwable] \/ types.Mutable2ImmutableTerminologyMap,
    node: OMFDocumentNode)
   (implicit ops: OWLAPIOMFOps, store: OWLAPIOMFGraphStore)
@@ -320,10 +334,17 @@ object OWLAPIOMFLoader {
     assert(s.ontologies.contains(ontIRI))
     val ont = s.ontologies(ontIRI)
 
+    val builtInImport
+    = if (nonBuiltinDatatypeMapRoots.contains(ontIRI))
+      Some(store.getBuiltinDatatypeMapTerminologyGraph)
+    else
+      None
+
     store
-      .lookupTerminologyGraph(ontIRI)
+      .lookupTerminology(ontIRI)
       .fold[Set[java.lang.Throwable] \/ types.Mutable2ImmutableTerminologyMap] {
-      store.convertTerminologyGraphFromOntologyDocument(s, m2i, ontIRI, ont)
+      val next = store.convertTerminologyGraphFromOntologyDocument(s, m2i, ontIRI, ont, builtInImport)
+      next
     } { _ =>
       \/-(m2i)
     }

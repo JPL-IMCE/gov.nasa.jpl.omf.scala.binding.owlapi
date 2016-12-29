@@ -18,11 +18,11 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.instances
 
-import gov.nasa.jpl.omf.scala.binding.owlapi._
+import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.StructuredDataProperty
 
-case class ModelInstanceDataRelationshipFromStructureToStructure(
-    val di: ModelInstanceDataStructure, 
-    val dataRelationship: types.ModelDataRelationshipFromStructureToStructure,
-    val value: ModelInstanceDataStructure)
+case class ModelInstanceDataRelationshipFromStructureToStructure
+( di: ModelInstanceDataStructure,
+  dataRelationship: StructuredDataProperty,
+  value: ModelInstanceDataStructure)
   extends ModelNamedIndividual(di.iri)
   with ModelInstanceAssertion

@@ -18,9 +18,11 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.types
 
-import java.lang.System
+import java.lang.{Integer,System}
 
 import gov.nasa.jpl.omf.scala.binding.owlapi._
+import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms._
+import gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyBox
 import gov.nasa.jpl.omf.scala.core._
 import org.semanticweb.owlapi.model._
 import org.semanticweb.owlapi.model.parameters.Imports
@@ -28,8 +30,9 @@ import org.semanticweb.owlapi.reasoner.structural.StructuralReasonerFactory
 
 import scala.collection.immutable._
 import scala.compat.java8.StreamConverters._
-import scala.{Boolean, None, Some, StringContext, Tuple2, Tuple3, Tuple4, Tuple5, Unit}
-import scala.Predef.{Map => _, Set => _, _}
+import scala.util.control.Exception._
+import scala.{Boolean, Int, Option, None, Some, StringContext, Tuple2, Tuple3, Tuple4, Tuple5, Unit}
+import scala.Predef.{require,ArrowAssoc,String}
 import scalaz._
 import Scalaz._
 
@@ -47,67 +50,312 @@ case class ImmutableModelTerminologyGraphResolver(resolver: ResolverHelper) {
 
   val ont = tboxG.ont
 
+  private def getFacetValueIfAny(facets: List[OWLFacetRestriction], facetPrefixedName: String)
+  : Option[String]
+  = facets.find { f => facetPrefixedName == f.getFacet.getPrefixedName }.map(_.getFacetValue.getLiteral)
+
+  private def getFacetIntValueIfAny(facets: List[OWLFacetRestriction], facetPrefixedName: String)
+  : Set[java.lang.Throwable] \/ Option[Int]
+  = facets
+    .find { f => facetPrefixedName == f.getFacet.getPrefixedName }
+    .map(_.getFacetValue.getLiteral)
+    .fold[Set[java.lang.Throwable] \/ Option[Int]](None.right) { v =>
+    nonFatalCatch[Set[java.lang.Throwable] \/ Option[Int]]
+      .withApply {
+        (cause: java.lang.Throwable) =>
+          Set[java.lang.Throwable](cause).left
+      }
+      .apply(Some(Integer.parseInt(v)).right)
+  }
+
+  private def resolveDataRanges
+  (resolved: Map[OWLDatatype, DataRange],
+   drs: List[OWLDatatype],
+   queue: List[OWLDatatype] = List.empty,
+   progress: Int = 0)
+  : Set[java.lang.Throwable] \/ Map[OWLDatatype, DataRange]
+  = drs match {
+    case Nil =>
+      queue match {
+        case Nil =>
+          resolved.right
+        case _ =>
+          if (0 == progress)
+            Set[java.lang.Throwable](OMFError.omfError(
+              s"resolveDataRanges: no progress")
+            ).left
+          else
+            resolveDataRanges(resolved, queue)
+      }
+    case dt :: dts =>
+      ont.datatypeDefinitions(dt).toScala[List].map(_.getDataRange) match {
+        case oneOf: OWLDataOneOf =>
+          oneOf.values().toScala[List] match {
+            case l :: ls =>
+              val restrictedDT = l.getDatatype
+              if (ls.forall { li => restrictedDT == li.getDatatype }) {
+                resolved.get(restrictedDT) match {
+                  case Some(restrictedRange) =>
+                    val added = for {
+                      scalarOneOf <- tboxG.createScalarOneOfRestriction(dt, restrictedRange)(resolver.omfStore)
+                      _ <- (l :: ls).foldLeft[types.UnitNES](types.rightUnitNES) { case (acc, li) =>
+                          for {
+                            _ <- acc
+                            _ <- tboxG.createScalarOneOfLiteralAxiom(scalarOneOf, li.getLiteral)
+                          } yield ()
+                      }
+                    } yield scalarOneOf
+                    added match {
+                      case \/-(sc) =>
+                        resolveDataRanges(resolved + (dt -> sc), dts, queue, 1+progress)
+                      case -\/(errors) =>
+                        errors.left
+                    }
+                  case None =>
+                    resolveDataRanges(resolved, dts, dt :: queue, progress)
+                }
+              } else
+                Set[java.lang.Throwable](OMFError.omfError(
+                  s"resolveDataRanges: $dt has a definition as a DataOneOf with some untyped literals: $oneOf")
+                ).left
+            case Nil =>
+              Set[java.lang.Throwable](OMFError.omfError(
+                s"resolveDataRanges: $dt has a definition as a DataOneOf without literals: $oneOf")
+              ).left
+          }
+        case r: OWLDatatypeRestriction =>
+          resolved.get(r.getDatatype) match {
+            case Some(restrictedRange) =>
+              val facets = r.facetRestrictions().toScala[List]
+
+              val len: Set[java.lang.Throwable] \/ Option[Int] = getFacetIntValueIfAny(facets, "xsd:length")
+              val minL: Set[java.lang.Throwable] \/ Option[Int] = getFacetIntValueIfAny(facets, "xsd:minLength")
+              val maxL: Set[java.lang.Throwable] \/ Option[Int] = getFacetIntValueIfAny(facets, "xsd:maxLength")
+              val patt: Option[String] = getFacetValueIfAny(facets, "xsd:pattern")
+              val minI: Option[String] = getFacetValueIfAny(facets, "xsd:minInclusive")
+              val maxI: Option[String] = getFacetValueIfAny(facets, "xsd:maxInclusive")
+              val minE: Option[String] = getFacetValueIfAny(facets, "xsd:minExclusive")
+              val maxE: Option[String] = getFacetValueIfAny(facets, "xsd:maxExclusive")
+              val lang: Option[String] = getFacetValueIfAny(facets, "rdf:LangRange")
+
+              if (resolver.omfStore.isBinaryKind(restrictedRange)) {
+                val added = for {
+                  l <- len
+                  minl <- minL
+                  maxl <- maxL
+                  sc <- if (facets.size <= 3 && Seq(patt, minI, maxI, minE, maxE, lang).forall(_.isEmpty))
+                    tboxG.createBinaryScalarRestriction(dt, restrictedRange, l, minl, maxl)(resolver.omfStore)
+                  else
+                    Set[java.lang.Throwable](OMFError.omfError(
+                      s"resolveDataRanges: $dt ill-formed binary restriction per OWL2 section 4.5: $r")
+                    ).left
+                } yield sc
+                added match {
+                  case \/-(sc) =>
+                    resolveDataRanges(resolved + (dt -> sc), dts, queue, 1 + progress)
+                  case -\/(errors) =>
+                    -\/(errors)
+                }
+              } else if (resolver.omfStore.isIRIKind(restrictedRange)) {
+                val added = for {
+                  l <- len
+                  minl <- minL
+                  maxl <- maxL
+                  sc <- if (facets.size <= 4 && Seq(minI, maxI, minE, maxE, lang).forall(_.isEmpty))
+                    tboxG.createIRIScalarRestriction(dt, restrictedRange, l, minl, maxl, patt)(resolver.omfStore)
+                  else
+                    Set[java.lang.Throwable](OMFError.omfError(
+                      s"resolveDataRanges: $dt ill-formed IRI restriction per OWL2 section 4.6: $r")
+                    ).left
+                } yield sc
+                added match {
+                  case \/-(sc) =>
+                    resolveDataRanges(resolved + (dt -> sc), dts, queue, 1+progress)
+                  case -\/(errors) =>
+                    -\/(errors)
+                }
+              } else if (resolver.omfStore.isNumericKind(restrictedRange)) {
+                val added = for {
+                  l <- len
+                  minl <- minL
+                  maxl <- maxL
+                  sc <- if (facets.size <= 4 && Seq(l, minl, maxl, patt, lang).forall(_.isEmpty))
+                    tboxG.createNumericScalarRestriction(dt, restrictedRange, minI, maxI, minE, maxE)(resolver.omfStore)
+                  else
+                    Set[java.lang.Throwable](OMFError.omfError(
+                      s"resolveDataRanges: $dt ill-formed numeric restriction per OWL2 sections 4.1, 4.2: $r")
+                    ).left
+                } yield sc
+                added match {
+                  case \/-(sc) =>
+                    resolveDataRanges(resolved + (dt -> sc), dts, queue, 1+progress)
+                  case -\/(errors) =>
+                    -\/(errors)
+                }
+              } else if (resolver.omfStore.isPlainLiteralKind(restrictedRange)) {
+                val added = for {
+                  l <- len
+                  minl <- minL
+                  maxl <- maxL
+                  sc <- if (facets.size <= 5 && Seq(minI, maxI, minE, maxE).forall(_.isEmpty))
+                    tboxG.createPlainLiteralScalarRestriction(dt, restrictedRange, l, minl, maxl, patt, lang)(resolver.omfStore)
+                  else
+                    Set[java.lang.Throwable](OMFError.omfError(
+                      s"resolveDataRanges: $dt ill-formed PlainLiteral restriction per OWL2 section 4.3: $r")
+                    ).left
+                } yield sc
+                added match {
+                  case \/-(sc) =>
+                    resolveDataRanges(resolved + (dt -> sc), dts, queue, 1+progress)
+                  case -\/(errors) =>
+                    -\/(errors)
+                }
+              } else if (resolver.omfStore.isStringKind(restrictedRange)) {
+                val added = for {
+                  l <- len
+                  minl <- minL
+                  maxl <- maxL
+                  sc <- if (facets.size <= 4 && Seq(minI, maxI, minE, maxE, lang).forall(_.isEmpty))
+                    tboxG.createStringScalarRestriction(dt, restrictedRange, l, minl, maxl, patt)(resolver.omfStore)
+                  else
+                    Set[java.lang.Throwable](OMFError.omfError(
+                      s"resolveDataRanges: $dt ill-formed String restriction per OWL2 section 4.3: $r")
+                    ).left
+                } yield sc
+                added match {
+                  case \/-(sc) =>
+                    resolveDataRanges(resolved + (dt -> sc), dts, queue, 1+progress)
+                  case -\/(errors) =>
+                    -\/(errors)
+                }
+              } else if (resolver.omfStore.isTimeKind(restrictedRange)) {
+                val added = for {
+                  l <- len
+                  minl <- minL
+                  maxl <- maxL
+                  sc <- if (facets.size <= 4 && Seq(l, minl, maxl, patt, lang).forall(_.isEmpty))
+                    tboxG.createTimeScalarRestriction(dt, restrictedRange, minI, maxI, minE, maxE)(resolver.omfStore)
+                  else
+                    Set[java.lang.Throwable](OMFError.omfError(
+                      s"resolveDataRanges: $dt ill-formed time restriction per OWL2 section 4.7: $r")
+                    ).left
+                } yield sc
+                added match {
+                  case \/-(sc) =>
+                    resolveDataRanges(resolved + (dt -> sc), dts, queue, 1+progress)
+                  case -\/(errors) =>
+                    -\/(errors)
+                }
+              } else
+                Set[java.lang.Throwable](OMFError.omfError(
+                  s"resolveDataRanges: $dt has a definition as a DatatypeRestriction outside of OWL2: $r")
+                ).left
+            case None =>
+              Set[java.lang.Throwable](OMFError.omfError(
+                s"resolveDataRanges: $dt has a definition as a DatatypeRestriction to an unrecognized datatype: $r")
+              ).left
+          }
+        case (dr: OWLDatatype) :: Nil =>
+          resolved.get(dr) match {
+            case Some(restrictedRange) =>
+              tboxG.createSynonymScalarRestriction(dt, restrictedRange)(resolver.omfStore) match {
+                case \/-(sc) =>
+                  resolveDataRanges(resolved + (dt -> sc), dts, queue, 1+progress)
+                case -\/(errors) =>
+                  -\/(errors)
+              }
+            case None =>
+              Set[java.lang.Throwable](OMFError.omfError(
+                s"resolveDataRanges: $dt has a definition as a DatatypeRestriction to an unrecognized datatype: $dr")
+              ).left
+          }
+        case dr =>
+          Set[java.lang.Throwable](OMFError.omfError(
+            s"resolveDataRanges: $dt should have a definition as a DataOneOf or DataRestriction; got: $dr")
+          ).left
+      }
+  }
+
   def resolve()
-  : Set[java.lang.Throwable] \/ (ImmutableModelTerminologyGraph, Mutable2ImmutableTerminologyMap)
+  : Set[java.lang.Throwable] \/ (ImmutableTerminologyBox, Mutable2ImmutableTerminologyMap)
   = {
-    val dTs = ont.datatypesInSignature(Imports.EXCLUDED).toScala[Set].filter(ont.isDeclared)
+    val importedScalarDatatypeDefinitionMaps: Map[OWLDatatype, DataRange]
+    = resolver
+      .importClosure
+      .map(_.getScalarDatatypeDefinitionMap)
+      .foldLeft(Map.empty[OWLDatatype, DataRange])(_ ++ _)
 
-    ( Map[OWLDatatype, ModelScalarDataType]()
-      .right[Set[java.lang.Throwable]] /: dTs ) {
-      (acc, scalarDatatypeDT) =>
-        acc +++
-          tboxG
-            .createModelScalarDataType(scalarDatatypeDT)
-            .flatMap { scalarDatatypeSC =>
-              val scIRI = scalarDatatypeDT.getIRI
+    val dTs = ont.datatypesInSignature(Imports.EXCLUDED).toScala[List].filter(ont.isDeclared)
 
-              resolver.omfStore.registerOMFModelScalarDataTypeInstance(tboxG, scalarDatatypeSC).map(_ => ())
+    for {
+      withDeclaredScalars <-
+      dTs
+        .filter { dt => 0 == ont.datatypeDefinitions(dt).count() }
+        .foldLeft[Set[java.lang.Throwable] \/ Map[OWLDatatype, DataRange]](
+        importedScalarDatatypeDefinitionMaps.right
+      ) { case (acc, dt) =>
+          for {
+            m <- acc
+            dr <- tboxG.createModelScalarDataType(dt)
+            _ <- resolver.omfStore.registerOMFModelScalarDataTypeInstance(tboxG, dr)
+          } yield m + (dt -> dr)
+      }
 
-                .map(_ => Map(scalarDatatypeDT -> scalarDatatypeSC))
-            }
-    }.flatMap { scalarDatatypeSCs =>
+      dataRanges <-
+      resolveDataRanges(
+        withDeclaredScalars,
+        dTs.filter { dt => ont.datatypeDefinitions(dt).count() > 0 })
 
-      val (bCs, tCs) = ont.
-        classesInSignature(Imports.EXCLUDED).toScala[Set].
-        filter(ont.isDeclared).
-        partition { c => isBackboneIRI(c.getIRI) }
+      (bCs, tCs) =
+      ont
+        .classesInSignature(Imports.EXCLUDED)
+        .toScala[Set]
+        .filter(ont.isDeclared)
+        .partition { c => isBackboneIRI(c.getIRI) }
 
-      val (bOPs, tOPs) = ont.
-        objectPropertiesInSignature(Imports.EXCLUDED).toScala[Set].
-        filter(ont.isDeclared).
-        partition { c => isBackboneIRI(c.getIRI) }
+      (bOPs, tOPs) =
+      ont
+        .objectPropertiesInSignature(Imports.EXCLUDED)
+        .toScala[Set]
+        .filter(ont.isDeclared)
+        .partition { c => isBackboneIRI(c.getIRI) }
 
-      val (bDPs, tDPs) = ont.
-        dataPropertiesInSignature(Imports.EXCLUDED).toScala[Set].
-        filter(ont.isDeclared).
-        partition { c => isBackboneIRI(c.getIRI) }
+      (bDPs, tDPs) =
+      ont
+        .dataPropertiesInSignature(Imports.EXCLUDED)
+        .toScala[Set]
+        .filter(ont.isDeclared)
+        .partition { c => isBackboneIRI(c.getIRI) }
 
-      Backbone
-        .resolveBackbone(ont, bCs.toSet, bOPs.toSet, bDPs.toSet, resolver.omfStore.ops)
-        .flatMap {
-          case backbone: OMFBackbone =>
-            resolve(backbone, scalarDatatypeSCs, tCs.toSet, tOPs.toSet, tDPs.toSet)
+      b <- Backbone.resolveBackbone(ont, bCs, bOPs, bDPs, resolver.omfStore.ops)
 
-          case _: NoBackbone =>
-            asImmutableTerminologyGraph(tboxG)
-        }
-    }
+      result <- b match {
+        case backbone: OMFBackbone =>
+          resolve(backbone, dataRanges, importedScalarDatatypeDefinitionMaps, tCs, tOPs, tDPs)
+
+        case _: NoBackbone =>
+          asImmutableTerminology(tboxG)
+      }
+    } yield result
   }
 
   type RemainingAndMatchedRestrictions =
   Set[java.lang.Throwable] \/
-  ( Set[(ModelEntityDefinition, ModelEntityReifiedRelationship, ModelEntityDefinition,  RestrictionKind)],
-    Set[(ModelEntityDefinition, ModelEntityReifiedRelationship, ModelEntityDefinition,  RestrictionKind)] )
+  ( Set[(Entity, ReifiedRelationship, Entity,  ObjectRestrictionKind)],
+    Set[(Entity, ReifiedRelationship, Entity,  ObjectRestrictionKind)] )
+
+  type ResolverResult =
+  Set[java.lang.Throwable] \/ (ImmutableTerminologyBox, Mutable2ImmutableTerminologyMap)
 
   def resolve
   (backbone: OMFBackbone,
-   scalarDatatypeSCs: Map[OWLDatatype, types.ModelScalarDataType],
+   dataRanges: Map[OWLDatatype, DataRange],
+   importedScalarDatatypeDefinitionMaps: Map[OWLDatatype, DataRange],
    tCs: Set[OWLClass],
    tOPs: Set[OWLObjectProperty],
    tDPs: Set[OWLDataProperty])
-  : Set[java.lang.Throwable] \/ (ImmutableModelTerminologyGraph, Mutable2ImmutableTerminologyMap)
+  : ResolverResult
   = {
-
     implicit val _backbone = backbone
 
     if (LOG) {
@@ -120,25 +368,20 @@ case class ImmutableModelTerminologyGraphResolver(resolver: ResolverHelper) {
           .mkString("\n => imports: ", "\n => imports: ", "\n"))
     }
 
-    val importedScalarDatatypeDefinitionMaps: Map[OWLDatatype, ModelScalarDataType]
-    = resolver
-      .importClosure
-      .map(_.getScalarDatatypeDefinitionMap)
-      .foldLeft(Map.empty[OWLDatatype, ModelScalarDataType])(_ ++ _)
 
     if (LOG) {
       System.out.println(s"importedScalarDatatypeDefinitionMaps: ${importedScalarDatatypeDefinitionMaps.size}")
     }
 
-    val importedEntityDefinitionMaps: Map[OWLClass, ModelEntityDefinition]
+    val importedEntityDefinitionMaps: Map[OWLClass, Entity]
     = resolver.importClosure.flatMap(_.getEntityDefinitionMap).toMap
 
     val allImportedDataRelationshipsFromEntityToScalar
     = resolver.importClosure.flatMap(_.getDataRelationshipsFromEntityToScalar)
 
-    val allImportedReifiedRelationships: Map[OWLClass, ModelEntityReifiedRelationship]
+    val allImportedReifiedRelationships: Map[OWLClass, ReifiedRelationship]
     = importedEntityDefinitionMaps flatMap {
-        case (rrC, rrE: ModelEntityReifiedRelationship) =>
+        case (rrC, rrE: ReifiedRelationship) =>
           Some(rrC -> rrE)
         case _ =>
           None
@@ -286,8 +529,8 @@ case class ImmutableModelTerminologyGraphResolver(resolver: ResolverHelper) {
       }
     } yield Tuple3(head_op, hasSource, hasTarget)
 
-    val aspectCMs: Set[java.lang.Throwable] \/ Map[OWLClass, ModelEntityAspect] =
-      (Map[OWLClass, ModelEntityAspect]().right[Set[java.lang.Throwable]] /: aspectCIRIs) {
+    val aspectCMs: Set[java.lang.Throwable] \/ Map[OWLClass, Aspect] =
+      (Map[OWLClass, Aspect]().right[Set[java.lang.Throwable]] /: aspectCIRIs) {
         case (acc, (aspectIRI, aspectC)) =>
           acc +++
             tboxG
@@ -300,8 +543,8 @@ case class ImmutableModelTerminologyGraphResolver(resolver: ResolverHelper) {
               }
       }
 
-    val importedAspectDefinitions: Map[OWLClass, ModelEntityAspect] = importedEntityDefinitionMaps flatMap {
-      case (aC, aE: ModelEntityAspect) =>
+    val importedAspectDefinitions: Map[OWLClass, Aspect] = importedEntityDefinitionMaps flatMap {
+      case (aC, aE: Aspect) =>
         Some(aC -> aE)
       case _ =>
         None
@@ -309,8 +552,8 @@ case class ImmutableModelTerminologyGraphResolver(resolver: ResolverHelper) {
 
     val allAspectsIncludingImported = aspectCMs +++ importedAspectDefinitions.right
 
-    val conceptCMs: Set[java.lang.Throwable] \/ Map[OWLClass, ModelEntityConcept] =
-      (Map[OWLClass, ModelEntityConcept]().right[Set[java.lang.Throwable]] /: conceptCIRIs) {
+    val conceptCMs: Set[java.lang.Throwable] \/ Map[OWLClass, Concept] =
+      (Map[OWLClass, Concept]().right[Set[java.lang.Throwable]] /: conceptCIRIs) {
         case (acc, (conceptIRI, conceptC)) =>
           acc +++
             tboxG
@@ -323,8 +566,8 @@ case class ImmutableModelTerminologyGraphResolver(resolver: ResolverHelper) {
               }
       }
 
-    val importedConceptDefinitions: Map[OWLClass, ModelEntityConcept] = importedEntityDefinitionMaps flatMap {
-      case (cC, cE: ModelEntityConcept) =>
+    val importedConceptDefinitions: Map[OWLClass, Concept] = importedEntityDefinitionMaps flatMap {
+      case (cC, cE: Concept) =>
         Some(cC -> cE)
       case _ =>
         None
@@ -332,8 +575,8 @@ case class ImmutableModelTerminologyGraphResolver(resolver: ResolverHelper) {
 
     val allConceptsIncludingImported = conceptCMs +++ importedConceptDefinitions.right
 
-    val structuredDatatypeSCs: Set[java.lang.Throwable] \/ Map[OWLClass, ModelStructuredDataType] =
-      (Map[OWLClass, ModelStructuredDataType]().right[Set[java.lang.Throwable]] /: structuredDatatypeCIRIs) {
+    val structuredDatatypeSCs: Set[java.lang.Throwable] \/ Map[OWLClass, Structure] =
+      (Map[OWLClass, Structure]().right[Set[java.lang.Throwable]] /: structuredDatatypeCIRIs) {
         case (acc, (structuredDatatypeIRI, structuredDatatypeC)) =>
           acc +++
             tboxG
@@ -343,6 +586,10 @@ case class ImmutableModelTerminologyGraphResolver(resolver: ResolverHelper) {
                   .map(_ => Map(structuredDatatypeC -> structuredDatatypeST))
               }
       }
+
+    val topUnreifiedObjectPropertySubOPs =
+      reasoner
+        .getSubObjectProperties(backbone.topUnreifiedObjectPropertyOP, false)
 
     val topReifiedObjectPropertySubOPs =
       reasoner.getSubObjectProperties(backbone.topReifiedObjectPropertyOP, false)
@@ -367,8 +614,8 @@ case class ImmutableModelTerminologyGraphResolver(resolver: ResolverHelper) {
 
     val allEntityDefinitionsExceptRelationships =
       importedEntityDefinitionMaps.right[Set[java.lang.Throwable]] +++
-        aspectCMs.map(_.toMap[OWLClass, ModelEntityDefinition]) +++
-        conceptCMs.map(_.toMap[OWLClass, ModelEntityDefinition])
+        aspectCMs.map(_.toMap[OWLClass, Entity]) +++
+        conceptCMs.map(_.toMap[OWLClass, Entity])
 
     allEntityDefinitionsExceptRelationships.flatMap { _allEntityDefinitionsExceptRelationships =>
       allAspectsIncludingImported.flatMap { _allAspectsIncludingImported =>
@@ -386,65 +633,71 @@ case class ImmutableModelTerminologyGraphResolver(resolver: ResolverHelper) {
                   Map()
                 ).flatMap { _entityReifiedRelationshipCMs =>
 
-                  val _allEntityDefinitions: Map[OWLClass, ModelEntityDefinition] =
-                    Map[OWLClass, ModelEntityDefinition]() ++
+                  val _allEntityDefinitions: Map[OWLClass, Entity] =
+                    Map[OWLClass, Entity]() ++
                       _aspectCMs ++
                       _conceptCMs ++
                       _entityReifiedRelationshipCMs
 
-                  val _allEntityDefinitionsIncludingImported = _allEntityDefinitions ++ importedEntityDefinitionMaps
+                  val _allEntityReifiedRelationshipsIncludingImported =
+                    _entityReifiedRelationshipCMs ++ allImportedReifiedRelationships
 
-                  val _allEntityReifiedRelationshipsIncludingImported = _entityReifiedRelationshipCMs ++ allImportedReifiedRelationships
+                  val _allEntityDefinitionsIncludingImported =
+                    _allEntityDefinitions ++ importedEntityDefinitionMaps ++ _allEntityReifiedRelationshipsIncludingImported
 
-                  val _allEntityRestrictions
-                  : Set[(ModelEntityDefinition, ModelEntityReifiedRelationship, ModelEntityDefinition, Boolean, RestrictionKind)]
-                  = {
-                    val tuples =
-                      for {
-                        dPair <- _allEntityDefinitions
-                        (d, domain) = dPair
+                  resolveUnreifiedRelationships(
+                    topUnreifiedObjectPropertySubOPs,
+                    _allEntityDefinitionsIncludingImported
+                  ).flatMap { _ =>
+                    val _allEntityObjectRestrictions
+                    : Set[(Entity, ReifiedRelationship, Entity, Boolean, ObjectRestrictionKind)]
+                    = {
+                      val tuples =
+                        for {
+                          dPair <- _allEntityDefinitions
+                          (d, domain) = dPair
 
-                        // the restriction could be for an entity definition or a datatype
-                        restriction <- getObjectPropertyRestrictionsIfAny(resolver.tboxG.ont, d)
-                        (_, op, isInverse, r, k) = restriction
+                          // the restriction could be for an entity definition or a structured datatype
+                          restriction <- getObjectPropertyRestrictionsIfAny(resolver.tboxG.ont, d)
+                          (_, op, isInverse, r, k) = restriction
 
-                        // filter restrictions to an entity definition range only
-                        range <- _allEntityDefinitionsIncludingImported.get(r)
-                        relInfo <- _allEntityReifiedRelationshipsIncludingImported.find { case (relC, relRR) =>
-                          relRR.unreified == op
-                        }
-                        (relC, relRR) = relInfo
+                          // filter restrictions to an entity definition range only
+                          range <- _allEntityDefinitionsIncludingImported.get(r)
+                          relInfo <- _allEntityReifiedRelationshipsIncludingImported.find { case (relC, relRR) =>
+                            relRR.unreified == op
+                          }
+                          (relC, relRR) = relInfo
 
-                      } yield
-                        Tuple5(domain, relRR, range, isInverse, k)
-                    tuples.toSet
-                  }
+                        } yield
+                          Tuple5(domain, relRR, range, isInverse, k)
+                      tuples.toSet
+                    }
 
-                  val inverseRestrictions
-                  : Set[(ModelEntityDefinition, ModelEntityReifiedRelationship, ModelEntityDefinition, RestrictionKind)]
-                  = _allEntityRestrictions.flatMap {
-                    case (domain, rel, range, true, kind) =>
-                      Some(Tuple4(domain, rel, range, kind))
-                    case _ =>
-                      None
-                  }
+                    val inverseRestrictions
+                    : Set[(Entity, ReifiedRelationship, Entity, ObjectRestrictionKind)]
+                    = _allEntityObjectRestrictions.flatMap {
+                      case (domain, rel, range, true, kind) =>
+                        Some(Tuple4(domain, rel, range, kind))
+                      case _ =>
+                        None
+                    }
 
-                  val forwardRestrictions
-                  : Set[(ModelEntityDefinition, ModelEntityReifiedRelationship, ModelEntityDefinition,  RestrictionKind)]
-                  = _allEntityRestrictions.flatMap {
-                    case (domain, rel, range, false, kind) =>
-                      Some(Tuple4(domain, rel, range, kind))
-                    case _ =>
-                      None
-                  }
+                    val forwardRestrictions
+                    : Set[(Entity, ReifiedRelationship, Entity, ObjectRestrictionKind)]
+                    = _allEntityObjectRestrictions.flatMap {
+                      case (domain, rel, range, false, kind) =>
+                        Some(Tuple4(domain, rel, range, kind))
+                      case _ =>
+                        None
+                    }
 
-                  val relRestrictions0
-                  : RemainingAndMatchedRestrictions
-                  = \/-(Tuple2(forwardRestrictions, Set.empty))
+                    val relRestrictions0
+                    : RemainingAndMatchedRestrictions
+                    = \/-(Tuple2(forwardRestrictions, Set.empty))
 
-                  val relRestrictionsN
-                  : RemainingAndMatchedRestrictions
-                  = inverseRestrictions.foldLeft(relRestrictions0) { case (acc, (idomain, irel, irange, ikind)) =>
+                    val relRestrictionsN
+                    : RemainingAndMatchedRestrictions
+                    = inverseRestrictions.foldLeft(relRestrictions0) { case (acc, (idomain, irel, irange, ikind)) =>
                       acc.flatMap { case (fremaining, restrictions) =>
 
                         val fi = fremaining.find { case (fdomain, frel, frange, fkind) =>
@@ -460,145 +713,121 @@ case class ImmutableModelTerminologyGraphResolver(resolver: ResolverHelper) {
                               s"kind=$ikind"
                             -\/(Set(OMFError.omfError(message)))
                           case Some(forward_inverse) =>
-                            \/-(Tuple2( fremaining - forward_inverse, restrictions + forward_inverse))
+                            \/-(Tuple2(fremaining - forward_inverse, restrictions + forward_inverse))
 
-                        }
-                      }
-                  }
-
-                  val restrictionsAdded
-                  : Set[java.lang.Throwable] \/ Unit
-                  = relRestrictionsN.flatMap { case (forwardOnly, restrictions) =>
-
-                    val ra
-                    : Set[java.lang.Throwable] \/ Unit
-                    = \/-(())
-
-                    val rb
-                    : Set[java.lang.Throwable] \/ Unit
-                    = forwardOnly.foldLeft(ra) { case (acc, (domain, rel, range, kind)) =>
-                      acc.flatMap { _ =>
-                        kind match {
-                          case ExistentialRestrictionKind =>
-                            tboxG.addEntityDefinitionExistentialRestrictionAxiom(domain, rel, range).map { _ => () }
-                          case UniversalRestrictionKind =>
-                            tboxG.addEntityDefinitionUniversalRestrictionAxiom(domain, rel, range).map { _ => () }
                         }
                       }
                     }
 
-                    rb
-                  }
+                    val restrictionsAdded
+                    : Set[java.lang.Throwable] \/ Unit
+                    = relRestrictionsN.flatMap { case (forwardOnly, restrictions) =>
 
-                  restrictionsAdded.flatMap { _ =>
+                      val ra
+                      : Set[java.lang.Throwable] \/ Unit
+                      = \/-(())
 
-                    val _allScalarDefinitions: Map[OWLDatatype, ModelScalarDataType] =
-                      importedScalarDatatypeDefinitionMaps ++ scalarDatatypeSCs
-
-                    (resolveDefinitionAspectSubClassAxioms(_allEntityDefinitions, _allAspectsIncludingImported) +++
-                      resolveReifiedRelationshipSubClassAxioms(_entityReifiedRelationshipCMs, allImportedReifiedRelationships)
-                      ).flatMap { _ =>
-
-                      resolveDataRelationshipsFromEntity2Scalars(_allEntityDefinitions, dataPropertyDPIRIs, _allScalarDefinitions)
-                        .flatMap { dataRelationshipsFromEntity2Scalar =>
-
-                          val allDataRelationshipsFromEntityToScalar =
-                            dataRelationshipsFromEntity2Scalar ++ allImportedDataRelationshipsFromEntityToScalar
-
-                          val entityDefinitions
-                          : Set[java.lang.Throwable] \/ Map[OWLClass, ModelEntityDefinition]
-                          = \/-(_allEntityDefinitions)
-
-                          type RestrictionInfoValidation
-                          = Set[java.lang.Throwable] \/
-                            Set[(ModelEntityDefinition, ModelDataRelationshipFromEntityToScalar, String)]
-
-                          val restrictions
-                          : RestrictionInfoValidation
-                          = entityDefinitions.flatMap { pairs =>
-                            val r0
-                            : RestrictionInfoValidation
-                            = \/-(Set())
-
-                            val restrictionTuples
-                            = pairs.map { case (entityO, entityC) =>
-                              val restrictions
-                              = getSingleDataPropertyRestrictionsIfAny(resolver.tboxG.ont, entityO)
-                                .flatMap { restrictions =>
-                                  val r1
-                                  : RestrictionInfoValidation
-                                  = \/-(Set())
-
-                                  val r2
-                                  : RestrictionInfoValidation
-                                  = (r1 /:
-                                    restrictions.map {
-                                      case (restrictedC, restrictingDP, restrictingLiteral) =>
-                                        val r =
-                                          allDataRelationshipsFromEntityToScalar
-                                            .find {
-                                              _.dp == restrictingDP
-                                            }
-                                            .fold[RestrictionInfoValidation](
-                                            -\/(Set(OMFError.omfError(
-                                              s"Unresolved restricting data property $restrictingDP " +
-                                                s"for entity $restrictedC with " +
-                                                s"literal restriction $restrictingLiteral")))
-                                          ) { restrictingSC =>
-                                            \/-(Set((entityC, restrictingSC, restrictingLiteral)))
-                                          }
-                                        r
-                                    }) {
-                                    _ +++ _
-                                  }
-
-                                  r2
-                                }
-                              restrictions
-                            }
-
-                            (r0 /: restrictionTuples) {
-                              _ +++ _
-                            }
-                          }
-
-                          type RestrictionAxiomValidation
-                          = Set[java.lang.Throwable] \/
-                            Set[ModelScalarDataRelationshipRestrictionAxiomFromEntityToLiteral]
-
-                          val restrictionAxioms
-                          : RestrictionAxiomValidation
-                          = restrictions.flatMap { tuples =>
-
-                            val a0
-                            : RestrictionAxiomValidation
-                            = \/-(Set())
-
-                            val axioms
-                            = tuples
-                              .map { case (restrictedC, restrictingE2SC, restrictingLiteral) =>
-                                tboxG
-                                  .addScalarDataRelationshipRestrictionAxiomFromEntityToLiteral(
-                                    restrictedC, restrictingE2SC, restrictingLiteral)
-                                  .map(Set(_))
-                              }
-
-                            val aN
-                            : RestrictionAxiomValidation
-                            = (a0 /: axioms) {
-                              _ +++ _
-                            }
-
-                            aN
-                          }
-
-                          restrictionAxioms.flatMap { _ =>
-
-                            asImmutableTerminologyGraph(tboxG)
-
+                      val rb
+                      : Set[java.lang.Throwable] \/ Unit
+                      = forwardOnly.foldLeft(ra) { case (acc, (domain, rel, range, kind)) =>
+                        acc.flatMap { _ =>
+                          kind match {
+                            case ExistentialObjectRestrictionKind =>
+                              tboxG.addEntityDefinitionExistentialRestrictionAxiom(domain, rel, range).map { _ => () }
+                            case UniversalObjectRestrictionKind =>
+                              tboxG.addEntityDefinitionUniversalRestrictionAxiom(domain, rel, range).map { _ => () }
                           }
                         }
+                      }
 
+                      rb
+                    }
+
+                    restrictionsAdded.flatMap { _ =>
+
+                      val _allScalarDefinitions: Map[OWLDatatype, DataRange] =
+                        importedScalarDatatypeDefinitionMaps ++ dataRanges
+
+                      (resolveDefinitionAspectSubClassAxioms(_allEntityDefinitions, _allAspectsIncludingImported) +++
+                        resolveReifiedRelationshipSubClassAxioms(_entityReifiedRelationshipCMs, allImportedReifiedRelationships)
+                        ).flatMap { _ =>
+
+                        resolveDataRelationshipsFromEntity2Scalars(_allEntityDefinitions, dataPropertyDPIRIs, _allScalarDefinitions)
+                          .flatMap { dataRelationshipsFromEntity2Scalar =>
+
+                            val allDataRelationshipsFromEntityToScalar =
+                              dataRelationshipsFromEntity2Scalar ++ allImportedDataRelationshipsFromEntityToScalar
+
+                            type RestrictionInfoValidation
+                            = Set[java.lang.Throwable] \/ Unit
+
+                            val withRestrictions
+                            : Set[java.lang.Throwable] \/ Unit
+                            = _allEntityDefinitions.foldLeft[Set[java.lang.Throwable] \/ Unit](
+                              ().right
+                            ) { case (acc, (entityO, entityC)) =>
+
+                              val restrictions
+                              = getDataPropertyRestrictionsIfAny(resolver.tboxG.ont, entityO)
+
+                              restrictions.foldLeft[RestrictionInfoValidation](acc) {
+                                case (acc, (restrictedDP, kind)) =>
+                                  allDataRelationshipsFromEntityToScalar
+                                    .find {
+                                      _.e == restrictedDP
+                                    }
+                                    .fold[RestrictionInfoValidation](
+                                    -\/(Set(OMFError.omfError(
+                                      s"Unresolved restricting data property $restrictedDP " +
+                                        s"for entity $entityC with kind=$kind")))
+                                  ) { restrictingSC =>
+
+                                    kind match {
+                                      case ExistentialOWLDataRestrictionKind(rangeDT) =>
+                                        dataRanges
+                                          .get(rangeDT)
+                                          .fold[RestrictionInfoValidation](
+                                          -\/(Set(OMFError.omfError(
+                                            s"Unresolved restricted data range $rangeDT " +
+                                              s"for entity $entityC and " +
+                                              s"restricting data property $restrictedDP with kind=$kind")))
+                                        ) { rangeSC =>
+                                          acc +++
+                                            addEntityScalarDataPropertyExistentialRestrictionAxiom(
+                                              tboxG, entityC, restrictingSC, rangeSC
+                                            ).map(_ => ())
+                                        }
+
+                                      case UniversalOWLDataRestrictionKind(rangeDT) =>
+                                        dataRanges
+                                          .get(rangeDT)
+                                          .fold[RestrictionInfoValidation](
+                                          -\/(Set(OMFError.omfError(
+                                            s"Unresolved restricted data range $rangeDT " +
+                                              s"for entity $entityC and " +
+                                              s"restricting data property $restrictedDP with kind=$kind")))
+                                        ) { rangeSC =>
+                                          acc +++
+                                            addEntityScalarDataPropertyUniversalRestrictionAxiom(
+                                              tboxG, entityC, restrictingSC, rangeSC
+                                            ).map(_ => ())
+                                        }
+
+                                      case ParticularOWLDataRestrictionKind(value) =>
+                                        acc +++
+                                          addEntityScalarDataPropertyParticularRestrictionAxiom(
+                                            tboxG, entityC, restrictingSC, value
+                                          ).map(_ => ())
+                                    }
+                                  }
+                              }
+                            }
+
+                            withRestrictions.flatMap { _ =>
+                              asImmutableTerminology(resolver.m2i, tboxG)
+                            }
+                          }
+                      }
                     }
                   }
                 }
@@ -609,4 +838,19 @@ case class ImmutableModelTerminologyGraphResolver(resolver: ResolverHelper) {
       }
     }
   }
+
+  sealed trait EntityScalarDataPropertyRestriction
+
+  case class EntityScalarDataPropertyExistentialRestriction
+  (entity: Entity, scalarDataProperty: EntityScalarDataProperty, range: DataRange)
+  extends EntityScalarDataPropertyRestriction
+
+  case class EntityScalarDataPropertyUniversalRestriction
+  (entity: Entity, scalarDataProperty: EntityScalarDataProperty, range: DataRange)
+    extends EntityScalarDataPropertyRestriction
+
+  case class EntityScalarDataPropertyParticularRestriction
+  (entity: Entity, scalarDataProperty: EntityScalarDataProperty, value: String)
+    extends EntityScalarDataPropertyRestriction
+
 }

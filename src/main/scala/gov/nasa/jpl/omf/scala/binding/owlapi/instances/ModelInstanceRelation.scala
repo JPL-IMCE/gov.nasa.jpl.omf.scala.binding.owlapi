@@ -19,8 +19,9 @@
 package gov.nasa.jpl.omf.scala.binding.owlapi.instances
 
 import gov.nasa.jpl.omf.scala.binding.owlapi._
+import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ReifiedRelationship
 
-case class ModelInstanceRelation(override val iri: OWLAPIOMF#IRI, 
-    val relationshipType: types.ModelEntityReifiedRelationship,
-    val source: ModelEntityInstance,
-    val target: ModelEntityInstance) extends ModelEntityInstance(iri)
+case class ModelInstanceRelation(override val iri: OWLAPIOMF#IRI,
+                                 val relationshipType: ReifiedRelationship,
+                                 val source: ModelEntityInstance,
+                                 val target: ModelEntityInstance) extends ModelEntityInstance(iri)

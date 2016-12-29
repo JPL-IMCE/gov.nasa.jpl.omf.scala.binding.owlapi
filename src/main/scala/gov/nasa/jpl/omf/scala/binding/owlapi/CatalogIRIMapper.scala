@@ -44,7 +44,7 @@ class CatalogURIMapperException
 case class CatalogIRIMapper
 (catalogManager: CatalogManager,
  catalogResolver: CatalogResolver,
- catalog: Catalog) extends OWLOntologyIRIMapper {
+ protected var catalog: Catalog) extends OWLOntologyIRIMapper {
 
   require(null != catalogManager)
   require(null != catalogResolver)
@@ -58,6 +58,13 @@ case class CatalogIRIMapper
   def this
   (catalogManager: CatalogManager) =
     this(catalogManager, new CatalogResolver(catalogManager))
+
+  def clearCatalog(): Unit = {
+    val c = new Catalog()
+    c.setCatalogManager(catalog.getCatalogManager)
+    c.setupReaders()
+    catalog = c
+  }
 
   def parseCatalog(catalogURI: URI)
   : Set[java.lang.Throwable] \/ Unit =
@@ -178,4 +185,32 @@ case class CatalogIRIMapper
         iri
     }
   }
+
+  def resolveIRIAsLocalFile
+  (iri: IRI)
+  : Set[java.lang.Throwable] \/ File
+  = {
+    val rawPath = iri.toURI.toString
+    val iriPath =
+      if (rawPath.endsWith("#")) rawPath.substring(0, rawPath.length() - 1)
+      else rawPath
+    try {
+      Option.apply(catalog.resolveURI(iriPath))
+        .fold[Set[java.lang.Throwable] \/ File](
+        Set[java.lang.Throwable](new java.lang.IllegalArgumentException(s"unresolvable IRI as local file: $iri")).left
+      ) { resolved =>
+        val f =
+          if (resolved.startsWith("file:")) new File(resolved.substring(5))
+          else new File(resolved)
+        f.right
+      }
+    }
+    catch {
+      case e: MalformedURLException =>
+        Set[java.lang.Throwable](e).left
+      case e: IOException =>
+        Set[java.lang.Throwable](e).left
+    }
+  }
+
 }

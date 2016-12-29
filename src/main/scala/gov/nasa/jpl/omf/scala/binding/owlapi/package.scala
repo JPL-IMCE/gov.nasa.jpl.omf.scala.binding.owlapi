@@ -20,8 +20,8 @@ package gov.nasa.jpl.omf.scala.binding
 
 import java.nio.file.Path
 
-import gov.nasa.jpl.omf.scala.core.OMFError
-
+import gov.nasa.jpl.imce.omf.schema.tables.{AnnotationProperty,UUID}
+import gov.nasa.jpl.omf.scala.core.{generateUUID,OMFError}
 import org.apache.xml.resolver.CatalogManager
 import org.semanticweb.owlapi.apibinding.OWLManager
 import org.semanticweb.owlapi.model.parameters.ChangeApplied
@@ -35,6 +35,7 @@ import scalaz._
 import Scalaz._
 
 package object owlapi {
+
 
   def catalogURIMapperException
   (message: String,
@@ -163,5 +164,30 @@ package object owlapi {
   : Set[java.lang.Throwable] \/ Unit
   = s.catalogIRIMapper.parseCatalog(file.toUri)
 
+  def getAnnotationPropertyUUIDfromOWLAnnotation
+  (a: OWLAnnotation)
+  : UUID
+  = generateUUID(a.getProperty.getIRI.getIRIString).toString
+
+  def getAnnotationPropertyFromOWLAnnotation
+  (a: OWLAnnotation)
+  : AnnotationProperty
+  = AnnotationProperty(getAnnotationPropertyUUIDfromOWLAnnotation(a), a.getProperty.getIRI.getIRIString)
+
+  def getRelevantOntologyAnnotations
+  (ont: OWLOntology)
+  : Vector[OWLAnnotation]
+  = ont
+    .annotations()
+    .toScala[Vector]
+    .filterNot(_.getProperty.getIRI.getIRIString.startsWith("http://imce.jpl.nasa.gov/foundation"))
+
+  def getRelevantSubjectAnnotationAssertions
+  (ont: OWLOntology, iri: IRI)
+  : Vector[OWLAnnotationAssertionAxiom]
+  = ont
+    .annotationAssertionAxioms(iri)
+    .toScala[Vector]
+    .filterNot(_.getProperty.getIRI.getIRIString.startsWith("http://imce.jpl.nasa.gov/foundation"))
 
 }

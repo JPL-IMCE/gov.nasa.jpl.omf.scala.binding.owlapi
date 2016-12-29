@@ -18,10 +18,10 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.instances
 
-import gov.nasa.jpl.omf.scala.binding.owlapi._
+import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.EntityScalarDataProperty
 
-case class ModelInstanceDataRelationshipFromEntityToScalar(
-    val ei: ModelEntityInstance, 
-    val dataRelationship: types.ModelDataRelationshipFromEntityToScalar,
-    val value: ModelInstanceDataLiteral)
+case class ModelInstanceDataRelationshipFromEntityToScalar
+( ei: ModelEntityInstance,
+  dataRelationship: EntityScalarDataProperty,
+  value: ModelInstanceDataLiteral)
   extends ModelInstanceAssertion

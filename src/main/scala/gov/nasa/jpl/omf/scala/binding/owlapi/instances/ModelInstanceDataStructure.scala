@@ -19,9 +19,10 @@
 package gov.nasa.jpl.omf.scala.binding.owlapi.instances
 
 import gov.nasa.jpl.omf.scala.binding.owlapi._
+import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Structure
 
 case class ModelInstanceDataStructure(
     override val iri: OWLAPIOMF#IRI, 
-    val datatype: types.ModelStructuredDataType) 
+    val datatype: Structure)
   extends ModelNamedIndividual(iri) 
   with ModelDataInstance
