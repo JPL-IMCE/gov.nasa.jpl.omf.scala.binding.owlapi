@@ -18,25 +18,14 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi
 
-import java.util.UUID
-
-import gov.nasa.jpl.imce.omf.schema.tables.LocalName
 import gov.nasa.jpl.omf.scala.core._
-import gov.nasa.jpl.omf.scala.core.RelationshipCharacteristics._
-import gov.nasa.jpl.omf.scala.core.TerminologyKind._
-
-import scala.collection.immutable._
-import scala.{Boolean, Option}
-import scala.Predef.require
 
 trait OWLAPIOMF
   extends OMF
   with OWLAPIOMFstore
   with OWLAPIOMFiri
   with OWLAPIOMFtbox
-  with OWLAPIOMFabox {
-
-}
+  with OWLAPIOMFabox
 
 trait OWLAPIOMFstore extends OMFstore {
   
@@ -51,122 +40,230 @@ trait OWLAPIOMFiri extends OMFiri {
 }
 
 trait OWLAPIOMFtbox extends OMFtbox {
-  
-  type ModelTerminologyGraph =
-  types.ModelTerminologyGraph
 
-  type ImmutableModelTerminologyGraph =
-  types.ImmutableModelTerminologyGraph
+  override type Resource =
+    types.Resource
 
-  type MutableModelTerminologyGraph =
-  types.MutableModelTerminologyGraph
+  override type TerminologyThing =
+    types.TerminologyThing
+
+  override type TerminologyContext =
+    types.TerminologyContext
+
+  override type TerminologyStatement =
+    types.TerminologyStatement
+
+  override type TerminologyBoxStatement =
+    types.TerminologyBoxStatement
+
+  override type TerminologyBundleStatement =
+    types.TerminologyBundleStatement
+
+  override type TerminologyBox =
+    types.terminologies.TerminologyBox
+
+  override type Bundle =
+    types.terminologies.Bundle
+
+  override type TerminologyGraph =
+    types.terminologies.TerminologyGraph
+
+  override type ImmutableTerminologyBox =
+    types.terminologies.ImmutableTerminologyBox
+
+  override type ImmutableTerminologyGraph =
+    types.terminologies.ImmutableTerminologyGraph
+
+  override type ImmutableBundle =
+    types.terminologies.ImmutableBundle
+
+  override type MutableTerminologyBox =
+    types.terminologies.MutableTerminologyBox
+
+  override type MutableTerminologyGraph =
+    types.terminologies.MutableTerminologyGraph
+
+  override type MutableBundle =
+    types.terminologies.MutableBundle
 
   override type Mutable2ImmutableTerminologyMap =
-  types.Mutable2ImmutableTerminologyMap
+    types.Mutable2ImmutableTerminologyMap
 
-  type ModelTypeTerm =
-  types.ModelTypeTerm
-    
-  type ModelEntityDefinition =
-  types.ModelEntityDefinition
+  override type Term =
+    types.Term
 
-  type ModelEntityAspect =
-  types.ModelEntityAspect
+  override type Entity =
+    types.terms.Entity
 
-  type ModelEntityConcept =
-  types.ModelEntityConcept
+  override type Aspect =
+    types.terms.Aspect
 
-  type ModelEntityReifiedRelationship =
-  types.ModelEntityReifiedRelationship
+  override type Concept =
+    types.terms.Concept
 
-  type ModelEntityUnreifiedRelationship =
-  types.ModelEntityUnreifiedRelationship
-  
-  type ModelDataTypeDefinition =
-  types.ModelDataTypeDefinition
+  override type EntityRelationship =
+    types.terms.EntityRelationship
 
-  type ModelScalarDataType =
-  types.ModelScalarDataType
+  override type UnreifiedRelationship =
+    types.terms.UnreifiedRelationship
 
-  type ModelStructuredDataType =
-  types.ModelStructuredDataType
-  
-  type ModelDataRelationship =
-  types.ModelDataRelationship
-  
-  type ModelDataRelationshipFrom =
-  types.ModelDataRelationshipFrom
+  override type ReifiedRelationship =
+    types.terms.ReifiedRelationship
 
-  type ModelDataRelationshipFromEntity =
-  types.ModelDataRelationshipFromEntity
+  override type Datatype =
+    types.terms.Datatype
 
-  type ModelDataRelationshipFromStructure =
-  types.ModelDataRelationshipFromStructure
-  
-  type ModelDataRelationshipTo =
-  types.ModelDataRelationshipTo
+  override type Structure =
+    types.terms.Structure
 
-  type ModelDataRelationshipToScalar =
-  types.ModelDataRelationshipToScalar
+  override type DataRange =
+    types.terms.DataRange
 
-  type ModelDataRelationshipToStructure =
-  types.ModelDataRelationshipToStructure
-  
-  type ModelDataRelationshipFromEntityToScalar =
-  types.ModelDataRelationshipFromEntityToScalar
+  override type Scalar =
+    types.terms.Scalar
 
-  type ModelDataRelationshipFromEntityToStructure =
-  types.ModelDataRelationshipFromEntityToStructure
+  override type RestrictedDataRange =
+    types.terms.RestrictedDataRange
 
-  type ModelDataRelationshipFromStructureToScalar =
-  types.ModelDataRelationshipFromStructureToScalar
+  override type BinaryScalarRestriction =
+    types.terms.BinaryScalarRestriction
 
-  type ModelDataRelationshipFromStructureToStructure =
-  types.ModelDataRelationshipFromStructureToStructure
-  
-  type ModelTermAxiom =
-  types.ModelTermAxiom
+  override type IRIScalarRestriction =
+    types.terms.IRIScalarRestriction
 
-  type ModelScalarDataRelationshipRestrictionAxiomFromEntityToLiteral =
-  types.ModelScalarDataRelationshipRestrictionAxiomFromEntityToLiteral
+  override type NumericScalarRestriction =
+    types.terms.NumericScalarRestriction
 
-  type EntityDefinitionAspectSubClassAxiom =
-  types.EntityDefinitionAspectSubClassAxiom
+  override type PlainLiteralScalarRestriction =
+    types.terms.PlainLiteralScalarRestriction
 
-  type EntityConceptDesignationTerminologyGraphAxiom =
-  types.EntityConceptDesignationTerminologyGraphAxiom
+  override type ScalarOneOfRestriction =
+    types.terms.ScalarOneOfRestriction
 
-  type EntityConceptSubClassAxiom =
-  types.EntityConceptSubClassAxiom
+  override type StringScalarRestriction =
+    types.terms.StringScalarRestriction
 
-  type EntityDefinitionRestrictionAxiom =
-  types.EntityDefinitionRestrictionAxiom
+  override type SynonymScalarRestriction =
+    types.terms.SynonymScalarRestriction
 
-  type EntityDefinitionUniversalRestrictionAxiom =
-  types.EntityDefinitionUniversalRestrictionAxiom
+  override type TimeScalarRestriction =
+    types.terms.TimeScalarRestriction
 
-  type EntityDefinitionExistentialRestrictionAxiom =
-  types.EntityDefinitionExistentialRestrictionAxiom
+  override type DataRelationship =
+    types.terms.DataRelationship
 
-  type EntityReifiedRelationshipSubClassAxiom =
-  types.EntityReifiedRelationshipSubClassAxiom
+  override type DataRelationshipDomain =
+    types.terms.DataRelationshipDomain
 
-  type ScalarDataTypeFacetRestrictionAxiom =
-  types.ScalarDataTypeFacetRestrictionAxiom
+  override type DataRelationshipFromEntity =
+    types.terms.DataRelationshipFromEntity
 
-  type TerminologyGraphAxiom =
-  types.TerminologyGraphAxiom
+  override type DataRelationshipFromStructure =
+    types.terms.DataRelationshipFromStructure
 
-  type TerminologyGraphDirectExtensionAxiom =
-  types.TerminologyGraphDirectExtensionAxiom
+  override type DataRelationshipRange =
+    types.terms.DataRelationshipRange
 
-  type TerminologyGraphDirectNestingAxiom =
-  types.TerminologyGraphDirectNestingAxiom
+  override type DataRelationshipToScalar =
+    types.terms.DataRelationshipToScalar
+
+  override type DataRelationshipToStructure =
+    types.terms.DataRelationshipToStructure
+
+  override type EntityScalarDataProperty =
+    types.terms.EntityScalarDataProperty
+
+  override type EntityStructuredDataProperty =
+    types.terms.EntityStructuredDataProperty
+
+  override type ScalarDataProperty =
+    types.terms.ScalarDataProperty
+
+  override type StructuredDataProperty =
+    types.terms.StructuredDataProperty
+
+  override type Axiom =
+    types.Axiom
+
+  override type ScalarOneOfLiteralAxiom =
+    types.termAxioms.ScalarOneOfLiteralAxiom
+
+  override type TermAxiom =
+    types.termAxioms.TermAxiom
+
+  override type EntityRestrictionAxiom =
+    types.termAxioms.EntityRestrictionAxiom
+
+  override type EntityExistentialRestrictionAxiom =
+    types.termAxioms.EntityExistentialRestrictionAxiom
+
+  override type EntityUniversalRestrictionAxiom =
+    types.termAxioms.EntityUniversalRestrictionAxiom
+
+  override type EntityScalarDataPropertyRestrictionAxiom =
+    types.termAxioms.EntityScalarDataPropertyRestrictionAxiom
+
+  override type EntityScalarDataPropertyExistentialRestrictionAxiom =
+    types.termAxioms.EntityScalarDataPropertyExistentialRestrictionAxiom
+
+  override type EntityScalarDataPropertyParticularRestrictionAxiom =
+    types.termAxioms.EntityScalarDataPropertyParticularRestrictionAxiom
+
+  override type EntityScalarDataPropertyUniversalRestrictionAxiom =
+    types.termAxioms.EntityScalarDataPropertyUniversalRestrictionAxiom
+
+  override type SpecializationAxiom =
+    types.termAxioms.SpecializationAxiom
+
+  override type AspectSpecializationAxiom =
+    types.termAxioms.AspectSpecializationAxiom
+
+  override type ConceptSpecializationAxiom =
+    types.termAxioms.ConceptSpecializationAxiom
+
+  override type ReifiedRelationshipSpecializationAxiom =
+    types.termAxioms.ReifiedRelationshipSpecializationAxiom
+
+  override type TerminologyAxiom =
+    types.terminologyAxioms.TerminologyAxiom
+
+  override type TerminologyBoxAxiom =
+    types.terminologyAxioms.TerminologyBoxAxiom
+
+  override type TerminologyBundleAxiom =
+    types.terminologyAxioms.TerminologyBundleAxiom
+
+  override type BundledTerminologyAxiom =
+    types.terminologyAxioms.BundledTerminologyAxiom
+
+  override type ConceptDesignationTerminologyAxiom =
+    types.terminologyAxioms.ConceptDesignationTerminologyAxiom
+
+  override type TerminologyExtensionAxiom =
+    types.terminologyAxioms.TerminologyExtensionAxiom
+
+  override type TerminologyNestingAxiom =
+    types.terminologyAxioms.TerminologyNestingAxiom
+
+  override type ConceptTreeDisjunction =
+    types.bundleStatements.ConceptTreeDisjunction
+
+  override type DisjointUnionOfConceptsAxiom =
+    types.bundleStatements.DisjointUnionOfConceptsAxiom
+
+  override type AnonymousConceptTaxonomyAxiom =
+    types.bundleStatements.AnonymousConceptTaxonomyAxiom
+
+  override type RootConceptTaxonomyAxiom =
+    types.bundleStatements.RootConceptTaxonomyAxiom
+
+  override type SpecificDisjointConceptAxiom =
+    types.bundleStatements.SpecificDisjointAxiom
 
 }
 
 trait OWLAPIOMFabox extends OMFabox {
-  
+
   type ModelInstanceGraph =
   instances.ModelInstanceGraph
 
@@ -175,13 +272,13 @@ trait OWLAPIOMFabox extends OMFabox {
 
   type MutableModelInstanceGraph =
   instances.MutableModelInstanceGraph
-  
+
   type ModelInstanceAssertion =
   instances.ModelInstanceAssertion
-  
+
   type ModelNamedIndividual =
   instances.ModelNamedIndividual
-  
+
   type ModelEntityInstance =
   instances.ModelEntityInstance
 
@@ -190,7 +287,7 @@ trait OWLAPIOMFabox extends OMFabox {
 
   type ModelInstanceRelation =
   instances.ModelInstanceRelation
-  
+
   type ModelDataInstance =
   instances.ModelDataInstance
 
@@ -199,7 +296,7 @@ trait OWLAPIOMFabox extends OMFabox {
 
   type ModelInstanceDataStructure =
   instances.ModelInstanceDataStructure
-  
+
   type ModelInstanceDataRelationshipFromEntityToScalar =
   instances.ModelInstanceDataRelationshipFromEntityToScalar
 
@@ -211,84 +308,6 @@ trait OWLAPIOMFabox extends OMFabox {
 
   type ModelInstanceDataRelationshipFromStructureToStructure =
   instances.ModelInstanceDataRelationshipFromStructureToStructure
-    
+
 }
 
-case class OWLAPITerminologyGraphSignature
-( override val uuid: UUID,
-  override val name: LocalName,
-  override val iri: OWLAPIOMF#IRI,
-  override val kind: TerminologyKind,
-  override val imports: Iterable[OWLAPIOMF#ModelTerminologyGraph],
-  override val nesting: Option[OWLAPIOMF#ModelEntityConcept],
-  override val aspects: Iterable[OWLAPIOMF#ModelEntityAspect],
-  override val concepts: Iterable[OWLAPIOMF#ModelEntityConcept],
-  override val reifiedRelationships: Iterable[OWLAPIOMF#ModelEntityReifiedRelationship],
-  override val unreifiedRelationships: Iterable[OWLAPIOMF#ModelEntityUnreifiedRelationship],
-  override val scalarDataTypes: Iterable[OWLAPIOMF#ModelScalarDataType],
-  override val structuredDataTypes: Iterable[OWLAPIOMF#ModelStructuredDataType],
-  override val entity2scalarDataRelationships: Iterable[OWLAPIOMF#ModelDataRelationshipFromEntityToScalar],
-  override val entity2structureDataRelationships: Iterable[OWLAPIOMF#ModelDataRelationshipFromEntityToStructure],
-  override val structure2scalarDataRelationships: Iterable[OWLAPIOMF#ModelDataRelationshipFromStructureToScalar],
-  override val structure2structureDataRelationships: Iterable[OWLAPIOMF#ModelDataRelationshipFromStructureToStructure],
-  override val axioms: Iterable[OWLAPIOMF#ModelTermAxiom],
-  override val gaxioms: Iterable[OWLAPIOMF#TerminologyGraphAxiom])
-  extends TerminologyGraphSignature[OWLAPIOMF]
-{
-  require(null != iri)
-  require(null != kind)
-  require(null != imports)
-  require(null != nesting)
-  require(null != aspects)
-  require(null != concepts)
-  require(null != reifiedRelationships)
-  require(null != unreifiedRelationships)
-  require(null != scalarDataTypes)
-  require(null != structuredDataTypes)
-  require(null != entity2scalarDataRelationships)
-  require(null != entity2structureDataRelationships)
-  require(null != structure2scalarDataRelationships)
-  require(null != structure2structureDataRelationships)
-  require(null != axioms)
-}
-
-case class OWLAPIEntityConceptSignature
-( override val uuid: UUID,
-  override val name: LocalName,
-  override val iri: OWLAPIOMF#IRI,
-  override val isAbstract: Boolean)
-  extends EntityConceptSignature[OWLAPIOMF]
-{
-  require(null != iri)
-}
-
-case class OWLAPIEntityReifiedRelationshipSignature
-( override val uuid: UUID,
-  override val name: LocalName,
-  override val iri: OWLAPIOMF#IRI,
-  override val source: OWLAPIOMF#ModelEntityDefinition,
-  override val target: OWLAPIOMF#ModelEntityDefinition,
-  override val characteristics: Iterable[RelationshipCharacteristics],
-  override val isAbstract: Boolean )
-  extends EntityReifiedRelationshipSignature[OWLAPIOMF]
-{
-  require(null != iri)
-  require(null != source)
-  require(null != target)
-  require(null != characteristics)
-}
-
-case class OWLAPIEntityUnreifiedRelationshipSignature
-( override val uuid: UUID,
-  override val name: LocalName,
-  override val iri: OWLAPIOMF#IRI,
-  override val source: OWLAPIOMF#ModelEntityDefinition,
-  override val target: OWLAPIOMF#ModelEntityDefinition,
-  override val characteristics: Iterable[RelationshipCharacteristics] )
-  extends EntityUnreifiedRelationshipSignature[OWLAPIOMF]
-{
-  require(null != iri)
-  require(null != source)
-  require(null != target)
-  require(null != characteristics)
-}

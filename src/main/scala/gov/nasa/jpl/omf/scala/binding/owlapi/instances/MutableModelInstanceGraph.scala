@@ -18,16 +18,17 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.instances
 
-import gov.nasa.jpl.omf.scala.binding.owlapi._
+import gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph
 import org.semanticweb.owlapi.model.OWLOntology
 import org.semanticweb.owlapi.model.IRI
+
 import scala.collection.immutable._
 
-case class MutableModelInstanceGraph(
-    override val tboxes: Iterable[types.ImmutableModelTerminologyGraph],
-    override val imports: Iterable[ImmutableModelInstanceGraph], 
-    override protected val ont: OWLOntology ) 
-    extends ModelInstanceGraph( tboxes, imports, ont ) {
+case class MutableModelInstanceGraph
+( override val tboxes: Iterable[ImmutableTerminologyGraph],
+  override val imports: Iterable[ImmutableModelInstanceGraph],
+  override protected val ont: OWLOntology )
+  extends ModelInstanceGraph( tboxes, imports, ont ) {
     
   override protected val objects = scala.collection.mutable.ListBuffer[ModelInstanceObject]()
    override protected val relations = scala.collection.mutable.ListBuffer[ModelInstanceRelation]()

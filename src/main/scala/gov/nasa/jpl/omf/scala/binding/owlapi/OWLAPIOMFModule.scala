@@ -23,6 +23,7 @@ import org.semanticweb.owlapi.apibinding.OWLManager
 import org.semanticweb.owlapi.model.{IRI,OWLDataFactory}
 import org.apache.xml.resolver.CatalogManager
 
+import scala.{Boolean,None,Option,Some}
 import scala.collection.immutable.Set
 import scala.Predef.require
 import scalaz._
@@ -30,7 +31,7 @@ import scalaz._
 case class OWLAPIOMFModule
 ( catalogManager: CatalogManager,
   ops: OWLAPIOMFOps,
-  omfOntologyIRI: IRI
+  omfOntologyIRI: Option[IRI]
 ) extends OMFModule
   with OMFOpsModule {
 
@@ -44,7 +45,7 @@ case class OWLAPIOMFModule
 
 object OWLAPIOMFModule {
   
-  def owlAPIOMFModule(catalogManager: CatalogManager)
+  def owlAPIOMFModule(catalogManager: CatalogManager, withOMFMetadata: Boolean=true)
   : Set[java.lang.Throwable] \/ OWLAPIOMFModule =
   for {
     rdfs_label <-
@@ -117,6 +118,6 @@ object OWLAPIOMFModule {
       AnnotationHasRestroctedTargetProperty)
 
   } yield
-    OWLAPIOMFModule(catalogManager, ops, omfOntologyIRI)
+    OWLAPIOMFModule(catalogManager, ops, if (withOMFMetadata) Some(omfOntologyIRI) else None)
 
 }

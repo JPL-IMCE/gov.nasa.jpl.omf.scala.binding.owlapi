@@ -33,7 +33,7 @@ abstract class IMCE_OWL2_MOF2_LoadTestFromOWLAPI( override val loadStore: OWLAPI
 abstract class IMCE_OWL2_MOF2_LoadTestFromOWLAPICatalog( @transient val catalogManager: CatalogManager )
   extends IMCE_OWL2_MOF2_LoadTestFromOWLAPI(
       loadStore = OWLAPIOMFGraphStore(
-        OWLAPIOMFModule.owlAPIOMFModule(catalogManager).valueOr { (errors: Set[java.lang.Throwable]) =>
+        OWLAPIOMFModule.owlAPIOMFModule(catalogManager, withOMFMetadata=false).valueOr { (errors: Set[java.lang.Throwable]) =>
           val message = s"${errors.size} errors" + errors.map(_.getMessage).toList.mkString("\n => ","\n => ","\n")
           throw new scala.IllegalArgumentException(message)
         },
@@ -65,14 +65,5 @@ class IMCE_OWL2_MOF2_LoadTestFromOWLAPILocalCatalog
         throw new scala.IllegalArgumentException(message)
       }
   }
-
-  val metadataIRI =
-    store.omfModule.ops.makeIRI("http://imce.jpl.nasa.gov/test/IMCE_OWL2_MOF2_LoadTest")
-      .valueOr { (errors: Set[java.lang.Throwable]) =>
-        val message = s"${errors.size} errors" + errors.map(_.getMessage).toList.mkString("\n => ","\n => ","\n")
-        throw new scala.IllegalArgumentException(message)
-      }
-  val metadataOnt = store.ontManager.createOntology(metadataIRI)
-  store.setOMFMetadataOntology(metadataOnt)
 
 }

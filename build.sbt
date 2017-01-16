@@ -101,13 +101,11 @@ lazy val core =
 
       "gov.nasa.jpl.imce" %% "imce.third_party.scala_graph_libraries"
         % Versions_scala_graph_libraries.version artifacts
-        Artifact("imce.third_party.scala_graph_libraries", "zip", "zip", Some("resource"), Seq(), None, Map()),
+        Artifact("imce.third_party.scala_graph_libraries", "zip", "zip", "resource"),
 
       "gov.nasa.jpl.imce" %% "imce.third_party.owlapi_libraries"
         % Versions_owlapi_libraries.version artifacts
-        Artifact("imce.third_party.owlapi_libraries", "zip", "zip", Some("resource"), Seq(), None, Map()),
-
-      "com.github.scopt" %% "scopt" % "3.5.0" % "test"
+        Artifact("imce.third_party.owlapi_libraries", "zip", "zip", "resource")
     ),
 
     extractArchives := {
@@ -129,7 +127,7 @@ lazy val core =
 
         for {
           module <- g.nodes
-          if module.id.name == "gov.nasa.jpl.imce.ontologies"
+          if module.id.name == "gov.nasa.jpl.imce.ontologies.public"
           archive <- module.jarFile
           extractFolder = e / module.id.name
           _ = s.log.info(s"*** Extracting: $archive")
@@ -144,14 +142,20 @@ lazy val core =
     resolvers += Resolver.bintrayRepo("jpl-imce", "gov.nasa.jpl.imce"),
     resolvers += Resolver.bintrayRepo("tiwg", "org.omg.tiwg"),
 
+    resolvers += "Artima Maven Repository" at "http://repo.artima.com/releases",
+    scalacOptions in (Compile, compile) += s"-P:artima-supersafe:config-file:${baseDirectory.value}/project/supersafe.cfg",
+    scalacOptions in (Test, compile) += s"-P:artima-supersafe:config-file:${baseDirectory.value}/project/supersafe.cfg",
+    scalacOptions in (Compile, doc) += "-Xplugin-disable:artima-supersafe",
+    scalacOptions in (Test, doc) += "-Xplugin-disable:artima-supersafe",
+
     compile in Test := {
       val _ = extractArchives.value
       (compile in Test).value
     },
 
-    unmanagedClasspath in Test += baseDirectory.value / "target" / "extracted" / "gov.nasa.jpl.imce.ontologies"
-    // for local development, use this instead:
-    //unmanagedClasspath in Test += baseDirectory.value / ".." / "gov.nasa.jpl.imce.ontologies" / "gov.nasa.jpl.imce.ontologies/"
+    unmanagedClasspath in Test += baseDirectory.value / "target" / "extracted" / "gov.nasa.jpl.imce.ontologies.public"
+    // for local development assuming that gov.nasa.jpl.imce.ontologies.public is cloned as a peer project, use this:
+    // unmanagedClasspath in Test += baseDirectory.value / ".." / "gov.nasa.jpl.imce.ontologies.public"
   )
   .dependsOnSourceProjectOrLibraryArtifacts(
     "omf-scala-core",
@@ -161,7 +165,7 @@ lazy val core =
         % Versions_omf_scala_core.version
         % "compile" artifacts(
         Artifact("gov.nasa.jpl.omf.scala.core"),
-        Artifact("gov.nasa.jpl.omf.scala.core", "zip", "zip", Some("resource"), Seq(), None, Map()))
+        Artifact("gov.nasa.jpl.omf.scala.core", "zip", "zip", "resource"))
     )
   )
   .dependsOnSourceProjectOrLibraryArtifacts(
@@ -179,10 +183,10 @@ lazy val core =
     "imce-omf_ontologies",
     "gov.nasa.jpl.imce.ontologies",
     Seq(
-      "gov.nasa.jpl.imce" % "gov.nasa.jpl.imce.ontologies"
+      "gov.nasa.jpl.imce" % "gov.nasa.jpl.imce.ontologies.public"
         % Versions_imce_omf_ontologies.version
         % "test->compile;compile->compile" artifacts
-        Artifact("gov.nasa.jpl.imce.ontologies", "zip", "zip", Some("resource"), Seq(), None, Map())
+        Artifact("gov.nasa.jpl.imce.ontologies.public", "zip", "zip", "resource")
     )
   )
 

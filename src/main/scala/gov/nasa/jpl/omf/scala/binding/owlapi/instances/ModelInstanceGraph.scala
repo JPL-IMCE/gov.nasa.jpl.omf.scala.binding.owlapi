@@ -20,20 +20,21 @@ package gov.nasa.jpl.omf.scala.binding.owlapi.instances
 
 import java.io.OutputStream
 
+import gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph
 import org.semanticweb.owlapi.model.OWLOntology
 import org.semanticweb.owlapi.model.IRI
-import scala.collection.immutable._
-import scala.{StringContext,Unit}
-import scala.util.control.Exception._
-import scalaz._, Scalaz._
 
+import scala.collection.immutable._
+import scala.{StringContext, Unit}
+import scala.util.control.Exception._
+import scalaz._
+import Scalaz._
 import gov.nasa.jpl.omf.scala.core.OMFError
-import gov.nasa.jpl.omf.scala.binding.owlapi.types.ImmutableModelTerminologyGraph
 
 abstract class ModelInstanceGraph
-( val tboxes: scala.collection.Iterable[gov.nasa.jpl.omf.scala.binding.owlapi.types.ImmutableModelTerminologyGraph],
-  val imports: scala.collection.Iterable[ImmutableModelInstanceGraph],
-  protected val ont: OWLOntology ) {
+(val tboxes: scala.collection.Iterable[ImmutableTerminologyGraph],
+ val imports: scala.collection.Iterable[ImmutableModelInstanceGraph],
+ protected val ont: OWLOntology ) {
     
   protected val objects: scala.collection.Seq[ModelInstanceObject]
   protected val relations: scala.collection.Seq[ModelInstanceRelation]
@@ -51,7 +52,7 @@ abstract class ModelInstanceGraph
   
   def fromInstanceGraph: ( 
       IRI, 
-      Iterable[ImmutableModelTerminologyGraph], 
+      Iterable[ImmutableTerminologyGraph],
       Iterable[ImmutableModelInstanceGraph], 
       Iterable[ModelInstanceObject], 
       Iterable[ModelInstanceRelation], 
