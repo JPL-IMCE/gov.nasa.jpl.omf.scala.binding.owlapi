@@ -127,7 +127,7 @@ lazy val core =
 
         for {
           module <- g.nodes
-          if module.id.name == "gov.nasa.jpl.imce.ontologies"
+          if module.id.name == "gov.nasa.jpl.imce.ontologies.public"
           archive <- module.jarFile
           extractFolder = e / module.id.name
           _ = s.log.info(s"*** Extracting: $archive")
@@ -153,7 +153,7 @@ lazy val core =
       (compile in Test).value
     },
 
-    unmanagedClasspath in Test += baseDirectory.value / "target" / "extracted" / "gov.nasa.jpl.imce.ontologies"
+    unmanagedClasspath in Test += baseDirectory.value / "target" / "extracted" / "gov.nasa.jpl.imce.ontologies.public"
     // for local development assuming that gov.nasa.jpl.imce.ontologies.public is cloned as a peer project, use this:
     // unmanagedClasspath in Test += baseDirectory.value / ".." / "gov.nasa.jpl.imce.ontologies.public"
   )
