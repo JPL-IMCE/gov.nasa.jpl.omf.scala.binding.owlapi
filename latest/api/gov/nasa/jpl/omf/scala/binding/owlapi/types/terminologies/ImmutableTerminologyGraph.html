@@ -1,0 +1,1781 @@
+<!DOCTYPE html >
+<html>
+        <head>
+          <title>ImmutableTerminologyGraph - gov.nasa.jpl.omf.scala.binding.owlapi - gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph</title>
+          <meta name="description" content="ImmutableTerminologyGraph - gov.nasa.jpl.omf.scala.binding.owlapi - gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph" />
+          <meta name="keywords" content="ImmutableTerminologyGraph gov.nasa.jpl.omf.scala.binding.owlapi gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph" />
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      <link href="../../../../../../../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../../../../../../../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../../../../../../../../lib/jquery.js" id="jquery-js"></script>
+      <script type="text/javascript" src="../../../../../../../../../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../../../../../../../../lib/template.js"></script>
+      <script type="text/javascript" src="../../../../../../../../../lib/tools.tooltip.js"></script>
+      <script type="text/javascript" src="../../../../../../../../../lib/modernizr.custom.js"></script><script type="text/javascript" src="../../../../../../../../../lib/diagrams.js" id="diagrams-js"></script>
+      <script type="text/javascript">
+         if(top === self) {
+            var url = '../../../../../../../../../index.html';
+            var hash = 'gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
+    
+        </head>
+        <body class="type">
+      <div id="definition">
+        <img alt="Class" src="../../../../../../../../../lib/class_big.png" />
+        <p id="owner"><a href="../../../../../../../../package.html" class="extype" name="gov">gov</a>.<a href="../../../../../../../package.html" class="extype" name="gov.nasa">nasa</a>.<a href="../../../../../../package.html" class="extype" name="gov.nasa.jpl">jpl</a>.<a href="../../../../../package.html" class="extype" name="gov.nasa.jpl.omf">omf</a>.<a href="../../../../package.html" class="extype" name="gov.nasa.jpl.omf.scala">scala</a>.<a href="../../../package.html" class="extype" name="gov.nasa.jpl.omf.scala.binding">binding</a>.<a href="../../package.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi">owlapi</a>.<a href="../package.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types">types</a>.<a href="package.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies">terminologies</a></p>
+        <h1>ImmutableTerminologyGraph</h1><h3><span class="morelinks"><div>Related Doc:
+            <a href="package.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies">package terminologies</a>
+          </div></span></h3><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      </div>
+
+      <h4 id="signature" class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ImmutableTerminologyGraph</span><span class="params">(<span name="uuid">uuid: <span class="extype" name="java.util.UUID">UUID</span></span>, <span name="name">name: <span class="extype" name="gov.nasa.jpl.imce.omf.schema.tables.LocalName">LocalName</span></span>, <span name="kind">kind: <span class="extype" name="gov.nasa.jpl.omf.scala.core.TerminologyKind">TerminologyKind</span></span>, <span name="ont">ont: <span class="extype" name="org.semanticweb.owlapi.model.OWLOntology">OWLOntology</span></span>, <span name="extraProvenanceMetadata">extraProvenanceMetadata: <span class="extype" name="scala.Option">Option</span>[<a href="../../OTI2OMFModelTerminologyGraphProvenance.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OTI2OMFModelTerminologyGraphProvenance">OTI2OMFModelTerminologyGraphProvenance</a>]</span>, <span name="backbone">backbone: <a href="../../OMFBackbone.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OMFBackbone">OMFBackbone</a></span>, <span name="aspects">aspects: <span class="extype" name="scala.collection.immutable.Vector">Vector</span>[<a href="../terms/Aspect.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Aspect">Aspect</a>]</span>, <span name="concepts">concepts: <span class="extype" name="scala.collection.immutable.Vector">Vector</span>[<a href="../terms/Concept.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Concept">Concept</a>]</span>, <span name="reifiedRelationships">reifiedRelationships: <span class="extype" name="scala.collection.immutable.Vector">Vector</span>[<a href="../terms/ReifiedRelationship.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ReifiedRelationship">ReifiedRelationship</a>]</span>, <span name="unreifiedRelationships">unreifiedRelationships: <span class="extype" name="scala.collection.immutable.Vector">Vector</span>[<a href="../terms/UnreifiedRelationship.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.UnreifiedRelationship">UnreifiedRelationship</a>]</span>, <span name="sc">sc: <span class="extype" name="scala.collection.immutable.Vector">Vector</span>[<a href="../terms/Scalar.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Scalar">Scalar</a>]</span>, <span name="st">st: <span class="extype" name="scala.collection.immutable.Vector">Vector</span>[<a href="../terms/Structure.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Structure">Structure</a>]</span>, <span name="scalarOneOfRestrictions">scalarOneOfRestrictions: <span class="extype" name="scala.collection.immutable.Vector">Vector</span>[<a href="../terms/ScalarOneOfRestriction.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ScalarOneOfRestriction">ScalarOneOfRestriction</a>]</span>, <span name="binaryScalarRestrictions">binaryScalarRestrictions: <span class="extype" name="scala.collection.immutable.Vector">Vector</span>[<a href="../terms/BinaryScalarRestriction.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.BinaryScalarRestriction">BinaryScalarRestriction</a>]</span>, <span name="iriScalarRestrictions">iriScalarRestrictions: <span class="extype" name="scala.collection.immutable.Vector">Vector</span>[<a href="../terms/IRIScalarRestriction.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.IRIScalarRestriction">IRIScalarRestriction</a>]</span>, <span name="numericScalarRestrictions">numericScalarRestrictions: <span class="extype" name="scala.collection.immutable.Vector">Vector</span>[<a href="../terms/NumericScalarRestriction.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.NumericScalarRestriction">NumericScalarRestriction</a>]</span>, <span name="plainLiteralScalarRestrictions">plainLiteralScalarRestrictions: <span class="extype" name="scala.collection.immutable.Vector">Vector</span>[<a href="../terms/PlainLiteralScalarRestriction.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.PlainLiteralScalarRestriction">PlainLiteralScalarRestriction</a>]</span>, <span name="stringScalarRestrictions">stringScalarRestrictions: <span class="extype" name="scala.collection.immutable.Vector">Vector</span>[<a href="../terms/StringScalarRestriction.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.StringScalarRestriction">StringScalarRestriction</a>]</span>, <span name="synonymScalarRestrictions">synonymScalarRestrictions: <span class="extype" name="scala.collection.immutable.Vector">Vector</span>[<a href="../terms/SynonymScalarRestriction.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.SynonymScalarRestriction">SynonymScalarRestriction</a>]</span>, <span name="timeScalarRestrictions">timeScalarRestrictions: <span class="extype" name="scala.collection.immutable.Vector">Vector</span>[<a href="../terms/TimeScalarRestriction.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.TimeScalarRestriction">TimeScalarRestriction</a>]</span>, <span name="e2sc">e2sc: <span class="extype" name="scala.collection.immutable.Vector">Vector</span>[<a href="../terms/EntityScalarDataProperty.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.EntityScalarDataProperty">EntityScalarDataProperty</a>]</span>, <span name="e2st">e2st: <span class="extype" name="scala.collection.immutable.Vector">Vector</span>[<a href="../terms/EntityStructuredDataProperty.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.EntityStructuredDataProperty">EntityStructuredDataProperty</a>]</span>, <span name="s2sc">s2sc: <span class="extype" name="scala.collection.immutable.Vector">Vector</span>[<a href="../terms/ScalarDataProperty.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ScalarDataProperty">ScalarDataProperty</a>]</span>, <span name="s2st">s2st: <span class="extype" name="scala.collection.immutable.Vector">Vector</span>[<a href="../terms/StructuredDataProperty.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.StructuredDataProperty">StructuredDataProperty</a>]</span>, <span name="ax">ax: <span class="extype" name="scala.collection.immutable.Vector">Vector</span>[<a href="../Axiom.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.Axiom">Axiom</a>]</span>, <span name="gx">gx: <span class="extype" name="scala.collection.immutable.Vector">Vector</span>[<a href="../terminologyAxioms/TerminologyBoxAxiom.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologyAxioms.TerminologyBoxAxiom">TerminologyBoxAxiom</a>]</span>, <span name="cAxiom">cAxiom: <span class="extype" name="scala.Option">Option</span>[<a href="../terminologyAxioms/ConceptDesignationTerminologyAxiom.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologyAxioms.ConceptDesignationTerminologyAxiom">ConceptDesignationTerminologyAxiom</a>]</span>, <span name="eAxioms">eAxioms: <span class="extype" name="scala.collection.immutable.Set">Set</span>[<a href="../terminologyAxioms/TerminologyExtensionAxiom.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologyAxioms.TerminologyExtensionAxiom">TerminologyExtensionAxiom</a>]</span>, <span name="nAxiom">nAxiom: <span class="extype" name="scala.Option">Option</span>[<a href="../terminologyAxioms/TerminologyNestingAxiom.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologyAxioms.TerminologyNestingAxiom">TerminologyNestingAxiom</a>]</span>, <span name="bAxioms">bAxioms: <span class="extype" name="scala.collection.immutable.Set">Set</span>[<a href="../terminologyAxioms/BundledTerminologyAxiom.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologyAxioms.BundledTerminologyAxiom">BundledTerminologyAxiom</a>] = <span class="symbol">Set.empty</span></span>, <span name="rTAxioms">rTAxioms: <span class="extype" name="scala.collection.Set">Set</span>[<a href="../bundleStatements/RootConceptTaxonomyAxiom.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.bundleStatements.RootConceptTaxonomyAxiom">RootConceptTaxonomyAxiom</a>] = <span class="symbol">Set.empty</span></span>, <span name="aTAxioms">aTAxioms: <span class="extype" name="scala.collection.Set">Set</span>[<a href="../bundleStatements/AnonymousConceptTaxonomyAxiom.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.bundleStatements.AnonymousConceptTaxonomyAxiom">AnonymousConceptTaxonomyAxiom</a>] = <span class="symbol">Set.empty</span></span>, <span name="sTAxioms">sTAxioms: <span class="extype" name="scala.collection.Set">Set</span>[<a href="../bundleStatements/SpecificDisjointAxiom.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.bundleStatements.SpecificDisjointAxiom">SpecificDisjointAxiom</a>] = <span class="symbol">Set.empty</span></span>, <span name="annotations">annotations: <span class="extype" name="scala.collection.immutable.Map">Map</span>[<span class="extype" name="gov.nasa.jpl.imce.omf.schema.tables.AnnotationProperty">AnnotationProperty</span>, <span class="extype" name="scala.collection.immutable.Seq">Seq</span>[<span class="extype" name="gov.nasa.jpl.imce.omf.schema.tables.Annotation">Annotation</span>]] = <span class="symbol">Map.empty</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="ops">ops: <a href="../../OWLAPIOMFOps.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFOps">OWLAPIOMFOps</a></span>)</span><span class="result"> extends <a href="TerminologyGraph.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyGraph">TerminologyGraph</a> with <a href="ImmutableTerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyBox">ImmutableTerminologyBox</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      
+          <div id="comment" class="fullcommenttop"><div class="toggleContainer block">
+          <span class="toggle">Linear Supertypes</span>
+          <div class="superTypes hiddenContent"><span class="extype" name="scala.Serializable">Serializable</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="scala.Product">Product</span>, <span class="extype" name="scala.Equals">Equals</span>, <a href="ImmutableTerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyBox">ImmutableTerminologyBox</a>, <a href="TerminologyGraph.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyGraph">TerminologyGraph</a>, <a href="TerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox">TerminologyBox</a>, <a href="../Resource.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.Resource">Resource</a>, <a href="../TerminologyThing.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.TerminologyThing">TerminologyThing</a>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+        </div><div class="toggleContainer block diagram-container" id="inheritance-diagram-container">
+                <span class="toggle diagram-link">Type Hierarchy</span>
+                <div class="diagram" id="inheritance-diagram"><svg class="class-diagram" id="graph1" viewBox="0.00 0.00 522.00 120.00" height="120pt" width="522pt" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg"><g transform="scale(1 1) rotate(0) translate(4 116)" class="graph" id="graph1"><polygon points="-4,5 -4,-116 519,-116 519,5 -4,5" stroke="white" fill="white"></polygon><g class="cluster" id="graph2"></g><g class="cluster" id="graph3"></g><!-- node0 --><g class="node this class" id="graph1_0"><a xlink:title="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph (this class)" xlink:href="#inheritance-diagram"><polygon points="377,-50 207,-50 207,-24 377,-24 377,-50" stroke="#115f3b" fill="#0a955b"></polygon><image xlink:href="../../../../../../../../../lib/class_diagram.png" y="-45" x="217" preserveAspectRatio="xMinYMin meet" height="16px" width="16px"></image><text fill="#ffffff" font-size="10.00" font-family="Arial" y="-34.6667" x="239" text-anchor="start">ImmutableTerminologyGraph</text></a></g><!-- node1 --><g class="node trait" id="graph1_1"><a xlink:title="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyGraph" xlink:href="TerminologyGraph.html#inheritance-diagram"><polygon points="124,-112 4.9738e-14,-112 0,-86 124,-86 124,-112" stroke="#37657d" fill="#498aad"></polygon><image xlink:href="../../../../../../../../../lib/trait_diagram.png" y="-107" x="10" preserveAspectRatio="xMinYMin meet" height="16px" width="16px"></image><text fill="#ffffff" font-size="10.00" font-family="Arial" y="-96.6667" x="32" text-anchor="start">TerminologyGraph</text></a></g><!-- node1&#45;&gt;node0 --><g class="edge inheritance" id="graph1_1_0"><a xlink:title="ImmutableTerminologyGraph is a subtype of TerminologyGraph"><path d="M115.626,-84.5443C154.32,-74.1137 206.126,-60.1487 243.57,-50.055" stroke="#d4d4d4" fill="none"></path><polygon points="114.868,-82.936 110.496,-85.9272 115.779,-86.3154 114.868,-82.936" stroke="#d4d4d4" fill="none"></polygon></a></g><!-- node2 --><g class="node trait" id="graph1_2"><a xlink:title="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyBox" xlink:href="ImmutableTerminologyBox.html#inheritance-diagram"><polygon points="304,-112 142,-112 142,-86 304,-86 304,-112" stroke="#37657d" fill="#498aad"></polygon><image xlink:href="../../../../../../../../../lib/trait_diagram.png" y="-107" x="152" preserveAspectRatio="xMinYMin meet" height="16px" width="16px"></image><text fill="#ffffff" font-size="10.00" font-family="Arial" y="-96.6667" x="174" text-anchor="start">ImmutableTerminologyBox</text></a></g><!-- node2&#45;&gt;node0 --><g class="edge inheritance" id="graph1_2_0"><a xlink:title="ImmutableTerminologyGraph is a subtype of ImmutableTerminologyBox"><path d="M241.629,-82.2605C252.862,-72.1676 266.964,-59.496 277.388,-50.1297" stroke="#d4d4d4" fill="none"></path><polygon points="240.183,-81.2078 237.633,-85.8514 242.522,-83.8112 240.183,-81.2078" stroke="#d4d4d4" fill="none"></polygon></a></g><!-- node3 --><g class="node trait" id="graph1_3"><a xlink:title="scala.Product"><polygon points="400,-112 322,-112 322,-86 400,-86 400,-112" stroke="#37657d" fill="#498aad"></polygon><image xlink:href="../../../../../../../../../lib/trait_diagram.png" y="-107" x="332" preserveAspectRatio="xMinYMin meet" height="16px" width="16px"></image><text fill="#ffffff" font-size="10.00" font-family="Arial" y="-96.6667" x="354" text-anchor="start">Product</text></a></g><!-- node3&#45;&gt;node0 --><g class="edge inheritance" id="graph1_3_0"><a xlink:title="ImmutableTerminologyGraph is a subtype of Product"><path d="M342.371,-82.2605C331.138,-72.1676 317.036,-59.496 306.612,-50.1297" stroke="#d4d4d4" fill="none"></path><polygon points="341.478,-83.8112 346.367,-85.8514 343.817,-81.2078 341.478,-83.8112" stroke="#d4d4d4" fill="none"></polygon></a></g><!-- node4 --><g class="node trait" id="graph1_4"><a xlink:title="scala.Serializable"><polygon points="514,-112 418,-112 418,-86 514,-86 514,-112" stroke="#37657d" fill="#498aad"></polygon><image xlink:href="../../../../../../../../../lib/trait_diagram.png" y="-107" x="428" preserveAspectRatio="xMinYMin meet" height="16px" width="16px"></image><text fill="#ffffff" font-size="10.00" font-family="Arial" y="-96.6667" x="450" text-anchor="start">Serializable</text></a></g><!-- node4&#45;&gt;node0 --><g class="edge inheritance" id="graph1_4_0"><a xlink:title="ImmutableTerminologyGraph is a subtype of Serializable"><path d="M424.137,-84.0831C394.98,-73.6939 356.468,-59.9715 328.549,-50.0232" stroke="#d4d4d4" fill="none"></path><polygon points="423.802,-85.8216 429.099,-85.8514 424.977,-82.5246 423.802,-85.8216" stroke="#d4d4d4" fill="none"></polygon></a></g></g></svg></div>
+              </div></div>
+        
+
+      <div id="mbrsel">
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
+        <div id="order">
+              <span class="filtertype">Ordering</span>
+              <ol>
+                
+                <li class="alpha in"><span>Alphabetic</span></li>
+                <li class="inherit out"><span>By Inheritance</span></li>
+              </ol>
+            </div>
+        <div id="ancestors">
+                <span class="filtertype">Inherited<br />
+                </span>
+                <ol id="linearization">
+                  <li class="in" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph"><span>ImmutableTerminologyGraph</span></li><li class="in" name="scala.Serializable"><span>Serializable</span></li><li class="in" name="java.io.Serializable"><span>Serializable</span></li><li class="in" name="scala.Product"><span>Product</span></li><li class="in" name="scala.Equals"><span>Equals</span></li><li class="in" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyBox"><span>ImmutableTerminologyBox</span></li><li class="in" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyGraph"><span>TerminologyGraph</span></li><li class="in" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox"><span>TerminologyBox</span></li><li class="in" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.Resource"><span>Resource</span></li><li class="in" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.TerminologyThing"><span>TerminologyThing</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                </ol>
+              </div><div id="ancestors">
+            <span class="filtertype"></span>
+            <ol>
+              <li class="hideall out"><span>Hide All</span></li>
+              <li class="showall in"><span>Show All</span></li>
+            </ol>
+          </div>
+        <div id="visbl">
+            <span class="filtertype">Visibility</span>
+            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+          </div>
+      </div>
+
+      <div id="template">
+        <div id="allMembers">
+        <div id="constructors" class="members">
+              <h3>Instance Constructors</h3>
+              <ol><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="&lt;init&gt;(uuid:java.util.UUID,name:gov.nasa.jpl.imce.omf.schema.tables.LocalName,kind:gov.nasa.jpl.omf.scala.core.TerminologyKind,ont:org.semanticweb.owlapi.model.OWLOntology,extraProvenanceMetadata:Option[gov.nasa.jpl.omf.scala.binding.owlapi.OTI2OMFModelTerminologyGraphProvenance],backbone:gov.nasa.jpl.omf.scala.binding.owlapi.OMFBackbone,aspects:scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Aspect],concepts:scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Concept],reifiedRelationships:scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ReifiedRelationship],unreifiedRelationships:scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.UnreifiedRelationship],sc:scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Scalar],st:scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Structure],scalarOneOfRestrictions:scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ScalarOneOfRestriction],binaryScalarRestrictions:scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.BinaryScalarRestriction],iriScalarRestrictions:scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.IRIScalarRestriction],numericScalarRestrictions:scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.NumericScalarRestriction],plainLiteralScalarRestrictions:scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.PlainLiteralScalarRestriction],stringScalarRestrictions:scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.StringScalarRestriction],synonymScalarRestrictions:scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.SynonymScalarRestriction],timeScalarRestrictions:scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.TimeScalarRestriction],e2sc:scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.EntityScalarDataProperty],e2st:scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.EntityStructuredDataProperty],s2sc:scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ScalarDataProperty],s2st:scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.StructuredDataProperty],ax:scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.Axiom],gx:scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologyAxioms.TerminologyBoxAxiom],cAxiom:Option[gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologyAxioms.ConceptDesignationTerminologyAxiom],eAxioms:scala.collection.immutable.Set[gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologyAxioms.TerminologyExtensionAxiom],nAxiom:Option[gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologyAxioms.TerminologyNestingAxiom],bAxioms:scala.collection.immutable.Set[gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologyAxioms.BundledTerminologyAxiom],rTAxioms:scala.collection.Set[gov.nasa.jpl.omf.scala.binding.owlapi.types.bundleStatements.RootConceptTaxonomyAxiom],aTAxioms:scala.collection.Set[gov.nasa.jpl.omf.scala.binding.owlapi.types.bundleStatements.AnonymousConceptTaxonomyAxiom],sTAxioms:scala.collection.Set[gov.nasa.jpl.omf.scala.binding.owlapi.types.bundleStatements.SpecificDisjointAxiom],annotations:scala.collection.immutable.Map[gov.nasa.jpl.imce.omf.schema.tables.AnnotationProperty,scala.collection.immutable.Seq[gov.nasa.jpl.imce.omf.schema.tables.Annotation]])(implicitops:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFOps):gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph"></a>
+      <a id="&lt;init&gt;:ImmutableTerminologyGraph"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">new</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ImmutableTerminologyGraph</span><span class="params">(<span name="uuid">uuid: <span class="extype" name="java.util.UUID">UUID</span></span>, <span name="name">name: <span class="extype" name="gov.nasa.jpl.imce.omf.schema.tables.LocalName">LocalName</span></span>, <span name="kind">kind: <span class="extype" name="gov.nasa.jpl.omf.scala.core.TerminologyKind">TerminologyKind</span></span>, <span name="ont">ont: <span class="extype" name="org.semanticweb.owlapi.model.OWLOntology">OWLOntology</span></span>, <span name="extraProvenanceMetadata">extraProvenanceMetadata: <span class="extype" name="scala.Option">Option</span>[<a href="../../OTI2OMFModelTerminologyGraphProvenance.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OTI2OMFModelTerminologyGraphProvenance">OTI2OMFModelTerminologyGraphProvenance</a>]</span>, <span name="backbone">backbone: <a href="../../OMFBackbone.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OMFBackbone">OMFBackbone</a></span>, <span name="aspects">aspects: <span class="extype" name="scala.collection.immutable.Vector">Vector</span>[<a href="../terms/Aspect.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Aspect">Aspect</a>]</span>, <span name="concepts">concepts: <span class="extype" name="scala.collection.immutable.Vector">Vector</span>[<a href="../terms/Concept.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Concept">Concept</a>]</span>, <span name="reifiedRelationships">reifiedRelationships: <span class="extype" name="scala.collection.immutable.Vector">Vector</span>[<a href="../terms/ReifiedRelationship.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ReifiedRelationship">ReifiedRelationship</a>]</span>, <span name="unreifiedRelationships">unreifiedRelationships: <span class="extype" name="scala.collection.immutable.Vector">Vector</span>[<a href="../terms/UnreifiedRelationship.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.UnreifiedRelationship">UnreifiedRelationship</a>]</span>, <span name="sc">sc: <span class="extype" name="scala.collection.immutable.Vector">Vector</span>[<a href="../terms/Scalar.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Scalar">Scalar</a>]</span>, <span name="st">st: <span class="extype" name="scala.collection.immutable.Vector">Vector</span>[<a href="../terms/Structure.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Structure">Structure</a>]</span>, <span name="scalarOneOfRestrictions">scalarOneOfRestrictions: <span class="extype" name="scala.collection.immutable.Vector">Vector</span>[<a href="../terms/ScalarOneOfRestriction.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ScalarOneOfRestriction">ScalarOneOfRestriction</a>]</span>, <span name="binaryScalarRestrictions">binaryScalarRestrictions: <span class="extype" name="scala.collection.immutable.Vector">Vector</span>[<a href="../terms/BinaryScalarRestriction.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.BinaryScalarRestriction">BinaryScalarRestriction</a>]</span>, <span name="iriScalarRestrictions">iriScalarRestrictions: <span class="extype" name="scala.collection.immutable.Vector">Vector</span>[<a href="../terms/IRIScalarRestriction.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.IRIScalarRestriction">IRIScalarRestriction</a>]</span>, <span name="numericScalarRestrictions">numericScalarRestrictions: <span class="extype" name="scala.collection.immutable.Vector">Vector</span>[<a href="../terms/NumericScalarRestriction.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.NumericScalarRestriction">NumericScalarRestriction</a>]</span>, <span name="plainLiteralScalarRestrictions">plainLiteralScalarRestrictions: <span class="extype" name="scala.collection.immutable.Vector">Vector</span>[<a href="../terms/PlainLiteralScalarRestriction.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.PlainLiteralScalarRestriction">PlainLiteralScalarRestriction</a>]</span>, <span name="stringScalarRestrictions">stringScalarRestrictions: <span class="extype" name="scala.collection.immutable.Vector">Vector</span>[<a href="../terms/StringScalarRestriction.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.StringScalarRestriction">StringScalarRestriction</a>]</span>, <span name="synonymScalarRestrictions">synonymScalarRestrictions: <span class="extype" name="scala.collection.immutable.Vector">Vector</span>[<a href="../terms/SynonymScalarRestriction.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.SynonymScalarRestriction">SynonymScalarRestriction</a>]</span>, <span name="timeScalarRestrictions">timeScalarRestrictions: <span class="extype" name="scala.collection.immutable.Vector">Vector</span>[<a href="../terms/TimeScalarRestriction.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.TimeScalarRestriction">TimeScalarRestriction</a>]</span>, <span name="e2sc">e2sc: <span class="extype" name="scala.collection.immutable.Vector">Vector</span>[<a href="../terms/EntityScalarDataProperty.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.EntityScalarDataProperty">EntityScalarDataProperty</a>]</span>, <span name="e2st">e2st: <span class="extype" name="scala.collection.immutable.Vector">Vector</span>[<a href="../terms/EntityStructuredDataProperty.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.EntityStructuredDataProperty">EntityStructuredDataProperty</a>]</span>, <span name="s2sc">s2sc: <span class="extype" name="scala.collection.immutable.Vector">Vector</span>[<a href="../terms/ScalarDataProperty.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ScalarDataProperty">ScalarDataProperty</a>]</span>, <span name="s2st">s2st: <span class="extype" name="scala.collection.immutable.Vector">Vector</span>[<a href="../terms/StructuredDataProperty.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.StructuredDataProperty">StructuredDataProperty</a>]</span>, <span name="ax">ax: <span class="extype" name="scala.collection.immutable.Vector">Vector</span>[<a href="../Axiom.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.Axiom">Axiom</a>]</span>, <span name="gx">gx: <span class="extype" name="scala.collection.immutable.Vector">Vector</span>[<a href="../terminologyAxioms/TerminologyBoxAxiom.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologyAxioms.TerminologyBoxAxiom">TerminologyBoxAxiom</a>]</span>, <span name="cAxiom">cAxiom: <span class="extype" name="scala.Option">Option</span>[<a href="../terminologyAxioms/ConceptDesignationTerminologyAxiom.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologyAxioms.ConceptDesignationTerminologyAxiom">ConceptDesignationTerminologyAxiom</a>]</span>, <span name="eAxioms">eAxioms: <span class="extype" name="scala.collection.immutable.Set">Set</span>[<a href="../terminologyAxioms/TerminologyExtensionAxiom.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologyAxioms.TerminologyExtensionAxiom">TerminologyExtensionAxiom</a>]</span>, <span name="nAxiom">nAxiom: <span class="extype" name="scala.Option">Option</span>[<a href="../terminologyAxioms/TerminologyNestingAxiom.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologyAxioms.TerminologyNestingAxiom">TerminologyNestingAxiom</a>]</span>, <span name="bAxioms">bAxioms: <span class="extype" name="scala.collection.immutable.Set">Set</span>[<a href="../terminologyAxioms/BundledTerminologyAxiom.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologyAxioms.BundledTerminologyAxiom">BundledTerminologyAxiom</a>] = <span class="symbol">Set.empty</span></span>, <span name="rTAxioms">rTAxioms: <span class="extype" name="scala.collection.Set">Set</span>[<a href="../bundleStatements/RootConceptTaxonomyAxiom.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.bundleStatements.RootConceptTaxonomyAxiom">RootConceptTaxonomyAxiom</a>] = <span class="symbol">Set.empty</span></span>, <span name="aTAxioms">aTAxioms: <span class="extype" name="scala.collection.Set">Set</span>[<a href="../bundleStatements/AnonymousConceptTaxonomyAxiom.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.bundleStatements.AnonymousConceptTaxonomyAxiom">AnonymousConceptTaxonomyAxiom</a>] = <span class="symbol">Set.empty</span></span>, <span name="sTAxioms">sTAxioms: <span class="extype" name="scala.collection.Set">Set</span>[<a href="../bundleStatements/SpecificDisjointAxiom.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.bundleStatements.SpecificDisjointAxiom">SpecificDisjointAxiom</a>] = <span class="symbol">Set.empty</span></span>, <span name="annotations">annotations: <span class="extype" name="scala.collection.immutable.Map">Map</span>[<span class="extype" name="gov.nasa.jpl.imce.omf.schema.tables.AnnotationProperty">AnnotationProperty</span>, <span class="extype" name="scala.collection.immutable.Seq">Seq</span>[<span class="extype" name="gov.nasa.jpl.imce.omf.schema.tables.Annotation">Annotation</span>]] = <span class="symbol">Map.empty</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="ops">ops: <a href="../../OWLAPIOMFOps.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFOps">OWLAPIOMFOps</a></span>)</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@&lt;init&gt;(uuid:java.util.UUID,name:gov.nasa.jpl.imce.omf.schema.tables.LocalName,kind:gov.nasa.jpl.omf.scala.core.TerminologyKind,ont:org.semanticweb.owlapi.model.OWLOntology,extraProvenanceMetadata:Option[gov.nasa.jpl.omf.scala.binding.owlapi.OTI2OMFModelTerminologyGraphProvenance],backbone:gov.nasa.jpl.omf.scala.binding.owlapi.OMFBackbone,aspects:scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Aspect],concepts:scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Concept],reifiedRelationships:scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ReifiedRelationship],unreifiedRelationships:scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.UnreifiedRelationship],sc:scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Scalar],st:scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Structure],scalarOneOfRestrictions:scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ScalarOneOfRestriction],binaryScalarRestrictions:scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.BinaryScalarRestriction],iriScalarRestrictions:scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.IRIScalarRestriction],numericScalarRestrictions:scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.NumericScalarRestriction],plainLiteralScalarRestrictions:scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.PlainLiteralScalarRestriction],stringScalarRestrictions:scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.StringScalarRestriction],synonymScalarRestrictions:scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.SynonymScalarRestriction],timeScalarRestrictions:scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.TimeScalarRestriction],e2sc:scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.EntityScalarDataProperty],e2st:scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.EntityStructuredDataProperty],s2sc:scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ScalarDataProperty],s2st:scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.StructuredDataProperty],ax:scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.Axiom],gx:scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologyAxioms.TerminologyBoxAxiom],cAxiom:Option[gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologyAxioms.ConceptDesignationTerminologyAxiom],eAxioms:scala.collection.immutable.Set[gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologyAxioms.TerminologyExtensionAxiom],nAxiom:Option[gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologyAxioms.TerminologyNestingAxiom],bAxioms:scala.collection.immutable.Set[gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologyAxioms.BundledTerminologyAxiom],rTAxioms:scala.collection.Set[gov.nasa.jpl.omf.scala.binding.owlapi.types.bundleStatements.RootConceptTaxonomyAxiom],aTAxioms:scala.collection.Set[gov.nasa.jpl.omf.scala.binding.owlapi.types.bundleStatements.AnonymousConceptTaxonomyAxiom],sTAxioms:scala.collection.Set[gov.nasa.jpl.omf.scala.binding.owlapi.types.bundleStatements.SpecificDisjointAxiom],annotations:scala.collection.immutable.Map[gov.nasa.jpl.imce.omf.schema.tables.AnnotationProperty,scala.collection.immutable.Seq[gov.nasa.jpl.imce.omf.schema.tables.Annotation]])(implicitops:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFOps):gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li></ol>
+            </div>
+
+        
+
+        
+
+        <div id="values" class="values members">
+              <h3>Value Members</h3>
+              <ol><li name="scala.AnyRef#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="!=(x$1:Any):Boolean"></a>
+      <a id="!=(Any):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@!=(x$1:Any):Boolean" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.AnyRef###" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="##():Int"></a>
+      <a id="##():Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $hash$hash" class="name">##</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@##():Int" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.AnyRef#==" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="==(x$1:Any):Boolean"></a>
+      <a id="==(Any):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@==(x$1:Any):Boolean" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph#aTAxioms" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="aTAxioms:scala.collection.Set[gov.nasa.jpl.omf.scala.binding.owlapi.types.bundleStatements.AnonymousConceptTaxonomyAxiom]"></a>
+      <a id="aTAxioms:Set[AnonymousConceptTaxonomyAxiom]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">aTAxioms</span><span class="result">: <span class="extype" name="scala.collection.Set">Set</span>[<a href="../bundleStatements/AnonymousConceptTaxonomyAxiom.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.bundleStatements.AnonymousConceptTaxonomyAxiom">AnonymousConceptTaxonomyAxiom</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@aTAxioms:scala.collection.Set[gov.nasa.jpl.omf.scala.binding.owlapi.types.bundleStatements.AnonymousConceptTaxonomyAxiom]" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph">ImmutableTerminologyGraph</a> → <a href="TerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox">TerminologyBox</a></dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph#annotations" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="annotations:scala.collection.immutable.Map[gov.nasa.jpl.imce.omf.schema.tables.AnnotationProperty,scala.collection.immutable.Seq[gov.nasa.jpl.imce.omf.schema.tables.Annotation]]"></a>
+      <a id="annotations:Map[AnnotationProperty,Seq[Annotation]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">annotations</span><span class="result">: <span class="extype" name="scala.collection.immutable.Map">Map</span>[<span class="extype" name="gov.nasa.jpl.imce.omf.schema.tables.AnnotationProperty">AnnotationProperty</span>, <span class="extype" name="scala.collection.immutable.Seq">Seq</span>[<span class="extype" name="gov.nasa.jpl.imce.omf.schema.tables.Annotation">Annotation</span>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@annotations:scala.collection.immutable.Map[gov.nasa.jpl.imce.omf.schema.tables.AnnotationProperty,scala.collection.immutable.Seq[gov.nasa.jpl.imce.omf.schema.tables.Annotation]]" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph">ImmutableTerminologyGraph</a> → <a href="TerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox">TerminologyBox</a></dd></dl></div>
+    </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="asInstanceOf[T0]:T0"></a>
+      <a id="asInstanceOf[T0]:T0"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">asInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Any.asInstanceOf.T0">T0</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@asInstanceOf[T0]:T0" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph#aspects" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="aspects:scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Aspect]"></a>
+      <a id="aspects:Vector[Aspect]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">aspects</span><span class="result">: <span class="extype" name="scala.collection.immutable.Vector">Vector</span>[<a href="../terms/Aspect.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Aspect">Aspect</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@aspects:scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Aspect]" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph">ImmutableTerminologyGraph</a> → <a href="TerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox">TerminologyBox</a></dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph#ax" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ax:scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.Axiom]"></a>
+      <a id="ax:Vector[Axiom]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ax</span><span class="result">: <span class="extype" name="scala.collection.immutable.Vector">Vector</span>[<a href="../Axiom.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.Axiom">Axiom</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@ax:scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.Axiom]" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph">ImmutableTerminologyGraph</a> → <a href="TerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox">TerminologyBox</a></dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph#bAxioms" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="bAxioms:scala.collection.immutable.Set[gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologyAxioms.BundledTerminologyAxiom]"></a>
+      <a id="bAxioms:Set[BundledTerminologyAxiom]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">bAxioms</span><span class="result">: <span class="extype" name="scala.collection.immutable.Set">Set</span>[<a href="../terminologyAxioms/BundledTerminologyAxiom.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologyAxioms.BundledTerminologyAxiom">BundledTerminologyAxiom</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@bAxioms:scala.collection.immutable.Set[gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologyAxioms.BundledTerminologyAxiom]" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph">ImmutableTerminologyGraph</a> → <a href="TerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox">TerminologyBox</a></dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph#backbone" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="backbone:gov.nasa.jpl.omf.scala.binding.owlapi.OMFBackbone"></a>
+      <a id="backbone:OMFBackbone"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">backbone</span><span class="result">: <a href="../../OMFBackbone.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OMFBackbone">OMFBackbone</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@backbone:gov.nasa.jpl.omf.scala.binding.owlapi.OMFBackbone" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph">ImmutableTerminologyGraph</a> → <a href="TerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox">TerminologyBox</a></dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph#binaryScalarRestrictions" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="binaryScalarRestrictions:scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.BinaryScalarRestriction]"></a>
+      <a id="binaryScalarRestrictions:Vector[BinaryScalarRestriction]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">binaryScalarRestrictions</span><span class="result">: <span class="extype" name="scala.collection.immutable.Vector">Vector</span>[<a href="../terms/BinaryScalarRestriction.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.BinaryScalarRestriction">BinaryScalarRestriction</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@binaryScalarRestrictions:scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.BinaryScalarRestriction]" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph">ImmutableTerminologyGraph</a> → <a href="TerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox">TerminologyBox</a></dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph#cAxiom" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="cAxiom:Option[gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologyAxioms.ConceptDesignationTerminologyAxiom]"></a>
+      <a id="cAxiom:Option[ConceptDesignationTerminologyAxiom]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">var</span>
+      </span>
+      <span class="symbol">
+        <span class="name">cAxiom</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<a href="../terminologyAxioms/ConceptDesignationTerminologyAxiom.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologyAxioms.ConceptDesignationTerminologyAxiom">ConceptDesignationTerminologyAxiom</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@cAxiom:Option[gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologyAxioms.ConceptDesignationTerminologyAxiom]" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph">ImmutableTerminologyGraph</a> → <a href="TerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox">TerminologyBox</a></dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph#canEqual" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="canEqual(other:Any):Boolean"></a>
+      <a id="canEqual(Any):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">canEqual</span><span class="params">(<span name="other">other: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@canEqual(other:Any):Boolean" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph">ImmutableTerminologyGraph</a> → Equals → <a href="ImmutableTerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyBox">ImmutableTerminologyBox</a> → <a href="TerminologyGraph.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyGraph">TerminologyGraph</a> → <a href="TerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox">TerminologyBox</a> → <a href="../TerminologyThing.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.TerminologyThing">TerminologyThing</a></dd></dl></div>
+    </li><li name="scala.AnyRef#clone" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="clone():Object"></a>
+      <a id="clone():AnyRef"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">clone</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@clone():Object" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../../../../../../../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.CloneNotSupportedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph#concepts" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="concepts:scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Concept]"></a>
+      <a id="concepts:Vector[Concept]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">concepts</span><span class="result">: <span class="extype" name="scala.collection.immutable.Vector">Vector</span>[<a href="../terms/Concept.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Concept">Concept</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@concepts:scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Concept]" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph">ImmutableTerminologyGraph</a> → <a href="TerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox">TerminologyBox</a></dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox#createOMFProvenanceAnnotation" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="createOMFProvenanceAnnotation(uuid:java.util.UUID)(implicitstore:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore):org.semanticweb.owlapi.model.OWLAnnotation"></a>
+      <a id="createOMFProvenanceAnnotation(UUID)(OWLAPIOMFGraphStore):OWLAnnotation"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">createOMFProvenanceAnnotation</span><span class="params">(<span name="uuid">uuid: <span class="extype" name="java.util.UUID">UUID</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="store">store: <a href="../../OWLAPIOMFGraphStore.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore">OWLAPIOMFGraphStore</a></span>)</span><span class="result">: <span class="extype" name="org.semanticweb.owlapi.model.OWLAnnotation">OWLAnnotation</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@createOMFProvenanceAnnotation(uuid:java.util.UUID)(implicitstore:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore):org.semanticweb.owlapi.model.OWLAnnotation" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="TerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox">TerminologyBox</a></dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph#e2sc" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="e2sc:scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.EntityScalarDataProperty]"></a>
+      <a id="e2sc:Vector[EntityScalarDataProperty]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">e2sc</span><span class="result">: <span class="extype" name="scala.collection.immutable.Vector">Vector</span>[<a href="../terms/EntityScalarDataProperty.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.EntityScalarDataProperty">EntityScalarDataProperty</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@e2sc:scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.EntityScalarDataProperty]" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph">ImmutableTerminologyGraph</a> → <a href="TerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox">TerminologyBox</a></dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph#e2st" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="e2st:scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.EntityStructuredDataProperty]"></a>
+      <a id="e2st:Vector[EntityStructuredDataProperty]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">e2st</span><span class="result">: <span class="extype" name="scala.collection.immutable.Vector">Vector</span>[<a href="../terms/EntityStructuredDataProperty.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.EntityStructuredDataProperty">EntityStructuredDataProperty</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@e2st:scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.EntityStructuredDataProperty]" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph">ImmutableTerminologyGraph</a> → <a href="TerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox">TerminologyBox</a></dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph#eAxioms" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="eAxioms:scala.collection.immutable.Set[gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologyAxioms.TerminologyExtensionAxiom]"></a>
+      <a id="eAxioms:Set[TerminologyExtensionAxiom]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">eAxioms</span><span class="result">: <span class="extype" name="scala.collection.immutable.Set">Set</span>[<a href="../terminologyAxioms/TerminologyExtensionAxiom.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologyAxioms.TerminologyExtensionAxiom">TerminologyExtensionAxiom</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@eAxioms:scala.collection.immutable.Set[gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologyAxioms.TerminologyExtensionAxiom]" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph">ImmutableTerminologyGraph</a> → <a href="TerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox">TerminologyBox</a></dd></dl></div>
+    </li><li name="scala.AnyRef#eq" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="eq(x$1:AnyRef):Boolean"></a>
+      <a id="eq(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">eq</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@eq(x$1:AnyRef):Boolean" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph#equals" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="equals(other:Any):Boolean"></a>
+      <a id="equals(Any):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">equals</span><span class="params">(<span name="other">other: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@equals(other:Any):Boolean" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph">ImmutableTerminologyGraph</a> → Equals → AnyRef → Any</dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph#extraProvenanceMetadata" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="extraProvenanceMetadata:Option[gov.nasa.jpl.omf.scala.binding.owlapi.OTI2OMFModelTerminologyGraphProvenance]"></a>
+      <a id="extraProvenanceMetadata:Option[OTI2OMFModelTerminologyGraphProvenance]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">extraProvenanceMetadata</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<a href="../../OTI2OMFModelTerminologyGraphProvenance.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OTI2OMFModelTerminologyGraphProvenance">OTI2OMFModelTerminologyGraphProvenance</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@extraProvenanceMetadata:Option[gov.nasa.jpl.omf.scala.binding.owlapi.OTI2OMFModelTerminologyGraphProvenance]" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph">ImmutableTerminologyGraph</a> → <a href="TerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox">TerminologyBox</a></dd></dl></div>
+    </li><li name="scala.AnyRef#finalize" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="finalize():Unit"></a>
+      <a id="finalize():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">finalize</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@finalize():Unit" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../../../../../../../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="symbol">classOf[java.lang.Throwable]</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox#fromTerminology" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="fromTerminology:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPITerminologySignature"></a>
+      <a id="fromTerminology:OWLAPITerminologySignature"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">fromTerminology</span><span class="result">: <a href="../../OWLAPITerminologySignature.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPITerminologySignature">OWLAPITerminologySignature</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@fromTerminology:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPITerminologySignature" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="TerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox">TerminologyBox</a></dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox#getAnnotations" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getAnnotations():scala.collection.immutable.Map[gov.nasa.jpl.imce.omf.schema.tables.AnnotationProperty,scala.collection.immutable.Seq[gov.nasa.jpl.imce.omf.schema.tables.Annotation]]"></a>
+      <a id="getAnnotations():Map[AnnotationProperty,Seq[Annotation]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getAnnotations</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.collection.immutable.Map">Map</span>[<span class="extype" name="gov.nasa.jpl.imce.omf.schema.tables.AnnotationProperty">AnnotationProperty</span>, <span class="extype" name="scala.collection.immutable.Seq">Seq</span>[<span class="extype" name="gov.nasa.jpl.imce.omf.schema.tables.Annotation">Annotation</span>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@getAnnotations():scala.collection.immutable.Map[gov.nasa.jpl.imce.omf.schema.tables.AnnotationProperty,scala.collection.immutable.Seq[gov.nasa.jpl.imce.omf.schema.tables.Annotation]]" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="TerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox">TerminologyBox</a></dd></dl></div>
+    </li><li name="scala.AnyRef#getClass" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getClass():Class[_]"></a>
+      <a id="getClass():Class[_]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getClass</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.Class">Class</span>[_]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@getClass():Class[_]" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox#getDataRelationshipsFromEntityToScalar" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getDataRelationshipsFromEntityToScalar:scala.collection.immutable.Seq[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.EntityScalarDataProperty]"></a>
+      <a id="getDataRelationshipsFromEntityToScalar:Seq[EntityScalarDataProperty]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getDataRelationshipsFromEntityToScalar</span><span class="result">: <span class="extype" name="scala.collection.immutable.Seq">Seq</span>[<a href="../terms/EntityScalarDataProperty.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.EntityScalarDataProperty">EntityScalarDataProperty</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@getDataRelationshipsFromEntityToScalar:scala.collection.immutable.Seq[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.EntityScalarDataProperty]" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="TerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox">TerminologyBox</a></dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph#getEntityDefinitionMap" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getEntityDefinitionMap:scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLClass,gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Entity]"></a>
+      <a id="getEntityDefinitionMap:Map[OWLClass,Entity]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getEntityDefinitionMap</span><span class="result">: <span class="extype" name="scala.collection.immutable.Map">Map</span>[<span class="extype" name="org.semanticweb.owlapi.model.OWLClass">OWLClass</span>, <a href="../terms/Entity.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Entity">Entity</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@getEntityDefinitionMap:scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLClass,gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Entity]" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph">ImmutableTerminologyGraph</a> → <a href="TerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox">TerminologyBox</a></dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox#getNestingAxiomIfAny" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getNestingAxiomIfAny:Option[gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologyAxioms.TerminologyNestingAxiom]"></a>
+      <a id="getNestingAxiomIfAny:Option[TerminologyNestingAxiom]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getNestingAxiomIfAny</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<a href="../terminologyAxioms/TerminologyNestingAxiom.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologyAxioms.TerminologyNestingAxiom">TerminologyNestingAxiom</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@getNestingAxiomIfAny:Option[gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologyAxioms.TerminologyNestingAxiom]" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="TerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox">TerminologyBox</a></dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph#getScalarDatatypeDefinitionMap" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getScalarDatatypeDefinitionMap:scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLDatatype,gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.DataRange]"></a>
+      <a id="getScalarDatatypeDefinitionMap:Map[OWLDatatype,DataRange]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getScalarDatatypeDefinitionMap</span><span class="result">: <span class="extype" name="scala.collection.immutable.Map">Map</span>[<span class="extype" name="org.semanticweb.owlapi.model.OWLDatatype">OWLDatatype</span>, <a href="../terms/DataRange.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.DataRange">DataRange</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@getScalarDatatypeDefinitionMap:scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLDatatype,gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.DataRange]" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph">ImmutableTerminologyGraph</a> → <a href="TerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox">TerminologyBox</a></dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox#getTermAxioms" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getTermAxioms:(org.semanticweb.owlapi.model.IRI,scala.collection.immutable.Iterable[gov.nasa.jpl.omf.scala.binding.owlapi.types.Axiom])"></a>
+      <a id="getTermAxioms:(IRI,Iterable[Axiom])"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getTermAxioms</span><span class="result">: (<span class="extype" name="org.semanticweb.owlapi.model.IRI">IRI</span>, <span class="extype" name="scala.collection.immutable.Iterable">Iterable</span>[<a href="../Axiom.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.Axiom">Axiom</a>])</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@getTermAxioms:(org.semanticweb.owlapi.model.IRI,scala.collection.immutable.Iterable[gov.nasa.jpl.omf.scala.binding.owlapi.types.Axiom])" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="TerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox">TerminologyBox</a></dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox#getTermIDAnnotationAssertionAxiom" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getTermIDAnnotationAssertionAxiom(term:gov.nasa.jpl.omf.scala.binding.owlapi.types.Term):Option[org.semanticweb.owlapi.model.OWLAnnotationAssertionAxiom]"></a>
+      <a id="getTermIDAnnotationAssertionAxiom(Term):Option[OWLAnnotationAssertionAxiom]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getTermIDAnnotationAssertionAxiom</span><span class="params">(<span name="term">term: <a href="../Term.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.Term">Term</a></span>)</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="org.semanticweb.owlapi.model.OWLAnnotationAssertionAxiom">OWLAnnotationAssertionAxiom</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@getTermIDAnnotationAssertionAxiom(term:gov.nasa.jpl.omf.scala.binding.owlapi.types.Term):Option[org.semanticweb.owlapi.model.OWLAnnotationAssertionAxiom]" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="TerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox">TerminologyBox</a></dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox#getTermLocalNameAnnotationAssertionAxiom" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getTermLocalNameAnnotationAssertionAxiom(term:gov.nasa.jpl.omf.scala.binding.owlapi.types.Term):Option[org.semanticweb.owlapi.model.OWLAnnotationAssertionAxiom]"></a>
+      <a id="getTermLocalNameAnnotationAssertionAxiom(Term):Option[OWLAnnotationAssertionAxiom]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getTermLocalNameAnnotationAssertionAxiom</span><span class="params">(<span name="term">term: <a href="../Term.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.Term">Term</a></span>)</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="org.semanticweb.owlapi.model.OWLAnnotationAssertionAxiom">OWLAnnotationAssertionAxiom</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@getTermLocalNameAnnotationAssertionAxiom(term:gov.nasa.jpl.omf.scala.binding.owlapi.types.Term):Option[org.semanticweb.owlapi.model.OWLAnnotationAssertionAxiom]" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="TerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox">TerminologyBox</a></dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox#getTermURLAnnotationAssertionAxiom" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getTermURLAnnotationAssertionAxiom(term:gov.nasa.jpl.omf.scala.binding.owlapi.types.Term):Option[org.semanticweb.owlapi.model.OWLAnnotationAssertionAxiom]"></a>
+      <a id="getTermURLAnnotationAssertionAxiom(Term):Option[OWLAnnotationAssertionAxiom]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getTermURLAnnotationAssertionAxiom</span><span class="params">(<span name="term">term: <a href="../Term.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.Term">Term</a></span>)</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="org.semanticweb.owlapi.model.OWLAnnotationAssertionAxiom">OWLAnnotationAssertionAxiom</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@getTermURLAnnotationAssertionAxiom(term:gov.nasa.jpl.omf.scala.binding.owlapi.types.Term):Option[org.semanticweb.owlapi.model.OWLAnnotationAssertionAxiom]" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="TerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox">TerminologyBox</a></dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox#getTermUUIDAnnotationAssertionAxiom" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getTermUUIDAnnotationAssertionAxiom(term:gov.nasa.jpl.omf.scala.binding.owlapi.types.Term):Option[org.semanticweb.owlapi.model.OWLAnnotationAssertionAxiom]"></a>
+      <a id="getTermUUIDAnnotationAssertionAxiom(Term):Option[OWLAnnotationAssertionAxiom]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getTermUUIDAnnotationAssertionAxiom</span><span class="params">(<span name="term">term: <a href="../Term.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.Term">Term</a></span>)</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="org.semanticweb.owlapi.model.OWLAnnotationAssertionAxiom">OWLAnnotationAssertionAxiom</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@getTermUUIDAnnotationAssertionAxiom(term:gov.nasa.jpl.omf.scala.binding.owlapi.types.Term):Option[org.semanticweb.owlapi.model.OWLAnnotationAssertionAxiom]" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="TerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox">TerminologyBox</a></dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox#getTerminologyGraphLocalName" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getTerminologyGraphLocalName:gov.nasa.jpl.imce.omf.schema.tables.LocalName"></a>
+      <a id="getTerminologyGraphLocalName:LocalName"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getTerminologyGraphLocalName</span><span class="result">: <span class="extype" name="gov.nasa.jpl.imce.omf.schema.tables.LocalName">LocalName</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@getTerminologyGraphLocalName:gov.nasa.jpl.imce.omf.schema.tables.LocalName" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="TerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox">TerminologyBox</a></dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox#getTerminologyGraphShortNameAnnotation" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getTerminologyGraphShortNameAnnotation:Option[org.semanticweb.owlapi.model.OWLAnnotation]"></a>
+      <a id="getTerminologyGraphShortNameAnnotation:Option[OWLAnnotation]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getTerminologyGraphShortNameAnnotation</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="org.semanticweb.owlapi.model.OWLAnnotation">OWLAnnotation</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@getTerminologyGraphShortNameAnnotation:Option[org.semanticweb.owlapi.model.OWLAnnotation]" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="TerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox">TerminologyBox</a></dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox#getTerminologyGraphUUIDAnnotation" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getTerminologyGraphUUIDAnnotation:Option[org.semanticweb.owlapi.model.OWLAnnotation]"></a>
+      <a id="getTerminologyGraphUUIDAnnotation:Option[OWLAnnotation]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getTerminologyGraphUUIDAnnotation</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="org.semanticweb.owlapi.model.OWLAnnotation">OWLAnnotation</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@getTerminologyGraphUUIDAnnotation:Option[org.semanticweb.owlapi.model.OWLAnnotation]" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="TerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox">TerminologyBox</a></dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox#getTypeTerms" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getTypeTerms:(org.semanticweb.owlapi.model.IRI,scala.collection.immutable.Iterable[gov.nasa.jpl.omf.scala.binding.owlapi.types.Term])"></a>
+      <a id="getTypeTerms:(IRI,Iterable[Term])"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getTypeTerms</span><span class="result">: (<span class="extype" name="org.semanticweb.owlapi.model.IRI">IRI</span>, <span class="extype" name="scala.collection.immutable.Iterable">Iterable</span>[<a href="../Term.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.Term">Term</a>])</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@getTypeTerms:(org.semanticweb.owlapi.model.IRI,scala.collection.immutable.Iterable[gov.nasa.jpl.omf.scala.binding.owlapi.types.Term])" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="TerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox">TerminologyBox</a></dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph#gx" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="gx:scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologyAxioms.TerminologyBoxAxiom]"></a>
+      <a id="gx:Vector[TerminologyBoxAxiom]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">gx</span><span class="result">: <span class="extype" name="scala.collection.immutable.Vector">Vector</span>[<a href="../terminologyAxioms/TerminologyBoxAxiom.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologyAxioms.TerminologyBoxAxiom">TerminologyBoxAxiom</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@gx:scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologyAxioms.TerminologyBoxAxiom]" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph">ImmutableTerminologyGraph</a> → <a href="TerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox">TerminologyBox</a></dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph#hashCode" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="hashCode:Int"></a>
+      <a id="hashCode:Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">hashCode</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@hashCode:Int" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph">ImmutableTerminologyGraph</a> → AnyRef → Any</dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox#imports" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="imports():scala.collection.immutable.Iterable[gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox]"></a>
+      <a id="imports():Iterable[TerminologyBox]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">imports</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.collection.immutable.Iterable">Iterable</span>[<a href="TerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox">TerminologyBox</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@imports():scala.collection.immutable.Iterable[gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox]" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="TerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox">TerminologyBox</a></dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox#iri" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="iri:org.semanticweb.owlapi.model.IRI"></a>
+      <a id="iri:IRI"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">iri</span><span class="result">: <span class="extype" name="org.semanticweb.owlapi.model.IRI">IRI</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@iri:org.semanticweb.owlapi.model.IRI" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="TerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox">TerminologyBox</a> → <a href="../Resource.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.Resource">Resource</a></dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph#iri2typeTerm" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="iri2typeTerm:scala.collection.immutable.Map[org.semanticweb.owlapi.model.IRI,gov.nasa.jpl.omf.scala.binding.owlapi.types.TermwithProductwithSerializable{defhashCode:Int;vale:org.semanticweb.owlapi.model.OWLLogicalEntitywithorg.semanticweb.owlapi.model.SWRLPredicate}]"></a>
+      <a id="iri2typeTerm:Map[IRI,TermwithProductwithSerializable{.../*2definitionsintyperefinement*/}]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">iri2typeTerm</span><span class="result">: <span class="extype" name="scala.collection.immutable.Map">Map</span>[<span class="extype" name="org.semanticweb.owlapi.model.IRI">IRI</span>, <a href="../Term.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.Term">Term</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span> { ... /* 2 definitions in type refinement */ }]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@iri2typeTerm:scala.collection.immutable.Map[org.semanticweb.owlapi.model.IRI,gov.nasa.jpl.omf.scala.binding.owlapi.types.TermwithProductwithSerializable{defhashCode:Int;vale:org.semanticweb.owlapi.model.OWLLogicalEntitywithorg.semanticweb.owlapi.model.SWRLPredicate}]" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph">ImmutableTerminologyGraph</a> → <a href="TerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox">TerminologyBox</a></dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph#iriScalarRestrictions" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="iriScalarRestrictions:scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.IRIScalarRestriction]"></a>
+      <a id="iriScalarRestrictions:Vector[IRIScalarRestriction]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">iriScalarRestrictions</span><span class="result">: <span class="extype" name="scala.collection.immutable.Vector">Vector</span>[<a href="../terms/IRIScalarRestriction.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.IRIScalarRestriction">IRIScalarRestriction</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@iriScalarRestrictions:scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.IRIScalarRestriction]" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph">ImmutableTerminologyGraph</a> → <a href="TerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox">TerminologyBox</a></dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox#isAbstractAP" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="isAbstractAP:org.semanticweb.owlapi.model.OWLAnnotationProperty"></a>
+      <a id="isAbstractAP:OWLAnnotationProperty"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">isAbstractAP</span><span class="result">: <span class="extype" name="org.semanticweb.owlapi.model.OWLAnnotationProperty">OWLAnnotationProperty</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@isAbstractAP:org.semanticweb.owlapi.model.OWLAnnotationProperty" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="TerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox">TerminologyBox</a></dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyGraph#isBundle" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="isBundle:Boolean"></a>
+      <a id="isBundle:Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">isBundle</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@isBundle:Boolean" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="TerminologyGraph.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyGraph">TerminologyGraph</a> → <a href="TerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox">TerminologyBox</a></dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox#isDerivedAP" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="isDerivedAP:org.semanticweb.owlapi.model.OWLAnnotationProperty"></a>
+      <a id="isDerivedAP:OWLAnnotationProperty"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">isDerivedAP</span><span class="result">: <span class="extype" name="org.semanticweb.owlapi.model.OWLAnnotationProperty">OWLAnnotationProperty</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@isDerivedAP:org.semanticweb.owlapi.model.OWLAnnotationProperty" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="TerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox">TerminologyBox</a></dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyGraph#isGraph" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="isGraph:Boolean"></a>
+      <a id="isGraph:Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">isGraph</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@isGraph:Boolean" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="TerminologyGraph.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyGraph">TerminologyGraph</a> → <a href="TerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox">TerminologyBox</a></dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph#isImmutable" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="isImmutable:Boolean"></a>
+      <a id="isImmutable:Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">isImmutable</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@isImmutable:Boolean" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph">ImmutableTerminologyGraph</a> → <a href="TerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox">TerminologyBox</a></dd></dl></div>
+    </li><li name="scala.Any#isInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="isInstanceOf[T0]:Boolean"></a>
+      <a id="isInstanceOf[T0]:Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">isInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@isInstanceOf[T0]:Boolean" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph#isMutable" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="isMutable:Boolean"></a>
+      <a id="isMutable:Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">isMutable</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@isMutable:Boolean" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph">ImmutableTerminologyGraph</a> → <a href="TerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox">TerminologyBox</a></dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox#isTypeTermDefined" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="isTypeTermDefined(t:gov.nasa.jpl.omf.scala.binding.owlapi.types.Term):Boolean"></a>
+      <a id="isTypeTermDefined(Term):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">isTypeTermDefined</span><span class="params">(<span name="t">t: <a href="../Term.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.Term">Term</a></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@isTypeTermDefined(t:gov.nasa.jpl.omf.scala.binding.owlapi.types.Term):Boolean" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="TerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox">TerminologyBox</a></dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox#isTypeTermDefinedRecursively" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="isTypeTermDefinedRecursively(t:gov.nasa.jpl.omf.scala.binding.owlapi.types.Term)(implicitstore:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore):Boolean"></a>
+      <a id="isTypeTermDefinedRecursively(Term)(OWLAPIOMFGraphStore):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">isTypeTermDefinedRecursively</span><span class="params">(<span name="t">t: <a href="../Term.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.Term">Term</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="store">store: <a href="../../OWLAPIOMFGraphStore.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore">OWLAPIOMFGraphStore</a></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@isTypeTermDefinedRecursively(t:gov.nasa.jpl.omf.scala.binding.owlapi.types.Term)(implicitstore:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore):Boolean" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="TerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox">TerminologyBox</a></dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph#kind" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="kind:gov.nasa.jpl.omf.scala.core.TerminologyKind"></a>
+      <a id="kind:TerminologyKind"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">kind</span><span class="result">: <span class="extype" name="gov.nasa.jpl.omf.scala.core.TerminologyKind">TerminologyKind</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@kind:gov.nasa.jpl.omf.scala.core.TerminologyKind" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph">ImmutableTerminologyGraph</a> → <a href="TerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox">TerminologyBox</a></dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph#kindIRI" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="kindIRI:org.semanticweb.owlapi.model.IRI"></a>
+      <a id="kindIRI:IRI"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">kindIRI</span><span class="result">: <span class="extype" name="org.semanticweb.owlapi.model.IRI">IRI</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@kindIRI:org.semanticweb.owlapi.model.IRI" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph">ImmutableTerminologyGraph</a> → <a href="TerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox">TerminologyBox</a></dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox#lookupTerm" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="lookupTerm(iri:Option[org.semanticweb.owlapi.model.IRI],recursively:Boolean)(implicitstore:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore):Option[gov.nasa.jpl.omf.scala.binding.owlapi.types.Term]"></a>
+      <a id="lookupTerm(Option[IRI],Boolean)(OWLAPIOMFGraphStore):Option[Term]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">lookupTerm</span><span class="params">(<span name="iri">iri: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="org.semanticweb.owlapi.model.IRI">IRI</span>]</span>, <span name="recursively">recursively: <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="store">store: <a href="../../OWLAPIOMFGraphStore.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore">OWLAPIOMFGraphStore</a></span>)</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<a href="../Term.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.Term">Term</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@lookupTerm(iri:Option[org.semanticweb.owlapi.model.IRI],recursively:Boolean)(implicitstore:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore):Option[gov.nasa.jpl.omf.scala.binding.owlapi.types.Term]" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="TerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox">TerminologyBox</a></dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox#lookupTerm" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="lookupTerm(iri:org.semanticweb.owlapi.model.IRI,recursively:Boolean)(implicitstore:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore):Option[gov.nasa.jpl.omf.scala.binding.owlapi.types.Term]"></a>
+      <a id="lookupTerm(IRI,Boolean)(OWLAPIOMFGraphStore):Option[Term]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">lookupTerm</span><span class="params">(<span name="iri">iri: <span class="extype" name="org.semanticweb.owlapi.model.IRI">IRI</span></span>, <span name="recursively">recursively: <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="store">store: <a href="../../OWLAPIOMFGraphStore.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore">OWLAPIOMFGraphStore</a></span>)</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<a href="../Term.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.Term">Term</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@lookupTerm(iri:org.semanticweb.owlapi.model.IRI,recursively:Boolean)(implicitstore:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore):Option[gov.nasa.jpl.omf.scala.binding.owlapi.types.Term]" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="TerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox">TerminologyBox</a></dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox#lookupTypeTermRecursively" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="lookupTypeTermRecursively(iri:Option[org.semanticweb.owlapi.model.IRI])(implicitstore:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore):Option[gov.nasa.jpl.omf.scala.binding.owlapi.types.Term]"></a>
+      <a id="lookupTypeTermRecursively(Option[IRI])(OWLAPIOMFGraphStore):Option[Term]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">lookupTypeTermRecursively</span><span class="params">(<span name="iri">iri: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="org.semanticweb.owlapi.model.IRI">IRI</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="store">store: <a href="../../OWLAPIOMFGraphStore.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore">OWLAPIOMFGraphStore</a></span>)</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<a href="../Term.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.Term">Term</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@lookupTypeTermRecursively(iri:Option[org.semanticweb.owlapi.model.IRI])(implicitstore:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore):Option[gov.nasa.jpl.omf.scala.binding.owlapi.types.Term]" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="TerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox">TerminologyBox</a></dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox#lookupTypeTermRecursively" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="lookupTypeTermRecursively(iri:org.semanticweb.owlapi.model.IRI)(implicitstore:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore):Option[gov.nasa.jpl.omf.scala.binding.owlapi.types.Term]"></a>
+      <a id="lookupTypeTermRecursively(IRI)(OWLAPIOMFGraphStore):Option[Term]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">lookupTypeTermRecursively</span><span class="params">(<span name="iri">iri: <span class="extype" name="org.semanticweb.owlapi.model.IRI">IRI</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="store">store: <a href="../../OWLAPIOMFGraphStore.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore">OWLAPIOMFGraphStore</a></span>)</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<a href="../Term.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.Term">Term</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@lookupTypeTermRecursively(iri:org.semanticweb.owlapi.model.IRI)(implicitstore:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore):Option[gov.nasa.jpl.omf.scala.binding.owlapi.types.Term]" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="TerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox">TerminologyBox</a></dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox#makeKindIRI" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="makeKindIRI(kind:String):org.semanticweb.owlapi.model.IRI"></a>
+      <a id="makeKindIRI(String):IRI"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">makeKindIRI</span><span class="params">(<span name="kind">kind: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="org.semanticweb.owlapi.model.IRI">IRI</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@makeKindIRI(kind:String):org.semanticweb.owlapi.model.IRI" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="TerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox">TerminologyBox</a></dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph#mutabilityKind" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="mutabilityKind:String"></a>
+      <a id="mutabilityKind:String"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">mutabilityKind</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@mutabilityKind:String" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph">ImmutableTerminologyGraph</a> → <a href="TerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox">TerminologyBox</a></dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph#nAxiom" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="nAxiom:Option[gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologyAxioms.TerminologyNestingAxiom]"></a>
+      <a id="nAxiom:Option[TerminologyNestingAxiom]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">var</span>
+      </span>
+      <span class="symbol">
+        <span class="name">nAxiom</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<a href="../terminologyAxioms/TerminologyNestingAxiom.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologyAxioms.TerminologyNestingAxiom">TerminologyNestingAxiom</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@nAxiom:Option[gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologyAxioms.TerminologyNestingAxiom]" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph">ImmutableTerminologyGraph</a> → <a href="TerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox">TerminologyBox</a></dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph#name" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="name:gov.nasa.jpl.imce.omf.schema.tables.LocalName"></a>
+      <a id="name:LocalName"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">name</span><span class="result">: <span class="extype" name="gov.nasa.jpl.imce.omf.schema.tables.LocalName">LocalName</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@name:gov.nasa.jpl.imce.omf.schema.tables.LocalName" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph">ImmutableTerminologyGraph</a> → <a href="../Resource.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.Resource">Resource</a></dd></dl></div>
+    </li><li name="scala.AnyRef#ne" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ne(x$1:AnyRef):Boolean"></a>
+      <a id="ne(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ne</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@ne(x$1:AnyRef):Boolean" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.AnyRef#notify" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="notify():Unit"></a>
+      <a id="notify():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">notify</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@notify():Unit" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.AnyRef#notifyAll" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="notifyAll():Unit"></a>
+      <a id="notifyAll():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">notifyAll</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@notifyAll():Unit" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph#numericScalarRestrictions" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="numericScalarRestrictions:scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.NumericScalarRestriction]"></a>
+      <a id="numericScalarRestrictions:Vector[NumericScalarRestriction]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">numericScalarRestrictions</span><span class="result">: <span class="extype" name="scala.collection.immutable.Vector">Vector</span>[<a href="../terms/NumericScalarRestriction.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.NumericScalarRestriction">NumericScalarRestriction</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@numericScalarRestrictions:scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.NumericScalarRestriction]" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph">ImmutableTerminologyGraph</a> → <a href="TerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox">TerminologyBox</a></dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph#ont" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ont:org.semanticweb.owlapi.model.OWLOntology"></a>
+      <a id="ont:OWLOntology"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ont</span><span class="result">: <span class="extype" name="org.semanticweb.owlapi.model.OWLOntology">OWLOntology</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@ont:org.semanticweb.owlapi.model.OWLOntology" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph">ImmutableTerminologyGraph</a> → <a href="TerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox">TerminologyBox</a></dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox#ontManager" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ontManager:org.semanticweb.owlapi.model.OWLOntologyManager"></a>
+      <a id="ontManager:OWLOntologyManager"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ontManager</span><span class="result">: <span class="extype" name="org.semanticweb.owlapi.model.OWLOntologyManager">OWLOntologyManager</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@ontManager:org.semanticweb.owlapi.model.OWLOntologyManager" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="TerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox">TerminologyBox</a></dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph#ops" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ops:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFOps"></a>
+      <a id="ops:OWLAPIOMFOps"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ops</span><span class="result">: <a href="../../OWLAPIOMFOps.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFOps">OWLAPIOMFOps</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@ops:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFOps" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph">ImmutableTerminologyGraph</a> → <a href="TerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox">TerminologyBox</a></dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox#owlDataFactory" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="owlDataFactory:org.semanticweb.owlapi.model.OWLDataFactory"></a>
+      <a id="owlDataFactory:OWLDataFactory"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">owlDataFactory</span><span class="result">: <span class="extype" name="org.semanticweb.owlapi.model.OWLDataFactory">OWLDataFactory</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@owlDataFactory:org.semanticweb.owlapi.model.OWLDataFactory" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="TerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox">TerminologyBox</a></dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph#plainLiteralScalarRestrictions" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="plainLiteralScalarRestrictions:scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.PlainLiteralScalarRestriction]"></a>
+      <a id="plainLiteralScalarRestrictions:Vector[PlainLiteralScalarRestriction]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">plainLiteralScalarRestrictions</span><span class="result">: <span class="extype" name="scala.collection.immutable.Vector">Vector</span>[<a href="../terms/PlainLiteralScalarRestriction.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.PlainLiteralScalarRestriction">PlainLiteralScalarRestriction</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@plainLiteralScalarRestrictions:scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.PlainLiteralScalarRestriction]" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph">ImmutableTerminologyGraph</a> → <a href="TerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox">TerminologyBox</a></dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph#rTAxioms" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="rTAxioms:scala.collection.Set[gov.nasa.jpl.omf.scala.binding.owlapi.types.bundleStatements.RootConceptTaxonomyAxiom]"></a>
+      <a id="rTAxioms:Set[RootConceptTaxonomyAxiom]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">rTAxioms</span><span class="result">: <span class="extype" name="scala.collection.Set">Set</span>[<a href="../bundleStatements/RootConceptTaxonomyAxiom.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.bundleStatements.RootConceptTaxonomyAxiom">RootConceptTaxonomyAxiom</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@rTAxioms:scala.collection.Set[gov.nasa.jpl.omf.scala.binding.owlapi.types.bundleStatements.RootConceptTaxonomyAxiom]" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph">ImmutableTerminologyGraph</a> → <a href="TerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox">TerminologyBox</a></dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox#rdfs_labelAP" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="rdfs_labelAP:org.semanticweb.owlapi.model.OWLAnnotationProperty"></a>
+      <a id="rdfs_labelAP:OWLAnnotationProperty"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">rdfs_labelAP</span><span class="result">: <span class="extype" name="org.semanticweb.owlapi.model.OWLAnnotationProperty">OWLAnnotationProperty</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@rdfs_labelAP:org.semanticweb.owlapi.model.OWLAnnotationProperty" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="TerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox">TerminologyBox</a></dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph#reifiedRelationships" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="reifiedRelationships:scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ReifiedRelationship]"></a>
+      <a id="reifiedRelationships:Vector[ReifiedRelationship]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">reifiedRelationships</span><span class="result">: <span class="extype" name="scala.collection.immutable.Vector">Vector</span>[<a href="../terms/ReifiedRelationship.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ReifiedRelationship">ReifiedRelationship</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@reifiedRelationships:scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ReifiedRelationship]" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph">ImmutableTerminologyGraph</a> → <a href="TerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox">TerminologyBox</a></dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph#s2sc" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="s2sc:scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ScalarDataProperty]"></a>
+      <a id="s2sc:Vector[ScalarDataProperty]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">s2sc</span><span class="result">: <span class="extype" name="scala.collection.immutable.Vector">Vector</span>[<a href="../terms/ScalarDataProperty.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ScalarDataProperty">ScalarDataProperty</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@s2sc:scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ScalarDataProperty]" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph">ImmutableTerminologyGraph</a> → <a href="TerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox">TerminologyBox</a></dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph#s2st" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="s2st:scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.StructuredDataProperty]"></a>
+      <a id="s2st:Vector[StructuredDataProperty]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">s2st</span><span class="result">: <span class="extype" name="scala.collection.immutable.Vector">Vector</span>[<a href="../terms/StructuredDataProperty.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.StructuredDataProperty">StructuredDataProperty</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@s2st:scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.StructuredDataProperty]" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph">ImmutableTerminologyGraph</a> → <a href="TerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox">TerminologyBox</a></dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph#sTAxioms" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="sTAxioms:scala.collection.Set[gov.nasa.jpl.omf.scala.binding.owlapi.types.bundleStatements.SpecificDisjointAxiom]"></a>
+      <a id="sTAxioms:Set[SpecificDisjointAxiom]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">sTAxioms</span><span class="result">: <span class="extype" name="scala.collection.Set">Set</span>[<a href="../bundleStatements/SpecificDisjointAxiom.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.bundleStatements.SpecificDisjointAxiom">SpecificDisjointAxiom</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@sTAxioms:scala.collection.Set[gov.nasa.jpl.omf.scala.binding.owlapi.types.bundleStatements.SpecificDisjointAxiom]" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph">ImmutableTerminologyGraph</a> → <a href="TerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox">TerminologyBox</a></dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox#save" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="save(os:java.io.OutputStream):scalaz.\/[scala.collection.immutable.Set[Throwable],Unit]"></a>
+      <a id="save(OutputStream):\/[Set[Throwable],Unit]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">save</span><span class="params">(<span name="os">os: <span class="extype" name="java.io.OutputStream">OutputStream</span></span>)</span><span class="result">: <span class="extype" name="scalaz.\/">\/</span>[<span class="extype" name="scala.collection.immutable.Set">Set</span>[<span class="extype" name="java.lang.Throwable">Throwable</span>], <span class="extype" name="scala.Unit">Unit</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@save(os:java.io.OutputStream):scalaz.\/[scala.collection.immutable.Set[Throwable],Unit]" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="TerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox">TerminologyBox</a></dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox#save" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="save(saveIRI:org.semanticweb.owlapi.model.IRI):scalaz.\/[scala.collection.immutable.Set[Throwable],Unit]"></a>
+      <a id="save(IRI):\/[Set[Throwable],Unit]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">save</span><span class="params">(<span name="saveIRI">saveIRI: <span class="extype" name="org.semanticweb.owlapi.model.IRI">IRI</span></span>)</span><span class="result">: <span class="extype" name="scalaz.\/">\/</span>[<span class="extype" name="scala.collection.immutable.Set">Set</span>[<span class="extype" name="java.lang.Throwable">Throwable</span>], <span class="extype" name="scala.Unit">Unit</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@save(saveIRI:org.semanticweb.owlapi.model.IRI):scalaz.\/[scala.collection.immutable.Set[Throwable],Unit]" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="TerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox">TerminologyBox</a></dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph#sc" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="sc:scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Scalar]"></a>
+      <a id="sc:Vector[Scalar]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">sc</span><span class="result">: <span class="extype" name="scala.collection.immutable.Vector">Vector</span>[<a href="../terms/Scalar.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Scalar">Scalar</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@sc:scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Scalar]" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph">ImmutableTerminologyGraph</a> → <a href="TerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox">TerminologyBox</a></dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph#scalarOneOfRestrictions" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="scalarOneOfRestrictions:scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ScalarOneOfRestriction]"></a>
+      <a id="scalarOneOfRestrictions:Vector[ScalarOneOfRestriction]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">scalarOneOfRestrictions</span><span class="result">: <span class="extype" name="scala.collection.immutable.Vector">Vector</span>[<a href="../terms/ScalarOneOfRestriction.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ScalarOneOfRestriction">ScalarOneOfRestriction</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@scalarOneOfRestrictions:scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ScalarOneOfRestriction]" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph">ImmutableTerminologyGraph</a> → <a href="TerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox">TerminologyBox</a></dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph#st" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="st:scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Structure]"></a>
+      <a id="st:Vector[Structure]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">st</span><span class="result">: <span class="extype" name="scala.collection.immutable.Vector">Vector</span>[<a href="../terms/Structure.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Structure">Structure</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@st:scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Structure]" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph">ImmutableTerminologyGraph</a> → <a href="TerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox">TerminologyBox</a></dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph#stringScalarRestrictions" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="stringScalarRestrictions:scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.StringScalarRestriction]"></a>
+      <a id="stringScalarRestrictions:Vector[StringScalarRestriction]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">stringScalarRestrictions</span><span class="result">: <span class="extype" name="scala.collection.immutable.Vector">Vector</span>[<a href="../terms/StringScalarRestriction.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.StringScalarRestriction">StringScalarRestriction</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@stringScalarRestrictions:scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.StringScalarRestriction]" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph">ImmutableTerminologyGraph</a> → <a href="TerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox">TerminologyBox</a></dd></dl></div>
+    </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
+      <a id="synchronized[T0](⇒T0):T0"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">synchronized</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="params">(<span name="arg0">arg0: ⇒ <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>)</span><span class="result">: <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@synchronized[T0](x$1:=&gt;T0):T0" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph#synonymScalarRestrictions" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="synonymScalarRestrictions:scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.SynonymScalarRestriction]"></a>
+      <a id="synonymScalarRestrictions:Vector[SynonymScalarRestriction]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">synonymScalarRestrictions</span><span class="result">: <span class="extype" name="scala.collection.immutable.Vector">Vector</span>[<a href="../terms/SynonymScalarRestriction.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.SynonymScalarRestriction">SynonymScalarRestriction</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@synonymScalarRestrictions:scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.SynonymScalarRestriction]" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph">ImmutableTerminologyGraph</a> → <a href="TerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox">TerminologyBox</a></dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph#timeScalarRestrictions" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="timeScalarRestrictions:scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.TimeScalarRestriction]"></a>
+      <a id="timeScalarRestrictions:Vector[TimeScalarRestriction]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">timeScalarRestrictions</span><span class="result">: <span class="extype" name="scala.collection.immutable.Vector">Vector</span>[<a href="../terms/TimeScalarRestriction.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.TimeScalarRestriction">TimeScalarRestriction</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@timeScalarRestrictions:scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.TimeScalarRestriction]" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph">ImmutableTerminologyGraph</a> → <a href="TerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox">TerminologyBox</a></dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph#unreifiedRelationships" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="unreifiedRelationships:scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.UnreifiedRelationship]"></a>
+      <a id="unreifiedRelationships:Vector[UnreifiedRelationship]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">unreifiedRelationships</span><span class="result">: <span class="extype" name="scala.collection.immutable.Vector">Vector</span>[<a href="../terms/UnreifiedRelationship.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.UnreifiedRelationship">UnreifiedRelationship</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@unreifiedRelationships:scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.UnreifiedRelationship]" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph">ImmutableTerminologyGraph</a> → <a href="TerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox">TerminologyBox</a></dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph#uuid" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="uuid:java.util.UUID"></a>
+      <a id="uuid:UUID"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">uuid</span><span class="result">: <span class="extype" name="java.util.UUID">UUID</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@uuid:java.util.UUID" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph">ImmutableTerminologyGraph</a> → <a href="../TerminologyThing.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.TerminologyThing">TerminologyThing</a></dd></dl></div>
+    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait():Unit"></a>
+      <a id="wait():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wait</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@wait():Unit" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait(x$1:Long,x$2:Int):Unit"></a>
+      <a id="wait(Long,Int):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>, <span name="arg1">arg1: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@wait(x$1:Long,x$2:Int):Unit" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait(x$1:Long):Unit"></a>
+      <a id="wait(Long):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph@wait(x$1:Long):Unit" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li></ol>
+            </div>
+
+        
+
+        
+        </div>
+
+        <div id="inheritedMembers">
+        <div class="parent" name="scala.Serializable">
+              <h3>Inherited from <span class="extype" name="scala.Serializable">Serializable</span></h3>
+            </div><div class="parent" name="java.io.Serializable">
+              <h3>Inherited from <span class="extype" name="java.io.Serializable">Serializable</span></h3>
+            </div><div class="parent" name="scala.Product">
+              <h3>Inherited from <span class="extype" name="scala.Product">Product</span></h3>
+            </div><div class="parent" name="scala.Equals">
+              <h3>Inherited from <span class="extype" name="scala.Equals">Equals</span></h3>
+            </div><div class="parent" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyBox">
+              <h3>Inherited from <a href="ImmutableTerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyBox">ImmutableTerminologyBox</a></h3>
+            </div><div class="parent" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyGraph">
+              <h3>Inherited from <a href="TerminologyGraph.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyGraph">TerminologyGraph</a></h3>
+            </div><div class="parent" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox">
+              <h3>Inherited from <a href="TerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox">TerminologyBox</a></h3>
+            </div><div class="parent" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.Resource">
+              <h3>Inherited from <a href="../Resource.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.Resource">Resource</a></h3>
+            </div><div class="parent" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.TerminologyThing">
+              <h3>Inherited from <a href="../TerminologyThing.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.TerminologyThing">TerminologyThing</a></h3>
+            </div><div class="parent" name="scala.AnyRef">
+              <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
+            </div><div class="parent" name="scala.Any">
+              <h3>Inherited from <span class="extype" name="scala.Any">Any</span></h3>
+            </div>
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
+        </div>
+
+      </div>
+
+      <div id="tooltip"></div>
+
+      <div id="footer">  </div>
+
+
+    </body>
+      </html>

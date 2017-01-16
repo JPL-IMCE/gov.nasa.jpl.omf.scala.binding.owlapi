@@ -45,7 +45,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <span class="name">ResolverHelper</span><span class="params">(<span name="omfMetadata">omfMetadata: <span class="extype" name="org.semanticweb.owlapi.model.OWLOntology">OWLOntology</span></span>, <span name="tboxG">tboxG: <a href="MutableModelTerminologyGraph.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.MutableModelTerminologyGraph">MutableModelTerminologyGraph</a></span>, <span name="imports">imports: <span class="extype" name="scala.collection.immutable.Iterable">Iterable</span>[<a href="ImmutableModelTerminologyGraph.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ImmutableModelTerminologyGraph">ImmutableModelTerminologyGraph</a>]</span>, <span name="ont">ont: <span class="extype" name="org.semanticweb.owlapi.model.OWLOntology">OWLOntology</span></span>, <span name="omfStore">omfStore: <a href="../OWLAPIOMFGraphStore.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore">OWLAPIOMFGraphStore</a></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <span class="name">ResolverHelper</span><span class="params">(<span name="omfMetadata">omfMetadata: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="org.semanticweb.owlapi.model.OWLOntology">OWLOntology</span>]</span>, <span name="tboxG">tboxG: <a href="terminologies/MutableTerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.MutableTerminologyBox">MutableTerminologyBox</a></span>, <span name="imports">imports: <span class="extype" name="scala.collection.immutable.Iterable">Iterable</span>[<a href="terminologies/ImmutableTerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyBox">ImmutableTerminologyBox</a>]</span>, <span name="ont">ont: <span class="extype" name="org.semanticweb.owlapi.model.OWLOntology">OWLOntology</span></span>, <span name="omfStore">omfStore: <a href="../OWLAPIOMFGraphStore.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore">OWLAPIOMFGraphStore</a></span>, <span name="m2i">m2i: <a href="package.html#Mutable2ImmutableTerminologyMap=scala.collection.immutable.Map[gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.MutableTerminologyBox,gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyBox]" class="extmbr" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.Mutable2ImmutableTerminologyMap">Mutable2ImmutableTerminologyMap</a></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
       
@@ -54,7 +54,7 @@
           <div class="superTypes hiddenContent"><span class="extype" name="scala.Serializable">Serializable</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="scala.Product">Product</span>, <span class="extype" name="scala.Equals">Equals</span>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div><div class="toggleContainer block diagram-container" id="inheritance-diagram-container">
                 <span class="toggle diagram-link">Type Hierarchy</span>
-                <div class="diagram" id="inheritance-diagram"><svg class="class-diagram" id="graph1" viewBox="0.00 0.00 202.00 118.00" height="118pt" width="202pt" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg"><g transform="scale(1 1) rotate(0) translate(4 114)" class="graph" id="graph0"><polygon points="-4,4 -4,-114 198,-114 198,4 -4,4" stroke="none" fill="white"></polygon><g class="cluster" id="clust1"></g><g class="cluster" id="clust2"></g><!-- node0 --><g class="node this class" id="graph1_0"><g id="a_this class|graph1_0"><a xlink:title="gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper (this class)" xlink:href="#inheritance-diagram"><polygon points="149.5,-49 35.5,-49 35.5,-24 149.5,-24 149.5,-49" stroke="#115f3b" fill="#0a955b"></polygon><image xlink:href="../../../../../../../../lib/class_diagram.png" y="-43.5" x="45.5" preserveAspectRatio="xMinYMin meet" height="15px" width="15px"></image><text fill="#ffffff" font-size="10.00" font-family="Arial" y="-33" x="66.5" text-anchor="start">ResolverHelper</text></a></g></g><!-- node1 --><g class="node trait" id="graph1_1"><g id="a_trait|graph1_1"><a xlink:title="scala.Product"><polygon points="79,-110 7.10543e-15,-110 7.10543e-15,-85 79,-85 79,-110" stroke="#37657d" fill="#498aad"></polygon><image xlink:href="../../../../../../../../lib/trait_diagram.png" y="-104.5" x="10.5" preserveAspectRatio="xMinYMin meet" height="15px" width="15px"></image><text fill="#ffffff" font-size="10.00" font-family="Arial" y="-94" x="31.5" text-anchor="start">Product</text></a></g></g><!-- node1&#45;&gt;node0 --><g class="edge inheritance" id="graph1_1_0"><g id="a_inheritance|graph1_1_0"><a xlink:title="ResolverHelper is a subtype of Product"><path d="M53.3976,-81.0291C62.3695,-71.0415 73.8537,-58.2572 82.0507,-49.1323" stroke="#d4d4d4" fill="none"></path><polygon points="52.0106,-79.9544 49.9711,-84.8435 54.6143,-82.2933 52.0106,-79.9544" stroke="#d4d4d4" fill="none"></polygon></a></g></g><!-- node2 --><g class="node trait" id="graph1_2"><g id="a_trait|graph1_2"><a xlink:title="scala.Serializable"><polygon points="194,-110 97,-110 97,-85 194,-85 194,-110" stroke="#37657d" fill="#498aad"></polygon><image xlink:href="../../../../../../../../lib/trait_diagram.png" y="-104.5" x="107.5" preserveAspectRatio="xMinYMin meet" height="15px" width="15px"></image><text fill="#ffffff" font-size="10.00" font-family="Arial" y="-94" x="128.5" text-anchor="start">Serializable</text></a></g></g><!-- node2&#45;&gt;node0 --><g class="edge inheritance" id="graph1_2_0"><g id="a_inheritance|graph1_2_0"><a xlink:title="ResolverHelper is a subtype of Serializable"><path d="M131.602,-81.0291C122.63,-71.0415 111.146,-58.2572 102.949,-49.1323" stroke="#d4d4d4" fill="none"></path><polygon points="130.386,-82.2933 135.029,-84.8435 132.989,-79.9544 130.386,-82.2933" stroke="#d4d4d4" fill="none"></polygon></a></g></g></g></svg></div>
+                <div class="diagram" id="inheritance-diagram"><svg class="class-diagram" id="graph1" viewBox="0.00 0.00 200.00 120.00" height="120pt" width="200pt" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg"><g transform="scale(1 1) rotate(0) translate(4 116)" class="graph" id="graph1"><polygon points="-4,5 -4,-116 197,-116 197,5 -4,5" stroke="white" fill="white"></polygon><g class="cluster" id="graph2"></g><g class="cluster" id="graph3"></g><!-- node0 --><g class="node this class" id="graph1_0"><a xlink:title="gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper (this class)" xlink:href="#inheritance-diagram"><polygon points="147,-50 35,-50 35,-24 147,-24 147,-50" stroke="#115f3b" fill="#0a955b"></polygon><image xlink:href="../../../../../../../../lib/class_diagram.png" y="-45" x="45" preserveAspectRatio="xMinYMin meet" height="16px" width="16px"></image><text fill="#ffffff" font-size="10.00" font-family="Arial" y="-34.6667" x="67" text-anchor="start">ResolverHelper</text></a></g><!-- node1 --><g class="node trait" id="graph1_1"><a xlink:title="scala.Product"><polygon points="78,-112 3.55271e-14,-112 0,-86 78,-86 78,-112" stroke="#37657d" fill="#498aad"></polygon><image xlink:href="../../../../../../../../lib/trait_diagram.png" y="-107" x="10" preserveAspectRatio="xMinYMin meet" height="16px" width="16px"></image><text fill="#ffffff" font-size="10.00" font-family="Arial" y="-96.6667" x="32" text-anchor="start">Product</text></a></g><!-- node1&#45;&gt;node0 --><g class="edge inheritance" id="graph1_1_0"><a xlink:title="ResolverHelper is a subtype of Product"><path d="M53.2628,-81.9943C61.6908,-71.9456 72.2013,-59.4138 79.988,-50.1297" stroke="#d4d4d4" fill="none"></path><polygon points="51.9001,-80.8958 50.0279,-85.8514 54.5818,-83.145 51.9001,-80.8958" stroke="#d4d4d4" fill="none"></polygon></a></g><!-- node2 --><g class="node trait" id="graph1_2"><a xlink:title="scala.Serializable"><polygon points="192,-112 96,-112 96,-86 192,-86 192,-112" stroke="#37657d" fill="#498aad"></polygon><image xlink:href="../../../../../../../../lib/trait_diagram.png" y="-107" x="106" preserveAspectRatio="xMinYMin meet" height="16px" width="16px"></image><text fill="#ffffff" font-size="10.00" font-family="Arial" y="-96.6667" x="128" text-anchor="start">Serializable</text></a></g><!-- node2&#45;&gt;node0 --><g class="edge inheritance" id="graph1_2_0"><a xlink:title="ResolverHelper is a subtype of Serializable"><path d="M129.463,-81.9943C120.873,-71.9456 110.16,-59.4138 102.224,-50.1297" stroke="#d4d4d4" fill="none"></path><polygon points="128.181,-83.1879 132.76,-85.8514 130.841,-80.9136 128.181,-83.1879" stroke="#d4d4d4" fill="none"></polygon></a></g></g></svg></div>
               </div></div>
         
 
@@ -92,7 +92,7 @@
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="&lt;init&gt;(omfMetadata:org.semanticweb.owlapi.model.OWLOntology,tboxG:gov.nasa.jpl.omf.scala.binding.owlapi.types.MutableModelTerminologyGraph,imports:scala.collection.immutable.Iterable[gov.nasa.jpl.omf.scala.binding.owlapi.types.ImmutableModelTerminologyGraph],ont:org.semanticweb.owlapi.model.OWLOntology,omfStore:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore):gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper"></a>
+      <a id="&lt;init&gt;(omfMetadata:Option[org.semanticweb.owlapi.model.OWLOntology],tboxG:gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.MutableTerminologyBox,imports:scala.collection.immutable.Iterable[gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyBox],ont:org.semanticweb.owlapi.model.OWLOntology,omfStore:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore,m2i:gov.nasa.jpl.omf.scala.binding.owlapi.types.Mutable2ImmutableTerminologyMap):gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper"></a>
       <a id="&lt;init&gt;:ResolverHelper"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -100,10 +100,10 @@
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">ResolverHelper</span><span class="params">(<span name="omfMetadata">omfMetadata: <span class="extype" name="org.semanticweb.owlapi.model.OWLOntology">OWLOntology</span></span>, <span name="tboxG">tboxG: <a href="MutableModelTerminologyGraph.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.MutableModelTerminologyGraph">MutableModelTerminologyGraph</a></span>, <span name="imports">imports: <span class="extype" name="scala.collection.immutable.Iterable">Iterable</span>[<a href="ImmutableModelTerminologyGraph.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ImmutableModelTerminologyGraph">ImmutableModelTerminologyGraph</a>]</span>, <span name="ont">ont: <span class="extype" name="org.semanticweb.owlapi.model.OWLOntology">OWLOntology</span></span>, <span name="omfStore">omfStore: <a href="../OWLAPIOMFGraphStore.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore">OWLAPIOMFGraphStore</a></span>)</span>
+        <span class="name">ResolverHelper</span><span class="params">(<span name="omfMetadata">omfMetadata: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="org.semanticweb.owlapi.model.OWLOntology">OWLOntology</span>]</span>, <span name="tboxG">tboxG: <a href="terminologies/MutableTerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.MutableTerminologyBox">MutableTerminologyBox</a></span>, <span name="imports">imports: <span class="extype" name="scala.collection.immutable.Iterable">Iterable</span>[<a href="terminologies/ImmutableTerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyBox">ImmutableTerminologyBox</a>]</span>, <span name="ont">ont: <span class="extype" name="org.semanticweb.owlapi.model.OWLOntology">OWLOntology</span></span>, <span name="omfStore">omfStore: <a href="../OWLAPIOMFGraphStore.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore">OWLAPIOMFGraphStore</a></span>, <span name="m2i">m2i: <a href="package.html#Mutable2ImmutableTerminologyMap=scala.collection.immutable.Map[gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.MutableTerminologyBox,gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyBox]" class="extmbr" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.Mutable2ImmutableTerminologyMap">Mutable2ImmutableTerminologyMap</a></span>)</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper@&lt;init&gt;(omfMetadata:org.semanticweb.owlapi.model.OWLOntology,tboxG:gov.nasa.jpl.omf.scala.binding.owlapi.types.MutableModelTerminologyGraph,imports:scala.collection.immutable.Iterable[gov.nasa.jpl.omf.scala.binding.owlapi.types.ImmutableModelTerminologyGraph],ont:org.semanticweb.owlapi.model.OWLOntology,omfStore:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore):gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper" title="Permalink" target="_top">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper@&lt;init&gt;(omfMetadata:Option[org.semanticweb.owlapi.model.OWLOntology],tboxG:gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.MutableTerminologyBox,imports:scala.collection.immutable.Iterable[gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyBox],ont:org.semanticweb.owlapi.model.OWLOntology,omfStore:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore,m2i:gov.nasa.jpl.omf.scala.binding.owlapi.types.Mutable2ImmutableTerminologyMap):gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper" title="Permalink" target="_top">
         <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -354,154 +354,154 @@
               
         </dd></dl></div>
     </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper#findDirectEntityAspect" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="findDirectEntityAspect(iri:org.semanticweb.owlapi.model.IRI,aspects:scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLClass,gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityAspect]):Option[gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityAspect]"></a>
-      <a id="findDirectEntityAspect(IRI,Map[OWLClass,ModelEntityAspect]):Option[ModelEntityAspect]"></a>
+      <a id="findDirectEntityAspect(iri:org.semanticweb.owlapi.model.IRI,aspects:scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLClass,gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Aspect]):Option[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Aspect]"></a>
+      <a id="findDirectEntityAspect(IRI,Map[OWLClass,Aspect]):Option[Aspect]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">findDirectEntityAspect</span><span class="params">(<span name="iri">iri: <span class="extype" name="org.semanticweb.owlapi.model.IRI">IRI</span></span>, <span name="aspects">aspects: <span class="extype" name="scala.collection.immutable.Map">Map</span>[<span class="extype" name="org.semanticweb.owlapi.model.OWLClass">OWLClass</span>, <a href="ModelEntityAspect.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityAspect">ModelEntityAspect</a>]</span>)</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<a href="ModelEntityAspect.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityAspect">ModelEntityAspect</a>]</span>
+        <span class="name">findDirectEntityAspect</span><span class="params">(<span name="iri">iri: <span class="extype" name="org.semanticweb.owlapi.model.IRI">IRI</span></span>, <span name="aspects">aspects: <span class="extype" name="scala.collection.immutable.Map">Map</span>[<span class="extype" name="org.semanticweb.owlapi.model.OWLClass">OWLClass</span>, <a href="terms/Aspect.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Aspect">Aspect</a>]</span>)</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<a href="terms/Aspect.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Aspect">Aspect</a>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper@findDirectEntityAspect(iri:org.semanticweb.owlapi.model.IRI,aspects:scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLClass,gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityAspect]):Option[gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityAspect]" title="Permalink" target="_top">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper@findDirectEntityAspect(iri:org.semanticweb.owlapi.model.IRI,aspects:scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLClass,gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Aspect]):Option[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Aspect]" title="Permalink" target="_top">
         <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       
     </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper#findDirectEntityConcept" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="findDirectEntityConcept(iri:org.semanticweb.owlapi.model.IRI,concepts:scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLClass,gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityConcept]):Option[gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityConcept]"></a>
-      <a id="findDirectEntityConcept(IRI,Map[OWLClass,ModelEntityConcept]):Option[ModelEntityConcept]"></a>
+      <a id="findDirectEntityConcept(iri:org.semanticweb.owlapi.model.IRI,concepts:scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLClass,gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Concept]):Option[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Concept]"></a>
+      <a id="findDirectEntityConcept(IRI,Map[OWLClass,Concept]):Option[Concept]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">findDirectEntityConcept</span><span class="params">(<span name="iri">iri: <span class="extype" name="org.semanticweb.owlapi.model.IRI">IRI</span></span>, <span name="concepts">concepts: <span class="extype" name="scala.collection.immutable.Map">Map</span>[<span class="extype" name="org.semanticweb.owlapi.model.OWLClass">OWLClass</span>, <a href="ModelEntityConcept.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityConcept">ModelEntityConcept</a>]</span>)</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<a href="ModelEntityConcept.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityConcept">ModelEntityConcept</a>]</span>
+        <span class="name">findDirectEntityConcept</span><span class="params">(<span name="iri">iri: <span class="extype" name="org.semanticweb.owlapi.model.IRI">IRI</span></span>, <span name="concepts">concepts: <span class="extype" name="scala.collection.immutable.Map">Map</span>[<span class="extype" name="org.semanticweb.owlapi.model.OWLClass">OWLClass</span>, <a href="terms/Concept.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Concept">Concept</a>]</span>)</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<a href="terms/Concept.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Concept">Concept</a>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper@findDirectEntityConcept(iri:org.semanticweb.owlapi.model.IRI,concepts:scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLClass,gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityConcept]):Option[gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityConcept]" title="Permalink" target="_top">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper@findDirectEntityConcept(iri:org.semanticweb.owlapi.model.IRI,concepts:scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLClass,gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Concept]):Option[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Concept]" title="Permalink" target="_top">
         <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       
     </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper#findDirectEntityReifiedRelationship" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="findDirectEntityReifiedRelationship(iri:org.semanticweb.owlapi.model.IRI,relationships:scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLClass,gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityReifiedRelationship]):Option[gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityReifiedRelationship]"></a>
-      <a id="findDirectEntityReifiedRelationship(IRI,Map[OWLClass,ModelEntityReifiedRelationship]):Option[ModelEntityReifiedRelationship]"></a>
+      <a id="findDirectEntityReifiedRelationship(iri:org.semanticweb.owlapi.model.IRI,relationships:scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLClass,gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ReifiedRelationship]):Option[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ReifiedRelationship]"></a>
+      <a id="findDirectEntityReifiedRelationship(IRI,Map[OWLClass,ReifiedRelationship]):Option[ReifiedRelationship]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">findDirectEntityReifiedRelationship</span><span class="params">(<span name="iri">iri: <span class="extype" name="org.semanticweb.owlapi.model.IRI">IRI</span></span>, <span name="relationships">relationships: <span class="extype" name="scala.collection.immutable.Map">Map</span>[<span class="extype" name="org.semanticweb.owlapi.model.OWLClass">OWLClass</span>, <a href="ModelEntityReifiedRelationship.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityReifiedRelationship">ModelEntityReifiedRelationship</a>]</span>)</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<a href="ModelEntityReifiedRelationship.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityReifiedRelationship">ModelEntityReifiedRelationship</a>]</span>
+        <span class="name">findDirectEntityReifiedRelationship</span><span class="params">(<span name="iri">iri: <span class="extype" name="org.semanticweb.owlapi.model.IRI">IRI</span></span>, <span name="relationships">relationships: <span class="extype" name="scala.collection.immutable.Map">Map</span>[<span class="extype" name="org.semanticweb.owlapi.model.OWLClass">OWLClass</span>, <a href="terms/ReifiedRelationship.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ReifiedRelationship">ReifiedRelationship</a>]</span>)</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<a href="terms/ReifiedRelationship.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ReifiedRelationship">ReifiedRelationship</a>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper@findDirectEntityReifiedRelationship(iri:org.semanticweb.owlapi.model.IRI,relationships:scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLClass,gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityReifiedRelationship]):Option[gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityReifiedRelationship]" title="Permalink" target="_top">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper@findDirectEntityReifiedRelationship(iri:org.semanticweb.owlapi.model.IRI,relationships:scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLClass,gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ReifiedRelationship]):Option[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ReifiedRelationship]" title="Permalink" target="_top">
         <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       
     </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper#findEntityAspect" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="findEntityAspect(iri:org.semanticweb.owlapi.model.IRI,aspects:scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLClass,gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityAspect]):Option[gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityAspect]"></a>
-      <a id="findEntityAspect(IRI,Map[OWLClass,ModelEntityAspect]):Option[ModelEntityAspect]"></a>
+      <a id="findEntityAspect(iri:org.semanticweb.owlapi.model.IRI,aspects:scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLClass,gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Aspect]):Option[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Aspect]"></a>
+      <a id="findEntityAspect(IRI,Map[OWLClass,Aspect]):Option[Aspect]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">findEntityAspect</span><span class="params">(<span name="iri">iri: <span class="extype" name="org.semanticweb.owlapi.model.IRI">IRI</span></span>, <span name="aspects">aspects: <span class="extype" name="scala.collection.immutable.Map">Map</span>[<span class="extype" name="org.semanticweb.owlapi.model.OWLClass">OWLClass</span>, <a href="ModelEntityAspect.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityAspect">ModelEntityAspect</a>]</span>)</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<a href="ModelEntityAspect.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityAspect">ModelEntityAspect</a>]</span>
+        <span class="name">findEntityAspect</span><span class="params">(<span name="iri">iri: <span class="extype" name="org.semanticweb.owlapi.model.IRI">IRI</span></span>, <span name="aspects">aspects: <span class="extype" name="scala.collection.immutable.Map">Map</span>[<span class="extype" name="org.semanticweb.owlapi.model.OWLClass">OWLClass</span>, <a href="terms/Aspect.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Aspect">Aspect</a>]</span>)</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<a href="terms/Aspect.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Aspect">Aspect</a>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper@findEntityAspect(iri:org.semanticweb.owlapi.model.IRI,aspects:scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLClass,gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityAspect]):Option[gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityAspect]" title="Permalink" target="_top">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper@findEntityAspect(iri:org.semanticweb.owlapi.model.IRI,aspects:scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLClass,gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Aspect]):Option[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Aspect]" title="Permalink" target="_top">
         <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       
     </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper#findEntityConcept" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="findEntityConcept(iri:org.semanticweb.owlapi.model.IRI,concepts:scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLClass,gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityConcept]):Option[gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityConcept]"></a>
-      <a id="findEntityConcept(IRI,Map[OWLClass,ModelEntityConcept]):Option[ModelEntityConcept]"></a>
+      <a id="findEntityConcept(iri:org.semanticweb.owlapi.model.IRI,concepts:scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLClass,gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Concept]):Option[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Concept]"></a>
+      <a id="findEntityConcept(IRI,Map[OWLClass,Concept]):Option[Concept]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">findEntityConcept</span><span class="params">(<span name="iri">iri: <span class="extype" name="org.semanticweb.owlapi.model.IRI">IRI</span></span>, <span name="concepts">concepts: <span class="extype" name="scala.collection.immutable.Map">Map</span>[<span class="extype" name="org.semanticweb.owlapi.model.OWLClass">OWLClass</span>, <a href="ModelEntityConcept.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityConcept">ModelEntityConcept</a>]</span>)</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<a href="ModelEntityConcept.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityConcept">ModelEntityConcept</a>]</span>
+        <span class="name">findEntityConcept</span><span class="params">(<span name="iri">iri: <span class="extype" name="org.semanticweb.owlapi.model.IRI">IRI</span></span>, <span name="concepts">concepts: <span class="extype" name="scala.collection.immutable.Map">Map</span>[<span class="extype" name="org.semanticweb.owlapi.model.OWLClass">OWLClass</span>, <a href="terms/Concept.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Concept">Concept</a>]</span>)</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<a href="terms/Concept.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Concept">Concept</a>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper@findEntityConcept(iri:org.semanticweb.owlapi.model.IRI,concepts:scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLClass,gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityConcept]):Option[gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityConcept]" title="Permalink" target="_top">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper@findEntityConcept(iri:org.semanticweb.owlapi.model.IRI,concepts:scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLClass,gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Concept]):Option[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Concept]" title="Permalink" target="_top">
         <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       
     </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper#findEntityReifiedRelationship" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="findEntityReifiedRelationship(iri:org.semanticweb.owlapi.model.IRI,relationships:scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLClass,gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityReifiedRelationship]):Option[gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityReifiedRelationship]"></a>
-      <a id="findEntityReifiedRelationship(IRI,Map[OWLClass,ModelEntityReifiedRelationship]):Option[ModelEntityReifiedRelationship]"></a>
+      <a id="findEntityReifiedRelationship(iri:org.semanticweb.owlapi.model.IRI,relationships:scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLClass,gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ReifiedRelationship]):Option[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ReifiedRelationship]"></a>
+      <a id="findEntityReifiedRelationship(IRI,Map[OWLClass,ReifiedRelationship]):Option[ReifiedRelationship]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">findEntityReifiedRelationship</span><span class="params">(<span name="iri">iri: <span class="extype" name="org.semanticweb.owlapi.model.IRI">IRI</span></span>, <span name="relationships">relationships: <span class="extype" name="scala.collection.immutable.Map">Map</span>[<span class="extype" name="org.semanticweb.owlapi.model.OWLClass">OWLClass</span>, <a href="ModelEntityReifiedRelationship.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityReifiedRelationship">ModelEntityReifiedRelationship</a>]</span>)</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<a href="ModelEntityReifiedRelationship.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityReifiedRelationship">ModelEntityReifiedRelationship</a>]</span>
+        <span class="name">findEntityReifiedRelationship</span><span class="params">(<span name="iri">iri: <span class="extype" name="org.semanticweb.owlapi.model.IRI">IRI</span></span>, <span name="relationships">relationships: <span class="extype" name="scala.collection.immutable.Map">Map</span>[<span class="extype" name="org.semanticweb.owlapi.model.OWLClass">OWLClass</span>, <a href="terms/ReifiedRelationship.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ReifiedRelationship">ReifiedRelationship</a>]</span>)</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<a href="terms/ReifiedRelationship.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ReifiedRelationship">ReifiedRelationship</a>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper@findEntityReifiedRelationship(iri:org.semanticweb.owlapi.model.IRI,relationships:scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLClass,gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityReifiedRelationship]):Option[gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityReifiedRelationship]" title="Permalink" target="_top">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper@findEntityReifiedRelationship(iri:org.semanticweb.owlapi.model.IRI,relationships:scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLClass,gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ReifiedRelationship]):Option[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ReifiedRelationship]" title="Permalink" target="_top">
         <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       
     </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper#findImportedEntityAspect" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="findImportedEntityAspect(iri:org.semanticweb.owlapi.model.IRI):Option[gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityAspect]"></a>
-      <a id="findImportedEntityAspect(IRI):Option[ModelEntityAspect]"></a>
+      <a id="findImportedEntityAspect(iri:org.semanticweb.owlapi.model.IRI):Option[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Aspect]"></a>
+      <a id="findImportedEntityAspect(IRI):Option[Aspect]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">findImportedEntityAspect</span><span class="params">(<span name="iri">iri: <span class="extype" name="org.semanticweb.owlapi.model.IRI">IRI</span></span>)</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<a href="ModelEntityAspect.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityAspect">ModelEntityAspect</a>]</span>
+        <span class="name">findImportedEntityAspect</span><span class="params">(<span name="iri">iri: <span class="extype" name="org.semanticweb.owlapi.model.IRI">IRI</span></span>)</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<a href="terms/Aspect.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Aspect">Aspect</a>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper@findImportedEntityAspect(iri:org.semanticweb.owlapi.model.IRI):Option[gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityAspect]" title="Permalink" target="_top">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper@findImportedEntityAspect(iri:org.semanticweb.owlapi.model.IRI):Option[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Aspect]" title="Permalink" target="_top">
         <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       
     </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper#findImportedEntityConcept" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="findImportedEntityConcept(iri:org.semanticweb.owlapi.model.IRI):Option[gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityConcept]"></a>
-      <a id="findImportedEntityConcept(IRI):Option[ModelEntityConcept]"></a>
+      <a id="findImportedEntityConcept(iri:org.semanticweb.owlapi.model.IRI):Option[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Concept]"></a>
+      <a id="findImportedEntityConcept(IRI):Option[Concept]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">findImportedEntityConcept</span><span class="params">(<span name="iri">iri: <span class="extype" name="org.semanticweb.owlapi.model.IRI">IRI</span></span>)</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<a href="ModelEntityConcept.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityConcept">ModelEntityConcept</a>]</span>
+        <span class="name">findImportedEntityConcept</span><span class="params">(<span name="iri">iri: <span class="extype" name="org.semanticweb.owlapi.model.IRI">IRI</span></span>)</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<a href="terms/Concept.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Concept">Concept</a>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper@findImportedEntityConcept(iri:org.semanticweb.owlapi.model.IRI):Option[gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityConcept]" title="Permalink" target="_top">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper@findImportedEntityConcept(iri:org.semanticweb.owlapi.model.IRI):Option[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Concept]" title="Permalink" target="_top">
         <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       
     </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper#findImportedEntityReifiedRelationship" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="findImportedEntityReifiedRelationship(iri:org.semanticweb.owlapi.model.IRI):Option[gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityReifiedRelationship]"></a>
-      <a id="findImportedEntityReifiedRelationship(IRI):Option[ModelEntityReifiedRelationship]"></a>
+      <a id="findImportedEntityReifiedRelationship(iri:org.semanticweb.owlapi.model.IRI):Option[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ReifiedRelationship]"></a>
+      <a id="findImportedEntityReifiedRelationship(IRI):Option[ReifiedRelationship]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">findImportedEntityReifiedRelationship</span><span class="params">(<span name="iri">iri: <span class="extype" name="org.semanticweb.owlapi.model.IRI">IRI</span></span>)</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<a href="ModelEntityReifiedRelationship.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityReifiedRelationship">ModelEntityReifiedRelationship</a>]</span>
+        <span class="name">findImportedEntityReifiedRelationship</span><span class="params">(<span name="iri">iri: <span class="extype" name="org.semanticweb.owlapi.model.IRI">IRI</span></span>)</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<a href="terms/ReifiedRelationship.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ReifiedRelationship">ReifiedRelationship</a>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper@findImportedEntityReifiedRelationship(iri:org.semanticweb.owlapi.model.IRI):Option[gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityReifiedRelationship]" title="Permalink" target="_top">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper@findImportedEntityReifiedRelationship(iri:org.semanticweb.owlapi.model.IRI):Option[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ReifiedRelationship]" title="Permalink" target="_top">
         <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -540,36 +540,53 @@
       </a>
     </span>
       
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper#hasRelationshipCharacteristic" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="hasRelationshipCharacteristic(rc:gov.nasa.jpl.omf.scala.core.RelationshipCharacteristics.RelationshipCharacteristics,required:scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLObjectProperty,Boolean],optional:Option[(org.semanticweb.owlapi.model.OWLObjectProperty,Boolean)]):Option[gov.nasa.jpl.omf.scala.core.RelationshipCharacteristics.RelationshipCharacteristics]"></a>
+      <a id="hasRelationshipCharacteristic(RelationshipCharacteristics,Map[OWLObjectProperty,Boolean],Option[(OWLObjectProperty,Boolean)]):Option[RelationshipCharacteristics]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">hasRelationshipCharacteristic</span><span class="params">(<span name="rc">rc: <span class="extype" name="gov.nasa.jpl.omf.scala.core.RelationshipCharacteristics.RelationshipCharacteristics">RelationshipCharacteristics</span></span>, <span name="required">required: <span class="extype" name="scala.collection.immutable.Map">Map</span>[<span class="extype" name="org.semanticweb.owlapi.model.OWLObjectProperty">OWLObjectProperty</span>, <span class="extype" name="scala.Boolean">Boolean</span>]</span>, <span name="optional">optional: <span class="extype" name="scala.Option">Option</span>[(<span class="extype" name="org.semanticweb.owlapi.model.OWLObjectProperty">OWLObjectProperty</span>, <span class="extype" name="scala.Boolean">Boolean</span>)] = <span class="symbol">None</span></span>)</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="gov.nasa.jpl.omf.scala.core.RelationshipCharacteristics.RelationshipCharacteristics">RelationshipCharacteristics</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper@hasRelationshipCharacteristic(rc:gov.nasa.jpl.omf.scala.core.RelationshipCharacteristics.RelationshipCharacteristics,required:scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLObjectProperty,Boolean],optional:Option[(org.semanticweb.owlapi.model.OWLObjectProperty,Boolean)]):Option[gov.nasa.jpl.omf.scala.core.RelationshipCharacteristics.RelationshipCharacteristics]" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
     </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper#importClosure" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="importClosure:scala.collection.immutable.Set[gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelTerminologyGraph]"></a>
-      <a id="importClosure:Set[ModelTerminologyGraph]"></a>
+      <a id="importClosure:scala.collection.immutable.Set[gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox]"></a>
+      <a id="importClosure:Set[TerminologyBox]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">importClosure</span><span class="result">: <span class="extype" name="scala.collection.immutable.Set">Set</span>[<a href="ModelTerminologyGraph.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelTerminologyGraph">ModelTerminologyGraph</a>]</span>
+        <span class="name">importClosure</span><span class="result">: <span class="extype" name="scala.collection.immutable.Set">Set</span>[<a href="terminologies/TerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox">TerminologyBox</a>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper@importClosure:scala.collection.immutable.Set[gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelTerminologyGraph]" title="Permalink" target="_top">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper@importClosure:scala.collection.immutable.Set[gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox]" title="Permalink" target="_top">
         <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       
     </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper#imports" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="imports:scala.collection.immutable.Iterable[gov.nasa.jpl.omf.scala.binding.owlapi.types.ImmutableModelTerminologyGraph]"></a>
-      <a id="imports:Iterable[ImmutableModelTerminologyGraph]"></a>
+      <a id="imports:scala.collection.immutable.Iterable[gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyBox]"></a>
+      <a id="imports:Iterable[ImmutableTerminologyBox]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">imports</span><span class="result">: <span class="extype" name="scala.collection.immutable.Iterable">Iterable</span>[<a href="ImmutableModelTerminologyGraph.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ImmutableModelTerminologyGraph">ImmutableModelTerminologyGraph</a>]</span>
+        <span class="name">imports</span><span class="result">: <span class="extype" name="scala.collection.immutable.Iterable">Iterable</span>[<a href="terminologies/ImmutableTerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyBox">ImmutableTerminologyBox</a>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper@imports:scala.collection.immutable.Iterable[gov.nasa.jpl.omf.scala.binding.owlapi.types.ImmutableModelTerminologyGraph]" title="Permalink" target="_top">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper@imports:scala.collection.immutable.Iterable[gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyBox]" title="Permalink" target="_top">
         <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -591,6 +608,23 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper#m2i" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="m2i:gov.nasa.jpl.omf.scala.binding.owlapi.types.Mutable2ImmutableTerminologyMap"></a>
+      <a id="m2i:Mutable2ImmutableTerminologyMap"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">m2i</span><span class="result">: <a href="package.html#Mutable2ImmutableTerminologyMap=scala.collection.immutable.Map[gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.MutableTerminologyBox,gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyBox]" class="extmbr" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.Mutable2ImmutableTerminologyMap">Mutable2ImmutableTerminologyMap</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper@m2i:gov.nasa.jpl.omf.scala.binding.owlapi.types.Mutable2ImmutableTerminologyMap" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
     </li><li name="scala.AnyRef#ne" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ne(x$1:AnyRef):Boolean"></a>
       <a id="ne(AnyRef):Boolean"></a>
@@ -643,18 +677,18 @@
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper#omfMetadata" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="omfMetadata:org.semanticweb.owlapi.model.OWLOntology"></a>
-      <a id="omfMetadata:OWLOntology"></a>
+      <a id="omfMetadata:Option[org.semanticweb.owlapi.model.OWLOntology]"></a>
+      <a id="omfMetadata:Option[OWLOntology]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">omfMetadata</span><span class="result">: <span class="extype" name="org.semanticweb.owlapi.model.OWLOntology">OWLOntology</span></span>
+        <span class="name">omfMetadata</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="org.semanticweb.owlapi.model.OWLOntology">OWLOntology</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper@omfMetadata:org.semanticweb.owlapi.model.OWLOntology" title="Permalink" target="_top">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper@omfMetadata:Option[org.semanticweb.owlapi.model.OWLOntology]" title="Permalink" target="_top">
         <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -745,18 +779,18 @@
     </span>
       
     </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper#resolveConceptSubClassAxioms" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="resolveConceptSubClassAxioms(conceptCMs:scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLClass,gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityConcept],allConceptsIncludingImported:scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLClass,gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityConcept])(implicitreasoner:org.semanticweb.owlapi.reasoner.OWLReasoner,implicitbackbone:gov.nasa.jpl.omf.scala.binding.owlapi.OMFBackbone):scalaz.\/[scala.collection.immutable.Set[Throwable],Unit]"></a>
-      <a id="resolveConceptSubClassAxioms(Map[OWLClass,ModelEntityConcept],Map[OWLClass,ModelEntityConcept])(OWLReasoner,OMFBackbone):\/[Set[Throwable],Unit]"></a>
+      <a id="resolveConceptSubClassAxioms(conceptCMs:scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLClass,gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Concept],allConceptsIncludingImported:scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLClass,gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Concept])(implicitreasoner:org.semanticweb.owlapi.reasoner.OWLReasoner,implicitbackbone:gov.nasa.jpl.omf.scala.binding.owlapi.OMFBackbone):scalaz.\/[scala.collection.immutable.Set[Throwable],Unit]"></a>
+      <a id="resolveConceptSubClassAxioms(Map[OWLClass,Concept],Map[OWLClass,Concept])(OWLReasoner,OMFBackbone):\/[Set[Throwable],Unit]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">resolveConceptSubClassAxioms</span><span class="params">(<span name="conceptCMs">conceptCMs: <span class="extype" name="scala.collection.immutable.Map">Map</span>[<span class="extype" name="org.semanticweb.owlapi.model.OWLClass">OWLClass</span>, <a href="ModelEntityConcept.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityConcept">ModelEntityConcept</a>]</span>, <span name="allConceptsIncludingImported">allConceptsIncludingImported: <span class="extype" name="scala.collection.immutable.Map">Map</span>[<span class="extype" name="org.semanticweb.owlapi.model.OWLClass">OWLClass</span>, <a href="ModelEntityConcept.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityConcept">ModelEntityConcept</a>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="reasoner">reasoner: <span class="extype" name="org.semanticweb.owlapi.reasoner.OWLReasoner">OWLReasoner</span></span>, <span name="backbone">backbone: <a href="../OMFBackbone.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OMFBackbone">OMFBackbone</a></span>)</span><span class="result">: <span class="extype" name="scalaz.\/">\/</span>[<span class="extype" name="scala.collection.immutable.Set">Set</span>[<span class="extype" name="java.lang.Throwable">Throwable</span>], <span class="extype" name="scala.Unit">Unit</span>]</span>
+        <span class="name">resolveConceptSubClassAxioms</span><span class="params">(<span name="conceptCMs">conceptCMs: <span class="extype" name="scala.collection.immutable.Map">Map</span>[<span class="extype" name="org.semanticweb.owlapi.model.OWLClass">OWLClass</span>, <a href="terms/Concept.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Concept">Concept</a>]</span>, <span name="allConceptsIncludingImported">allConceptsIncludingImported: <span class="extype" name="scala.collection.immutable.Map">Map</span>[<span class="extype" name="org.semanticweb.owlapi.model.OWLClass">OWLClass</span>, <a href="terms/Concept.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Concept">Concept</a>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="reasoner">reasoner: <span class="extype" name="org.semanticweb.owlapi.reasoner.OWLReasoner">OWLReasoner</span></span>, <span name="backbone">backbone: <a href="../OMFBackbone.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OMFBackbone">OMFBackbone</a></span>)</span><span class="result">: <span class="extype" name="scalaz.\/">\/</span>[<span class="extype" name="scala.collection.immutable.Set">Set</span>[<span class="extype" name="java.lang.Throwable">Throwable</span>], <span class="extype" name="scala.Unit">Unit</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper@resolveConceptSubClassAxioms(conceptCMs:scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLClass,gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityConcept],allConceptsIncludingImported:scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLClass,gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityConcept])(implicitreasoner:org.semanticweb.owlapi.reasoner.OWLReasoner,implicitbackbone:gov.nasa.jpl.omf.scala.binding.owlapi.OMFBackbone):scalaz.\/[scala.collection.immutable.Set[Throwable],Unit]" title="Permalink" target="_top">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper@resolveConceptSubClassAxioms(conceptCMs:scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLClass,gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Concept],allConceptsIncludingImported:scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLClass,gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Concept])(implicitreasoner:org.semanticweb.owlapi.reasoner.OWLReasoner,implicitbackbone:gov.nasa.jpl.omf.scala.binding.owlapi.OMFBackbone):scalaz.\/[scala.collection.immutable.Set[Throwable],Unit]" title="Permalink" target="_top">
         <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -779,35 +813,35 @@
     </span>
       
     </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper#resolveDataRelationshipsFromEntity2Scalars" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="resolveDataRelationshipsFromEntity2Scalars(entityDefinitions:scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLClass,gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityDefinition],dataPropertyDPIRIs:scala.collection.immutable.Iterable[ResolverHelper.this.DOPInfo],DTs:scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLDatatype,gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelScalarDataType]):scalaz.\/[scala.collection.immutable.Set[Throwable],scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipFromEntityToScalar]]"></a>
-      <a id="resolveDataRelationshipsFromEntity2Scalars(Map[OWLClass,ModelEntityDefinition],Iterable[DOPInfo],Map[OWLDatatype,ModelScalarDataType]):\/[Set[Throwable],Vector[ModelDataRelationshipFromEntityToScalar]]"></a>
+      <a id="resolveDataRelationshipsFromEntity2Scalars(entityDefinitions:scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLClass,gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Entity],dataPropertyDPIRIs:scala.collection.immutable.Iterable[ResolverHelper.this.DOPInfo],DTs:scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLDatatype,gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.DataRange]):scalaz.\/[scala.collection.immutable.Set[Throwable],scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.EntityScalarDataProperty]]"></a>
+      <a id="resolveDataRelationshipsFromEntity2Scalars(Map[OWLClass,Entity],Iterable[DOPInfo],Map[OWLDatatype,DataRange]):\/[Set[Throwable],Vector[EntityScalarDataProperty]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">resolveDataRelationshipsFromEntity2Scalars</span><span class="params">(<span name="entityDefinitions">entityDefinitions: <span class="extype" name="scala.collection.immutable.Map">Map</span>[<span class="extype" name="org.semanticweb.owlapi.model.OWLClass">OWLClass</span>, <a href="ModelEntityDefinition.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityDefinition">ModelEntityDefinition</a>]</span>, <span name="dataPropertyDPIRIs">dataPropertyDPIRIs: <span class="extype" name="scala.collection.immutable.Iterable">Iterable</span>[<a href="#DOPInfo=(org.semanticweb.owlapi.model.OWLDataProperty,org.semanticweb.owlapi.model.OWLClass,org.semanticweb.owlapi.model.OWLDatatype)" class="extmbr" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper.DOPInfo">DOPInfo</a>]</span>, <span name="DTs">DTs: <span class="extype" name="scala.collection.immutable.Map">Map</span>[<span class="extype" name="org.semanticweb.owlapi.model.OWLDatatype">OWLDatatype</span>, <a href="ModelScalarDataType.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelScalarDataType">ModelScalarDataType</a>]</span>)</span><span class="result">: <span class="extype" name="scalaz.\/">\/</span>[<span class="extype" name="scala.collection.immutable.Set">Set</span>[<span class="extype" name="java.lang.Throwable">Throwable</span>], <span class="extype" name="scala.collection.immutable.Vector">Vector</span>[<a href="ModelDataRelationshipFromEntityToScalar.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipFromEntityToScalar">ModelDataRelationshipFromEntityToScalar</a>]]</span>
+        <span class="name">resolveDataRelationshipsFromEntity2Scalars</span><span class="params">(<span name="entityDefinitions">entityDefinitions: <span class="extype" name="scala.collection.immutable.Map">Map</span>[<span class="extype" name="org.semanticweb.owlapi.model.OWLClass">OWLClass</span>, <a href="terms/Entity.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Entity">Entity</a>]</span>, <span name="dataPropertyDPIRIs">dataPropertyDPIRIs: <span class="extype" name="scala.collection.immutable.Iterable">Iterable</span>[<a href="#DOPInfo=(org.semanticweb.owlapi.model.OWLDataProperty,org.semanticweb.owlapi.model.OWLClass,org.semanticweb.owlapi.model.OWLDatatype)" class="extmbr" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper.DOPInfo">DOPInfo</a>]</span>, <span name="DTs">DTs: <span class="extype" name="scala.collection.immutable.Map">Map</span>[<span class="extype" name="org.semanticweb.owlapi.model.OWLDatatype">OWLDatatype</span>, <a href="terms/DataRange.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.DataRange">DataRange</a>]</span>)</span><span class="result">: <span class="extype" name="scalaz.\/">\/</span>[<span class="extype" name="scala.collection.immutable.Set">Set</span>[<span class="extype" name="java.lang.Throwable">Throwable</span>], <span class="extype" name="scala.collection.immutable.Vector">Vector</span>[<a href="terms/EntityScalarDataProperty.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.EntityScalarDataProperty">EntityScalarDataProperty</a>]]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper@resolveDataRelationshipsFromEntity2Scalars(entityDefinitions:scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLClass,gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityDefinition],dataPropertyDPIRIs:scala.collection.immutable.Iterable[ResolverHelper.this.DOPInfo],DTs:scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLDatatype,gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelScalarDataType]):scalaz.\/[scala.collection.immutable.Set[Throwable],scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelDataRelationshipFromEntityToScalar]]" title="Permalink" target="_top">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper@resolveDataRelationshipsFromEntity2Scalars(entityDefinitions:scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLClass,gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Entity],dataPropertyDPIRIs:scala.collection.immutable.Iterable[ResolverHelper.this.DOPInfo],DTs:scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLDatatype,gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.DataRange]):scalaz.\/[scala.collection.immutable.Set[Throwable],scala.collection.immutable.Vector[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.EntityScalarDataProperty]]" title="Permalink" target="_top">
         <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       
     </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper#resolveDefinitionAspectSubClassAxioms" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="resolveDefinitionAspectSubClassAxioms(allEntityDefinitions:scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLClass,gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityDefinition],allAspectsIncludingImported:scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLClass,gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityAspect])(implicitreasoner:org.semanticweb.owlapi.reasoner.OWLReasoner,implicitbackbone:gov.nasa.jpl.omf.scala.binding.owlapi.OMFBackbone):scalaz.\/[scala.collection.immutable.Set[Throwable],Unit]"></a>
-      <a id="resolveDefinitionAspectSubClassAxioms(Map[OWLClass,ModelEntityDefinition],Map[OWLClass,ModelEntityAspect])(OWLReasoner,OMFBackbone):\/[Set[Throwable],Unit]"></a>
+      <a id="resolveDefinitionAspectSubClassAxioms(allEntityDefinitions:scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLClass,gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Entity],allAspectsIncludingImported:scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLClass,gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Aspect])(implicitreasoner:org.semanticweb.owlapi.reasoner.OWLReasoner,implicitbackbone:gov.nasa.jpl.omf.scala.binding.owlapi.OMFBackbone):scalaz.\/[scala.collection.immutable.Set[Throwable],Unit]"></a>
+      <a id="resolveDefinitionAspectSubClassAxioms(Map[OWLClass,Entity],Map[OWLClass,Aspect])(OWLReasoner,OMFBackbone):\/[Set[Throwable],Unit]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">resolveDefinitionAspectSubClassAxioms</span><span class="params">(<span name="allEntityDefinitions">allEntityDefinitions: <span class="extype" name="scala.collection.immutable.Map">Map</span>[<span class="extype" name="org.semanticweb.owlapi.model.OWLClass">OWLClass</span>, <a href="ModelEntityDefinition.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityDefinition">ModelEntityDefinition</a>]</span>, <span name="allAspectsIncludingImported">allAspectsIncludingImported: <span class="extype" name="scala.collection.immutable.Map">Map</span>[<span class="extype" name="org.semanticweb.owlapi.model.OWLClass">OWLClass</span>, <a href="ModelEntityAspect.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityAspect">ModelEntityAspect</a>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="reasoner">reasoner: <span class="extype" name="org.semanticweb.owlapi.reasoner.OWLReasoner">OWLReasoner</span></span>, <span name="backbone">backbone: <a href="../OMFBackbone.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OMFBackbone">OMFBackbone</a></span>)</span><span class="result">: <span class="extype" name="scalaz.\/">\/</span>[<span class="extype" name="scala.collection.immutable.Set">Set</span>[<span class="extype" name="java.lang.Throwable">Throwable</span>], <span class="extype" name="scala.Unit">Unit</span>]</span>
+        <span class="name">resolveDefinitionAspectSubClassAxioms</span><span class="params">(<span name="allEntityDefinitions">allEntityDefinitions: <span class="extype" name="scala.collection.immutable.Map">Map</span>[<span class="extype" name="org.semanticweb.owlapi.model.OWLClass">OWLClass</span>, <a href="terms/Entity.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Entity">Entity</a>]</span>, <span name="allAspectsIncludingImported">allAspectsIncludingImported: <span class="extype" name="scala.collection.immutable.Map">Map</span>[<span class="extype" name="org.semanticweb.owlapi.model.OWLClass">OWLClass</span>, <a href="terms/Aspect.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Aspect">Aspect</a>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="reasoner">reasoner: <span class="extype" name="org.semanticweb.owlapi.reasoner.OWLReasoner">OWLReasoner</span></span>, <span name="backbone">backbone: <a href="../OMFBackbone.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OMFBackbone">OMFBackbone</a></span>)</span><span class="result">: <span class="extype" name="scalaz.\/">\/</span>[<span class="extype" name="scala.collection.immutable.Set">Set</span>[<span class="extype" name="java.lang.Throwable">Throwable</span>], <span class="extype" name="scala.Unit">Unit</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper@resolveDefinitionAspectSubClassAxioms(allEntityDefinitions:scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLClass,gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityDefinition],allAspectsIncludingImported:scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLClass,gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityAspect])(implicitreasoner:org.semanticweb.owlapi.reasoner.OWLReasoner,implicitbackbone:gov.nasa.jpl.omf.scala.binding.owlapi.OMFBackbone):scalaz.\/[scala.collection.immutable.Set[Throwable],Unit]" title="Permalink" target="_top">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper@resolveDefinitionAspectSubClassAxioms(allEntityDefinitions:scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLClass,gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Entity],allAspectsIncludingImported:scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLClass,gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Aspect])(implicitreasoner:org.semanticweb.owlapi.reasoner.OWLReasoner,implicitbackbone:gov.nasa.jpl.omf.scala.binding.owlapi.OMFBackbone):scalaz.\/[scala.collection.immutable.Set[Throwable],Unit]" title="Permalink" target="_top">
         <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -830,18 +864,18 @@
     </span>
       
     </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper#resolveEntityDefinitionsForRelationships" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="resolveEntityDefinitionsForRelationships(entityDefinitions:scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLClass,gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityDefinition],RCs:scala.collection.immutable.Map[org.semanticweb.owlapi.model.IRI,org.semanticweb.owlapi.model.OWLClass],ROPs:scala.collection.immutable.Iterable[ResolverHelper.this.ROPInfo],sourceROPs:scala.collection.immutable.Iterable[ResolverHelper.this.ROPInfo],targetROPs:scala.collection.immutable.Iterable[ResolverHelper.this.ROPInfo],chains:ResolverHelper.this.Chains,entityReifiedRelationships:scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLClass,gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityReifiedRelationship]):scalaz.\/[scala.collection.immutable.Set[Throwable],scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLClass,gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityReifiedRelationship]]"></a>
-      <a id="resolveEntityDefinitionsForRelationships(Map[OWLClass,ModelEntityDefinition],Map[IRI,OWLClass],Iterable[ROPInfo],Iterable[ROPInfo],Iterable[ROPInfo],Chains,Map[OWLClass,ModelEntityReifiedRelationship]):\/[Set[Throwable],Map[OWLClass,ModelEntityReifiedRelationship]]"></a>
+      <a id="resolveEntityDefinitionsForRelationships(entityDefinitions:scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLClass,gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Entity],RCs:scala.collection.immutable.Map[org.semanticweb.owlapi.model.IRI,org.semanticweb.owlapi.model.OWLClass],ROPs:scala.collection.immutable.Iterable[ResolverHelper.this.ROPInfo],sourceROPs:scala.collection.immutable.Iterable[ResolverHelper.this.ROPInfo],targetROPs:scala.collection.immutable.Iterable[ResolverHelper.this.ROPInfo],chains:ResolverHelper.this.Chains,entityReifiedRelationships:scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLClass,gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ReifiedRelationship]):scalaz.\/[scala.collection.immutable.Set[Throwable],scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLClass,gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ReifiedRelationship]]"></a>
+      <a id="resolveEntityDefinitionsForRelationships(Map[OWLClass,Entity],Map[IRI,OWLClass],Iterable[ROPInfo],Iterable[ROPInfo],Iterable[ROPInfo],Chains,Map[OWLClass,ReifiedRelationship]):\/[Set[Throwable],Map[OWLClass,ReifiedRelationship]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">resolveEntityDefinitionsForRelationships</span><span class="params">(<span name="entityDefinitions">entityDefinitions: <span class="extype" name="scala.collection.immutable.Map">Map</span>[<span class="extype" name="org.semanticweb.owlapi.model.OWLClass">OWLClass</span>, <a href="ModelEntityDefinition.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityDefinition">ModelEntityDefinition</a>]</span>, <span name="RCs">RCs: <span class="extype" name="scala.collection.immutable.Map">Map</span>[<span class="extype" name="org.semanticweb.owlapi.model.IRI">IRI</span>, <span class="extype" name="org.semanticweb.owlapi.model.OWLClass">OWLClass</span>]</span>, <span name="ROPs">ROPs: <span class="extype" name="scala.collection.immutable.Iterable">Iterable</span>[<a href="#ROPInfo=(org.semanticweb.owlapi.model.IRI,org.semanticweb.owlapi.model.OWLObjectProperty,org.semanticweb.owlapi.model.OWLClass,org.semanticweb.owlapi.model.OWLClass,Option[org.semanticweb.owlapi.model.OWLObjectProperty])" class="extmbr" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper.ROPInfo">ROPInfo</a>]</span>, <span name="sourceROPs">sourceROPs: <span class="extype" name="scala.collection.immutable.Iterable">Iterable</span>[<a href="#ROPInfo=(org.semanticweb.owlapi.model.IRI,org.semanticweb.owlapi.model.OWLObjectProperty,org.semanticweb.owlapi.model.OWLClass,org.semanticweb.owlapi.model.OWLClass,Option[org.semanticweb.owlapi.model.OWLObjectProperty])" class="extmbr" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper.ROPInfo">ROPInfo</a>]</span>, <span name="targetROPs">targetROPs: <span class="extype" name="scala.collection.immutable.Iterable">Iterable</span>[<a href="#ROPInfo=(org.semanticweb.owlapi.model.IRI,org.semanticweb.owlapi.model.OWLObjectProperty,org.semanticweb.owlapi.model.OWLClass,org.semanticweb.owlapi.model.OWLClass,Option[org.semanticweb.owlapi.model.OWLObjectProperty])" class="extmbr" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper.ROPInfo">ROPInfo</a>]</span>, <span name="chains">chains: <a href="#Chains=scala.collection.immutable.Set[(org.semanticweb.owlapi.model.OWLObjectProperty,org.semanticweb.owlapi.model.OWLObjectProperty,org.semanticweb.owlapi.model.OWLObjectProperty)]" class="extmbr" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper.Chains">Chains</a></span>, <span name="entityReifiedRelationships">entityReifiedRelationships: <span class="extype" name="scala.collection.immutable.Map">Map</span>[<span class="extype" name="org.semanticweb.owlapi.model.OWLClass">OWLClass</span>, <a href="ModelEntityReifiedRelationship.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityReifiedRelationship">ModelEntityReifiedRelationship</a>]</span>)</span><span class="result">: <span class="extype" name="scalaz.\/">\/</span>[<span class="extype" name="scala.collection.immutable.Set">Set</span>[<span class="extype" name="java.lang.Throwable">Throwable</span>], <span class="extype" name="scala.collection.immutable.Map">Map</span>[<span class="extype" name="org.semanticweb.owlapi.model.OWLClass">OWLClass</span>, <a href="ModelEntityReifiedRelationship.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityReifiedRelationship">ModelEntityReifiedRelationship</a>]]</span>
+        <span class="name">resolveEntityDefinitionsForRelationships</span><span class="params">(<span name="entityDefinitions">entityDefinitions: <span class="extype" name="scala.collection.immutable.Map">Map</span>[<span class="extype" name="org.semanticweb.owlapi.model.OWLClass">OWLClass</span>, <a href="terms/Entity.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Entity">Entity</a>]</span>, <span name="RCs">RCs: <span class="extype" name="scala.collection.immutable.Map">Map</span>[<span class="extype" name="org.semanticweb.owlapi.model.IRI">IRI</span>, <span class="extype" name="org.semanticweb.owlapi.model.OWLClass">OWLClass</span>]</span>, <span name="ROPs">ROPs: <span class="extype" name="scala.collection.immutable.Iterable">Iterable</span>[<a href="#ROPInfo=(org.semanticweb.owlapi.model.IRI,org.semanticweb.owlapi.model.OWLObjectProperty,org.semanticweb.owlapi.model.OWLClass,org.semanticweb.owlapi.model.OWLClass,Option[org.semanticweb.owlapi.model.OWLObjectProperty])" class="extmbr" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper.ROPInfo">ROPInfo</a>]</span>, <span name="sourceROPs">sourceROPs: <span class="extype" name="scala.collection.immutable.Iterable">Iterable</span>[<a href="#ROPInfo=(org.semanticweb.owlapi.model.IRI,org.semanticweb.owlapi.model.OWLObjectProperty,org.semanticweb.owlapi.model.OWLClass,org.semanticweb.owlapi.model.OWLClass,Option[org.semanticweb.owlapi.model.OWLObjectProperty])" class="extmbr" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper.ROPInfo">ROPInfo</a>]</span>, <span name="targetROPs">targetROPs: <span class="extype" name="scala.collection.immutable.Iterable">Iterable</span>[<a href="#ROPInfo=(org.semanticweb.owlapi.model.IRI,org.semanticweb.owlapi.model.OWLObjectProperty,org.semanticweb.owlapi.model.OWLClass,org.semanticweb.owlapi.model.OWLClass,Option[org.semanticweb.owlapi.model.OWLObjectProperty])" class="extmbr" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper.ROPInfo">ROPInfo</a>]</span>, <span name="chains">chains: <a href="#Chains=scala.collection.immutable.Set[(org.semanticweb.owlapi.model.OWLObjectProperty,org.semanticweb.owlapi.model.OWLObjectProperty,org.semanticweb.owlapi.model.OWLObjectProperty)]" class="extmbr" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper.Chains">Chains</a></span>, <span name="entityReifiedRelationships">entityReifiedRelationships: <span class="extype" name="scala.collection.immutable.Map">Map</span>[<span class="extype" name="org.semanticweb.owlapi.model.OWLClass">OWLClass</span>, <a href="terms/ReifiedRelationship.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ReifiedRelationship">ReifiedRelationship</a>]</span>)</span><span class="result">: <span class="extype" name="scalaz.\/">\/</span>[<span class="extype" name="scala.collection.immutable.Set">Set</span>[<span class="extype" name="java.lang.Throwable">Throwable</span>], <span class="extype" name="scala.collection.immutable.Map">Map</span>[<span class="extype" name="org.semanticweb.owlapi.model.OWLClass">OWLClass</span>, <a href="terms/ReifiedRelationship.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ReifiedRelationship">ReifiedRelationship</a>]]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper@resolveEntityDefinitionsForRelationships(entityDefinitions:scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLClass,gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityDefinition],RCs:scala.collection.immutable.Map[org.semanticweb.owlapi.model.IRI,org.semanticweb.owlapi.model.OWLClass],ROPs:scala.collection.immutable.Iterable[ResolverHelper.this.ROPInfo],sourceROPs:scala.collection.immutable.Iterable[ResolverHelper.this.ROPInfo],targetROPs:scala.collection.immutable.Iterable[ResolverHelper.this.ROPInfo],chains:ResolverHelper.this.Chains,entityReifiedRelationships:scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLClass,gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityReifiedRelationship]):scalaz.\/[scala.collection.immutable.Set[Throwable],scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLClass,gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityReifiedRelationship]]" title="Permalink" target="_top">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper@resolveEntityDefinitionsForRelationships(entityDefinitions:scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLClass,gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Entity],RCs:scala.collection.immutable.Map[org.semanticweb.owlapi.model.IRI,org.semanticweb.owlapi.model.OWLClass],ROPs:scala.collection.immutable.Iterable[ResolverHelper.this.ROPInfo],sourceROPs:scala.collection.immutable.Iterable[ResolverHelper.this.ROPInfo],targetROPs:scala.collection.immutable.Iterable[ResolverHelper.this.ROPInfo],chains:ResolverHelper.this.Chains,entityReifiedRelationships:scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLClass,gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ReifiedRelationship]):scalaz.\/[scala.collection.immutable.Set[Throwable],scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLClass,gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ReifiedRelationship]]" title="Permalink" target="_top">
         <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -864,18 +898,18 @@
     </span>
       
     </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper#resolveReifiedRelationshipSubClassAxioms" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="resolveReifiedRelationshipSubClassAxioms(reifiedRelationshipCMs:scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLClass,gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityReifiedRelationship],allReifiedRelationshipsIncludingImported:scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLClass,gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityReifiedRelationship])(implicitreasoner:org.semanticweb.owlapi.reasoner.OWLReasoner,implicitbackbone:gov.nasa.jpl.omf.scala.binding.owlapi.OMFBackbone):scalaz.\/[scala.collection.immutable.Set[Throwable],Unit]"></a>
-      <a id="resolveReifiedRelationshipSubClassAxioms(Map[OWLClass,ModelEntityReifiedRelationship],Map[OWLClass,ModelEntityReifiedRelationship])(OWLReasoner,OMFBackbone):\/[Set[Throwable],Unit]"></a>
+      <a id="resolveReifiedRelationshipSubClassAxioms(reifiedRelationshipCMs:scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLClass,gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ReifiedRelationship],allReifiedRelationshipsIncludingImported:scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLClass,gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ReifiedRelationship])(implicitreasoner:org.semanticweb.owlapi.reasoner.OWLReasoner,implicitbackbone:gov.nasa.jpl.omf.scala.binding.owlapi.OMFBackbone):scalaz.\/[scala.collection.immutable.Set[Throwable],Unit]"></a>
+      <a id="resolveReifiedRelationshipSubClassAxioms(Map[OWLClass,ReifiedRelationship],Map[OWLClass,ReifiedRelationship])(OWLReasoner,OMFBackbone):\/[Set[Throwable],Unit]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">resolveReifiedRelationshipSubClassAxioms</span><span class="params">(<span name="reifiedRelationshipCMs">reifiedRelationshipCMs: <span class="extype" name="scala.collection.immutable.Map">Map</span>[<span class="extype" name="org.semanticweb.owlapi.model.OWLClass">OWLClass</span>, <a href="ModelEntityReifiedRelationship.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityReifiedRelationship">ModelEntityReifiedRelationship</a>]</span>, <span name="allReifiedRelationshipsIncludingImported">allReifiedRelationshipsIncludingImported: <span class="extype" name="scala.collection.immutable.Map">Map</span>[<span class="extype" name="org.semanticweb.owlapi.model.OWLClass">OWLClass</span>, <a href="ModelEntityReifiedRelationship.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityReifiedRelationship">ModelEntityReifiedRelationship</a>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="reasoner">reasoner: <span class="extype" name="org.semanticweb.owlapi.reasoner.OWLReasoner">OWLReasoner</span></span>, <span name="backbone">backbone: <a href="../OMFBackbone.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OMFBackbone">OMFBackbone</a></span>)</span><span class="result">: <span class="extype" name="scalaz.\/">\/</span>[<span class="extype" name="scala.collection.immutable.Set">Set</span>[<span class="extype" name="java.lang.Throwable">Throwable</span>], <span class="extype" name="scala.Unit">Unit</span>]</span>
+        <span class="name">resolveReifiedRelationshipSubClassAxioms</span><span class="params">(<span name="reifiedRelationshipCMs">reifiedRelationshipCMs: <span class="extype" name="scala.collection.immutable.Map">Map</span>[<span class="extype" name="org.semanticweb.owlapi.model.OWLClass">OWLClass</span>, <a href="terms/ReifiedRelationship.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ReifiedRelationship">ReifiedRelationship</a>]</span>, <span name="allReifiedRelationshipsIncludingImported">allReifiedRelationshipsIncludingImported: <span class="extype" name="scala.collection.immutable.Map">Map</span>[<span class="extype" name="org.semanticweb.owlapi.model.OWLClass">OWLClass</span>, <a href="terms/ReifiedRelationship.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ReifiedRelationship">ReifiedRelationship</a>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="reasoner">reasoner: <span class="extype" name="org.semanticweb.owlapi.reasoner.OWLReasoner">OWLReasoner</span></span>, <span name="backbone">backbone: <a href="../OMFBackbone.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OMFBackbone">OMFBackbone</a></span>)</span><span class="result">: <span class="extype" name="scalaz.\/">\/</span>[<span class="extype" name="scala.collection.immutable.Set">Set</span>[<span class="extype" name="java.lang.Throwable">Throwable</span>], <span class="extype" name="scala.Unit">Unit</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper@resolveReifiedRelationshipSubClassAxioms(reifiedRelationshipCMs:scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLClass,gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityReifiedRelationship],allReifiedRelationshipsIncludingImported:scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLClass,gov.nasa.jpl.omf.scala.binding.owlapi.types.ModelEntityReifiedRelationship])(implicitreasoner:org.semanticweb.owlapi.reasoner.OWLReasoner,implicitbackbone:gov.nasa.jpl.omf.scala.binding.owlapi.OMFBackbone):scalaz.\/[scala.collection.immutable.Set[Throwable],Unit]" title="Permalink" target="_top">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper@resolveReifiedRelationshipSubClassAxioms(reifiedRelationshipCMs:scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLClass,gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ReifiedRelationship],allReifiedRelationshipsIncludingImported:scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLClass,gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ReifiedRelationship])(implicitreasoner:org.semanticweb.owlapi.reasoner.OWLReasoner,implicitbackbone:gov.nasa.jpl.omf.scala.binding.owlapi.OMFBackbone):scalaz.\/[scala.collection.immutable.Set[Throwable],Unit]" title="Permalink" target="_top">
         <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -927,6 +961,23 @@
       </span>
       </h4><span class="permalink">
       <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper@resolveThingCIRIs(thingSubClasses:org.semanticweb.owlapi.reasoner.NodeSet[org.semanticweb.owlapi.model.OWLClass],tCs:scala.collection.immutable.Set[org.semanticweb.owlapi.model.OWLClass]):scala.collection.immutable.Map[org.semanticweb.owlapi.model.IRI,org.semanticweb.owlapi.model.OWLClass]" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper#resolveUnreifiedRelationships" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="resolveUnreifiedRelationships(subOPs:org.semanticweb.owlapi.reasoner.NodeSet[org.semanticweb.owlapi.model.OWLObjectPropertyExpression],entities:scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLClass,gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Entity])(implicitreasoner:org.semanticweb.owlapi.reasoner.OWLReasoner):scalaz.\/[scala.collection.immutable.Set[Throwable],scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLObjectProperty,gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.UnreifiedRelationship]]"></a>
+      <a id="resolveUnreifiedRelationships(NodeSet[OWLObjectPropertyExpression],Map[OWLClass,Entity])(OWLReasoner):\/[Set[Throwable],Map[OWLObjectProperty,UnreifiedRelationship]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">resolveUnreifiedRelationships</span><span class="params">(<span name="subOPs">subOPs: <span class="extype" name="org.semanticweb.owlapi.reasoner.NodeSet">NodeSet</span>[<span class="extype" name="org.semanticweb.owlapi.model.OWLObjectPropertyExpression">OWLObjectPropertyExpression</span>]</span>, <span name="entities">entities: <span class="extype" name="scala.collection.immutable.Map">Map</span>[<span class="extype" name="org.semanticweb.owlapi.model.OWLClass">OWLClass</span>, <a href="terms/Entity.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Entity">Entity</a>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="reasoner">reasoner: <span class="extype" name="org.semanticweb.owlapi.reasoner.OWLReasoner">OWLReasoner</span></span>)</span><span class="result">: <span class="extype" name="scalaz.\/">\/</span>[<span class="extype" name="scala.collection.immutable.Set">Set</span>[<span class="extype" name="java.lang.Throwable">Throwable</span>], <span class="extype" name="scala.collection.immutable.Map">Map</span>[<span class="extype" name="org.semanticweb.owlapi.model.OWLObjectProperty">OWLObjectProperty</span>, <a href="terms/UnreifiedRelationship.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.UnreifiedRelationship">UnreifiedRelationship</a>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper@resolveUnreifiedRelationships(subOPs:org.semanticweb.owlapi.reasoner.NodeSet[org.semanticweb.owlapi.model.OWLObjectPropertyExpression],entities:scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLClass,gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Entity])(implicitreasoner:org.semanticweb.owlapi.reasoner.OWLReasoner):scalaz.\/[scala.collection.immutable.Set[Throwable],scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLObjectProperty,gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.UnreifiedRelationship]]" title="Permalink" target="_top">
         <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -983,18 +1034,18 @@
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper#tboxG" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="tboxG:gov.nasa.jpl.omf.scala.binding.owlapi.types.MutableModelTerminologyGraph"></a>
-      <a id="tboxG:MutableModelTerminologyGraph"></a>
+      <a id="tboxG:gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.MutableTerminologyBox"></a>
+      <a id="tboxG:MutableTerminologyBox"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">tboxG</span><span class="result">: <a href="MutableModelTerminologyGraph.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.MutableModelTerminologyGraph">MutableModelTerminologyGraph</a></span>
+        <span class="name">tboxG</span><span class="result">: <a href="terminologies/MutableTerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.MutableTerminologyBox">MutableTerminologyBox</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper@tboxG:gov.nasa.jpl.omf.scala.binding.owlapi.types.MutableModelTerminologyGraph" title="Permalink" target="_top">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.ResolverHelper@tboxG:gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.MutableTerminologyBox" title="Permalink" target="_top">
         <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
