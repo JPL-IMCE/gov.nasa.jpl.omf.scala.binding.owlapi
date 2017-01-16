@@ -165,7 +165,7 @@ lazy val core =
         % Versions_omf_scala_core.version
         % "compile" artifacts(
         Artifact("gov.nasa.jpl.omf.scala.core"),
-        Artifact("gov.nasa.jpl.omf.scala.core", "zip", "zip", Some("resource"), Seq(), None, Map()))
+        Artifact("gov.nasa.jpl.omf.scala.core", "zip", "zip", "resource"))
     )
   )
   .dependsOnSourceProjectOrLibraryArtifacts(
@@ -183,10 +183,10 @@ lazy val core =
     "imce-omf_ontologies",
     "gov.nasa.jpl.imce.ontologies",
     Seq(
-      "gov.nasa.jpl.imce" % "gov.nasa.jpl.imce.ontologies"
+      "gov.nasa.jpl.imce" % "gov.nasa.jpl.imce.ontologies.public"
         % Versions_imce_omf_ontologies.version
         % "test->compile;compile->compile" artifacts
-        Artifact("gov.nasa.jpl.imce.ontologies", "zip", "zip", Some("resource"), Seq(), None, Map())
+        Artifact("gov.nasa.jpl.imce.ontologies.public", "zip", "zip", "resource")
     )
   )
 

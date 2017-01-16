@@ -639,6 +639,7 @@ trait OWLAPIImmutableTerminologyGraphOps
    funIRIScalarRestriction: OWLAPIOMF#IRIScalarRestriction => T,
    funPlainLiteralScalarRestriction: OWLAPIOMF#PlainLiteralScalarRestriction => T,
    funStringScalarRestriction: OWLAPIOMF#StringScalarRestriction => T,
+   funSynonymScalarRestriction: OWLAPIOMF#SynonymScalarRestriction => T,
    funTimeScalarRestriction: OWLAPIOMF#TimeScalarRestriction => T,
    funEntityScalarDataProperty: OWLAPIOMF#EntityScalarDataProperty => T,
    funEntityStructuredDataProperty: OWLAPIOMF#EntityStructuredDataProperty => T,

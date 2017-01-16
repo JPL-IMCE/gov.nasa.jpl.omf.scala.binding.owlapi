@@ -2,7 +2,7 @@
 .ensime*
 .idea
 .project
-*links.json
+off.links.json
 project/project
 project/target
 target
