@@ -18,9 +18,11 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.types.terms
 
+import scala.Boolean
 import scala.Predef.require
 
 trait DataRelationshipFromEntity extends DataRelationshipDomain {
+  val isIdentityCriteria: Boolean
   val domain: Entity
 
   require(null != domain)

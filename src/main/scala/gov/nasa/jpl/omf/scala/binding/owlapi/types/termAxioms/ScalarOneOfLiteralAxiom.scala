@@ -20,7 +20,7 @@ package gov.nasa.jpl.omf.scala.binding.owlapi.types.termAxioms
 
 import java.util.UUID
 
-import gov.nasa.jpl.imce.omf.schema.tables.LexicalValue
+import gov.nasa.jpl.imce.oml.tables.LexicalValue
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.Axiom
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ScalarOneOfRestriction
 

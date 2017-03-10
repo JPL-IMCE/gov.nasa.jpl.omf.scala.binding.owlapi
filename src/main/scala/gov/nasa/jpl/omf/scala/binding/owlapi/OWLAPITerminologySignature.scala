@@ -20,7 +20,7 @@ package gov.nasa.jpl.omf.scala.binding.owlapi
 
 import java.util.UUID
 
-import gov.nasa.jpl.imce.omf.schema.tables.{Annotation, AnnotationProperty, LocalName}
+import gov.nasa.jpl.imce.oml.tables.{AnnotationEntry, AnnotationProperty, LocalName}
 import gov.nasa.jpl.omf.scala.core.TerminologySignature
 import gov.nasa.jpl.omf.scala.core.TerminologyKind
 
@@ -63,7 +63,7 @@ case class OWLAPITerminologySignature
  override val aTAxioms: Iterable[OWLAPIOMF#AnonymousConceptTaxonomyAxiom],
  override val sTAxioms: Iterable[OWLAPIOMF#SpecificDisjointConceptAxiom],
 
- override val annotations: Map[AnnotationProperty, Seq[Annotation]])
+ override val annotations: Map[AnnotationProperty, Seq[AnnotationEntry]])
   extends TerminologySignature[OWLAPIOMF]
 {
   require(null != iri)

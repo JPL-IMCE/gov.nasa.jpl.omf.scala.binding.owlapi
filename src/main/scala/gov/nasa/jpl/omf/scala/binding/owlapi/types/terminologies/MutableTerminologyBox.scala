@@ -20,7 +20,7 @@ package gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies
 
 import java.util.UUID
 
-import gov.nasa.jpl.imce.omf.schema.tables.{Annotation, AnnotationProperty, LexicalValue, LocalName}
+import gov.nasa.jpl.imce.oml.tables.{AnnotationEntry, AnnotationProperty, LexicalValue, LocalName}
 import gov.nasa.jpl.omf.scala.binding.owlapi.AxiomExceptionKind
 import gov.nasa.jpl.omf.scala.binding.owlapi.EntityExceptionKind
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.{axiomScopeException, duplicateModelTermAxiomException, duplicateTerminologyGraphAxiomException, entityAlreadyDefinedException, entityConflictException, entityScopeException, terms}
@@ -126,7 +126,7 @@ trait MutableTerminologyBox extends TerminologyBox {
     scala.collection.mutable.HashSet[OWLAPIOMF#SpecificDisjointConceptAxiom]()
 
   override protected val annotations =
-    scala.collection.mutable.Map[AnnotationProperty, Seq[Annotation]]()
+    scala.collection.mutable.Map[AnnotationProperty, Seq[AnnotationEntry]]()
 
   override protected val iri2typeTerm = scala.collection.mutable.HashMap[IRI, OWLAPIOMF#Term]()
 
@@ -144,10 +144,10 @@ trait MutableTerminologyBox extends TerminologyBox {
    property: AnnotationProperty,
    value: String)
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ Annotation
+  : Set[java.lang.Throwable] \/ AnnotationEntry
   = {
-    val a = Annotation(
-      terminologyUUID=uuid.toString,
+    val a = AnnotationEntry(
+      moduleUUID=uuid.toString,
       subjectUUID=subject.uuid.toString,
       value)
     annotations.update(property, annotations.getOrElse(property, Seq.empty) :+ a)
@@ -158,7 +158,7 @@ trait MutableTerminologyBox extends TerminologyBox {
   (subject: OWLAPIOMF#TerminologyThing,
    property: AnnotationProperty)
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ Seq[Annotation]
+  : Set[java.lang.Throwable] \/ Seq[AnnotationEntry]
   = {
     val sUUID = subject.uuid.toString
     val (keep, removed) = annotations.getOrElse(property, Seq.empty).partition(_.subjectUUID == sUUID)
@@ -292,21 +292,19 @@ trait MutableTerminologyBox extends TerminologyBox {
   = for {
     n <- getFragment(c.getIRI)
     u = generateUUID(fromIRI(c.getIRI))
-    a <- isAnnotatedAbstract(ont, c.getIRI)
-    term <- createModelEntityConcept(c, n, u, a)
+    term <- createModelEntityConcept(c, n, u)
     aas = getRelevantSubjectAnnotationAssertions(ont, c.getIRI)
     _ <- store.ops.addAnnotationAssertions(this, term, aas)
   } yield term
 
   def createModelEntityConcept
-  (c: OWLClass, name: LocalName, uuid: UUID,
-   isAbstract: Boolean)
+  (c: OWLClass, name: LocalName, uuid: UUID)
   (implicit store: OWLAPIOMFGraphStore)
   : Set[java.lang.Throwable] \/ OWLAPIOMF#Concept
   = iri2typeTerm
     .get(c.getIRI)
     .fold[Set[java.lang.Throwable] \/ OWLAPIOMF#Concept]{
-    val _c = terms.Concept(c, name, uuid, isAbstract)
+    val _c = terms.Concept(c, name, uuid)
     concepts += _c
     iri2typeTerm += c.getIRI -> _c
     \/-(_c)
@@ -322,8 +320,7 @@ trait MutableTerminologyBox extends TerminologyBox {
   }
 
   def addEntityConcept
-  (conceptIRI: IRI, name: LocalName, uuid: UUID,
-   isAbstract: Boolean)
+  (conceptIRI: IRI, name: LocalName, uuid: UUID)
   (implicit store: OWLAPIOMFGraphStore)
   : Set[java.lang.Throwable] \/ OWLAPIOMF#Concept
   = iri2typeTerm
@@ -331,17 +328,12 @@ trait MutableTerminologyBox extends TerminologyBox {
     .fold[Set[java.lang.Throwable] \/ OWLAPIOMF#Concept] {
     val conceptC = owlDataFactory.getOWLClass(conceptIRI)
     for {
-      result <- createModelEntityConcept(conceptC, name, uuid, isAbstract)
+      result <- createModelEntityConcept(conceptC, name, uuid)
       _ <- applyOntologyChanges(ontManager,
         Seq(
           new AddAxiom(ont,
             owlDataFactory
               .getOWLDeclarationAxiom(conceptC)),
-          new AddAxiom(ont,
-            owlDataFactory
-              .getOWLAnnotationAssertionAxiom(isAbstractAP,
-                conceptIRI,
-                owlDataFactory.getOWLLiteral(isAbstract))),
           new AddAxiom(ont,
             owlDataFactory
               .getOWLSubClassOfAxiom(conceptC, backbone.EntityC))),
@@ -382,7 +374,6 @@ trait MutableTerminologyBox extends TerminologyBox {
   = for {
     rn <- getFragment(r.getIRI)
     ru = generateUUID(fromIRI(r.getIRI))
-    ra <- isAnnotatedAbstract(ont, r.getIRI)
     un <- getFragment(u.getIRI)
     in <- ui.fold[Set[java.lang.Throwable] \/ Option[String]](None.right) { i =>
       getFragment(i.getIRI).map(Some(_))
@@ -390,7 +381,7 @@ trait MutableTerminologyBox extends TerminologyBox {
     term <- createEntityReifiedRelationship(
       r, rn, ru,
       un, u, in, ui,
-      source, rSource, target, rTarget, characteristics, ra)
+      source, rSource, target, rTarget, characteristics)
     aas = getRelevantSubjectAnnotationAssertions(ont, r.getIRI)
     _ <- store.ops.addAnnotationAssertions(this, term, aas)
   } yield term
@@ -401,8 +392,7 @@ trait MutableTerminologyBox extends TerminologyBox {
    inversePropertyName: Option[LocalName], ui: Option[OWLObjectProperty],
    source: Entity, rSource: OWLObjectProperty,
    target: Entity, rTarget: OWLObjectProperty,
-   characteristics: Iterable[RelationshipCharacteristics],
-   isAbstract: Boolean)
+   characteristics: Iterable[RelationshipCharacteristics])
   (implicit store: OWLAPIOMFGraphStore)
   : Set[java.lang.Throwable] \/ OWLAPIOMF#ReifiedRelationship
   = iri2typeTerm
@@ -410,7 +400,7 @@ trait MutableTerminologyBox extends TerminologyBox {
     .fold[Set[java.lang.Throwable] \/ OWLAPIOMF#ReifiedRelationship] {
     val _r = terms.ReifiedRelationship(r, name, uuid,
       unreifiedPropertyName, u, inversePropertyName, ui,
-      source, rSource, target, rTarget, characteristics, isAbstract)
+      source, rSource, target, rTarget, characteristics)
     reifiedRelationships += _r
     iri2typeTerm += r.getIRI -> _r
     \/-(_r)
@@ -434,8 +424,7 @@ trait MutableTerminologyBox extends TerminologyBox {
    rIRISource: IRI, rIRITarget: IRI,
    uIRI: IRI, uiIRI: Option[IRI],
    source: Entity, target: Entity,
-   characteristics: Iterable[RelationshipCharacteristics],
-   isAbstract: Boolean)
+   characteristics: Iterable[RelationshipCharacteristics])
   (implicit store: OWLAPIOMFGraphStore)
   : Set[java.lang.Throwable] \/ OWLAPIOMF#ReifiedRelationship
   = {
@@ -453,7 +442,7 @@ trait MutableTerminologyBox extends TerminologyBox {
         unreifiedInverseRelationshipName, ui,
         source, rSource,
         target, rTarget,
-        characteristics, isAbstract)
+        characteristics)
 
       vr = owlDataFactory.getSWRLVariable(IRI.create("urn:swrl#r"))
       vs = owlDataFactory.getSWRLVariable(IRI.create("urn:swrl#s"))
@@ -473,8 +462,6 @@ trait MutableTerminologyBox extends TerminologyBox {
             r)),
           new AddAxiom(ont, owlDataFactory.getOWLSubClassOfAxiom(
             r, backbone.ReifiedObjectPropertyC)),
-          new AddAxiom(ont, owlDataFactory.getOWLAnnotationAssertionAxiom(isAbstractAP,
-            rIRI, owlDataFactory.getOWLLiteral(isAbstract))),
 
           new AddAxiom(ont, owlDataFactory.getOWLDeclarationAxiom(
             rSource)),
@@ -629,8 +616,7 @@ trait MutableTerminologyBox extends TerminologyBox {
    rIRISource: IRI, rIRITarget: IRI,
    uIRI: IRI, uiIRI: Option[IRI],
    source: Entity, target: Entity,
-   characteristics: Iterable[RelationshipCharacteristics],
-   isAbstract: Boolean)
+   characteristics: Iterable[RelationshipCharacteristics])
   (implicit store: OWLAPIOMFGraphStore)
   : Set[java.lang.Throwable] \/ OWLAPIOMF#ReifiedRelationship
   = ( lookupTerm(rIRI, recursively = true),
@@ -644,7 +630,7 @@ trait MutableTerminologyBox extends TerminologyBox {
           makeEntityReifiedRelationship(
             rIRI, name, unreifiedRelationshipName, unreifiedInverseRelationshipName,
             uuid, rIRISource, rIRITarget, uIRI, uiIRI,
-            source, target, characteristics, isAbstract)
+            source, target, characteristics)
         case (false, true) =>
           Set(
             entityScopeException(EntityExceptionKind.EntityReifiedRelationship, rIRI,
@@ -2024,6 +2010,7 @@ trait MutableTerminologyBox extends TerminologyBox {
 
   def createDataRelationshipFromEntityToScalar
   (esc: OWLDataProperty,
+   isIdentityCriteria: Boolean,
    source: OWLAPIOMF#Entity,
    target: OWLAPIOMF#DataRange)
   (implicit store: OWLAPIOMFGraphStore)
@@ -2031,11 +2018,11 @@ trait MutableTerminologyBox extends TerminologyBox {
   = for {
     n <- getFragment(esc.getIRI)
     u = generateUUID(fromIRI(esc.getIRI))
-    term <- createDataRelationshipFromEntityToScalar(esc, n, u, source, target)
+    term <- createDataRelationshipFromEntityToScalar(esc, n, isIdentityCriteria, u, source, target)
   } yield term
 
   def createDataRelationshipFromEntityToScalar
-  (esc: OWLDataProperty, name: LocalName, uuid: UUID,
+  (esc: OWLDataProperty, name: LocalName, isIdentityCriteria: Boolean, uuid: UUID,
    source: OWLAPIOMF#Entity,
    target: OWLAPIOMF#DataRange)
   (implicit store: OWLAPIOMFGraphStore)
@@ -2047,7 +2034,7 @@ trait MutableTerminologyBox extends TerminologyBox {
       .fold[Set[java.lang.Throwable] \/ OWLAPIOMF#EntityScalarDataProperty](
       for {
         _esc <- store.registerDataRelationshipFromEntityToScalar(
-          this, terms.EntityScalarDataProperty(esc, name, uuid, source, target))
+          this, terms.EntityScalarDataProperty(esc, name, isIdentityCriteria, uuid, source, target))
       } yield {
         e2sc += _esc
         iri2typeTerm += escIRI -> _esc
@@ -2065,7 +2052,7 @@ trait MutableTerminologyBox extends TerminologyBox {
   }
 
   protected def makeDataRelationshipFromEntityToScalar
-  (dIRI: IRI, name: LocalName, uuid: UUID,
+  (dIRI: IRI, name: LocalName, isIdentityCriteria: Boolean, uuid: UUID,
    source: OWLAPIOMF#Entity,
    target: OWLAPIOMF#DataRange)
   (implicit store: OWLAPIOMFGraphStore)
@@ -2073,7 +2060,7 @@ trait MutableTerminologyBox extends TerminologyBox {
   = {
     val escDP = owlDataFactory.getOWLDataProperty(dIRI)
     for {
-      term <- createDataRelationshipFromEntityToScalar(escDP, name, uuid, source, target)
+      term <- createDataRelationshipFromEntityToScalar(escDP, name, isIdentityCriteria, uuid, source, target)
     } yield {
       for {
         change <- Seq(
@@ -2101,7 +2088,7 @@ trait MutableTerminologyBox extends TerminologyBox {
   }
 
   def addDataRelationshipFromEntityToScalar
-  (dIRI: IRI, name: LocalName, uuid: UUID,
+  (dIRI: IRI, name: LocalName, isIdentityCriteria: Boolean, uuid: UUID,
    source: OWLAPIOMF#Entity,
    target: OWLAPIOMF#DataRange)
   (implicit store: OWLAPIOMFGraphStore)
@@ -2112,7 +2099,7 @@ trait MutableTerminologyBox extends TerminologyBox {
     (isTypeTermDefinedRecursively(source),
       isTypeTermDefinedRecursively(target)) match {
       case (true, true) =>
-        makeDataRelationshipFromEntityToScalar(dIRI, name, uuid, source, target)
+        makeDataRelationshipFromEntityToScalar(dIRI, name, isIdentityCriteria, uuid, source, target)
       case (false, true) =>
         Set(
           entityScopeException(EntityExceptionKind.DataRelationshipFromEntityToScalar, dIRI,
@@ -2136,7 +2123,7 @@ trait MutableTerminologyBox extends TerminologyBox {
   }
 
   def addDataRelationshipFromEntityToStructure
-  (dIRI: IRI, name: LocalName, uuid: UUID,
+  (dIRI: IRI, name: LocalName, isIdentityCriteria: Boolean, uuid: UUID,
    source: OWLAPIOMF#Entity,
    target: OWLAPIOMF#Structure)
   : Set[java.lang.Throwable] \/ OWLAPIOMF#EntityStructuredDataProperty

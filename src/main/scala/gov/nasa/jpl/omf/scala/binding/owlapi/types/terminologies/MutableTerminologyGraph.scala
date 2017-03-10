@@ -20,7 +20,7 @@ package gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies
 
 import java.util.UUID
 
-import gov.nasa.jpl.imce.omf.schema.tables.LocalName
+import gov.nasa.jpl.imce.oml.tables.LocalName
 import gov.nasa.jpl.omf.scala.binding.owlapi._
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.duplicateTerminologyGraphAxiomException
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologyAxioms.TerminologyNestingAxiom

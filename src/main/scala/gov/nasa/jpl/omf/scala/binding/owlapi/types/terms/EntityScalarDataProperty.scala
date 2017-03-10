@@ -20,7 +20,7 @@ package gov.nasa.jpl.omf.scala.binding.owlapi.types.terms
 
 import java.util.UUID
 
-import gov.nasa.jpl.imce.omf.schema.tables.LocalName
+import gov.nasa.jpl.imce.oml.tables.LocalName
 import org.semanticweb.owlapi.model.OWLDataProperty
 
 import scala.{Any,Boolean,Int}
@@ -29,6 +29,7 @@ import scala.Predef.require
 case class EntityScalarDataProperty
 (override val e: OWLDataProperty,
  override val name: LocalName,
+ override val isIdentityCriteria: Boolean,
  override val uuid: UUID,
  override val domain: Entity,
  override val range: DataRange)

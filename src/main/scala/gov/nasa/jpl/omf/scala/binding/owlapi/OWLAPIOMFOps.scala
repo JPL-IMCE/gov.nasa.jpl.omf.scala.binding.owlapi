@@ -22,7 +22,7 @@ import java.io.File
 import java.net.URI
 import java.util.UUID
 
-import gov.nasa.jpl.imce.omf.schema.tables.{Annotation, AnnotationProperty, LexicalValue, LocalName}
+import gov.nasa.jpl.imce.oml.tables.{AnnotationEntry, AnnotationProperty, LexicalValue, LocalName}
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.ImmutableTerminologyConversionMap
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.bundleStatements.ConceptTreeDisjunction
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.termAxioms._
@@ -461,7 +461,7 @@ trait OWLAPIImmutableTerminologyGraphOps
 
   override def getAnnotations
   (graph: OWLAPIOMF#TerminologyBox)
-  : Map[AnnotationProperty, Seq[Annotation]]
+  : Map[AnnotationProperty, Seq[AnnotationEntry]]
   = graph.getAnnotations()
 
   override def getTerminologyName
@@ -714,14 +714,14 @@ trait OWLAPIImmutableTerminologyGraphOps
   override def fromConcept
   (c: OWLAPIOMF#Concept)
   : OWLAPIEntityConceptSignature
-  = OWLAPIEntityConceptSignature(c.uuid, c.name, c.iri, c.isAbstract)
+  = OWLAPIEntityConceptSignature(c.uuid, c.name, c.iri)
 
   override def fromReifiedRelationship
   (r: OWLAPIOMF#ReifiedRelationship)
   : OWLAPIEntityReifiedRelationshipSignature
   = OWLAPIEntityReifiedRelationshipSignature(
     r.uuid, r.name, r.unreifiedPropertyName, r.inversePropertyName,
-    r.iri, r.source, r.target, r.characteristics, r.isAbstract)
+    r.iri, r.source, r.target, r.characteristics)
 
   override def fromUnreifiedRelationship
   (r: OWLAPIOMF#UnreifiedRelationship)
@@ -731,13 +731,12 @@ trait OWLAPIImmutableTerminologyGraphOps
   override def fromEntityScalarDataProperty
   (esc: OWLAPIOMF#EntityScalarDataProperty)
   : OWLAPIEntityScalarDataPropertySignature
-  = OWLAPIEntityScalarDataPropertySignature(esc.uuid, esc.name, esc.iri, esc.domain, esc.range)
-
+  = OWLAPIEntityScalarDataPropertySignature(esc.uuid, esc.name, esc.isIdentityCriteria, esc.iri, esc.domain, esc.range)
 
   override def fromEntityStructuredDataProperty
   (est: OWLAPIOMF#EntityStructuredDataProperty)
   : OWLAPIEntityStructuredDataPropertySignature
-  = OWLAPIEntityStructuredDataPropertySignature(est.uuid, est.name, est.iri, est.domain, est.range)
+  = OWLAPIEntityStructuredDataPropertySignature(est.uuid, est.name, est.isIdentityCriteria, est.iri, est.domain, est.range)
 
   override def fromScalarDataProperty
   (ssc: OWLAPIOMF#ScalarDataProperty)
@@ -946,7 +945,7 @@ trait OWLAPIMutableTerminologyGraphOps
    property: AnnotationProperty,
    value: String)
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ Annotation
+  : Set[java.lang.Throwable] \/ AnnotationEntry
   = for {
     _ <- addAnnotationProperty(property)
     a <- graph.addAnnotation(subject, property, value)
@@ -957,7 +956,7 @@ trait OWLAPIMutableTerminologyGraphOps
    subject: OWLAPIOMF#TerminologyThing,
    a: OWLAnnotation)
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ Annotation
+  : Set[java.lang.Throwable] \/ AnnotationEntry
   = for {
     ap <- store.lookupAnnotationProperty(a)
     v <- a.getValue match {
@@ -976,7 +975,7 @@ trait OWLAPIMutableTerminologyGraphOps
    subject: OWLAPIOMF#TerminologyThing,
    property: AnnotationProperty)
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ Seq[Annotation]
+  : Set[java.lang.Throwable] \/ Seq[AnnotationEntry]
   = graph.removeAnnotations(subject, property)
 
   def addAnnotationAssertions
@@ -1010,12 +1009,11 @@ trait OWLAPIMutableTerminologyGraphOps
   (graph: MutableTerminologyBox,
    uuid: UUID,
    conceptIRI: IRI,
-   conceptName: LocalName,
-   isAbstract: Boolean)
+   conceptName: LocalName)
   (implicit store: OWLAPIOMFGraphStore)
   : Set[java.lang.Throwable] \/ Concept
   = for {
-    result <- graph.addEntityConcept(conceptIRI, conceptName, uuid, isAbstract)
+    result <- graph.addEntityConcept(conceptIRI, conceptName, uuid)
     _ <- store.registerOMFModelEntityConceptInstance(graph, result)
   } yield result
 
@@ -1028,8 +1026,7 @@ trait OWLAPIMutableTerminologyGraphOps
    characteristics: Iterable[RelationshipCharacteristics],
    reifiedRelationshipName: String,
    unreifiedRelationshipName: String,
-   unreifiedInverseRelationshipName: Option[String],
-   isAbstract: Boolean)
+   unreifiedInverseRelationshipName: Option[String])
   (implicit store: OWLAPIOMFGraphStore)
   : Set[java.lang.Throwable] \/ ReifiedRelationship
   = for {
@@ -1044,7 +1041,7 @@ trait OWLAPIMutableTerminologyGraphOps
       rIRISource, rIRITarget,
       uIRI, uiIRI,
       source, target,
-      characteristics, isAbstract)
+      characteristics)
     _ <- store.registerOMFModelEntityReifiedRelationshipInstance(graph, result)
   } yield result
 
@@ -1220,9 +1217,10 @@ trait OWLAPIMutableTerminologyGraphOps
    dataRelationshipIRI: IRI,
    source: Entity,
    target: DataRange,
-   dataRelationshipName: String)
+   dataRelationshipName: String,
+   isIdentityCriteria: Boolean)
   (implicit store: OWLAPIOMFGraphStore)
-  = graph.addDataRelationshipFromEntityToScalar(dataRelationshipIRI, dataRelationshipName, uuid, source, target)
+  = graph.addDataRelationshipFromEntityToScalar(dataRelationshipIRI, dataRelationshipName, isIdentityCriteria, uuid, source, target)
 
   override protected def addEntityStructuredDataProperty
   (graph: MutableTerminologyBox,
@@ -1230,10 +1228,11 @@ trait OWLAPIMutableTerminologyGraphOps
    dataRelationshipIRI: IRI,
    source: Entity,
    target: Structure,
-   dataRelationshipName: String)
+   dataRelationshipName: String,
+   isIdentityCriteria: Boolean)
   (implicit store: OWLAPIOMFGraphStore)
   : Set[java.lang.Throwable] \/ EntityStructuredDataProperty
-  = graph.addDataRelationshipFromEntityToStructure(dataRelationshipIRI, dataRelationshipName, uuid, source, target)
+  = graph.addDataRelationshipFromEntityToStructure(dataRelationshipIRI, dataRelationshipName, isIdentityCriteria, uuid, source, target)
 
   override protected def addScalarDataProperty
   (graph: MutableTerminologyBox,

@@ -20,12 +20,12 @@ package gov.nasa.jpl.omf.scala.binding.owlapi
 
 import java.util.UUID
 
-import gov.nasa.jpl.imce.omf.schema.tables.LocalName
+import gov.nasa.jpl.imce.oml.tables.LocalName
 import gov.nasa.jpl.omf.scala.core.EntityReifiedRelationshipSignature
 import gov.nasa.jpl.omf.scala.core.RelationshipCharacteristics.RelationshipCharacteristics
 
 import scala.collection.immutable.Iterable
-import scala.{Boolean,Option}
+import scala.Option
 import scala.Predef.require
 
 case class OWLAPIEntityReifiedRelationshipSignature
@@ -36,8 +36,7 @@ case class OWLAPIEntityReifiedRelationshipSignature
  override val iri: OWLAPIOMF#IRI,
  override val source: OWLAPIOMF#Entity,
  override val target: OWLAPIOMF#Entity,
- override val characteristics: Iterable[RelationshipCharacteristics],
- override val isAbstract: Boolean )
+ override val characteristics: Iterable[RelationshipCharacteristics])
   extends EntityReifiedRelationshipSignature[OWLAPIOMF]
 {
   require(null != iri)

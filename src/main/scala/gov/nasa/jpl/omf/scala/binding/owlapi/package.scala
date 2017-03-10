@@ -20,7 +20,7 @@ package gov.nasa.jpl.omf.scala.binding
 
 import java.nio.file.Path
 
-import gov.nasa.jpl.imce.omf.schema.tables.{AnnotationProperty,UUID}
+import gov.nasa.jpl.imce.oml.tables.{AnnotationProperty,UUID}
 import gov.nasa.jpl.omf.scala.core.{generateUUID,OMFError}
 import org.apache.xml.resolver.CatalogManager
 import org.semanticweb.owlapi.apibinding.OWLManager
@@ -172,7 +172,10 @@ package object owlapi {
   def getAnnotationPropertyFromOWLAnnotation
   (a: OWLAnnotation)
   : AnnotationProperty
-  = AnnotationProperty(getAnnotationPropertyUUIDfromOWLAnnotation(a), a.getProperty.getIRI.getIRIString)
+  = AnnotationProperty(
+    getAnnotationPropertyUUIDfromOWLAnnotation(a),
+    a.getProperty.getIRI.getIRIString,
+    a.getProperty.getIRI.getShortForm)
 
   def getRelevantOntologyAnnotations
   (ont: OWLOntology)

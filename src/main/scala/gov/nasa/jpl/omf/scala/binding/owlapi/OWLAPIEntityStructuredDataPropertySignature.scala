@@ -20,14 +20,16 @@ package gov.nasa.jpl.omf.scala.binding.owlapi
 
 import java.util.UUID
 
-import gov.nasa.jpl.imce.omf.schema.tables.LocalName
+import gov.nasa.jpl.imce.oml.tables.LocalName
 import gov.nasa.jpl.omf.scala.core.EntityStructuredDataPropertySignature
 
+import scala.Boolean
 import scala.Predef.require
 
 case class OWLAPIEntityStructuredDataPropertySignature
 (override val uuid: UUID,
  override val name: LocalName,
+ override val isIdentityCriteria: Boolean,
  override val iri: OWLAPIOMF#IRI,
  override val domain: OWLAPIOMF#Entity,
  override val range: OWLAPIOMF#Structure)

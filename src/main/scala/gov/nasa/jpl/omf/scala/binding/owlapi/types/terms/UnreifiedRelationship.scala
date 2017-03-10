@@ -20,7 +20,7 @@ package gov.nasa.jpl.omf.scala.binding.owlapi.types.terms
 
 import java.util.UUID
 
-import gov.nasa.jpl.imce.omf.schema.tables.LocalName
+import gov.nasa.jpl.imce.oml.tables.LocalName
 import gov.nasa.jpl.omf.scala.core.RelationshipCharacteristics._
 import org.semanticweb.owlapi.model.OWLObjectProperty
 

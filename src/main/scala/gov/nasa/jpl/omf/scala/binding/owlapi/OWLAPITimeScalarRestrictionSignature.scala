@@ -20,7 +20,7 @@ package gov.nasa.jpl.omf.scala.binding.owlapi
 
 import java.util.UUID
 
-import gov.nasa.jpl.imce.omf.schema.tables.LocalName
+import gov.nasa.jpl.imce.oml.tables.LocalName
 import gov.nasa.jpl.omf.scala.core.TimeScalarRestrictionSignature
 
 import scala.Option

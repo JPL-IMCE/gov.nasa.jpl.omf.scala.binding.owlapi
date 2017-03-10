@@ -21,7 +21,7 @@ package gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies
 import java.io.OutputStream
 import java.util.UUID
 
-import gov.nasa.jpl.imce.omf.schema.tables.{Annotation, AnnotationProperty, LocalName}
+import gov.nasa.jpl.imce.oml.tables.{AnnotationEntry, AnnotationProperty, LocalName}
 import gov.nasa.jpl.omf.scala.binding.owlapi._
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms._
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologyAxioms._
@@ -133,11 +133,11 @@ trait TerminologyBox extends TerminologyThing with Resource {
   protected val aTAxioms: scala.collection.Set[OWLAPIOMF#AnonymousConceptTaxonomyAxiom]
   protected val sTAxioms: scala.collection.Set[OWLAPIOMF#SpecificDisjointConceptAxiom]
 
-  protected val annotations: scala.collection.Map[AnnotationProperty, scala.collection.immutable.Seq[Annotation]]
+  protected val annotations: scala.collection.Map[AnnotationProperty, scala.collection.immutable.Seq[AnnotationEntry]]
 
   def getAnnotations
   ()
-  : Map[AnnotationProperty, Seq[Annotation]]
+  : Map[AnnotationProperty, Seq[AnnotationEntry]]
   = annotations.toMap
 
   final def imports()

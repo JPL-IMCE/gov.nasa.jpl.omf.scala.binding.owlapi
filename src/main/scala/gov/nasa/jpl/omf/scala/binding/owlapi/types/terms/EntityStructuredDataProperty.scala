@@ -20,7 +20,7 @@ package gov.nasa.jpl.omf.scala.binding.owlapi.types.terms
 
 import java.util.UUID
 
-import gov.nasa.jpl.imce.omf.schema.tables.LocalName
+import gov.nasa.jpl.imce.oml.tables.LocalName
 import org.semanticweb.owlapi.model.{OWLClass, OWLObjectProperty}
 
 import scala.{Any,Boolean,Int}
@@ -29,6 +29,7 @@ import scala.Predef.require
 case class EntityStructuredDataProperty
 (override val e: OWLClass,
  override val name: LocalName,
+ override val isIdentityCriteria: Boolean,
  override val uuid: UUID,
  override val domain: Entity,
  override val rSource: OWLObjectProperty,
@@ -54,13 +55,14 @@ case class EntityStructuredDataProperty
 
   override val hashCode
   : Int
-  = (uuid, name, domain, range, e, rSource, rTarget, unreified).##
+  = (uuid, name, isIdentityCriteria, domain, range, e, rSource, rTarget, unreified).##
 
   override def equals(other: Any): Boolean = other match {
     case that: EntityStructuredDataProperty =>
       (that canEqual this) &&
         (this.uuid == that.uuid) &&
         (this.name == that.name) &&
+        (this.isIdentityCriteria == that.isIdentityCriteria) &&
         (this.domain == that.domain) &&
         (this.range == that.range) &&
         (this.e == that.e) &&

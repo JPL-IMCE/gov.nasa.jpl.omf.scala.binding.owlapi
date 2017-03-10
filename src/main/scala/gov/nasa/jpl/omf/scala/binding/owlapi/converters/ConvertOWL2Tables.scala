@@ -22,8 +22,9 @@ import java.lang.System
 import java.net.URI
 import java.nio.file.{Files, Path, Paths}
 
-import gov.nasa.jpl.imce.omf.schema.tables.OMFSchemaTables
-import gov.nasa.jpl.imce.omf.schema.resolver.OMFSchemaResolver
+import gov.nasa.jpl.imce.oml.tables.OMLSpecificationTables
+import gov.nasa.jpl.imce.oml.resolver.OMLTablesResolver
+import gov.nasa.jpl.imce.oml.resolver.impl.OMLResolvedFactoryImpl
 import gov.nasa.jpl.omf.scala.binding.owlapi._
 import gov.nasa.jpl.omf.scala.core.tables.OMFTabularExport
 import org.apache.xml.resolver.CatalogManager
@@ -209,14 +210,14 @@ object ConvertOWL2Tables {
         _ = java.nio.file.Files.createDirectories(tablesJsonZip.getParentFile.toPath)
 
         tables = OMFTabularExport.toTables[OWLAPIOMF](m2i.values.to[Set])
-        _ <- OMFSchemaTables
-          .saveOMFSchemaTables(tables, tablesJsonZip)
+        _ <- OMLSpecificationTables
+          .saveOMLSpecificationTables(tables, tablesJsonZip)
           .toDisjunction
           .leftMap(Set[java.lang.Throwable](_))
-        _ = System.out.println(s"Saved OMF schema tables in: $tablesJsonZip")
+        _ = System.out.println(s"Saved oml.tables in: $tablesJsonZip")
 
-        resolver <- OMFSchemaResolver
-          .resolve(tables)
+        resolver <- OMLTablesResolver
+          .resolve(tables, OMLResolvedFactoryImpl())
           .toDisjunction
           .leftMap(Set[java.lang.Throwable](_))
 

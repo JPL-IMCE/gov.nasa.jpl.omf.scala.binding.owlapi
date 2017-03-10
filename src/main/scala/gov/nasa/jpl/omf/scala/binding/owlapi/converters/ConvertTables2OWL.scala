@@ -21,10 +21,9 @@ package gov.nasa.jpl.omf.scala.binding.owlapi.converters
 import java.lang.System
 import java.net.URI
 import java.nio.file.{Files, Path, Paths}
-import java.util.UUID
 
-import gov.nasa.jpl.imce.omf.schema.tables.{ClosedWorldDesignations, OMFSchemaTables, OpenWorldDefinitions}
-import gov.nasa.jpl.imce.omf.schema.resolver._
+import gov.nasa.jpl.imce.oml.tables.{ClosedWorldDesignations, OMLSpecificationTables, OpenWorldDefinitions}
+import gov.nasa.jpl.imce.oml.resolver._
 import gov.nasa.jpl.omf.scala.binding.owlapi._
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.{ImmutableTerminologyBox, MutableTerminologyBox, MutableTerminologyGraph}
 import gov.nasa.jpl.omf.scala.core.{OMFError, RelationshipCharacteristics, TerminologyKind}
@@ -121,7 +120,7 @@ object  ConvertTables2OWL {
         fa = (_: String) => c,
         fb = (p: Path) => c.copy(tablesFile = Some(p))
       ))
-      .text("tables is a required Path property to an existing *.json.zip archive of OMF Schema Tables")
+      .text("tables is a required Path property to an existing *.json.zip archive of oml.tables")
 
     opt[Either[String,Path]]('o', "out")(scopt.Read.reads { parseNewDirectoryPath })
       .validate(x => x.map(_ => ()))
@@ -191,22 +190,25 @@ object  ConvertTables2OWL {
       throw new scala.IllegalArgumentException(message)
     }
 
+    import OMLOps._
+
     val result
     : Try[Unit]
     = for {
-      tables <- OMFSchemaTables.loadOMFSchemaTables(vc.tablesFile.toFile)
-      resolver: OMFSchemaResolver <- OMFSchemaResolver.resolve(tables)
+      tables <- OMLSpecificationTables.loadOMLSpecificationTables(vc.tablesFile.toFile)
+      factory = impl.OMLResolvedFactoryImpl()
+      resolver <- OMLTablesResolver.resolve(tables, factory)
       _ <- if (resolver.queue.isEmpty)
         Success(())
       else
         Failure(OMFError.omfError(
-          s"Failed to resolve OMF Schema tables from ${vc.tablesFile}:\n+${resolver.queue}"))
+          s"Failed to resolve oml.tables from ${vc.tablesFile}:\n+${resolver.queue}"))
 
       tboxes <- resolver.context.topologicalOrder().map(_.to[Seq].reverse)
 
       // Terminologies
       tbox2ont <- tboxes.foldLeft[Try[Seq[(api.TerminologyBox, MutableTerminologyBox)]]](Success(Seq.empty)) {
-        case (acc, tbox) =>
+        case (acc, tbox: api.TerminologyBox) =>
           acc.flatMap { t2mt =>
             val k: TerminologyKind = tbox.kind match {
               case OpenWorldDefinitions =>
@@ -228,16 +230,18 @@ object  ConvertTables2OWL {
                 Success(t2mt :+ (tbox -> mg))
             }
           }
+        case (acc, _) =>
+          acc
       }
 
       // Atomic terms
       _ <- tbox2ont.foldLeft[Try[Unit]](Success(())) { case (acc, (tbox, mg)) =>
         for {
           _ <- acc
-          _ <- tbox.aspects.foldLeft[Try[Unit]](Success(())) { case (acc1, (uuid, a)) =>
+          _ <- tbox.aspects().foldLeft[Try[Unit]](Success(())) { case (acc1, a) =>
             acc1.flatMap { _ =>
               ops.addAspect(mg, a.name).flatMap { a1 =>
-                if (uuid == ops.getTermUUID(a1))
+                if (a.uuid == ops.getTermUUID(a1))
                   a1.right
                 else
                   Set[java.lang.Throwable](OMFError.omfError(
@@ -246,10 +250,10 @@ object  ConvertTables2OWL {
               }
             }
           }
-          _ <- tbox.concepts.foldLeft[Try[Unit]](Success(())) { case (acc1, (uuid, c)) =>
+          _ <- tbox.concepts().foldLeft[Try[Unit]](Success(())) { case (acc1, c) =>
             acc1.flatMap { _ =>
-              ops.addConcept(mg, c.name, c.isAbstract).flatMap { c1 =>
-                if (uuid == ops.getTermUUID(c1))
+              ops.addConcept(mg, c.name).flatMap { c1 =>
+                if (c.uuid == ops.getTermUUID(c1))
                   c1.right
                 else
                   Set[java.lang.Throwable](OMFError.omfError(
@@ -258,22 +262,24 @@ object  ConvertTables2OWL {
               }
             }
           }
-          _ <- tbox.scalars.foldLeft[Try[Unit]](Success(())) { case (acc1, (uuid, sc)) =>
+          _ <- tbox.dataranges().foldLeft[Try[Unit]](Success(())) { case (acc1, dr) =>
+
+            // TODO add cases for all the different kinds of data ranges
             acc1.flatMap { _ =>
-              ops.addScalarDataType(mg, sc.name).flatMap { sc1 =>
-                if (uuid == ops.getTermUUID(sc1))
+              ops.addScalarDataType(mg, dr.name).flatMap { sc1 =>
+                if (dr.uuid == ops.getTermUUID(sc1))
                   sc1.right
                 else
                   Set[java.lang.Throwable](OMFError.omfError(
-                    s"OMF Schema table scalar $sc conversion " +
+                    s"OMF Schema table scalar $dr conversion " +
                       s"results in UUID mismatch: ${ops.getTermUUID(sc1)}")).left
               }
             }
           }
-          _ <- tbox.structures.foldLeft[Try[Unit]](Success(())) { case (acc1, (uuid, st)) =>
+          _ <- tbox.structures().foldLeft[Try[Unit]](Success(())) { case (acc1, st) =>
             acc1.flatMap { _ =>
               ops.addStructuredDataType(mg, st.name).flatMap { st1 =>
-                if (uuid == ops.getTermUUID(st1))
+                if (st.uuid == ops.getTermUUID(st1))
                   st1.right
                 else
                   Set[java.lang.Throwable](OMFError.omfError(
@@ -290,7 +296,7 @@ object  ConvertTables2OWL {
       // TerminologyAxiom relationships(extensions)
       _ <- resolver.context.g.toOuterEdges.foldLeft[Try[Unit]](Success(())) {
         case (acc,
-        impl.TerminologyEdge(
+        TerminologyEdge(
         (es: api.TerminologyBox, et: api.TerminologyBox),
         tx: api.TerminologyExtensionAxiom)) =>
           for {
@@ -317,7 +323,7 @@ object  ConvertTables2OWL {
       // TerminologyAxiom relationships(nestings)
       _ <- resolver.context.g.toOuterEdges.foldLeft[Try[Unit]](Success(())) {
         case (acc,
-        impl.TerminologyEdge(
+        TerminologyEdge(
         (es: api.TerminologyBox, et: api.TerminologyBox),
         tx: api.TerminologyNestingAxiom)) =>
           for {
@@ -355,7 +361,7 @@ object  ConvertTables2OWL {
       // TerminologyAxiom relationships(designations)
       _ <- resolver.context.g.toOuterEdges.foldLeft[Try[Unit]](Success(())) {
         case (acc,
-        impl.TerminologyEdge(
+        TerminologyEdge(
         (es: api.TerminologyBox, et: api.TerminologyBox),
         tx: api.ConceptDesignationTerminologyAxiom)) =>
           for {
@@ -401,7 +407,7 @@ object  ConvertTables2OWL {
           _ <- tbox2ont.foldLeft[Try[Unit]](Success(())) { case (acc, (tbox, mg)) =>
             for {
               _ <- acc
-              _ <- tbox.unreifiedRelationships.foldLeft[Try[Unit]](Success(())) { case (acc1, (uuid, ur)) =>
+              _ <- tbox.unreifiedRelationships.foldLeft[Try[Unit]](Success(())) { case (acc1, ur) =>
                 acc1.flatMap { _ =>
                   (ops.lookupEntity(mg, IRI.create(ur.source.iri), recursively = true),
                     ops.lookupEntity(mg, IRI.create(ur.target.iri), recursively = true)) match {
@@ -441,14 +447,14 @@ object  ConvertTables2OWL {
         for {
           _ <- acc
           _ = System.out.println(s"... DataRelationships: ${tbox.iri}")
-          _ <- tbox.dataRelationships.foldLeft[Try[Unit]](Success(())) {
-            case (acc1, (uuid, dr: api.EntityScalarDataProperty)) =>
+          _ <- tbox.boxStatements.foldLeft[Try[Unit]](Success(())) {
+            case (acc1, dr: api.EntityScalarDataProperty) =>
               acc1.flatMap { _ =>
                 (ops.lookupEntity(mg, IRI.create(dr.source.iri), recursively = true),
                   ops.lookupDataRange(mg, IRI.create(dr.target.iri), recursively = true)) match {
                   case (Some(s), Some(t)) =>
                     either2tryUnit(ops
-                      .addEntityScalarDataProperty(mg, s, t, dr.name)
+                      .addEntityScalarDataProperty(mg, s, t, dr.name, dr.isIdentityCriteria)
                       .flatMap { odr =>
                         if (dr.uuid == ops.getTermUUID(odr)) ().right
                         else
@@ -460,13 +466,13 @@ object  ConvertTables2OWL {
                     Failure(OMFError.omfError(s"Unresolved EntityScalarDataProperty: $dr"))
                 }
               }
-            case (acc1, (uuid, dr: api.EntityStructuredDataProperty)) =>
+            case (acc1, dr: api.EntityStructuredDataProperty) =>
               acc1.flatMap { _ =>
                 (ops.lookupEntity(mg, IRI.create(dr.source.iri), recursively = true),
                   ops.lookupStructure(mg, IRI.create(dr.target.iri), recursively = true)) match {
                   case (Some(s), Some(t)) =>
                     either2tryUnit(ops
-                      .addEntityStructuredDataProperty(mg, s, t, dr.name)
+                      .addEntityStructuredDataProperty(mg, s, t, dr.name, dr.isIdentityCriteria)
                       .flatMap { odr =>
                         if (dr.uuid == ops.getTermUUID(odr)) ().right
                         else
@@ -478,7 +484,7 @@ object  ConvertTables2OWL {
                     Failure(OMFError.omfError(s"Unresolved EntityStructuredDataProperty: $dr"))
                 }
               }
-            case (acc1, (uuid, dr: api.ScalarDataProperty)) =>
+            case (acc1, dr: api.ScalarDataProperty) =>
               acc1.flatMap { _ =>
                 (ops.lookupStructure(mg, IRI.create(dr.source.iri), recursively = true),
                   ops.lookupDataRange(mg, IRI.create(dr.target.iri), recursively = true)) match {
@@ -496,7 +502,7 @@ object  ConvertTables2OWL {
                     Failure(OMFError.omfError(s"Unresolved ScalarDataProperty: $dr"))
                 }
               }
-            case (acc1, (uuid, dr: api.StructuredDataProperty)) =>
+            case (acc1, dr: api.StructuredDataProperty) =>
               acc1.flatMap { _ =>
                 (ops.lookupStructure(mg, IRI.create(dr.source.iri), recursively = true),
                   ops.lookupStructure(mg, IRI.create(dr.target.iri), recursively = true)) match {
@@ -514,6 +520,8 @@ object  ConvertTables2OWL {
                     Failure(OMFError.omfError(s"Unresolved StructuredDataProperty: $dr"))
                 }
               }
+            case (acc1, _) =>
+              acc1
           }
         } yield ()
       }
@@ -754,8 +762,8 @@ object  ConvertTables2OWL {
   final protected def convertDataRanges
   (tbox: api.TerminologyBox,
    mg: MutableTerminologyBox,
-   drs: Map[UUID, api.DataRange],
-   queue: Map[UUID, api.DataRange]=Map.empty,
+   drs: SortedSet[api.DataRange],
+   queue: SortedSet[api.DataRange]=TreeSet.empty,
    progress: Int=0)
   (implicit ops: OWLAPIOMFOps, store: OWLAPIOMFGraphStore)
   : Try[Unit]
@@ -769,7 +777,7 @@ object  ConvertTables2OWL {
         convertDataRanges(tbox, mg, queue)
     } else
       drs.head match {
-        case (uuid, rdr: api.RestrictedDataRange) =>
+        case rdr: api.RestrictedDataRange =>
           ops.lookupDataRange(mg, IRI.create(rdr.restrictedRange.iri), recursively = true) match {
             case None =>
               convertDataRanges(tbox, mg, drs.tail, queue + drs.head, progress)
@@ -874,8 +882,8 @@ object  ConvertTables2OWL {
   final protected def convertReifiedRelationships
   (tbox: api.TerminologyBox,
    mg: MutableTerminologyBox,
-   rrs: Map[UUID, api.ReifiedRelationship],
-   queue: Map[UUID, api.ReifiedRelationship]=Map.empty,
+   rrs: SortedSet[api.ReifiedRelationship],
+   queue: SortedSet[api.ReifiedRelationship]=TreeSet.empty,
    progress: Int=0)
   (implicit ops: OWLAPIOMFOps, store: OWLAPIOMFGraphStore)
   : Try[Unit]
@@ -888,7 +896,7 @@ object  ConvertTables2OWL {
       else
         convertReifiedRelationships(tbox, mg, queue)
     } else {
-      val (uuid, rr) = rrs.head
+      val rr = rrs.head
       (ops.lookupEntity(mg, IRI.create(rr.source.iri), recursively = true),
         ops.lookupEntity(mg, IRI.create(rr.target.iri), recursively = true)) match {
         case (Some(s), Some(t)) =>
@@ -907,8 +915,7 @@ object  ConvertTables2OWL {
                 (if (rr.isTransitive) Iterable(RelationshipCharacteristics.isTransitive) else Iterable()),
               rr.name,
               rr.unreifiedPropertyName,
-              rr.unreifiedInversePropertyName,
-              rr.isAbstract)
+              rr.unreifiedInversePropertyName)
             .flatMap { orr =>
               if (rr.uuid == ops.getTermUUID(orr)) ().right
               else

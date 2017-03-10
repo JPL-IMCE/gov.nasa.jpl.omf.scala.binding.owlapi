@@ -20,7 +20,7 @@ package gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies
 
 import java.util.UUID
 
-import gov.nasa.jpl.imce.omf.schema.tables.{Annotation, AnnotationProperty, LocalName}
+import gov.nasa.jpl.imce.oml.tables.{AnnotationEntry, AnnotationProperty, LocalName}
 import gov.nasa.jpl.omf.scala.binding.owlapi._
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms._
 import gov.nasa.jpl.omf.scala.core.TerminologyKind
@@ -69,7 +69,7 @@ case class ImmutableBundle private
  override protected val rTAxioms: Set[OWLAPIOMF#RootConceptTaxonomyAxiom],
  override protected val aTAxioms: Set[OWLAPIOMF#AnonymousConceptTaxonomyAxiom],
  override protected val sTAxioms: Set[OWLAPIOMF#SpecificDisjointConceptAxiom],
- override protected val annotations: Map[AnnotationProperty, Seq[Annotation]])
+ override protected val annotations: Map[AnnotationProperty, Seq[AnnotationEntry]])
 (override implicit val ops: OWLAPIOMFOps)
 extends Bundle with ImmutableTerminologyBox {
 
@@ -238,7 +238,7 @@ object ImmutableBundle {
    rTAxioms: Set[OWLAPIOMF#RootConceptTaxonomyAxiom],
    aTAxioms: Set[OWLAPIOMF#AnonymousConceptTaxonomyAxiom],
    sTAxioms: Set[OWLAPIOMF#SpecificDisjointConceptAxiom],
-   annotations: Map[AnnotationProperty, Seq[Annotation]])
+   annotations: Map[AnnotationProperty, Seq[AnnotationEntry]])
   (implicit store: OWLAPIOMFGraphStore)
   : Set[java.lang.Throwable] \/ ImmutableBundle
   = {

@@ -22,7 +22,7 @@ import java.io.File
 import java.lang.System
 import java.util.UUID
 
-import gov.nasa.jpl.imce.omf.schema.tables.{AnnotationProperty, LocalName}
+import gov.nasa.jpl.imce.oml.tables.{AnnotationProperty, LocalName}
 import gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader._
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.termAxioms._
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms._

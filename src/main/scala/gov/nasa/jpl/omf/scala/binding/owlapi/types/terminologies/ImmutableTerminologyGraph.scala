@@ -20,7 +20,7 @@ package gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies
 
 import java.util.UUID
 
-import gov.nasa.jpl.imce.omf.schema.tables.{Annotation, AnnotationProperty, LocalName}
+import gov.nasa.jpl.imce.oml.tables.{AnnotationEntry, AnnotationProperty, LocalName}
 import gov.nasa.jpl.omf.scala.binding.owlapi._
 import gov.nasa.jpl.omf.scala.core.TerminologyKind
 import org.semanticweb.owlapi.model._
@@ -68,7 +68,7 @@ case class ImmutableTerminologyGraph
  override protected val rTAxioms: scala.collection.Set[OWLAPIOMF#RootConceptTaxonomyAxiom] = Set.empty,
  override protected val aTAxioms: scala.collection.Set[OWLAPIOMF#AnonymousConceptTaxonomyAxiom] = Set.empty,
  override protected val sTAxioms: scala.collection.Set[OWLAPIOMF#SpecificDisjointConceptAxiom] = Set.empty,
- override protected val annotations: Map[AnnotationProperty, Seq[Annotation]] = Map.empty)
+ override protected val annotations: Map[AnnotationProperty, Seq[AnnotationEntry]] = Map.empty)
 (override implicit val ops: OWLAPIOMFOps)
   extends TerminologyGraph with ImmutableTerminologyBox {
 

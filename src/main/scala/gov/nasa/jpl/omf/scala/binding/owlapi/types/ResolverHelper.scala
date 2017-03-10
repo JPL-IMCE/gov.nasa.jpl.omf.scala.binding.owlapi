@@ -180,6 +180,7 @@ case class ResolverHelper
       } {
         (acc, dataPropertyDPIRI) =>
           val (e2sc_dp, e2sc_source, e2sc_target) = dataPropertyDPIRI
+          val isIdentityCriteria: Boolean = false // ??? // TODO
           entityDefinitions.get(e2sc_source).fold[Acc](acc) { e2sc_sourceDef =>
             DTs.get(e2sc_target).fold[Acc]({
               System.out.println(s"DOPInfo_E2SC_append: $e2sc_dp (source: $e2sc_source) failed to find: $e2sc_target")
@@ -188,7 +189,7 @@ case class ResolverHelper
               acc
                 .+++(
                   tboxG
-                    .createDataRelationshipFromEntityToScalar(e2sc_dp, e2sc_sourceDef, e2sc_targetDef)
+                    .createDataRelationshipFromEntityToScalar(e2sc_dp, isIdentityCriteria, e2sc_sourceDef, e2sc_targetDef)
                     .map(r =>
                       (Vector(dataPropertyDPIRI), Vector(r))
                     )

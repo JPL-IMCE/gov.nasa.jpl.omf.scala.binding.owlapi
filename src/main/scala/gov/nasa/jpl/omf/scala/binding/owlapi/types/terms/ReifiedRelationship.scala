@@ -20,7 +20,7 @@ package gov.nasa.jpl.omf.scala.binding.owlapi.types.terms
 
 import java.util.UUID
 
-import gov.nasa.jpl.imce.omf.schema.tables.LocalName
+import gov.nasa.jpl.imce.oml.tables.LocalName
 import gov.nasa.jpl.omf.scala.core.RelationshipCharacteristics._
 import org.semanticweb.owlapi.model.{OWLClass, OWLObjectProperty}
 
@@ -40,8 +40,7 @@ case class ReifiedRelationship
   rSource: OWLObjectProperty,
   override val target: Entity,
   rTarget: OWLObjectProperty,
-  override val characteristics: Iterable[RelationshipCharacteristics],
-  isAbstract: Boolean)
+  override val characteristics: Iterable[RelationshipCharacteristics])
   extends EntityRelationship with Entity {
 
   require(null != e)
@@ -61,7 +60,7 @@ case class ReifiedRelationship
 
   override val hashCode
   : Int
-  = (uuid, name, source, target, isAbstract, e, rSource, rTarget,
+  = (uuid, name, source, target, e, rSource, rTarget,
     unreifiedPropertyName, unreified, inversePropertyName, inverse, characteristics).##
 
   override def equals(other: Any): Boolean = other match {
@@ -71,7 +70,6 @@ case class ReifiedRelationship
         (this.name == that.name) &&
         (this.source == that.source) &&
         (this.target == that.target) &&
-        (this.isAbstract == that.isAbstract) &&
         (this.e == that.e) &&
         (this.rSource == that.rSource) &&
         (this.rTarget == that.rTarget) &&

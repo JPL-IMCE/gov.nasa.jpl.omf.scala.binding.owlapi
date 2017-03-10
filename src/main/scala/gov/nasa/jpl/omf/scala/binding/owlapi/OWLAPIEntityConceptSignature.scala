@@ -20,17 +20,15 @@ package gov.nasa.jpl.omf.scala.binding.owlapi
 
 import java.util.UUID
 
-import gov.nasa.jpl.imce.omf.schema.tables.LocalName
+import gov.nasa.jpl.imce.oml.tables.LocalName
 import gov.nasa.jpl.omf.scala.core.EntityConceptSignature
 
-import scala.Boolean
 import scala.Predef.require
 
 case class OWLAPIEntityConceptSignature
 ( override val uuid: UUID,
   override val name: LocalName,
-  override val iri: OWLAPIOMF#IRI,
-  override val isAbstract: Boolean)
+  override val iri: OWLAPIOMF#IRI)
   extends EntityConceptSignature[OWLAPIOMF]
 {
   require(null != iri)

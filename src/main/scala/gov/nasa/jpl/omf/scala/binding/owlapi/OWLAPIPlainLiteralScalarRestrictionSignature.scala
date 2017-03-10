@@ -20,7 +20,7 @@ package gov.nasa.jpl.omf.scala.binding.owlapi
 
 import java.util.UUID
 
-import gov.nasa.jpl.imce.omf.schema.tables.LocalName
+import gov.nasa.jpl.imce.oml.tables.LocalName
 import gov.nasa.jpl.omf.scala.core.PlainLiteralScalarRestrictionSignature
 
 import scala.{Int,Option}
@@ -34,7 +34,7 @@ case class OWLAPIPlainLiteralScalarRestrictionSignature
   override val minLength: Option[Int],
   override val maxLength: Option[Int],
   override val pattern: Option[String],
-  override val language: Option[String],
+  override val langRange: Option[String],
   override val restrictedRange: OWLAPIOMF#DataRange)
   extends PlainLiteralScalarRestrictionSignature[OWLAPIOMF]
 {
@@ -45,6 +45,6 @@ case class OWLAPIPlainLiteralScalarRestrictionSignature
   require(null != minLength)
   require(null != maxLength)
   require(null != pattern)
-  require(null != language)
+  require(null != langRange)
   require(null != restrictedRange)
 }

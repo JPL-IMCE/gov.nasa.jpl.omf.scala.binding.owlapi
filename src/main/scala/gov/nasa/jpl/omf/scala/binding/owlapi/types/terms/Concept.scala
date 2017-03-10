@@ -20,7 +20,7 @@ package gov.nasa.jpl.omf.scala.binding.owlapi.types.terms
 
 import java.util.UUID
 
-import gov.nasa.jpl.imce.omf.schema.tables.LocalName
+import gov.nasa.jpl.imce.oml.tables.LocalName
 import org.semanticweb.owlapi.model.OWLClass
 
 import scala.{Any,Boolean,Int}
@@ -28,8 +28,7 @@ import scala.{Any,Boolean,Int}
 case class Concept
 (override val e: OWLClass,
  override val name: LocalName,
- override val uuid: UUID,
- isAbstract: Boolean )
+ override val uuid: UUID )
   extends Entity {
 
   override def canEqual(other: Any)
@@ -39,14 +38,13 @@ case class Concept
     case _ => false
   }
 
-  override val hashCode: Int = (uuid, name, isAbstract, e).##
+  override val hashCode: Int = (uuid, name, e).##
 
   override def equals(other: Any): Boolean = other match {
     case that: Concept =>
       (that canEqual this) &&
         (this.uuid == that.uuid) &&
         (this.name == that.name) &&
-        (this.isAbstract == that.isAbstract) &&
         (this.e == that.e)
     case _ =>
       false
