@@ -196,7 +196,7 @@ lazy val core =
       "gov.nasa.jpl.imce" % "gov.nasa.jpl.imce.ontologies.workflow"
         % Versions_imce_omf_digests.version
         % "test->compile;compile->compile" artifacts
-        Artifact("gov.nasa.jpl.imce.ontologies.workflow", "zip", "zip", "resource")
+        Artifact("imce-omf_ontologies-digests", "zip", "zip", "resource")
     )
   )
 
