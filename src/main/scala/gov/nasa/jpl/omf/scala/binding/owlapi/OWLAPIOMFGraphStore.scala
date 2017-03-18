@@ -632,17 +632,20 @@ extends OWLAPIOMFGraphStoreMetadata(omfModule, ontManager) {
       .createBackbone(tboxOnt, kind, ops)
       .flatMap { backbone =>
 
-        System.out.println(s"\n*** createOMFTerminologyGraph\n=> iri=$iri\n=> rel=$relativeIRIPath")
+        val aRelativeIRIPath: Option[String]
+        = relativeIRIPath.orElse(iri.toString.stripPrefix("http://").some)
+
+        System.out.println(s"\n*** createOMFTerminologyGraph\n=> iri=$iri\n=> rel=$aRelativeIRIPath")
 
         for {
           graphT <- terminologies.MutableTerminologyGraph.initialize(
             iri, uuid, name, kind = kind, ont = tboxOnt,
             extraProvenanceMetadata = extraProvenanceMetadata,
             backbone = backbone)(this)
-          _ <- createOMFTerminologyGraphMetadata(iri, relativeIRIPath, relativeIRIHashPrefix, kind, graphT)
+          _ <- createOMFTerminologyGraphMetadata(iri, aRelativeIRIPath, relativeIRIHashPrefix, kind, graphT)
           _ <- applyOntologyChangesOrNoOp(ontManager,
-            createAddOntologyHasRelativeIRIAnnotation(tboxOnt, relativeIRIPath) ++
-              calculateRelativeIRIUnhashedPrefixHashedSuffix(relativeIRIPath, relativeIRIHashPrefix)
+            createAddOntologyHasRelativeIRIAnnotation(tboxOnt, aRelativeIRIPath) ++
+              calculateRelativeIRIUnhashedPrefixHashedSuffix(aRelativeIRIPath, relativeIRIHashPrefix)
                 .fold[Seq[OWLOntologyChange]](Seq.empty) { case (unhashedPrefix, hashedSuffix) =>
                 Seq(
                   createAddOntologyHasIRIHashPrefixAnnotation(tboxOnt, unhashedPrefix),

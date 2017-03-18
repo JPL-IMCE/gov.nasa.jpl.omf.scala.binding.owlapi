@@ -88,190 +88,220 @@ case class ImmutableModelTerminologyGraphResolver(resolver: ResolverHelper) {
             resolveDataRanges(resolved, queue)
       }
     case dt :: dts =>
-      ont.datatypeDefinitions(dt).toScala[List].map(_.getDataRange) match {
-        case oneOf: OWLDataOneOf =>
-          oneOf.values().toScala[List] match {
-            case l :: ls =>
-              val restrictedDT = l.getDatatype
-              if (ls.forall { li => restrictedDT == li.getDatatype }) {
-                resolved.get(restrictedDT) match {
-                  case Some(restrictedRange) =>
+      val dtDefs = ont.datatypeDefinitions(dt).toScala[List]
+      dtDefs match {
+        case dtDef :: Nil =>
+          dtDef.getDataRange match {
+            case oneOf: OWLDataOneOf =>
+              oneOf.values().toScala[List] match {
+                case Nil =>
+                  Set[java.lang.Throwable](OMFError.omfError(
+                    s"resolveDataRanges: $dt has a definition as a DataOneOf without literals: $oneOf")
+                  ).left
+                case ls =>
+                  val lsCount = ls.size
+
+                  val allDTs = ls.map(_.getDatatype).to[Set]
+                  val dtCount = allDTs.size
+
+                  if (dtCount > 1) {
+                    System.out.println(s"resolveDataRanges: $dt has a definition as a DataOneOf with $lsCount literals typed by $dtCount distinct datatypes")
+                    allDTs.foreach { dt =>
+                      System.out.println(s"- dt: $dt")
+                    }
+                  }
+                  if (dtCount >= 1) {
+                    val restrictedDT = allDTs.head
+                    resolved.get(restrictedDT) match {
+                      case Some(restrictedRange) =>
+                        val added = for {
+                          scalarOneOf <- tboxG.createScalarOneOfRestriction(dt, restrictedRange)(resolver.omfStore)
+                          _ <- ls.foldLeft[types.UnitNES](types.rightUnitNES) { case (acc, li) =>
+                            for {
+                              _ <- acc
+                              _ <- tboxG.createScalarOneOfLiteralAxiom(scalarOneOf, li.getLiteral)
+                            } yield ()
+                          }
+                        } yield scalarOneOf
+                        added match {
+                          case \/-(sc) =>
+                            resolveDataRanges(resolved + (dt -> sc), dts, queue, 1 + progress)
+                          case -\/(errors) =>
+                            errors.left
+                        }
+                      case None =>
+                        resolveDataRanges(resolved, dts, dt :: queue, progress)
+                    }
+                  } else
+                    Set[java.lang.Throwable](OMFError.omfError(
+                      s"resolveDataRanges: $dt has a definition as a DataOneOf with some untyped literals: $oneOf")
+                    ).left
+
+              }
+            case r: OWLDatatypeRestriction =>
+              resolved.get(r.getDatatype) match {
+                case Some(restrictedRange) =>
+                  val facets = r.facetRestrictions().toScala[List]
+
+                  val len: Set[java.lang.Throwable] \/ Option[Int] = getFacetIntValueIfAny(facets, "xsd:length")
+                  val minL: Set[java.lang.Throwable] \/ Option[Int] = getFacetIntValueIfAny(facets, "xsd:minLength")
+                  val maxL: Set[java.lang.Throwable] \/ Option[Int] = getFacetIntValueIfAny(facets, "xsd:maxLength")
+                  val patt: Option[String] = getFacetValueIfAny(facets, "xsd:pattern")
+                  val minI: Option[String] = getFacetValueIfAny(facets, "xsd:minInclusive")
+                  val maxI: Option[String] = getFacetValueIfAny(facets, "xsd:maxInclusive")
+                  val minE: Option[String] = getFacetValueIfAny(facets, "xsd:minExclusive")
+                  val maxE: Option[String] = getFacetValueIfAny(facets, "xsd:maxExclusive")
+                  val lang: Option[String] = getFacetValueIfAny(facets, "rdf:LangRange")
+
+                  if (resolver.omfStore.isBinaryKind(restrictedRange)) {
                     val added = for {
-                      scalarOneOf <- tboxG.createScalarOneOfRestriction(dt, restrictedRange)(resolver.omfStore)
-                      _ <- (l :: ls).foldLeft[types.UnitNES](types.rightUnitNES) { case (acc, li) =>
-                          for {
-                            _ <- acc
-                            _ <- tboxG.createScalarOneOfLiteralAxiom(scalarOneOf, li.getLiteral)
-                          } yield ()
-                      }
-                    } yield scalarOneOf
+                      l <- len
+                      minl <- minL
+                      maxl <- maxL
+                      sc <- if (facets.size <= 3 && Seq(patt, minI, maxI, minE, maxE, lang).forall(_.isEmpty))
+                        tboxG.createBinaryScalarRestriction(dt, restrictedRange, l, minl, maxl)(resolver.omfStore)
+                      else
+                        Set[java.lang.Throwable](OMFError.omfError(
+                          s"resolveDataRanges: $dt ill-formed binary restriction per OWL2 section 4.5: $r")
+                        ).left
+                    } yield sc
                     added match {
                       case \/-(sc) =>
-                        resolveDataRanges(resolved + (dt -> sc), dts, queue, 1+progress)
+                        resolveDataRanges(resolved + (dt -> sc), dts, queue, 1 + progress)
                       case -\/(errors) =>
-                        errors.left
+                        -\/(errors)
                     }
-                  case None =>
-                    resolveDataRanges(resolved, dts, dt :: queue, progress)
-                }
-              } else
-                Set[java.lang.Throwable](OMFError.omfError(
-                  s"resolveDataRanges: $dt has a definition as a DataOneOf with some untyped literals: $oneOf")
-                ).left
-            case Nil =>
-              Set[java.lang.Throwable](OMFError.omfError(
-                s"resolveDataRanges: $dt has a definition as a DataOneOf without literals: $oneOf")
-              ).left
-          }
-        case r: OWLDatatypeRestriction =>
-          resolved.get(r.getDatatype) match {
-            case Some(restrictedRange) =>
-              val facets = r.facetRestrictions().toScala[List]
-
-              val len: Set[java.lang.Throwable] \/ Option[Int] = getFacetIntValueIfAny(facets, "xsd:length")
-              val minL: Set[java.lang.Throwable] \/ Option[Int] = getFacetIntValueIfAny(facets, "xsd:minLength")
-              val maxL: Set[java.lang.Throwable] \/ Option[Int] = getFacetIntValueIfAny(facets, "xsd:maxLength")
-              val patt: Option[String] = getFacetValueIfAny(facets, "xsd:pattern")
-              val minI: Option[String] = getFacetValueIfAny(facets, "xsd:minInclusive")
-              val maxI: Option[String] = getFacetValueIfAny(facets, "xsd:maxInclusive")
-              val minE: Option[String] = getFacetValueIfAny(facets, "xsd:minExclusive")
-              val maxE: Option[String] = getFacetValueIfAny(facets, "xsd:maxExclusive")
-              val lang: Option[String] = getFacetValueIfAny(facets, "rdf:LangRange")
-
-              if (resolver.omfStore.isBinaryKind(restrictedRange)) {
-                val added = for {
-                  l <- len
-                  minl <- minL
-                  maxl <- maxL
-                  sc <- if (facets.size <= 3 && Seq(patt, minI, maxI, minE, maxE, lang).forall(_.isEmpty))
-                    tboxG.createBinaryScalarRestriction(dt, restrictedRange, l, minl, maxl)(resolver.omfStore)
-                  else
+                  } else if (resolver.omfStore.isIRIKind(restrictedRange)) {
+                    val added = for {
+                      l <- len
+                      minl <- minL
+                      maxl <- maxL
+                      sc <- if (facets.size <= 4 && Seq(minI, maxI, minE, maxE, lang).forall(_.isEmpty))
+                        tboxG.createIRIScalarRestriction(dt, restrictedRange, l, minl, maxl, patt)(resolver.omfStore)
+                      else
+                        Set[java.lang.Throwable](OMFError.omfError(
+                          s"resolveDataRanges: $dt ill-formed IRI restriction per OWL2 section 4.6: $r")
+                        ).left
+                    } yield sc
+                    added match {
+                      case \/-(sc) =>
+                        resolveDataRanges(resolved + (dt -> sc), dts, queue, 1 + progress)
+                      case -\/(errors) =>
+                        -\/(errors)
+                    }
+                  } else if (resolver.omfStore.isNumericKind(restrictedRange)) {
+                    val added = for {
+                      l <- len
+                      minl <- minL
+                      maxl <- maxL
+                      sc <- if (facets.size <= 4 && Seq(l, minl, maxl, patt, lang).forall(_.isEmpty))
+                        tboxG.createNumericScalarRestriction(dt, restrictedRange, minI, maxI, minE, maxE)(resolver.omfStore)
+                      else
+                        Set[java.lang.Throwable](OMFError.omfError(
+                          s"resolveDataRanges: $dt ill-formed numeric restriction per OWL2 sections 4.1, 4.2: $r")
+                        ).left
+                    } yield sc
+                    added match {
+                      case \/-(sc) =>
+                        resolveDataRanges(resolved + (dt -> sc), dts, queue, 1 + progress)
+                      case -\/(errors) =>
+                        -\/(errors)
+                    }
+                  } else if (resolver.omfStore.isPlainLiteralKind(restrictedRange)) {
+                    val added = for {
+                      l <- len
+                      minl <- minL
+                      maxl <- maxL
+                      sc <- if (facets.size <= 5 && Seq(minI, maxI, minE, maxE).forall(_.isEmpty))
+                        tboxG.createPlainLiteralScalarRestriction(dt, restrictedRange, l, minl, maxl, patt, lang)(resolver.omfStore)
+                      else
+                        Set[java.lang.Throwable](OMFError.omfError(
+                          s"resolveDataRanges: $dt ill-formed PlainLiteral restriction per OWL2 section 4.3: $r")
+                        ).left
+                    } yield sc
+                    added match {
+                      case \/-(sc) =>
+                        resolveDataRanges(resolved + (dt -> sc), dts, queue, 1 + progress)
+                      case -\/(errors) =>
+                        -\/(errors)
+                    }
+                  } else if (resolver.omfStore.isStringKind(restrictedRange)) {
+                    val added = for {
+                      l <- len
+                      minl <- minL
+                      maxl <- maxL
+                      sc <- if (facets.size <= 4 && Seq(minI, maxI, minE, maxE, lang).forall(_.isEmpty))
+                        tboxG.createStringScalarRestriction(dt, restrictedRange, l, minl, maxl, patt)(resolver.omfStore)
+                      else
+                        Set[java.lang.Throwable](OMFError.omfError(
+                          s"resolveDataRanges: $dt ill-formed String restriction per OWL2 section 4.3: $r")
+                        ).left
+                    } yield sc
+                    added match {
+                      case \/-(sc) =>
+                        resolveDataRanges(resolved + (dt -> sc), dts, queue, 1 + progress)
+                      case -\/(errors) =>
+                        -\/(errors)
+                    }
+                  } else if (resolver.omfStore.isTimeKind(restrictedRange)) {
+                    val added = for {
+                      l <- len
+                      minl <- minL
+                      maxl <- maxL
+                      sc <- if (facets.size <= 4 && Seq(l, minl, maxl, patt, lang).forall(_.isEmpty))
+                        tboxG.createTimeScalarRestriction(dt, restrictedRange, minI, maxI, minE, maxE)(resolver.omfStore)
+                      else
+                        Set[java.lang.Throwable](OMFError.omfError(
+                          s"resolveDataRanges: $dt ill-formed time restriction per OWL2 section 4.7: $r")
+                        ).left
+                    } yield sc
+                    added match {
+                      case \/-(sc) =>
+                        resolveDataRanges(resolved + (dt -> sc), dts, queue, 1 + progress)
+                      case -\/(errors) =>
+                        -\/(errors)
+                    }
+                  } else
                     Set[java.lang.Throwable](OMFError.omfError(
-                      s"resolveDataRanges: $dt ill-formed binary restriction per OWL2 section 4.5: $r")
+                      s"resolveDataRanges: $dt has a definition as a DatatypeRestriction outside of OWL2: $r")
                     ).left
-                } yield sc
-                added match {
-                  case \/-(sc) =>
-                    resolveDataRanges(resolved + (dt -> sc), dts, queue, 1 + progress)
-                  case -\/(errors) =>
-                    -\/(errors)
-                }
-              } else if (resolver.omfStore.isIRIKind(restrictedRange)) {
-                val added = for {
-                  l <- len
-                  minl <- minL
-                  maxl <- maxL
-                  sc <- if (facets.size <= 4 && Seq(minI, maxI, minE, maxE, lang).forall(_.isEmpty))
-                    tboxG.createIRIScalarRestriction(dt, restrictedRange, l, minl, maxl, patt)(resolver.omfStore)
-                  else
-                    Set[java.lang.Throwable](OMFError.omfError(
-                      s"resolveDataRanges: $dt ill-formed IRI restriction per OWL2 section 4.6: $r")
-                    ).left
-                } yield sc
-                added match {
-                  case \/-(sc) =>
-                    resolveDataRanges(resolved + (dt -> sc), dts, queue, 1+progress)
-                  case -\/(errors) =>
-                    -\/(errors)
-                }
-              } else if (resolver.omfStore.isNumericKind(restrictedRange)) {
-                val added = for {
-                  l <- len
-                  minl <- minL
-                  maxl <- maxL
-                  sc <- if (facets.size <= 4 && Seq(l, minl, maxl, patt, lang).forall(_.isEmpty))
-                    tboxG.createNumericScalarRestriction(dt, restrictedRange, minI, maxI, minE, maxE)(resolver.omfStore)
-                  else
-                    Set[java.lang.Throwable](OMFError.omfError(
-                      s"resolveDataRanges: $dt ill-formed numeric restriction per OWL2 sections 4.1, 4.2: $r")
-                    ).left
-                } yield sc
-                added match {
-                  case \/-(sc) =>
-                    resolveDataRanges(resolved + (dt -> sc), dts, queue, 1+progress)
-                  case -\/(errors) =>
-                    -\/(errors)
-                }
-              } else if (resolver.omfStore.isPlainLiteralKind(restrictedRange)) {
-                val added = for {
-                  l <- len
-                  minl <- minL
-                  maxl <- maxL
-                  sc <- if (facets.size <= 5 && Seq(minI, maxI, minE, maxE).forall(_.isEmpty))
-                    tboxG.createPlainLiteralScalarRestriction(dt, restrictedRange, l, minl, maxl, patt, lang)(resolver.omfStore)
-                  else
-                    Set[java.lang.Throwable](OMFError.omfError(
-                      s"resolveDataRanges: $dt ill-formed PlainLiteral restriction per OWL2 section 4.3: $r")
-                    ).left
-                } yield sc
-                added match {
-                  case \/-(sc) =>
-                    resolveDataRanges(resolved + (dt -> sc), dts, queue, 1+progress)
-                  case -\/(errors) =>
-                    -\/(errors)
-                }
-              } else if (resolver.omfStore.isStringKind(restrictedRange)) {
-                val added = for {
-                  l <- len
-                  minl <- minL
-                  maxl <- maxL
-                  sc <- if (facets.size <= 4 && Seq(minI, maxI, minE, maxE, lang).forall(_.isEmpty))
-                    tboxG.createStringScalarRestriction(dt, restrictedRange, l, minl, maxl, patt)(resolver.omfStore)
-                  else
-                    Set[java.lang.Throwable](OMFError.omfError(
-                      s"resolveDataRanges: $dt ill-formed String restriction per OWL2 section 4.3: $r")
-                    ).left
-                } yield sc
-                added match {
-                  case \/-(sc) =>
-                    resolveDataRanges(resolved + (dt -> sc), dts, queue, 1+progress)
-                  case -\/(errors) =>
-                    -\/(errors)
-                }
-              } else if (resolver.omfStore.isTimeKind(restrictedRange)) {
-                val added = for {
-                  l <- len
-                  minl <- minL
-                  maxl <- maxL
-                  sc <- if (facets.size <= 4 && Seq(l, minl, maxl, patt, lang).forall(_.isEmpty))
-                    tboxG.createTimeScalarRestriction(dt, restrictedRange, minI, maxI, minE, maxE)(resolver.omfStore)
-                  else
-                    Set[java.lang.Throwable](OMFError.omfError(
-                      s"resolveDataRanges: $dt ill-formed time restriction per OWL2 section 4.7: $r")
-                    ).left
-                } yield sc
-                added match {
-                  case \/-(sc) =>
-                    resolveDataRanges(resolved + (dt -> sc), dts, queue, 1+progress)
-                  case -\/(errors) =>
-                    -\/(errors)
-                }
-              } else
-                Set[java.lang.Throwable](OMFError.omfError(
-                  s"resolveDataRanges: $dt has a definition as a DatatypeRestriction outside of OWL2: $r")
-                ).left
-            case None =>
-              Set[java.lang.Throwable](OMFError.omfError(
-                s"resolveDataRanges: $dt has a definition as a DatatypeRestriction to an unrecognized datatype: $r")
-              ).left
-          }
-        case (dr: OWLDatatype) :: Nil =>
-          resolved.get(dr) match {
-            case Some(restrictedRange) =>
-              tboxG.createSynonymScalarRestriction(dt, restrictedRange)(resolver.omfStore) match {
-                case \/-(sc) =>
-                  resolveDataRanges(resolved + (dt -> sc), dts, queue, 1+progress)
-                case -\/(errors) =>
-                  -\/(errors)
+                case None =>
+                  Set[java.lang.Throwable](OMFError.omfError(
+                    s"resolveDataRanges: $dt has a definition as a DatatypeRestriction to an unrecognized datatype: $r")
+                  ).left
               }
-            case None =>
+            case dr: OWLDatatype =>
+              resolved.get(dr) match {
+                case Some(restrictedRange) =>
+                  tboxG.createSynonymScalarRestriction(dt, restrictedRange)(resolver.omfStore) match {
+                    case \/-(sc) =>
+                      resolveDataRanges(resolved + (dt -> sc), dts, queue, 1 + progress)
+                    case -\/(errors) =>
+                      -\/(errors)
+                  }
+                case None =>
+                  Set[java.lang.Throwable](OMFError.omfError(
+                    s"resolveDataRanges: $dt has a definition as a DatatypeRestriction to an unrecognized datatype: $dr")
+                  ).left
+              }
+            case _ =>
+              val eqDTs = ont.axioms(dt).toScala[List]
+              eqDTs match {
+                case eqDT :: Nil =>
+                  System.out.println(s"Found $eqDT for $dt")
+                case Nil =>
+                  System.out.println(s"No eq for $dt")
+                case _ =>
+                  System.out.println(s"Found ${eqDTs.size} eq for $dt")
+              }
               Set[java.lang.Throwable](OMFError.omfError(
-                s"resolveDataRanges: $dt has a definition as a DatatypeRestriction to an unrecognized datatype: $dr")
+                s"resolveDataRanges: $dt should have a definition as a DataOneOf or DataRestriction; got: $dtDef")
               ).left
           }
-        case dr =>
+        case _ =>
+
           Set[java.lang.Throwable](OMFError.omfError(
-            s"resolveDataRanges: $dt should have a definition as a DataOneOf or DataRestriction; got: $dr")
+            s"resolveDataRanges: $dt should have a definition as a DataOneOf or DataRestriction")
           ).left
       }
   }

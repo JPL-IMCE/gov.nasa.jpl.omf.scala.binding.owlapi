@@ -621,7 +621,13 @@ abstract class OWLAPIOMFGraphStoreMetadata(omfModule: OWLAPIOMFModule, ontManage
           new AddAxiom(mo, owlDataFactory
             .getOWLDataPropertyAssertionAxiom(OMF_HAS_IRI, graphI, graphT.iri.toString))
         ) ++
-          aRelativeIRIPath.fold[Seq[OWLOntologyChange]](Seq.empty) { relPath =>
+          aRelativeIRIPath.fold[Seq[OWLOntologyChange]](aRelativeIRIPath.fold[Seq[OWLOntologyChange]](Seq.empty) { relIRIPath =>
+            Seq(
+              new AddAxiom(mo,
+                owlDataFactory
+                  .getOWLDataPropertyAssertionAxiom(OMF_HAS_RELATIVE_FILENAME, graphI, relIRIPath + "_Grw"))
+            )
+          }) { relPath =>
             Seq(
               new AddAxiom(mo,
                 owlDataFactory

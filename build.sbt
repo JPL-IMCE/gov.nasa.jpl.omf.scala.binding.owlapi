@@ -181,12 +181,22 @@ lazy val core =
   )
   .dependsOnSourceProjectOrLibraryArtifacts(
     "imce-omf_ontologies",
-    "gov.nasa.jpl.imce.ontologies",
+    "gov.nasa.jpl.imce.ontologies.public",
     Seq(
       "gov.nasa.jpl.imce" % "gov.nasa.jpl.imce.ontologies.public"
         % Versions_imce_omf_ontologies.version
         % "test->compile;compile->compile" artifacts
         Artifact("gov.nasa.jpl.imce.ontologies.public", "zip", "zip", "resource")
+    )
+  )
+  .dependsOnSourceProjectOrLibraryArtifacts(
+    "gov.nasa.jpl.imce.ontologies.workflow",
+    "gov.nasa.jpl.imce.ontologies.workflow",
+    Seq(
+      "gov.nasa.jpl.imce" % "gov.nasa.jpl.imce.ontologies.workflow"
+        % Versions_imce_omf_digests.version
+        % "test->compile;compile->compile" artifacts
+        Artifact("gov.nasa.jpl.imce.ontologies.workflow", "zip", "zip", "resource")
     )
   )
 
