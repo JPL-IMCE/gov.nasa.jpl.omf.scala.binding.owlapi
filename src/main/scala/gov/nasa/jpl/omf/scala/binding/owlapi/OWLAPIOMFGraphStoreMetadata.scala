@@ -563,12 +563,14 @@ abstract class OWLAPIOMFGraphStoreMetadata(omfModule: OWLAPIOMFModule, ontManage
                 .getOWLDataPropertyAssertionAxiom(OMF_HAS_IRI, graphI,
                   g.iri.toString))
           ) ++
-            relativeIRIPath.fold[Seq[OWLOntologyChange]](Seq.empty) { relPath =>
+            relativeIRIPath.fold[Seq[OWLOntologyChange]](Seq.empty) { relIRIPath =>
               Seq(
                 new AddAxiom(mo,
                   owlDataFactory
-                    .getOWLDataPropertyAssertionAxiom(OMF_HAS_RELATIVE_IRI_PATH, graphI,
-                      relPath))
+                    .getOWLDataPropertyAssertionAxiom(OMF_HAS_RELATIVE_FILENAME, graphI, relIRIPath + "_Gro")),
+                new AddAxiom(mo,
+                  owlDataFactory
+                    .getOWLDataPropertyAssertionAxiom(OMF_HAS_RELATIVE_IRI_PATH, graphI, relIRIPath))
               )
             } ++
             calculateRelativeIRIUnhashedPrefixHashedSuffix(relativeIRIPath, relativeIRIHashPrefix)
@@ -581,11 +583,11 @@ abstract class OWLAPIOMFGraphStoreMetadata(omfModule: OWLAPIOMFModule, ontManage
                 new AddAxiom(mo,
                   owlDataFactory
                     .getOWLDataPropertyAssertionAxiom(OMF_HAS_RELATIVE_IRI_HASH_SUFFIX, graphI,
-                      hashedSuffix)),
-                new AddAxiom(mo,
-                  owlDataFactory
-                    .getOWLDataPropertyAssertionAxiom(OMF_HAS_RELATIVE_FILENAME, graphI,
-                      unhashedPrefix + hashedSuffix + "_Gro"))
+                      hashedSuffix))
+//                new AddAxiom(mo,
+//                  owlDataFactory
+//                    .getOWLDataPropertyAssertionAxiom(OMF_HAS_RELATIVE_FILENAME, graphI,
+//                      unhashedPrefix + hashedSuffix + "_Gro"))
               )
             } ++
             createOntologyChangesForOMFModelTerminologyGraphProvenanceMetadata(mo, g, graphI),
@@ -621,17 +623,14 @@ abstract class OWLAPIOMFGraphStoreMetadata(omfModule: OWLAPIOMFModule, ontManage
           new AddAxiom(mo, owlDataFactory
             .getOWLDataPropertyAssertionAxiom(OMF_HAS_IRI, graphI, graphT.iri.toString))
         ) ++
-          aRelativeIRIPath.fold[Seq[OWLOntologyChange]](aRelativeIRIPath.fold[Seq[OWLOntologyChange]](Seq.empty) { relIRIPath =>
+          aRelativeIRIPath.fold[Seq[OWLOntologyChange]](Seq.empty) { relIRIPath =>
             Seq(
               new AddAxiom(mo,
                 owlDataFactory
-                  .getOWLDataPropertyAssertionAxiom(OMF_HAS_RELATIVE_FILENAME, graphI, relIRIPath + "_Grw"))
-            )
-          }) { relPath =>
-            Seq(
+                  .getOWLDataPropertyAssertionAxiom(OMF_HAS_RELATIVE_FILENAME, graphI, relIRIPath + "_Grw")),
               new AddAxiom(mo,
                 owlDataFactory
-                  .getOWLDataPropertyAssertionAxiom(OMF_HAS_RELATIVE_IRI_PATH, graphI, relPath))
+                  .getOWLDataPropertyAssertionAxiom(OMF_HAS_RELATIVE_IRI_PATH, graphI, relIRIPath))
             )
           } ++
           calculateRelativeIRIUnhashedPrefixHashedSuffix(aRelativeIRIPath, relativeIRIHashPrefix)
@@ -644,11 +643,7 @@ abstract class OWLAPIOMFGraphStoreMetadata(omfModule: OWLAPIOMFModule, ontManage
               new AddAxiom(mo,
                 owlDataFactory
                   .getOWLDataPropertyAssertionAxiom(OMF_HAS_RELATIVE_IRI_HASH_SUFFIX, graphI,
-                    hashedSuffix)),
-              new AddAxiom(mo,
-                owlDataFactory
-                  .getOWLDataPropertyAssertionAxiom(OMF_HAS_RELATIVE_FILENAME, graphI,
-                    unhashedPrefix + hashedSuffix + "_Grw"))
+                    hashedSuffix))
             )
           } ++
           createOntologyChangesForOMFModelTerminologyGraphProvenanceMetadata(mo, graphT, graphI),
@@ -687,11 +682,14 @@ abstract class OWLAPIOMFGraphStoreMetadata(omfModule: OWLAPIOMFModule, ontManage
           new AddAxiom(mo, owlDataFactory
             .getOWLDataPropertyAssertionAxiom(OMF_HAS_IRI, graphI, graphT.iri.toString))
         ) ++
-          aRelativeIRIPath.fold[Seq[OWLOntologyChange]](Seq.empty) { relPath =>
+          aRelativeIRIPath.fold[Seq[OWLOntologyChange]](Seq.empty) { relIRIPath =>
             Seq(
               new AddAxiom(mo,
                 owlDataFactory
-                  .getOWLDataPropertyAssertionAxiom(OMF_HAS_RELATIVE_IRI_PATH, graphI, relPath))
+                  .getOWLDataPropertyAssertionAxiom(OMF_HAS_RELATIVE_FILENAME, graphI, relIRIPath + "_Grw")),
+              new AddAxiom(mo,
+                owlDataFactory
+                  .getOWLDataPropertyAssertionAxiom(OMF_HAS_RELATIVE_IRI_PATH, graphI, relIRIPath))
             )
           } ++
           calculateRelativeIRIUnhashedPrefixHashedSuffix(aRelativeIRIPath, relativeIRIHashPrefix)
@@ -704,11 +702,11 @@ abstract class OWLAPIOMFGraphStoreMetadata(omfModule: OWLAPIOMFModule, ontManage
               new AddAxiom(mo,
                 owlDataFactory
                   .getOWLDataPropertyAssertionAxiom(OMF_HAS_RELATIVE_IRI_HASH_SUFFIX, graphI,
-                    hashedSuffix)),
-              new AddAxiom(mo,
-                owlDataFactory
-                  .getOWLDataPropertyAssertionAxiom(OMF_HAS_RELATIVE_FILENAME, graphI,
-                    unhashedPrefix + hashedSuffix + "_Grw"))
+                    hashedSuffix))
+//              new AddAxiom(mo,
+//                owlDataFactory
+//                  .getOWLDataPropertyAssertionAxiom(OMF_HAS_RELATIVE_FILENAME, graphI,
+//                    unhashedPrefix + hashedSuffix + "_Grw"))
             )
           } ++
           createOntologyChangesForOMFModelTerminologyGraphProvenanceMetadata(mo, graphT, graphI),
