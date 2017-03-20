@@ -93,8 +93,6 @@ lazy val core =
     // include all test artifacts
     publishArtifact in Test := true,
 
-    scalaSource in Test := baseDirectory.value / "test",
-
     resourceDirectory in Test := baseDirectory.value / "target" / "extracted" / "imce-omf_ontologies",
 
     libraryDependencies ++= Seq(
@@ -153,6 +151,10 @@ lazy val core =
       (compile in Test).value
     },
 
+    libraryDependencies += "com.lihaoyi" % "ammonite" % "0.8.2" % "test" cross CrossVersion.full,
+
+    initialCommands in (Test, console) := """ammonite.Main().run()""",
+
     unmanagedClasspath in Test += baseDirectory.value / "target" / "extracted" / "gov.nasa.jpl.imce.ontologies.public"
     // for local development assuming that gov.nasa.jpl.imce.ontologies.public is cloned as a peer project, use this:
     // unmanagedClasspath in Test += baseDirectory.value / ".." / "gov.nasa.jpl.imce.ontologies.public"
@@ -196,7 +198,7 @@ lazy val core =
       "gov.nasa.jpl.imce" % "gov.nasa.jpl.imce.ontologies.workflow"
         % Versions_imce_omf_digests.version
         % "test->compile;compile->compile" artifacts
-        Artifact("imce-omf_ontologies-digests", "zip", "zip", "resource")
+        Artifact("gov.nasa.jpl.imce.ontologies.workflow", "zip", "zip", "digests")
     )
   )
 
