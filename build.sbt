@@ -59,11 +59,15 @@ def fromConfigurationReport
   net.virtualvoid.sbt.graph.ModuleGraph(root +: nodes, edges.flatten)
 }
 
+val extractArchives
+: TaskKey[Unit]
+= TaskKey[Unit]("extract-archives", "Extracts ZIP files")
+
 lazy val core =
   Project("omf-scala-binding-owlapi", file("."))
   .enablePlugins(IMCEGitPlugin)
-  .enablePlugins(IMCEReleasePlugin)
-  .settings(IMCEReleasePlugin.packageReleaseProcessSettings)
+  //.enablePlugins(IMCEReleasePlugin)
+  //.settings(IMCEReleasePlugin.packageReleaseProcessSettings)
   .settings(dynamicScriptsResourceSettings("gov.nasa.jpl.omf.scala.binding.owlapi"))
   .settings(IMCEPlugin.strictScalacFatalWarningsSettings)
   .settings(
@@ -72,6 +76,8 @@ lazy val core =
 
     buildInfoPackage := "gov.nasa.jpl.omf.scala.binding.owlapi",
     buildInfoKeys ++= Seq[BuildInfoKey](BuildInfoKey.action("buildDateUTC") { buildUTCDate.value }),
+
+    scalacOptions in (Compile, compile) += "-explaintypes",
 
     scalacOptions in (Compile,doc) ++= Seq(
       "-diagrams",
@@ -153,6 +159,18 @@ lazy val core =
 
     libraryDependencies += "com.lihaoyi" % "ammonite" % "0.8.2" % "test" cross CrossVersion.full,
 
+    // Avoid unresolvable dependencies from old versions of log4j
+    libraryDependencies ~= {
+      _ map {
+        case m if m.organization == "log4j" =>
+          m
+            .exclude("javax.jms", "jms")
+            .exclude("com.sun.jmx", "jmxri")
+            .exclude("com.sun.jdmk", "jmxtools")
+        case m => m
+      }
+    },
+    
     initialCommands in (Test, console) := """ammonite.Main().run()""",
 
     unmanagedClasspath in Test += baseDirectory.value / "target" / "extracted" / "gov.nasa.jpl.imce.ontologies.public"
@@ -165,7 +183,7 @@ lazy val core =
     Seq(
       "gov.nasa.jpl.imce" %% "gov.nasa.jpl.omf.scala.core"
         % Versions_omf_scala_core.version
-        % "compile" artifacts(
+        % "compile" withSources() artifacts(
         Artifact("gov.nasa.jpl.omf.scala.core"),
         Artifact("gov.nasa.jpl.omf.scala.core", "zip", "zip", "resource"))
     )
@@ -177,7 +195,7 @@ lazy val core =
     Seq(
       "gov.nasa.jpl.imce" %% "gov.nasa.jpl.omf.scala.core"
         % Versions_omf_scala_core.version
-        % "test->compile" artifacts
+        % "test->compile" withSources() artifacts
         Artifact("gov.nasa.jpl.omf.scala.core", "tests")
     )
   )
