@@ -1,0 +1,1004 @@
+<!DOCTYPE html >
+<html>
+        <head>
+          <title>MutableDescriptionBox - gov.nasa.jpl.omf.scala.binding.owlapi - gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox</title>
+          <meta name="description" content="MutableDescriptionBox - gov.nasa.jpl.omf.scala.binding.owlapi - gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox" />
+          <meta name="keywords" content="MutableDescriptionBox gov.nasa.jpl.omf.scala.binding.owlapi gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox" />
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      <link href="../../../../../../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../../../../../../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../../../../../../../lib/jquery.js" id="jquery-js"></script>
+      <script type="text/javascript" src="../../../../../../../../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../../../../../../../lib/template.js"></script>
+      <script type="text/javascript" src="../../../../../../../../lib/tools.tooltip.js"></script>
+      <script type="text/javascript" src="../../../../../../../../lib/modernizr.custom.js"></script><script type="text/javascript" src="../../../../../../../../lib/diagrams.js" id="diagrams-js"></script>
+      <script type="text/javascript">
+         if(top === self) {
+            var url = '../../../../../../../../index.html';
+            var hash = 'gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
+    
+        </head>
+        <body class="type">
+      <div id="definition">
+        <a href="MutableDescriptionBox$.html" title="See companion object"><img alt="Class/Object" src="../../../../../../../../lib/class_to_object_big.png" /></a>
+        <p id="owner"><a href="../../../../../../../package.html" class="extype" name="gov">gov</a>.<a href="../../../../../../package.html" class="extype" name="gov.nasa">nasa</a>.<a href="../../../../../package.html" class="extype" name="gov.nasa.jpl">jpl</a>.<a href="../../../../package.html" class="extype" name="gov.nasa.jpl.omf">omf</a>.<a href="../../../package.html" class="extype" name="gov.nasa.jpl.omf.scala">scala</a>.<a href="../../package.html" class="extype" name="gov.nasa.jpl.omf.scala.binding">binding</a>.<a href="../package.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi">owlapi</a>.<a href="package.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.descriptions">descriptions</a></p>
+        <h1><a href="MutableDescriptionBox$.html" title="See companion object">MutableDescriptionBox</a></h1><h3><span class="morelinks"><div>
+            Related Docs:
+            <a href="MutableDescriptionBox$.html" title="See companion object">object MutableDescriptionBox</a>
+            | <a href="package.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.descriptions">package descriptions</a>
+          </div></span></h3><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      </div>
+
+      <h4 id="signature" class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">MutableDescriptionBox</span><span class="params">(<span name="sig">sig: <span class="extype" name="gov.nasa.jpl.omf.scala.core.MutableDescriptionBoxSignature">MutableDescriptionBoxSignature</span>[<a href="../OWLAPIOMF.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMF">OWLAPIOMF</a>]</span>, <span name="ont">ont: <span class="extype" name="org.semanticweb.owlapi.model.OWLOntology">OWLOntology</span></span>, <span name="backbone">backbone: <a href="../OMFBackbone.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OMFBackbone">OMFBackbone</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="ops">ops: <a href="../OWLAPIOMFOps.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFOps">OWLAPIOMFOps</a></span>)</span><span class="result"> extends <a href="DescriptionBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.DescriptionBox">DescriptionBox</a> with <a href="../common/MutableModule.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.common.MutableModule">MutableModule</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      
+          <div id="comment" class="fullcommenttop"><div class="toggleContainer block">
+          <span class="toggle">Linear Supertypes</span>
+          <div class="superTypes hiddenContent"><span class="extype" name="scala.Serializable">Serializable</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="scala.Product">Product</span>, <span class="extype" name="scala.Equals">Equals</span>, <a href="../common/MutableModule.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.common.MutableModule">MutableModule</a>, <a href="DescriptionBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.DescriptionBox">DescriptionBox</a>, <a href="../common/Module.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.common.Module">Module</a>, <a href="../common/Resource.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.common.Resource">Resource</a>, <a href="../common/Element.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.common.Element">Element</a>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+        </div><div class="toggleContainer block diagram-container" id="inheritance-diagram-container">
+                <span class="toggle diagram-link">Type Hierarchy</span>
+                <div class="diagram" id="inheritance-diagram"><svg class="class-diagram" id="graph1" viewBox="0.00 0.00 460.00 120.00" height="120pt" width="460pt" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg"><g transform="scale(1 1) rotate(0) translate(4 116)" class="graph" id="graph1"><polygon points="-4,5 -4,-116 457,-116 457,5 -4,5" stroke="white" fill="white"></polygon><g class="cluster" id="graph2"></g><g class="cluster" id="graph3"></g><!-- node0 --><g class="node this class" id="graph1_0"><a xlink:title="gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox (this class)" xlink:href="#inheritance-diagram"><polygon points="315,-50 169,-50 169,-24 315,-24 315,-50" stroke="#115f3b" fill="#0a955b"></polygon><image xlink:href="../../../../../../../../lib/class_diagram.png" y="-45" x="179" preserveAspectRatio="xMinYMin meet" height="16px" width="16px"></image><text fill="#ffffff" font-size="10.00" font-family="Arial" y="-34.6667" x="201" text-anchor="start">MutableDescriptionBox</text></a></g><!-- node1 --><g class="node trait" id="graph1_1"><a xlink:title="gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.DescriptionBox" xlink:href="DescriptionBox.html#inheritance-diagram"><polygon points="112,-112 5.68434e-14,-112 7.10543e-15,-86 112,-86 112,-112" stroke="#37657d" fill="#498aad"></polygon><image xlink:href="../../../../../../../../lib/trait_diagram.png" y="-107" x="10" preserveAspectRatio="xMinYMin meet" height="16px" width="16px"></image><text fill="#ffffff" font-size="10.00" font-family="Arial" y="-96.6667" x="32" text-anchor="start">DescriptionBox</text></a></g><!-- node1&#45;&gt;node0 --><g class="edge inheritance" id="graph1_1_0"><a xlink:title="MutableDescriptionBox is a subtype of DescriptionBox"><path d="M100.365,-84.2118C131.578,-73.8074 172.962,-60.0126 202.93,-50.0232" stroke="#d4d4d4" fill="none"></path><polygon points="99.6358,-82.61 95.4458,-85.8514 100.743,-85.9304 99.6358,-82.61" stroke="#d4d4d4" fill="none"></polygon></a></g><!-- node2 --><g class="node trait" id="graph1_2"><a xlink:title="gov.nasa.jpl.omf.scala.binding.owlapi.common.MutableModule" xlink:href="../common/MutableModule.html#inheritance-diagram"><polygon points="242,-112 130,-112 130,-86 242,-86 242,-112" stroke="#37657d" fill="#498aad"></polygon><image xlink:href="../../../../../../../../lib/trait_diagram.png" y="-107" x="140" preserveAspectRatio="xMinYMin meet" height="16px" width="16px"></image><text fill="#ffffff" font-size="10.00" font-family="Arial" y="-96.6667" x="162" text-anchor="start">MutableModule</text></a></g><!-- node2&#45;&gt;node0 --><g class="edge inheritance" id="graph1_2_0"><a xlink:title="MutableDescriptionBox is a subtype of MutableModule"><path d="M201.36,-81.9943C210.436,-71.9456 221.755,-59.4138 230.141,-50.1297" stroke="#d4d4d4" fill="none"></path><polygon points="199.929,-80.9678 197.876,-85.8514 202.526,-83.3139 199.929,-80.9678" stroke="#d4d4d4" fill="none"></polygon></a></g><!-- node3 --><g class="node trait" id="graph1_3"><a xlink:title="scala.Product"><polygon points="338,-112 260,-112 260,-86 338,-86 338,-112" stroke="#37657d" fill="#498aad"></polygon><image xlink:href="../../../../../../../../lib/trait_diagram.png" y="-107" x="270" preserveAspectRatio="xMinYMin meet" height="16px" width="16px"></image><text fill="#ffffff" font-size="10.00" font-family="Arial" y="-96.6667" x="292" text-anchor="start">Product</text></a></g><!-- node3&#45;&gt;node0 --><g class="edge inheritance" id="graph1_3_0"><a xlink:title="MutableDescriptionBox is a subtype of Product"><path d="M283.366,-81.9943C274.127,-71.9456 262.606,-59.4138 254.071,-50.1297" stroke="#d4d4d4" fill="none"></path><polygon points="282.239,-83.3549 286.912,-85.8514 284.816,-80.9861 282.239,-83.3549" stroke="#d4d4d4" fill="none"></polygon></a></g><!-- node4 --><g class="node trait" id="graph1_4"><a xlink:title="scala.Serializable"><polygon points="452,-112 356,-112 356,-86 452,-86 452,-112" stroke="#37657d" fill="#498aad"></polygon><image xlink:href="../../../../../../../../lib/trait_diagram.png" y="-107" x="366" preserveAspectRatio="xMinYMin meet" height="16px" width="16px"></image><text fill="#ffffff" font-size="10.00" font-family="Arial" y="-96.6667" x="388" text-anchor="start">Serializable</text></a></g><!-- node4&#45;&gt;node0 --><g class="edge inheritance" id="graph1_4_0"><a xlink:title="MutableDescriptionBox is a subtype of Serializable"><path d="M364.687,-83.9542C337.581,-73.5805 301.915,-59.9304 276.028,-50.0232" stroke="#d4d4d4" fill="none"></path><polygon points="364.349,-85.6986 369.644,-85.8514 365.6,-82.4298 364.349,-85.6986" stroke="#d4d4d4" fill="none"></polygon></a></g></g></svg></div>
+              </div></div>
+        
+
+      <div id="mbrsel">
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
+        <div id="order">
+              <span class="filtertype">Ordering</span>
+              <ol>
+                
+                <li class="alpha in"><span>Alphabetic</span></li>
+                <li class="inherit out"><span>By Inheritance</span></li>
+              </ol>
+            </div>
+        <div id="ancestors">
+                <span class="filtertype">Inherited<br />
+                </span>
+                <ol id="linearization">
+                  <li class="in" name="gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox"><span>MutableDescriptionBox</span></li><li class="in" name="scala.Serializable"><span>Serializable</span></li><li class="in" name="java.io.Serializable"><span>Serializable</span></li><li class="in" name="scala.Product"><span>Product</span></li><li class="in" name="scala.Equals"><span>Equals</span></li><li class="in" name="gov.nasa.jpl.omf.scala.binding.owlapi.common.MutableModule"><span>MutableModule</span></li><li class="in" name="gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.DescriptionBox"><span>DescriptionBox</span></li><li class="in" name="gov.nasa.jpl.omf.scala.binding.owlapi.common.Module"><span>Module</span></li><li class="in" name="gov.nasa.jpl.omf.scala.binding.owlapi.common.Resource"><span>Resource</span></li><li class="in" name="gov.nasa.jpl.omf.scala.binding.owlapi.common.Element"><span>Element</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                </ol>
+              </div><div id="ancestors">
+            <span class="filtertype"></span>
+            <ol>
+              <li class="hideall out"><span>Hide All</span></li>
+              <li class="showall in"><span>Show All</span></li>
+            </ol>
+          </div>
+        <div id="visbl">
+            <span class="filtertype">Visibility</span>
+            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+          </div>
+      </div>
+
+      <div id="template">
+        <div id="allMembers">
+        <div id="constructors" class="members">
+              <h3>Instance Constructors</h3>
+              <ol><li name="gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="&lt;init&gt;(sig:gov.nasa.jpl.omf.scala.core.MutableDescriptionBoxSignature[gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMF],ont:org.semanticweb.owlapi.model.OWLOntology,backbone:gov.nasa.jpl.omf.scala.binding.owlapi.OMFBackbone)(implicitops:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFOps):gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox"></a>
+      <a id="&lt;init&gt;:MutableDescriptionBox"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">new</span>
+      </span>
+      <span class="symbol">
+        <span class="name">MutableDescriptionBox</span><span class="params">(<span name="sig">sig: <span class="extype" name="gov.nasa.jpl.omf.scala.core.MutableDescriptionBoxSignature">MutableDescriptionBoxSignature</span>[<a href="../OWLAPIOMF.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMF">OWLAPIOMF</a>]</span>, <span name="ont">ont: <span class="extype" name="org.semanticweb.owlapi.model.OWLOntology">OWLOntology</span></span>, <span name="backbone">backbone: <a href="../OMFBackbone.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OMFBackbone">OMFBackbone</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="ops">ops: <a href="../OWLAPIOMFOps.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFOps">OWLAPIOMFOps</a></span>)</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox@&lt;init&gt;(sig:gov.nasa.jpl.omf.scala.core.MutableDescriptionBoxSignature[gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMF],ont:org.semanticweb.owlapi.model.OWLOntology,backbone:gov.nasa.jpl.omf.scala.binding.owlapi.OMFBackbone)(implicitops:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFOps):gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li></ol>
+            </div>
+
+        <div id="types" class="types members">
+              <h3>Type Members</h3>
+              <ol><li name="gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox.MS" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="MS=gov.nasa.jpl.omf.scala.core.MutableDescriptionBoxSignature[gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMF]"></a>
+      <a id="MS:MS"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">type</span>
+      </span>
+      <span class="symbol">
+        <span class="name">MS</span><span class="result"> = <span class="extype" name="gov.nasa.jpl.omf.scala.core.DescriptionBoxSignature">DescriptionBoxSignature</span>[<a href="../OWLAPIOMF.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMF">OWLAPIOMF</a>, <span class="extype" name="scala.collection.mutable.HashSet">HashSet</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox@MS=gov.nasa.jpl.omf.scala.core.MutableDescriptionBoxSignature[gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMF]" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox">MutableDescriptionBox</a> → <a href="DescriptionBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.DescriptionBox">DescriptionBox</a> → <a href="../common/Module.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.common.Module">Module</a></dd></dl></div>
+    </li></ol>
+            </div>
+
+        
+
+        <div id="values" class="values members">
+              <h3>Value Members</h3>
+              <ol><li name="scala.AnyRef#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="!=(x$1:Any):Boolean"></a>
+      <a id="!=(Any):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox@!=(x$1:Any):Boolean" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.AnyRef###" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="##():Int"></a>
+      <a id="##():Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $hash$hash" class="name">##</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox@##():Int" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.AnyRef#==" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="==(x$1:Any):Boolean"></a>
+      <a id="==(Any):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox@==(x$1:Any):Boolean" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.common.Resource#abbrevIRI" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="abbrevIRI:gov.nasa.jpl.omf.scala.core.OMLString.AbbrevIRI"></a>
+      <a id="abbrevIRI:AbbrevIRI"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">lazy val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">abbrevIRI</span><span class="result">: <span class="extype" name="gov.nasa.jpl.omf.scala.core.OMLString.AbbrevIRI">AbbrevIRI</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox@abbrevIRI:gov.nasa.jpl.omf.scala.core.OMLString.AbbrevIRI" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../common/Resource.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.common.Resource">Resource</a></dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox#addAnnotation" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="addAnnotation(subject:gov.nasa.jpl.omf.scala.binding.owlapi.common.Element,property:gov.nasa.jpl.imce.oml.tables.AnnotationProperty,value:String)(implicitstore:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore):scalaz.\/[gov.nasa.jpl.omf.scala.core.OMFError.Throwables,gov.nasa.jpl.imce.oml.tables.AnnotationEntry]"></a>
+      <a id="addAnnotation(Element,AnnotationProperty,String)(OWLAPIOMFGraphStore):\/[Throwables,AnnotationEntry]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">addAnnotation</span><span class="params">(<span name="subject">subject: <a href="../common/Element.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.common.Element">Element</a></span>, <span name="property">property: <span class="extype" name="gov.nasa.jpl.imce.oml.tables.AnnotationProperty">AnnotationProperty</span></span>, <span name="value">value: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="store">store: <a href="../OWLAPIOMFGraphStore.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore">OWLAPIOMFGraphStore</a></span>)</span><span class="result">: <span class="extype" name="scalaz.\/">\/</span>[<span class="extype" name="gov.nasa.jpl.omf.scala.core.OMFError.Throwables">Throwables</span>, <span class="extype" name="gov.nasa.jpl.imce.oml.tables.AnnotationEntry">AnnotationEntry</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox@addAnnotation(subject:gov.nasa.jpl.omf.scala.binding.owlapi.common.Element,property:gov.nasa.jpl.imce.oml.tables.AnnotationProperty,value:String)(implicitstore:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore):scalaz.\/[gov.nasa.jpl.omf.scala.core.OMFError.Throwables,gov.nasa.jpl.imce.oml.tables.AnnotationEntry]" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox#addAnnotationProperty" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="addAnnotationProperty(ap:gov.nasa.jpl.imce.oml.tables.AnnotationProperty)(implicitstore:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore):scalaz.\/[gov.nasa.jpl.omf.scala.core.OMFError.Throwables,gov.nasa.jpl.imce.oml.tables.AnnotationProperty]"></a>
+      <a id="addAnnotationProperty(AnnotationProperty)(OWLAPIOMFGraphStore):\/[Throwables,AnnotationProperty]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">addAnnotationProperty</span><span class="params">(<span name="ap">ap: <span class="extype" name="gov.nasa.jpl.imce.oml.tables.AnnotationProperty">AnnotationProperty</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="store">store: <a href="../OWLAPIOMFGraphStore.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore">OWLAPIOMFGraphStore</a></span>)</span><span class="result">: <span class="extype" name="scalaz.\/">\/</span>[<span class="extype" name="gov.nasa.jpl.omf.scala.core.OMFError.Throwables">Throwables</span>, <span class="extype" name="gov.nasa.jpl.imce.oml.tables.AnnotationProperty">AnnotationProperty</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox@addAnnotationProperty(ap:gov.nasa.jpl.imce.oml.tables.AnnotationProperty)(implicitstore:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore):scalaz.\/[gov.nasa.jpl.omf.scala.core.OMFError.Throwables,gov.nasa.jpl.imce.oml.tables.AnnotationProperty]" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox#addConceptInstance" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="addConceptInstance(uuid:java.util.UUID,iri:org.semanticweb.owlapi.model.IRI,conceptType:gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Concept,fragment:gov.nasa.jpl.omf.scala.core.OMLString.LocalName)(implicitstore:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore):scalaz.\/[scala.collection.immutable.Set[Throwable],gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.ConceptInstance]"></a>
+      <a id="addConceptInstance(UUID,IRI,Concept,LocalName)(OWLAPIOMFGraphStore):\/[Set[Throwable],ConceptInstance]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">addConceptInstance</span><span class="params">(<span name="uuid">uuid: <span class="extype" name="java.util.UUID">UUID</span></span>, <span name="iri">iri: <span class="extype" name="org.semanticweb.owlapi.model.IRI">IRI</span></span>, <span name="conceptType">conceptType: <a href="../types/terms/Concept.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Concept">Concept</a></span>, <span name="fragment">fragment: <span class="extype" name="gov.nasa.jpl.omf.scala.core.OMLString.LocalName">LocalName</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="store">store: <a href="../OWLAPIOMFGraphStore.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore">OWLAPIOMFGraphStore</a></span>)</span><span class="result">: <span class="extype" name="scalaz.\/">\/</span>[<span class="extype" name="scala.collection.immutable.Set">Set</span>[<span class="extype" name="java.lang.Throwable">Throwable</span>], <a href="ConceptInstance.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.ConceptInstance">ConceptInstance</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox@addConceptInstance(uuid:java.util.UUID,iri:org.semanticweb.owlapi.model.IRI,conceptType:gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Concept,fragment:gov.nasa.jpl.omf.scala.core.OMLString.LocalName)(implicitstore:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore):scalaz.\/[scala.collection.immutable.Set[Throwable],gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.ConceptInstance]" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox#addDescriptionBoxExtendsClosedWorldDefinitions" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="addDescriptionBoxExtendsClosedWorldDefinitions(uuid:java.util.UUID,closedWorldDefinitions:gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox)(implicitstore:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore):scalaz.\/[scala.collection.immutable.Set[Throwable],gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.DescriptionBoxExtendsClosedWorldDefinitions]"></a>
+      <a id="addDescriptionBoxExtendsClosedWorldDefinitions(UUID,TerminologyBox)(OWLAPIOMFGraphStore):\/[Set[Throwable],DescriptionBoxExtendsClosedWorldDefinitions]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">addDescriptionBoxExtendsClosedWorldDefinitions</span><span class="params">(<span name="uuid">uuid: <span class="extype" name="java.util.UUID">UUID</span></span>, <span name="closedWorldDefinitions">closedWorldDefinitions: <a href="../types/terminologies/TerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox">TerminologyBox</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="store">store: <a href="../OWLAPIOMFGraphStore.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore">OWLAPIOMFGraphStore</a></span>)</span><span class="result">: <span class="extype" name="scalaz.\/">\/</span>[<span class="extype" name="scala.collection.immutable.Set">Set</span>[<span class="extype" name="java.lang.Throwable">Throwable</span>], <a href="DescriptionBoxExtendsClosedWorldDefinitions.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.DescriptionBoxExtendsClosedWorldDefinitions">DescriptionBoxExtendsClosedWorldDefinitions</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox@addDescriptionBoxExtendsClosedWorldDefinitions(uuid:java.util.UUID,closedWorldDefinitions:gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox)(implicitstore:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore):scalaz.\/[scala.collection.immutable.Set[Throwable],gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.DescriptionBoxExtendsClosedWorldDefinitions]" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox#addDescriptionBoxRefinement" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="addDescriptionBoxRefinement(uuid:java.util.UUID,refinedDescriptionBox:gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.DescriptionBox)(implicitstore:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore):scalaz.\/[scala.collection.immutable.Set[Throwable],gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.DescriptionBoxRefinement]"></a>
+      <a id="addDescriptionBoxRefinement(UUID,DescriptionBox)(OWLAPIOMFGraphStore):\/[Set[Throwable],DescriptionBoxRefinement]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">addDescriptionBoxRefinement</span><span class="params">(<span name="uuid">uuid: <span class="extype" name="java.util.UUID">UUID</span></span>, <span name="refinedDescriptionBox">refinedDescriptionBox: <a href="DescriptionBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.DescriptionBox">DescriptionBox</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="store">store: <a href="../OWLAPIOMFGraphStore.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore">OWLAPIOMFGraphStore</a></span>)</span><span class="result">: <span class="extype" name="scalaz.\/">\/</span>[<span class="extype" name="scala.collection.immutable.Set">Set</span>[<span class="extype" name="java.lang.Throwable">Throwable</span>], <a href="DescriptionBoxRefinement.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.DescriptionBoxRefinement">DescriptionBoxRefinement</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox@addDescriptionBoxRefinement(uuid:java.util.UUID,refinedDescriptionBox:gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.DescriptionBox)(implicitstore:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore):scalaz.\/[scala.collection.immutable.Set[Throwable],gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.DescriptionBoxRefinement]" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox#addReifiedRelationshipInstance" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="addReifiedRelationshipInstance(uuid:java.util.UUID,iri:org.semanticweb.owlapi.model.IRI,relationshipType:gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ReifiedRelationship,fragment:gov.nasa.jpl.omf.scala.core.OMLString.LocalName)(implicitstore:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore):scalaz.\/[scala.collection.immutable.Set[Throwable],gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.ReifiedRelationshipInstance]"></a>
+      <a id="addReifiedRelationshipInstance(UUID,IRI,ReifiedRelationship,LocalName)(OWLAPIOMFGraphStore):\/[Set[Throwable],ReifiedRelationshipInstance]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">addReifiedRelationshipInstance</span><span class="params">(<span name="uuid">uuid: <span class="extype" name="java.util.UUID">UUID</span></span>, <span name="iri">iri: <span class="extype" name="org.semanticweb.owlapi.model.IRI">IRI</span></span>, <span name="relationshipType">relationshipType: <a href="../types/terms/ReifiedRelationship.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ReifiedRelationship">ReifiedRelationship</a></span>, <span name="fragment">fragment: <span class="extype" name="gov.nasa.jpl.omf.scala.core.OMLString.LocalName">LocalName</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="store">store: <a href="../OWLAPIOMFGraphStore.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore">OWLAPIOMFGraphStore</a></span>)</span><span class="result">: <span class="extype" name="scalaz.\/">\/</span>[<span class="extype" name="scala.collection.immutable.Set">Set</span>[<span class="extype" name="java.lang.Throwable">Throwable</span>], <a href="ReifiedRelationshipInstance.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.ReifiedRelationshipInstance">ReifiedRelationshipInstance</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox@addReifiedRelationshipInstance(uuid:java.util.UUID,iri:org.semanticweb.owlapi.model.IRI,relationshipType:gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ReifiedRelationship,fragment:gov.nasa.jpl.omf.scala.core.OMLString.LocalName)(implicitstore:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore):scalaz.\/[scala.collection.immutable.Set[Throwable],gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.ReifiedRelationshipInstance]" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox#addReifiedRelationshipInstanceDomain" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="addReifiedRelationshipInstanceDomain(uuid:java.util.UUID,relationshipInstance:gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.ReifiedRelationshipInstance,source:gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.ConceptualEntitySingletonInstance)(implicitstore:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore):scalaz.\/[scala.collection.immutable.Set[Throwable],gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.ReifiedRelationshipInstanceDomain]"></a>
+      <a id="addReifiedRelationshipInstanceDomain(UUID,ReifiedRelationshipInstance,ConceptualEntitySingletonInstance)(OWLAPIOMFGraphStore):\/[Set[Throwable],ReifiedRelationshipInstanceDomain]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">addReifiedRelationshipInstanceDomain</span><span class="params">(<span name="uuid">uuid: <span class="extype" name="java.util.UUID">UUID</span></span>, <span name="relationshipInstance">relationshipInstance: <a href="ReifiedRelationshipInstance.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.ReifiedRelationshipInstance">ReifiedRelationshipInstance</a></span>, <span name="source">source: <a href="ConceptualEntitySingletonInstance.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.ConceptualEntitySingletonInstance">ConceptualEntitySingletonInstance</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="store">store: <a href="../OWLAPIOMFGraphStore.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore">OWLAPIOMFGraphStore</a></span>)</span><span class="result">: <span class="extype" name="scalaz.\/">\/</span>[<span class="extype" name="scala.collection.immutable.Set">Set</span>[<span class="extype" name="java.lang.Throwable">Throwable</span>], <a href="ReifiedRelationshipInstanceDomain.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.ReifiedRelationshipInstanceDomain">ReifiedRelationshipInstanceDomain</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox@addReifiedRelationshipInstanceDomain(uuid:java.util.UUID,relationshipInstance:gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.ReifiedRelationshipInstance,source:gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.ConceptualEntitySingletonInstance)(implicitstore:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore):scalaz.\/[scala.collection.immutable.Set[Throwable],gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.ReifiedRelationshipInstanceDomain]" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox#addReifiedRelationshipInstanceRange" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="addReifiedRelationshipInstanceRange(uuid:java.util.UUID,relationshipInstance:gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.ReifiedRelationshipInstance,target:gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.ConceptualEntitySingletonInstance)(implicitstore:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore):scalaz.\/[scala.collection.immutable.Set[Throwable],gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.ReifiedRelationshipInstanceRange]"></a>
+      <a id="addReifiedRelationshipInstanceRange(UUID,ReifiedRelationshipInstance,ConceptualEntitySingletonInstance)(OWLAPIOMFGraphStore):\/[Set[Throwable],ReifiedRelationshipInstanceRange]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">addReifiedRelationshipInstanceRange</span><span class="params">(<span name="uuid">uuid: <span class="extype" name="java.util.UUID">UUID</span></span>, <span name="relationshipInstance">relationshipInstance: <a href="ReifiedRelationshipInstance.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.ReifiedRelationshipInstance">ReifiedRelationshipInstance</a></span>, <span name="target">target: <a href="ConceptualEntitySingletonInstance.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.ConceptualEntitySingletonInstance">ConceptualEntitySingletonInstance</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="store">store: <a href="../OWLAPIOMFGraphStore.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore">OWLAPIOMFGraphStore</a></span>)</span><span class="result">: <span class="extype" name="scalaz.\/">\/</span>[<span class="extype" name="scala.collection.immutable.Set">Set</span>[<span class="extype" name="java.lang.Throwable">Throwable</span>], <a href="ReifiedRelationshipInstanceRange.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.ReifiedRelationshipInstanceRange">ReifiedRelationshipInstanceRange</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox@addReifiedRelationshipInstanceRange(uuid:java.util.UUID,relationshipInstance:gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.ReifiedRelationshipInstance,target:gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.ConceptualEntitySingletonInstance)(implicitstore:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore):scalaz.\/[scala.collection.immutable.Set[Throwable],gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.ReifiedRelationshipInstanceRange]" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox#addSingletonInstanceScalarDataPropertyValue" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="addSingletonInstanceScalarDataPropertyValue(uuid:java.util.UUID,ei:gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.ConceptualEntitySingletonInstance,e2sc:gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.EntityScalarDataProperty,value:gov.nasa.jpl.omf.scala.core.OMLString.LexicalValue)(implicitstore:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore):scalaz.\/[scala.collection.immutable.Set[Throwable],gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.SingletonInstanceScalarDataPropertyValue]"></a>
+      <a id="addSingletonInstanceScalarDataPropertyValue(UUID,ConceptualEntitySingletonInstance,EntityScalarDataProperty,LexicalValue)(OWLAPIOMFGraphStore):\/[Set[Throwable],SingletonInstanceScalarDataPropertyValue]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">addSingletonInstanceScalarDataPropertyValue</span><span class="params">(<span name="uuid">uuid: <span class="extype" name="java.util.UUID">UUID</span></span>, <span name="ei">ei: <a href="ConceptualEntitySingletonInstance.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.ConceptualEntitySingletonInstance">ConceptualEntitySingletonInstance</a></span>, <span name="e2sc">e2sc: <a href="../types/terms/EntityScalarDataProperty.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.EntityScalarDataProperty">EntityScalarDataProperty</a></span>, <span name="value">value: <span class="extype" name="gov.nasa.jpl.omf.scala.core.OMLString.LexicalValue">LexicalValue</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="store">store: <a href="../OWLAPIOMFGraphStore.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore">OWLAPIOMFGraphStore</a></span>)</span><span class="result">: <span class="extype" name="scalaz.\/">\/</span>[<span class="extype" name="scala.collection.immutable.Set">Set</span>[<span class="extype" name="java.lang.Throwable">Throwable</span>], <a href="SingletonInstanceScalarDataPropertyValue.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.SingletonInstanceScalarDataPropertyValue">SingletonInstanceScalarDataPropertyValue</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox@addSingletonInstanceScalarDataPropertyValue(uuid:java.util.UUID,ei:gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.ConceptualEntitySingletonInstance,e2sc:gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.EntityScalarDataProperty,value:gov.nasa.jpl.omf.scala.core.OMLString.LexicalValue)(implicitstore:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore):scalaz.\/[scala.collection.immutable.Set[Throwable],gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.SingletonInstanceScalarDataPropertyValue]" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox#addSingletonInstanceStructuredDataPropertyValue" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="addSingletonInstanceStructuredDataPropertyValue(uuid:java.util.UUID,ei:gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.ConceptualEntitySingletonInstance,e2st:gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.EntityStructuredDataProperty)(implicitstore:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore):scalaz.\/[scala.collection.immutable.Set[Throwable],gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.SingletonInstanceStructuredDataPropertyValue]"></a>
+      <a id="addSingletonInstanceStructuredDataPropertyValue(UUID,ConceptualEntitySingletonInstance,EntityStructuredDataProperty)(OWLAPIOMFGraphStore):\/[Set[Throwable],SingletonInstanceStructuredDataPropertyValue]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">addSingletonInstanceStructuredDataPropertyValue</span><span class="params">(<span name="uuid">uuid: <span class="extype" name="java.util.UUID">UUID</span></span>, <span name="ei">ei: <a href="ConceptualEntitySingletonInstance.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.ConceptualEntitySingletonInstance">ConceptualEntitySingletonInstance</a></span>, <span name="e2st">e2st: <a href="../types/terms/EntityStructuredDataProperty.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.EntityStructuredDataProperty">EntityStructuredDataProperty</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="store">store: <a href="../OWLAPIOMFGraphStore.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore">OWLAPIOMFGraphStore</a></span>)</span><span class="result">: <span class="extype" name="scalaz.\/">\/</span>[<span class="extype" name="scala.collection.immutable.Set">Set</span>[<span class="extype" name="java.lang.Throwable">Throwable</span>], <a href="SingletonInstanceStructuredDataPropertyValue.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.SingletonInstanceStructuredDataPropertyValue">SingletonInstanceStructuredDataPropertyValue</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox@addSingletonInstanceStructuredDataPropertyValue(uuid:java.util.UUID,ei:gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.ConceptualEntitySingletonInstance,e2st:gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.EntityStructuredDataProperty)(implicitstore:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore):scalaz.\/[scala.collection.immutable.Set[Throwable],gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.SingletonInstanceStructuredDataPropertyValue]" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.common.Module#annotationProperties" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="annotationProperties():scala.collection.immutable.Set[gov.nasa.jpl.imce.oml.tables.AnnotationProperty]"></a>
+      <a id="annotationProperties():Set[AnnotationProperty]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">annotationProperties</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.collection.immutable.Set">Set</span>[<span class="extype" name="gov.nasa.jpl.imce.oml.tables.AnnotationProperty">AnnotationProperty</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox@annotationProperties():scala.collection.immutable.Set[gov.nasa.jpl.imce.oml.tables.AnnotationProperty]" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../common/Module.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.common.Module">Module</a></dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.common.Module#annotations" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="annotations():scala.collection.immutable.Set[(gov.nasa.jpl.imce.oml.tables.AnnotationProperty,scala.collection.immutable.Set[gov.nasa.jpl.imce.oml.tables.AnnotationEntry])]"></a>
+      <a id="annotations():Set[(AnnotationProperty,Set[AnnotationEntry])]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">annotations</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.collection.immutable.Set">Set</span>[(<span class="extype" name="gov.nasa.jpl.imce.oml.tables.AnnotationProperty">AnnotationProperty</span>, <span class="extype" name="scala.collection.immutable.Set">Set</span>[<span class="extype" name="gov.nasa.jpl.imce.oml.tables.AnnotationEntry">AnnotationEntry</span>])]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox@annotations():scala.collection.immutable.Set[(gov.nasa.jpl.imce.oml.tables.AnnotationProperty,scala.collection.immutable.Set[gov.nasa.jpl.imce.oml.tables.AnnotationEntry])]" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../common/Module.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.common.Module">Module</a></dd></dl></div>
+    </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="asInstanceOf[T0]:T0"></a>
+      <a id="asInstanceOf[T0]:T0"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">asInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Any.asInstanceOf.T0">T0</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox@asInstanceOf[T0]:T0" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox#backbone" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="backbone:gov.nasa.jpl.omf.scala.binding.owlapi.OMFBackbone"></a>
+      <a id="backbone:OMFBackbone"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">backbone</span><span class="result">: <a href="../OMFBackbone.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OMFBackbone">OMFBackbone</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox@backbone:gov.nasa.jpl.omf.scala.binding.owlapi.OMFBackbone" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox">MutableDescriptionBox</a> → <a href="../common/Module.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.common.Module">Module</a></dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox#canEqual" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="canEqual(other:Any):Boolean"></a>
+      <a id="canEqual(Any):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">canEqual</span><span class="params">(<span name="other">other: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox@canEqual(other:Any):Boolean" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox">MutableDescriptionBox</a> → Equals → <a href="DescriptionBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.DescriptionBox">DescriptionBox</a> → <a href="../common/Module.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.common.Module">Module</a> → <a href="../common/Resource.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.common.Resource">Resource</a> → <a href="../common/Element.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.common.Element">Element</a></dd></dl></div>
+    </li><li name="scala.AnyRef#clone" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="clone():Object"></a>
+      <a id="clone():AnyRef"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">clone</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox@clone():Object" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../../../../../../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.CloneNotSupportedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#eq" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="eq(x$1:AnyRef):Boolean"></a>
+      <a id="eq(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">eq</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox@eq(x$1:AnyRef):Boolean" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.AnyRef#finalize" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="finalize():Unit"></a>
+      <a id="finalize():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">finalize</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox@finalize():Unit" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../../../../../../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="symbol">classOf[java.lang.Throwable]</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#getClass" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getClass():Class[_]"></a>
+      <a id="getClass():Class[_]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getClass</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.Class">Class</span>[_]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox@getClass():Class[_]" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.common.Module#iri" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="iri:org.semanticweb.owlapi.model.IRI"></a>
+      <a id="iri:IRI"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">iri</span><span class="result">: <span class="extype" name="org.semanticweb.owlapi.model.IRI">IRI</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox@iri:org.semanticweb.owlapi.model.IRI" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../common/Module.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.common.Module">Module</a> → <a href="../common/Resource.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.common.Resource">Resource</a></dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox#iri2namedIndividual" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="iri2namedIndividual:scala.collection.mutable.HashMap[org.semanticweb.owlapi.model.IRI,gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.ConceptualEntitySingletonInstance]"></a>
+      <a id="iri2namedIndividual:HashMap[IRI,ConceptualEntitySingletonInstance]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">iri2namedIndividual</span><span class="result">: <span class="extype" name="scala.collection.mutable.HashMap">HashMap</span>[<span class="extype" name="org.semanticweb.owlapi.model.IRI">IRI</span>, <a href="ConceptualEntitySingletonInstance.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.ConceptualEntitySingletonInstance">ConceptualEntitySingletonInstance</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox@iri2namedIndividual:scala.collection.mutable.HashMap[org.semanticweb.owlapi.model.IRI,gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.ConceptualEntitySingletonInstance]" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd></dl></div>
+    </li><li name="scala.Any#isInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="isInstanceOf[T0]:Boolean"></a>
+      <a id="isInstanceOf[T0]:Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">isInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox@isInstanceOf[T0]:Boolean" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox#makeScalarDataPropertyValue" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="makeScalarDataPropertyValue(uuid:java.util.UUID,context:gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.SingletonInstanceStructuredDataPropertyContext,s2sc:gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ScalarDataProperty,value:gov.nasa.jpl.omf.scala.core.OMLString.LexicalValue)(implicitstore:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore):scalaz.\/[scala.collection.immutable.Set[Throwable],gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.ScalarDataPropertyValue]"></a>
+      <a id="makeScalarDataPropertyValue(UUID,SingletonInstanceStructuredDataPropertyContext,ScalarDataProperty,LexicalValue)(OWLAPIOMFGraphStore):\/[Set[Throwable],ScalarDataPropertyValue]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">makeScalarDataPropertyValue</span><span class="params">(<span name="uuid">uuid: <span class="extype" name="java.util.UUID">UUID</span></span>, <span name="context">context: <a href="SingletonInstanceStructuredDataPropertyContext.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.SingletonInstanceStructuredDataPropertyContext">SingletonInstanceStructuredDataPropertyContext</a></span>, <span name="s2sc">s2sc: <a href="../types/terms/ScalarDataProperty.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ScalarDataProperty">ScalarDataProperty</a></span>, <span name="value">value: <span class="extype" name="gov.nasa.jpl.omf.scala.core.OMLString.LexicalValue">LexicalValue</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="store">store: <a href="../OWLAPIOMFGraphStore.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore">OWLAPIOMFGraphStore</a></span>)</span><span class="result">: <span class="extype" name="scalaz.\/">\/</span>[<span class="extype" name="scala.collection.immutable.Set">Set</span>[<span class="extype" name="java.lang.Throwable">Throwable</span>], <a href="ScalarDataPropertyValue.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.ScalarDataPropertyValue">ScalarDataPropertyValue</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox@makeScalarDataPropertyValue(uuid:java.util.UUID,context:gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.SingletonInstanceStructuredDataPropertyContext,s2sc:gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ScalarDataProperty,value:gov.nasa.jpl.omf.scala.core.OMLString.LexicalValue)(implicitstore:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore):scalaz.\/[scala.collection.immutable.Set[Throwable],gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.ScalarDataPropertyValue]" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox#makeStructuredDataPropertyTuple" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="makeStructuredDataPropertyTuple(uuid:java.util.UUID,context:gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.SingletonInstanceStructuredDataPropertyContext,s2st:gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.StructuredDataProperty)(implicitstore:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore):scalaz.\/[scala.collection.immutable.Set[Throwable],gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.StructuredDataPropertyTuple]"></a>
+      <a id="makeStructuredDataPropertyTuple(UUID,SingletonInstanceStructuredDataPropertyContext,StructuredDataProperty)(OWLAPIOMFGraphStore):\/[Set[Throwable],StructuredDataPropertyTuple]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">makeStructuredDataPropertyTuple</span><span class="params">(<span name="uuid">uuid: <span class="extype" name="java.util.UUID">UUID</span></span>, <span name="context">context: <a href="SingletonInstanceStructuredDataPropertyContext.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.SingletonInstanceStructuredDataPropertyContext">SingletonInstanceStructuredDataPropertyContext</a></span>, <span name="s2st">s2st: <a href="../types/terms/StructuredDataProperty.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.StructuredDataProperty">StructuredDataProperty</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="store">store: <a href="../OWLAPIOMFGraphStore.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore">OWLAPIOMFGraphStore</a></span>)</span><span class="result">: <span class="extype" name="scalaz.\/">\/</span>[<span class="extype" name="scala.collection.immutable.Set">Set</span>[<span class="extype" name="java.lang.Throwable">Throwable</span>], <a href="StructuredDataPropertyTuple.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.StructuredDataPropertyTuple">StructuredDataPropertyTuple</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox@makeStructuredDataPropertyTuple(uuid:java.util.UUID,context:gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.SingletonInstanceStructuredDataPropertyContext,s2st:gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.StructuredDataProperty)(implicitstore:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore):scalaz.\/[scala.collection.immutable.Set[Throwable],gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.StructuredDataPropertyTuple]" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.common.Module#name" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="name:gov.nasa.jpl.omf.scala.core.OMLString.LocalName"></a>
+      <a id="name:LocalName"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">name</span><span class="result">: <span class="extype" name="gov.nasa.jpl.omf.scala.core.OMLString.LocalName">LocalName</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox@name:gov.nasa.jpl.omf.scala.core.OMLString.LocalName" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../common/Module.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.common.Module">Module</a> → <a href="../common/Resource.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.common.Resource">Resource</a></dd></dl></div>
+    </li><li name="scala.AnyRef#ne" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ne(x$1:AnyRef):Boolean"></a>
+      <a id="ne(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ne</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox@ne(x$1:AnyRef):Boolean" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.AnyRef#notify" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="notify():Unit"></a>
+      <a id="notify():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">notify</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox@notify():Unit" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.AnyRef#notifyAll" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="notifyAll():Unit"></a>
+      <a id="notifyAll():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">notifyAll</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox@notifyAll():Unit" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.common.Module#nsPrefix" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="nsPrefix:gov.nasa.jpl.omf.scala.core.OMLString.NamespacePrefix"></a>
+      <a id="nsPrefix:NamespacePrefix"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">nsPrefix</span><span class="result">: <span class="extype" name="gov.nasa.jpl.omf.scala.core.OMLString.NamespacePrefix">NamespacePrefix</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox@nsPrefix:gov.nasa.jpl.omf.scala.core.OMLString.NamespacePrefix" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../common/Module.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.common.Module">Module</a></dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox#ont" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ont:org.semanticweb.owlapi.model.OWLOntology"></a>
+      <a id="ont:OWLOntology"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ont</span><span class="result">: <span class="extype" name="org.semanticweb.owlapi.model.OWLOntology">OWLOntology</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox@ont:org.semanticweb.owlapi.model.OWLOntology" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox">MutableDescriptionBox</a> → <a href="../common/Module.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.common.Module">Module</a></dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.common.Module#ontManager" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ontManager:org.semanticweb.owlapi.model.OWLOntologyManager"></a>
+      <a id="ontManager:OWLOntologyManager"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ontManager</span><span class="result">: <span class="extype" name="org.semanticweb.owlapi.model.OWLOntologyManager">OWLOntologyManager</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox@ontManager:org.semanticweb.owlapi.model.OWLOntologyManager" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../common/Module.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.common.Module">Module</a></dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox#ops" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ops:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFOps"></a>
+      <a id="ops:OWLAPIOMFOps"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ops</span><span class="result">: <a href="../OWLAPIOMFOps.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFOps">OWLAPIOMFOps</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox@ops:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFOps" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox">MutableDescriptionBox</a> → <a href="DescriptionBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.DescriptionBox">DescriptionBox</a></dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.common.Module#owlDataFactory" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="owlDataFactory:org.semanticweb.owlapi.model.OWLDataFactory"></a>
+      <a id="owlDataFactory:OWLDataFactory"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">owlDataFactory</span><span class="result">: <span class="extype" name="org.semanticweb.owlapi.model.OWLDataFactory">OWLDataFactory</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox@owlDataFactory:org.semanticweb.owlapi.model.OWLDataFactory" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../common/Module.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.common.Module">Module</a></dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox#removeAnnotations" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="removeAnnotations(subject:gov.nasa.jpl.omf.scala.binding.owlapi.common.Element,property:gov.nasa.jpl.imce.oml.tables.AnnotationProperty)(implicitstore:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore):scalaz.\/[gov.nasa.jpl.omf.scala.core.OMFError.Throwables,scala.collection.immutable.Set[gov.nasa.jpl.imce.oml.tables.AnnotationEntry]]"></a>
+      <a id="removeAnnotations(Element,AnnotationProperty)(OWLAPIOMFGraphStore):\/[Throwables,Set[AnnotationEntry]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">removeAnnotations</span><span class="params">(<span name="subject">subject: <a href="../common/Element.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.common.Element">Element</a></span>, <span name="property">property: <span class="extype" name="gov.nasa.jpl.imce.oml.tables.AnnotationProperty">AnnotationProperty</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="store">store: <a href="../OWLAPIOMFGraphStore.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore">OWLAPIOMFGraphStore</a></span>)</span><span class="result">: <span class="extype" name="scalaz.\/">\/</span>[<span class="extype" name="gov.nasa.jpl.omf.scala.core.OMFError.Throwables">Throwables</span>, <span class="extype" name="scala.collection.immutable.Set">Set</span>[<span class="extype" name="gov.nasa.jpl.imce.oml.tables.AnnotationEntry">AnnotationEntry</span>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox@removeAnnotations(subject:gov.nasa.jpl.omf.scala.binding.owlapi.common.Element,property:gov.nasa.jpl.imce.oml.tables.AnnotationProperty)(implicitstore:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore):scalaz.\/[gov.nasa.jpl.omf.scala.core.OMFError.Throwables,scala.collection.immutable.Set[gov.nasa.jpl.imce.oml.tables.AnnotationEntry]]" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.DescriptionBox#save" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="save(os:java.io.OutputStream):scalaz.\/[scala.collection.immutable.Set[Throwable],Unit]"></a>
+      <a id="save(OutputStream):\/[Set[Throwable],Unit]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">save</span><span class="params">(<span name="os">os: <span class="extype" name="java.io.OutputStream">OutputStream</span></span>)</span><span class="result">: <span class="extype" name="scalaz.\/">\/</span>[<span class="extype" name="scala.collection.immutable.Set">Set</span>[<span class="extype" name="java.lang.Throwable">Throwable</span>], <span class="extype" name="scala.Unit">Unit</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox@save(os:java.io.OutputStream):scalaz.\/[scala.collection.immutable.Set[Throwable],Unit]" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="DescriptionBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.DescriptionBox">DescriptionBox</a></dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.DescriptionBox#save" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="save(saveIRI:org.semanticweb.owlapi.model.IRI):scalaz.\/[scala.collection.immutable.Set[Throwable],Unit]"></a>
+      <a id="save(IRI):\/[Set[Throwable],Unit]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">save</span><span class="params">(<span name="saveIRI">saveIRI: <span class="extype" name="org.semanticweb.owlapi.model.IRI">IRI</span></span>)</span><span class="result">: <span class="extype" name="scalaz.\/">\/</span>[<span class="extype" name="scala.collection.immutable.Set">Set</span>[<span class="extype" name="java.lang.Throwable">Throwable</span>], <span class="extype" name="scala.Unit">Unit</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox@save(saveIRI:org.semanticweb.owlapi.model.IRI):scalaz.\/[scala.collection.immutable.Set[Throwable],Unit]" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="DescriptionBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.DescriptionBox">DescriptionBox</a></dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox#sig" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="sig:gov.nasa.jpl.omf.scala.core.MutableDescriptionBoxSignature[gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMF]"></a>
+      <a id="sig:MutableDescriptionBoxSignature[OWLAPIOMF]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">sig</span><span class="result">: <span class="extype" name="gov.nasa.jpl.omf.scala.core.MutableDescriptionBoxSignature">MutableDescriptionBoxSignature</span>[<a href="../OWLAPIOMF.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMF">OWLAPIOMF</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox@sig:gov.nasa.jpl.omf.scala.core.MutableDescriptionBoxSignature[gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMF]" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox">MutableDescriptionBox</a> → <a href="DescriptionBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.DescriptionBox">DescriptionBox</a> → <a href="../common/Module.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.common.Module">Module</a></dd></dl></div>
+    </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
+      <a id="synchronized[T0](⇒T0):T0"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">synchronized</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="params">(<span name="arg0">arg0: ⇒ <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>)</span><span class="result">: <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox@synchronized[T0](x$1:=&gt;T0):T0" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.common.Module#uuid" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="uuid:java.util.UUID"></a>
+      <a id="uuid:UUID"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">uuid</span><span class="result">: <span class="extype" name="java.util.UUID">UUID</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox@uuid:java.util.UUID" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../common/Module.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.common.Module">Module</a> → <a href="../common/Element.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.common.Element">Element</a></dd></dl></div>
+    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait():Unit"></a>
+      <a id="wait():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wait</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox@wait():Unit" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait(x$1:Long,x$2:Int):Unit"></a>
+      <a id="wait(Long,Int):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>, <span name="arg1">arg1: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox@wait(x$1:Long,x$2:Int):Unit" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait(x$1:Long):Unit"></a>
+      <a id="wait(Long):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox@wait(x$1:Long):Unit" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li></ol>
+            </div>
+
+        
+
+        
+        </div>
+
+        <div id="inheritedMembers">
+        <div class="parent" name="scala.Serializable">
+              <h3>Inherited from <span class="extype" name="scala.Serializable">Serializable</span></h3>
+            </div><div class="parent" name="java.io.Serializable">
+              <h3>Inherited from <span class="extype" name="java.io.Serializable">Serializable</span></h3>
+            </div><div class="parent" name="scala.Product">
+              <h3>Inherited from <span class="extype" name="scala.Product">Product</span></h3>
+            </div><div class="parent" name="scala.Equals">
+              <h3>Inherited from <span class="extype" name="scala.Equals">Equals</span></h3>
+            </div><div class="parent" name="gov.nasa.jpl.omf.scala.binding.owlapi.common.MutableModule">
+              <h3>Inherited from <a href="../common/MutableModule.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.common.MutableModule">MutableModule</a></h3>
+            </div><div class="parent" name="gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.DescriptionBox">
+              <h3>Inherited from <a href="DescriptionBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.DescriptionBox">DescriptionBox</a></h3>
+            </div><div class="parent" name="gov.nasa.jpl.omf.scala.binding.owlapi.common.Module">
+              <h3>Inherited from <a href="../common/Module.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.common.Module">Module</a></h3>
+            </div><div class="parent" name="gov.nasa.jpl.omf.scala.binding.owlapi.common.Resource">
+              <h3>Inherited from <a href="../common/Resource.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.common.Resource">Resource</a></h3>
+            </div><div class="parent" name="gov.nasa.jpl.omf.scala.binding.owlapi.common.Element">
+              <h3>Inherited from <a href="../common/Element.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.common.Element">Element</a></h3>
+            </div><div class="parent" name="scala.AnyRef">
+              <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
+            </div><div class="parent" name="scala.Any">
+              <h3>Inherited from <span class="extype" name="scala.Any">Any</span></h3>
+            </div>
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
+        </div>
+
+      </div>
+
+      <div id="tooltip"></div>
+
+      <div id="footer">  </div>
+
+
+    </body>
+      </html>
