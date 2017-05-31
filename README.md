@@ -1,5 +1,6 @@
 # OWL API binding for OMF (Ontological Modeling Framework)
 
+[![Build Status](https://travis-ci.org/JPL-IMCE/gov.nasa.jpl.omf.scala.binding.owlapi.svg?branch=master)](https://travis-ci.org/JPL-IMCE/gov.nasa.jpl.omf.scala.binding.owlapi)
 [ ![Download](https://api.bintray.com/packages/jpl-imce/gov.nasa.jpl.imce/gov.nasa.jpl.omf.scala.binding.owlapi/images/download.svg) ](https://bintray.com/jpl-imce/gov.nasa.jpl.imce/gov.nasa.jpl.omf.scala.binding.owlapi/_latestVersion)
  
 The OWL API binding for OMF implements the OMF Core functional API using the OWL API. This particular binding captures the conventions and restrictions on the use of OWL2-DL adopted for the development of JPL's Integrated Model-Centric Engineering (IMCE) ontologies. OWL2-DL ontologies that conform to these conventions and restrictions enjoy several useful properties, including:

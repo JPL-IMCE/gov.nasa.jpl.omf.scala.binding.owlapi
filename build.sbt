@@ -173,6 +173,8 @@ lazy val core =
     
     initialCommands in (Test, console) := """ammonite.Main().run()""",
 
+    classpathTypes += "test-jar",
+
     unmanagedClasspath in Test += baseDirectory.value / "target" / "extracted" / "gov.nasa.jpl.imce.ontologies.public"
     // for local development assuming that gov.nasa.jpl.imce.ontologies.public is cloned as a peer project, use this:
     // unmanagedClasspath in Test += baseDirectory.value / ".." / "gov.nasa.jpl.imce.ontologies.public"
