@@ -15,9 +15,7 @@
 
  - [[gov.nasa.jpl.omf.scala.binding.owlapi.types]]
 
-== 4. OMF Assertion Graph Adaptation ==
+== 4. OMF DescriptionBox Adaptation ==
 
-(this is very incomplete)
-
- - [[gov.nasa.jpl.omf.scala.binding.owlapi.instances]]
+ - [[gov.nasa.jpl.omf.scala.binding.owlapi.descriptions]]
 

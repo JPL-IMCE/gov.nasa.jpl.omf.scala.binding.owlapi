@@ -18,9 +18,23 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies
 
-import scala.{Any,Boolean}
+import gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMF
+import gov.nasa.jpl.omf.scala.binding.owlapi.common.ImmutableModule
+import gov.nasa.jpl.omf.scala.core.ImmutableTerminologyBoxSignature
+import org.semanticweb.owlapi.model.{OWLClass, OWLDatatype}
 
-trait ImmutableTerminologyBox extends TerminologyBox {
+import scala.collection.immutable._
+import scala.language.postfixOps
+import scala.{Any, Boolean}
+import scala.Predef.ArrowAssoc
+
+trait ImmutableTerminologyBox
+  extends TerminologyBox
+    with ImmutableModule {
+
+  override type MS = ImmutableTerminologyBoxSignature[OWLAPIOMF]
+
+  override val sig: MS
 
   override def canEqual(other: Any)
   : Boolean
@@ -28,4 +42,45 @@ trait ImmutableTerminologyBox extends TerminologyBox {
     case _: ImmutableTerminologyBox => true
     case _ => false
   }
+
+  val getEntityDefinitionMap
+  : Map[OWLClass, OWLAPIOMF#Entity]
+  = ( sig.aspects.map(a => a.e -> a) ++
+    sig.concepts.map(c => c.e -> c) ++
+    sig.reifiedRelationships.map(r => r.e -> r)).toMap
+
+  val getScalarDatatypeDefinitionMap: Map[OWLDatatype, OWLAPIOMF#DataRange]
+  = sig.scalarDataTypes.map(t => t.e -> t).toMap ++
+    sig.scalarOneOfRestrictions.map(t => t.e -> t).toMap ++
+    sig.binaryScalarRestrictions.map(t => t.e -> t).toMap ++
+    sig.iriScalarRestrictions.map(t => t.e -> t).toMap ++
+    sig.numericScalarRestrictions.map(t => t.e -> t).toMap ++
+    sig.plainLiteralScalarRestrictions.map(t => t.e -> t).toMap ++
+    sig.stringScalarRestrictions.map(t => t.e -> t).toMap ++
+    sig.synonymScalarRestrictions.map(t => t.e -> t).toMap ++
+    sig.timeScalarRestrictions.map(t => t.e -> t).toMap
+
+  override protected val iri2typeTerm = {
+    def term2pair[T <: OWLAPIOMF#Term](t: T) = t.iri -> t
+
+    (sig.aspects map term2pair) ++
+      (sig.concepts map term2pair) ++
+      (sig.reifiedRelationships map term2pair) ++
+      (sig.unreifiedRelationships map term2pair) ++
+      (sig.scalarDataTypes map term2pair) ++
+      (sig.structuredDataTypes map term2pair) ++
+      (sig.scalarOneOfRestrictions map term2pair) ++
+      (sig.binaryScalarRestrictions map term2pair) ++
+      (sig.iriScalarRestrictions map term2pair) ++
+      (sig.numericScalarRestrictions map term2pair) ++
+      (sig.plainLiteralScalarRestrictions map term2pair) ++
+      (sig.stringScalarRestrictions map term2pair) ++
+      (sig.synonymScalarRestrictions map term2pair) ++
+      (sig.timeScalarRestrictions map term2pair) ++
+      (sig.entityScalarDataProperties map term2pair) ++
+      (sig.entityStructuredDataProperties map term2pair) ++
+      (sig.scalarDataProperties map term2pair) ++
+      (sig.structuredDataProperties map term2pair) toMap
+  }
+
 }

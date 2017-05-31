@@ -75,11 +75,23 @@ object OWLAPIOMFModule {
     AnnotationIsDerived <-
     OWLAPIIRIOps.makeIRI("http://imce.jpl.nasa.gov/foundation/annotation/annotation#isDerived")
 
+    AnnotationIsBundle <-
+    OWLAPIIRIOps.makeIRI("http://imce.jpl.nasa.gov/foundation/annotation/annotation#isBundle")
+
     AnnotationIsDefinition <-
     OWLAPIIRIOps.makeIRI("http://imce.jpl.nasa.gov/foundation/annotation/annotation#isDefinition")
 
     AnnotationIsDesignation <-
     OWLAPIIRIOps.makeIRI("http://imce.jpl.nasa.gov/foundation/annotation/annotation#isDesignation")
+
+    AnnotationIsDescription <-
+    OWLAPIIRIOps.makeIRI("http://imce.jpl.nasa.gov/foundation/annotation/annotation#isDescription")
+
+    AnnotationIsDBoxPartial <-
+    OWLAPIIRIOps.makeIRI("http://imce.jpl.nasa.gov/foundation/annotation/annotation#isPartialDescriptionBox")
+
+    AnnotationIsDBoxFinal <-
+    OWLAPIIRIOps.makeIRI("http://imce.jpl.nasa.gov/foundation/annotation/annotation#isFinalDescriptionBox")
 
     AnnotationIsToplevel <-
     OWLAPIIRIOps.makeIRI("http://imce.jpl.nasa.gov/foundation/annotation/annotation#isToplevel")
@@ -109,8 +121,12 @@ object OWLAPIOMFModule {
       AnnotationHasIRIHashSuffix,
       AnnotationIsAbstract,
       AnnotationIsDerived,
+      AnnotationIsBundle,
       AnnotationIsDefinition,
       AnnotationIsDesignation,
+      AnnotationIsDescription,
+      AnnotationIsDBoxPartial,
+      AnnotationIsDBoxFinal,
       AnnotationIsToplevel,
       AnnotationHasContext,
       AnnotationHasGraph,

@@ -21,12 +21,14 @@ package gov.nasa.jpl.omf.scala.binding.owlapi.types.bundleStatements
 import java.util.UUID
 
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.Bundle
+import gov.nasa.jpl.omf.scala.core.OMLString.LocalName
 
-import scala.{Any,Boolean,Int}
+import scala.{Any, Boolean, Int}
 import scala.Predef.require
 
 case class AnonymousConceptTaxonomyAxiom
 (override val uuid: UUID,
+ val name: LocalName,
  terminologyBundle: Bundle,
  override val disjointTaxonomyParent: ConceptTreeDisjunction)
  extends ConceptTreeDisjunction with DisjointUnionOfConceptsAxiom {

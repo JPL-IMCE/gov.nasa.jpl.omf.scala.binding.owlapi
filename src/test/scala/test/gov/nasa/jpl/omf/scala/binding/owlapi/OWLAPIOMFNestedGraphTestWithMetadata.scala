@@ -20,35 +20,42 @@ package test.gov.nasa.jpl.omf.scala.binding.owlapi
 
 import org.semanticweb.owlapi.apibinding.OWLManager
 import gov.nasa.jpl.omf.scala.binding.owlapi._
-import test.gov.nasa.jpl.omf.scala.core.{ functionalAPI => testFunctionalAPI }
+import test.gov.nasa.jpl.omf.scala.core.{functionalAPI => testFunctionalAPI}
 import org.apache.xml.resolver.CatalogManager
+
 import scala.Predef._
 import scala.collection.immutable.Set
-import scala.{transient,Option,None,StringContext,Unit}
+import scala.{Option, StringContext, Unit, transient}
 import java.lang.IllegalArgumentException
+
+import org.apache.xml.resolver.tools.CatalogResolver
 
 abstract class OWLAPIOMFNestedGraphTestWithMetadata
 (override val saveStore: OWLAPIOMFGraphStore,
  override val loadStore: OWLAPIOMFGraphStore )
   extends testFunctionalAPI.OMFNestedGraphTest[OWLAPIOMF](
-    "NestedGraphTestWithMetadata", None, None,
+    "NestedGraphTestWithMetadata",
     saveStore, saveStore.omfModule.ops,
     loadStore, loadStore.omfModule.ops )
 
 abstract class OWLAPIOMFNestedGraphCatalogTestWithMetadata(@transient val catalogManager: CatalogManager )
   extends OWLAPIOMFNestedGraphTestWithMetadata(
-    saveStore = OWLAPIOMFGraphStore(
+    saveStore = OWLAPIOMFGraphStore.initGraphStore(
       OWLAPIOMFModule.owlAPIOMFModule(catalogManager).valueOr { (errors: Set[java.lang.Throwable]) =>
         val message = s"${errors.size} errors" + errors.map(_.getMessage).toList.mkString("\n => ","\n => ","\n")
         throw new scala.IllegalArgumentException(message)
       },
-      OWLManager.createOWLOntologyManager()),
-    loadStore = OWLAPIOMFGraphStore(
+      OWLManager.createOWLOntologyManager(),
+      new CatalogResolver(catalogManager),
+      catalogManager.getPrivateCatalog),
+    loadStore = OWLAPIOMFGraphStore.initGraphStore(
       OWLAPIOMFModule.owlAPIOMFModule(catalogManager).valueOr { (errors: Set[java.lang.Throwable]) =>
         val message = s"${errors.size} errors" + errors.map(_.getMessage).toList.mkString("\n => ","\n => ","\n")
         throw new scala.IllegalArgumentException(message)
       },
-      OWLManager.createOWLOntologyManager()) )
+      OWLManager.createOWLOntologyManager(),
+      new CatalogResolver(catalogManager),
+      catalogManager.getPrivateCatalog) )
 
 class OWLAPIOWFNestedGraphTestWithMetadataLocalCatalog
   extends OWLAPIOMFNestedGraphCatalogTestWithMetadata( catalogManager = new CatalogManager() ) {

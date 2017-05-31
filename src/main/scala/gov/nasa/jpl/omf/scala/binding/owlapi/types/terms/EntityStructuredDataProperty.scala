@@ -20,31 +20,26 @@ package gov.nasa.jpl.omf.scala.binding.owlapi.types.terms
 
 import java.util.UUID
 
-import gov.nasa.jpl.imce.oml.tables.LocalName
-import org.semanticweb.owlapi.model.{OWLClass, OWLObjectProperty}
+import gov.nasa.jpl.omf.scala.core.OMLString.LocalName
+import org.semanticweb.owlapi.model.{IRI, OWLObjectProperty}
 
-import scala.{Any,Boolean,Int}
+import scala.{Any, Boolean, Int}
 import scala.Predef.require
 
 case class EntityStructuredDataProperty
-(override val e: OWLClass,
+(override val e: OWLObjectProperty,
+ override val iri: IRI,
  override val name: LocalName,
  override val isIdentityCriteria: Boolean,
  override val uuid: UUID,
  override val domain: Entity,
- override val rSource: OWLObjectProperty,
- override val range: Structure,
- override val rTarget: OWLObjectProperty,
- override val unreified: OWLObjectProperty)
+ override val range: Structure)
   extends DataRelationship
     with DataRelationshipFromEntity
     with DataRelationshipToStructure {
 
   require(null != domain)
-  require(null != rSource)
   require(null != range)
-  require(null != rTarget)
-  require(null != unreified)
 
   override def canEqual(other: Any)
   : Boolean
@@ -55,20 +50,16 @@ case class EntityStructuredDataProperty
 
   override val hashCode
   : Int
-  = (uuid, name, isIdentityCriteria, domain, range, e, rSource, rTarget, unreified).##
+  = (uuid, name, domain, range, e).##
 
   override def equals(other: Any): Boolean = other match {
     case that: EntityStructuredDataProperty =>
       (that canEqual this) &&
         (this.uuid == that.uuid) &&
         (this.name == that.name) &&
-        (this.isIdentityCriteria == that.isIdentityCriteria) &&
         (this.domain == that.domain) &&
         (this.range == that.range) &&
-        (this.e == that.e) &&
-        (this.rSource == that.rSource) &&
-        (this.rTarget == that.rTarget) &&
-        (this.unreified == that.unreified)
+        (this.e == that.e)
     case _ =>
       false
   }

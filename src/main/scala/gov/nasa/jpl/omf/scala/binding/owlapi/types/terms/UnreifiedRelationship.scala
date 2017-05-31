@@ -20,16 +20,17 @@ package gov.nasa.jpl.omf.scala.binding.owlapi.types.terms
 
 import java.util.UUID
 
-import gov.nasa.jpl.imce.oml.tables.LocalName
+import gov.nasa.jpl.omf.scala.core.OMLString.LocalName
 import gov.nasa.jpl.omf.scala.core.RelationshipCharacteristics._
-import org.semanticweb.owlapi.model.OWLObjectProperty
+import org.semanticweb.owlapi.model.{IRI, OWLObjectProperty}
 
-import scala.{Any,Boolean,Int}
+import scala.{Any, Boolean, Int}
 import scala.Predef.require
 import scala.collection.immutable._
 
 case class UnreifiedRelationship
 ( override val e: OWLObjectProperty,
+  override val iri: IRI,
   override val name: LocalName,
   override val uuid: UUID,
   override val source: Entity,

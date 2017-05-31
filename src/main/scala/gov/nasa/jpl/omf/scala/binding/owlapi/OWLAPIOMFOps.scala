@@ -22,13 +22,16 @@ import java.io.File
 import java.net.URI
 import java.util.UUID
 
-import gov.nasa.jpl.imce.oml.tables.{AnnotationEntry, AnnotationProperty, LexicalValue, LocalName}
-import gov.nasa.jpl.omf.scala.binding.owlapi.types.ImmutableTerminologyConversionMap
+import gov.nasa.jpl.imce.oml.tables.{AnnotationEntry, AnnotationProperty}
+import gov.nasa.jpl.omf.scala.binding.owlapi.common.{ImmutableModule, Module, MutableModule}
+import gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.{DescriptionBox, ImmutableDescriptionBox, MutableDescriptionBox, SingletonInstanceStructuredDataPropertyContext}
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.bundleStatements.ConceptTreeDisjunction
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.termAxioms._
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms._
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies._
-import gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologyAxioms.{BundledTerminologyAxiom, TerminologyAxiom, TerminologyBoxAxiom, TerminologyExtensionAxiom, TerminologyNestingAxiom}
+import gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologyAxioms._
+import gov.nasa.jpl.omf.scala.core.OMFError.Throwables
+import gov.nasa.jpl.omf.scala.core.OMLString._
 import gov.nasa.jpl.omf.scala.core._
 import gov.nasa.jpl.omf.scala.core.RelationshipCharacteristics._
 import gov.nasa.jpl.omf.scala.core.TerminologyKind
@@ -37,18 +40,19 @@ import org.apache.commons.codec.digest.DigestUtils
 import org.semanticweb.owlapi.model._
 
 import scala.{Boolean, Int, None, Option, Some, StringContext, Unit}
-import scala.collection.immutable._
+import scala.collection.immutable.{Map, Set, _}
 import scala.compat.java8.StreamConverters._
 import scala.util.control.Exception._
 import scala.Predef.{Map => _, Set => _, _}
 import scalaz._
 import Scalaz._
+import scala.reflect.ClassTag
 
 object OWLAPIIRIOps {
 
   def makeIRI
   (s: String)
-  : Set[java.lang.Throwable] \/IRI
+  : Throwables \/IRI
   = nonFatalCatch[Unit]
     .withApply {
       (cause: java.lang.Throwable) =>
@@ -74,27 +78,27 @@ trait OWLAPIIRIOps
 
   override def makeIRI
   (s: String)
-  : Set[java.lang.Throwable] \/IRI
+  : Throwables \/IRI
   = OWLAPIIRIOps.makeIRI(s)
 
   def getFragment(iri: IRI)
-  : Set[java.lang.Throwable] \/ String
+  : Throwables \/ LocalName
   = Option.apply(iri.toURI.getFragment) match {
     case None =>
       Set(OMFError.omfBindingError(s"getFragment($iri): error: there should be a fragment!")).left
     case Some(f) =>
-      f.right
+      LocalName(f).right
   }
 
   override def withFragment
-  (iri: IRI, fragment: String)
-  : Set[java.lang.Throwable] \/ IRI
+  (iri: IRI, fragment: LocalName)
+  : Throwables \/ IRI
   = {
     val uriConfig = com.netaporter.uri.config.UriConfig.conservative
     val safeFragment = uriConfig.fragmentEncoder.encode(fragment, uriConfig.charset)
     val u = iri.toURI
     Option.apply(u.getFragment)
-    .fold[Set[java.lang.Throwable] \/ IRI](
+    .fold[Throwables \/ IRI](
       org.semanticweb.owlapi.model.IRI.create(u.resolve("#" + safeFragment)).right
     ){ f =>
       Set(
@@ -109,13 +113,13 @@ trait OWLAPIIRIOps
 
   override def splitIRI
   (iri: IRI)
-  : (IRI, Option[String])
+  : (IRI, Option[LocalName])
   = {
     val u = iri.toURI
     u.getFragment match {
       case f: String if f.nonEmpty =>
         (org.semanticweb.owlapi.model.IRI.create(new URI(u.getScheme, u.getSchemeSpecificPart, null)),
-          Some(f))
+          LocalName(f).some)
       case _ =>
         (iri,
           None)
@@ -124,7 +128,7 @@ trait OWLAPIIRIOps
 
   override def toAbbreviatedName
   (iri: IRI, lowercaseFragmentInitial: Boolean)
-  : Option[String]
+  : Option[AbbrevIRI]
   = splitIRI(iri) match {
     case (_, None) => None
     case (i, Some(fragment)) =>
@@ -133,15 +137,15 @@ trait OWLAPIIRIOps
       val last = path.substring(slash + 1)
       val fragmentInitial = if (lowercaseFragmentInitial) fragment.head.toLower else fragment.head
       val fragmentTail = fragment.tail
-      Some(last + ":" + fragmentInitial + fragmentTail)
+      AbbrevIRI(last + ":" + fragmentInitial + fragmentTail).some
   }
 
   def lastSegment(iri: IRI)
-  : Set[java.lang.Throwable] \/ LocalName
+  : Throwables \/ LocalName
   = if (Option.apply(iri.toURI.getFragment).isDefined)
       Set(OMFError.omfBindingError(s"lastSegment($iri): error: there should not be a fragment!")).left
     else
-      \/-(iri.getShortForm)
+      \/-(LocalName.apply(iri.getShortForm))
 
   override def fromIRI
   (iri: IRI)
@@ -195,32 +199,53 @@ trait OWLAPIStoreOps
   extends OMFStoreOps[OWLAPIOMF] {
   self: OWLAPIOMFOps =>
 
-  override def getTerminologyThingUUID
-  (th: OWLAPIOMF#TerminologyThing)
-  (implicit store: OWLAPIOMFGraphStore)
+  implicit val itbTag = ClassTag[OWLAPIOMF#ImmutableTerminologyBox](classOf[OWLAPIOMF#ImmutableTerminologyBox])
+  implicit val itgTag = ClassTag[OWLAPIOMF#ImmutableTerminologyGraph](classOf[OWLAPIOMF#ImmutableTerminologyGraph])
+  implicit val bTag = ClassTag[OWLAPIOMF#ImmutableBundle](classOf[OWLAPIOMF#ImmutableBundle])
+  implicit val dTag = ClassTag[OWLAPIOMF#ImmutableDescriptionBox](classOf[OWLAPIOMF#ImmutableDescriptionBox])
+
+  override def getElementUUID
+  (e: OWLAPIOMF#Element)
   : UUID
-  = th.uuid
+  = e.uuid
+
+  override def getModuleIRI
+  (m: OWLAPIOMF#Module)
+  : IRI
+  = m.iri
+  
+  override def getModuleName
+  (m: Module)
+  : LocalName
+  = m.name
+
+  override def getModuleUUID
+  (m: Module)
+  : UUID
+  = m.uuid
 
   override def annotationProperties
-  ()
+  (m: Module)
   (implicit store: OWLAPIOMFGraphStore)
   : Seq[AnnotationProperty]
-  = store.annotationProperties()
+  = m.sig.annotationProperties.to[Seq]
 
-  override def addAnnotationProperty
-  (ap: AnnotationProperty)
+  def annotations
+  (m: Module)
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ AnnotationProperty
-  = store.addAnnotationProperty(ap)
+  : Map[AnnotationProperty, Set[AnnotationEntry]]
+  = m.sig.annotations.map { case (ap, aes) => ap -> aes.to[Set] }.toMap
 
-  override def foldTerminology[T]
+  override def foldModule[T]
   (funImmutableTerminologyGraph: OWLAPIOMF#ImmutableTerminologyGraph => T,
    funMutableTerminologyGraph: OWLAPIOMF#MutableTerminologyGraph => T,
    funImmutableTerminologyBundle: OWLAPIOMF#ImmutableBundle => T,
-   funMutableTerminologyBundle: OWLAPIOMF#MutableBundle => T)
-  (t: OWLAPIOMF#TerminologyBox)
+   funMutableTerminologyBundle: OWLAPIOMF#MutableBundle => T,
+   funImmutableDescriptionBox: OWLAPIOMF#ImmutableDescriptionBox => T,
+   funMutableDescriptionBox: OWLAPIOMF#MutableDescriptionBox => T)
+  (m: OWLAPIOMF#Module)
   : T
-  = t match {
+  = m match {
     case g: OWLAPIOMF#ImmutableTerminologyGraph =>
       funImmutableTerminologyGraph(g)
     case g: OWLAPIOMF#MutableTerminologyGraph =>
@@ -229,76 +254,225 @@ trait OWLAPIStoreOps
       funImmutableTerminologyBundle(b)
     case b: OWLAPIOMF#MutableBundle =>
       funMutableTerminologyBundle(b)
+    case d: OWLAPIOMF#ImmutableDescriptionBox =>
+      funImmutableDescriptionBox(d)
+    case d: OWLAPIOMF#MutableDescriptionBox =>
+      funMutableDescriptionBox(d)
   }
 
-  override def lookupTerminology
-  (iri: IRI)
-  (implicit store: OWLAPIOMFGraphStore)
-  : Option[TerminologyBox]
-  = store.lookupTerminology(iri)
+  override def foldImmutableModule[T]
+  (funImmutableTerminologyGraph: OWLAPIOMF#ImmutableTerminologyGraph => T,
+   funImmutableTerminologyBundle: OWLAPIOMF#ImmutableBundle => T,
+   funImmutableDescriptionBox: OWLAPIOMF#ImmutableDescriptionBox => T)
+  (m: OWLAPIOMF#ImmutableModule)
+  : T
+  = m match {
+    case g: OWLAPIOMF#ImmutableTerminologyGraph =>
+      funImmutableTerminologyGraph(g)
+    case b: OWLAPIOMF#ImmutableBundle =>
+      funImmutableTerminologyBundle(b)
+    case d: OWLAPIOMF#ImmutableDescriptionBox =>
+      funImmutableDescriptionBox(d)
+  }
 
-  override def lookupTerminology
-  (uuid: UUID)
-  (implicit store: OWLAPIOMFGraphStore)
-  : Option[TerminologyBox]
-  = store.lookupTerminology(uuid)
+  override def foldMutableModule[T]
+  (funMutableTerminologyGraph: OWLAPIOMF#MutableTerminologyGraph => T,
+   funMutableTerminologyBundle: OWLAPIOMF#MutableBundle => T,
+   funMutableDescriptionBox: OWLAPIOMF#MutableDescriptionBox => T)
+  (m: OWLAPIOMF#MutableModule)
+  : T
+  = m match {
+    case g: OWLAPIOMF#MutableTerminologyGraph =>
+      funMutableTerminologyGraph(g)
+    case b: OWLAPIOMF#MutableBundle =>
+      funMutableTerminologyBundle(b)
+    case d: OWLAPIOMF#MutableDescriptionBox =>
+      funMutableDescriptionBox(d)
+  }
+
+  override def immutableTerminologyGraphSignature
+  (ig: OWLAPIOMF#ImmutableTerminologyGraph)
+  : ImmutableTerminologyBoxSignature[OWLAPIOMF]
+  = ig.sig
+
+  override def mutableTerminologyGraphSignature
+  (mg: OWLAPIOMF#MutableTerminologyGraph)
+  : MutableTerminologyBoxSignature[OWLAPIOMF]
+  = mg.sig
+
+  override def immutableBundleSignature
+  (ib: OWLAPIOMF#ImmutableBundle)
+  : ImmutableTerminologyBoxSignature[OWLAPIOMF]
+  = ib.sig
+
+  override def mutableBundleSignature
+  (mb: OWLAPIOMF#MutableBundle)
+  : MutableTerminologyBoxSignature[OWLAPIOMF]
+  = mb.sig
+
+  override def immutableDescriptionBoxSignature
+  (id: OWLAPIOMF#ImmutableDescriptionBox)
+  : ImmutableDescriptionBoxSignature[OWLAPIOMF]
+  = id.sig
+
+  override def mutableDescriptionBoxSignature
+  (md: OWLAPIOMF#MutableDescriptionBox)
+  : MutableDescriptionBoxSignature[OWLAPIOMF]
+  = md.sig
 
   override def loadBuiltinDatatypeMap
   ()
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ ImmutableTerminologyConversionMap
+  : Throwables \/ BuiltInDatatypeMap
   = store.loadBuiltinDatatypeMap()
 
-  override def loadTerminology
-  (iri: IRI)
+  override def loadModule
+  (m2i: Mutable2ImmutableModuleMap,
+   iri: IRI)
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ ImmutableTerminologyConversionMap
-  = store.loadTerminologyGraph(iri)
+  : Throwables \/ ImmutableModuleConversionMap
+  = store.loadModule(m2i, iri)
 
-  override def isTerminologyMutable
-  ( graph: TerminologyBox )
+  override def isMutable
+  ( m: Module )
   ( implicit store: OWLAPIOMFGraphStore )
   : Boolean
-  = graph.isMutable
+  = m match {
+    case _: MutableModule =>
+      true
+    case _ =>
+      false
+  }
 
-  override def toMutableTerminology
-  ( graph: TerminologyBox )
+  override def asImmutableModule
+  (m: MutableModule, m2i: Mutable2ImmutableModuleMap)
+  (implicit store: OWLAPIOMFGraphStore)
+  : Throwables \/
+    (ImmutableModule, Mutable2ImmutableModuleMap)
+  = store.asImmutableModule(m, m2i)
+
+  override def toMutableModule
+  ( m: Module )
   ( implicit store: OWLAPIOMFGraphStore )
-  : Option[MutableTerminologyBox]
-  = graph match {
-    case g: MutableTerminologyBox =>
-      Some(g)
+  : Option[MutableModule]
+  = m match {
+    case mb: MutableModule =>
+      Some(mb)
     case _ =>
       None
   }
 
-  override def isTerminologyImmutable
-  ( graph: TerminologyBox )
+  override def toTerminologyBox
+  ( m: Module )
   ( implicit store: OWLAPIOMFGraphStore )
-  : Boolean
-  = graph.isImmutable
+  : Option[TerminologyBox]
+  = m match {
+    case t: TerminologyBox =>
+      Some(t)
+    case _ =>
+      None
+  }
 
-  override def toImmutableTerminology
-  ( graph: TerminologyBox )
+  override def toImmutableTerminologyBox
+  ( m: Module )
   ( implicit store: OWLAPIOMFGraphStore )
   : Option[ImmutableTerminologyBox]
-  = graph match {
-    case g: ImmutableTerminologyBox =>
-      Some(g)
+  = m match {
+    case t: ImmutableTerminologyBox =>
+      Some(t)
     case _ =>
       None
   }
 
-  override def getTerminologyIRI
-  (graph: OWLAPIOMF#TerminologyBox)
-  : IRI
-  = graph.iri
+  override def toTerminologyGraph
+  ( m: Module )
+  ( implicit store: OWLAPIOMFGraphStore )
+  : Option[TerminologyGraph]
+  = m match {
+    case t: TerminologyGraph =>
+      Some(t)
+    case _ =>
+      None
+  }
 
-  override def fromTerminology
-  (graph: TerminologyBox)
+  override def toImmutableTerminologyGraph
+  ( m: Module )
+  ( implicit store: OWLAPIOMFGraphStore )
+  : Option[ImmutableTerminologyGraph]
+  = m match {
+    case t: ImmutableTerminologyGraph =>
+      Some(t)
+    case _ =>
+      None
+  }
+
+  override def toBundle
+  ( m: Module )
+  ( implicit store: OWLAPIOMFGraphStore )
+  : Option[Bundle]
+  = m match {
+    case b: Bundle =>
+      Some(b)
+    case _ =>
+      None
+  }
+
+  override def toImmutableBundle
+  ( m: Module )
+  ( implicit store: OWLAPIOMFGraphStore )
+  : Option[ImmutableBundle]
+  = m match {
+    case b: ImmutableBundle =>
+      Some(b)
+    case _ =>
+      None
+  }
+
+  override def toDescriptionBox
+  ( m: Module )
+  ( implicit store: OWLAPIOMFGraphStore )
+  : Option[DescriptionBox]
+  = m match {
+    case d: DescriptionBox =>
+      Some(d)
+    case _ =>
+      None
+  }
+
+  override def toImmutableDescriptionBox
+  ( m: Module )
+  ( implicit store: OWLAPIOMFGraphStore )
+  : Option[ImmutableDescriptionBox]
+  = m match {
+    case d: ImmutableDescriptionBox =>
+      Some(d)
+    case _ =>
+      None
+  }
+
+  override def fromImmutableTerminology
+  (tbox: ImmutableTerminologyBox)
   (implicit store: OWLAPIOMFGraphStore)
-  : OWLAPITerminologySignature
-  = store.fromTerminology(graph)
+  : ImmutableTerminologyBoxSignature[OWLAPIOMF]
+  = tbox.sig
+
+  override def fromMutableTerminology
+  (tbox: MutableTerminologyBox)
+  (implicit store: OWLAPIOMFGraphStore)
+  : MutableTerminologyBoxSignature[OWLAPIOMF]
+  = tbox.sig
+
+  override def fromImmutableDescriptionBox
+  (dbox: ImmutableDescriptionBox)
+  (implicit store: OWLAPIOMFGraphStore)
+  : ImmutableDescriptionBoxSignature[OWLAPIOMF]
+  = dbox.sig
+
+  override def fromMutableDescriptionBox
+  (dbox: MutableDescriptionBox)
+  (implicit store: OWLAPIOMFGraphStore)
+  : MutableDescriptionBoxSignature[OWLAPIOMF]
+  = dbox.sig
 
   override def getTerminologyAxiomUUID
   (ax: TerminologyAxiom)
@@ -306,18 +480,12 @@ trait OWLAPIStoreOps
   : UUID
   = ax.uuid
 
-  /**
-    * Find the axiom TerminologyGraphDirectNestingAxiom(nestedChild==nestedG), if any.
-    */
   override def lookupNestingAxiomForNestedChildIfAny
   (nestedG: TerminologyBox)
   (implicit store: OWLAPIOMFGraphStore)
   : Option[TerminologyNestingAxiom]
   = store.lookupNestingAxiomForNestedChildIfAny(nestedG)
 
-  /**
-    * Find the axioms TerminologyGraphDirectNestingAxiom(nestingContext=nestingC).
-    */
   override def lookupNestingAxiomsForNestingContext
   (nestingC: Concept)
   (implicit store: OWLAPIOMFGraphStore)
@@ -339,7 +507,7 @@ trait OWLAPIStoreOps
    kind: TerminologyKind,
    extraProvenanceMetadata: Option[OTI2OMFModelTerminologyGraphProvenance])
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ MutableTerminologyGraph
+  : Throwables \/ MutableTerminologyGraph
   = store.makeTerminologyGraph(
     uuid, name, iri, relativeIRIPath, relativeIRIHashPrefix, kind, extraProvenanceMetadata)(this)
 
@@ -349,7 +517,7 @@ trait OWLAPIStoreOps
    iri: IRI,
    kind: TerminologyKind)
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ MutableTerminologyGraph
+  : Throwables \/ MutableTerminologyGraph
   = makeTerminologyGraphWithPath(
     uuid, name, iri,
     relativeIRIPath=Option.empty[String],
@@ -366,7 +534,7 @@ trait OWLAPIStoreOps
    relativeIRIHashPrefix: Option[String],
    extraProvenanceMetadata: Option[OTI2OMFModelTerminologyGraphProvenance])
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ MutableBundle
+  : Throwables \/ MutableBundle
   = store.makeBundle(
     uuid, name, iri, relativeIRIPath, relativeIRIHashPrefix, kind, extraProvenanceMetadata)(this)
 
@@ -376,7 +544,7 @@ trait OWLAPIStoreOps
    iri: IRI,
    kind: TerminologyKind)
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ MutableBundle
+  : Throwables \/ MutableBundle
   = makeBundleWithPath(
     uuid, name, iri,
     relativeIRIPath=Option.empty[String],
@@ -387,71 +555,45 @@ trait OWLAPIStoreOps
   override def saveTerminology
   (g: TerminologyBox)
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ Unit
+  : Throwables \/ Unit
   = store.saveTerminology(g)(this)
 
   override def saveTerminology
   (g: TerminologyBox,
    os: java.io.OutputStream)
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ Unit
+  : Throwables \/ Unit
   = store.saveTerminology(g, os)(this)
 
-  override def asImmutableTerminology
-  (g: MutableTerminologyBox)
+  override def makeDescriptionBox
+  (uuid: UUID,
+   name: LocalName,
+   iri: IRI,
+   k: DescriptionKind)
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/
-    (types.terminologies.ImmutableTerminologyBox, types.Mutable2ImmutableTerminologyMap)
-  = store.asImmutableTerminology(Map(), g)
+  : Throwables \/ descriptions.MutableDescriptionBox
+  = store.makeDescriptionBox(
+    uuid, name, iri,
+    relativeIRIPath=Option.empty[String],
+    relativeIRIHashPrefix=Option.empty[String],
+    k)
 
-  override def asImmutableTerminology
-  (m2i: types.Mutable2ImmutableTerminologyMap,
-   g: MutableTerminologyBox)
+  override def saveDescriptionBox
+  (g: descriptions.DescriptionBox)
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/
-    (types.terminologies.ImmutableTerminologyBox, types.Mutable2ImmutableTerminologyMap)
-  = store.asImmutableTerminology(m2i, g)
+  : Throwables \/ Unit
+  = store.saveDescription(g)(this)
 
-  override def loadInstanceGraph
-  (iri: IRI)
+  override def saveDescriptionBox
+  (g: descriptions.DescriptionBox, os: java.io.OutputStream)
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ instances.ImmutableModelInstanceGraph
-  = store.loadInstanceGraph(iri)
-
-  override def fromInstanceGraph
-  (graph: instances.ModelInstanceGraph)
-  = graph.fromInstanceGraph
-
-  override def asImmutableInstanceGraph
-  (g: instances.MutableModelInstanceGraph)
-  (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ instances.ImmutableModelInstanceGraph
-  = store.asImmutableInstanceGraph(g)
-
-  override def makeInstanceGraph
-  (iri: IRI,
-   instantiatedTGraphs: Iterable[ImmutableTerminologyBox],
-   extendedIGraphs: Iterable[instances.ImmutableModelInstanceGraph])
-  (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ instances.MutableModelInstanceGraph
-  = store.makeInstanceGraph(iri, instantiatedTGraphs, extendedIGraphs)
-
-  override def saveInstanceGraph
-  (g: instances.ModelInstanceGraph)
-  (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ Unit
-  = g.save
-
-  override def saveInstanceGraph
-  (g: instances.ModelInstanceGraph, os: java.io.OutputStream)
-  (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ Unit
-  = g.save(os)
+  : Throwables \/ Unit
+  = store.saveDescription(g, os)(this)
 
   override def resolveIRIAsLocalFile
   (iri: IRI)
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ File
+  : Throwables \/ File
   = store.resolveIRIAsLocalFile(iri)
 }
 
@@ -460,84 +602,110 @@ trait OWLAPIImmutableTerminologyGraphOps
   self: OWLAPIOMFOps =>
 
   override def getAnnotations
-  (graph: OWLAPIOMF#TerminologyBox)
-  : Map[AnnotationProperty, Seq[AnnotationEntry]]
-  = graph.getAnnotations()
+  (tbox: OWLAPIOMF#TerminologyBox)
+  : Map[AnnotationProperty, Set[AnnotationEntry]]
+  = tbox.sig.annotations.map { case (ap, aes) => ap -> aes.to[Set] }.toMap
 
-  override def getTerminologyName
-  (graph: TerminologyBox)
-  : LocalName
-  = graph.name
-
-  override def getTerminologyUUID
-  (graph: TerminologyBox)
-  : UUID
-  = graph.uuid
-
-  override def getTerminologyKind
-  (graph: OWLAPIOMF#TerminologyBox)
+  def getTerminologyKind
+  (tbox: TerminologyBox)
   : TerminologyKind
-  = graph.kind
+  = tbox.sig.kind
 
   override def lookupTerm
-  (graph: OWLAPIOMF#TerminologyBox, iri: IRI, recursively: Boolean)
+  (tbox: OWLAPIOMF#TerminologyBox, iri: IRI, recursively: Boolean)
   (implicit store: OWLAPIOMFGraphStore)
   : Option[OWLAPIOMF#Term]
-  = graph.lookupTerm(iri, recursively)
+  = tbox.lookupTerm(iri, recursively)
+
+  def lookupTerm
+  (tbox: OWLAPIOMF#TerminologyBox, iri: Option[gov.nasa.jpl.imce.oml.tables.IRI], recursively: Boolean)
+  (implicit store: OWLAPIOMFGraphStore)
+  : Option[OWLAPIOMF#Term]
+  = iri.map(IRI.create).flatMap(lookupTerm(tbox, _, recursively))
 
   override def lookupEntity
-  (graph: OWLAPIOMF#TerminologyBox, iri: IRI, recursively: Boolean)
+  (tbox: OWLAPIOMF#TerminologyBox, iri: IRI, recursively: Boolean)
   (implicit store: OWLAPIOMFGraphStore)
   : Option[OWLAPIOMF#Entity]
-  = lookupTerm(graph, iri, recursively) match {
+  = lookupTerm(tbox, iri, recursively) match {
     case Some(t: OWLAPIOMF#Entity) => Some(t)
     case _ => None
   }
 
+  def lookupEntity
+  (tbox: OWLAPIOMF#TerminologyBox, iri: Option[gov.nasa.jpl.imce.oml.tables.IRI], recursively: Boolean)
+  (implicit store: OWLAPIOMFGraphStore)
+  : Option[OWLAPIOMF#Entity]
+  = iri.map(IRI.create).flatMap(lookupEntity(tbox, _, recursively))
+
   override def lookupAspect
-  (graph: OWLAPIOMF#TerminologyBox, iri: IRI, recursively: Boolean)
+  (tbox: OWLAPIOMF#TerminologyBox, iri: IRI, recursively: Boolean)
   (implicit store: OWLAPIOMFGraphStore)
   : Option[OWLAPIOMF#Aspect]
-  = lookupTerm(graph, iri, recursively) match {
+  = lookupTerm(tbox, iri, recursively) match {
     case Some(t: OWLAPIOMF#Aspect) => Some(t)
     case _ => None
   }
 
+  def lookupAspect
+  (tbox: OWLAPIOMF#TerminologyBox, iri: Option[gov.nasa.jpl.imce.oml.tables.IRI], recursively: Boolean)
+  (implicit store: OWLAPIOMFGraphStore)
+  : Option[OWLAPIOMF#Aspect]
+  = iri.map(IRI.create).flatMap(lookupAspect(tbox, _, recursively))
+
   override def lookupConcept
-  (graph: OWLAPIOMF#TerminologyBox, iri: IRI, recursively: Boolean)
+  (tbox: OWLAPIOMF#TerminologyBox, iri: IRI, recursively: Boolean)
   (implicit store: OWLAPIOMFGraphStore)
   : Option[OWLAPIOMF#Concept]
-  = lookupTerm(graph, iri, recursively) match {
+  = lookupTerm(tbox, iri, recursively) match {
     case Some(t: OWLAPIOMF#Concept) => Some(t)
     case _ => None
   }
 
+  def lookupConcept
+  (graph: OWLAPIOMF#TerminologyBox, iri: Option[gov.nasa.jpl.imce.oml.tables.IRI], recursively: Boolean)
+  (implicit store: OWLAPIOMFGraphStore)
+  : Option[OWLAPIOMF#Concept]
+  = iri.map(IRI.create).flatMap(lookupConcept(graph, _, recursively))
+
   override def lookupReifiedRelationship
-  (graph: OWLAPIOMF#TerminologyBox, iri: IRI, recursively: Boolean)
+  (tbox: OWLAPIOMF#TerminologyBox, iri: IRI, recursively: Boolean)
   (implicit store: OWLAPIOMFGraphStore)
   : Option[OWLAPIOMF#ReifiedRelationship]
-  = lookupTerm(graph, iri, recursively) match {
+  = lookupTerm(tbox, iri, recursively) match {
     case Some(t: OWLAPIOMF#ReifiedRelationship) => Some(t)
     case _ => None
   }
 
+  def lookupReifiedRelationship
+  (tbox: OWLAPIOMF#TerminologyBox, iri: Option[gov.nasa.jpl.imce.oml.tables.IRI], recursively: Boolean)
+  (implicit store: OWLAPIOMFGraphStore)
+  : Option[OWLAPIOMF#ReifiedRelationship]
+  = iri.map(IRI.create).flatMap(lookupReifiedRelationship(tbox, _, recursively))
+
   override def lookupUnreifiedRelationship
-  (graph: OWLAPIOMF#TerminologyBox, iri: IRI, recursively: Boolean)
+  (tbox: OWLAPIOMF#TerminologyBox, iri: IRI, recursively: Boolean)
   (implicit store: OWLAPIOMFGraphStore)
   : Option[OWLAPIOMF#UnreifiedRelationship]
-  = lookupTerm(graph, iri, recursively) match {
+  = lookupTerm(tbox, iri, recursively) match {
     case Some(t: OWLAPIOMF#UnreifiedRelationship) => Some(t)
     case _ => None
   }
 
   override def lookupDataRange
-  (graph: OWLAPIOMF#TerminologyBox, iri: IRI, recursively: Boolean)
+  (tbox: OWLAPIOMF#TerminologyBox, iri: IRI, recursively: Boolean)
   (implicit store: OWLAPIOMFGraphStore)
   : Option[OWLAPIOMF#DataRange]
-  = lookupTerm(graph, iri, recursively) match {
+  = lookupTerm(tbox, iri, recursively) match {
       case Some(t: OWLAPIOMF#DataRange) => Some(t)
       case _ => None
     }
+
+  def lookupDataRange
+  (tbox: OWLAPIOMF#TerminologyBox, iri: Option[gov.nasa.jpl.imce.oml.tables.IRI], recursively: Boolean)
+  (implicit store: OWLAPIOMFGraphStore)
+  : Option[OWLAPIOMF#DataRange]
+  = iri.map(IRI.create).flatMap(lookupDataRange(tbox, _, recursively))
 
   override def restrictedDataRangeOf
   (dr: OWLAPIOMF#DataRange)
@@ -551,31 +719,48 @@ trait OWLAPIImmutableTerminologyGraphOps
   }
 
   override def lookupStructure
-  (graph: OWLAPIOMF#TerminologyBox, iri: IRI, recursively: Boolean)
+  (tbox: OWLAPIOMF#TerminologyBox, iri: IRI, recursively: Boolean)
   (implicit store: OWLAPIOMFGraphStore)
   : Option[OWLAPIOMF#Structure]
-  = lookupTerm(graph, iri, recursively) match {
+  = lookupTerm(tbox, iri, recursively) match {
       case Some(t: OWLAPIOMF#Structure) => Some(t)
       case _ => None
     }
+  def lookupStructure
+  (graph: OWLAPIOMF#TerminologyBox, iri: Option[gov.nasa.jpl.imce.oml.tables.IRI], recursively: Boolean)
+  (implicit store: OWLAPIOMFGraphStore)
+  : Option[OWLAPIOMF#Structure]
+  = iri.map(IRI.create).flatMap(lookupStructure(graph, _, recursively))
 
   override def lookupEntityScalarDataProperty
-  (graph: OWLAPIOMF#TerminologyBox, iri: IRI, recursively: Boolean)
+  (tbox: OWLAPIOMF#TerminologyBox, iri: IRI, recursively: Boolean)
   (implicit store: OWLAPIOMFGraphStore)
   : Option[OWLAPIOMF#EntityScalarDataProperty]
-  = lookupTerm(graph, iri, recursively) match {
+  = lookupTerm(tbox, iri, recursively) match {
       case Some(t: OWLAPIOMF#EntityScalarDataProperty) => Some(t)
       case _ => None
     }
 
+  def lookupEntityScalarDataProperty
+  (tbox: OWLAPIOMF#TerminologyBox, iri: Option[gov.nasa.jpl.imce.oml.tables.IRI], recursively: Boolean)
+  (implicit store: OWLAPIOMFGraphStore)
+  : Option[OWLAPIOMF#EntityScalarDataProperty]
+  = iri.map(IRI.create).flatMap(lookupEntityScalarDataProperty(tbox, _, recursively))
+
   override def lookupEntityStructuredDataProperty
-  (graph: OWLAPIOMF#TerminologyBox, iri: IRI, recursively: Boolean)
+  (tbox: OWLAPIOMF#TerminologyBox, iri: IRI, recursively: Boolean)
   (implicit store: OWLAPIOMFGraphStore)
   : Option[OWLAPIOMF#EntityStructuredDataProperty]
-  = lookupTerm(graph, iri, recursively) match {
+  = lookupTerm(tbox, iri, recursively) match {
       case Some(t: OWLAPIOMF#EntityStructuredDataProperty) => Some(t)
       case _ => None
     }
+
+  def lookupEntityStructuredDataProperty
+  (tbox: OWLAPIOMF#TerminologyBox, iri: Option[gov.nasa.jpl.imce.oml.tables.IRI], recursively: Boolean)
+  (implicit store: OWLAPIOMFGraphStore)
+  : Option[OWLAPIOMF#EntityStructuredDataProperty]
+  = iri.map(IRI.create).flatMap(lookupEntityStructuredDataProperty(tbox, _, recursively))
 
   override def lookupScalarDataProperty
   (graph: OWLAPIOMF#TerminologyBox, iri: IRI, recursively: Boolean)
@@ -586,14 +771,26 @@ trait OWLAPIImmutableTerminologyGraphOps
       case _ => None
     }
 
+  def lookupScalarDataProperty
+  (tbox: OWLAPIOMF#TerminologyBox, iri: Option[gov.nasa.jpl.imce.oml.tables.IRI], recursively: Boolean)
+  (implicit store: OWLAPIOMFGraphStore)
+  : Option[OWLAPIOMF#ScalarDataProperty]
+  = iri.map(IRI.create).flatMap(lookupScalarDataProperty(tbox, _, recursively))
+
   override def lookupStructuredDataProperty
-  (graph: OWLAPIOMF#TerminologyBox, iri: IRI, recursively: Boolean)
+  (tbox: OWLAPIOMF#TerminologyBox, iri: IRI, recursively: Boolean)
   (implicit store: OWLAPIOMFGraphStore)
   : Option[OWLAPIOMF#StructuredDataProperty]
-  = lookupTerm(graph, iri, recursively) match {
+  = lookupTerm(tbox, iri, recursively) match {
       case Some(t: OWLAPIOMF#StructuredDataProperty) => Some(t)
       case _ => None
     }
+
+  def lookupStructuredDataProperty
+  (tbox: OWLAPIOMF#TerminologyBox, iri: Option[gov.nasa.jpl.imce.oml.tables.IRI], recursively: Boolean)
+  (implicit store: OWLAPIOMFGraphStore)
+  : Option[OWLAPIOMF#StructuredDataProperty]
+  = iri.map(IRI.create).flatMap(lookupStructuredDataProperty(tbox, _, recursively))
 
   override def getAxiomUUID
   (ax: OWLAPIOMF#Axiom)
@@ -601,37 +798,20 @@ trait OWLAPIImmutableTerminologyGraphOps
   = ax.uuid
 
   override def getAxioms
-  (graph: OWLAPIOMF#TerminologyBox)
+  (tbox: OWLAPIOMF#TerminologyBox)
   : ( IRI, Iterable[OWLAPIOMF#Axiom] )
-  = graph.getTermAxioms
+  = tbox.getTermAxioms
 
   override def getTerms
-  (graph: OWLAPIOMF#TerminologyBox)
+  (tbox: OWLAPIOMF#TerminologyBox)
   : ( IRI, Iterable[OWLAPIOMF#Term] )
-  = graph.getTypeTerms
-
-  override def getConceptTreeDisjunctionUUID
-  (ctd: ConceptTreeDisjunction)
-  : UUID
-  = ctd.uuid
-
-  override def lookupNestingAxiomForNestedChildIfAny
-  (nestedG: OWLAPIOMF#TerminologyBox)
-  (implicit store: OWLAPIOMFGraphStore)
-  : Option[OWLAPIOMF#TerminologyNestingAxiom]
-  = store.lookupNestingAxiomForNestedChildIfAny(nestedG)
-
-  override def lookupNestingAxiomsForNestingContext
-  (nestingC: OWLAPIOMF#Concept)
-  (implicit store: OWLAPIOMFGraphStore)
-  : Set[OWLAPIOMF#TerminologyNestingAxiom]
-  = store.lookupNestingAxiomsForNestingContext(nestingC)
+  = tbox.getTypeTerms
 
   def foldTerm[T]
-  (funEntityAspect: OWLAPIOMF#Aspect => T,
-   funEntityConcept: OWLAPIOMF#Concept => T,
-   funEntityReifiedRelationship: OWLAPIOMF#ReifiedRelationship => T,
-   funEntityUnreifiedRelationship: OWLAPIOMF#UnreifiedRelationship => T,
+  (funAspect: OWLAPIOMF#Aspect => T,
+   funConcept: OWLAPIOMF#Concept => T,
+   funReifiedRelationship: OWLAPIOMF#ReifiedRelationship => T,
+   funUnreifiedRelationship: OWLAPIOMF#UnreifiedRelationship => T,
    funScalar: OWLAPIOMF#Scalar => T,
    funStructure: OWLAPIOMF#Structure => T,
    funScalarOneOfRestriction: OWLAPIOMF#ScalarOneOfRestriction => T,
@@ -648,13 +828,13 @@ trait OWLAPIImmutableTerminologyGraphOps
   (t: types.Term)
   : T = t match {
     case et: OWLAPIOMF#Aspect =>
-      funEntityAspect(et)
+      funAspect(et)
     case et: OWLAPIOMF#Concept =>
-      funEntityConcept(et)
+      funConcept(et)
     case et: OWLAPIOMF#ReifiedRelationship =>
-      funEntityReifiedRelationship(et)
+      funReifiedRelationship(et)
     case et: OWLAPIOMF#UnreifiedRelationship =>
-      funEntityUnreifiedRelationship(et)
+      funUnreifiedRelationship(et)
     case ed: OWLAPIOMF#Scalar =>
       funScalar(ed)
     case ed: OWLAPIOMF#Structure =>
@@ -681,6 +861,11 @@ trait OWLAPIImmutableTerminologyGraphOps
       funStructuredDataProperty(p)
   }
 
+  override def getTermIRI
+  (term: OWLAPIOMF#Term)
+  : OWLAPIOMF#IRI
+  = term.iri
+
   override def getTermName
   (term: OWLAPIOMF#Term)
   : LocalName
@@ -690,11 +875,6 @@ trait OWLAPIImmutableTerminologyGraphOps
   (term: OWLAPIOMF#Term)
   : UUID
   = term.uuid
-
-  override def getTermIRI
-  (term: OWLAPIOMF#Term)
-  : OWLAPIOMF#IRI
-  = term.iri
 
   override def foldBundleStatement[T]
   (funAnonymousConceptTaxonomyAxiom: OWLAPIOMF#AnonymousConceptTaxonomyAxiom => T,
@@ -711,42 +891,59 @@ trait OWLAPIImmutableTerminologyGraphOps
       funSpecificDisjointConceptAxiom(ax)
   }
 
+  override def getConceptTreeDisjunctionUUID
+  (ctd: ConceptTreeDisjunction)
+  : UUID
+  = ctd.uuid
+
+  override def lookupNestingAxiomForNestedChildIfAny
+  (nestedG: OWLAPIOMF#TerminologyBox)
+  (implicit store: OWLAPIOMFGraphStore)
+  : Option[OWLAPIOMF#TerminologyNestingAxiom]
+  = store.lookupNestingAxiomForNestedChildIfAny(nestedG)
+
+  override def lookupNestingAxiomsForNestingContext
+  (nestingC: OWLAPIOMF#Concept)
+  (implicit store: OWLAPIOMFGraphStore)
+  : Set[OWLAPIOMF#TerminologyNestingAxiom]
+  = store.lookupNestingAxiomsForNestingContext(nestingC)
+
   override def fromConcept
   (c: OWLAPIOMF#Concept)
-  : OWLAPIEntityConceptSignature
-  = OWLAPIEntityConceptSignature(c.uuid, c.name, c.iri)
+  : ConceptSignature[OWLAPIOMF]
+  = ConceptSignature[OWLAPIOMF](c.uuid, c.name, c.iri)
 
   override def fromReifiedRelationship
   (r: OWLAPIOMF#ReifiedRelationship)
-  : OWLAPIEntityReifiedRelationshipSignature
-  = OWLAPIEntityReifiedRelationshipSignature(
+  : ReifiedRelationshipSignature[OWLAPIOMF]
+  = ReifiedRelationshipSignature[OWLAPIOMF](
     r.uuid, r.name, r.unreifiedPropertyName, r.inversePropertyName,
     r.iri, r.source, r.target, r.characteristics)
 
   override def fromUnreifiedRelationship
   (r: OWLAPIOMF#UnreifiedRelationship)
-  : OWLAPIEntityUnreifiedRelationshipSignature
-  = OWLAPIEntityUnreifiedRelationshipSignature(r.uuid, r.name, r.iri, r.source, r.target, r.characteristics)
+  : UnreifiedRelationshipSignature[OWLAPIOMF]
+  = UnreifiedRelationshipSignature[OWLAPIOMF](r.uuid, r.name, r.iri, r.source, r.target, r.characteristics)
 
   override def fromEntityScalarDataProperty
   (esc: OWLAPIOMF#EntityScalarDataProperty)
-  : OWLAPIEntityScalarDataPropertySignature
-  = OWLAPIEntityScalarDataPropertySignature(esc.uuid, esc.name, esc.isIdentityCriteria, esc.iri, esc.domain, esc.range)
+  : EntityScalarDataPropertySignature[OWLAPIOMF]
+  = EntityScalarDataPropertySignature[OWLAPIOMF](esc.uuid, esc.name, esc.iri, esc.domain, esc.range, esc.isIdentityCriteria)
 
   override def fromEntityStructuredDataProperty
   (est: OWLAPIOMF#EntityStructuredDataProperty)
-  : OWLAPIEntityStructuredDataPropertySignature
-  = OWLAPIEntityStructuredDataPropertySignature(est.uuid, est.name, est.isIdentityCriteria, est.iri, est.domain, est.range)
+  : EntityStructuredDataPropertySignature[OWLAPIOMF]
+  = EntityStructuredDataPropertySignature[OWLAPIOMF](est.uuid, est.name, est.iri, est.domain, est.range, est.isIdentityCriteria)
 
   override def fromScalarDataProperty
   (ssc: OWLAPIOMF#ScalarDataProperty)
-  : OWLAPIScalarDataPropertySignature
-  = OWLAPIScalarDataPropertySignature(ssc.uuid, ssc.name, ssc.iri, ssc.domain, ssc.range)
+  : ScalarDataPropertySignature[OWLAPIOMF]
+  = ScalarDataPropertySignature[OWLAPIOMF](ssc.uuid, ssc.name, ssc.iri, ssc.domain, ssc.range)
 
   override def fromStructuredDataProperty
   (sst: OWLAPIOMF#StructuredDataProperty)
-  : OWLAPIStructuredDataPropertySignature
-  = OWLAPIStructuredDataPropertySignature(sst.uuid, sst.name, sst.iri, sst.domain, sst.range)
+  : StructuredDataPropertySignature[OWLAPIOMF]
+  = StructuredDataPropertySignature[OWLAPIOMF](sst.uuid, sst.name, sst.iri, sst.domain, sst.range)
 
   override def foldAxiom[T]
   (funAspectSpecializationAxiom
@@ -820,118 +1017,130 @@ trait OWLAPIImmutableTerminologyGraphOps
 
   override def fromAspectSubClassAxiom
   (ax: OWLAPIOMF#AspectSpecializationAxiom)
-  : OWLAPIAspectSpecializationSignature
-  = OWLAPIAspectSpecializationSignature(ax.uuid, ax.sub, ax.sup)
+  : AspectSpecializationSignature[OWLAPIOMF]
+  = AspectSpecializationSignature[OWLAPIOMF](ax.uuid, ax.sub, ax.sup)
 
   override def fromConceptSpecializationAxiom
   (ax: OWLAPIOMF#ConceptSpecializationAxiom)
-  : OWLAPIConceptSpecializationSignature
-  = OWLAPIConceptSpecializationSignature(ax.uuid, ax.sub, ax.sup)
+  : ConceptSpecializationSignature[OWLAPIOMF]
+  = ConceptSpecializationSignature[OWLAPIOMF](ax.uuid, ax.sub, ax.sup)
 
   override def fromReifiedRelationshipSpecializationAxiom
   (ax: OWLAPIOMF#ReifiedRelationshipSpecializationAxiom)
-  : OWLAPIReifiedRelationshipSpecializationSignature
-  = OWLAPIReifiedRelationshipSpecializationSignature(ax.uuid, ax.sub, ax.sup)
+  : ReifiedRelationshipSpecializationSignature[OWLAPIOMF]
+  = ReifiedRelationshipSpecializationSignature[OWLAPIOMF](ax.uuid, ax.sub, ax.sup)
 
   override def fromEntityRestrictionAxiom
   (ax: OWLAPIOMF#EntityRestrictionAxiom)
-  : OWLAPIEntityRestrictionSignature
-  = OWLAPIEntityRestrictionSignature(ax.uuid, ax.restrictedDomain, ax.restrictedRelation, ax.restrictedRange)
+  : EntityRestrictionSignature[OWLAPIOMF]
+  = EntityRestrictionSignature[OWLAPIOMF](
+      ax.uuid,
+      ax.restrictedDomain,
+      ax.restrictedRelation, ax.restrictedRange,
+      ax match {
+        case _: EntityExistentialRestrictionAxiom =>
+          true
+        case _: EntityUniversalRestrictionAxiom =>
+          false
+      })
 
   override def fromEntityScalarDataPropertyExistentialRestrictionAxiom
   (ax: OWLAPIOMF#EntityScalarDataPropertyExistentialRestrictionAxiom)
-  : OWLAPIEntityScalarDataPropertyQuantifiedRestrictionSignature
-  = OWLAPIEntityScalarDataPropertyQuantifiedRestrictionSignature(ax.uuid, ax.restrictedEntity, ax.scalarProperty, ax.scalarRestriction)
+  : EntityScalarDataPropertyQuantifiedRestrictionSignature[OWLAPIOMF]
+  = EntityScalarDataPropertyQuantifiedRestrictionSignature[OWLAPIOMF](
+    ax.uuid, ax.restrictedEntity, ax.scalarProperty, ax.scalarRestriction, true)
 
   override def fromEntityScalarDataPropertyParticularRestrictionAxiom
   (ax: OWLAPIOMF#EntityScalarDataPropertyParticularRestrictionAxiom)
-  : OWLAPIEntityScalarDataPropertyParticularRestrictionSignature
-  = OWLAPIEntityScalarDataPropertyParticularRestrictionSignature(ax.uuid, ax.restrictedEntity, ax.scalarProperty, ax.literalValue)
+  : EntityScalarDataPropertyParticularRestrictionSignature[OWLAPIOMF]
+  = EntityScalarDataPropertyParticularRestrictionSignature[OWLAPIOMF](
+    ax.uuid, ax.restrictedEntity, ax.scalarProperty, ax.literalValue)
 
   override def fromEntityScalarDataPropertyUniversalRestrictionAxiom
   (ax: OWLAPIOMF#EntityScalarDataPropertyUniversalRestrictionAxiom)
-  : OWLAPIEntityScalarDataPropertyQuantifiedRestrictionSignature
-  = OWLAPIEntityScalarDataPropertyQuantifiedRestrictionSignature(ax.uuid, ax.restrictedEntity, ax.scalarProperty, ax.scalarRestriction)
+  : EntityScalarDataPropertyQuantifiedRestrictionSignature[OWLAPIOMF]
+  = EntityScalarDataPropertyQuantifiedRestrictionSignature[OWLAPIOMF](
+    ax.uuid, ax.restrictedEntity, ax.scalarProperty, ax.scalarRestriction, false)
 
   override def fromScalarOneOfLiteralAxiom
   (ax: OWLAPIOMF#ScalarOneOfLiteralAxiom)
-  : OWLAPIScalarOneOfLiteralSignature
-  = OWLAPIScalarOneOfLiteralSignature(ax.uuid, ax.axiom, ax.value)
+  : ScalarOneOfLiteralSignature[OWLAPIOMF]
+  = ScalarOneOfLiteralSignature[OWLAPIOMF](ax.uuid, ax.axiom, ax.value)
 
   override def fromBinaryScalarRestriction
   (ax: OWLAPIOMF#BinaryScalarRestriction)
-  : OWLAPIBinaryScalarRestrictionSignature
-  = OWLAPIBinaryScalarRestrictionSignature(ax.uuid, ax.name, ax.iri, ax.length, ax.minLength, ax.maxLength, ax.restrictedDataRange)
+  : BinaryScalarRestrictionSignature[OWLAPIOMF]
+  = BinaryScalarRestrictionSignature[OWLAPIOMF](ax.uuid, ax.name, ax.iri, ax.length, ax.minLength, ax.maxLength, ax.restrictedDataRange)
 
   override def fromIRIScalarRestriction
   (ax: OWLAPIOMF#IRIScalarRestriction)
-  : OWLAPIIRIScalarRestrictionSignature
-  = OWLAPIIRIScalarRestrictionSignature(ax.uuid, ax.name, ax.iri, ax.length, ax.minLength, ax.maxLength, ax.pattern, ax.restrictedDataRange)
+  : IRIScalarRestrictionSignature[OWLAPIOMF]
+  = IRIScalarRestrictionSignature[OWLAPIOMF](ax.uuid, ax.name, ax.iri, ax.length, ax.minLength, ax.maxLength, ax.pattern, ax.restrictedDataRange)
 
   override def fromNumericScalarRestriction
   (ax: OWLAPIOMF#NumericScalarRestriction)
-  : OWLAPINumericScalarRestrictionSignature
-  = OWLAPINumericScalarRestrictionSignature(ax.uuid, ax.name, ax.iri, ax.minInclusive, ax.maxInclusive, ax.minExclusive, ax.maxExclusive, ax.restrictedDataRange)
+  : NumericScalarRestrictionSignature[OWLAPIOMF]
+  = NumericScalarRestrictionSignature[OWLAPIOMF](ax.uuid, ax.name, ax.iri, ax.minInclusive, ax.maxInclusive, ax.minExclusive, ax.maxExclusive, ax.restrictedDataRange)
 
   override def fromPlainLiteralScalarRestriction
   (ax: OWLAPIOMF#PlainLiteralScalarRestriction)
-  : OWLAPIPlainLiteralScalarRestrictionSignature
-  = OWLAPIPlainLiteralScalarRestrictionSignature(ax.uuid, ax.name, ax.iri, ax.length, ax.minLength, ax.maxLength, ax.pattern, ax.language, ax.restrictedDataRange)
+  : PlainLiteralScalarRestrictionSignature[OWLAPIOMF]
+  = PlainLiteralScalarRestrictionSignature[OWLAPIOMF](ax.uuid, ax.name, ax.iri, ax.length, ax.minLength, ax.maxLength, ax.pattern, ax.language, ax.restrictedDataRange)
 
   override def fromScalarOneOfRestriction
   (ax: OWLAPIOMF#ScalarOneOfRestriction)
-  : OWLAPIScalarOneOfRestrictionSignature
-  = OWLAPIScalarOneOfRestrictionSignature(ax.uuid, ax.name, ax.iri, ax.restrictedDataRange)
+  : ScalarOneOfRestrictionSignature[OWLAPIOMF]
+  = ScalarOneOfRestrictionSignature[OWLAPIOMF](ax.uuid, ax.name, ax.iri, ax.restrictedDataRange)
 
   override def fromStringScalarRestriction
   (ax: OWLAPIOMF#StringScalarRestriction)
-  : OWLAPIStringScalarRestrictionSignature
-  = OWLAPIStringScalarRestrictionSignature(ax.uuid, ax.name, ax.iri, ax.length, ax.minLength, ax.maxLength, ax.pattern, ax.restrictedDataRange)
+  : StringScalarRestrictionSignature[OWLAPIOMF]
+  = StringScalarRestrictionSignature[OWLAPIOMF](ax.uuid, ax.name, ax.iri, ax.length, ax.minLength, ax.maxLength, ax.pattern, ax.restrictedDataRange)
 
   override def fromSynonymScalarRestriction
   (ax: OWLAPIOMF#SynonymScalarRestriction)
-  : OWLAPISynonymScalarRestrictionSignature
-  = OWLAPISynonymScalarRestrictionSignature(ax.uuid, ax.name, ax.iri, ax.restrictedDataRange)
+  : SynonymScalarRestrictionSignature[OWLAPIOMF]
+  = SynonymScalarRestrictionSignature[OWLAPIOMF](ax.uuid, ax.name, ax.iri, ax.restrictedDataRange)
 
   override def fromTimeScalarRestriction
   (ax: OWLAPIOMF#TimeScalarRestriction)
-  : OWLAPITimeScalarRestrictionSignature
-  = OWLAPITimeScalarRestrictionSignature(ax.uuid, ax.name, ax.iri, ax.minInclusive, ax.maxInclusive, ax.minExclusive, ax.maxExclusive, ax.restrictedDataRange)
+  : TimeScalarRestrictionSignature[OWLAPIOMF]
+  = TimeScalarRestrictionSignature[OWLAPIOMF](ax.uuid, ax.name, ax.iri, ax.minInclusive, ax.maxInclusive, ax.minExclusive, ax.maxExclusive, ax.restrictedDataRange)
 
   override def fromConceptDesignationTerminologyAxiom
   (ax: OWLAPIOMF#ConceptDesignationTerminologyAxiom)
-  : OWLAPIConceptDesignationTerminologySignature
-  = OWLAPIConceptDesignationTerminologySignature(ax.uuid, ax.designatedConcept, ax.designatedTerminology)
+  : ConceptDesignationTerminologySignature[OWLAPIOMF]
+  = ConceptDesignationTerminologySignature[OWLAPIOMF](ax.uuid, ax.graph, ax.designatedConcept, ax.designatedTerminology)
 
   override def fromTerminologyExtensionAxiom
   (ax: OWLAPIOMF#TerminologyExtensionAxiom)
-  : OWLAPITerminologyExtensionSignature
-  = OWLAPITerminologyExtensionSignature(ax.uuid, ax.extendedTerminology)
+  : TerminologyExtensionSignature[OWLAPIOMF]
+  = TerminologyExtensionSignature[OWLAPIOMF](ax.uuid, ax.extendedTerminology)
 
   def fromTerminologyNestingAxiom
   (ax: OWLAPIOMF#TerminologyNestingAxiom)
-  : OWLAPITerminologyNestingSignature
-  = OWLAPITerminologyNestingSignature(ax.uuid, ax.nestingTerminology, ax.nestingContext)
+  : TerminologyNestingSignature[OWLAPIOMF]
+  = TerminologyNestingSignature[OWLAPIOMF](ax.uuid, ax.nestingContext, ax.nestingTerminology)
 
   override def fromBundledTerminologyAxiom
   (ax: OWLAPIOMF#BundledTerminologyAxiom)
-  : OWLAPIBundledTerminologySignature
-  = OWLAPIBundledTerminologySignature(ax.uuid, ax.terminologyBundle, ax.bundledTerminology)
+  : BundledTerminologySignature[OWLAPIOMF]
+  = BundledTerminologySignature[OWLAPIOMF](ax.uuid, ax.terminologyBundle, ax.bundledTerminology)
 
   override def fromAnonymousConceptTaxonomyAxiom
   (ax: OWLAPIOMF#AnonymousConceptTaxonomyAxiom)
-  : OWLAPIAnonymousConceptTaxonomySignature
-  = OWLAPIAnonymousConceptTaxonomySignature(ax.uuid, ax.terminologyBundle, ax.disjointTaxonomyParent)
+  : AnonymousConceptUnionSignature[OWLAPIOMF]
+  = AnonymousConceptUnionSignature[OWLAPIOMF](ax.uuid, ax.name, ax.terminologyBundle, ax.disjointTaxonomyParent)
 
   override def fromRootConceptTaxonomyAxiom
   (ax: OWLAPIOMF#RootConceptTaxonomyAxiom)
-  : OWLAPIRootConceptTaxonomySignature
-  = OWLAPIRootConceptTaxonomySignature(ax.uuid, ax.terminologyBundle, ax.root)
+  : RootConceptTaxonomySignature[OWLAPIOMF]
+  = RootConceptTaxonomySignature[OWLAPIOMF](ax.uuid, ax.terminologyBundle, ax.root)
 
   override def fromSpecificDisjointConceptAxiom
   (ax: OWLAPIOMF#SpecificDisjointConceptAxiom)
-  : OWLAPISpecificDisjointConceptSignature
-  = OWLAPISpecificDisjointConceptSignature(ax.uuid, ax.terminologyBundle, ax.disjointTaxonomyParent, ax.disjointLeaf)
+  : SpecificDisjointConceptSignature[OWLAPIOMF]
+  = SpecificDisjointConceptSignature[OWLAPIOMF](ax.uuid, ax.terminologyBundle, ax.disjointTaxonomyParent, ax.disjointLeaf)
 }
 
 trait OWLAPIMutableTerminologyGraphOps
@@ -939,48 +1148,36 @@ trait OWLAPIMutableTerminologyGraphOps
           with OWLAPIImmutableTerminologyGraphOps {
   self: OWLAPIOMFOps =>
 
-  override def addAnnotation
-  (graph: MutableTerminologyBox,
-   subject: OWLAPIOMF#TerminologyThing,
+  override def addTerminologyAnnotationProperty
+  (tbox: OWLAPIOMF#MutableTerminologyBox,
+   ap: AnnotationProperty)
+  (implicit store: OWLAPIOMFGraphStore)
+  : Throwables \/ AnnotationProperty
+  = tbox.addAnnotationProperty(ap)
+
+  override def addTerminologyAnnotation
+  (tbox: MutableTerminologyBox,
+   subject: OWLAPIOMF#Element,
    property: AnnotationProperty,
    value: String)
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ AnnotationEntry
+  : Throwables \/ AnnotationEntry
   = for {
-    _ <- addAnnotationProperty(property)
-    a <- graph.addAnnotation(subject, property, value)
+    _ <- tbox.addAnnotationProperty(property)
+    a <- tbox.addAnnotation(subject, property, value)
   } yield a
 
-  def addAnnotation
-  (graph: MutableTerminologyBox,
-   subject: OWLAPIOMF#TerminologyThing,
-   a: OWLAnnotation)
-  (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ AnnotationEntry
-  = for {
-    ap <- store.lookupAnnotationProperty(a)
-    v <- a.getValue match {
-      case _: OWLAnonymousIndividual =>
-        Set[java.lang.Throwable](OMFError.omfError(s"AnonymousIndividual cannot be an OMF annotation value: $a")).left
-      case i: IRI =>
-        i.getIRIString.right
-      case l: OWLLiteral =>
-        l.getLiteral.right
-    }
-    a <- addAnnotation(graph, subject, ap, v)
-  } yield a
-
-  override def removeAnnotations
-  (graph: OWLAPIOMF#MutableTerminologyBox,
-   subject: OWLAPIOMF#TerminologyThing,
+  override def removeTerminologyAnnotations
+  (tbox: OWLAPIOMF#MutableTerminologyBox,
+   subject: OWLAPIOMF#Element,
    property: AnnotationProperty)
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ Seq[AnnotationEntry]
-  = graph.removeAnnotations(subject, property)
+  : Throwables \/ Set[AnnotationEntry]
+  = tbox.removeAnnotations(subject, property)
 
   def addAnnotationAssertions
-  (graph: MutableTerminologyBox,
-   subject: OWLAPIOMF#TerminologyThing,
+  (tbox: MutableTerminologyBox,
+   subject: OWLAPIOMF#Element,
    aas: Vector[OWLAnnotationAssertionAxiom])
   (implicit store: OWLAPIOMFGraphStore)
   : types.UnitNES
@@ -988,115 +1185,116 @@ trait OWLAPIMutableTerminologyGraphOps
     for {
       _ <- acc
       ap = getAnnotationPropertyFromOWLAnnotation(aa.getAnnotation)
-      _ <- addAnnotationProperty(ap)
-      _ <- addAnnotation(graph, subject, aa.getAnnotation)
+      _ <- tbox.addAnnotationProperty(ap)
+      av <- getAnnotationValueFromOWLAnnotation(aa.getValue)
+      _ <- tbox.addAnnotation(subject, ap, av)
     } yield ()
   }
 
   override protected def addAspect
-  (graph: MutableTerminologyBox,
+  (tbox: MutableTerminologyBox,
    uuid: UUID,
    aspectIRI: IRI,
    aspectName: LocalName)
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ Aspect
+  : Throwables \/ Aspect
   = for {
-    result <- graph.addEntityAspect(aspectIRI, aspectName, uuid)
-    _ <- store.registerOMFModelEntityAspectInstance(graph, result)
+    result <- tbox.addEntityAspect(aspectIRI, aspectName, uuid)
+    _ <- store.registerOMFModelEntityAspectInstance(tbox, result)
   } yield result
 
   override protected def addConcept
-  (graph: MutableTerminologyBox,
+  (tbox: MutableTerminologyBox,
    uuid: UUID,
    conceptIRI: IRI,
    conceptName: LocalName)
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ Concept
+  : Throwables \/ Concept
   = for {
-    result <- graph.addEntityConcept(conceptIRI, conceptName, uuid)
-    _ <- store.registerOMFModelEntityConceptInstance(graph, result)
+    result <- tbox.addEntityConcept(conceptIRI, conceptName, uuid)
+    _ <- store.registerOMFModelEntityConceptInstance(tbox, result)
   } yield result
 
   override protected def addReifiedRelationship
-  (graph: MutableTerminologyBox,
+  (tbox: MutableTerminologyBox,
    uuid: UUID,
    rIRI: IRI,
    source: Entity,
    target: Entity,
    characteristics: Iterable[RelationshipCharacteristics],
-   reifiedRelationshipName: String,
-   unreifiedRelationshipName: String,
-   unreifiedInverseRelationshipName: Option[String])
+   reifiedRelationshipName: LocalName,
+   unreifiedRelationshipName: LocalName,
+   unreifiedInverseRelationshipName: Option[LocalName])
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ ReifiedRelationship
+  : Throwables \/ ReifiedRelationship
   = for {
-    uIRI <- withFragment(graph.iri, unreifiedRelationshipName)
-    uiIRI <- unreifiedInverseRelationshipName.fold[Set[java.lang.Throwable] \/ Option[IRI]](\/-(None)) { uName =>
-      withFragment(graph.iri, uName).map(Some(_))
+    uIRI <- withFragment(tbox.iri, unreifiedRelationshipName)
+    uiIRI <- unreifiedInverseRelationshipName.fold[Throwables \/ Option[IRI]](\/-(None)) { uName =>
+      withFragment(tbox.iri, uName).map(Some(_))
     }
     rIRISource = toSourceIRI(rIRI)
     rIRITarget = toTargetIRI(rIRI)
-    result <- graph.addEntityReifiedRelationship(
+    result <- tbox.addEntityReifiedRelationship(
       rIRI, reifiedRelationshipName, unreifiedRelationshipName, unreifiedInverseRelationshipName, uuid,
       rIRISource, rIRITarget,
       uIRI, uiIRI,
       source, target,
       characteristics)
-    _ <- store.registerOMFModelEntityReifiedRelationshipInstance(graph, result)
+    _ <- store.registerOMFModelEntityReifiedRelationshipInstance(tbox, result)
   } yield result
 
   override protected def addUnreifiedRelationship
-  (graph: MutableTerminologyBox,
+  (tbox: MutableTerminologyBox,
    uuid: UUID,
    rIRI: IRI,
    source: Entity,
    target: Entity,
    characteristics: Iterable[RelationshipCharacteristics],
-   unreifiedRelationshipName: String)
+   unreifiedRelationshipName: LocalName)
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ UnreifiedRelationship
+  : Throwables \/ UnreifiedRelationship
   = for {
-    result <- graph.addEntityUnreifiedRelationship(
+    result <- tbox.addEntityUnreifiedRelationship(
       rIRI, unreifiedRelationshipName, uuid,
       source, target,
       characteristics)
-    _ <- store.registerOMFModelEntityUnreifiedRelationshipInstance(graph, result)
+    _ <- store.registerOMFModelEntityUnreifiedRelationshipInstance(tbox, result)
   } yield result
 
   override protected def addScalarDataType
-  (graph: MutableTerminologyBox,
+  (tbox: MutableTerminologyBox,
    dataTypeUUID: UUID,
    dataTypeIRI: IRI,
-   dataTypeName: String)
+   dataTypeName: LocalName)
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ Scalar
-  = graph.addScalarDataType(dataTypeIRI, dataTypeName, dataTypeUUID)
+  : Throwables \/ Scalar
+  = tbox.addScalarDataType(dataTypeIRI, dataTypeName, dataTypeUUID)
 
   override protected def addStructuredDataType
-  (graph: MutableTerminologyBox,
+  (tbox: MutableTerminologyBox,
    dataTypeUUID: UUID,
    dataTypeIRI: IRI,
-   dataTypeName: String)
+   dataTypeName: LocalName)
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ Structure
+  : Throwables \/ Structure
   = for {
-    result <- graph.addStructuredDataType(dataTypeIRI, dataTypeName, dataTypeUUID)
-    _ <- store.registerOMFModelStructuredDataTypeInstance(graph, result)
+    result <- tbox.addStructuredDataType(dataTypeIRI, dataTypeName, dataTypeUUID)
+    _ <- store.registerOMFModelStructuredDataTypeInstance(tbox, result)
   } yield result
 
   override protected def addScalarOneOfRestriction
-  (graph: MutableTerminologyBox,
+  (tbox: MutableTerminologyBox,
    dataTypeUUID: UUID,
    dataTypeIRI: IRI,
-   dataTypeName: String,
+   dataTypeName: LocalName,
    restrictedRange: DataRange)
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ ScalarOneOfRestriction
-  = graph.addScalarOneOfRestriction(
+  : Throwables \/ ScalarOneOfRestriction
+  = tbox.addScalarOneOfRestriction(
     dataTypeIRI, dataTypeName, dataTypeUUID, restrictedRange)
 
   override protected def addBinaryScalarRestriction
-  (graph: MutableTerminologyBox,
+  (tbox: MutableTerminologyBox,
    dataTypeUUID: UUID,
    dataTypeIRI: IRI,
    dataTypeName: LocalName,
@@ -1105,240 +1303,240 @@ trait OWLAPIMutableTerminologyGraphOps
    maxLength: Option[Int],
    restrictedRange: DataRange)
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ BinaryScalarRestriction
-  = graph.addBinaryScalarRestriction(
+  : Throwables \/ BinaryScalarRestriction
+  = tbox.addBinaryScalarRestriction(
     dataTypeIRI, dataTypeName, dataTypeUUID, restrictedRange,
     length, minLength, maxLength)
   
   override protected def addIRIScalarRestriction
-  (graph: MutableTerminologyBox,
+  (tbox: MutableTerminologyBox,
    dataTypeUUID: UUID,
    dataTypeIRI: IRI,
    dataTypeName: LocalName,
    length: Option[Int],
    minLength: Option[Int],
    maxLength: Option[Int],
-   pattern: Option[String],
+   pattern: Option[Pattern],
    restrictedRange: DataRange)
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ IRIScalarRestriction
-  = graph.addIRIScalarRestriction(
+  : Throwables \/ IRIScalarRestriction
+  = tbox.addIRIScalarRestriction(
     dataTypeIRI, dataTypeName, dataTypeUUID, restrictedRange,
     length, minLength, maxLength, pattern)
 
   override protected def addNumericScalarRestriction
-  (graph: MutableTerminologyBox,
+  (tbox: MutableTerminologyBox,
    dataTypeUUID: UUID,
    dataTypeIRI: IRI,
    dataTypeName: LocalName,
-   minInclusive: Option[String],
-   maxInclusive: Option[String],
-   minExclusive: Option[String],
-   maxExclusive: Option[String],
+   minInclusive: Option[LexicalValue],
+   maxInclusive: Option[LexicalValue],
+   minExclusive: Option[LexicalValue],
+   maxExclusive: Option[LexicalValue],
    restrictedRange: DataRange)
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ NumericScalarRestriction
-  = graph.addNumericScalarRestriction(
+  : Throwables \/ NumericScalarRestriction
+  = tbox.addNumericScalarRestriction(
     dataTypeIRI, dataTypeName, dataTypeUUID, restrictedRange,
     minInclusive, maxInclusive, minExclusive, maxExclusive)
 
   override protected def addPlainLiteralScalarRestriction
-  (graph: MutableTerminologyBox,
+  (tbox: MutableTerminologyBox,
    dataTypeUUID: UUID,
    dataTypeIRI: IRI,
    dataTypeName: LocalName,
    length: Option[Int],
    minLength: Option[Int],
    maxLength: Option[Int],
-   pattern: Option[String],
-   language: Option[String],
+   pattern: Option[Pattern],
+   language: Option[LangRange],
    restrictedRange: DataRange)
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ PlainLiteralScalarRestriction
-  = graph.addPlainLiteralScalarRestriction(
+  : Throwables \/ PlainLiteralScalarRestriction
+  = tbox.addPlainLiteralScalarRestriction(
     dataTypeIRI, dataTypeName, dataTypeUUID, restrictedRange,
     length, minLength, maxLength, pattern, language)
 
   override protected def addStringScalarRestriction
-  (graph: MutableTerminologyBox,
+  (tbox: MutableTerminologyBox,
    dataTypeUUID: UUID,
    dataTypeIRI: IRI,
    dataTypeName: LocalName,
    length: Option[Int],
    minLength: Option[Int],
    maxLength: Option[Int],
-   pattern: Option[String],
+   pattern: Option[Pattern],
    restrictedRange: DataRange)
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ StringScalarRestriction
-  = graph.addStringScalarRestriction(
+  : Throwables \/ StringScalarRestriction
+  = tbox.addStringScalarRestriction(
     dataTypeIRI, dataTypeName, dataTypeUUID, restrictedRange,
     length, minLength, maxLength, pattern)
 
   override protected def addSynonymScalarRestriction
-  (graph: MutableTerminologyBox,
+  (tbox: MutableTerminologyBox,
    dataTypeUUID: UUID,
    dataTypeIRI: IRI,
    dataTypeName: LocalName,
    restrictedRange: DataRange)
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ SynonymScalarRestriction
-  = graph.addSynonymScalarRestriction(
+  : Throwables \/ SynonymScalarRestriction
+  = tbox.addSynonymScalarRestriction(
     dataTypeIRI, dataTypeName, dataTypeUUID, restrictedRange)
 
   override protected def addScalarOneOfLiteralAxiom
-  (graph: MutableTerminologyBox,
+  (tbox: MutableTerminologyBox,
    axiomUUID: UUID,
    scalarOneOfRestriction: ScalarOneOfRestriction,
    value: String)
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ ScalarOneOfLiteralAxiom
-  = graph.addScalarOneOfLiteralAxiom(axiomUUID, scalarOneOfRestriction, value)
+  : Throwables \/ ScalarOneOfLiteralAxiom
+  = tbox.addScalarOneOfLiteralAxiom(axiomUUID, scalarOneOfRestriction, value)
 
   override protected def addTimeScalarRestriction
-  (graph: MutableTerminologyBox,
+  (tbox: MutableTerminologyBox,
    dataTypeUUID: UUID,
    dataTypeIRI: IRI,
    dataTypeName: LocalName,
-   minInclusive: Option[String],
-   maxInclusive: Option[String],
-   minExclusive: Option[String],
-   maxExclusive: Option[String],
+   minInclusive: Option[LexicalValue],
+   maxInclusive: Option[LexicalValue],
+   minExclusive: Option[LexicalValue],
+   maxExclusive: Option[LexicalValue],
    restrictedRange: DataRange)
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ TimeScalarRestriction
-  = graph.addTimeScalarRestriction(
+  : Throwables \/ TimeScalarRestriction
+  = tbox.addTimeScalarRestriction(
     dataTypeIRI, dataTypeName, dataTypeUUID, restrictedRange,
     minInclusive, maxInclusive, minExclusive, maxExclusive)
 
   override protected def addEntityScalarDataProperty
-  (graph: MutableTerminologyBox,
+  (tbox: MutableTerminologyBox,
    uuid: UUID,
    dataRelationshipIRI: IRI,
    source: Entity,
    target: DataRange,
-   dataRelationshipName: String,
+   dataRelationshipName: LocalName,
    isIdentityCriteria: Boolean)
   (implicit store: OWLAPIOMFGraphStore)
-  = graph.addDataRelationshipFromEntityToScalar(dataRelationshipIRI, dataRelationshipName, isIdentityCriteria, uuid, source, target)
+  = tbox.addDataRelationshipFromEntityToScalar(dataRelationshipIRI, dataRelationshipName, isIdentityCriteria, uuid, source, target)
 
   override protected def addEntityStructuredDataProperty
-  (graph: MutableTerminologyBox,
+  (tbox: MutableTerminologyBox,
    uuid: UUID,
    dataRelationshipIRI: IRI,
    source: Entity,
    target: Structure,
-   dataRelationshipName: String,
+   dataRelationshipName: LocalName,
    isIdentityCriteria: Boolean)
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ EntityStructuredDataProperty
-  = graph.addDataRelationshipFromEntityToStructure(dataRelationshipIRI, dataRelationshipName, isIdentityCriteria, uuid, source, target)
+  : Throwables \/ EntityStructuredDataProperty
+  = tbox.addDataRelationshipFromEntityToStructure(dataRelationshipIRI, dataRelationshipName, isIdentityCriteria, uuid, source, target)
 
   override protected def addScalarDataProperty
-  (graph: MutableTerminologyBox,
+  (tbox: MutableTerminologyBox,
    uuid: UUID,
    dataRelationshipIRI: IRI,
    source: Structure,
    target: DataRange,
-   dataRelationshipName: String)
+   dataRelationshipName: LocalName)
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ ScalarDataProperty
-  = graph.addDataRelationshipFromStructureToScalar(dataRelationshipIRI, dataRelationshipName, uuid, source, target)
+  : Throwables \/ ScalarDataProperty
+  = tbox.addDataRelationshipFromStructureToScalar(dataRelationshipIRI, dataRelationshipName, uuid, source, target)
 
   override protected def addStructuredDataProperty
-  (graph: MutableTerminologyBox,
+  (tbox: MutableTerminologyBox,
    uuid: UUID,
    dataRelationshipIRI: IRI,
    source: Structure,
    target: Structure,
-   dataRelationshipName: String)
+   dataRelationshipName: LocalName)
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ StructuredDataProperty
-  = graph.addDataRelationshipFromStructureToStructure(dataRelationshipIRI, dataRelationshipName, uuid, source, target)
+  : Throwables \/ StructuredDataProperty
+  = tbox.addDataRelationshipFromStructureToStructure(dataRelationshipIRI, dataRelationshipName, uuid, source, target)
 
   override protected def addAspectSpecializationAxiom
-  (graph: MutableTerminologyBox,
+  (tbox: MutableTerminologyBox,
    uuid: UUID,
    sub: Entity,
    sup: Aspect)
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ AspectSpecializationAxiom
-  = graph.addEntityDefinitionAspectSubClassAxiom(uuid, sub, sup)
+  : Throwables \/ AspectSpecializationAxiom
+  = tbox.addEntityDefinitionAspectSubClassAxiom(uuid, sub, sup)
 
   override protected def addConceptSpecializationAxiom
-  (graph: MutableTerminologyBox,
+  (tbox: MutableTerminologyBox,
    uuid: UUID,
    sub: Concept,
    sup: Concept)
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ ConceptSpecializationAxiom
-  = graph.addEntityConceptSubClassAxiom(uuid, sub, sup)
+  : Throwables \/ ConceptSpecializationAxiom
+  = tbox.addEntityConceptSubClassAxiom(uuid, sub, sup)
 
   override protected def addReifiedRelationshipSpecializationAxiom
-  (graph: MutableTerminologyBox,
+  (tbox: MutableTerminologyBox,
    uuid: UUID,
    sub: ReifiedRelationship,
    sup: ReifiedRelationship)
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ ReifiedRelationshipSpecializationAxiom
-  = graph.addEntityReifiedRelationshipSubClassAxiom(uuid, sub, sup)
+  : Throwables \/ ReifiedRelationshipSpecializationAxiom
+  = tbox.addEntityReifiedRelationshipSubClassAxiom(uuid, sub, sup)
 
   override protected def addEntityUniversalRestrictionAxiom
-  (graph: MutableTerminologyBox,
+  (tbox: MutableTerminologyBox,
    uuid: UUID,
    sub: Entity,
    rel: ReifiedRelationship,
    range: Entity)
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ EntityUniversalRestrictionAxiom
-  = graph.addEntityDefinitionUniversalRestrictionAxiom(uuid, sub, rel, range)
+  : Throwables \/ EntityUniversalRestrictionAxiom
+  = tbox.addEntityDefinitionUniversalRestrictionAxiom(uuid, sub, rel, range)
 
   override protected def addEntityExistentialRestrictionAxiom
-  (graph: MutableTerminologyBox,
+  (tbox: MutableTerminologyBox,
    uuid: UUID,
    sub: Entity,
    rel: ReifiedRelationship,
    range: Entity)
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ EntityExistentialRestrictionAxiom
-  = graph.addEntityDefinitionExistentialRestrictionAxiom(uuid, sub, rel, range)
+  : Throwables \/ EntityExistentialRestrictionAxiom
+  = tbox.addEntityDefinitionExistentialRestrictionAxiom(uuid, sub, rel, range)
   
   override protected def addEntityScalarDataPropertyExistentialRestrictionAxiom
-  (graph: MutableTerminologyBox,
+  (tbox: MutableTerminologyBox,
    uuid: UUID,
    restrictedEntity: Entity,
    scalarProperty: EntityScalarDataProperty,
    range: DataRange)
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ EntityScalarDataPropertyExistentialRestrictionAxiom
-  = graph.addEntityScalarDataPropertyExistentialRestrictionAxiom(uuid, restrictedEntity, scalarProperty, range)
+  : Throwables \/ EntityScalarDataPropertyExistentialRestrictionAxiom
+  = tbox.addEntityScalarDataPropertyExistentialRestrictionAxiom(uuid, restrictedEntity, scalarProperty, range)
   
   override protected def addEntityScalarDataPropertyUniversalRestrictionAxiom
-  (graph: MutableTerminologyBox,
+  (tbox: MutableTerminologyBox,
    uuid: UUID,
    restrictedEntity: Entity,
    scalarProperty: EntityScalarDataProperty,
    range: DataRange)
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ EntityScalarDataPropertyUniversalRestrictionAxiom
-  = graph.addEntityScalarDataPropertyUniversalRestrictionAxiom(uuid, restrictedEntity, scalarProperty, range)
+  : Throwables \/ EntityScalarDataPropertyUniversalRestrictionAxiom
+  = tbox.addEntityScalarDataPropertyUniversalRestrictionAxiom(uuid, restrictedEntity, scalarProperty, range)
   
   override protected def addEntityScalarDataPropertyParticularRestrictionAxiom
-  (graph: MutableTerminologyBox,
+  (tbox: MutableTerminologyBox,
    uuid: UUID,
    restrictedEntity: Entity,
    scalarProperty: EntityScalarDataProperty,
    literalValue: LexicalValue)
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ EntityScalarDataPropertyParticularRestrictionAxiom
-  = graph.addEntityScalarDataPropertyParticularRestrictionAxiom(uuid, restrictedEntity, scalarProperty, literalValue)
+  : Throwables \/ EntityScalarDataPropertyParticularRestrictionAxiom
+  = tbox.addEntityScalarDataPropertyParticularRestrictionAxiom(uuid, restrictedEntity, scalarProperty, literalValue)
 
   override protected def addBundledTerminologyAxiom
   (uuid: UUID,
    terminologyBundle: MutableBundle,
    bundledTerminology: TerminologyBox)
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ BundledTerminologyAxiom
+  : Throwables \/ BundledTerminologyAxiom
   = terminologyBundle.addBundledTerminologyAxiom(uuid, bundledTerminology)
 
   override protected def addTerminologyExtension
@@ -1346,7 +1544,7 @@ trait OWLAPIMutableTerminologyGraphOps
    extendingTerminology: MutableTerminologyBox,
    extendedTerminology: TerminologyBox)
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ TerminologyExtensionAxiom
+  : Throwables \/ TerminologyExtensionAxiom
   = extendingTerminology.addTerminologyGraphExtension(uuid, extendedTerminology)
 
   override protected def addNestedTerminology
@@ -1355,33 +1553,34 @@ trait OWLAPIMutableTerminologyGraphOps
    nestingContext: Concept,
    nestedTerminology: MutableTerminologyGraph )
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ TerminologyNestingAxiom
+  : Throwables \/ TerminologyNestingAxiom
   = nestedTerminology.addNestedTerminologyGraph(uuid, nestingTerminology, nestingContext)
 
   override protected def addEntityConceptDesignationTerminologyAxiom
-  (graph: OWLAPIOMF#MutableTerminologyBox,
+  (tbox: OWLAPIOMF#MutableTerminologyBox,
    uuid: UUID,
    designatedConcept: OWLAPIOMF#Concept,
    designatedTerminology: OWLAPIOMF#TerminologyBox)
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ OWLAPIOMF#ConceptDesignationTerminologyAxiom
-  = graph.addEntityConceptDesignationTerminologyGraphAxiom(uuid, designatedConcept, designatedTerminology)
+  : Throwables \/ OWLAPIOMF#ConceptDesignationTerminologyAxiom
+  = tbox.addEntityConceptDesignationTerminologyGraphAxiom(uuid, tbox, designatedConcept, designatedTerminology)
 
   override protected def addAnonymousConceptTaxonomyAxiom
   (uuid: UUID,
    terminologyBundle: OWLAPIOMF#MutableBundle,
-   disjointTerminologyParent: OWLAPIOMF#ConceptTreeDisjunction)
+   disjointTerminologyParent: OWLAPIOMF#ConceptTreeDisjunction,
+   name: String)
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ OWLAPIOMF#AnonymousConceptTaxonomyAxiom
-  = ???
+  : Throwables \/ OWLAPIOMF#AnonymousConceptTaxonomyAxiom
+  = terminologyBundle.addAnonymousConceptTaxonomyAxiom(uuid, name, disjointTerminologyParent)
 
   override protected def addRootConceptTaxonomyAxiom
   (uuid: UUID,
    terminologyBundle: OWLAPIOMF#MutableBundle,
    root: OWLAPIOMF#Concept)
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ OWLAPIOMF#RootConceptTaxonomyAxiom
-  = ???
+  : Throwables \/ OWLAPIOMF#RootConceptTaxonomyAxiom
+  = terminologyBundle.addRootConceptTaxonomyAxiom(uuid, root)
 
   override protected def addSpecificDisjointConceptAxiom
   (uuid: UUID,
@@ -1389,168 +1588,210 @@ trait OWLAPIMutableTerminologyGraphOps
    disjointTerminologyParent: OWLAPIOMF#ConceptTreeDisjunction,
    disjointLeaf: OWLAPIOMF#Concept)
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ OWLAPIOMF#SpecificDisjointConceptAxiom
-  = ???
+  : Throwables \/ OWLAPIOMF#SpecificDisjointConceptAxiom
+  = terminologyBundle.addSpecificDisjointConceptAxiom(uuid, disjointTerminologyParent, disjointLeaf)
 }
 
-trait OWLAPIImmutableInstanceGraphOps
-  extends ImmutableInstanceGraphOps[OWLAPIOMF] {
+trait OWLAPIImmutableDescriptionBoxOps
+  extends ImmutableDescriptionBoxOps[OWLAPIOMF] {
+  self: OWLAPIOMFOps =>
 
-  override def getInstanceGraphIRI
-  (graph: instances.ModelInstanceGraph) =
+  override def getImmutableDescriptionBoxIRI
+  (graph: descriptions.ImmutableDescriptionBox) =
     graph.iri
 
-  // instance object
+  override def fromConceptInstance
+  (o: descriptions.ConceptInstance)
+  : ConceptInstanceSignature[OWLAPIOMF]
+  = ConceptInstanceSignature[OWLAPIOMF](o.uuid, o.conceptType)
 
-  override def fromInstanceObject
-  (o: instances.ModelInstanceObject) = {
-    import o._
-    (iri, conceptType)
-  }
+  override def fromReifiedRelationshipInstance
+  (r: descriptions.ReifiedRelationshipInstance)
+  : ReifiedRelationshipInstanceSignature[OWLAPIOMF]
+  = ReifiedRelationshipInstanceSignature[OWLAPIOMF](r.uuid, r.relationshipType)
 
-  // instance relation
+  override def fromReifiedRelationshipInstanceDomain
+  (r: descriptions.ReifiedRelationshipInstanceDomain)
+  : ReifiedRelationshipInstanceDomainSignature[OWLAPIOMF]
+  = ReifiedRelationshipInstanceDomainSignature[OWLAPIOMF](r.uuid, r.relationshipInstance, r.domain)
 
-  override def fromInstanceRelation
-  (r: instances.ModelInstanceRelation) = {
-    import r._
-    (iri, relationshipType, source, target)
-  }
+  override def fromReifiedRelationshipInstanceRange
+  (r: descriptions.ReifiedRelationshipInstanceRange)
+  : ReifiedRelationshipInstanceRangeSignature[OWLAPIOMF]
+  = ReifiedRelationshipInstanceRangeSignature[OWLAPIOMF](r.uuid, r.relationshipInstance, r.range)
 
-  // data literal
+  override def fromUnreifiedRelationshipInstanceTuple
+  (ur: descriptions.UnreifiedRelationshipInstanceTuple)
+  : UnreifiedRelationshipInstanceTupleSignature[OWLAPIOMF]
+  = UnreifiedRelationshipInstanceTupleSignature[OWLAPIOMF](
+    ur.uuid, ur.unreifiedRelationship, ur.domain, ur.range)
 
-  override def fromDataLiteral
-  (dl: instances.ModelInstanceDataLiteral) = {
-    import dl._
-    (lexicalForm, datatype)
-  }
+  override def fromSingletonInstanceScalarDataPropertyValue
+  (e2sc: descriptions.SingletonInstanceScalarDataPropertyValue)
+  : SingletonInstanceScalarDataPropertyValueSignature[OWLAPIOMF]
+  = SingletonInstanceScalarDataPropertyValueSignature[OWLAPIOMF](
+    e2sc.uuid, e2sc.ei, e2sc.dataRelationship, e2sc.value)
 
-  // data structure
+  override def fromSingletonInstanceStructuredDataPropertyValue
+  (dbox: descriptions.DescriptionBox, e2st: descriptions.SingletonInstanceStructuredDataPropertyValue)
+  : SingletonInstanceStructuredDataPropertyValueSignature[OWLAPIOMF]
+  = SingletonInstanceStructuredDataPropertyValueSignature[OWLAPIOMF](
+    e2st.uuid, e2st.ei, e2st.structuredDataProperty)
 
-  override def fromDataStructure
-  (ds: instances.ModelInstanceDataStructure) = {
-    import ds._
-    (iri, datatype)
-  }
+  override def fromScalarDataPropertyValue
+  (s2sc: descriptions.ScalarDataPropertyValue)
+  : ScalarDataPropertyValueSignature[OWLAPIOMF]
+  = ScalarDataPropertyValueSignature[OWLAPIOMF](
+    s2sc.uuid, s2sc.context, s2sc.dataRelationship, s2sc.value)
 
-  // data property from entity to scalar
+  override def fromStructuredDataPropertyTuple
+  (dbox: descriptions.DescriptionBox, s2st: descriptions.StructuredDataPropertyTuple)
+  : StructuredDataPropertyTupleSignature[OWLAPIOMF]
+  = StructuredDataPropertyTupleSignature[OWLAPIOMF](
+    s2st.uuid, s2st.context, s2st.structuredDataProperty)
 
-  override def fromInstanceDataRelationshipFromEntityToScalar
-  (e2sc: instances.ModelInstanceDataRelationshipFromEntityToScalar) = {
-    import e2sc._
-    (ei, dataRelationship, value)
-  }
+  override def fromDescriptionBoxRefinementAxiom
+  (ax: descriptions.DescriptionBoxRefinement)
+  : DescriptionBoxRefinementSignature[OWLAPIOMF]
+  = DescriptionBoxRefinementSignature[OWLAPIOMF](
+    ax.uuid, ax.sourceModule, ax.targetModule)
 
-  // data property from entity to structure
+  override def fromClosedWorldDefinitionsAxiom
+  (ax: descriptions.DescriptionBoxExtendsClosedWorldDefinitions)
+  : DescriptionBoxExtendsClosedWorldDefinitionsSignature[OWLAPIOMF]
+  = DescriptionBoxExtendsClosedWorldDefinitionsSignature[OWLAPIOMF](
+    ax.uuid, ax.sourceModule, ax.targetModule)
 
-  override def fromInstanceDataRelationshipFromEntityToStructure
-  (e2st: instances.ModelInstanceDataRelationshipFromEntityToStructure) = {
-    import e2st._
-    (ei, dataRelationship, value)
-  }
-
-  // data property from structure to scalar
-
-  override def fromInstanceDataRelationshipFromStructureToScalar
-  (s2sc: instances.ModelInstanceDataRelationshipFromStructureToScalar) = {
-    import s2sc._
-    (di, dataRelationship, value)
-  }
-
-  // data property from structure to structure
-
-  override def fromInstanceDataRelationshipFromStructureToStructure
-  (s2st: instances.ModelInstanceDataRelationshipFromStructureToStructure) = {
-    import s2st._
-    (di, dataRelationship, value)
-  }
 }
 
-trait OWLAPIMutableInstanceGraphOps
-  extends MutableInstanceGraphOps[OWLAPIOMF]
-          with OWLAPIImmutableInstanceGraphOps {
+trait OWLAPIMutableDescriptionBoxOps
+  extends MutableDescriptionBoxOps[OWLAPIOMF]
+    with OWLAPIImmutableDescriptionBoxOps {
+  self: OWLAPIOMFOps =>
 
-  // instance object
+  override def addDescriptionAnnotationProperty
+  (dbox: MutableDescriptionBox,
+   ap: AnnotationProperty)
+  (implicit store: OWLAPIOMFGraphStore)
+  : Throwables \/ AnnotationProperty
+  = dbox.addAnnotationProperty(ap)
 
-  override def addInstanceObject
-  (graph: instances.MutableModelInstanceGraph,
+  override def addDescriptionAnnotation
+  (dbox: MutableDescriptionBox,
+   subject: OWLAPIOMF#Element,
+   property: AnnotationProperty,
+   value: String)
+  (implicit store: OWLAPIOMFGraphStore)
+  : Throwables \/ AnnotationEntry
+  = for {
+    _ <- dbox.addAnnotationProperty(property)
+    a <- dbox.addAnnotation(subject, property, value)
+  } yield a
+
+  override def removeDescriptionAnnotations
+  (dbox: MutableDescriptionBox,
+   subject: OWLAPIOMF#Element,
+   property: AnnotationProperty)
+  (implicit store: OWLAPIOMFGraphStore)
+  : Throwables \/ Set[AnnotationEntry]
+  = dbox.removeAnnotations(subject, property)
+
+  override def getMutableDescriptionBoxIRI
+  (dbox: descriptions.MutableDescriptionBox)
+  = dbox.iri
+
+  def addDescriptionBoxExtendsClosedWorldDefinitions
+  (uuid: UUID,
+   dbox: descriptions.MutableDescriptionBox,
+   closedWorldDefinitions: TerminologyBox)
+  (implicit store: OWLAPIOMFGraphStore)
+  : Throwables \/ descriptions.DescriptionBoxExtendsClosedWorldDefinitions
+  = dbox.addDescriptionBoxExtendsClosedWorldDefinitions(uuid, closedWorldDefinitions)
+
+  def addDescriptionBoxRefinement
+  (uuid: UUID,
+   refiningDescriptionBox: descriptions.MutableDescriptionBox,
+   refinedDescriptionBox: descriptions.DescriptionBox)
+  (implicit store: OWLAPIOMFGraphStore)
+  : Throwables \/ descriptions.DescriptionBoxRefinement
+  = refiningDescriptionBox.addDescriptionBoxRefinement(uuid, refinedDescriptionBox)
+
+  override def addConceptInstance
+  (uuid: UUID,
+   dbox: descriptions.MutableDescriptionBox,
+   iri: IRI,
    conceptType: Concept,
-   fragment: String)
+   fragment: LocalName)
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ instances.ModelInstanceObject =
-    ???
+  : Throwables \/ descriptions.ConceptInstance
+  = dbox.addConceptInstance(uuid, iri, conceptType, fragment)
 
-  // instance relation
-
-  override def addInstanceRelation
-  (graph: instances.MutableModelInstanceGraph,
+  override def addReifiedRelationshipInstance
+  (uuid: UUID,
+   dbox: descriptions.MutableDescriptionBox,
+   iri: IRI,
    relationshipType: ReifiedRelationship,
-   source: instances.ModelEntityInstance,
-   target: instances.ModelEntityInstance,
-   fragment: String)
+   fragment: LocalName)
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ instances.ModelInstanceRelation =
-    ???
+  : Throwables \/ descriptions.ReifiedRelationshipInstance
+  = dbox.addReifiedRelationshipInstance(uuid, iri, relationshipType, fragment)
 
-  // data literal
-
-  override def addDataLiteral
-  (graph: instances.MutableModelInstanceGraph,
-   datatype: Scalar,
-   lexicalForm: String)
+  override def addReifiedRelationshipInstanceDomain
+  (uuid: UUID,
+   dbox: descriptions.MutableDescriptionBox,
+   relationshipInstance: descriptions.ReifiedRelationshipInstance,
+   source: descriptions.ConceptualEntitySingletonInstance)
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ instances.ModelInstanceDataLiteral =
-    ???
+  : Throwables \/ descriptions.ReifiedRelationshipInstanceDomain
+  = dbox.addReifiedRelationshipInstanceDomain(uuid, relationshipInstance, source)
 
-  // data structure
-
-  override def addDataStructure
-  (graph: instances.MutableModelInstanceGraph,
-   datatype: Structure,
-   fragment: String)
+  override def addReifiedRelationshipInstanceRange
+  (uuid: UUID,
+   dbox: descriptions.MutableDescriptionBox,
+   relationshipInstance: descriptions.ReifiedRelationshipInstance,
+   target: descriptions.ConceptualEntitySingletonInstance)
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ instances.ModelInstanceDataStructure =
-    ???
+  : Throwables \/ descriptions.ReifiedRelationshipInstanceRange
+  = dbox.addReifiedRelationshipInstanceRange(uuid, relationshipInstance, target)
 
-  // data property from entity to scalar
-
-  override def addInstanceDataRelationshipFromEntityToScalar
-  (graph: instances.MutableModelInstanceGraph,
-   ei: instances.ModelEntityInstance,
+  override def addSingletonInstanceScalarDataPropertyValue
+  (uuid: UUID,
+   dbox: descriptions.MutableDescriptionBox,
+   ei: descriptions.ConceptualEntitySingletonInstance,
    e2sc: EntityScalarDataProperty,
-   value: instances.ModelInstanceDataLiteral)
+   value: LexicalValue)
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ instances.ModelInstanceDataRelationshipFromEntityToScalar =
-    ???
+  : Throwables \/ descriptions.SingletonInstanceScalarDataPropertyValue
+  = dbox.addSingletonInstanceScalarDataPropertyValue(uuid, ei, e2sc, value)
 
-  // data property from entity to structure
+  override def addSingletonInstanceStructuredDataPropertyValue
+  (uuid: UUID,
+   dbox: descriptions.MutableDescriptionBox,
+   ei: descriptions.ConceptualEntitySingletonInstance,
+   e2st: EntityStructuredDataProperty)
+  (implicit store: OWLAPIOMFGraphStore)
+  : Throwables \/ descriptions.SingletonInstanceStructuredDataPropertyValue
+  = dbox.addSingletonInstanceStructuredDataPropertyValue(uuid, ei, e2st)
 
-  override def addInstanceDataRelationshipFromEntityToStructure
-  (graph: instances.MutableModelInstanceGraph,
-   ei: instances.ModelEntityInstance,
-   e2st: EntityStructuredDataProperty,
-   value: instances.ModelInstanceDataStructure)
-  (implicit store: OWLAPIOMFGraphStore) =
-    ???
+  override def makeScalarDataPropertyValue
+  (uuid: UUID,
+   dbox: descriptions.MutableDescriptionBox,
+   structuredDataPropertyContext: SingletonInstanceStructuredDataPropertyContext,
+   scalarDataProperty: ScalarDataProperty,
+   value: LexicalValue)
+  (implicit store: OWLAPIOMFGraphStore)
+  : Throwables \/ descriptions.ScalarDataPropertyValue
+  = dbox.makeScalarDataPropertyValue(uuid, structuredDataPropertyContext, scalarDataProperty, value)
 
-  // data property from structure to scalar
+  def makeStructuredDataPropertyTuple
+  (uuid: UUID,
+   dbox: descriptions.MutableDescriptionBox,
+   structuredDataPropertyContext: SingletonInstanceStructuredDataPropertyContext,
+   structuredDataProperty: StructuredDataProperty)
+  (implicit store: OWLAPIOMFGraphStore)
+  : Throwables \/ descriptions.StructuredDataPropertyTuple
+  = dbox.makeStructuredDataPropertyTuple(uuid, structuredDataPropertyContext, structuredDataProperty)
 
-  override def addInstanceDataRelationshipFromStructureToScalar
-  (graph: instances.MutableModelInstanceGraph,
-   di: instances.ModelInstanceDataStructure,
-   e2sc: ScalarDataProperty,
-   value: instances.ModelInstanceDataLiteral)
-  (implicit store: OWLAPIOMFGraphStore) =
-    ???
-
-  // data property from structure to structure
-
-  override def addInstanceDataRelationshipFromStructureToStructure
-  (graph: instances.MutableModelInstanceGraph,
-   di: instances.ModelInstanceDataStructure,
-   e2st: StructuredDataProperty,
-   value: instances.ModelInstanceDataStructure)
-  (implicit store: OWLAPIOMFGraphStore) =
-    ???
 }
 
 class OWLAPIOMFOps
@@ -1563,8 +1804,12 @@ class OWLAPIOMFOps
   val AnnotationHasIRIHashSuffix: IRI,
   val AnnotationIsAbstract: IRI,
   val AnnotationIsDerived: IRI,
+  val AnnotationIsBundle: IRI,
   val AnnotationIsDefinition: IRI,
   val AnnotationIsDesignation: IRI,
+  val AnnotationIsDescription: IRI,
+  val AnnotationIsDBoxPartial: IRI,
+  val AnnotationIsDBoxFinal: IRI,
   val AnnotationIsToplevel: IRI,
   val AnnotationHasContext: IRI,
   val AnnotationHasGraph: IRI,
@@ -1573,15 +1818,15 @@ class OWLAPIOMFOps
   extends OMFOps[OWLAPIOMF]
           with OWLAPIIRIOps
           with OWLAPIMutableTerminologyGraphOps
-          with OWLAPIMutableInstanceGraphOps
+          with OWLAPIMutableDescriptionBoxOps
           with OWLAPIStoreOps {
 
   def isAnnotatedAbstract
   (ont: OWLOntology,
    termIRI: IRI)
-  : Set[java.lang.Throwable] \/ Boolean
+  : Throwables \/ Boolean
   = findAnnotationAssertionAxiom(ont, termIRI, AnnotationIsAbstract)
-    .fold[Set[java.lang.Throwable] \/ Boolean] {
+    .fold[Throwables \/ Boolean] {
     \/-(false)
   } { ax =>
     ax.getValue match {
@@ -1595,9 +1840,9 @@ class OWLAPIOMFOps
   def isAnnotatedDerived
   (ont: OWLOntology,
    termIRI: IRI)
-  : Set[java.lang.Throwable] \/ Boolean
+  : Throwables \/ Boolean
   = findAnnotationAssertionAxiom(ont, termIRI, AnnotationIsDerived)
-    .fold[Set[java.lang.Throwable] \/ Boolean]{
+    .fold[Throwables \/ Boolean]{
     \/-(false)
   } { ax =>
     ax.getValue match {
@@ -1613,36 +1858,73 @@ final class OWLOntologyOps
 (val ont: OWLOntology)
 (implicit val ops: OWLAPIOMFOps) {
 
-  def isOntologyTBoxDefinition: Boolean = {
-    for {
-      aaa <- ont.annotations.toScala[Set]
-      if aaa.getProperty.getIRI == ops.AnnotationIsDefinition
-    } {
-      aaa.getValue match {
+  def hasOntologyAnnotation(ap: IRI): Boolean
+  = ont.annotations.toScala[Set].find { _.getProperty.getIRI == ap } match {
+    case Some(a) =>
+      a.getValue match {
         case l: OWLLiteral if l.isBoolean =>
-          return l.parseBoolean
+          l.parseBoolean()
         case _ =>
-          ()
+          false
       }
-    }
-
-    true
+    case _ =>
+      false
   }
 
-  def isOntologyTBoxDesignation: Boolean = {
-    for {
-      aaa <- ont.annotations.toScala[Set]
-      if aaa.getProperty.getIRI == ops.AnnotationIsDesignation
-    } {
-      aaa.getValue match {
-        case l: OWLLiteral if l.isBoolean =>
-          return l.parseBoolean
-        case _ =>
-          ()
-      }
-    }
+  def isTerminologyBoxOntology
+  : Boolean
+  = hasOntologyAnnotation(ops.AnnotationIsDefinition) ||
+    hasOntologyAnnotation(ops.AnnotationIsDesignation) ||
+    hasOntologyAnnotation(ops.AnnotationIsBundle)
 
-    false
-  }
+  def isOpenWorldDefinitionTerminologyBoxOntology
+  : Boolean
+  = hasOntologyAnnotation(ops.AnnotationIsDefinition) &&
+    !( hasOntologyAnnotation(ops.AnnotationIsDesignation) ||
+       hasOntologyAnnotation(ops.AnnotationIsDescription))
 
+  def isClosedWorldDesignationTerminologyBoxOntology
+  : Boolean
+  = hasOntologyAnnotation(ops.AnnotationIsDesignation) &&
+    !(hasOntologyAnnotation(ops.AnnotationIsDefinition) ||
+      hasOntologyAnnotation(ops.AnnotationIsDescription))
+
+  def isTerminologyGraphOntology
+  : Boolean
+  = (hasOntologyAnnotation(ops.AnnotationIsDefinition) ||
+     hasOntologyAnnotation(ops.AnnotationIsDesignation)) &&
+    !hasOntologyAnnotation(ops.AnnotationIsBundle)
+
+  def isBundleOntology
+  : Boolean
+  = (hasOntologyAnnotation(ops.AnnotationIsDefinition) ||
+     hasOntologyAnnotation(ops.AnnotationIsDesignation)) &&
+    hasOntologyAnnotation(ops.AnnotationIsBundle)
+
+  def isDescriptionBoxOntology
+  : Boolean
+  = !(hasOntologyAnnotation(ops.AnnotationIsDefinition) ||
+      hasOntologyAnnotation(ops.AnnotationIsDesignation) ||
+      hasOntologyAnnotation(ops.AnnotationIsBundle)) &&
+    ( hasOntologyAnnotation(ops.AnnotationIsDescription) ||
+      hasOntologyAnnotation(ops.AnnotationIsDBoxPartial) ||
+      hasOntologyAnnotation(ops.AnnotationIsDBoxFinal))
+
+  def isFinalDescriptionBoxOntology
+  : Boolean
+  = !(hasOntologyAnnotation(ops.AnnotationIsDefinition) ||
+    hasOntologyAnnotation(ops.AnnotationIsDesignation) ||
+    hasOntologyAnnotation(ops.AnnotationIsBundle)) &&
+    ( hasOntologyAnnotation(ops.AnnotationIsDescription) ||
+      hasOntologyAnnotation(ops.AnnotationIsDBoxFinal) ) &&
+      !hasOntologyAnnotation(ops.AnnotationIsDBoxPartial)
+
+  def isPartialDescriptionBoxOntology
+  : Boolean
+  = !(hasOntologyAnnotation(ops.AnnotationIsDefinition) ||
+    hasOntologyAnnotation(ops.AnnotationIsDesignation) ||
+    hasOntologyAnnotation(ops.AnnotationIsBundle)) &&
+    ( hasOntologyAnnotation(ops.AnnotationIsDescription) ||
+      hasOntologyAnnotation(ops.AnnotationIsDBoxPartial) ) &&
+    !hasOntologyAnnotation(ops.AnnotationIsDBoxFinal)
 }

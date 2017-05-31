@@ -32,6 +32,7 @@ import org.semanticweb.owlapi.model.OWLEntity
 import org.semanticweb.owlapi.model.OWLLiteral
 
 import gov.nasa.jpl.omf.scala.core._
+import gov.nasa.jpl.omf.scala.core.OMLString.LocalName
 import gov.nasa.jpl.omf.scala.core.TerminologyKind
 
 import scala.compat.java8.FunctionConverters._
@@ -260,6 +261,24 @@ object Backbone {
       "Error creating backbone ontology")
   } yield b
 
+  def createBackbone( ont: OWLOntology, kind: DescriptionKind, ops: OWLAPIOMFOps )
+  : Set[java.lang.Throwable] \/ OMFBackbone
+  = for {
+    b <- createBackbone(ont, ops)
+    _ <- applyOntologyChangeOrNoOp(
+      ont.getOWLOntologyManager,
+      kind match {
+        case DescriptionKind.isPartial =>
+          val ap = b.df.getOWLAnnotationProperty(ops.AnnotationIsDBoxPartial)
+          new AddOntologyAnnotation(ont, b.df.getOWLAnnotation(ap, b.df.getOWLLiteral(true)))
+
+        case DescriptionKind.isFinal =>
+          val sp = b.df.getOWLAnnotationProperty(ops.AnnotationIsDBoxFinal)
+          new AddOntologyAnnotation(ont, b.df.getOWLAnnotation(sp, b.df.getOWLLiteral(true)))
+      },
+      "Error creating backbone ontology")
+  } yield b
+
   def createBackbone( ont: OWLOntology, ops: OWLAPIOMFOps )
   : Set[java.lang.Throwable] \/ OMFBackbone = {
 
@@ -269,21 +288,21 @@ object Backbone {
     val bIRI = toBackboneIRI( ont.getOntologyID.getOntologyIRI.get )
 
     for {
-      _Thing <- withFragment(bIRI, "Thing")
-      _Aspect <- withFragment(bIRI, "Aspect")
-      _Entity <- withFragment(bIRI, "Entity")
-      _StructuredDatatype <- withFragment(bIRI, "StructuredDatatype")
-      _ReifiedObjectProperty <- withFragment(bIRI, "ReifiedObjectProperty")
-      _ReifiedStructuredDataProperty <- withFragment(bIRI, "ReifiedStructuredDataProperty")
-      _topObjectProperty <- withFragment(bIRI, "topObjectProperty")
-      _topUnreifiedObjectProperty <- withFragment(bIRI, "topUnreifiedObjectProperty")
-      _topReifiedObjectProperty <- withFragment(bIRI, "topReifiedObjectProperty")
-      _topReifiedObjectPropertySource <- withFragment(bIRI, "topReifiedObjectPropertySource")
-      _topReifiedObjectPropertyTarget <- withFragment(bIRI, "topReifiedObjectPropertyTarget")
-      _topReifiedStructuredDataProperty <- withFragment(bIRI, "topReifiedStructuredDataProperty")
-      _topReifiedStructuredDataPropertySource <- withFragment(bIRI, "topReifiedStructuredDataPropertySource")
-      _topReifiedStructuredDataPropertyTarget <- withFragment(bIRI, "topReifiedStructuredDataPropertyTarget")
-      _topDataProperty <- withFragment(bIRI, "topDataProperty")
+      _Thing <- withFragment(bIRI, LocalName("Thing"))
+      _Aspect <- withFragment(bIRI, LocalName("Aspect"))
+      _Entity <- withFragment(bIRI, LocalName("Entity"))
+      _StructuredDatatype <- withFragment(bIRI, LocalName("StructuredDatatype"))
+      _ReifiedObjectProperty <- withFragment(bIRI, LocalName("ReifiedObjectProperty"))
+      _ReifiedStructuredDataProperty <- withFragment(bIRI, LocalName("ReifiedStructuredDataProperty"))
+      _topObjectProperty <- withFragment(bIRI, LocalName("topObjectProperty"))
+      _topUnreifiedObjectProperty <- withFragment(bIRI, LocalName("topUnreifiedObjectProperty"))
+      _topReifiedObjectProperty <- withFragment(bIRI, LocalName("topReifiedObjectProperty"))
+      _topReifiedObjectPropertySource <- withFragment(bIRI, LocalName("topReifiedObjectPropertySource"))
+      _topReifiedObjectPropertyTarget <- withFragment(bIRI, LocalName("topReifiedObjectPropertyTarget"))
+      _topReifiedStructuredDataProperty <- withFragment(bIRI, LocalName("topReifiedStructuredDataProperty"))
+      _topReifiedStructuredDataPropertySource <- withFragment(bIRI, LocalName("topReifiedStructuredDataPropertySource"))
+      _topReifiedStructuredDataPropertyTarget <- withFragment(bIRI, LocalName("topReifiedStructuredDataPropertyTarget"))
+      _topDataProperty <- withFragment(bIRI, LocalName("topDataProperty"))
       b = new OMFBackbone(ont,
         Thing = _Thing,
         Aspect = _Aspect,
@@ -357,7 +376,7 @@ object Backbone {
     import ops._
     val bIRI = toBackboneIRI(ont.getOntologyID.getOntologyIRI.get)
 
-    def lookup[T <: OWLEntity](fragment: String, set: Set[T])
+    def lookup[T <: OWLEntity](fragment: LocalName, set: Set[T])
     : Set[java.lang.Throwable] \/ Option[T] =
       withFragment(bIRI, fragment)
         .flatMap { iri =>
@@ -384,21 +403,21 @@ object Backbone {
       if (hasIsDesignation.orElse(false)) TerminologyKind.isDesignation else TerminologyKind.isDefinition
 
     for {
-      _Thing <- lookup("Thing", bCs)
-      _Aspect <- lookup("Aspect", bCs)
-      _Entity <- lookup("Entity", bCs)
-      _StructuredDatatype <- lookup("StructuredDatatype", bCs)
-      _ReifiedObjectProperty <- lookup("ReifiedObjectProperty", bCs)
-      _ReifiedStructuredDataProperty <- lookup("ReifiedStructuredDataProperty", bCs)
-      _topObjectProperty <- lookup("topObjectProperty", bOPs)
-      _topUnreifiedObjectProperty <- lookup("topUnreifiedObjectProperty", bOPs)
-      _topReifiedObjectProperty <- lookup("topReifiedObjectProperty", bOPs)
-      _topReifiedObjectPropertySource <- lookup("topReifiedObjectPropertySource", bOPs)
-      _topReifiedObjectPropertyTarget <- lookup("topReifiedObjectPropertyTarget", bOPs)
-      _topReifiedStructuredDataProperty <- lookup("topReifiedStructuredDataProperty", bOPs)
-      _topReifiedStructuredDataPropertySource <- lookup("topReifiedStructuredDataPropertySource", bOPs)
-      _topReifiedStructuredDataPropertyTarget <- lookup("topReifiedStructuredDataPropertyTarget", bOPs)
-      _topDataProperty <- lookup("topDataProperty", bDPs)
+      _Thing <- lookup(LocalName("Thing"), bCs)
+      _Aspect <- lookup(LocalName("Aspect"), bCs)
+      _Entity <- lookup(LocalName("Entity"), bCs)
+      _StructuredDatatype <- lookup(LocalName("StructuredDatatype"), bCs)
+      _ReifiedObjectProperty <- lookup(LocalName("ReifiedObjectProperty"), bCs)
+      _ReifiedStructuredDataProperty <- lookup(LocalName("ReifiedStructuredDataProperty"), bCs)
+      _topObjectProperty <- lookup(LocalName("topObjectProperty"), bOPs)
+      _topUnreifiedObjectProperty <- lookup(LocalName("topUnreifiedObjectProperty"), bOPs)
+      _topReifiedObjectProperty <- lookup(LocalName("topReifiedObjectProperty"), bOPs)
+      _topReifiedObjectPropertySource <- lookup(LocalName("topReifiedObjectPropertySource"), bOPs)
+      _topReifiedObjectPropertyTarget <- lookup(LocalName("topReifiedObjectPropertyTarget"), bOPs)
+      _topReifiedStructuredDataProperty <- lookup(LocalName("topReifiedStructuredDataProperty"), bOPs)
+      _topReifiedStructuredDataPropertySource <- lookup(LocalName("topReifiedStructuredDataPropertySource"), bOPs)
+      _topReifiedStructuredDataPropertyTarget <- lookup(LocalName("topReifiedStructuredDataPropertyTarget"), bOPs)
+      _topDataProperty <- lookup(LocalName("topDataProperty"), bDPs)
     } yield {
       val b = for {
         t <- _Thing

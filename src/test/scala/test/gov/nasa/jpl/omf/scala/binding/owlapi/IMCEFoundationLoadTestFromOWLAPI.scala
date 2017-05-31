@@ -20,12 +20,15 @@ package test.gov.nasa.jpl.omf.scala.binding.owlapi
 
 import org.semanticweb.owlapi.apibinding.OWLManager
 import gov.nasa.jpl.omf.scala.binding.owlapi._
-import test.gov.nasa.jpl.omf.scala.core.{ functionalAPI => testFunctionalAPI }
+import test.gov.nasa.jpl.omf.scala.core.{functionalAPI => testFunctionalAPI}
 import org.apache.xml.resolver.CatalogManager
+
 import scala.Predef._
 import scala.collection.immutable.Set
-import scala.{transient,Option,StringContext,Unit}
+import scala.{Option, StringContext, Unit, transient}
 import java.lang.IllegalArgumentException
+
+import org.apache.xml.resolver.tools.CatalogResolver
 
 abstract class IMCEFoundationLoadTestFromOWLAPI
 ( override val loadStore: OWLAPIOMFGraphStore )
@@ -34,12 +37,14 @@ abstract class IMCEFoundationLoadTestFromOWLAPI
 
 abstract class IMCEFoundationLoadTestFromOWLAPICatalog( @transient val catalogManager: CatalogManager )
   extends IMCEFoundationLoadTestFromOWLAPI(
-      loadStore = OWLAPIOMFGraphStore(
+      loadStore = OWLAPIOMFGraphStore.initGraphStore(
         OWLAPIOMFModule.owlAPIOMFModule(catalogManager).valueOr { (errors: Set[java.lang.Throwable]) =>
           val message = s"${errors.size} errors" + errors.map(_.getMessage).toList.mkString("\n => ","\n => ","\n")
           throw new scala.IllegalArgumentException(message)
         },
-        OWLManager.createOWLOntologyManager()))
+        OWLManager.createOWLOntologyManager(),
+        new CatalogResolver(catalogManager),
+        catalogManager.getCatalog))
 
 class IMCEFoundationLoadTestFromOWLAPILocalCatalog
   extends IMCEFoundationLoadTestFromOWLAPICatalog( catalogManager = new CatalogManager() ) {

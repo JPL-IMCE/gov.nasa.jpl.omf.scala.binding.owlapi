@@ -26,14 +26,14 @@ import org.apache.xml.resolver.{Catalog, CatalogManager}
 import org.apache.xml.resolver.tools.CatalogResolver
 import org.semanticweb.owlapi.annotations.HasPriority
 import org.semanticweb.owlapi.model.{IRI, OWLOntologyIRIMapper}
-
 import gov.nasa.jpl.omf.scala.core.OMFError
 
 import scala.collection.immutable.Set
-import scala.{Option,None,Some,StringContext,Unit}
-import scala.Predef.{Set=>_,Map=>_,_}
+import scala.{None, Option, Some, StringContext, Unit}
+import scala.Predef.{Map => _, Set => _, _}
 import scala.util.control.Exception._
-import scalaz._, Scalaz._
+import scalaz._
+import Scalaz._
 
 class CatalogURIMapperException
 (override val message: String,
@@ -44,27 +44,11 @@ class CatalogURIMapperException
 case class CatalogIRIMapper
 (catalogManager: CatalogManager,
  catalogResolver: CatalogResolver,
- protected var catalog: Catalog) extends OWLOntologyIRIMapper {
+ catalog: Catalog) extends OWLOntologyIRIMapper {
 
   require(null != catalogManager)
   require(null != catalogResolver)
   require(null != catalog)
-
-  def this
-  (catalogManager: CatalogManager,
-   catalogResolver: CatalogResolver) =
-    this(catalogManager, catalogResolver, catalogResolver.getCatalog)
-
-  def this
-  (catalogManager: CatalogManager) =
-    this(catalogManager, new CatalogResolver(catalogManager))
-
-  def clearCatalog(): Unit = {
-    val c = new Catalog()
-    c.setCatalogManager(catalog.getCatalogManager)
-    c.setupReaders()
-    catalog = c
-  }
 
   def parseCatalog(catalogURI: URI)
   : Set[java.lang.Throwable] \/ Unit =

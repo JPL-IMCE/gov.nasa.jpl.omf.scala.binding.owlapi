@@ -18,17 +18,19 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi
 
-import gov.nasa.jpl.imce.oml.tables.LocalName
 import gov.nasa.jpl.omf.scala.core._
 import gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader.OntologyLoadedState
 import AxiomExceptionKind._
 import AxiomScopeAccessKind._
 import EntityExceptionKind._
 import RelationshipScopeAccessKind._
+import gov.nasa.jpl.imce.oml.tables.AnnotationProperty
+import gov.nasa.jpl.omf.scala.binding.owlapi.common.{ImmutableModule, MutableModule}
+import gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.{ImmutableDescriptionBox, MutableDescriptionBox}
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms._
-import gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.{ImmutableTerminologyBox, ImmutableTerminologyGraph, MutableTerminologyBox, MutableTerminologyGraph}
+import gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.{ImmutableTerminologyBox, ImmutableTerminologyGraph, MutableBundle, MutableTerminologyGraph}
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologyAxioms.TerminologyAxiom
-import gov.nasa.jpl.omf.scala.core.OMFError
+import gov.nasa.jpl.omf.scala.core.OMFError.Throwables
 import gov.nasa.jpl.omf.scala.core.TerminologyKind
 import org.semanticweb.owlapi.model.parameters.{Imports, Navigation}
 import org.semanticweb.owlapi.model._
@@ -43,39 +45,18 @@ import Scalaz._
 package object types {
 
   type UnitNES
-  = Set[java.lang.Throwable] \/ Unit
+  = Throwables \/ Unit
 
   val rightUnitNES
   : UnitNES
   = \/-(())
 
   type NestingConceptAndGraphOptionNES
-  = Set[java.lang.Throwable] \/ Option[(Concept, ImmutableTerminologyBox)]
+  = Throwables \/ Option[(Concept, ImmutableTerminologyBox)]
 
   val emptyNestingConceptAndGraphNES
   : NestingConceptAndGraphOptionNES
   = \/-(None)
-
-  type MutableTerminologyBoxesNES
-  = Set[java.lang.Throwable] \/ Set[MutableTerminologyBox]
-
-  val emptyMutableTerminologyBoxesNES
-  : MutableTerminologyBoxesNES
-  = \/-(Set())
-
-  type ImmutableTerminologyBoxesNES
-  = Set[java.lang.Throwable] \/ Set[ImmutableTerminologyBox]
-
-  val emptyImmutableTerminologyBoxesNES
-  : ImmutableTerminologyBoxesNES
-  = \/-(Set())
-
-  type Mutable2ImmutableTerminologyMap
-  = Map[MutableTerminologyBox, ImmutableTerminologyBox]
-
-  val emptyMutable2ImmutableTerminologyMapNES
-  : Set[java.lang.Throwable] \/ types.Mutable2ImmutableTerminologyMap
-  = \/-(Map())
 
   def entityAlreadyDefinedException
   (kind: EntityExceptionKind,
@@ -116,174 +97,28 @@ package object types {
   : java.lang.Throwable
   = DuplicateTerminologyGraphAxiomException(kind, axiom)
 
-  def createOMFTerminologyGraph
-  (ont: OWLOntology,
-   relativeIRIPath: Option[String],
-   relativeIRIHashPrefix: Option[String],
-   kind: TerminologyKind,
-   extraProvenanceMetadata: Option[OTI2OMFModelTerminologyGraphProvenance])
-  (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ types.terminologies.MutableTerminologyGraph
-  = store.createOMFTerminologyGraph(
-    ont.getOntologyID.getOntologyIRI.get,
-    relativeIRIPath, relativeIRIHashPrefix, ont, kind, extraProvenanceMetadata)
-
-  def mutableModelTerminologyGraphResolver
-  (omfMetadata: Option[OWLOntology],
-   s: OntologyLoadedState,
-   ont: OWLOntology,
-   mgraphs: Set[MutableTerminologyGraph],
-   omfStore: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ (MutableTerminologyGraph, Set[MutableTerminologyGraph])
-  = {
-    implicit val ops = omfStore.ops
-
-    val ontOps = new OWLOntologyOps(ont)
-
-    val isTboxDef = ontOps.isOntologyTBoxDefinition
-    val kind =
-      if (isTboxDef)
-        TerminologyKind.isDefinition
-      else
-        TerminologyKind.isDesignation
-
-    val localName
-    : Set[java.lang.Throwable] \/ LocalName
-    = ont
-      .annotations
-      .toScala[Set]
-      .find(_.getProperty.getIRI == ops.rdfs_label)
-      .fold {
-        ops.lastSegment(ont.getOntologyID.getOntologyIRI.get)
-      } { l =>
-        l.getValue match {
-          case l: OWLLiteral =>
-            \/-(l.getLiteral)
-          case _ =>
-            -\/(Set[java.lang.Throwable](OMFError.omfBindingError(s"invalid rdfs:label on OMF terminology graph: ${ont.getOntologyID}")))
-        }
-      }
-
-    val getOntologyUUID: Option[String] =
-      ont
-        .annotations
-        .toScala[Set]
-        .find(_.getProperty.getIRI == ops.AnnotationHasUUID)
-        .flatMap(_.getValue match {
-          case l: OWLLiteral =>
-            Some(l.getLiteral)
-          case _ =>
-            None
-        })
-
-    val getOntologyRelativeIRI: Option[String] =
-      ont
-        .annotations
-        .toScala[Set]
-        .find(_.getProperty.getIRI == ops.AnnotationHasRelativeIRI)
-        .flatMap(_.getValue match {
-          case l: OWLLiteral =>
-            Some(l.getLiteral)
-          case _ =>
-            None
-        })
-
-    val getOntologyIRIHashPrefix: Option[String] =
-      ont
-        .annotations
-        .toScala[Set]
-        .find(_.getProperty.getIRI == ops.AnnotationHasIRIHashPrefix)
-        .flatMap(_.getValue match {
-          case l: OWLLiteral =>
-            Some(l.getLiteral)
-          case _ =>
-            None
-        })
-
-    val getOntologyIRIHashSuffix: Option[String] =
-      ont
-        .annotations
-        .toScala[Set]
-        .find(_.getProperty.getIRI == ops.AnnotationHasIRIHashSuffix)
-        .flatMap(_.getValue match {
-          case l: OWLLiteral =>
-            Some(l.getLiteral)
-          case _ =>
-            None
-        })
-
-    createOMFTerminologyGraph(
-        ont = ont,
-        relativeIRIPath = getOntologyRelativeIRI,
-        relativeIRIHashPrefix = getOntologyIRIHashPrefix,
-        kind = kind,
-        extraProvenanceMetadata = OTI2OMFModelTerminologyGraphProvenance.asOMFGraphOntologyProvenance(ont)
-      )(omfStore)
-      .map { g: MutableTerminologyGraph =>
-        (g, mgraphs + g)
-      }
-  }
-
   // loading mutable graphs (incl. converting extended mutable graphs => immutable graphs)
 
-  type ModelTerminologyGraphsLoadState =
-    (Set[MutableTerminologyBox], Set[MutableTerminologyBox], Mutable2ImmutableTerminologyMap)
+  type ModuleLoadState =
+    (Set[MutableModule], Set[MutableModule], Mutable2ImmutableModuleMap)
 
-  def modelTerminologyGraphsInitialState
-  (mgraphs: Set[MutableTerminologyBox])
-  : ModelTerminologyGraphsLoadState
-  = (mgraphs, Set.empty[MutableTerminologyBox], Map.empty[MutableTerminologyBox, ImmutableTerminologyGraph])
+  def moduleInitialLoadState
+  (ms: Set[MutableModule])
+  : ModuleLoadState
+  = (ms, Set.empty[MutableModule], emptyMutable2ImmutableModuleMap)
 
-  def loadMutableModelTerminologyGraphResolver
-  (omfMetadata: OWLOntology,
-   s: OntologyLoadedState,
-   mGraph: MutableTerminologyBox,
-   extIGraphs: Set[ImmutableTerminologyBox],
-   otherMGraphs: Set[MutableTerminologyBox],
-   resultMGraphs: Set[MutableTerminologyBox],
-   m2i: Mutable2ImmutableTerminologyMap,
-   omfStore: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ ModelTerminologyGraphsLoadState
-  = {
-    implicit val ops = omfStore.ops
-    for {
-      _ <- extIGraphs.foldLeft {
-        ().right[Set[java.lang.Throwable]]
-      } { (acc: Set[java.lang.Throwable] \/ Unit,
-           extIGraph: ImmutableTerminologyBox) =>
-
-        acc.flatMap { _ =>
-          mGraph
-            .createTerminologyExtensionAxiom(extendedG = extIGraph)(omfStore)
-            .map(_ => ())
-        }
-      }
-
-      result = (otherMGraphs, resultMGraphs, m2i)
-    } yield result
-  }
-
-  def immutableModelTerminologyGraphResolver
+  def immutableModuleResolver
   (omfMetadata: Option[OWLOntology],
    s: OntologyLoadedState,
    ont: OWLOntology,
-   as: Seq[OWLAnnotation],
-   extensions: Set[ImmutableTerminologyBox],
+   as: Set[AnnotationProperty],
+   extensions: Set[ImmutableModule],
    nesting: Option[(Concept, ImmutableTerminologyBox)],
-   m2i: Mutable2ImmutableTerminologyMap,
+   om: OntologyMapping,
    omfStore: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ ImmutableModelTerminologyGraphResolver
+  : Throwables \/ ImmutableResolver
   = {
     implicit val ops = omfStore.ops
-
-    val ontOps = new OWLOntologyOps(ont)
-
-    val isTboxDef = ontOps.isOntologyTBoxDefinition
-    val kind =
-      if (isTboxDef)
-        TerminologyKind.isDefinition
-      else
-        TerminologyKind.isDesignation
 
     val getOntologyUUID: Option[String] =
       ont
@@ -333,46 +168,160 @@ package object types {
             None
         })
 
-    createOMFTerminologyGraph(
-        ont = ont,
-        relativeIRIPath=getOntologyRelativeIRI,
-        relativeIRIHashPrefix=getOntologyIRIHashPrefix,
-        kind = kind,
-        extraProvenanceMetadata = OTI2OMFModelTerminologyGraphProvenance.asOMFGraphOntologyProvenance(ont)
-      )(omfStore)
-      .flatMap { g: MutableTerminologyGraph =>
+    val ontOps = new OWLOntologyOps(ont)
 
-        for {
-          _ <- as.foldLeft[types.UnitNES](types.rightUnitNES) { case (acc, a) =>
+    if (ontOps.isBundleOntology) {
+      // Bundle
+      val isOpen = ontOps.isOpenWorldDefinitionTerminologyBoxOntology
+      val kind =
+        if (isOpen)
+          TerminologyKind.isDefinition
+        else
+          TerminologyKind.isDesignation
+
+      omfStore.createOMFBundle(
+        ont.getOntologyID.getOntologyIRI.get,
+        relativeIRIPath = getOntologyRelativeIRI,
+        relativeIRIHashPrefix = getOntologyIRIHashPrefix,
+        ont, kind,
+        extraProvenanceMetadata = OTI2OMFModelTerminologyGraphProvenance.asOMFGraphOntologyProvenance(ont))
+        .flatMap { g: MutableBundle =>
+
+          for {
+
+            _ <- getRelevantOntologyAnnotations(ont).foldLeft(types.rightUnitNES) { case (acc, a) =>
               for {
                 _ <- acc
-                _ <- omfStore.ops.addAnnotation(g, g, a)(omfStore)
+                av <- getAnnotationValueFromOWLAnnotation(a.getValue)
+                ap = getAnnotationPropertyFromOWLAnnotation(a)
+                _ <- g.addAnnotation(g, ap, av)(omfStore)
               } yield ()
-          }
+            }
 
-          _ <- extensions.foldLeft[types.UnitNES](types.rightUnitNES) { case (acc, importG) =>
-               for {
-                 _ <- acc
-               _ <- g.createTerminologyExtensionAxiom(extendedG=importG)(omfStore)
-            } yield ()
-          }
+            tboxExtensions <- extensions.foldLeft(Set.empty[ImmutableTerminologyBox].right[Throwables]) {
+              case (acc, importG: ImmutableTerminologyGraph) =>
+                for {
+                  next <- acc
+                  _ <- g.createTerminologyExtensionAxiom(extendedG = importG)(omfStore)
+                } yield next + importG
+              case (_, importG) =>
+                Set[java.lang.Throwable](OMFError.omfError(
+                  s"Create TerminologyGraph(${g.iri} cannot extend a non-terminology graph module: ${importG.iri}"
+                )).left[Set[ImmutableTerminologyBox]]
+            }
 
-          _ <- nesting.fold[types.UnitNES](types.rightUnitNES){ case (nestingC, nestingG) =>
-            g
-              .createTerminologyNestingAxiom(parentG=nestingG, parentC=nestingC)(omfStore)
-              .map(_ => ())
-          }
+            resolver = TerminologyBoxResolverHelper(omfMetadata, g, tboxExtensions, ont, omfStore, om)
+          } yield
+            ImmutableTerminologyBoxResolver(resolver)
+        }
+    } else if (ontOps.isDescriptionBoxOntology) {
+      // DescriptionBox
+      val isPartial = ontOps.isFinalDescriptionBoxOntology
+      val kind = if (isPartial)
+        DescriptionKind.isPartial
+      else
+        DescriptionKind.isFinal
 
-          resolver = ResolverHelper(omfMetadata, g, extensions, ont, omfStore, m2i)
-        } yield
-          ImmutableModelTerminologyGraphResolver(resolver)
-      }
+      omfStore.createOMFDescriptionBox(
+        ont.getOntologyID.getOntologyIRI.get,
+        relativeIRIPath = getOntologyRelativeIRI,
+        relativeIRIHashPrefix = getOntologyIRIHashPrefix,
+        ont, kind)
+        .flatMap { g: MutableDescriptionBox =>
+
+          for {
+
+            _ <- getRelevantOntologyAnnotations(ont).foldLeft(types.rightUnitNES) { case (acc, a) =>
+              for {
+                _ <- acc
+                av <- getAnnotationValueFromOWLAnnotation(a.getValue)
+                ap = getAnnotationPropertyFromOWLAnnotation(a)
+                _ <- g.addAnnotation(g, ap, av)(omfStore)
+              } yield ()
+            }
+
+            tboxImports <- extensions.foldLeft{
+              Set.empty[ImmutableTerminologyBox].right[Throwables]
+            } {
+              case (acc, importG: ImmutableTerminologyBox) =>
+                // ClosedWorld...
+                for {
+                  next <- acc
+                } yield next + importG
+              case (acc, _) =>
+                // DescriptionBoxRefinement
+                acc
+            }
+
+            dboxImports <- extensions.foldLeft{
+              Set.empty[ImmutableDescriptionBox].right[Throwables]
+            } {
+              case (acc, importG: ImmutableDescriptionBox) =>
+                // DescriptionBoxRefinement
+                for {
+                  next <- acc
+                } yield next + importG
+              case (acc, _) =>
+                // ClosedWorld...
+                acc
+            }
+
+            resolver = DescriptionBoxResolverHelper(g, tboxImports, dboxImports, ont, omfStore, om)
+          } yield
+            ImmutableDescriptionBoxResolver(resolver)
+        }
+    } else {
+      // TerminologyGraph
+      val isOpen = ontOps.isOpenWorldDefinitionTerminologyBoxOntology
+      val kind =
+        if (isOpen)
+          TerminologyKind.isDefinition
+        else
+          TerminologyKind.isDesignation
+
+      omfStore.createOMFTerminologyGraph(
+        ont.getOntologyID.getOntologyIRI.get,
+        relativeIRIPath = getOntologyRelativeIRI,
+        relativeIRIHashPrefix = getOntologyIRIHashPrefix,
+        ont, kind,
+        extraProvenanceMetadata = OTI2OMFModelTerminologyGraphProvenance.asOMFGraphOntologyProvenance(ont))
+        .flatMap { g: MutableTerminologyGraph =>
+
+          for {
+
+            _ <- getRelevantOntologyAnnotations(ont).foldLeft(types.rightUnitNES) { case (acc, a) =>
+              for {
+                _ <- acc
+                av <- getAnnotationValueFromOWLAnnotation(a.getValue)
+                ap = getAnnotationPropertyFromOWLAnnotation(a)
+                _ <- g.addAnnotation(g, ap, av)(omfStore)
+              } yield ()
+            }
+
+            tboxExtensions <- extensions.foldLeft(Set.empty[ImmutableTerminologyBox].right[Throwables]) {
+              case (acc, importG: ImmutableTerminologyGraph) =>
+                for {
+                  next <- acc
+                  _ <- g.createTerminologyExtensionAxiom(extendedG = importG)(omfStore)
+                } yield next + importG
+              case (_, importG) =>
+                Set[java.lang.Throwable](OMFError.omfError(
+                  s"Create TerminologyGraph(${g.iri} cannot extend a non-terminology graph module: ${importG.iri}"
+                )).left[Set[ImmutableTerminologyBox]]
+            }
+
+            _ <- nesting.fold[types.UnitNES](types.rightUnitNES) { case (nestingC, nestingG) =>
+              g
+                .createTerminologyNestingAxiom(parentG = nestingG, parentC = nestingC)(omfStore)
+                .map(_ => ())
+            }
+
+            resolver = TerminologyBoxResolverHelper(omfMetadata, g, tboxExtensions, ont, omfStore, om)
+          } yield
+            ImmutableTerminologyBoxResolver(resolver)
+        }
+    }
   }
-
-  type ImmutableTerminologyConversionMap =
-    (ImmutableTerminologyBox, Mutable2ImmutableTerminologyMap)
-
-  type ModelTerminologyGraphsConversionState = (Set[MutableTerminologyGraph], Mutable2ImmutableTerminologyMap)
 
   implicit def OWLClass2ModelEntityDefinitionSemigroup
   : Semigroup[Map[OWLClass, Entity]]

@@ -20,10 +20,11 @@ package gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologyAxioms
 
 import java.util.UUID
 
+import gov.nasa.jpl.omf.scala.binding.owlapi.common.Module
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Concept
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox
 
-import scala.{Any,Boolean,Int}
+import scala.{Any, Boolean, Int}
 import scala.Predef.require
 
 /**
@@ -34,6 +35,7 @@ import scala.Predef.require
   */
 case class TerminologyNestingAxiom
 (override val uuid: UUID,
+ nestedTerminology: UUID,
  nestingTerminology: TerminologyBox,
  nestingContext: Concept)
 extends TerminologyBoxAxiom {
@@ -47,14 +49,18 @@ extends TerminologyBoxAxiom {
     case _ => false
   }
 
-  override val hashCode: Int = (uuid, nestingContext).##
+  override val hashCode: Int = (uuid, nestedTerminology, nestingContext).##
 
   override def equals(other: Any): Boolean = other match {
     case that: TerminologyNestingAxiom =>
       (that canEqual this) &&
         (this.uuid == that.uuid) &&
+        (this.nestedTerminology == that.nestedTerminology) &&
         (this.nestingContext == that.nestingContext)
     case _ =>
       false
   }
+
+  override val sourceModule: UUID = nestedTerminology
+  override val targetModule: Module = nestingTerminology
 }

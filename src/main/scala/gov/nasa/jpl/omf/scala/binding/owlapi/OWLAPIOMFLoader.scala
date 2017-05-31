@@ -19,7 +19,7 @@
 package gov.nasa.jpl.omf.scala.binding.owlapi
 
 import gov.nasa.jpl.omf.scala.binding.owlapi.BackboneDeclaractions.BackboneDeclaractions
-import gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyGraph
+import gov.nasa.jpl.omf.scala.core.OMFError.Throwables
 import gov.nasa.jpl.omf.scala.core._
 import org.semanticweb.owlapi.model._
 import org.semanticweb.owlapi.model.parameters.Imports
@@ -100,20 +100,20 @@ object OWLAPIOMFLoader {
   : Set[IRI]
   = ont.directImportsDocuments.toScala[Set]
 
-  case class ExtendingOntologyToExtendedGraphIRI
-  (extendingG: IRI,
-   extendedG: IRI)
+  case class ExtendingOntologyToExtendedModuleIRI
+  (extending: IRI,
+   extended: IRI)
 
-  def getOntologyDirectlyExtendedGraphs
+  def getOntologyDirectlyExtendedModules
   (ont: OWLOntology,
    ontIRI: IRI)
-  : Set[ExtendingOntologyToExtendedGraphIRI]
+  : Set[ExtendingOntologyToExtendedModuleIRI]
   = getOntologyDirectlyImportedDocuments(ont)
-    .map(iri => ExtendingOntologyToExtendedGraphIRI(extendingG = ontIRI, extendedG = iri))
+    .map(iri => ExtendingOntologyToExtendedModuleIRI(extending = ontIRI, extended = iri))
 
   case class OntologyLoadedState
   (ontologies: Map[IRI, OWLOntology],
-   extensions: Set[ExtendingOntologyToExtendedGraphIRI],
+   extensions: Set[ExtendingOntologyToExtendedModuleIRI],
    nested2context: Set[NestedOntologyToNestingContextIRI]) {}
 
   object OntologyLoadedState {
@@ -121,7 +121,7 @@ object OWLAPIOMFLoader {
     def loadAllOntologies
     (iri: IRI)
     (implicit ops: OWLAPIOMFOps, store: OWLAPIOMFGraphStore)
-    : Set[java.lang.Throwable] \/ OntologyLoadedState
+    : Throwables \/ OntologyLoadedState
     = Internal.loadOntologiesRecursively(
       Internal.OntologyLoaderState(
         ontologies = Map(),
@@ -133,7 +133,7 @@ object OWLAPIOMFLoader {
 
       case class OntologyLoaderState
       (ontologies: Map[IRI, OWLOntology],
-       extensions: Set[ExtendingOntologyToExtendedGraphIRI],
+       extensions: Set[ExtendingOntologyToExtendedModuleIRI],
        nested2context: Set[NestedOntologyToNestingContextIRI],
        queue: Set[IRI]) {}
 
@@ -141,7 +141,7 @@ object OWLAPIOMFLoader {
       def loadOntologiesRecursively
       (s: OntologyLoaderState)
       (implicit ops: OWLAPIOMFOps, store: OWLAPIOMFGraphStore)
-      : Set[java.lang.Throwable] \/ OntologyLoadedState
+      : Throwables \/ OntologyLoadedState
       = if (s.queue.isEmpty)
           OntologyLoadedState(
             ontologies = s.ontologies,
@@ -159,11 +159,11 @@ object OWLAPIOMFLoader {
       (s: OntologyLoaderState,
        iri: IRI)
       (implicit ops: OWLAPIOMFOps, store: OWLAPIOMFGraphStore)
-      : Set[java.lang.Throwable] \/ OntologyLoaderState
+      : Throwables \/ OntologyLoaderState
       = s
         .ontologies
         .get(iri)
-        .fold[Set[java.lang.Throwable] \/ OntologyLoaderState]({
+        .fold[Throwables \/ OntologyLoaderState]({
         nonFatalCatch[OntologyLoaderState]
           .withApply {
             cause: java.lang.Throwable =>
@@ -179,13 +179,13 @@ object OWLAPIOMFLoader {
                 store.ontManager.loadOntology(iri)
             assert(null != ont)
 
-            val es = getOntologyDirectlyExtendedGraphs(ont, iri)
+            val es = getOntologyDirectlyExtendedModules(ont, iri)
             val nc = getNestedOntologyToNestingContextIRIIfAny(ont, iri)
 
             // in principle, we should exclude the known ontology IRIs
             // i.e., -- s.ontologies.keySet
             // but this would be more expensive than tail recursive calls
-            val newIRIs = es.map(_.extendedG)
+            val newIRIs = es.map(_.extended)
 
             \/-(OntologyLoaderState(
               s.ontologies + (iri -> ont),
@@ -231,34 +231,39 @@ object OWLAPIOMFLoader {
     * to an ImmutableGraph so that it can be added to its nesting parent MutableGraph.
     *
     * @param iri
+    * @param m2i
+    * @param drc
     * @param ops
     * @param store
     * @return
     */
-  def loadTerminologyGraph
+  def loadModule
   (iri: IRI,
-   currentM2I: types.Mutable2ImmutableTerminologyMap)
+   m2i: Mutable2ImmutableModuleMap,
+   drc: BuiltInDatatypeMap)
   (implicit ops: OWLAPIOMFOps, store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ (ImmutableTerminologyGraph, types.Mutable2ImmutableTerminologyMap)
-  = OntologyLoadedState
-    .loadAllOntologies(iri)
-    .flatMap { s =>
+  : Throwables \/ ImmutableModuleConversionMap
+  = {
+    implicit val graphConfig = CoreConfig(orderHint = 5000, Hints(64, 0, 64, 75))
 
-      implicit val graphConfig = CoreConfig(orderHint = 5000, Hints(64, 0, 64, 75))
+    for {
+      s <- OntologyLoadedState.loadAllOntologies(iri)
+      om = OntologyMapping.initialize(m2i, drc)
 
       // Add nodes for every OMF document ontology document IRI loaded.
-      val g0: OMFDocumentGraph = Graph[IRI, DiEdge](s.ontologies.keys.toSeq: _*)
+      g0 = Graph[IRI, DiEdge](s.ontologies.keys.toSeq: _*)
 
       // Add edges for every OMF document extension relationship
-      val g1: OMFDocumentGraph = (g0 /: s.extensions) { (gi, e) =>
+      g1 = (g0 /: s.extensions) { (gi, e) =>
 
         // load the extended parent graph before the extending child graph
         // because terms in the extending child graph can reference
         // terms in scope of the extended parent graph
-        gi + e.extendedG ~> e.extendingG
+        gi + e.extended ~> e.extending
 
       }
 
+      resultPair <-
       g1
         .topologicalSort()
         .fold(
@@ -274,79 +279,77 @@ object OWLAPIOMFLoader {
             val nonBuiltinDatatypeMapRoots = g1
               .degreeNodeSeq(
                 nodeDegree = g1.InDegree,
-                degreeFilter = {_ == 0})
+                degreeFilter = {
+                  _ == 0
+                })
               .map(_._2.value)
-              .filterNot(store.isBuiltinDatatypeMap)
+              .filter(store.isBuiltinDatatypeMap(_).isEmpty)
               .to[Set]
 
-            loadTerminologyGraphs(lorder, s, nonBuiltinDatatypeMapRoots, currentM2I).flatMap { m2i =>
-              store.lookupTerminology(iri) match {
-                case Some(ig: ImmutableTerminologyGraph) =>
-                  \/-((ig, m2i))
-                case other =>
-                  -\/(Set(OMFError.omfError(
-                    s"BUG: There should have been an OMF graph for $iri, instead got $other")))
+            loadModules(lorder, s, nonBuiltinDatatypeMapRoots, om).flatMap { loadedOM =>
+              loadedOM.m2i.lookupValue(iri) match {
+                case Some(im) =>
+                  (im -> loadedOM).right
+                case _ =>
+                  Set(OMFError.omfError(
+                    s"BUG: There should have been an OML Module for $iri")).left
               }
             }
           }
         )
-    }
 
-  def loadTerminologyGraphs
+      (i, resultOM) = resultPair
+
+    } yield i -> resultOM.m2i
+  }
+
+  def loadModules
   (queue: OMFDocumentTopologicalOrder,
    s: OntologyLoadedState,
    nonBuiltinDatatypeMapRoots: Set[IRI],
-   currentM2I: types.Mutable2ImmutableTerminologyMap)
+   currentM2I: OntologyMapping)
   (implicit ops: OWLAPIOMFOps, store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ types.Mutable2ImmutableTerminologyMap
+  : Throwables \/ OntologyMapping
   = queue
     .toLayered
-    .foldLeft[Set[java.lang.Throwable] \/ types.Mutable2ImmutableTerminologyMap]{
+    .foldLeft[Throwables \/ OntologyMapping]{
     currentM2I.right
   } {
-    loadTerminologyGraphLayer(s,nonBuiltinDatatypeMapRoots)
+    loadModuleLayer(s,nonBuiltinDatatypeMapRoots)
   }
 
-  def loadTerminologyGraphLayer
+  def loadModuleLayer
   (s: OntologyLoadedState,
    nonBuiltinDatatypeMapRoots: Set[IRI])
-  (acc: Set[java.lang.Throwable] \/ types.Mutable2ImmutableTerminologyMap,
+  (acc: Throwables \/ OntologyMapping,
    layer: (Int, scala.collection.Iterable[OMFDocumentNode]))
   (implicit ops: OWLAPIOMFOps, store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ types.Mutable2ImmutableTerminologyMap
+  : Throwables \/ OntologyMapping
   = layer
       ._2
       .foldLeft {
       acc
     } {
-        loadTerminologyGraphFromOntologyDocument(s,nonBuiltinDatatypeMapRoots)
+        loadModuleFromOntologyDocument(s,nonBuiltinDatatypeMapRoots)
       }
 
-  def loadTerminologyGraphFromOntologyDocument
+  def loadModuleFromOntologyDocument
   (s: OntologyLoadedState,
    nonBuiltinDatatypeMapRoots: Set[IRI])
-  (acc: Set[java.lang.Throwable] \/ types.Mutable2ImmutableTerminologyMap,
+  (acc: Throwables \/ OntologyMapping,
    node: OMFDocumentNode)
   (implicit ops: OWLAPIOMFOps, store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ types.Mutable2ImmutableTerminologyMap
-  = acc.flatMap { m2i =>
+  : Throwables \/ OntologyMapping
+  = acc.flatMap { om =>
     val ontIRI = node.value
     assert(s.ontologies.contains(ontIRI))
     val ont = s.ontologies(ontIRI)
 
-    val builtInImport
-    = if (nonBuiltinDatatypeMapRoots.contains(ontIRI))
-      Some(store.getBuiltinDatatypeMapTerminologyGraph)
-    else
-      None
-
-    store
-      .lookupTerminology(ontIRI)
-      .fold[Set[java.lang.Throwable] \/ types.Mutable2ImmutableTerminologyMap] {
-      val next = store.convertTerminologyGraphFromOntologyDocument(s, m2i, ontIRI, ont, builtInImport)
-      next
-    } { _ =>
-      \/-(m2i)
+    if (om.ont2i.contains(ont))
+      om.right
+    else {
+      val result = store.convertModuleFromOntologyDocument(s, om, ontIRI, ont)
+      result
     }
   }
 

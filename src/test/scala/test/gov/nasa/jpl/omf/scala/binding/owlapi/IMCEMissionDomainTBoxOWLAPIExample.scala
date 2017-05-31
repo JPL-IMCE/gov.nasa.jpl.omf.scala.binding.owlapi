@@ -22,21 +22,28 @@ import gov.nasa.jpl.omf.scala.binding.owlapi._
 import org.apache.xml.resolver.CatalogManager
 import org.semanticweb.owlapi.apibinding.OWLManager
 import test.gov.nasa.jpl.omf.scala.core.{functionalAPI => testFunctionalAPI}
-import scala.{transient,Option,StringContext,Unit}
+
+import scala.{Option, StringContext, Unit, transient}
 import scala.Predef._
 import java.lang.IllegalArgumentException
+
+import org.apache.xml.resolver.tools.CatalogResolver
+
+import scala.collection.immutable.Set
 
 abstract class IMCEMissionDomainTBoxOWLAPIExample(override val store: OWLAPIOMFGraphStore)
   extends testFunctionalAPI.IMCEMissionDomainTBoxExample[OWLAPIOMF]()(store.omfModule.ops, store)
 
 abstract class IMCEMissionDomainTBoxOWLAPIExampleCatalogTest(@transient val catalogManager: CatalogManager)
   extends IMCEMissionDomainTBoxOWLAPIExample(
-    store = OWLAPIOMFGraphStore(
+    store = OWLAPIOMFGraphStore.initGraphStore(
       OWLAPIOMFModule.owlAPIOMFModule(catalogManager).valueOr { (errors: Set[java.lang.Throwable]) =>
         val message = s"${errors.size} errors" + errors.map(_.getMessage).toList.mkString("\n => ","\n => ","\n")
         throw new scala.IllegalArgumentException(message)
       },
-      OWLManager.createOWLOntologyManager()))
+      OWLManager.createOWLOntologyManager(),
+      new CatalogResolver(catalogManager),
+      catalogManager.getCatalog))
 
 class IMCEMissionDomainTBoxOWLAPIExampleLocalCatalog
   extends IMCEMissionDomainTBoxOWLAPIExampleCatalogTest(catalogManager = new CatalogManager()) {

@@ -1,0 +1,1 @@
+gov.nasa.jpl.omf.scala.binding.owlapi 6.0.0 is a major refactoring to align the OWLAPI binding of OMF API to the OML metamodels.

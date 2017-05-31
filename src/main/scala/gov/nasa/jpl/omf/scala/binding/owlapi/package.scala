@@ -20,9 +20,13 @@ package gov.nasa.jpl.omf.scala.binding
 
 import java.nio.file.Path
 
-import gov.nasa.jpl.imce.oml.tables.{AnnotationProperty,UUID}
-import gov.nasa.jpl.omf.scala.core.{generateUUID,OMFError}
-import org.apache.xml.resolver.CatalogManager
+import gov.nasa.jpl.imce.oml.tables.{AnnotationProperty, UUID}
+import gov.nasa.jpl.omf.scala.binding.owlapi.common.{ImmutableModule, MutableModule}
+import gov.nasa.jpl.omf.scala.core.OMFError.Throwables
+import gov.nasa.jpl.omf.scala.core.builtin.BuiltInDatatypeMaps
+import gov.nasa.jpl.omf.scala.core.{Mutable2ImmutableModuleTable, OMFError, generateUUID}
+import org.apache.xml.resolver.{Catalog, CatalogManager}
+import org.apache.xml.resolver.tools.CatalogResolver
 import org.semanticweb.owlapi.apibinding.OWLManager
 import org.semanticweb.owlapi.model.parameters.ChangeApplied
 import org.semanticweb.owlapi.model._
@@ -36,6 +40,32 @@ import Scalaz._
 
 package object owlapi {
 
+  type BuiltInDatatypeMap
+  = BuiltInDatatypeMaps.DataRangeCategories[OWLAPIOMF]
+
+  type Mutable2ImmutableModuleMap
+  = Mutable2ImmutableModuleTable[OWLAPIOMF]
+
+  val emptyMutable2ImmutableModuleMap
+  : Mutable2ImmutableModuleMap
+  = Mutable2ImmutableModuleTable.empty[OWLAPIOMF]
+
+  type ImmutableModuleConversionMap =
+    (ImmutableModule, Mutable2ImmutableModuleMap)
+
+  type MutableModulesNES
+  = Throwables \/ Set[MutableModule]
+
+  val emptyMutableModulesNES
+  : MutableModulesNES
+  = \/-(Set())
+
+  type ImmutableModulesNES
+  = Throwables \/ Set[ImmutableModule]
+
+  val emptyImmutableModulesNES
+  : ImmutableModulesNES
+  = \/-(Set())
 
   def catalogURIMapperException
   (message: String,
@@ -54,15 +84,15 @@ package object owlapi {
    ontChange: OWLOntologyChange,
    ifError: String,
    ifSuccess: Option[() => Unit] = None)
-  : Set[java.lang.Throwable] \/ Unit
+  : Throwables \/ Unit
   = ontManager.applyChange(ontChange) match {
     case ChangeApplied.SUCCESSFULLY =>
       ifSuccess
-      .fold[Set[java.lang.Throwable] \/ Unit](
+      .fold[Throwables \/ Unit](
         \/-(())
       ){ callback =>
         \/.fromTryCatchNonFatal[Unit](callback())
-        .fold[Set[java.lang.Throwable] \/ Unit](
+        .fold[Throwables \/ Unit](
         l = (t: java.lang.Throwable) =>
           -\/(
             Set(OMFError.omfBindingException(ifError, t))
@@ -86,8 +116,8 @@ package object owlapi {
    ontChanges: Seq[OWLOntologyChange],
    ifError: => String,
    ifSuccess: => Option[() => Unit] = None)
-  : Set[java.lang.Throwable] \/ Unit
-  = ontChanges.foldLeft[Set[java.lang.Throwable] \/ Unit](\/-(())) { case (acc, ontChange) =>
+  : Throwables \/ Unit
+  = ontChanges.foldLeft[Throwables \/ Unit](\/-(())) { case (acc, ontChange) =>
     acc.flatMap { _ =>
       applyOntologyChange(ontManager, ontChange, ifError, ifSuccess)
     }
@@ -98,15 +128,15 @@ package object owlapi {
    ontChange: OWLOntologyChange,
    ifError: => String,
    ifSuccess: => Option[() => Unit] = None)
-  : Set[java.lang.Throwable] \/ Unit
+  : Throwables \/ Unit
   = ontManager.applyChange(ontChange) match {
       case ChangeApplied.SUCCESSFULLY | ChangeApplied.NO_OPERATION =>
         ifSuccess
-          .fold[Set[java.lang.Throwable] \/ Unit](
+          .fold[Throwables \/ Unit](
           \/-(())
         ){ callback =>
           \/.fromTryCatchNonFatal[Unit](callback())
-            .fold[Set[java.lang.Throwable] \/ Unit](
+            .fold[Throwables \/ Unit](
             l = (t: java.lang.Throwable) =>
               -\/(
                 Set(OMFError.omfBindingException(ifError, t))
@@ -126,8 +156,8 @@ package object owlapi {
    ontChanges: Seq[OWLOntologyChange],
    ifError: => String,
    ifSuccess: => Option[() => Unit] = None)
-  : Set[java.lang.Throwable] \/ Unit
-  = ontChanges.foldLeft[Set[java.lang.Throwable] \/ Unit](\/-(())) { case (acc, ontChange) =>
+  : Throwables \/ Unit
+  = ontChanges.foldLeft[Throwables \/ Unit](\/-(())) { case (acc, ontChange) =>
       acc.flatMap { _ =>
         applyOntologyChangeOrNoOp(ontManager, ontChange, ifError, ifSuccess)
       }
@@ -143,17 +173,21 @@ package object owlapi {
     .toScala[Set]
     .find( _.getProperty.getIRI == annotationProperty )
 
-  def createOMFGraphStore()
-  : Set[java.lang.Throwable] \/ OWLAPIOMFGraphStore
+  def createOMFGraphStore
+  (catalogManager: CatalogManager,
+   catalogResolver: CatalogResolver,
+   catalog: Catalog,
+   ontManager: OWLOntologyManager = OWLManager.createOWLOntologyManager())
+  : Throwables \/ OWLAPIOMFGraphStore
   = for {
-    module <- OWLAPIOMFModule.owlAPIOMFModule(new CatalogManager())
-    store = OWLAPIOMFGraphStore(module, OWLManager.createOWLOntologyManager())
+    module <- OWLAPIOMFModule.owlAPIOMFModule(catalogManager)
+    store = OWLAPIOMFGraphStore.initGraphStore(module, ontManager, catalogResolver, catalog)
   } yield store
 
   def loadCatalog(s: OWLAPIOMFGraphStore, cls: java.lang.Class[_], catalogPath: String)
-  : Set[java.lang.Throwable] \/ Unit
+  : Throwables \/ Unit
   = Option.apply(cls.getResource(catalogPath))
-    .fold[Set[java.lang.Throwable] \/ Unit] {
+    .fold[Throwables \/ Unit] {
     Set[java.lang.Throwable](new java.lang.IllegalArgumentException(
       s"Catalog '$catalogPath' not found on the classpath of ${cls.getName}")).left
   } { url =>
@@ -161,7 +195,7 @@ package object owlapi {
   }
 
   def loadCatalog(s: OWLAPIOMFGraphStore, file: Path)
-  : Set[java.lang.Throwable] \/ Unit
+  : Throwables \/ Unit
   = s.catalogIRIMapper.parseCatalog(file.toUri)
 
   def getAnnotationPropertyUUIDfromOWLAnnotation
@@ -176,6 +210,20 @@ package object owlapi {
     getAnnotationPropertyUUIDfromOWLAnnotation(a),
     a.getProperty.getIRI.getIRIString,
     a.getProperty.getIRI.getShortForm)
+
+  def getAnnotationValueFromOWLAnnotation
+  (av: OWLAnnotationValue)
+  : Throwables \/ String
+  = av match {
+    case i: OWLAnonymousIndividual =>
+      Set[java.lang.Throwable](OMFError.omfError(
+        s"getAnnotationValueFromOWLAnnotation: an anonymous individual cannot be the value of an annotation in OML"
+      )).left
+    case i: IRI =>
+      i.getIRIString.right
+    case l: OWLLiteral =>
+      l.getLiteral.right
+  }
 
   def getRelevantOntologyAnnotations
   (ont: OWLOntology)

@@ -18,6 +18,7 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.types
 
+import gov.nasa.jpl.omf.scala.binding.owlapi.common.Resource
 import org.semanticweb.owlapi.model.OWLNamedObject
 
 import scala.{Any, Boolean}
@@ -37,4 +38,5 @@ trait Term extends Resource with TerminologyBoxStatement {
     case _: Term => true
     case _ => false
   }
+
 }

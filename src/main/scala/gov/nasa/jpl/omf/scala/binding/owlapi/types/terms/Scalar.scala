@@ -20,13 +20,14 @@ package gov.nasa.jpl.omf.scala.binding.owlapi.types.terms
 
 import java.util.UUID
 
-import gov.nasa.jpl.imce.oml.tables.LocalName
-import org.semanticweb.owlapi.model.OWLDatatype
+import gov.nasa.jpl.omf.scala.core.OMLString.LocalName
+import org.semanticweb.owlapi.model.{IRI, OWLDatatype}
 
-import scala.{Any,Boolean,Int}
+import scala.{Any, Boolean, Int}
 
 case class Scalar
 (override val e: OWLDatatype,
+ override val iri: IRI,
  override val name: LocalName,
  override val uuid: UUID)
   extends DataRange {

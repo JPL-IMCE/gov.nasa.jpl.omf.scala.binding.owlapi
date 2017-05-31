@@ -18,9 +18,11 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.types
 
+import gov.nasa.jpl.omf.scala.binding.owlapi.common.ModuleElement
+
 import scala.{Any, Boolean}
 
-trait TerminologyBoxStatement extends TerminologyStatement {
+trait TerminologyBoxStatement extends ModuleElement {
 
   override def canEqual(other: Any)
   : Boolean

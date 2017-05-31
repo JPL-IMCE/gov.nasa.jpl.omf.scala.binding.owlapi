@@ -18,7 +18,7 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies
 
-import scala.{Any,Boolean}
+import scala.{Any, Boolean}
 
 trait Bundle extends TerminologyBox {
 

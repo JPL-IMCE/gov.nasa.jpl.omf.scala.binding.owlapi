@@ -1,13 +1,33 @@
+/*
+ * Copyright 2015 California Institute of Technology ("Caltech").
+ * U.S. Government sponsorship acknowledged.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * License Terms
+ */
+
 package gov.nasa.jpl.omf.scala.binding.owlapi
 
 import java.lang.System
 import java.util.UUID
 
+import gov.nasa.jpl.omf.scala.binding.owlapi.common.{ImmutableModule, Module}
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.termAxioms._
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies._
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologyAxioms.{BundledTerminologyAxiom, ConceptDesignationTerminologyAxiom, TerminologyExtensionAxiom, TerminologyNestingAxiom}
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms._
 import gov.nasa.jpl.omf.scala.core.{OMFError, TerminologyKind}
+import gov.nasa.jpl.omf.scala.core.OMLString.LocalName
 import org.semanticweb.owlapi.model._
 import org.semanticweb.owlapi.model.parameters.Imports
 
@@ -180,8 +200,8 @@ abstract class OWLAPIOMFGraphStoreMetadata(omfModule: OWLAPIOMFModule, ontManage
 
   lazy val OMF_MODEL_TERMINOLOGY_GRAPH =
     omfModelClasses("ModelTerminologyGraph")
-  protected val OMF_MODEL_TERMINOLOGY_GRAPH2Instance =
-    scala.collection.mutable.HashMap[TerminologyBox, OWLNamedIndividual]()
+  protected val omfModule2Instance =
+    scala.collection.mutable.HashMap[Module, OWLNamedIndividual]()
 
   // ModelTypeTerm
   // ModelDataRelationship
@@ -410,12 +430,11 @@ abstract class OWLAPIOMFGraphStoreMetadata(omfModule: OWLAPIOMFModule, ontManage
       }
   }
 
-  // @todo report errors if the graph isn't there...
-  def getModelTerminologyGraphRelativeIRIPath
-  (g: TerminologyBox)
+  def getModuleRelativeIRIPath
+  (m: Module)
   : Option[String]
   = omfMetadata.fold[Option[String]](None) { mo =>
-    val i_g = OMF_MODEL_TERMINOLOGY_GRAPH2Instance(g)
+    val i_g = omfModule2Instance(m)
     val i_dataValues: Set[OWLDataPropertyAssertionAxiom] =
       mo.dataPropertyAssertionAxioms(i_g).toScala[Set]
 
@@ -431,12 +450,11 @@ abstract class OWLAPIOMFGraphStoreMetadata(omfModule: OWLAPIOMFModule, ontManage
     i_g_relativePath_dataValue.map(_.getObject.getLiteral)
   }
 
-  // @todo report errors if the graph isn't there...
-  def getModelTerminologyGraphIRIHashPrefix
-  (g: TerminologyBox)
+  def getModuleIRIHashPrefix
+  (m: Module)
   : Option[String]
   = omfMetadata.fold[Option[String]](None) { mo =>
-    val i_g = OMF_MODEL_TERMINOLOGY_GRAPH2Instance(g)
+    val i_g = omfModule2Instance(m)
     val i_dataValues: Set[OWLDataPropertyAssertionAxiom] =
       mo.dataPropertyAssertionAxioms(i_g).toScala[Set]
 
@@ -452,12 +470,11 @@ abstract class OWLAPIOMFGraphStoreMetadata(omfModule: OWLAPIOMFModule, ontManage
     i_g_iriHashPrefix_dataValue.map(_.getObject.getLiteral)
   }
 
-  // @todo report errors if the graph isn't there...
-  def getModelTerminologyGraphIRIHashSuffix
-  (g: TerminologyBox)
+  def getModuleIRIHashSuffix
+  (m: Module)
   : Option[String]
   = omfMetadata.fold[Option[String]](None) { mo =>
-    val i_g = OMF_MODEL_TERMINOLOGY_GRAPH2Instance(g)
+    val i_g = omfModule2Instance(m)
     val i_dataValues: Set[OWLDataPropertyAssertionAxiom] =
       mo.dataPropertyAssertionAxioms(i_g).toScala[Set]
 
@@ -492,7 +509,7 @@ abstract class OWLAPIOMFGraphStoreMetadata(omfModule: OWLAPIOMFModule, ontManage
   (g: TerminologyBox)
   : Option[String]
   = omfMetadata.fold[Option[String]](None) { mo =>
-    val i_g = OMF_MODEL_TERMINOLOGY_GRAPH2Instance(g)
+    val i_g = omfModule2Instance(g)
     val i_dataValues: Set[OWLDataPropertyAssertionAxiom] =
       mo.dataPropertyAssertionAxioms(i_g).toScala[Set]
 
@@ -519,7 +536,7 @@ abstract class OWLAPIOMFGraphStoreMetadata(omfModule: OWLAPIOMFModule, ontManage
     : Set[java.lang.Throwable] \/ IRI
     = omfModule.ops.withFragment(
       o.getOntologyID.getOntologyIRI.get,
-      instanceKind + "-" + hashMessage(iri.mkString("", ",", "")))
+      LocalName.apply(instanceKind + "-" + hashMessage(iri.mkString("", ",", ""))))
 
     result
   }
@@ -527,27 +544,37 @@ abstract class OWLAPIOMFGraphStoreMetadata(omfModule: OWLAPIOMFModule, ontManage
   // Terminologies
 
   def registerMetadata
-  (g: ImmutableTerminologyBox,
+  (im: ImmutableModule,
    relativeIRIPath: Option[String],
    relativeIRIHashPrefix: Option[String])
-  : types.UnitNES
-  = omfMetadata.fold[types.UnitNES](\/-(())) { mo =>
+  : OMFError.Throwables \/ Boolean
+  = omfMetadata.fold(false.right[OMFError.Throwables]) { mo =>
+    if (omfModule2Instance.contains(im))
+      false.right[OMFError.Throwables]
+    else
+      for {
+        graphIRI <- makeMetadataInstanceIRI(mo, "Gro", im.iri)
+        graphI = owlDataFactory.getOWLNamedIndividual(graphIRI)
+        ok2 = omfModule2Instance.put(im, graphI)
+        _ = require(ok2.isEmpty, s"register g: ${im.iri}")
 
-    makeMetadataInstanceIRI(mo, "Gro", g.iri)
-      .flatMap { graphIRI =>
-
-        val graphI = owlDataFactory.getOWLNamedIndividual(graphIRI)
-        val ok2 = OMF_MODEL_TERMINOLOGY_GRAPH2Instance.put(g, graphI)
-        require(ok2.isEmpty, s"register g: ${g.kindIRI}")
-
-        val okind = g.kind match {
-          case TerminologyKind.isDefinition =>
-            OMF_DEFINITION_TBOX
-          case TerminologyKind.isDesignation =>
-            OMF_TOPLEVEL_DESIGNATION_TBOX
+        okind = im match {
+          case it: ImmutableTerminologyBox =>
+            Seq(new AddAxiom(mo,
+              owlDataFactory
+                .getOWLObjectPropertyAssertionAxiom(OMF_HAS_TERMINOLOGY_KIND, graphI,
+                  it.sig.kind match {
+                    case TerminologyKind.isDefinition =>
+                      OMF_DEFINITION_TBOX
+                    case TerminologyKind.isDesignation =>
+                      OMF_TOPLEVEL_DESIGNATION_TBOX
+                  }))) ++
+              createOntologyChangesForOMFModelTerminologyGraphProvenanceMetadata(mo, it, graphI)
+          case _ =>
+            Seq.empty
         }
 
-        applyOntologyChanges(ontManager,
+        _ <- applyOntologyChanges(ontManager,
           Seq(
             new AddAxiom(mo,
               owlDataFactory.getOWLDeclarationAxiom(graphI)),
@@ -556,13 +583,9 @@ abstract class OWLAPIOMFGraphStoreMetadata(omfModule: OWLAPIOMFModule, ontManage
                 graphI)),
             new AddAxiom(mo,
               owlDataFactory
-                .getOWLObjectPropertyAssertionAxiom(OMF_HAS_TERMINOLOGY_KIND, graphI,
-                  okind)),
-            new AddAxiom(mo,
-              owlDataFactory
                 .getOWLDataPropertyAssertionAxiom(OMF_HAS_IRI, graphI,
-                  g.iri.toString))
-          ) ++
+                  im.iri.toString))
+          ) ++ okind ++
             relativeIRIPath.fold[Seq[OWLOntologyChange]](Seq.empty) { relIRIPath =>
               Seq(
                 new AddAxiom(mo,
@@ -584,17 +607,12 @@ abstract class OWLAPIOMFGraphStoreMetadata(omfModule: OWLAPIOMFModule, ontManage
                   owlDataFactory
                     .getOWLDataPropertyAssertionAxiom(OMF_HAS_RELATIVE_IRI_HASH_SUFFIX, graphI,
                       hashedSuffix))
-//                new AddAxiom(mo,
-//                  owlDataFactory
-//                    .getOWLDataPropertyAssertionAxiom(OMF_HAS_RELATIVE_FILENAME, graphI,
-//                      unhashedPrefix + hashedSuffix + "_Gro"))
               )
-            } ++
-            createOntologyChangesForOMFModelTerminologyGraphProvenanceMetadata(mo, g, graphI),
+            },
           "register error")
-      }
+      } yield true
   }
-  
+
   protected def createOMFTerminologyGraphMetadata
   (iri: IRI,
    aRelativeIRIPath: Option[String],
@@ -649,7 +667,7 @@ abstract class OWLAPIOMFGraphStoreMetadata(omfModule: OWLAPIOMFModule, ontManage
           createOntologyChangesForOMFModelTerminologyGraphProvenanceMetadata(mo, graphT, graphI),
         "createOMFTerminologyGraphMetadata error")
     } yield {
-      OMF_MODEL_TERMINOLOGY_GRAPH2Instance += (graphT -> graphI)
+      omfModule2Instance += (graphT -> graphI)
       ()
     }
   }
@@ -712,7 +730,7 @@ abstract class OWLAPIOMFGraphStoreMetadata(omfModule: OWLAPIOMFModule, ontManage
           createOntologyChangesForOMFModelTerminologyGraphProvenanceMetadata(mo, graphT, graphI),
         "createOMFBundleMetadata error")
     } yield {
-      OMF_MODEL_TERMINOLOGY_GRAPH2Instance += (graphT -> graphI)
+      omfModule2Instance += (graphT -> graphI)
       ()
     }
   }
@@ -725,8 +743,8 @@ abstract class OWLAPIOMFGraphStoreMetadata(omfModule: OWLAPIOMFModule, ontManage
   : Set[java.lang.Throwable] \/ TerminologyNestingAxiom
   = omfMetadata.fold[Set[java.lang.Throwable] \/ TerminologyNestingAxiom](axiom.right) { mo =>
     val parentIC = OMF_MODEL_ENTITY_CONCEPT2Instance(axiom.nestingContext)
-    val parentIG = OMF_MODEL_TERMINOLOGY_GRAPH2Instance(axiom.nestingTerminology)
-    val nestedIG = OMF_MODEL_TERMINOLOGY_GRAPH2Instance(childG)
+    val parentIG = omfModule2Instance(axiom.nestingTerminology)
+    val nestedIG = omfModule2Instance(childG)
 
     for {
       directNestingIRI <- makeMetadataInstanceIRI(mo, "DN", axiom.nestingContext.iri, childG.kindIRI)
@@ -761,8 +779,8 @@ abstract class OWLAPIOMFGraphStoreMetadata(omfModule: OWLAPIOMFModule, ontManage
    axiom: TerminologyExtensionAxiom)
   : Set[java.lang.Throwable] \/ TerminologyExtensionAxiom
   = omfMetadata.fold[Set[java.lang.Throwable] \/ TerminologyExtensionAxiom](axiom.right) { mo =>
-    val extendingI = OMF_MODEL_TERMINOLOGY_GRAPH2Instance(extendingG)
-    val extendedI = OMF_MODEL_TERMINOLOGY_GRAPH2Instance(axiom.extendedTerminology)
+    val extendingI = omfModule2Instance(extendingG)
+    val extendedI = omfModule2Instance(axiom.extendedTerminology)
     for {
       directImportingIRI <-
       makeMetadataInstanceIRI(mo, "DI", extendingG.kindIRI, axiom.extendedTerminology.kindIRI)
@@ -776,7 +794,7 @@ abstract class OWLAPIOMFGraphStoreMetadata(omfModule: OWLAPIOMFModule, ontManage
               |result: $directImportingI"""
             .stripMargin)
       }
-      _ <- applyOntologyChanges(ontManager,
+      _ <- applyOntologyChangesOrNoOp(ontManager,
         Seq(
           new AddAxiom(mo, owlDataFactory
             .getOWLDeclarationAxiom(directImportingI)),
@@ -805,7 +823,7 @@ abstract class OWLAPIOMFGraphStoreMetadata(omfModule: OWLAPIOMFModule, ontManage
   : Set[java.lang.Throwable] \/ ConceptDesignationTerminologyAxiom
   = omfMetadata.fold[Set[java.lang.Throwable] \/ ConceptDesignationTerminologyAxiom](axiomT.right) { mo =>
     val cI = OMF_MODEL_ENTITY_CONCEPT2Instance(axiomT.designatedConcept)
-    val gI = OMF_MODEL_TERMINOLOGY_GRAPH2Instance(axiomT.designatedTerminology)
+    val gI = omfModule2Instance(axiomT.designatedTerminology)
     for {
       axiomIRI <- makeMetadataInstanceIRI(mo,
         "ConceptDesignationTerminologyGraph",
@@ -819,7 +837,7 @@ abstract class OWLAPIOMFGraphStoreMetadata(omfModule: OWLAPIOMFModule, ontManage
             .getOWLDeclarationAxiom(axiomI)),
           new AddAxiom(mo, owlDataFactory
             .getOWLObjectPropertyAssertionAxiom(OMF_DIRECTLY_ASSERTS_AXIOM,
-              OMF_MODEL_TERMINOLOGY_GRAPH2Instance(tbox), axiomI)),
+              omfModule2Instance(tbox), axiomI)),
           new AddAxiom(mo, owlDataFactory
             .getOWLClassAssertionAxiom(OMF_ENTITY_CONCEPT_DESIGNATION_TERMINOLOGY_GRAPH_AXIOM, axiomI)),
           new AddAxiom(mo, owlDataFactory
@@ -839,20 +857,21 @@ abstract class OWLAPIOMFGraphStoreMetadata(omfModule: OWLAPIOMFModule, ontManage
   // Bundle Axioms
 
   protected def registerBundledTerminologyAxiom
-  (axiom: BundledTerminologyAxiom)
+  (axiom: BundledTerminologyAxiom,
+   terminologyBundle: MutableBundle)
   : Set[java.lang.Throwable] \/ BundledTerminologyAxiom
   = omfMetadata.fold[Set[java.lang.Throwable] \/ BundledTerminologyAxiom](axiom.right) { mo =>
-    val tboxBundleI = OMF_MODEL_TERMINOLOGY_GRAPH2Instance(axiom.terminologyBundle)
-    val bundledTboxI = OMF_MODEL_TERMINOLOGY_GRAPH2Instance(axiom.bundledTerminology)
+    val tboxBundleI = omfModule2Instance(terminologyBundle)
+    val bundledTboxI = omfModule2Instance(axiom.bundledTerminology)
     for {
       directBundleIRI <-
-      makeMetadataInstanceIRI(mo, "BT", axiom.terminologyBundle.kindIRI, axiom.bundledTerminology.kindIRI)
+      makeMetadataInstanceIRI(mo, "BT", terminologyBundle.kindIRI, axiom.bundledTerminology.kindIRI)
 
       bundleI = owlDataFactory.getOWLNamedIndividual(directBundleIRI)
       _ = if (LOG) {
         System.out.println(
           s"""|## createOMFBundledTerminologyAxiom:
-              |terminologyBundle: ${axiom.terminologyBundle.kindIRI}
+              |terminologyBundle: ${terminologyBundle.kindIRI}
               |bundledTerminology: ${axiom.bundledTerminology.kindIRI}
               |result: $bundleI"""
             .stripMargin)
@@ -890,7 +909,7 @@ abstract class OWLAPIOMFGraphStoreMetadata(omfModule: OWLAPIOMFModule, ontManage
     applyOntologyChangeOrNoOp(ontManager,
       new AddAxiom(mo, owlDataFactory
         .getOWLDataPropertyAssertionAxiom(OMF_HAS_SHORT_NAME,
-          OMF_MODEL_TERMINOLOGY_GRAPH2Instance(tbox),
+          omfModule2Instance(tbox),
           owlDataFactory.getOWLLiteral(label))),
       "setTerminologyName error")
   }
@@ -903,7 +922,7 @@ abstract class OWLAPIOMFGraphStoreMetadata(omfModule: OWLAPIOMFModule, ontManage
     applyOntologyChangeOrNoOp(ontManager,
       new AddAxiom(mo, owlDataFactory
         .getOWLDataPropertyAssertionAxiom(OMF_HAS_UUID,
-          OMF_MODEL_TERMINOLOGY_GRAPH2Instance(tbox),
+          omfModule2Instance(tbox),
           owlDataFactory.getOWLLiteral(uuid.toString))),
       "setTerminologyUUID error")
   }
@@ -1024,7 +1043,7 @@ abstract class OWLAPIOMFGraphStoreMetadata(omfModule: OWLAPIOMFModule, ontManage
               .getOWLDataPropertyAssertionAxiom(OMF_HAS_LOCAL_NAME, aspectI, aspectT.name)),
             new AddAxiom(mo, owlDataFactory
               .getOWLObjectPropertyAssertionAxiom(OMF_DIRECTLY_DEFINES_TYPE_TERM,
-                OMF_MODEL_TERMINOLOGY_GRAPH2Instance(tbox),
+                omfModule2Instance(tbox),
                 aspectI))
           ),
           "Create Aspect error")
@@ -1038,7 +1057,7 @@ abstract class OWLAPIOMFGraphStoreMetadata(omfModule: OWLAPIOMFModule, ontManage
       types.rightUnitNES
     }
   }
- 
+
   def registerOMFModelEntityConceptInstance
   (tbox: TerminologyBox,
    conceptT: Concept)
@@ -1064,7 +1083,7 @@ abstract class OWLAPIOMFGraphStoreMetadata(omfModule: OWLAPIOMFModule, ontManage
               .getOWLDataPropertyAssertionAxiom(OMF_HAS_LOCAL_NAME, conceptI, conceptT.name)),
             new AddAxiom(mo, owlDataFactory
               .getOWLObjectPropertyAssertionAxiom(OMF_DIRECTLY_DEFINES_TYPE_TERM,
-                OMF_MODEL_TERMINOLOGY_GRAPH2Instance(tbox),
+                omfModule2Instance(tbox),
                 conceptI))
           ),
           "Create Concept error")
@@ -1110,7 +1129,7 @@ abstract class OWLAPIOMFGraphStoreMetadata(omfModule: OWLAPIOMFModule, ontManage
               .getOWLObjectPropertyAssertionAxiom(OMF_HAS_TARGET, relationshipI, targetI)),
             new AddAxiom(mo, owlDataFactory
               .getOWLObjectPropertyAssertionAxiom(OMF_DIRECTLY_DEFINES_TYPE_TERM,
-                OMF_MODEL_TERMINOLOGY_GRAPH2Instance(tbox),
+                omfModule2Instance(tbox),
                 relationshipI))
           ),
           "Create ReifiedRelationship error")
@@ -1124,7 +1143,7 @@ abstract class OWLAPIOMFGraphStoreMetadata(omfModule: OWLAPIOMFModule, ontManage
       types.rightUnitNES
     }
   }
-  
+
   def registerOMFModelEntityUnreifiedRelationshipInstance
   (tbox: TerminologyBox,
    relationshipT: UnreifiedRelationship)
@@ -1156,7 +1175,7 @@ abstract class OWLAPIOMFGraphStoreMetadata(omfModule: OWLAPIOMFModule, ontManage
               .getOWLObjectPropertyAssertionAxiom(OMF_HAS_TARGET, relationshipI, targetI)),
             new AddAxiom(mo, owlDataFactory
               .getOWLObjectPropertyAssertionAxiom(OMF_DIRECTLY_DEFINES_TYPE_TERM,
-                OMF_MODEL_TERMINOLOGY_GRAPH2Instance(tbox),
+                omfModule2Instance(tbox),
                 relationshipI))
           ),
           "Create UnreifiedRelationship error")
@@ -1181,7 +1200,7 @@ abstract class OWLAPIOMFGraphStoreMetadata(omfModule: OWLAPIOMFModule, ontManage
       for {
         scalarDIRI <- makeMetadataInstanceIRI(mo, "SC", tbox.iri, scalarDT.iri)
         scalarDI = owlDataFactory.getOWLNamedIndividual(scalarDIRI)
-        _ <- applyOntologyChanges(ontManager,
+        _ <- applyOntologyChangesOrNoOp(ontManager,
           Seq(
             new AddAxiom(mo, owlDataFactory
               .getOWLDeclarationAxiom(scalarDI)),
@@ -1192,10 +1211,10 @@ abstract class OWLAPIOMFGraphStoreMetadata(omfModule: OWLAPIOMFModule, ontManage
             new AddAxiom(mo, owlDataFactory
               .getOWLDataPropertyAssertionAxiom(OMF_HAS_UUID, scalarDI, scalarDT.uuid.toString)),
             new AddAxiom(mo, owlDataFactory
-              .getOWLDataPropertyAssertionAxiom(OMF_HAS_LOCAL_NAME, scalarDI, scalarDT.name)),
+              .getOWLDataPropertyAssertionAxiom(OMF_HAS_LOCAL_NAME, scalarDI, LocalName.unwrap(scalarDT.name))),
             new AddAxiom(mo, owlDataFactory
               .getOWLObjectPropertyAssertionAxiom(OMF_DIRECTLY_DEFINES_TYPE_TERM,
-                OMF_MODEL_TERMINOLOGY_GRAPH2Instance(tbox),
+                omfModule2Instance(tbox),
                 scalarDI))
           ),
           "Create ScalarDataType error")
@@ -1235,7 +1254,7 @@ abstract class OWLAPIOMFGraphStoreMetadata(omfModule: OWLAPIOMFModule, ontManage
               .getOWLDataPropertyAssertionAxiom(OMF_HAS_LOCAL_NAME, structuredDI, structuredDT.name)),
             new AddAxiom(mo, owlDataFactory
               .getOWLObjectPropertyAssertionAxiom(OMF_DIRECTLY_DEFINES_TYPE_TERM,
-                OMF_MODEL_TERMINOLOGY_GRAPH2Instance(tbox),
+                omfModule2Instance(tbox),
                 structuredDI))
           ),
           "Create StructuredDatatype error")
@@ -1288,7 +1307,124 @@ abstract class OWLAPIOMFGraphStoreMetadata(omfModule: OWLAPIOMFModule, ontManage
       e2sc
     }
   }
-  
+
+  def registerDataRelationshipFromEntityToStructure
+  (tbox: MutableTerminologyBox,
+   e2sc: EntityStructuredDataProperty)
+  : Set[java.lang.Throwable] \/ EntityStructuredDataProperty
+  = omfMetadata.fold[Set[java.lang.Throwable] \/ EntityStructuredDataProperty](e2sc.right) { mo =>
+    val entityI = OMF_MODEL_ENTITY_DEFINITION2Instance(e2sc.domain)
+    val scalarI = OMF_MODEL_STRUCTURED_DATA_TYPE2Instance(e2sc.range)
+    for {
+      termIRI <- makeMetadataInstanceIRI(
+        mo,
+        "EntityToStructure",
+        tbox.iri,
+        e2sc.domain.iri,
+        e2sc.range.iri)
+      termI = owlDataFactory.getOWLNamedIndividual(termIRI)
+      _ <- applyOntologyChangesOrNoOp(ontManager,
+        Seq(
+          new AddAxiom(mo, owlDataFactory
+            .getOWLDeclarationAxiom(termI)),
+          new AddAxiom(mo, owlDataFactory
+            .getOWLClassAssertionAxiom(OMF_MODEL_DATA_RELATIONSHIP_FROM_ENTITY_TO_STRUCTURE, termI)),
+          new AddAxiom(mo, owlDataFactory
+            .getOWLDataPropertyAssertionAxiom(OMF_HAS_IRI, termI, e2sc.iri.toString)),
+          new AddAxiom(mo, owlDataFactory
+            .getOWLDataPropertyAssertionAxiom(OMF_HAS_UUID, termI, e2sc.uuid.toString)),
+          new AddAxiom(mo, owlDataFactory
+            .getOWLDataPropertyAssertionAxiom(OMF_HAS_LOCAL_NAME, termI, e2sc.name)),
+          new AddAxiom(mo, owlDataFactory
+            .getOWLObjectPropertyAssertionAxiom(OMF_HAS_MODEL_DATA_RELATIONSHIP_FROM_ENTITY, termI, entityI)),
+          new AddAxiom(mo, owlDataFactory
+            .getOWLObjectPropertyAssertionAxiom(OMF_HAS_MODEL_DATA_RELATIONSHIP_TO_STRUCTURE, termI, scalarI))
+        ),
+        "createDataRelationshipFromEntityToStructure error")
+    } yield {
+      OMF_MODEL_DATA_RELATIONSHIP_FROM_ENTITY_TO_STRUCTURE2Instance += (e2sc -> termI)
+      e2sc
+    }
+  }
+
+  def registerDataRelationshipFromStructureToScalar
+  (tbox: MutableTerminologyBox,
+   e2sc: ScalarDataProperty)
+  : Set[java.lang.Throwable] \/ ScalarDataProperty
+  = omfMetadata.fold[Set[java.lang.Throwable] \/ ScalarDataProperty](e2sc.right) { mo =>
+    val domainI = OMF_MODEL_STRUCTURED_DATA_TYPE2Instance(e2sc.domain)
+    val rangeI = OMF_MODEL_SCALAR_DATA_TYPE2Instance(e2sc.range)
+    for {
+      termIRI <- makeMetadataInstanceIRI(
+        mo,
+        "StructureToScalar",
+        tbox.iri,
+        e2sc.domain.iri,
+        e2sc.range.iri)
+      termI = owlDataFactory.getOWLNamedIndividual(termIRI)
+      _ <- applyOntologyChangesOrNoOp(ontManager,
+        Seq(
+          new AddAxiom(mo, owlDataFactory
+            .getOWLDeclarationAxiom(termI)),
+          new AddAxiom(mo, owlDataFactory
+            .getOWLClassAssertionAxiom(OMF_MODEL_DATA_RELATIONSHIP_FROM_STRUCTURE_TO_SCALAR, termI)),
+          new AddAxiom(mo, owlDataFactory
+            .getOWLDataPropertyAssertionAxiom(OMF_HAS_IRI, termI, e2sc.iri.toString)),
+          new AddAxiom(mo, owlDataFactory
+            .getOWLDataPropertyAssertionAxiom(OMF_HAS_UUID, termI, e2sc.uuid.toString)),
+          new AddAxiom(mo, owlDataFactory
+            .getOWLDataPropertyAssertionAxiom(OMF_HAS_LOCAL_NAME, termI, e2sc.name)),
+          new AddAxiom(mo, owlDataFactory
+            .getOWLObjectPropertyAssertionAxiom(OMF_HAS_MODEL_DATA_RELATIONSHIP_FROM_STRUCTURE, termI, domainI)),
+          new AddAxiom(mo, owlDataFactory
+            .getOWLObjectPropertyAssertionAxiom(OMF_HAS_MODEL_DATA_RELATIONSHIP_TO_SCALAR, termI, rangeI))
+        ),
+        "createDataRelationshipFromStructureToScalar error")
+    } yield {
+      OMF_MODEL_DATA_RELATIONSHIP_FROM_STRUCTURE_TO_SCALAR2Instance += (e2sc -> termI)
+      e2sc
+    }
+  }
+
+  def registerDataRelationshipFromStructureToStructure
+  (tbox: MutableTerminologyBox,
+   e2sc: StructuredDataProperty)
+  : Set[java.lang.Throwable] \/ StructuredDataProperty
+  = omfMetadata.fold[Set[java.lang.Throwable] \/ StructuredDataProperty](e2sc.right) { mo =>
+    val domainI = OMF_MODEL_STRUCTURED_DATA_TYPE2Instance(e2sc.domain)
+    val rangeI = OMF_MODEL_STRUCTURED_DATA_TYPE2Instance(e2sc.range)
+    for {
+      termIRI <- makeMetadataInstanceIRI(
+        mo,
+        "StructureToStructure",
+        tbox.iri,
+        e2sc.domain.iri,
+        e2sc.range.iri)
+      termI = owlDataFactory.getOWLNamedIndividual(termIRI)
+      _ <- applyOntologyChangesOrNoOp(ontManager,
+        Seq(
+          new AddAxiom(mo, owlDataFactory
+            .getOWLDeclarationAxiom(termI)),
+          new AddAxiom(mo, owlDataFactory
+            .getOWLClassAssertionAxiom(OMF_MODEL_DATA_RELATIONSHIP_FROM_STRUCTURE_TO_STRUCTURE, termI)),
+          new AddAxiom(mo, owlDataFactory
+            .getOWLDataPropertyAssertionAxiom(OMF_HAS_IRI, termI, e2sc.iri.toString)),
+          new AddAxiom(mo, owlDataFactory
+            .getOWLDataPropertyAssertionAxiom(OMF_HAS_UUID, termI, e2sc.uuid.toString)),
+          new AddAxiom(mo, owlDataFactory
+            .getOWLDataPropertyAssertionAxiom(OMF_HAS_LOCAL_NAME, termI, e2sc.name)),
+          new AddAxiom(mo, owlDataFactory
+            .getOWLObjectPropertyAssertionAxiom(OMF_HAS_MODEL_DATA_RELATIONSHIP_FROM_STRUCTURE, termI, domainI)),
+          new AddAxiom(mo, owlDataFactory
+            .getOWLObjectPropertyAssertionAxiom(OMF_HAS_MODEL_DATA_RELATIONSHIP_TO_STRUCTURE, termI, rangeI))
+        ),
+        "createDataRelationshipFromStructureToStructure error")
+    } yield {
+      OMF_MODEL_DATA_RELATIONSHIP_FROM_STRUCTURE_TO_STRUCTURE2Instance += (e2sc -> termI)
+      e2sc
+    }
+  }
+
   /**
     * Create an OMF EntityDefinitionAspectSubClassAxiom.
     *
@@ -1312,7 +1448,7 @@ abstract class OWLAPIOMFGraphStoreMetadata(omfModule: OWLAPIOMFModule, ontManage
             .getOWLDeclarationAxiom(axiomI)),
           new AddAxiom(mo, owlDataFactory
             .getOWLObjectPropertyAssertionAxiom(OMF_DIRECTLY_ASSERTS_AXIOM,
-              OMF_MODEL_TERMINOLOGY_GRAPH2Instance(tbox),
+              omfModule2Instance(tbox),
               axiomI)),
           new AddAxiom(mo, owlDataFactory
             .getOWLClassAssertionAxiom(OMF_ENTITY_DEFINITION_ASPECT_SUB_CLASS_AXIOM, axiomI)),
@@ -1331,7 +1467,7 @@ abstract class OWLAPIOMFGraphStoreMetadata(omfModule: OWLAPIOMFModule, ontManage
       axiomT
     }
   }
-  
+
   /**
     * Create an OMF EntityConceptSubClassAxiom.
     *
@@ -1359,7 +1495,7 @@ abstract class OWLAPIOMFGraphStoreMetadata(omfModule: OWLAPIOMFModule, ontManage
             .getOWLDeclarationAxiom(axiomI)),
           new AddAxiom(mo, owlDataFactory
             .getOWLObjectPropertyAssertionAxiom(OMF_DIRECTLY_ASSERTS_AXIOM,
-              OMF_MODEL_TERMINOLOGY_GRAPH2Instance(tbox),
+              omfModule2Instance(tbox),
               axiomI)),
           new AddAxiom(mo, owlDataFactory
             .getOWLClassAssertionAxiom(OMF_ENTITY_CONCEPT_SUB_CLASS_AXIOM, axiomI)),
@@ -1379,7 +1515,7 @@ abstract class OWLAPIOMFGraphStoreMetadata(omfModule: OWLAPIOMFModule, ontManage
       axiomT
     }
   }
-  
+
   /**
     * Create an OMF EntityDefinitionUniversalRestrictionAxiom.
     *
@@ -1409,7 +1545,7 @@ abstract class OWLAPIOMFGraphStoreMetadata(omfModule: OWLAPIOMFModule, ontManage
             .getOWLDeclarationAxiom(axiomI)),
           new AddAxiom(mo, owlDataFactory
             .getOWLObjectPropertyAssertionAxiom(OMF_DIRECTLY_ASSERTS_AXIOM,
-              OMF_MODEL_TERMINOLOGY_GRAPH2Instance(tbox), axiomI)),
+              omfModule2Instance(tbox), axiomI)),
           new AddAxiom(mo, owlDataFactory
             .getOWLClassAssertionAxiom(OMF_ENTITY_DEFINITION_UNIVERSAL_RESTRICTION_AXIOM, axiomI)),
           new AddAxiom(mo, owlDataFactory
@@ -1459,7 +1595,7 @@ abstract class OWLAPIOMFGraphStoreMetadata(omfModule: OWLAPIOMFModule, ontManage
             .getOWLDeclarationAxiom(axiomI)),
           new AddAxiom(mo, owlDataFactory
             .getOWLObjectPropertyAssertionAxiom(OMF_DIRECTLY_ASSERTS_AXIOM,
-              OMF_MODEL_TERMINOLOGY_GRAPH2Instance(tbox), axiomI)),
+              omfModule2Instance(tbox), axiomI)),
           new AddAxiom(mo, owlDataFactory
             .getOWLClassAssertionAxiom(OMF_ENTITY_DEFINITION_EXISTENTIAL_RESTRICTION_AXIOM, axiomI)),
           new AddAxiom(mo, owlDataFactory
@@ -1507,7 +1643,7 @@ abstract class OWLAPIOMFGraphStoreMetadata(omfModule: OWLAPIOMFModule, ontManage
             .getOWLDeclarationAxiom(axiomI)),
           new AddAxiom(mo, owlDataFactory
             .getOWLObjectPropertyAssertionAxiom(OMF_DIRECTLY_ASSERTS_AXIOM,
-              OMF_MODEL_TERMINOLOGY_GRAPH2Instance(tbox),
+              omfModule2Instance(tbox),
               axiomI)),
           new AddAxiom(mo, owlDataFactory
             .getOWLClassAssertionAxiom(OMF_ENTITY_REIFIED_RELATIONSHIP_SUB_CLASS_AXIOM, axiomI)),

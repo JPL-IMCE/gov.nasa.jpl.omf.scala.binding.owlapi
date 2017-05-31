@@ -20,51 +20,86 @@ package gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies
 
 import java.util.UUID
 
-import gov.nasa.jpl.imce.oml.tables.LocalName
+import gov.nasa.jpl.imce.oml.tables.{AnnotationEntry, AnnotationProperty}
 import gov.nasa.jpl.omf.scala.binding.owlapi._
-import gov.nasa.jpl.omf.scala.binding.owlapi.types.duplicateTerminologyGraphAxiomException
-import gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologyAxioms.TerminologyNestingAxiom
-import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Concept
-import gov.nasa.jpl.omf.scala.core.TerminologyKind
+import gov.nasa.jpl.omf.scala.binding.owlapi.types._
+import gov.nasa.jpl.omf.scala.binding.owlapi.types.bundleStatements._
+import gov.nasa.jpl.omf.scala.binding.owlapi.types.termAxioms._
+import gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologyAxioms._
+import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms._
+import gov.nasa.jpl.omf.scala.core.OMFError.Throwables
+import gov.nasa.jpl.omf.scala.core.{MutableTerminologyBoxSignature, TerminologyBoxSignature, TerminologyKind}
+import gov.nasa.jpl.omf.scala.core.OMLString.LocalName
 import org.semanticweb.owlapi.model._
 
 import scala.collection.immutable._
-import scala.{Any, Boolean, Int, Option, Some}
+import scala.collection.mutable.HashSet
+import scala.{Any, Boolean, Int, None, Option, Some}
 import scala.Predef.{Map => _, Set => _, _}
-import scalaz._, Scalaz._
+import scalaz._
+import Scalaz._
 
 object MutableTerminologyGraph {
 
   def initialize
-  (iri: IRI,
-   uuid: UUID,
+  (uuid: UUID,
    name: LocalName,
+   iri: IRI,
    kind: TerminologyKind,
    ont: OWLOntology,
    extraProvenanceMetadata: Option[OTI2OMFModelTerminologyGraphProvenance],
    backbone: OMFBackbone)
-  (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ MutableTerminologyGraph
-  = {
-    val mg = MutableTerminologyGraph(uuid, name, kind, ont, extraProvenanceMetadata, backbone)(store.ops)
-    // we cannot set the name & uuid annotations because the OWLAPI ontology object may be immutable.
-//      for {
-//        _ <- mg.setTerminologyGraphLocalName(Some(name))
-//        _ <- mg.setTerminologyGraphUUID(uuid)
-//      } yield mg
-    \/-(mg)
-  }
+  (implicit store: OWLAPIOMFGraphStore, ops: OWLAPIOMFOps)
+  : Throwables \/ MutableTerminologyGraph
+  = MutableTerminologyGraph(
+    sig = TerminologyBoxSignature[OWLAPIOMF, HashSet](
+      isBundle = false,
+      uuid, name, iri, kind,
+      extensions = HashSet.empty[TerminologyExtensionAxiom],
+      nesting = HashSet.empty[TerminologyNestingAxiom],
+      conceptDesignation = HashSet.empty[ConceptDesignationTerminologyAxiom],
+      bundledTerminologies = HashSet.empty[BundledTerminologyAxiom],
+      aspects = HashSet.empty[Aspect],
+      concepts = HashSet.empty[Concept],
+      reifiedRelationships = HashSet.empty[ReifiedRelationship],
+      unreifiedRelationships = HashSet.empty[UnreifiedRelationship],
+      scalarDataTypes = HashSet.empty[Scalar],
+      structuredDataTypes = HashSet.empty[Structure],
+      scalarOneOfRestrictions = HashSet.empty[ScalarOneOfRestriction],
+      scalarOneOfLiterals = HashSet.empty[ScalarOneOfLiteralAxiom],
+      binaryScalarRestrictions = HashSet.empty[BinaryScalarRestriction],
+      iriScalarRestrictions = HashSet.empty[IRIScalarRestriction],
+      numericScalarRestrictions = HashSet.empty[NumericScalarRestriction],
+      plainLiteralScalarRestrictions = HashSet.empty[PlainLiteralScalarRestriction],
+      stringScalarRestrictions = HashSet.empty[StringScalarRestriction],
+      synonymScalarRestrictions = HashSet.empty[SynonymScalarRestriction],
+      timeScalarRestrictions = HashSet.empty[TimeScalarRestriction],
+      entityScalarDataProperties = HashSet.empty[EntityScalarDataProperty],
+      entityStructuredDataProperties = HashSet.empty[EntityStructuredDataProperty],
+      scalarDataProperties = HashSet.empty[ScalarDataProperty],
+      structuredDataProperties = HashSet.empty[StructuredDataProperty],
+      axioms = HashSet.empty[Axiom],
+      rTAxioms = HashSet.empty[RootConceptTaxonomyAxiom],
+      aTAxioms = HashSet.empty[AnonymousConceptTaxonomyAxiom],
+      sTAxioms = HashSet.empty[SpecificDisjointConceptAxiom],
+      bAxioms = HashSet.empty[BundledTerminologyAxiom],
+      annotationProperties = HashSet.empty[AnnotationProperty],
+      annotations = HashSet.empty[(AnnotationProperty, Set[AnnotationEntry])]),
+    ont = ont,
+    extraProvenanceMetadata = extraProvenanceMetadata,
+    backbone = backbone)(ops).right[Throwables]
+
 }
 
-case class MutableTerminologyGraph private
-(override val uuid: UUID,
- override val name: LocalName,
- override val kind: TerminologyKind,
+case class MutableTerminologyGraph
+(override val sig: MutableTerminologyBoxSignature[OWLAPIOMF],
  override val ont: OWLOntology,
  override val extraProvenanceMetadata: Option[OTI2OMFModelTerminologyGraphProvenance],
  override val backbone: OMFBackbone)
 (override implicit val ops: OWLAPIOMFOps)
   extends TerminologyGraph with MutableTerminologyBox {
+
+  override type MS = MutableTerminologyBoxSignature[OWLAPIOMF]
 
   override def canEqual(other: Any)
   : Boolean
@@ -73,28 +108,14 @@ case class MutableTerminologyGraph private
     case _ => false
   }
 
-  override val hashCode: Int = (uuid, name, kind, extraProvenanceMetadata, ont).##
+  override val hashCode: Int = (sig, ont, extraProvenanceMetadata).##
 
   override def equals(other: Any): Boolean = other match {
     case that: MutableTerminologyGraph =>
       (that canEqual this) &&
-        (this.uuid == that.uuid) &&
-        (this.name == that.name) &&
-        (this.kind == that.kind) &&
-        (this.extraProvenanceMetadata == that.extraProvenanceMetadata) &&
+        (this.sig == that.sig) &&
         (this.ont == that.ont) &&
-        (this.aspects == that.aspects) &&
-        (this.concepts == that.concepts) &&
-        (this.reifiedRelationships == that.reifiedRelationships) &&
-        (this.unreifiedRelationships == that.unreifiedRelationships) &&
-        (this.sc == that.sc) &&
-        (this.st == that.st) &&
-        (this.e2sc == that.e2sc) &&
-        (this.e2st == that.e2st) &&
-        (this.s2sc == that.s2sc) &&
-        (this.s2st == that.s2st) &&
-        (this.ax == that.ax) &&
-        (this.gx == that.gx)
+        (this.extraProvenanceMetadata == that.extraProvenanceMetadata)
     case _ =>
       false
   }
@@ -111,7 +132,7 @@ case class MutableTerminologyGraph private
   (implicit store: OWLAPIOMFGraphStore)
   : Set[java.lang.Throwable] \/ TerminologyNestingAxiom
   = for {
-    uuid <- ops.terminologyNestingAxiomUUID(parentC, this)
+    uuid <- ops.terminologyNestingAxiomUUID(parentG, parentC, this)
     ax <- createTerminologyNestingAxiom(uuid, parentG, parentC)
   } yield ax
 
@@ -121,20 +142,19 @@ case class MutableTerminologyGraph private
    parentC: Concept)
   (implicit store: OWLAPIOMFGraphStore)
   : Set[java.lang.Throwable] \/ TerminologyNestingAxiom
-  = nAxiom
-    .fold[Set[java.lang.Throwable] \/ TerminologyNestingAxiom] {
-    for {
-      axiom <- store
-        .createOMFTerminologyGraphDirectNestingAxiom(uuid, parentG, parentC, this)
-    } yield {
-      gx += axiom
-      nAxiom = Some(axiom)
-      axiom
-    }
-  } { other =>
-    Set(
-      duplicateTerminologyGraphAxiomException(AxiomExceptionKind.TerminologyGraphDirectNestingAxiomException, other)
-    ).left
+  = sig.nesting.headOption match {
+    case None =>
+      for {
+        axiom <- store
+          .createOMFTerminologyGraphDirectNestingAxiom(uuid, parentG, parentC, this)
+      } yield {
+        sig.nesting += axiom
+        axiom
+      }
+    case Some(other) =>
+      Set(
+        duplicateTerminologyGraphAxiomException(AxiomExceptionKind.TerminologyGraphDirectNestingAxiomException, other)
+      ).left
   }
 
   def addNestedTerminologyGraph

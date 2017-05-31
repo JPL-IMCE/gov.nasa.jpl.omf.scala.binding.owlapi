@@ -22,7 +22,7 @@ import java.util.UUID
 
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.{Aspect, Entity}
 
-import scala.{Any,Boolean,Int}
+import scala.{Any, Boolean, Int}
 import scala.Predef.require
 
 case class AspectSpecializationAxiom

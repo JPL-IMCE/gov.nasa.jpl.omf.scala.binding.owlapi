@@ -25,7 +25,9 @@ trait OWLAPIOMF
   with OWLAPIOMFstore
   with OWLAPIOMFiri
   with OWLAPIOMFtbox
-  with OWLAPIOMFabox
+  with OWLAPIOMFdbox {
+
+}
 
 trait OWLAPIOMFstore extends OMFstore {
   
@@ -39,19 +41,31 @@ trait OWLAPIOMFiri extends OMFiri {
   
 }
 
-trait OWLAPIOMFtbox extends OMFtbox {
+trait OMLAPIOMFcbox extends OMFcbox {
+
+  override type Element =
+    common.Element
 
   override type Resource =
-    types.Resource
+    common.Resource
 
-  override type TerminologyThing =
-    types.TerminologyThing
+  override type ModuleElement =
+    common.ModuleElement
 
-  override type TerminologyContext =
-    types.TerminologyContext
+  override type Module =
+    common.Module
 
-  override type TerminologyStatement =
-    types.TerminologyStatement
+  override type ImmutableModule =
+    common.ImmutableModule
+
+  override type MutableModule =
+    common.MutableModule
+
+  override type ModuleEdge =
+    common.ModuleEdge
+}
+
+trait OWLAPIOMFtbox extends OMFtbox with OMLAPIOMFcbox {
 
   override type TerminologyBoxStatement =
     types.TerminologyBoxStatement
@@ -86,9 +100,6 @@ trait OWLAPIOMFtbox extends OMFtbox {
   override type MutableBundle =
     types.terminologies.MutableBundle
 
-  override type Mutable2ImmutableTerminologyMap =
-    types.Mutable2ImmutableTerminologyMap
-
   override type Term =
     types.Term
 
@@ -97,6 +108,9 @@ trait OWLAPIOMFtbox extends OMFtbox {
 
   override type Aspect =
     types.terms.Aspect
+
+  override type ConceptualEntity =
+    types.terms.ConceptualEntity
 
   override type Concept =
     types.terms.Concept
@@ -258,56 +272,68 @@ trait OWLAPIOMFtbox extends OMFtbox {
     types.bundleStatements.RootConceptTaxonomyAxiom
 
   override type SpecificDisjointConceptAxiom =
-    types.bundleStatements.SpecificDisjointAxiom
+    types.bundleStatements.SpecificDisjointConceptAxiom
 
 }
 
-trait OWLAPIOMFabox extends OMFabox {
+trait OWLAPIOMFdbox extends OMFdbox with OMLAPIOMFcbox {
 
-  type ModelInstanceGraph =
-  instances.ModelInstanceGraph
+  type DescriptionBox =
+  descriptions.DescriptionBox
 
-  type ImmutableModelInstanceGraph =
-  instances.ImmutableModelInstanceGraph
+  type ImmutableDescriptionBox =
+  descriptions.ImmutableDescriptionBox
 
-  type MutableModelInstanceGraph =
-  instances.MutableModelInstanceGraph
+  type MutableDescriptionBox =
+  descriptions.MutableDescriptionBox
 
-  type ModelInstanceAssertion =
-  instances.ModelInstanceAssertion
+  type Mutable2ImmutableDescriptionMap =
+  descriptions.Mutable2ImmutableDescriptionMap
 
-  type ModelNamedIndividual =
-  instances.ModelNamedIndividual
+  type DescriptionBoxRelationship =
+  descriptions.DescriptionBoxRelationship
 
-  type ModelEntityInstance =
-  instances.ModelEntityInstance
+  type DescriptionBoxExtendsClosedWorldDefinitions =
+  descriptions.DescriptionBoxExtendsClosedWorldDefinitions
 
-  type ModelInstanceObject =
-  instances.ModelInstanceObject
+  type DescriptionBoxRefinement =
+  descriptions.DescriptionBoxRefinement
 
-  type ModelInstanceRelation =
-  instances.ModelInstanceRelation
+  type TerminologyInstanceAssertion =
+  descriptions.TerminologyInstanceAssertion
 
-  type ModelDataInstance =
-  instances.ModelDataInstance
+  type ConceptualEntitySingletonInstance =
+  descriptions.ConceptualEntitySingletonInstance
 
-  type ModelInstanceDataLiteral =
-  instances.ModelInstanceDataLiteral
+  type ConceptInstance =
+  descriptions.ConceptInstance
 
-  type ModelInstanceDataStructure =
-  instances.ModelInstanceDataStructure
+  type ReifiedRelationshipInstance =
+  descriptions.ReifiedRelationshipInstance
 
-  type ModelInstanceDataRelationshipFromEntityToScalar =
-  instances.ModelInstanceDataRelationshipFromEntityToScalar
+  type ReifiedRelationshipInstanceDomain =
+    descriptions.ReifiedRelationshipInstanceDomain
 
-  type ModelInstanceDataRelationshipFromEntityToStructure =
-  instances.ModelInstanceDataRelationshipFromEntityToStructure
+  type ReifiedRelationshipInstanceRange =
+    descriptions.ReifiedRelationshipInstanceRange
 
-  type ModelInstanceDataRelationshipFromStructureToScalar =
-  instances.ModelInstanceDataRelationshipFromStructureToScalar
+  type UnreifiedRelationshipInstanceTuple =
+    descriptions.UnreifiedRelationshipInstanceTuple
 
-  type ModelInstanceDataRelationshipFromStructureToStructure =
-  instances.ModelInstanceDataRelationshipFromStructureToStructure
+  type SingletonInstanceScalarDataPropertyValue =
+  descriptions.SingletonInstanceScalarDataPropertyValue
+
+  type SingletonInstanceStructuredDataPropertyValue =
+  descriptions.SingletonInstanceStructuredDataPropertyValue
+
+  type ScalarDataPropertyValue =
+  descriptions.ScalarDataPropertyValue
+
+  type SingletonInstanceStructuredDataPropertyContext =
+  descriptions.SingletonInstanceStructuredDataPropertyContext
+
+  type StructuredDataPropertyTuple =
+  descriptions.StructuredDataPropertyTuple
 
 }
 

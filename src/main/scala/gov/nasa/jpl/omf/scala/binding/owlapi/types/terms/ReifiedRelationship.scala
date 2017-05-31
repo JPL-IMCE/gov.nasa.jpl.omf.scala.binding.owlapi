@@ -20,16 +20,17 @@ package gov.nasa.jpl.omf.scala.binding.owlapi.types.terms
 
 import java.util.UUID
 
-import gov.nasa.jpl.imce.oml.tables.LocalName
+import gov.nasa.jpl.omf.scala.core.OMLString.LocalName
 import gov.nasa.jpl.omf.scala.core.RelationshipCharacteristics._
-import org.semanticweb.owlapi.model.{OWLClass, OWLObjectProperty}
+import org.semanticweb.owlapi.model.{IRI, OWLClass, OWLObjectProperty}
 
 import scala.collection.immutable._
-import scala.{Any,Boolean,Int,Option}
+import scala.{Any, Boolean, Int, Option}
 import scala.Predef.require
 
 case class ReifiedRelationship
 ( override val e: OWLClass,
+  override val iri: IRI,
   override val name: LocalName,
   override val uuid: UUID,
   unreifiedPropertyName: LocalName,
@@ -41,15 +42,13 @@ case class ReifiedRelationship
   override val target: Entity,
   rTarget: OWLObjectProperty,
   override val characteristics: Iterable[RelationshipCharacteristics])
-  extends EntityRelationship with Entity {
+  extends EntityRelationship with ConceptualEntity {
 
   require(null != e)
   require(null != inverse)
   require(null != source)
   require(null != target)
   require(null != characteristics)
-
-  override val iri = e.getIRI
 
   override def canEqual(other: Any)
   : Boolean

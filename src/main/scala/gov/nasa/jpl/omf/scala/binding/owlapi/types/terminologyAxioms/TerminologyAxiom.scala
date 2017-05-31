@@ -18,11 +18,11 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologyAxioms
 
-import gov.nasa.jpl.omf.scala.binding.owlapi.types.TerminologyThing
+import gov.nasa.jpl.omf.scala.binding.owlapi.common.ModuleEdge
 
-import scala.{Any,Boolean}
+import scala.{Any, Boolean}
 
-abstract class TerminologyAxiom extends TerminologyThing {
+abstract class TerminologyAxiom extends ModuleEdge {
 
   override def canEqual(other: Any)
   : Boolean

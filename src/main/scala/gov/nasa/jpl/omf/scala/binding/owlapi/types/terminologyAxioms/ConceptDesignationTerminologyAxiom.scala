@@ -20,14 +20,16 @@ package gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologyAxioms
 
 import java.util.UUID
 
+import gov.nasa.jpl.omf.scala.binding.owlapi.common.Module
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Concept
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox
 
-import scala.{Any,Boolean,Int}
+import scala.{Any, Boolean, Int}
 import scala.Predef.require
 
 case class ConceptDesignationTerminologyAxiom
 (override val uuid: UUID,
+ graph: UUID,
  designatedConcept: Concept,
  designatedTerminology: TerminologyBox)
   extends TerminologyBoxAxiom {
@@ -42,16 +44,19 @@ case class ConceptDesignationTerminologyAxiom
     case _ => false
   }
 
-  override val hashCode: Int = (uuid, designatedConcept, designatedTerminology).##
+  override val hashCode: Int = (uuid, graph, designatedConcept, designatedTerminology).##
 
   override def equals(other: Any): Boolean = other match {
     case that: ConceptDesignationTerminologyAxiom =>
       (that canEqual this) &&
         (this.uuid == that.uuid) &&
+        (this.graph == that.graph) &&
         (this.designatedConcept == that.designatedConcept) &&
         (this.designatedTerminology == that.designatedTerminology)
     case _ =>
       false
   }
 
+  override val sourceModule: UUID = graph
+  override val targetModule: Module = designatedTerminology
 }

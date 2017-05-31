@@ -20,13 +20,15 @@ package gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologyAxioms
 
 import java.util.UUID
 
+import gov.nasa.jpl.omf.scala.binding.owlapi.common.Module
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox
 
-import scala.{Any,Boolean,Int}
+import scala.{Any, Boolean, Int}
 import scala.Predef.require
 
 case class TerminologyExtensionAxiom
 (override val uuid: UUID,
+ extendingTerminology: UUID,
  extendedTerminology: TerminologyBox )
 extends TerminologyBoxAxiom {
 
@@ -39,14 +41,18 @@ extends TerminologyBoxAxiom {
     case _ => false
   }
 
-  override val hashCode: Int = (uuid, extendedTerminology).##
+  override val hashCode: Int = (uuid, extendingTerminology, extendedTerminology).##
 
   override def equals(other: Any): Boolean = other match {
     case that: TerminologyExtensionAxiom =>
       (that canEqual this) &&
         (this.uuid == that.uuid) &&
+        (this.extendingTerminology == that.extendingTerminology) &&
         (this.extendedTerminology == that.extendedTerminology)
     case _ =>
       false
   }
+
+  override val sourceModule: UUID = extendingTerminology
+  override val targetModule: Module = extendedTerminology
 }
