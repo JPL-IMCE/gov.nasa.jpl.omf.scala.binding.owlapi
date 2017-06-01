@@ -1,0 +1,7 @@
+gov.nasa.jpl.omf.scala.binding.owlapi 6.0.1 is a minor update
+
+### Bug fixes
+
+- [#6 POM is missing dependencies on *.zip artifacts](https://github.com/JPL-IMCE/gov.nasa.jpl.omf.scala.binding.owlapi/issues/6)
+
+    Added 'zip' to the dependencies to include in the POM.
