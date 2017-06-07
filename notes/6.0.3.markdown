@@ -1,0 +1,13 @@
+gov.nasa.jpl.omf.scala.binding.owlapi 6.0.3 is a minor update
+
+## Issues Resolved
+
+- [#8 Turn off `scalax.collection.connectivity.GraphComponents` logger](https://github.com/JPL-IMCE/gov.nasa.jpl.omf.scala.binding.owlapi/issues/8)
+
+    Workaround for https://github.com/scala-graph/scala-graph/issues/75
+    
+## Work-In-Progress
+
+- [#7 Handle circular imports among ontologies](https://github.com/JPL-IMCE/gov.nasa.jpl.omf.scala.binding.owlapi/issues/7)
+
+    Deferred.

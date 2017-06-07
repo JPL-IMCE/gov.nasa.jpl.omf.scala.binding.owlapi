@@ -222,7 +222,7 @@ lazy val core =
     )
   )
   .dependsOn(
-    ProjectRef(uri("https://github.com/NicolasRouquette/scala-graph.git#scala_211"), "Graph-misc")
+    ProjectRef(uri("https://github.com/NicolasRouquette/scala-graph.git#5a9d477"), "Graph-misc")
   )
 
 def dynamicScriptsResourceSettings(projectName: String): Seq[Setting[_]] = {
