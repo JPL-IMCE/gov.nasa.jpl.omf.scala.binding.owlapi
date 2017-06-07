@@ -488,11 +488,15 @@ case class ImmutableTerminologyBoxResolver(resolver: TerminologyBoxResolverHelpe
   def resolve()
   : Throwables \/ (ImmutableTerminologyBox, OntologyMapping)
   = {
+    val builtInDatatypeMap = resolver.omfStore.getBuildInDatatypeMap.dataRanges.map { dr => dr.e -> dr }.toMap
+
     val importedScalarDatatypeDefinitionMaps: Map[OWLDatatype, DataRange]
     = resolver
       .importClosure
       .map(_.getScalarDatatypeDefinitionMap)
       .foldLeft(Map.empty[OWLDatatype, DataRange])(_ ++ _)
+
+    val effectiveDatatypeMap = builtInDatatypeMap ++ importedScalarDatatypeDefinitionMaps
 
     val dTs = ont.datatypesInSignature(Imports.EXCLUDED).toScala[List].filter(ont.isDeclared)
 
@@ -501,7 +505,7 @@ case class ImmutableTerminologyBoxResolver(resolver: TerminologyBoxResolverHelpe
       dTs
         .filter { dt => 0 == ont.datatypeDefinitions(dt).count() }
         .foldLeft[Throwables \/ Map[OWLDatatype, DataRange]](
-        importedScalarDatatypeDefinitionMaps.right
+        effectiveDatatypeMap.right
       ) { case (acc, dt) =>
         for {
           m <- acc

@@ -1103,9 +1103,13 @@ extends OWLAPIOMFGraphStoreMetadata(omfModule, ontManager) {
   def isBuiltInIRI
   (iri: IRI)
   : Boolean
-  = "http://www.w3.org/2001/XMLSchema" == iri.toString ||
-    "http://www.w3.org/1999/02/22-rdf-syntax-ns" == iri.toString ||
-    "http://www.w3.org/2002/07/owl" == iri.toString
+  = {
+    val siri = iri.toString
+    "http://www.w3.org/2001/XMLSchema" == siri ||
+      "http://www.w3.org/1999/02/22-rdf-syntax-ns#" == siri ||
+      "http://www.w3.org/2002/07/owl" == siri ||
+      "http://www.w3.org/2003/11/swrl" == siri
+  }
 
   def makeTerminologyGraph
   (uuid: UUID,

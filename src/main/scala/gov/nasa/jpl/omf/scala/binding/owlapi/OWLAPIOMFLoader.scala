@@ -21,23 +21,84 @@ package gov.nasa.jpl.omf.scala.binding.owlapi
 import gov.nasa.jpl.omf.scala.binding.owlapi.BackboneDeclaractions.BackboneDeclaractions
 import gov.nasa.jpl.omf.scala.core.OMFError.Throwables
 import gov.nasa.jpl.omf.scala.core._
+
 import org.semanticweb.owlapi.model._
 import org.semanticweb.owlapi.model.parameters.Imports
 
 import scalax.collection.config._
+import scalax.collection.connectivity.GraphComponents
 import scalax.collection.mutable.ArraySet.Hints
 import scalax.collection.Graph
 import scalax.collection.GraphEdge._
 import scalax.collection.GraphPredef._
+
 import scala.collection.immutable._
 import scala.compat.java8.StreamConverters._
+import scala.reflect.ClassTag
 import scala.util.control.Exception._
-import scala.{Int, None, Option, Some, StringContext, annotation}
+import scala.{None, Option, Some, StringContext, annotation}
 import scala.Predef.{Map => _, Set => _, _}
+
 import scalaz._
 import Scalaz._
 
 object OWLAPIOMFLoader {
+
+  type GraphsAndNodes[N] = (Seq[Graph[N, DiEdge]], Seq[Graph[N, DiEdge]#NodeT])
+
+  @scala.annotation.tailrec
+  final def hierarchicalTopologicalSort[N: ClassTag]
+  (queue: Seq[Graph[N, DiEdge]], sort: Seq[Graph[N, DiEdge]#NodeT])
+  : Throwables \/ Seq[Graph[N, DiEdge]#NodeT]
+  = queue match {
+    case Nil =>
+      sort.right
+    case g :: gs =>
+      val dag: Graph[Graph[N, DiEdge], DiEdge] = GraphComponents.graphToComponents(g).stronglyConnectedComponentsDag
+
+      val result
+      : Throwables \/ GraphsAndNodes[N]
+      = dag.topologicalSortByComponent().foldLeft {
+        (Seq.empty[Graph[N, DiEdge]], Seq.empty[Graph[N, DiEdge]#NodeT]).right[Throwables]
+      } {
+        case (acc, n) =>
+          for {
+            tuple <- acc
+            (tg, tn) = tuple
+            next <- n.fold[Throwables \/ GraphsAndNodes[N]](
+              (cycle) => {
+                Set[java.lang.Throwable](new java.lang.IllegalArgumentException(
+                  s"Cycle: $cycle"
+                )).left[GraphsAndNodes[N]]
+              },
+              (order) => {
+                val nextTuple: GraphsAndNodes[N] = order.foldLeft {
+                  (Seq.empty[Graph[N, DiEdge]], Seq.empty[Graph[N, DiEdge]#NodeT])
+                } { case ((ogs, on), o) =>
+                  val og: Graph[N, DiEdge] = o
+                  if (og.size == 1)
+                    (ogs, on :+ og.nodes.head)
+                  else {
+                    og.topologicalSort().fold[GraphsAndNodes[N]](
+                      (_) =>
+                        (ogs, on ++ og.nodes),
+                      (order) =>
+                        (ogs, on ++ order.toSeq))
+                  }
+
+                }
+                nextTuple.right[Throwables]
+              })
+            (ng, nn) = next
+          } yield (ng ++ tg, tn ++ nn)
+      }
+      result match {
+        case \/-((tg, tn)) =>
+          hierarchicalTopologicalSort(tg ++ gs, tn ++ sort)
+        case -\/(errors) =>
+          -\/(errors)
+      }
+  }
 
   /**
     * Get the classes directly declared in an ontology.
@@ -97,8 +158,13 @@ object OWLAPIOMFLoader {
 
   def getOntologyDirectlyImportedDocuments
   (ont: OWLOntology)
+  (implicit store: OWLAPIOMFGraphStore)
   : Set[IRI]
-  = ont.directImportsDocuments.toScala[Set]
+  = {
+    val iris = ont.directImportsDocuments.toScala[Set]
+    val filtered = iris.filterNot(store.isBuiltInIRI)
+    filtered
+  }
 
   case class ExtendingOntologyToExtendedModuleIRI
   (extending: IRI,
@@ -107,6 +173,7 @@ object OWLAPIOMFLoader {
   def getOntologyDirectlyExtendedModules
   (ont: OWLOntology,
    ontIRI: IRI)
+  (implicit store: OWLAPIOMFGraphStore)
   : Set[ExtendingOntologyToExtendedModuleIRI]
   = getOntologyDirectlyImportedDocuments(ont)
     .map(iri => ExtendingOntologyToExtendedModuleIRI(extending = ontIRI, extended = iri))
@@ -123,19 +190,15 @@ object OWLAPIOMFLoader {
     (implicit ops: OWLAPIOMFOps, store: OWLAPIOMFGraphStore)
     : Throwables \/ OntologyLoadedState
     = Internal.loadOntologiesRecursively(
-      Internal.OntologyLoaderState(
-        ontologies = Map(),
-        extensions = Set(),
-        nested2context = Set(),
-        queue = Set(iri)))
+      Internal.OntologyLoaderState(queue = Set(iri)))
 
     private object Internal {
 
       case class OntologyLoaderState
-      (ontologies: Map[IRI, OWLOntology],
-       extensions: Set[ExtendingOntologyToExtendedModuleIRI],
-       nested2context: Set[NestedOntologyToNestingContextIRI],
-       queue: Set[IRI]) {}
+      (ontologies: Map[IRI, OWLOntology] = Map.empty,
+       extensions: Set[ExtendingOntologyToExtendedModuleIRI] = Set.empty,
+       nested2context: Set[NestedOntologyToNestingContextIRI] = Set.empty,
+       queue: Set[IRI] = Set.empty) {}
 
       @annotation.tailrec
       def loadOntologiesRecursively
@@ -163,7 +226,7 @@ object OWLAPIOMFLoader {
       = s
         .ontologies
         .get(iri)
-        .fold[Throwables \/ OntologyLoaderState]({
+        .fold[Throwables \/ OntologyLoaderState] {
         nonFatalCatch[OntologyLoaderState]
           .withApply {
             cause: java.lang.Throwable =>
@@ -194,7 +257,7 @@ object OWLAPIOMFLoader {
               s.queue - iri ++ newIRIs))
 
           }
-      }) { _: OWLOntology =>
+      } { _: OWLOntology =>
 
         \/-(s.copy(queue = s.queue - iri))
 
@@ -222,6 +285,7 @@ object OWLAPIOMFLoader {
     */
   type OMFDocumentTopologicalOrder = OMFDocumentGraph#TopologicalOrder[Graph[IRI, DiEdge]#NodeT]
 
+
   /**
     * Need to perform a 2-pass load:
     * 1) Load Ontology => MutableGraph where nesting parent is loaded before nested children
@@ -243,95 +307,78 @@ object OWLAPIOMFLoader {
    drc: BuiltInDatatypeMap)
   (implicit ops: OWLAPIOMFOps, store: OWLAPIOMFGraphStore)
   : Throwables \/ ImmutableModuleConversionMap
-  = {
-    implicit val graphConfig = CoreConfig(orderHint = 5000, Hints(64, 0, 64, 75))
+  = m2i.lookupValue(iri) match {
+    case Some(im) =>
+      (im -> m2i).right
+    case None =>
+      implicit val graphConfig = CoreConfig(orderHint = 5000, Hints(64, 0, 64, 75))
 
-    for {
-      s <- OntologyLoadedState.loadAllOntologies(iri)
-      om = OntologyMapping.initialize(m2i, drc)
+      for {
+        s <- OntologyLoadedState.loadAllOntologies(iri)
+        om = OntologyMapping.initialize(m2i, drc)
 
-      // Add nodes for every OMF document ontology document IRI loaded.
-      g0 = Graph[IRI, DiEdge](s.ontologies.keys.toSeq: _*)
+        // Add nodes for every OMF document ontology document IRI loaded.
+        g0 = Graph[IRI, DiEdge](s.ontologies.keys.toSeq: _*)
 
-      // Add edges for every OMF document extension relationship
-      g1 = (g0 /: s.extensions) { (gi, e) =>
+        // Add edges for every OMF document extension relationship
+        g1 = (g0 /: s.extensions) { (gi, e) =>
 
-        // load the extended parent graph before the extending child graph
-        // because terms in the extending child graph can reference
-        // terms in scope of the extended parent graph
-        gi + e.extended ~> e.extending
+          // load the extended parent graph before the extending child graph
+          // because terms in the extending child graph can reference
+          // terms in scope of the extended parent graph
+          gi + e.extended ~> e.extending
 
-      }
+        }
 
-      resultPair <-
-      g1
-        .topologicalSort()
-        .fold(
-          (cycleNode: OMFDocumentNode) =>
-            -\/(Set(
-              OMFError.omfError(
-                s"Graph with ${g1.nodes.size} ontologies, ${g1.edges.size} edges has a cycle involving\n" +
-                  cycleNode.value
-              )
-            )),
-          (lorder: OMFDocumentTopologicalOrder) => {
+        lorder <- hierarchicalTopologicalSort(Seq(g1), Seq.empty)
 
-            val nonBuiltinDatatypeMapRoots = g1
-              .degreeNodeSeq(
-                nodeDegree = g1.InDegree,
-                degreeFilter = {
-                  _ == 0
-                })
-              .map(_._2.value)
-              .filter(store.isBuiltinDatatypeMap(_).isEmpty)
-              .to[Set]
-
-            loadModules(lorder, s, nonBuiltinDatatypeMapRoots, om).flatMap { loadedOM =>
-              loadedOM.m2i.lookupValue(iri) match {
-                case Some(im) =>
-                  (im -> loadedOM).right
-                case _ =>
-                  Set(OMFError.omfError(
-                    s"BUG: There should have been an OML Module for $iri")).left
-              }
-            }
+        _ = {
+          java.lang.System.out.println(s"loadModule(iri=$iri) ordered ${lorder.size} modules:")
+          lorder.foreach { g =>
+            java.lang.System.out.println(s"=> load: ${g.toOuter}")
           }
-        )
+        }
 
-      (i, resultOM) = resultPair
+        nonBuiltinDatatypeMapRoots =
+        g1
+          .degreeNodeSeq(
+            nodeDegree = g1.InDegree,
+            degreeFilter = {
+              _ == 0
+            })
+          .map(_._2.value)
+          .filter(store.isBuiltinDatatypeMap(_).isEmpty)
+          .to[Set]
 
-    } yield i -> resultOM.m2i
+        resultPair <- loadModules(lorder, s, nonBuiltinDatatypeMapRoots, om).flatMap { loadedOM =>
+          loadedOM.m2i.lookupValue(iri) match {
+            case Some(im) =>
+              (im -> loadedOM).right
+            case _ =>
+              Set(OMFError.omfError(
+                s"BUG: There should have been an OML Module for $iri")).left
+          }
+        }
+
+        (i, resultOM) = resultPair
+
+      } yield i -> resultOM.m2i
   }
 
+
   def loadModules
-  (queue: OMFDocumentTopologicalOrder,
+  (queue: Seq[OMFDocumentNode],
    s: OntologyLoadedState,
    nonBuiltinDatatypeMapRoots: Set[IRI],
    currentM2I: OntologyMapping)
   (implicit ops: OWLAPIOMFOps, store: OWLAPIOMFGraphStore)
   : Throwables \/ OntologyMapping
   = queue
-    .toLayered
     .foldLeft[Throwables \/ OntologyMapping]{
     currentM2I.right
   } {
-    loadModuleLayer(s,nonBuiltinDatatypeMapRoots)
+    loadModuleFromOntologyDocument(s,nonBuiltinDatatypeMapRoots)
   }
-
-  def loadModuleLayer
-  (s: OntologyLoadedState,
-   nonBuiltinDatatypeMapRoots: Set[IRI])
-  (acc: Throwables \/ OntologyMapping,
-   layer: (Int, scala.collection.Iterable[OMFDocumentNode]))
-  (implicit ops: OWLAPIOMFOps, store: OWLAPIOMFGraphStore)
-  : Throwables \/ OntologyMapping
-  = layer
-      ._2
-      .foldLeft {
-      acc
-    } {
-        loadModuleFromOntologyDocument(s,nonBuiltinDatatypeMapRoots)
-      }
 
   def loadModuleFromOntologyDocument
   (s: OntologyLoadedState,

@@ -819,13 +819,13 @@ trait MutableTerminologyBox
     val scalarDT = owlDataFactory.getOWLDatatype(scalarIRI)
     for {
       result <- createModelScalarDataType(scalarDT, name, uuid)
-      _ <- applyOntologyChanges(ontManager,
+      _ <- applyOntologyChangesOrNoOp(ontManager,
         Seq(
           new AddAxiom(ont,
             owlDataFactory
               .getOWLDeclarationAxiom(scalarDT))
         ),
-        "addScalarDataType error")
+        s"addScalarDataType error: $scalarIRI, name=$name")
     } yield result
   } {
     case t: OWLAPIOMF#Scalar =>
@@ -1157,7 +1157,7 @@ trait MutableTerminologyBox
   : Throwables \/ OWLAPIOMF#BinaryScalarRestriction
   = for {
     _ <- store.registerOMFModelScalarDataTypeInstance(this, rdr)
-    _ <- applyOntologyChanges(ontManager,
+    _ <- applyOntologyChangesOrNoOp(ontManager,
       Seq(
         new AddAxiom(ont, owlDataFactory
           .getOWLDeclarationAxiom(restrictionDT))
@@ -1183,7 +1183,7 @@ trait MutableTerminologyBox
               rdr.restrictedDataRange.e,
               owlDataFactory.getOWLFacetRestriction(OWLFacet.MAX_LENGTH, maxL))))
       },
-      "addBinaryScalarRestriction error")
+      s"addBinaryScalarRestriction error: ${restrictionDT.getIRI}")
     _ = iri2typeTerm += restrictionDT.getIRI -> rdr
     _ = sig.binaryScalarRestrictions += rdr
   } yield rdr
@@ -1283,7 +1283,7 @@ trait MutableTerminologyBox
   : Throwables \/ OWLAPIOMF#IRIScalarRestriction
   = for {
     _ <- store.registerOMFModelScalarDataTypeInstance(this, rdr)
-    _ <- applyOntologyChanges(ontManager,
+    _ <- applyOntologyChangesOrNoOp(ontManager,
         Seq(
           new AddAxiom(ont, owlDataFactory
             .getOWLDeclarationAxiom(restrictionDT))
@@ -1316,7 +1316,7 @@ trait MutableTerminologyBox
                 rdr.restrictedDataRange.e,
                 owlDataFactory.getOWLFacetRestriction(OWLFacet.PATTERN, owlDataFactory.getOWLLiteral(patt)))))
         },
-        "addIRIScalarRestriction error")
+        s"addIRIScalarRestriction error: ${restrictionDT.getIRI}")
     _ = iri2typeTerm += restrictionDT.getIRI -> rdr
     _ = sig.iriScalarRestrictions += rdr
   } yield rdr
@@ -1417,7 +1417,7 @@ trait MutableTerminologyBox
   : Throwables \/ OWLAPIOMF#NumericScalarRestriction
   = for {
     _ <- store.registerOMFModelScalarDataTypeInstance(this, rdr)
-    _ <- applyOntologyChanges(ontManager,
+    _ <- applyOntologyChangesOrNoOp(ontManager,
         Seq(
           new AddAxiom(ont, owlDataFactory
             .getOWLDeclarationAxiom(restrictionDT))
@@ -1458,7 +1458,7 @@ trait MutableTerminologyBox
                   OWLFacet.MAX_EXCLUSIVE,
                   owlDataFactory.getOWLLiteral(patt)))))
         },
-        "addNumericScalarRestriction error")
+        s"addNumericScalarRestriction error: ${restrictionDT.getIRI}")
     _ = iri2typeTerm += restrictionDT.getIRI -> rdr
     _ = sig.numericScalarRestrictions += rdr
   } yield rdr
@@ -1562,7 +1562,7 @@ trait MutableTerminologyBox
   : Throwables \/ OWLAPIOMF#PlainLiteralScalarRestriction
   = for {
     _ <- store.registerOMFModelScalarDataTypeInstance(this, rdr)
-  _ <- applyOntologyChanges(ontManager,
+  _ <- applyOntologyChangesOrNoOp(ontManager,
         Seq(
           new AddAxiom(ont, owlDataFactory
             .getOWLDeclarationAxiom(restrictionDT))
@@ -1606,7 +1606,7 @@ trait MutableTerminologyBox
                   OWLFacet.LANG_RANGE,
                   owlDataFactory.getOWLLiteral(lang)))))
         },
-        "addPlainLiteralScalarRestriction error")
+        s"addPlainLiteralScalarRestriction error: ${restrictionDT.getIRI}")
     _ = iri2typeTerm += restrictionDT.getIRI -> rdr
     _ = sig.plainLiteralScalarRestrictions += rdr
   } yield rdr
@@ -1706,7 +1706,7 @@ trait MutableTerminologyBox
   : Throwables \/ OWLAPIOMF#StringScalarRestriction
   = for {
     _ <- store.registerOMFModelScalarDataTypeInstance(this, rdr)
-    _ <- applyOntologyChanges(ontManager,
+    _ <- applyOntologyChangesOrNoOp(ontManager,
       Seq(
         new AddAxiom(ont, owlDataFactory
           .getOWLDeclarationAxiom(restrictionDT))
@@ -1741,7 +1741,7 @@ trait MutableTerminologyBox
                 OWLFacet.PATTERN,
                 owlDataFactory.getOWLLiteral(patt)))))
       },
-      "addStringScalarRestriction error")
+      s"addStringScalarRestriction error: ${restrictionDT.getIRI}")
     _ = iri2typeTerm += restrictionDT.getIRI -> rdr
     _ = sig.stringScalarRestrictions += rdr
   } yield rdr
@@ -1817,12 +1817,12 @@ trait MutableTerminologyBox
   : Throwables \/ OWLAPIOMF#SynonymScalarRestriction
   = for {
     _ <- store.registerOMFModelScalarDataTypeInstance(this, rdr)
-    _ <- applyOntologyChanges(ontManager,
+    _ <- applyOntologyChangesOrNoOp(ontManager,
       Seq(
         new AddAxiom(ont, owlDataFactory
           .getOWLDeclarationAxiom(restrictionDT))
       ),
-      "addSynonymScalarRestriction error")
+      s"addSynonymScalarRestriction error: ${restrictionDT.getIRI}")
     _ = iri2typeTerm += restrictionDT.getIRI -> rdr
     _ = sig.synonymScalarRestrictions += rdr
   } yield rdr
@@ -1922,7 +1922,7 @@ trait MutableTerminologyBox
   : Throwables \/ OWLAPIOMF#TimeScalarRestriction
   = for {
     _ <- store.registerOMFModelScalarDataTypeInstance(this, rdr)
-    _ <- applyOntologyChanges(ontManager,
+    _ <- applyOntologyChangesOrNoOp(ontManager,
       Seq(
         new AddAxiom(ont, owlDataFactory
           .getOWLDeclarationAxiom(restrictionDT))
@@ -1963,7 +1963,7 @@ trait MutableTerminologyBox
                 OWLFacet.MAX_EXCLUSIVE,
                 owlDataFactory.getOWLLiteral(maxE)))))
       },
-      "addTimeScalarRestriction error")
+      s"addTimeScalarRestriction error: ${restrictionDT.getIRI}")
     _ = iri2typeTerm += restrictionDT.getIRI -> rdr
     _ = sig.timeScalarRestrictions += rdr
   } yield rdr

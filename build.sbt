@@ -221,6 +221,9 @@ lazy val core =
         Artifact("gov.nasa.jpl.imce.ontologies.workflow", "zip", "zip", "digests")
     )
   )
+  .dependsOn(
+    ProjectRef(uri("https://github.com/NicolasRouquette/scala-graph.git#scala_211"), "Graph-misc")
+  )
 
 def dynamicScriptsResourceSettings(projectName: String): Seq[Setting[_]] = {
 

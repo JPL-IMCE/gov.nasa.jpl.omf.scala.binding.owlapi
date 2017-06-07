@@ -1,0 +1,7 @@
+gov.nasa.jpl.omf.scala.binding.owlapi 6.0.2 is a minor update
+
+## Work-In-Progress
+
+- [#7 Handle circular imports among ontologies](https://github.com/JPL-IMCE/gov.nasa.jpl.omf.scala.binding.owlapi/issues/7)
+
+    Update of the OWLAPIOMFLoader to allow circular imports using a hierarchical topological sort algorithm
