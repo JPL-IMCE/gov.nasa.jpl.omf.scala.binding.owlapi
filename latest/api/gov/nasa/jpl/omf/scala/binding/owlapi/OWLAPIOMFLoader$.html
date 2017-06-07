@@ -107,6 +107,23 @@
       </a>
     </span>
       
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader.GraphsAndNodes" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="GraphsAndNodes[N]=(scala.collection.immutable.Seq[scalax.collection.Graph[N,scalax.collection.GraphEdge.DiEdge]],scala.collection.immutable.Seq[scalax.collection.Graph[N,scalax.collection.GraphEdge.DiEdge]#NodeT])"></a>
+      <a id="GraphsAndNodes[N]:GraphsAndNodes[N]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">type</span>
+      </span>
+      <span class="symbol">
+        <span class="name">GraphsAndNodes</span><span class="tparams">[<span name="N">N</span>]</span><span class="result"> = (<span class="extype" name="scala.collection.immutable.Seq">Seq</span>[<span class="extype" name="scalax.collection.Graph">Graph</span>[<span class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader.GraphsAndNodes.N">N</span>, <span class="extype" name="scalax.collection.GraphEdge.DiEdge">DiEdge</span>]], <span class="extype" name="scala.collection.immutable.Seq">Seq</span>[<span class="extype" name="scalax.collection.GraphLike.NodeT">scalax.collection.Graph.NodeT</span>])</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader$@GraphsAndNodes[N]=(scala.collection.immutable.Seq[scalax.collection.Graph[N,scalax.collection.GraphEdge.DiEdge]],scala.collection.immutable.Seq[scalax.collection.Graph[N,scalax.collection.GraphEdge.DiEdge]#NodeT])" title="Permalink" target="_top">
+        <img src="../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
     </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader.NestedOntologyToNestingContextIRI" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="NestedOntologyToNestingContextIRIextendsProductwithSerializable"></a>
       <a id="NestedOntologyToNestingContextIRI:NestedOntologyToNestingContextIRI"></a>
@@ -419,35 +436,35 @@ A directed edge corresponds to a relationship among OMF documents (extension or 
       <p class="shortcomment cmt">Get the classes directly declared in an ontology.</p><div class="fullcomment"><div class="comment cmt"><p>Get the classes directly declared in an ontology.
 </p></div><dl class="paramcmts block"><dt class="param">ont</dt><dd class="cmt"><p>an ontology</p></dd><dt class="param">backbone</dt><dd class="cmt"><p>whether to include or exclude backbone declarations</p></dd><dt>returns</dt><dd class="cmt"><p>the classes that are declared in <code>ont</code>, optionally with the backbone classes if backbone=included.</p></dd></dl></div>
     </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader#getOntologyDirectlyExtendedModules" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="getOntologyDirectlyExtendedModules(ont:org.semanticweb.owlapi.model.OWLOntology,ontIRI:org.semanticweb.owlapi.model.IRI):scala.collection.immutable.Set[gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader.ExtendingOntologyToExtendedModuleIRI]"></a>
-      <a id="getOntologyDirectlyExtendedModules(OWLOntology,IRI):Set[ExtendingOntologyToExtendedModuleIRI]"></a>
+      <a id="getOntologyDirectlyExtendedModules(ont:org.semanticweb.owlapi.model.OWLOntology,ontIRI:org.semanticweb.owlapi.model.IRI)(implicitstore:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore):scala.collection.immutable.Set[gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader.ExtendingOntologyToExtendedModuleIRI]"></a>
+      <a id="getOntologyDirectlyExtendedModules(OWLOntology,IRI)(OWLAPIOMFGraphStore):Set[ExtendingOntologyToExtendedModuleIRI]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">getOntologyDirectlyExtendedModules</span><span class="params">(<span name="ont">ont: <span class="extype" name="org.semanticweb.owlapi.model.OWLOntology">OWLOntology</span></span>, <span name="ontIRI">ontIRI: <span class="extype" name="org.semanticweb.owlapi.model.IRI">IRI</span></span>)</span><span class="result">: <span class="extype" name="scala.collection.immutable.Set">Set</span>[<a href="OWLAPIOMFLoader$$ExtendingOntologyToExtendedModuleIRI.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader.ExtendingOntologyToExtendedModuleIRI">ExtendingOntologyToExtendedModuleIRI</a>]</span>
+        <span class="name">getOntologyDirectlyExtendedModules</span><span class="params">(<span name="ont">ont: <span class="extype" name="org.semanticweb.owlapi.model.OWLOntology">OWLOntology</span></span>, <span name="ontIRI">ontIRI: <span class="extype" name="org.semanticweb.owlapi.model.IRI">IRI</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="store">store: <a href="OWLAPIOMFGraphStore.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore">OWLAPIOMFGraphStore</a></span>)</span><span class="result">: <span class="extype" name="scala.collection.immutable.Set">Set</span>[<a href="OWLAPIOMFLoader$$ExtendingOntologyToExtendedModuleIRI.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader.ExtendingOntologyToExtendedModuleIRI">ExtendingOntologyToExtendedModuleIRI</a>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader$@getOntologyDirectlyExtendedModules(ont:org.semanticweb.owlapi.model.OWLOntology,ontIRI:org.semanticweb.owlapi.model.IRI):scala.collection.immutable.Set[gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader.ExtendingOntologyToExtendedModuleIRI]" title="Permalink" target="_top">
+      <a href="../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader$@getOntologyDirectlyExtendedModules(ont:org.semanticweb.owlapi.model.OWLOntology,ontIRI:org.semanticweb.owlapi.model.IRI)(implicitstore:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore):scala.collection.immutable.Set[gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader.ExtendingOntologyToExtendedModuleIRI]" title="Permalink" target="_top">
         <img src="../../../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       
     </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader#getOntologyDirectlyImportedDocuments" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="getOntologyDirectlyImportedDocuments(ont:org.semanticweb.owlapi.model.OWLOntology):scala.collection.immutable.Set[org.semanticweb.owlapi.model.IRI]"></a>
-      <a id="getOntologyDirectlyImportedDocuments(OWLOntology):Set[IRI]"></a>
+      <a id="getOntologyDirectlyImportedDocuments(ont:org.semanticweb.owlapi.model.OWLOntology)(implicitstore:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore):scala.collection.immutable.Set[org.semanticweb.owlapi.model.IRI]"></a>
+      <a id="getOntologyDirectlyImportedDocuments(OWLOntology)(OWLAPIOMFGraphStore):Set[IRI]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">getOntologyDirectlyImportedDocuments</span><span class="params">(<span name="ont">ont: <span class="extype" name="org.semanticweb.owlapi.model.OWLOntology">OWLOntology</span></span>)</span><span class="result">: <span class="extype" name="scala.collection.immutable.Set">Set</span>[<span class="extype" name="org.semanticweb.owlapi.model.IRI">IRI</span>]</span>
+        <span class="name">getOntologyDirectlyImportedDocuments</span><span class="params">(<span name="ont">ont: <span class="extype" name="org.semanticweb.owlapi.model.OWLOntology">OWLOntology</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="store">store: <a href="OWLAPIOMFGraphStore.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore">OWLAPIOMFGraphStore</a></span>)</span><span class="result">: <span class="extype" name="scala.collection.immutable.Set">Set</span>[<span class="extype" name="org.semanticweb.owlapi.model.IRI">IRI</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader$@getOntologyDirectlyImportedDocuments(ont:org.semanticweb.owlapi.model.OWLOntology):scala.collection.immutable.Set[org.semanticweb.owlapi.model.IRI]" title="Permalink" target="_top">
+      <a href="../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader$@getOntologyDirectlyImportedDocuments(ont:org.semanticweb.owlapi.model.OWLOntology)(implicitstore:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore):scala.collection.immutable.Set[org.semanticweb.owlapi.model.IRI]" title="Permalink" target="_top">
         <img src="../../../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -486,6 +503,26 @@ A directed edge corresponds to a relationship among OMF documents (extension or 
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader#hierarchicalTopologicalSort" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="hierarchicalTopologicalSort[N](queue:scala.collection.immutable.Seq[scalax.collection.Graph[N,scalax.collection.GraphEdge.DiEdge]],sort:scala.collection.immutable.Seq[scalax.collection.Graph[N,scalax.collection.GraphEdge.DiEdge]#NodeT])(implicitevidence$1:scala.reflect.ClassTag[N]):scalaz.\/[gov.nasa.jpl.omf.scala.core.OMFError.Throwables,scala.collection.immutable.Seq[scalax.collection.Graph[N,scalax.collection.GraphEdge.DiEdge]#NodeT]]"></a>
+      <a id="hierarchicalTopologicalSort[N](Seq[Graph[N,DiEdge]],Seq[scalax.collection.Graph.NodeT])(ClassTag[N]):\/[Throwables,Seq[scalax.collection.Graph.NodeT]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">hierarchicalTopologicalSort</span><span class="tparams">[<span name="N">N</span>]</span><span class="params">(<span name="queue">queue: <span class="extype" name="scala.collection.immutable.Seq">Seq</span>[<span class="extype" name="scalax.collection.Graph">Graph</span>[<span class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader.hierarchicalTopologicalSort.N">N</span>, <span class="extype" name="scalax.collection.GraphEdge.DiEdge">DiEdge</span>]]</span>, <span name="sort">sort: <span class="extype" name="scala.collection.immutable.Seq">Seq</span>[<span class="extype" name="scalax.collection.GraphLike.NodeT">scalax.collection.Graph.NodeT</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="scala.reflect.ClassTag">ClassTag</span>[<span class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader.hierarchicalTopologicalSort.N">N</span>]</span>)</span><span class="result">: <span class="extype" name="scalaz.\/">\/</span>[<span class="extype" name="gov.nasa.jpl.omf.scala.core.OMFError.Throwables">Throwables</span>, <span class="extype" name="scala.collection.immutable.Seq">Seq</span>[<span class="extype" name="scalax.collection.GraphLike.NodeT">scalax.collection.Graph.NodeT</span>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader$@hierarchicalTopologicalSort[N](queue:scala.collection.immutable.Seq[scalax.collection.Graph[N,scalax.collection.GraphEdge.DiEdge]],sort:scala.collection.immutable.Seq[scalax.collection.Graph[N,scalax.collection.GraphEdge.DiEdge]#NodeT])(implicitevidence$1:scala.reflect.ClassTag[N]):scalaz.\/[gov.nasa.jpl.omf.scala.core.OMFError.Throwables,scala.collection.immutable.Seq[scalax.collection.Graph[N,scalax.collection.GraphEdge.DiEdge]#NodeT]]" title="Permalink" target="_top">
+        <img src="../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@tailrec</span><span class="args">()</span>
+              
+        </dd></dl></div>
     </li><li name="scala.Any#isInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="isInstanceOf[T0]:Boolean"></a>
       <a id="isInstanceOf[T0]:Boolean"></a>
@@ -545,36 +582,19 @@ to an ImmutableGraph so that it can be added to its nesting parent MutableGraph.
       </a>
     </span>
       
-    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader#loadModuleLayer" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="loadModuleLayer(s:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader.OntologyLoadedState,nonBuiltinDatatypeMapRoots:scala.collection.immutable.Set[org.semanticweb.owlapi.model.IRI])(acc:scalaz.\/[gov.nasa.jpl.omf.scala.core.OMFError.Throwables,gov.nasa.jpl.omf.scala.binding.owlapi.OntologyMapping],layer:(Int,Iterable[gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader.OMFDocumentNode]))(implicitops:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFOps,implicitstore:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore):scalaz.\/[gov.nasa.jpl.omf.scala.core.OMFError.Throwables,gov.nasa.jpl.omf.scala.binding.owlapi.OntologyMapping]"></a>
-      <a id="loadModuleLayer(OntologyLoadedState,Set[IRI])(\/[Throwables,OntologyMapping],(Int,Iterable[OMFDocumentNode]))(OWLAPIOMFOps,OWLAPIOMFGraphStore):\/[Throwables,OntologyMapping]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">loadModuleLayer</span><span class="params">(<span name="s">s: <a href="OWLAPIOMFLoader$$OntologyLoadedState.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader.OntologyLoadedState">OntologyLoadedState</a></span>, <span name="nonBuiltinDatatypeMapRoots">nonBuiltinDatatypeMapRoots: <span class="extype" name="scala.collection.immutable.Set">Set</span>[<span class="extype" name="org.semanticweb.owlapi.model.IRI">IRI</span>]</span>)</span><span class="params">(<span name="acc">acc: <span class="extype" name="scalaz.\/">\/</span>[<span class="extype" name="gov.nasa.jpl.omf.scala.core.OMFError.Throwables">Throwables</span>, <a href="OntologyMapping.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OntologyMapping">OntologyMapping</a>]</span>, <span name="layer">layer: (<span class="extype" name="scala.Int">Int</span>, <span class="extype" name="scala.collection.Iterable">Iterable</span>[<a href="#OMFDocumentNode=scalax.collection.Graph[org.semanticweb.owlapi.model.IRI,scalax.collection.GraphEdge.DiEdge]#NodeT" class="extmbr" name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader.OMFDocumentNode">OMFDocumentNode</a>])</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="ops">ops: <a href="OWLAPIOMFOps.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFOps">OWLAPIOMFOps</a></span>, <span name="store">store: <a href="OWLAPIOMFGraphStore.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore">OWLAPIOMFGraphStore</a></span>)</span><span class="result">: <span class="extype" name="scalaz.\/">\/</span>[<span class="extype" name="gov.nasa.jpl.omf.scala.core.OMFError.Throwables">Throwables</span>, <a href="OntologyMapping.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OntologyMapping">OntologyMapping</a>]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader$@loadModuleLayer(s:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader.OntologyLoadedState,nonBuiltinDatatypeMapRoots:scala.collection.immutable.Set[org.semanticweb.owlapi.model.IRI])(acc:scalaz.\/[gov.nasa.jpl.omf.scala.core.OMFError.Throwables,gov.nasa.jpl.omf.scala.binding.owlapi.OntologyMapping],layer:(Int,Iterable[gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader.OMFDocumentNode]))(implicitops:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFOps,implicitstore:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore):scalaz.\/[gov.nasa.jpl.omf.scala.core.OMFError.Throwables,gov.nasa.jpl.omf.scala.binding.owlapi.OntologyMapping]" title="Permalink" target="_top">
-        <img src="../../../../../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      
     </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader#loadModules" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="loadModules(queue:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader.OMFDocumentTopologicalOrder,s:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader.OntologyLoadedState,nonBuiltinDatatypeMapRoots:scala.collection.immutable.Set[org.semanticweb.owlapi.model.IRI],currentM2I:gov.nasa.jpl.omf.scala.binding.owlapi.OntologyMapping)(implicitops:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFOps,implicitstore:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore):scalaz.\/[gov.nasa.jpl.omf.scala.core.OMFError.Throwables,gov.nasa.jpl.omf.scala.binding.owlapi.OntologyMapping]"></a>
-      <a id="loadModules(OMFDocumentTopologicalOrder,OntologyLoadedState,Set[IRI],OntologyMapping)(OWLAPIOMFOps,OWLAPIOMFGraphStore):\/[Throwables,OntologyMapping]"></a>
+      <a id="loadModules(queue:scala.collection.immutable.Seq[gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader.OMFDocumentNode],s:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader.OntologyLoadedState,nonBuiltinDatatypeMapRoots:scala.collection.immutable.Set[org.semanticweb.owlapi.model.IRI],currentM2I:gov.nasa.jpl.omf.scala.binding.owlapi.OntologyMapping)(implicitops:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFOps,implicitstore:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore):scalaz.\/[gov.nasa.jpl.omf.scala.core.OMFError.Throwables,gov.nasa.jpl.omf.scala.binding.owlapi.OntologyMapping]"></a>
+      <a id="loadModules(Seq[OMFDocumentNode],OntologyLoadedState,Set[IRI],OntologyMapping)(OWLAPIOMFOps,OWLAPIOMFGraphStore):\/[Throwables,OntologyMapping]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">loadModules</span><span class="params">(<span name="queue">queue: <a href="#OMFDocumentTopologicalOrder=scalax.collection.Graph[org.semanticweb.owlapi.model.IRI,scalax.collection.GraphEdge.DiEdge]#TopologicalOrder[scalax.collection.Graph[org.semanticweb.owlapi.model.IRI,scalax.collection.GraphEdge.DiEdge]#NodeT]" class="extmbr" name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader.OMFDocumentTopologicalOrder">OMFDocumentTopologicalOrder</a></span>, <span name="s">s: <a href="OWLAPIOMFLoader$$OntologyLoadedState.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader.OntologyLoadedState">OntologyLoadedState</a></span>, <span name="nonBuiltinDatatypeMapRoots">nonBuiltinDatatypeMapRoots: <span class="extype" name="scala.collection.immutable.Set">Set</span>[<span class="extype" name="org.semanticweb.owlapi.model.IRI">IRI</span>]</span>, <span name="currentM2I">currentM2I: <a href="OntologyMapping.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OntologyMapping">OntologyMapping</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="ops">ops: <a href="OWLAPIOMFOps.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFOps">OWLAPIOMFOps</a></span>, <span name="store">store: <a href="OWLAPIOMFGraphStore.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore">OWLAPIOMFGraphStore</a></span>)</span><span class="result">: <span class="extype" name="scalaz.\/">\/</span>[<span class="extype" name="gov.nasa.jpl.omf.scala.core.OMFError.Throwables">Throwables</span>, <a href="OntologyMapping.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OntologyMapping">OntologyMapping</a>]</span>
+        <span class="name">loadModules</span><span class="params">(<span name="queue">queue: <span class="extype" name="scala.collection.immutable.Seq">Seq</span>[<a href="#OMFDocumentNode=scalax.collection.Graph[org.semanticweb.owlapi.model.IRI,scalax.collection.GraphEdge.DiEdge]#NodeT" class="extmbr" name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader.OMFDocumentNode">OMFDocumentNode</a>]</span>, <span name="s">s: <a href="OWLAPIOMFLoader$$OntologyLoadedState.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader.OntologyLoadedState">OntologyLoadedState</a></span>, <span name="nonBuiltinDatatypeMapRoots">nonBuiltinDatatypeMapRoots: <span class="extype" name="scala.collection.immutable.Set">Set</span>[<span class="extype" name="org.semanticweb.owlapi.model.IRI">IRI</span>]</span>, <span name="currentM2I">currentM2I: <a href="OntologyMapping.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OntologyMapping">OntologyMapping</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="ops">ops: <a href="OWLAPIOMFOps.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFOps">OWLAPIOMFOps</a></span>, <span name="store">store: <a href="OWLAPIOMFGraphStore.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore">OWLAPIOMFGraphStore</a></span>)</span><span class="result">: <span class="extype" name="scalaz.\/">\/</span>[<span class="extype" name="gov.nasa.jpl.omf.scala.core.OMFError.Throwables">Throwables</span>, <a href="OntologyMapping.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OntologyMapping">OntologyMapping</a>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader$@loadModules(queue:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader.OMFDocumentTopologicalOrder,s:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader.OntologyLoadedState,nonBuiltinDatatypeMapRoots:scala.collection.immutable.Set[org.semanticweb.owlapi.model.IRI],currentM2I:gov.nasa.jpl.omf.scala.binding.owlapi.OntologyMapping)(implicitops:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFOps,implicitstore:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore):scalaz.\/[gov.nasa.jpl.omf.scala.core.OMFError.Throwables,gov.nasa.jpl.omf.scala.binding.owlapi.OntologyMapping]" title="Permalink" target="_top">
+      <a href="../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader$@loadModules(queue:scala.collection.immutable.Seq[gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader.OMFDocumentNode],s:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader.OntologyLoadedState,nonBuiltinDatatypeMapRoots:scala.collection.immutable.Set[org.semanticweb.owlapi.model.IRI],currentM2I:gov.nasa.jpl.omf.scala.binding.owlapi.OntologyMapping)(implicitops:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFOps,implicitstore:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore):scalaz.\/[gov.nasa.jpl.omf.scala.core.OMFError.Throwables,gov.nasa.jpl.omf.scala.binding.owlapi.OntologyMapping]" title="Permalink" target="_top">
         <img src="../../../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
