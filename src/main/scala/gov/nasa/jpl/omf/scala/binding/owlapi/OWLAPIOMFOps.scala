@@ -1754,6 +1754,16 @@ trait OWLAPIMutableDescriptionBoxOps
   : Throwables \/ descriptions.ReifiedRelationshipInstanceRange
   = dbox.addReifiedRelationshipInstanceRange(uuid, relationshipInstance, target)
 
+  override def addUnreifiedRelationshipInstanceTuple
+  (uuid: UUID,
+   dbox: descriptions.MutableDescriptionBox,
+   unreifiedRelationship: UnreifiedRelationship,
+   source: descriptions.ConceptualEntitySingletonInstance,
+   target: descriptions.ConceptualEntitySingletonInstance)
+  (implicit store: OWLAPIOMFGraphStore)
+  : Throwables \/ descriptions.UnreifiedRelationshipInstanceTuple
+  = dbox.addUnreifiedRelationshipInstanceTuple(uuid, unreifiedRelationship, source, target)
+
   override def addSingletonInstanceScalarDataPropertyValue
   (uuid: UUID,
    dbox: descriptions.MutableDescriptionBox,
