@@ -20,7 +20,7 @@ package gov.nasa.jpl.omf.scala.binding.owlapi
 
 import gov.nasa.jpl.omf.scala.binding.owlapi.AxiomExceptionKind._
 import gov.nasa.jpl.omf.scala.binding.owlapi.AxiomScopeAccessKind._
-import gov.nasa.jpl.omf.scala.binding.owlapi.EntityExceptionKind._
+import gov.nasa.jpl.omf.scala.binding.owlapi.ElementExceptionKind._
 import gov.nasa.jpl.omf.scala.binding.owlapi.RelationshipScopeAccessKind._
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologyAxioms.TerminologyAxiom
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.{Axiom, Term}
@@ -31,12 +31,12 @@ import scala.StringContext
 import scala.Predef.{String, augmentString, require}
 import scala.collection.immutable.Map
 
-sealed abstract class MutableModelTerminologyGraphException
+sealed abstract class MutableTerminologyBoxException
 (override val message: String)
   extends OMFError.OMFException(message, OMFError.emptyThrowables) {
   require(null != message)
 
-  def this(kind: EntityExceptionKind, iri: IRI, message: String)
+  def this(kind: ElementExceptionKind, iri: IRI, message: String)
   = this(s"Cannot create $kind with IRI=$iri because "+message)
 
   def this(kind: AxiomExceptionKind, message: String)
@@ -44,10 +44,10 @@ sealed abstract class MutableModelTerminologyGraphException
 }
 
 case class EntityAlreadyDefinedException
-(kind: EntityExceptionKind,
+(kind: ElementExceptionKind,
  iri: IRI,
  term: Term)
-  extends MutableModelTerminologyGraphException(kind, iri, s"it is already defined as: $term") {
+  extends MutableTerminologyBoxException(kind, iri, s"it is already defined as: $term") {
 
   require(null != kind)
   require(null != iri)
@@ -55,10 +55,10 @@ case class EntityAlreadyDefinedException
 }
 
 case class EntityConflictException
-(kind: EntityExceptionKind,
+(kind: ElementExceptionKind,
  iri: IRI,
  conflictingTerm: Term)
-  extends MutableModelTerminologyGraphException(kind, iri, s"this IRI refers to: $conflictingTerm") {
+  extends MutableTerminologyBoxException(kind, iri, s"this IRI refers to: $conflictingTerm") {
 
   require(null != kind)
   require(null != iri)
@@ -66,10 +66,10 @@ case class EntityConflictException
 }
 
 case class EntityScopeException
-(kind: EntityExceptionKind,
+(kind: ElementExceptionKind,
  iri: IRI,
  unaccessibleTerms: Map[RelationshipScopeAccessKind, Term])
-  extends MutableModelTerminologyGraphException(kind, iri,
+  extends MutableTerminologyBoxException(kind, iri,
     s"""|there are ${unaccessibleTerms.size} terms out of scope of
         |the graph: """.stripMargin +
       (unaccessibleTerms.map { case (k, t) => s"$k: $t" } mkString ", "))
@@ -77,17 +77,17 @@ case class EntityScopeException
 case class AxiomScopeException
 (kind: AxiomExceptionKind,
  unaccessibleTerms: Map[AxiomScopeAccessKind, Term])
-  extends MutableModelTerminologyGraphException(kind,
+  extends MutableTerminologyBoxException(kind,
     s"""|there are ${unaccessibleTerms.size} terms out of scope of
         |the graph: """.stripMargin +
       (unaccessibleTerms.map { case (k, t) => s"$k: $t" } mkString ", "))
 
-case class DuplicateModelTermAxiomException
+case class DuplicateTermAxiomException
 (kind: AxiomExceptionKind,
  axiom: Axiom)
-  extends MutableModelTerminologyGraphException(kind, s"the axiom is already asserted $axiom")
+  extends MutableTerminologyBoxException(kind, s"the axiom is already asserted $axiom")
 
-case class DuplicateTerminologyGraphAxiomException
+case class DuplicateTerminologyBoxAxiomException
 (kind: AxiomExceptionKind,
  axiom: TerminologyAxiom)
-  extends MutableModelTerminologyGraphException(kind, s"the axiom is already asserted $axiom")
+  extends MutableTerminologyBoxException(kind, s"the axiom is already asserted $axiom")

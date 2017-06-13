@@ -20,8 +20,8 @@ package gov.nasa.jpl.omf.scala.binding.owlapi
 
 import scala.Enumeration
 
-object EntityExceptionKind extends Enumeration {
-  type EntityExceptionKind = Value
+object ElementExceptionKind extends Enumeration {
+  type ElementExceptionKind = Value
   val EntityAspect,
   EntityConcept,
   EntityReifiedRelationship,
@@ -39,5 +39,9 @@ object EntityExceptionKind extends Enumeration {
   PlainLiteralScalarRestriction,
   StringScalarRestriction,
   SynonymScalarRestriction,
-  TimeScalarRestriction = Value
+  TimeScalarRestriction,
+  ConceptInstance,
+  ReifiedRelationshipInstance,
+  AnnotationProperty
+  = Value
 }

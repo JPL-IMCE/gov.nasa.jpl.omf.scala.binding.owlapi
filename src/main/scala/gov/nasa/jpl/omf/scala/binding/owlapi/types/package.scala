@@ -22,7 +22,7 @@ import gov.nasa.jpl.omf.scala.core._
 import gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader.OntologyLoadedState
 import AxiomExceptionKind._
 import AxiomScopeAccessKind._
-import EntityExceptionKind._
+import ElementExceptionKind._
 import RelationshipScopeAccessKind._
 import gov.nasa.jpl.imce.oml.tables.AnnotationProperty
 import gov.nasa.jpl.omf.scala.binding.owlapi.common.{ImmutableModule, MutableModule}
@@ -59,21 +59,21 @@ package object types {
   = \/-(None)
 
   def entityAlreadyDefinedException
-  (kind: EntityExceptionKind,
+  (kind: ElementExceptionKind,
    iri: IRI,
    term: Term)
   : java.lang.Throwable
   = EntityAlreadyDefinedException(kind, iri, term)
 
   def entityConflictException
-  (kind: EntityExceptionKind,
+  (kind: ElementExceptionKind,
    iri: IRI,
    conflictingTerm: Term)
   : java.lang.Throwable
   = EntityConflictException(kind, iri, conflictingTerm)
 
   def entityScopeException
-  (kind: EntityExceptionKind,
+  (kind: ElementExceptionKind,
    iri: IRI,
    unaccessibleTerms: Map[RelationshipScopeAccessKind, Term])
   : java.lang.Throwable
@@ -89,13 +89,13 @@ package object types {
   (kind: AxiomExceptionKind,
    axiom: Axiom)
   : java.lang.Throwable
-  = DuplicateModelTermAxiomException(kind, axiom)
+  = DuplicateTermAxiomException(kind, axiom)
 
   def duplicateTerminologyGraphAxiomException
   (kind: AxiomExceptionKind,
    axiom: TerminologyAxiom)
   : java.lang.Throwable
-  = DuplicateTerminologyGraphAxiomException(kind, axiom)
+  = DuplicateTerminologyBoxAxiomException(kind, axiom)
 
   // loading mutable graphs (incl. converting extended mutable graphs => immutable graphs)
 

@@ -38,6 +38,13 @@ object AxiomExceptionKind extends Enumeration {
   BundledTerminologyAxiomException,
   EntityConceptDesignationTerminologyGraphAxiomException,
   TerminologyGraphDirectExtensionAxiomException,
-  TerminologyGraphDirectNestingAxiomException
+  TerminologyGraphDirectNestingAxiomException,
+  ReifiedRelationshipInstanceDomain,
+  ReifiedRelationshipInstanceRange,
+  UnreifiedRelationshipInstanceTuple,
+  SingletonInstanceScalarDataPropertyValue,
+  SingletonInstanceStructuredDataPropertyValue,
+  ScalarDataPropertyValue,
+  StructuredDataPropertyTuple
   = Value
 }

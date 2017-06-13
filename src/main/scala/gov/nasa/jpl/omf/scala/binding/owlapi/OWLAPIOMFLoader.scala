@@ -44,19 +44,23 @@ import Scalaz._
 
 object OWLAPIOMFLoader {
 
-  type GraphsAndNodes[N] = (Seq[Graph[N, DiEdge]], Seq[Graph[N, DiEdge]#NodeT])
-
   @scala.annotation.tailrec
-  final def hierarchicalTopologicalSort[N: ClassTag]
-  (queue: Seq[Graph[N, DiEdge]], sort: Seq[Graph[N, DiEdge]#NodeT])
-  : Throwables \/ Seq[Graph[N, DiEdge]#NodeT]
+  final def hierarchicalTopologicalSort[N: ClassTag, E[M] <: DiEdge[M]]
+  (queue: Seq[Graph[N, E]], before: Seq[N] = Seq.empty, after: Seq[N] = Seq.empty)
+  : Throwables \/ Seq[N]
   = queue match {
     case Nil =>
+      val sort: Seq[N] = (before ++ after).reverse
+      import java.lang.System.out._
+      import scala.StringContext
+      println(s"hierarchicalTopologicalSort: ${sort.size} nodes")
+      sort.zipWithIndex.foreach { case (n, i) =>
+        println(s" $i: $n")
+      }
       sort.right
     case g :: gs =>
 
       // Workaround
-      // https://github.com/JPL-IMCE/gov.nasa.jpl.omf.scala.binding.owlapi/issues/8
       // https://github.com/scala-graph/scala-graph/issues/75
       Option.apply(
         org.apache.log4j.LogManager.getLogger("scalax.collection.connectivity.GraphComponents")
@@ -67,49 +71,24 @@ object OWLAPIOMFLoader {
           ()
       }
 
-      val dag: Graph[Graph[N, DiEdge], DiEdge] = GraphComponents.graphToComponents(g).stronglyConnectedComponentsDag
+      val dag = GraphComponents.graphToComponents(g).stronglyConnectedComponentsDag
 
-      val result
-      : Throwables \/ GraphsAndNodes[N]
-      = dag.topologicalSortByComponent().foldLeft {
-        (Seq.empty[Graph[N, DiEdge]], Seq.empty[Graph[N, DiEdge]#NodeT]).right[Throwables]
-      } {
-        case (acc, n) =>
-          for {
-            tuple <- acc
-            (tg, tn) = tuple
-            next <- n.fold[Throwables \/ GraphsAndNodes[N]](
-              (cycle) => {
-                Set[java.lang.Throwable](new java.lang.IllegalArgumentException(
-                  s"Cycle: $cycle"
-                )).left[GraphsAndNodes[N]]
-              },
-              (order) => {
-                val nextTuple: GraphsAndNodes[N] = order.foldLeft {
-                  (Seq.empty[Graph[N, DiEdge]], Seq.empty[Graph[N, DiEdge]#NodeT])
-                } { case ((ogs, on), o) =>
-                  val og: Graph[N, DiEdge] = o
-                  if (og.size == 1)
-                    (ogs, on :+ og.nodes.head)
-                  else {
-                    og.topologicalSort().fold[GraphsAndNodes[N]](
-                      (_) =>
-                        (ogs, on ++ og.nodes),
-                      (order) =>
-                        (ogs, on ++ order.toSeq))
-                  }
+      dag.topologicalSortByComponent().toList match {
+        case Nil =>
+          (before ++ after).right[Throwables]
 
-                }
-                nextTuple.right[Throwables]
-              })
-            (ng, nn) = next
-          } yield (ng ++ tg, tn ++ nn)
-      }
-      result match {
-        case \/-((tg, tn)) =>
-          hierarchicalTopologicalSort(tg ++ gs, tn ++ sort)
-        case -\/(errors) =>
-          -\/(errors)
+        case n :: ns =>
+          if (n.isLeft) {
+            val n1 = n.left.get
+            val ns: Seq[N] = n1.toOuter.toOuterNodes.to[Seq]
+            hierarchicalTopologicalSort(gs, before ++ ns, after)
+          } else if (n.isRight) {
+            val cycle = n.right.get
+            val ns: Seq[N] = cycle.toOuterNodes.to[Seq].flatMap(_.toOuterNodes.to[Seq])
+            hierarchicalTopologicalSort(gs, before ++ ns, after)
+          } else
+            hierarchicalTopologicalSort(gs, before, after)
+
       }
   }
 
@@ -352,8 +331,8 @@ object OWLAPIOMFLoader {
 
         _ = {
           java.lang.System.out.println(s"loadModule(iri=$iri) ordered ${lorder.size} modules:")
-          lorder.foreach { g =>
-            java.lang.System.out.println(s"=> load: ${g.toOuter}")
+          lorder.foreach { iri =>
+            java.lang.System.out.println(s"=> load: $iri")
           }
         }
 
@@ -385,7 +364,7 @@ object OWLAPIOMFLoader {
 
 
   def loadModules
-  (queue: Seq[OMFDocumentNode],
+  (queue: Seq[IRI],
    s: OntologyLoadedState,
    nonBuiltinDatatypeMapRoots: Set[IRI],
    currentM2I: OntologyMapping)
@@ -402,11 +381,10 @@ object OWLAPIOMFLoader {
   (s: OntologyLoadedState,
    nonBuiltinDatatypeMapRoots: Set[IRI])
   (acc: Throwables \/ OntologyMapping,
-   node: OMFDocumentNode)
+   ontIRI: IRI)
   (implicit ops: OWLAPIOMFOps, store: OWLAPIOMFGraphStore)
   : Throwables \/ OntologyMapping
   = acc.flatMap { om =>
-    val ontIRI = node.value
     assert(s.ontologies.contains(ontIRI))
     val ont = s.ontologies(ontIRI)
 

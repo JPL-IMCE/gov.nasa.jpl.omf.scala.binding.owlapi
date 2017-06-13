@@ -22,14 +22,14 @@ import java.util.UUID
 
 import gov.nasa.jpl.imce.oml.tables.{AnnotationEntry, AnnotationProperty}
 import gov.nasa.jpl.omf.scala.binding.owlapi.AxiomExceptionKind
-import gov.nasa.jpl.omf.scala.binding.owlapi.EntityExceptionKind
+import gov.nasa.jpl.omf.scala.binding.owlapi.ElementExceptionKind
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.{axiomScopeException, duplicateModelTermAxiomException, duplicateTerminologyGraphAxiomException, entityAlreadyDefinedException, entityConflictException, entityScopeException, terms}
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologyAxioms._
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.termAxioms._
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms._
 import gov.nasa.jpl.omf.scala.binding.owlapi._
-import gov.nasa.jpl.omf.scala.binding.owlapi.common.MutableModule
-import gov.nasa.jpl.omf.scala.core.OMFError.Throwables
+import gov.nasa.jpl.omf.scala.binding.owlapi.common.{MutableModule, Resource}
+import gov.nasa.jpl.omf.scala.core.OMFError
 import gov.nasa.jpl.omf.scala.core.OMLString.{LexicalValue, LocalName}
 import gov.nasa.jpl.omf.scala.core._
 import gov.nasa.jpl.omf.scala.core.RelationshipCharacteristics.RelationshipCharacteristics
@@ -69,41 +69,61 @@ trait MutableTerminologyBox
   def addAnnotationProperty
   (ap: AnnotationProperty)
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ AnnotationProperty
-  = {
-    sig.annotationProperties += ap
-    ap.right
-  }
+  : OMFError.Throwables \/ AnnotationProperty
+  = for {
+    _ <- (sig.annotationProperties += ap).right[OMFError.Throwables]
+    ont_ap = owlDataFactory.getOWLAnnotationProperty(ap.iri)
+    _ <- applyOntologyChangeOrNoOp(ontManager,
+      new AddAxiom(ont, owlDataFactory.getOWLDeclarationAxiom(ont_ap)),
+      "addAnnotationProperty error")
+  } yield ap
 
   def addAnnotation
   (subject: OWLAPIOMF#Element,
    property: AnnotationProperty,
    value: String)
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ AnnotationEntry
-  = {
-    val a = AnnotationEntry(
-      moduleUUID=uuid.toString,
-      subjectUUID=subject.uuid.toString,
-      value)
-    sig.annotations.find { case (ap, _) => ap == property } match {
+  : OMFError.Throwables \/ AnnotationEntry
+  = for {
+    a <- AnnotationEntry(
+      moduleUUID = uuid.toString,
+      subjectUUID = subject.uuid.toString,
+      value).right[OMFError.Throwables]
+    _ = sig.annotations.find { case (ap, _) => ap == property } match {
       case Some((ap, aes)) =>
         sig.annotations -= property -> aes
         sig.annotations += property -> (aes + a)
       case None =>
         sig.annotations += property -> (Set.empty[AnnotationEntry] + a)
     }
-    a.right
-  }
+    ont_ap = owlDataFactory.getOWLAnnotationProperty(property.iri)
+    ont_lit = owlDataFactory.getOWLLiteral(value)
+    _ <- subject match {
+      case m: MutableModule =>
+        applyOntologyChangeOrNoOp(
+          ontManager,
+          new AddOntologyAnnotation(ont, owlDataFactory.getOWLAnnotation(ont_ap, ont_lit)),
+          "addAnnotation error")
+      case r: Resource =>
+        applyOntologyChangeOrNoOp(
+          ontManager,
+          new AddAxiom(ont, owlDataFactory.getOWLAnnotationAssertionAxiom(ont_ap, r.iri, ont_lit)),
+          "addAnnotation error")
+      case _ =>
+        Set[java.lang.Throwable](
+          OMFError.omfError(s"addAnnotation is not supported for a non-resource subject: $subject")
+        ).left
+    }
+  } yield a
 
   def removeAnnotations
   (subject: OWLAPIOMF#Element,
    property: AnnotationProperty)
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ Set[AnnotationEntry]
-  = {
-    val sUUID = subject.uuid.toString
-    sig.annotations.find { case (ap, _) => ap == property } match {
+  : OMFError.Throwables \/ Set[AnnotationEntry]
+  = for {
+    sUUID <- subject.uuid.toString.right[OMFError.Throwables]
+    ae <- sig.annotations.find { case (ap, _) => ap == property } match {
       case Some((ap, aes)) =>
         sig.annotations -= property -> aes
         val removed = aes.filter(_.subjectUUID == sUUID)
@@ -112,14 +132,32 @@ trait MutableTerminologyBox
       case None =>
         Set.empty[AnnotationEntry].right
     }
-  }
+    ont_ap = owlDataFactory.getOWLAnnotationProperty(property.iri)
+    _ <- subject match {
+      case r: Resource =>
+        val aaas =
+          ont
+            .annotationAssertionAxioms(r.iri)
+            .toScala[Seq]
+            .filter { aaa => aaa.getAnnotation.getProperty.getIRI == ont_ap.getIRI }
+            .map { aaa => new RemoveAxiom(ont, aaa) }
+        if (aaas.nonEmpty)
+          applyOntologyChangesOrNoOp(ontManager, aaas, "removeAnnotations error")
+        else
+          ().right
+      case _ =>
+        Set[java.lang.Throwable](
+          OMFError.omfError(s"removeAnnotations is not supported for a non-resource subject: $subject")
+        ).left
+    }
+  } yield ae
 
   // Terminology Axioms
 
   def createTerminologyExtensionAxiom
   (extendedG: TerminologyBox)
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ TerminologyExtensionAxiom
+  : OMFError.Throwables \/ TerminologyExtensionAxiom
   = for {
     uuid <- ops.terminologyExtensionUUID(this, extendedG)
     ax <- createTerminologyExtensionAxiom(uuid, extendedG)
@@ -129,10 +167,10 @@ trait MutableTerminologyBox
   (uuid: UUID,
    extendedG: TerminologyBox)
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ TerminologyExtensionAxiom
+  : OMFError.Throwables \/ TerminologyExtensionAxiom
   = sig.extensions
     .find { _.extendedTerminology == extendedG }
-    .fold[Throwables \/ TerminologyExtensionAxiom](
+    .fold[OMFError.Throwables \/ TerminologyExtensionAxiom](
     for {
       axiom <- store
         .createOMFTerminologyGraphDirectExtensionAxiom(uuid, this, extendedG)
@@ -150,7 +188,7 @@ trait MutableTerminologyBox
   (uuid: UUID,
    extendedG: TerminologyBox)
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ TerminologyExtensionAxiom
+  : OMFError.Throwables \/ TerminologyExtensionAxiom
   = for {
     axiom <- createTerminologyExtensionAxiom(uuid, extendedG)
     _ <- applyOntologyChangeOrNoOp(ontManager,
@@ -168,7 +206,7 @@ trait MutableTerminologyBox
   def createModelEntityAspect
   (tboxUUID: UUID, a: OWLClass)
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#Aspect
+  : OMFError.Throwables \/ OWLAPIOMF#Aspect
   = for {
     n <- getFragment(a.getIRI)
     u = generateUUID(tboxUUID, "name" -> LocalName(n))
@@ -180,10 +218,10 @@ trait MutableTerminologyBox
   def createModelEntityAspect
   (a: OWLClass, name: LocalName, uuid: UUID)
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#Aspect
+  : OMFError.Throwables \/ OWLAPIOMF#Aspect
   = iri2typeTerm
     .get(a.getIRI)
-    .fold[Throwables \/ OWLAPIOMF#Aspect] {
+    .fold[OMFError.Throwables \/ OWLAPIOMF#Aspect] {
     val _a = terms.Aspect(a, a.getIRI, name, uuid)
     sig.aspects += _a
     iri2typeTerm += a.getIRI -> _a
@@ -191,21 +229,21 @@ trait MutableTerminologyBox
   } {
     case t: OWLAPIOMF#Aspect =>
       Set(
-        entityAlreadyDefinedException(EntityExceptionKind.EntityAspect, a.getIRI, t)
+        entityAlreadyDefinedException(ElementExceptionKind.EntityAspect, a.getIRI, t)
       ).left
     case t =>
       Set(
-        entityConflictException(EntityExceptionKind.EntityAspect, a.getIRI, t)
+        entityConflictException(ElementExceptionKind.EntityAspect, a.getIRI, t)
       ).left
   }
 
   def addEntityAspect
   (aspectIRI: IRI, name: LocalName, uuid: UUID)
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#Aspect
+  : OMFError.Throwables \/ OWLAPIOMF#Aspect
   = iri2typeTerm
     .get(aspectIRI)
-    .fold[Throwables \/ OWLAPIOMF#Aspect]{
+    .fold[OMFError.Throwables \/ OWLAPIOMF#Aspect]{
     val aspectC = owlDataFactory.getOWLClass(aspectIRI)
     for {
       result <- createModelEntityAspect(aspectC, name, uuid)
@@ -218,11 +256,11 @@ trait MutableTerminologyBox
   } {
     case t: OWLAPIOMF#Aspect =>
       Set(
-        entityAlreadyDefinedException(EntityExceptionKind.EntityAspect, aspectIRI, t)
+        entityAlreadyDefinedException(ElementExceptionKind.EntityAspect, aspectIRI, t)
       ).left
     case t =>
       Set(
-        entityConflictException(EntityExceptionKind.EntityAspect, aspectIRI, t)
+        entityConflictException(ElementExceptionKind.EntityAspect, aspectIRI, t)
       ).left
   }
 
@@ -236,7 +274,7 @@ trait MutableTerminologyBox
   (tboxUUID: UUID,
    c: OWLClass)
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#Concept
+  : OMFError.Throwables \/ OWLAPIOMF#Concept
   = for {
     n <- getFragment(c.getIRI)
     u = generateUUID(tboxUUID, "name" -> LocalName(n))
@@ -248,10 +286,10 @@ trait MutableTerminologyBox
   def createModelEntityConcept
   (c: OWLClass, name: LocalName, uuid: UUID)
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#Concept
+  : OMFError.Throwables \/ OWLAPIOMF#Concept
   = iri2typeTerm
     .get(c.getIRI)
-    .fold[Throwables \/ OWLAPIOMF#Concept]{
+    .fold[OMFError.Throwables \/ OWLAPIOMF#Concept]{
     val _c = terms.Concept(c, c.getIRI, name, uuid)
     sig.concepts += _c
     iri2typeTerm += c.getIRI -> _c
@@ -259,21 +297,21 @@ trait MutableTerminologyBox
   } {
     case t: Concept =>
       Set(
-        entityAlreadyDefinedException(EntityExceptionKind.EntityConcept, c.getIRI, t)
+        entityAlreadyDefinedException(ElementExceptionKind.EntityConcept, c.getIRI, t)
       ).left
     case t =>
       Set(
-        entityConflictException(EntityExceptionKind.EntityConcept, c.getIRI, t)
+        entityConflictException(ElementExceptionKind.EntityConcept, c.getIRI, t)
       ).left
   }
 
   def addEntityConcept
   (conceptIRI: IRI, name: LocalName, uuid: UUID)
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#Concept
+  : OMFError.Throwables \/ OWLAPIOMF#Concept
   = iri2typeTerm
     .get(conceptIRI)
-    .fold[Throwables \/ OWLAPIOMF#Concept] {
+    .fold[OMFError.Throwables \/ OWLAPIOMF#Concept] {
     val conceptC = owlDataFactory.getOWLClass(conceptIRI)
     for {
       result <- createModelEntityConcept(conceptC, name, uuid)
@@ -290,11 +328,11 @@ trait MutableTerminologyBox
   } {
     case t: OWLAPIOMF#Concept =>
       Set(
-        entityAlreadyDefinedException(EntityExceptionKind.EntityConcept, conceptIRI, t)
+        entityAlreadyDefinedException(ElementExceptionKind.EntityConcept, conceptIRI, t)
       ).left
     case t =>
       Set(
-        entityConflictException(EntityExceptionKind.EntityConcept, conceptIRI, t)
+        entityConflictException(ElementExceptionKind.EntityConcept, conceptIRI, t)
       ).left
   }
 
@@ -319,12 +357,12 @@ trait MutableTerminologyBox
    target: Entity, rTarget: OWLObjectProperty,
    characteristics: Iterable[RelationshipCharacteristics])
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#ReifiedRelationship
+  : OMFError.Throwables \/ OWLAPIOMF#ReifiedRelationship
   = for {
     rn <- getFragment(r.getIRI)
     ru = generateUUID(tboxUUID, "name" -> LocalName(rn))
     un <- getFragment(u.getIRI)
-    in <- ui.fold[Throwables \/ Option[LocalName]](None.right) { i =>
+    in <- ui.fold[OMFError.Throwables \/ Option[LocalName]](None.right) { i =>
       getFragment(i.getIRI).map(Some(_))
     }
     term <- createEntityReifiedRelationship(
@@ -343,10 +381,10 @@ trait MutableTerminologyBox
    target: Entity, rTarget: OWLObjectProperty,
    characteristics: Iterable[RelationshipCharacteristics])
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#ReifiedRelationship
+  : OMFError.Throwables \/ OWLAPIOMF#ReifiedRelationship
   = iri2typeTerm
     .get(r.getIRI)
-    .fold[Throwables \/ OWLAPIOMF#ReifiedRelationship] {
+    .fold[OMFError.Throwables \/ OWLAPIOMF#ReifiedRelationship] {
     val _r = terms.ReifiedRelationship(r, r.getIRI, name, uuid,
       unreifiedPropertyName, u, inversePropertyName, ui,
       source, rSource, target, rTarget, characteristics)
@@ -356,11 +394,11 @@ trait MutableTerminologyBox
   } {
     case t: OWLAPIOMF#ReifiedRelationship =>
       Set(
-        entityAlreadyDefinedException(EntityExceptionKind.EntityReifiedRelationship, r.getIRI, t)
+        entityAlreadyDefinedException(ElementExceptionKind.EntityReifiedRelationship, r.getIRI, t)
       ).left
     case t =>
       Set(
-        entityConflictException(EntityExceptionKind.EntityReifiedRelationship, r.getIRI, t)
+        entityConflictException(ElementExceptionKind.EntityReifiedRelationship, r.getIRI, t)
       ).left
   }
 
@@ -375,7 +413,7 @@ trait MutableTerminologyBox
    source: Entity, target: Entity,
    characteristics: Iterable[RelationshipCharacteristics])
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#ReifiedRelationship
+  : OMFError.Throwables \/ OWLAPIOMF#ReifiedRelationship
   = {
     val sourceC = owlDataFactory.getOWLClass(source.iri)
     val targetC = owlDataFactory.getOWLClass(target.iri)
@@ -567,7 +605,7 @@ trait MutableTerminologyBox
    source: Entity, target: Entity,
    characteristics: Iterable[RelationshipCharacteristics])
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#ReifiedRelationship
+  : OMFError.Throwables \/ OWLAPIOMF#ReifiedRelationship
   = ( lookupTerm(rIRI, recursively = true),
     lookupTerm(rIRISource, recursively = true),
     lookupTerm(rIRITarget, recursively = true),
@@ -582,47 +620,47 @@ trait MutableTerminologyBox
             source, target, characteristics)
         case (false, true) =>
           Set(
-            entityScopeException(EntityExceptionKind.EntityReifiedRelationship, rIRI,
+            entityScopeException(ElementExceptionKind.EntityReifiedRelationship, rIRI,
               Map(RelationshipScopeAccessKind.Source -> source))
           ).left
 
         case (true, false) =>
           Set(
-            entityScopeException(EntityExceptionKind.EntityReifiedRelationship, rIRI,
+            entityScopeException(ElementExceptionKind.EntityReifiedRelationship, rIRI,
               Map(RelationshipScopeAccessKind.Target -> target))
           ).left
 
         case (false, false) =>
           Set(
-            entityScopeException(EntityExceptionKind.EntityReifiedRelationship, rIRI,
+            entityScopeException(ElementExceptionKind.EntityReifiedRelationship, rIRI,
               Map(RelationshipScopeAccessKind.Source -> source, RelationshipScopeAccessKind.Target -> target))
           ).left
       }
 
     case (Some(t), _, _, _, _) =>
       Set(
-        entityConflictException(EntityExceptionKind.EntityReifiedRelationship, rIRI, t)
+        entityConflictException(ElementExceptionKind.EntityReifiedRelationship, rIRI, t)
       ).left
 
     case (_, Some(t), _, _, _) =>
       Set(
-        entityConflictException(EntityExceptionKind.EntityReifiedRelationship, rIRISource, t)
+        entityConflictException(ElementExceptionKind.EntityReifiedRelationship, rIRISource, t)
       ).left
 
     case (_, _, Some(t), _, _) =>
       Set(
-        entityConflictException(EntityExceptionKind.EntityReifiedRelationship, rIRITarget, t)
+        entityConflictException(ElementExceptionKind.EntityReifiedRelationship, rIRITarget, t)
       ).left
 
     case (_, _, _, Some(t), _) =>
       Set(
-        entityConflictException(EntityExceptionKind.EntityReifiedRelationship, uIRI, t)
+        entityConflictException(ElementExceptionKind.EntityReifiedRelationship, uIRI, t)
       ).left
 
     case (_, _, _, _, Some(t)) =>
       require(uiIRI.isDefined)
       Set(
-        entityConflictException(EntityExceptionKind.EntityReifiedRelationship, uiIRI.get, t)
+        entityConflictException(ElementExceptionKind.EntityReifiedRelationship, uiIRI.get, t)
       ).left
   }
 
@@ -642,7 +680,7 @@ trait MutableTerminologyBox
    target: Entity,
    characteristics: Iterable[RelationshipCharacteristics])
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#UnreifiedRelationship
+  : OMFError.Throwables \/ OWLAPIOMF#UnreifiedRelationship
   = for {
     rn <- getFragment(r.getIRI)
     ru = generateUUID(tboxUUID, "name" -> LocalName(rn))
@@ -658,10 +696,10 @@ trait MutableTerminologyBox
    target: Entity,
    characteristics: Iterable[RelationshipCharacteristics])
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#UnreifiedRelationship
+  : OMFError.Throwables \/ OWLAPIOMF#UnreifiedRelationship
   = iri2typeTerm
     .get(r.getIRI)
-    .fold[Throwables \/ UnreifiedRelationship] {
+    .fold[OMFError.Throwables \/ UnreifiedRelationship] {
     val _r = terms.UnreifiedRelationship(r, r.getIRI, name, uuid, source, target, characteristics)
     sig.unreifiedRelationships += _r
     iri2typeTerm += r.getIRI -> _r
@@ -669,11 +707,11 @@ trait MutableTerminologyBox
   } {
     case t: OWLAPIOMF#UnreifiedRelationship =>
       Set(
-        entityAlreadyDefinedException(EntityExceptionKind.EntityUnreifiedRelationship, r.getIRI, t)
+        entityAlreadyDefinedException(ElementExceptionKind.EntityUnreifiedRelationship, r.getIRI, t)
       ).left
     case t =>
       Set(
-        entityConflictException(EntityExceptionKind.EntityUnreifiedRelationship, r.getIRI, t)
+        entityConflictException(ElementExceptionKind.EntityUnreifiedRelationship, r.getIRI, t)
       ).left
   }
 
@@ -682,7 +720,7 @@ trait MutableTerminologyBox
    source: Entity, target: Entity,
    characteristics: Iterable[RelationshipCharacteristics])
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#UnreifiedRelationship
+  : OMFError.Throwables \/ OWLAPIOMF#UnreifiedRelationship
   = {
     val sourceC = owlDataFactory.getOWLClass(source.iri)
     val targetC = owlDataFactory.getOWLClass(target.iri)
@@ -725,7 +763,7 @@ trait MutableTerminologyBox
    source: Entity, target: Entity,
    characteristics: Iterable[RelationshipCharacteristics])
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#UnreifiedRelationship
+  : OMFError.Throwables \/ OWLAPIOMF#UnreifiedRelationship
   = lookupTerm(rIRI, recursively = true) match {
     case None =>
       (isTypeTermDefinedRecursively(source), isTypeTermDefinedRecursively(target)) match {
@@ -733,26 +771,26 @@ trait MutableTerminologyBox
           makeUnreifiedRelationship(rIRI, name, uuid, source, target, characteristics)
         case (false, true) =>
           Set(
-            entityScopeException(EntityExceptionKind.EntityUnreifiedRelationship, rIRI,
+            entityScopeException(ElementExceptionKind.EntityUnreifiedRelationship, rIRI,
               Map(RelationshipScopeAccessKind.Source -> source))
           ).left
 
         case (true, false) =>
           Set(
-            entityScopeException(EntityExceptionKind.EntityUnreifiedRelationship, rIRI,
+            entityScopeException(ElementExceptionKind.EntityUnreifiedRelationship, rIRI,
               Map(RelationshipScopeAccessKind.Target -> target))
           ).left
 
         case (false, false) =>
           Set(
-            entityScopeException(EntityExceptionKind.EntityUnreifiedRelationship, rIRI,
+            entityScopeException(ElementExceptionKind.EntityUnreifiedRelationship, rIRI,
               Map(RelationshipScopeAccessKind.Source -> source, RelationshipScopeAccessKind.Target -> target))
           ).left
       }
 
     case Some(t) =>
       Set(
-        entityConflictException(EntityExceptionKind.EntityUnreifiedRelationship, rIRI, t)
+        entityConflictException(ElementExceptionKind.EntityUnreifiedRelationship, rIRI, t)
       ).left
   }
 
@@ -778,7 +816,7 @@ trait MutableTerminologyBox
   (tboxUUID: UUID,
    dt: OWLDatatype)
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#Scalar
+  : OMFError.Throwables \/ OWLAPIOMF#Scalar
   = for {
     n <- getFragment(dt.getIRI)
     u = generateUUID(tboxUUID, "name" -> LocalName(n))
@@ -790,10 +828,10 @@ trait MutableTerminologyBox
   def createModelScalarDataType
   (dt: OWLDatatype, name: LocalName, uuid: UUID)
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#Scalar
+  : OMFError.Throwables \/ OWLAPIOMF#Scalar
   = iri2typeTerm
     .get(dt.getIRI)
-    .fold[Throwables \/ Scalar]{
+    .fold[OMFError.Throwables \/ Scalar]{
     val _dt = terms.Scalar(dt, dt.getIRI, name, uuid)
     sig.scalarDataTypes += _dt
     iri2typeTerm += dt.getIRI -> _dt
@@ -801,21 +839,21 @@ trait MutableTerminologyBox
   } {
     case t: Scalar =>
       Set(
-        entityAlreadyDefinedException(EntityExceptionKind.ScalarDataType, dt.getIRI, t)
+        entityAlreadyDefinedException(ElementExceptionKind.ScalarDataType, dt.getIRI, t)
       ).left
     case t =>
       Set(
-        entityConflictException(EntityExceptionKind.ScalarDataType, dt.getIRI, t)
+        entityConflictException(ElementExceptionKind.ScalarDataType, dt.getIRI, t)
       ).left
   }
 
   def addScalarDataType
   (scalarIRI: IRI, name: LocalName, uuid: UUID)
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#Scalar
+  : OMFError.Throwables \/ OWLAPIOMF#Scalar
   = iri2typeTerm
     .get(scalarIRI)
-    .fold[Throwables \/ OWLAPIOMF#Scalar] {
+    .fold[OMFError.Throwables \/ OWLAPIOMF#Scalar] {
     val scalarDT = owlDataFactory.getOWLDatatype(scalarIRI)
     for {
       result <- createModelScalarDataType(scalarDT, name, uuid)
@@ -830,11 +868,11 @@ trait MutableTerminologyBox
   } {
     case t: OWLAPIOMF#Scalar =>
       Set(
-        entityAlreadyDefinedException(EntityExceptionKind.ScalarDataType, scalarIRI, t)
+        entityAlreadyDefinedException(ElementExceptionKind.ScalarDataType, scalarIRI, t)
       ).left
     case t =>
       Set(
-        entityConflictException(EntityExceptionKind.ScalarDataType, scalarIRI, t)
+        entityConflictException(ElementExceptionKind.ScalarDataType, scalarIRI, t)
       ).left
   }
 
@@ -848,7 +886,7 @@ trait MutableTerminologyBox
   (tboxUUID: UUID,
    dt: OWLClass)
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#Structure
+  : OMFError.Throwables \/ OWLAPIOMF#Structure
   = for {
     n <- getFragment(dt.getIRI)
     u = generateUUID(tboxUUID, "name" -> LocalName(n))
@@ -860,10 +898,10 @@ trait MutableTerminologyBox
   def createModelStructuredDataType
   (dt: OWLClass, name: LocalName, uuid: UUID)
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#Structure
+  : OMFError.Throwables \/ OWLAPIOMF#Structure
   = iri2typeTerm
     .get(dt.getIRI)
-    .fold[Throwables \/ Structure]{
+    .fold[OMFError.Throwables \/ Structure]{
     val _st = terms.Structure(dt, dt.getIRI, name, uuid)
     sig.structuredDataTypes += _st
     iri2typeTerm += dt.getIRI -> _st
@@ -871,21 +909,21 @@ trait MutableTerminologyBox
   } {
     case t: Structure =>
       Set(
-        entityAlreadyDefinedException(EntityExceptionKind.StructuredDataType, dt.getIRI, t)
+        entityAlreadyDefinedException(ElementExceptionKind.StructuredDataType, dt.getIRI, t)
       ).left
     case t =>
       Set(
-        entityConflictException(EntityExceptionKind.StructuredDataType, dt.getIRI, t)
+        entityConflictException(ElementExceptionKind.StructuredDataType, dt.getIRI, t)
       ).left
   }
 
   def addStructuredDataType
   (structuredDataTypeIRI: IRI, name: LocalName, uuid: UUID)
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#Structure
+  : OMFError.Throwables \/ OWLAPIOMF#Structure
   = iri2typeTerm
     .get(structuredDataTypeIRI)
-    .fold[Throwables \/ OWLAPIOMF#Structure]{
+    .fold[OMFError.Throwables \/ OWLAPIOMF#Structure]{
     val structuredDataTypeC = owlDataFactory
       .getOWLClass(structuredDataTypeIRI)
     for {
@@ -904,11 +942,11 @@ trait MutableTerminologyBox
   } {
     case t: OWLAPIOMF#Structure =>
       Set(
-        entityAlreadyDefinedException(EntityExceptionKind.StructuredDataType, structuredDataTypeIRI, t)
+        entityAlreadyDefinedException(ElementExceptionKind.StructuredDataType, structuredDataTypeIRI, t)
       ).left
     case t =>
       Set(
-        entityConflictException(EntityExceptionKind.StructuredDataType, structuredDataTypeIRI, t)
+        entityConflictException(ElementExceptionKind.StructuredDataType, structuredDataTypeIRI, t)
       ).left
   }
 
@@ -924,7 +962,7 @@ trait MutableTerminologyBox
    restrictionDT: OWLDatatype,
    restrictedRange: OWLAPIOMF#DataRange)
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#ScalarOneOfRestriction
+  : OMFError.Throwables \/ OWLAPIOMF#ScalarOneOfRestriction
   = for {
     n <- getFragment(restrictionDT.getIRI)
     u = generateUUID(tboxUUID, "name" -> LocalName(n))
@@ -938,10 +976,10 @@ trait MutableTerminologyBox
   (restrictionDT: OWLDatatype, name: LocalName, uuid: UUID,
    restrictedRange: DataRange)
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#ScalarOneOfRestriction
+  : OMFError.Throwables \/ OWLAPIOMF#ScalarOneOfRestriction
   = iri2typeTerm
     .get(restrictionDT.getIRI)
-    .fold[Throwables \/ OWLAPIOMF#ScalarOneOfRestriction]{
+    .fold[OMFError.Throwables \/ OWLAPIOMF#ScalarOneOfRestriction]{
     val _rdt = terms.ScalarOneOfRestriction(
       restrictionDT, restrictionDT.getIRI, uuid, name, restrictedRange)
     sig.scalarOneOfRestrictions += _rdt
@@ -950,11 +988,11 @@ trait MutableTerminologyBox
   } {
     case t: OWLAPIOMF#ScalarOneOfRestriction =>
       Set(
-        entityAlreadyDefinedException(EntityExceptionKind.ScalarOneOfRestriction, restrictionDT.getIRI, t)
+        entityAlreadyDefinedException(ElementExceptionKind.ScalarOneOfRestriction, restrictionDT.getIRI, t)
       ).left
     case t =>
       Set(
-        entityConflictException(EntityExceptionKind.ScalarOneOfRestriction, restrictionDT.getIRI, t)
+        entityConflictException(ElementExceptionKind.ScalarOneOfRestriction, restrictionDT.getIRI, t)
       ).left
   }
 
@@ -962,10 +1000,10 @@ trait MutableTerminologyBox
   (dataTypeIRI: IRI, name: LocalName, uuid: UUID,
    restrictedRange: OWLAPIOMF#DataRange)
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#ScalarOneOfRestriction
+  : OMFError.Throwables \/ OWLAPIOMF#ScalarOneOfRestriction
   = iri2typeTerm
     .get(dataTypeIRI)
-    .fold[Throwables \/ OWLAPIOMF#ScalarOneOfRestriction]{
+    .fold[OMFError.Throwables \/ OWLAPIOMF#ScalarOneOfRestriction]{
     val restrictionDT = owlDataFactory
       .getOWLDatatype(dataTypeIRI)
     for {
@@ -983,11 +1021,11 @@ trait MutableTerminologyBox
   } {
     case t: OWLAPIOMF#ScalarOneOfRestriction =>
       Set(
-        entityAlreadyDefinedException(EntityExceptionKind.ScalarOneOfRestriction, dataTypeIRI, t)
+        entityAlreadyDefinedException(ElementExceptionKind.ScalarOneOfRestriction, dataTypeIRI, t)
       ).left
     case t =>
       Set(
-        entityConflictException(EntityExceptionKind.ScalarOneOfRestriction, dataTypeIRI, t)
+        entityConflictException(ElementExceptionKind.ScalarOneOfRestriction, dataTypeIRI, t)
       ).left
   }
 
@@ -1002,7 +1040,7 @@ trait MutableTerminologyBox
   (scalarOneOfRestriction: OWLAPIOMF#ScalarOneOfRestriction,
    value: String)
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#ScalarOneOfLiteralAxiom
+  : OMFError.Throwables \/ OWLAPIOMF#ScalarOneOfLiteralAxiom
   = for {
     axiomUUID <- scalarOneOfLiteralAxiomUUID(this, scalarOneOfRestriction, value)
     ax <- createScalarOneOfLiteralAxiom(axiomUUID, scalarOneOfRestriction, value)
@@ -1013,7 +1051,7 @@ trait MutableTerminologyBox
    scalarOneOfRestriction: OWLAPIOMF#ScalarOneOfRestriction,
    value: String)
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#ScalarOneOfLiteralAxiom
+  : OMFError.Throwables \/ OWLAPIOMF#ScalarOneOfLiteralAxiom
   = types.termAxioms.ScalarOneOfLiteralAxiom(axiomUUID, scalarOneOfRestriction, value).right
 
   def addScalarOneOfLiteralAxiom
@@ -1021,7 +1059,7 @@ trait MutableTerminologyBox
    scalarOneOfRestriction: OWLAPIOMF#ScalarOneOfRestriction,
    value: String)
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#ScalarOneOfLiteralAxiom
+  : OMFError.Throwables \/ OWLAPIOMF#ScalarOneOfLiteralAxiom
   = for {
     axiom <- createScalarOneOfLiteralAxiom(axiomUUID, scalarOneOfRestriction, value)
     restrictionDT = scalarOneOfRestriction.e
@@ -1030,7 +1068,7 @@ trait MutableTerminologyBox
       .datatypeDefinitions(restrictionDT)
       .toScala[Set]
       .headOption
-      .fold[Throwables \/ OWLAPIOMF#ScalarOneOfLiteralAxiom]{
+      .fold[OMFError.Throwables \/ OWLAPIOMF#ScalarOneOfLiteralAxiom]{
       for {
         _ <- applyOntologyChanges(ontManager,
           Seq(
@@ -1088,7 +1126,7 @@ trait MutableTerminologyBox
    minLength: Option[Int],
    maxLength: Option[Int])
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#BinaryScalarRestriction
+  : OMFError.Throwables \/ OWLAPIOMF#BinaryScalarRestriction
   = for {
       n <- getFragment(restrictionDT.getIRI)
       u = generateUUID(tboxUUID, "name" -> LocalName(n))
@@ -1106,11 +1144,11 @@ trait MutableTerminologyBox
    minLength: Option[Int],
    maxLength: Option[Int])
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#BinaryScalarRestriction
+  : OMFError.Throwables \/ OWLAPIOMF#BinaryScalarRestriction
   = if (store.isBuiltInDatatypeMapConstructed || store.isBinaryKind(restrictedRange)) {
     iri2typeTerm
       .get(restrictionDT.getIRI)
-      .fold[Throwables \/ OWLAPIOMF#BinaryScalarRestriction] {
+      .fold[OMFError.Throwables \/ OWLAPIOMF#BinaryScalarRestriction] {
       val _rdt = terms.BinaryScalarRestriction(
         restrictionDT, restrictionDT.getIRI, uuid, name, restrictedRange,
         length, minLength, maxLength)
@@ -1120,11 +1158,11 @@ trait MutableTerminologyBox
     } {
       case t: OWLAPIOMF#BinaryScalarRestriction =>
         Set(
-          entityAlreadyDefinedException(EntityExceptionKind.BinaryScalarRestriction, restrictionDT.getIRI, t)
+          entityAlreadyDefinedException(ElementExceptionKind.BinaryScalarRestriction, restrictionDT.getIRI, t)
         ).left
       case t =>
         Set(
-          entityConflictException(EntityExceptionKind.BinaryScalarRestriction, restrictionDT.getIRI, t)
+          entityConflictException(ElementExceptionKind.BinaryScalarRestriction, restrictionDT.getIRI, t)
         ).left
     }
   } else
@@ -1139,7 +1177,7 @@ trait MutableTerminologyBox
    minLength: Option[Int],
    maxLength: Option[Int])
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#BinaryScalarRestriction
+  : OMFError.Throwables \/ OWLAPIOMF#BinaryScalarRestriction
   = {
     val restrictionDT = owlDataFactory.getOWLDatatype(dataTypeIRI)
     for {
@@ -1154,7 +1192,7 @@ trait MutableTerminologyBox
   (restrictionDT: OWLDatatype,
    rdr: OWLAPIOMF#BinaryScalarRestriction)
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#BinaryScalarRestriction
+  : OMFError.Throwables \/ OWLAPIOMF#BinaryScalarRestriction
   = for {
     _ <- store.registerOMFModelScalarDataTypeInstance(this, rdr)
     _ <- applyOntologyChangesOrNoOp(ontManager,
@@ -1212,7 +1250,7 @@ trait MutableTerminologyBox
    maxLength: Option[Int],
    pattern: Option[String])
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#IRIScalarRestriction
+  : OMFError.Throwables \/ OWLAPIOMF#IRIScalarRestriction
   = for {
     n <- getFragment(restrictionDT.getIRI)
     u = generateUUID(tboxUUID, "name" -> LocalName(n))
@@ -1231,11 +1269,11 @@ trait MutableTerminologyBox
    maxLength: Option[Int],
    pattern: Option[String])
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#IRIScalarRestriction
+  : OMFError.Throwables \/ OWLAPIOMF#IRIScalarRestriction
   = if (store.isBuiltInDatatypeMapConstructed || store.isIRIKind(restrictedRange)) {
     iri2typeTerm
       .get(restrictionDT.getIRI)
-      .fold[Throwables \/ OWLAPIOMF#IRIScalarRestriction]{
+      .fold[OMFError.Throwables \/ OWLAPIOMF#IRIScalarRestriction]{
       val _rdt = terms.IRIScalarRestriction(
         restrictionDT, restrictionDT.getIRI, uuid, name, restrictedRange,
         length, minLength, maxLength, pattern)
@@ -1245,11 +1283,11 @@ trait MutableTerminologyBox
     } {
       case t: OWLAPIOMF#IRIScalarRestriction =>
         Set(
-          entityAlreadyDefinedException(EntityExceptionKind.IRIScalarRestriction, restrictionDT.getIRI, t)
+          entityAlreadyDefinedException(ElementExceptionKind.IRIScalarRestriction, restrictionDT.getIRI, t)
         ).left
       case t =>
         Set(
-          entityConflictException(EntityExceptionKind.IRIScalarRestriction, restrictionDT.getIRI, t)
+          entityConflictException(ElementExceptionKind.IRIScalarRestriction, restrictionDT.getIRI, t)
         ).left
     }
   } else
@@ -1265,7 +1303,7 @@ trait MutableTerminologyBox
    maxLength: Option[Int],
    pattern: Option[String])
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#IRIScalarRestriction
+  : OMFError.Throwables \/ OWLAPIOMF#IRIScalarRestriction
   = {
     val restrictionDT = owlDataFactory.getOWLDatatype(dataTypeIRI)
     for {
@@ -1280,7 +1318,7 @@ trait MutableTerminologyBox
   (restrictionDT: OWLDatatype,
    rdr: OWLAPIOMF#IRIScalarRestriction)
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#IRIScalarRestriction
+  : OMFError.Throwables \/ OWLAPIOMF#IRIScalarRestriction
   = for {
     _ <- store.registerOMFModelScalarDataTypeInstance(this, rdr)
     _ <- applyOntologyChangesOrNoOp(ontManager,
@@ -1346,7 +1384,7 @@ trait MutableTerminologyBox
    minExclusive: Option[String],
    maxExclusive: Option[String])
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#NumericScalarRestriction
+  : OMFError.Throwables \/ OWLAPIOMF#NumericScalarRestriction
   = for {
     n <- getFragment(restrictionDT.getIRI)
     u = generateUUID(tboxUUID, "name" -> LocalName(n))
@@ -1365,11 +1403,11 @@ trait MutableTerminologyBox
    minExclusive: Option[String],
    maxExclusive: Option[String])
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#NumericScalarRestriction
+  : OMFError.Throwables \/ OWLAPIOMF#NumericScalarRestriction
   = if (store.isBuiltInDatatypeMapConstructed || store.isNumericKind(restrictedRange)) {
     iri2typeTerm
       .get(restrictionDT.getIRI)
-      .fold[Throwables \/ OWLAPIOMF#NumericScalarRestriction] {
+      .fold[OMFError.Throwables \/ OWLAPIOMF#NumericScalarRestriction] {
       val _rdt = terms.NumericScalarRestriction(
         restrictionDT, restrictionDT.getIRI, uuid, name, restrictedRange,
         minInclusive, maxInclusive, minExclusive, maxExclusive)
@@ -1379,11 +1417,11 @@ trait MutableTerminologyBox
     } {
       case t: OWLAPIOMF#NumericScalarRestriction =>
         Set(
-          entityAlreadyDefinedException(EntityExceptionKind.NumericScalarRestriction, restrictionDT.getIRI, t)
+          entityAlreadyDefinedException(ElementExceptionKind.NumericScalarRestriction, restrictionDT.getIRI, t)
         ).left
       case t =>
         Set(
-          entityConflictException(EntityExceptionKind.NumericScalarRestriction, restrictionDT.getIRI, t)
+          entityConflictException(ElementExceptionKind.NumericScalarRestriction, restrictionDT.getIRI, t)
         ).left
     }
   } else
@@ -1399,7 +1437,7 @@ trait MutableTerminologyBox
    minExclusive: Option[String],
    maxExclusive: Option[String])
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#NumericScalarRestriction
+  : OMFError.Throwables \/ OWLAPIOMF#NumericScalarRestriction
   = {
     val restrictionDT = owlDataFactory.getOWLDatatype(dataTypeIRI)
     for {
@@ -1414,7 +1452,7 @@ trait MutableTerminologyBox
   (restrictionDT: OWLDatatype,
    rdr: OWLAPIOMF#NumericScalarRestriction)
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#NumericScalarRestriction
+  : OMFError.Throwables \/ OWLAPIOMF#NumericScalarRestriction
   = for {
     _ <- store.registerOMFModelScalarDataTypeInstance(this, rdr)
     _ <- applyOntologyChangesOrNoOp(ontManager,
@@ -1489,7 +1527,7 @@ trait MutableTerminologyBox
    pattern: Option[String],
    language: Option[String])
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#PlainLiteralScalarRestriction
+  : OMFError.Throwables \/ OWLAPIOMF#PlainLiteralScalarRestriction
   = for {
     n <- getFragment(restrictionDT.getIRI)
     u = generateUUID(tboxUUID, "name" -> LocalName(n))
@@ -1509,11 +1547,11 @@ trait MutableTerminologyBox
    pattern: Option[String],
    language: Option[String])
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#PlainLiteralScalarRestriction
+  : OMFError.Throwables \/ OWLAPIOMF#PlainLiteralScalarRestriction
   = if (store.isBuiltInDatatypeMapConstructed || store.isPlainLiteralKind(restrictedRange)) {
     iri2typeTerm
       .get(restrictionDT.getIRI)
-      .fold[Throwables \/ OWLAPIOMF#PlainLiteralScalarRestriction] {
+      .fold[OMFError.Throwables \/ OWLAPIOMF#PlainLiteralScalarRestriction] {
       val _rdt = terms.PlainLiteralScalarRestriction(
         restrictionDT, restrictionDT.getIRI, uuid, name, restrictedRange,
         length, minLength, maxLength, pattern, language)
@@ -1523,11 +1561,11 @@ trait MutableTerminologyBox
     } {
       case t: OWLAPIOMF#PlainLiteralScalarRestriction =>
         Set(
-          entityAlreadyDefinedException(EntityExceptionKind.PlainLiteralScalarRestriction, restrictionDT.getIRI, t)
+          entityAlreadyDefinedException(ElementExceptionKind.PlainLiteralScalarRestriction, restrictionDT.getIRI, t)
         ).left
       case t =>
         Set(
-          entityConflictException(EntityExceptionKind.PlainLiteralScalarRestriction, restrictionDT.getIRI, t)
+          entityConflictException(ElementExceptionKind.PlainLiteralScalarRestriction, restrictionDT.getIRI, t)
         ).left
     }
   } else
@@ -1544,7 +1582,7 @@ trait MutableTerminologyBox
    pattern: Option[String],
    language: Option[String])
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#PlainLiteralScalarRestriction
+  : OMFError.Throwables \/ OWLAPIOMF#PlainLiteralScalarRestriction
   = {
     val restrictionDT = owlDataFactory.getOWLDatatype(dataTypeIRI)
     for {
@@ -1559,7 +1597,7 @@ trait MutableTerminologyBox
   (restrictionDT: OWLDatatype,
    rdr: OWLAPIOMF#PlainLiteralScalarRestriction)
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#PlainLiteralScalarRestriction
+  : OMFError.Throwables \/ OWLAPIOMF#PlainLiteralScalarRestriction
   = for {
     _ <- store.registerOMFModelScalarDataTypeInstance(this, rdr)
   _ <- applyOntologyChangesOrNoOp(ontManager,
@@ -1635,7 +1673,7 @@ trait MutableTerminologyBox
    maxLength: Option[Int],
    pattern: Option[String])
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#StringScalarRestriction
+  : OMFError.Throwables \/ OWLAPIOMF#StringScalarRestriction
   = for {
     n <- getFragment(restrictionDT.getIRI)
     u = generateUUID(tboxUUID, "name" -> LocalName(n))
@@ -1654,11 +1692,11 @@ trait MutableTerminologyBox
    maxLength: Option[Int],
    pattern: Option[String])
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#StringScalarRestriction
+  : OMFError.Throwables \/ OWLAPIOMF#StringScalarRestriction
   = if (store.isBuiltInDatatypeMapConstructed || store.isStringKind(restrictedRange)) {
     iri2typeTerm
       .get(restrictionDT.getIRI)
-      .fold[Throwables \/ OWLAPIOMF#StringScalarRestriction] {
+      .fold[OMFError.Throwables \/ OWLAPIOMF#StringScalarRestriction] {
       val _rdt = terms.StringScalarRestriction(
         restrictionDT, restrictionDT.getIRI, uuid, name, restrictedRange,
         length, minLength, maxLength, pattern)
@@ -1668,11 +1706,11 @@ trait MutableTerminologyBox
     } {
       case t: OWLAPIOMF#StringScalarRestriction =>
         Set(
-          entityAlreadyDefinedException(EntityExceptionKind.StringScalarRestriction, restrictionDT.getIRI, t)
+          entityAlreadyDefinedException(ElementExceptionKind.StringScalarRestriction, restrictionDT.getIRI, t)
         ).left
       case t =>
         Set(
-          entityConflictException(EntityExceptionKind.StringScalarRestriction, restrictionDT.getIRI, t)
+          entityConflictException(ElementExceptionKind.StringScalarRestriction, restrictionDT.getIRI, t)
         ).left
     }
   } else
@@ -1688,7 +1726,7 @@ trait MutableTerminologyBox
    maxLength: Option[Int],
    pattern: Option[String])
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#StringScalarRestriction
+  : OMFError.Throwables \/ OWLAPIOMF#StringScalarRestriction
   = {
     val restrictionDT = owlDataFactory.getOWLDatatype(dataTypeIRI)
     for {
@@ -1703,7 +1741,7 @@ trait MutableTerminologyBox
   (restrictionDT: OWLDatatype,
    rdr: OWLAPIOMF#StringScalarRestriction)
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#StringScalarRestriction
+  : OMFError.Throwables \/ OWLAPIOMF#StringScalarRestriction
   = for {
     _ <- store.registerOMFModelScalarDataTypeInstance(this, rdr)
     _ <- applyOntologyChangesOrNoOp(ontManager,
@@ -1762,7 +1800,7 @@ trait MutableTerminologyBox
    restrictionDT: OWLDatatype,
    restrictedRange: OWLAPIOMF#DataRange)
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#SynonymScalarRestriction
+  : OMFError.Throwables \/ OWLAPIOMF#SynonymScalarRestriction
   = for {
     n <- getFragment(restrictionDT.getIRI)
     u = generateUUID(tboxUUID, "name" -> LocalName(n))
@@ -1776,10 +1814,10 @@ trait MutableTerminologyBox
   (restrictionDT: OWLDatatype, name: LocalName, uuid: UUID,
    restrictedRange: OWLAPIOMF#DataRange)
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#SynonymScalarRestriction
+  : OMFError.Throwables \/ OWLAPIOMF#SynonymScalarRestriction
   = iri2typeTerm
       .get(restrictionDT.getIRI)
-      .fold[Throwables \/ OWLAPIOMF#SynonymScalarRestriction] {
+      .fold[OMFError.Throwables \/ OWLAPIOMF#SynonymScalarRestriction] {
     val _rdt = terms.SynonymScalarRestriction(
       restrictionDT, restrictionDT.getIRI, uuid, name, restrictedRange)
     sig.synonymScalarRestrictions += _rdt
@@ -1788,11 +1826,11 @@ trait MutableTerminologyBox
   } {
     case t: OWLAPIOMF#SynonymScalarRestriction =>
       Set(
-        entityAlreadyDefinedException(EntityExceptionKind.SynonymScalarRestriction, restrictionDT.getIRI, t)
+        entityAlreadyDefinedException(ElementExceptionKind.SynonymScalarRestriction, restrictionDT.getIRI, t)
       ).left
     case t =>
       Set(
-        entityConflictException(EntityExceptionKind.SynonymScalarRestriction, restrictionDT.getIRI, t)
+        entityConflictException(ElementExceptionKind.SynonymScalarRestriction, restrictionDT.getIRI, t)
       ).left
   }
 
@@ -1800,7 +1838,7 @@ trait MutableTerminologyBox
   (dataTypeIRI: IRI, name: LocalName, uuid: UUID,
    restrictedRange: OWLAPIOMF#DataRange)
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#SynonymScalarRestriction
+  : OMFError.Throwables \/ OWLAPIOMF#SynonymScalarRestriction
   = {
     val restrictionDT = owlDataFactory.getOWLDatatype(dataTypeIRI)
     for {
@@ -1814,7 +1852,7 @@ trait MutableTerminologyBox
   (restrictionDT: OWLDatatype,
    rdr: OWLAPIOMF#SynonymScalarRestriction)
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#SynonymScalarRestriction
+  : OMFError.Throwables \/ OWLAPIOMF#SynonymScalarRestriction
   = for {
     _ <- store.registerOMFModelScalarDataTypeInstance(this, rdr)
     _ <- applyOntologyChangesOrNoOp(ontManager,
@@ -1851,7 +1889,7 @@ trait MutableTerminologyBox
    minExclusive: Option[String],
    maxExclusive: Option[String])
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#TimeScalarRestriction
+  : OMFError.Throwables \/ OWLAPIOMF#TimeScalarRestriction
   = for {
     n <- getFragment(restrictionDT.getIRI)
     u = generateUUID(tboxUUID, "name" -> LocalName(n))
@@ -1870,11 +1908,11 @@ trait MutableTerminologyBox
    minExclusive: Option[String],
    maxExclusive: Option[String])
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#TimeScalarRestriction
+  : OMFError.Throwables \/ OWLAPIOMF#TimeScalarRestriction
   = if (store.isBuiltInDatatypeMapConstructed || store.isTimeKind(restrictedRange)) {
     iri2typeTerm
       .get(restrictionDT.getIRI)
-      .fold[Throwables \/ OWLAPIOMF#TimeScalarRestriction] {
+      .fold[OMFError.Throwables \/ OWLAPIOMF#TimeScalarRestriction] {
       val _rdt = terms.TimeScalarRestriction(
         restrictionDT, restrictionDT.getIRI, uuid, name, restrictedRange,
         minInclusive, maxInclusive, minExclusive, maxExclusive)
@@ -1884,11 +1922,11 @@ trait MutableTerminologyBox
     } {
       case t: OWLAPIOMF#TimeScalarRestriction =>
         Set(
-          entityAlreadyDefinedException(EntityExceptionKind.TimeScalarRestriction, restrictionDT.getIRI, t)
+          entityAlreadyDefinedException(ElementExceptionKind.TimeScalarRestriction, restrictionDT.getIRI, t)
         ).left
       case t =>
         Set(
-          entityConflictException(EntityExceptionKind.TimeScalarRestriction, restrictionDT.getIRI, t)
+          entityConflictException(ElementExceptionKind.TimeScalarRestriction, restrictionDT.getIRI, t)
         ).left
     }
   } else
@@ -1904,7 +1942,7 @@ trait MutableTerminologyBox
    minExclusive: Option[String],
    maxExclusive: Option[String])
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#TimeScalarRestriction
+  : OMFError.Throwables \/ OWLAPIOMF#TimeScalarRestriction
   = {
     val restrictionDT = owlDataFactory.getOWLDatatype(dataTypeIRI)
     for {
@@ -1919,7 +1957,7 @@ trait MutableTerminologyBox
   (restrictionDT: OWLDatatype,
    rdr: OWLAPIOMF#TimeScalarRestriction)
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#TimeScalarRestriction
+  : OMFError.Throwables \/ OWLAPIOMF#TimeScalarRestriction
   = for {
     _ <- store.registerOMFModelScalarDataTypeInstance(this, rdr)
     _ <- applyOntologyChangesOrNoOp(ontManager,
@@ -1975,7 +2013,7 @@ trait MutableTerminologyBox
    source: OWLAPIOMF#Entity,
    target: OWLAPIOMF#DataRange)
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#EntityScalarDataProperty
+  : OMFError.Throwables \/ OWLAPIOMF#EntityScalarDataProperty
   = for {
     n <- getFragment(esc.getIRI)
     u = generateUUID(tboxUUID, "name" -> LocalName(n))
@@ -1987,12 +2025,12 @@ trait MutableTerminologyBox
    source: OWLAPIOMF#Entity,
    target: OWLAPIOMF#DataRange)
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#EntityScalarDataProperty
+  : OMFError.Throwables \/ OWLAPIOMF#EntityScalarDataProperty
   = {
     val escIRI: IRI = esc.getIRI
     iri2typeTerm
       .get(escIRI)
-      .fold[Throwables \/ OWLAPIOMF#EntityScalarDataProperty](
+      .fold[OMFError.Throwables \/ OWLAPIOMF#EntityScalarDataProperty](
       for {
         _esc <- store.registerDataRelationshipFromEntityToScalar(
           this, terms.EntityScalarDataProperty(esc, esc.getIRI, name, isIdentityCriteria, uuid, source, target))
@@ -2003,11 +2041,11 @@ trait MutableTerminologyBox
       }) {
       case t: OWLAPIOMF#EntityScalarDataProperty =>
         Set(
-          entityAlreadyDefinedException(EntityExceptionKind.DataRelationshipFromEntityToScalar, escIRI, t)
+          entityAlreadyDefinedException(ElementExceptionKind.DataRelationshipFromEntityToScalar, escIRI, t)
         ).left
       case t =>
         Set(
-          entityConflictException(EntityExceptionKind.DataRelationshipFromEntityToScalar, escIRI, t)
+          entityConflictException(ElementExceptionKind.DataRelationshipFromEntityToScalar, escIRI, t)
         ).left
     }
   }
@@ -2017,7 +2055,7 @@ trait MutableTerminologyBox
    source: OWLAPIOMF#Entity,
    target: OWLAPIOMF#DataRange)
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#EntityScalarDataProperty
+  : OMFError.Throwables \/ OWLAPIOMF#EntityScalarDataProperty
   = {
     val escDP = owlDataFactory.getOWLDataProperty(dIRI)
     for {
@@ -2053,33 +2091,33 @@ trait MutableTerminologyBox
    source: OWLAPIOMF#Entity,
    target: OWLAPIOMF#DataRange)
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ EntityScalarDataProperty
+  : OMFError.Throwables \/ EntityScalarDataProperty
   = iri2typeTerm
     .get(dIRI)
-    .fold[Throwables \/ OWLAPIOMF#EntityScalarDataProperty]({
+    .fold[OMFError.Throwables \/ OWLAPIOMF#EntityScalarDataProperty]({
     (isTypeTermDefinedRecursively(source),
       isTypeTermDefinedRecursively(target)) match {
       case (true, true) =>
         makeDataRelationshipFromEntityToScalar(dIRI, name, isIdentityCriteria, uuid, source, target)
       case (false, true) =>
         Set(
-          entityScopeException(EntityExceptionKind.DataRelationshipFromEntityToScalar, dIRI,
+          entityScopeException(ElementExceptionKind.DataRelationshipFromEntityToScalar, dIRI,
             Map(RelationshipScopeAccessKind.Source -> source))
         ).left
       case (true, false) =>
         Set(
-          entityScopeException(EntityExceptionKind.DataRelationshipFromEntityToScalar, dIRI,
+          entityScopeException(ElementExceptionKind.DataRelationshipFromEntityToScalar, dIRI,
             Map(RelationshipScopeAccessKind.Target -> target))
         ).left
       case (false, false) =>
         Set(
-          entityScopeException(EntityExceptionKind.DataRelationshipFromEntityToScalar, dIRI,
+          entityScopeException(ElementExceptionKind.DataRelationshipFromEntityToScalar, dIRI,
             Map(RelationshipScopeAccessKind.Source -> source, RelationshipScopeAccessKind.Target -> target))
         ).left
     }
   }) { term =>
     Set(
-      entityConflictException(EntityExceptionKind.DataRelationshipFromEntityToScalar, dIRI, term)
+      entityConflictException(ElementExceptionKind.DataRelationshipFromEntityToScalar, dIRI, term)
     ).left
   }
 
@@ -2090,7 +2128,7 @@ trait MutableTerminologyBox
    source: OWLAPIOMF#Entity,
    target: OWLAPIOMF#Structure)
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#EntityStructuredDataProperty
+  : OMFError.Throwables \/ OWLAPIOMF#EntityStructuredDataProperty
   = for {
     n <- getFragment(esc.getIRI)
     u = generateUUID(tboxUUID, "name" -> LocalName(n))
@@ -2102,12 +2140,12 @@ trait MutableTerminologyBox
    source: OWLAPIOMF#Entity,
    target: OWLAPIOMF#Structure)
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#EntityStructuredDataProperty
+  : OMFError.Throwables \/ OWLAPIOMF#EntityStructuredDataProperty
   = {
     val escIRI: IRI = esc.getIRI
     iri2typeTerm
       .get(escIRI)
-      .fold[Throwables \/ OWLAPIOMF#EntityStructuredDataProperty](
+      .fold[OMFError.Throwables \/ OWLAPIOMF#EntityStructuredDataProperty](
       for {
         _esc <- store.registerDataRelationshipFromEntityToStructure(
           this, terms.EntityStructuredDataProperty(esc, esc.getIRI, name, isIdentityCriteria, uuid, source, target))
@@ -2118,11 +2156,11 @@ trait MutableTerminologyBox
       }) {
       case t: OWLAPIOMF#EntityStructuredDataProperty =>
         Set(
-          entityAlreadyDefinedException(EntityExceptionKind.DataRelationshipFromEntityToStructure, escIRI, t)
+          entityAlreadyDefinedException(ElementExceptionKind.DataRelationshipFromEntityToStructure, escIRI, t)
         ).left
       case t =>
         Set(
-          entityConflictException(EntityExceptionKind.DataRelationshipFromEntityToStructure, escIRI, t)
+          entityConflictException(ElementExceptionKind.DataRelationshipFromEntityToStructure, escIRI, t)
         ).left
     }
   }
@@ -2132,7 +2170,7 @@ trait MutableTerminologyBox
    source: OWLAPIOMF#Entity,
    target: OWLAPIOMF#Structure)
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#EntityStructuredDataProperty
+  : OMFError.Throwables \/ OWLAPIOMF#EntityStructuredDataProperty
   = {
     val escDP = owlDataFactory.getOWLObjectProperty(dIRI)
     for {
@@ -2168,33 +2206,33 @@ trait MutableTerminologyBox
    source: OWLAPIOMF#Entity,
    target: OWLAPIOMF#Structure)
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#EntityStructuredDataProperty
+  : OMFError.Throwables \/ OWLAPIOMF#EntityStructuredDataProperty
   = iri2typeTerm
     .get(dIRI)
-    .fold[Throwables \/ OWLAPIOMF#EntityStructuredDataProperty]({
+    .fold[OMFError.Throwables \/ OWLAPIOMF#EntityStructuredDataProperty]({
     (isTypeTermDefinedRecursively(source),
       isTypeTermDefinedRecursively(target)) match {
       case (true, true) =>
         makeDataRelationshipFromEntityToStructure(dIRI, name, isIdentityCriteria, uuid, source, target)
       case (false, true) =>
         Set(
-          entityScopeException(EntityExceptionKind.DataRelationshipFromEntityToStructure, dIRI,
+          entityScopeException(ElementExceptionKind.DataRelationshipFromEntityToStructure, dIRI,
             Map(RelationshipScopeAccessKind.Source -> source))
         ).left
       case (true, false) =>
         Set(
-          entityScopeException(EntityExceptionKind.DataRelationshipFromEntityToStructure, dIRI,
+          entityScopeException(ElementExceptionKind.DataRelationshipFromEntityToStructure, dIRI,
             Map(RelationshipScopeAccessKind.Target -> target))
         ).left
       case (false, false) =>
         Set(
-          entityScopeException(EntityExceptionKind.DataRelationshipFromEntityToStructure, dIRI,
+          entityScopeException(ElementExceptionKind.DataRelationshipFromEntityToStructure, dIRI,
             Map(RelationshipScopeAccessKind.Source -> source, RelationshipScopeAccessKind.Target -> target))
         ).left
     }
   }) { term =>
     Set(
-      entityConflictException(EntityExceptionKind.DataRelationshipFromEntityToStructure, dIRI, term)
+      entityConflictException(ElementExceptionKind.DataRelationshipFromEntityToStructure, dIRI, term)
     ).left
   }
 
@@ -2204,7 +2242,7 @@ trait MutableTerminologyBox
    source: OWLAPIOMF#Structure,
    target: OWLAPIOMF#DataRange)
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#ScalarDataProperty
+  : OMFError.Throwables \/ OWLAPIOMF#ScalarDataProperty
   = for {
     n <- getFragment(esc.getIRI)
     u = generateUUID(tboxUUID, "name" -> LocalName(n))
@@ -2216,12 +2254,12 @@ trait MutableTerminologyBox
    source: OWLAPIOMF#Structure,
    target: OWLAPIOMF#DataRange)
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#ScalarDataProperty
+  : OMFError.Throwables \/ OWLAPIOMF#ScalarDataProperty
   = {
     val escIRI: IRI = esc.getIRI
     iri2typeTerm
       .get(escIRI)
-      .fold[Throwables \/ OWLAPIOMF#ScalarDataProperty](
+      .fold[OMFError.Throwables \/ OWLAPIOMF#ScalarDataProperty](
       for {
         _esc <- store.registerDataRelationshipFromStructureToScalar(
           this, terms.ScalarDataProperty(esc, esc.getIRI, name, uuid, source, target))
@@ -2232,11 +2270,11 @@ trait MutableTerminologyBox
       }) {
       case t: OWLAPIOMF#ScalarDataProperty =>
         Set(
-          entityAlreadyDefinedException(EntityExceptionKind.DataRelationshipFromStructureToScalar, escIRI, t)
+          entityAlreadyDefinedException(ElementExceptionKind.DataRelationshipFromStructureToScalar, escIRI, t)
         ).left
       case t =>
         Set(
-          entityConflictException(EntityExceptionKind.DataRelationshipFromStructureToScalar, escIRI, t)
+          entityConflictException(ElementExceptionKind.DataRelationshipFromStructureToScalar, escIRI, t)
         ).left
     }
   }
@@ -2246,7 +2284,7 @@ trait MutableTerminologyBox
    source: OWLAPIOMF#Structure,
    target: OWLAPIOMF#DataRange)
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#ScalarDataProperty
+  : OMFError.Throwables \/ OWLAPIOMF#ScalarDataProperty
   = {
     val escDP = owlDataFactory.getOWLDataProperty(dIRI)
     for {
@@ -2282,33 +2320,33 @@ trait MutableTerminologyBox
    source: OWLAPIOMF#Structure,
    target: OWLAPIOMF#DataRange)
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#ScalarDataProperty
+  : OMFError.Throwables \/ OWLAPIOMF#ScalarDataProperty
   = iri2typeTerm
     .get(dIRI)
-    .fold[Throwables \/ OWLAPIOMF#ScalarDataProperty]({
+    .fold[OMFError.Throwables \/ OWLAPIOMF#ScalarDataProperty]({
     (isTypeTermDefinedRecursively(source),
       isTypeTermDefinedRecursively(target)) match {
       case (true, true) =>
         makeDataRelationshipFromStructureToScalar(dIRI, name, uuid, source, target)
       case (false, true) =>
         Set(
-          entityScopeException(EntityExceptionKind.DataRelationshipFromStructureToScalar, dIRI,
+          entityScopeException(ElementExceptionKind.DataRelationshipFromStructureToScalar, dIRI,
             Map(RelationshipScopeAccessKind.Source -> source))
         ).left
       case (true, false) =>
         Set(
-          entityScopeException(EntityExceptionKind.DataRelationshipFromStructureToScalar, dIRI,
+          entityScopeException(ElementExceptionKind.DataRelationshipFromStructureToScalar, dIRI,
             Map(RelationshipScopeAccessKind.Target -> target))
         ).left
       case (false, false) =>
         Set(
-          entityScopeException(EntityExceptionKind.DataRelationshipFromStructureToScalar, dIRI,
+          entityScopeException(ElementExceptionKind.DataRelationshipFromStructureToScalar, dIRI,
             Map(RelationshipScopeAccessKind.Source -> source, RelationshipScopeAccessKind.Target -> target))
         ).left
     }
   }) { term =>
     Set(
-      entityConflictException(EntityExceptionKind.DataRelationshipFromStructureToScalar, dIRI, term)
+      entityConflictException(ElementExceptionKind.DataRelationshipFromStructureToScalar, dIRI, term)
     ).left
   }
 
@@ -2318,7 +2356,7 @@ trait MutableTerminologyBox
    source: OWLAPIOMF#Structure,
    target: OWLAPIOMF#Structure)
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#StructuredDataProperty
+  : OMFError.Throwables \/ OWLAPIOMF#StructuredDataProperty
   = for {
     n <- getFragment(esc.getIRI)
     u = generateUUID(tboxUUID, "name" -> LocalName(n))
@@ -2330,12 +2368,12 @@ trait MutableTerminologyBox
    source: OWLAPIOMF#Structure,
    target: OWLAPIOMF#Structure)
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#StructuredDataProperty
+  : OMFError.Throwables \/ OWLAPIOMF#StructuredDataProperty
   = {
     val escIRI: IRI = esc.getIRI
     iri2typeTerm
       .get(escIRI)
-      .fold[Throwables \/ OWLAPIOMF#StructuredDataProperty](
+      .fold[OMFError.Throwables \/ OWLAPIOMF#StructuredDataProperty](
       for {
         _esc <- store.registerDataRelationshipFromStructureToStructure(
           this, terms.StructuredDataProperty(esc, esc.getIRI, name, uuid, source, target))
@@ -2346,11 +2384,11 @@ trait MutableTerminologyBox
       }) {
       case t: OWLAPIOMF#StructuredDataProperty =>
         Set(
-          entityAlreadyDefinedException(EntityExceptionKind.DataRelationshipFromStructureToStructure, escIRI, t)
+          entityAlreadyDefinedException(ElementExceptionKind.DataRelationshipFromStructureToStructure, escIRI, t)
         ).left
       case t =>
         Set(
-          entityConflictException(EntityExceptionKind.DataRelationshipFromStructureToStructure, escIRI, t)
+          entityConflictException(ElementExceptionKind.DataRelationshipFromStructureToStructure, escIRI, t)
         ).left
     }
   }
@@ -2360,7 +2398,7 @@ trait MutableTerminologyBox
    source: OWLAPIOMF#Structure,
    target: OWLAPIOMF#Structure)
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#StructuredDataProperty
+  : OMFError.Throwables \/ OWLAPIOMF#StructuredDataProperty
   = {
     val escDP = owlDataFactory.getOWLObjectProperty(dIRI)
     for {
@@ -2396,33 +2434,33 @@ trait MutableTerminologyBox
    source: OWLAPIOMF#Structure,
    target: OWLAPIOMF#Structure)
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#StructuredDataProperty
+  : OMFError.Throwables \/ OWLAPIOMF#StructuredDataProperty
   = iri2typeTerm
     .get(dIRI)
-    .fold[Throwables \/ OWLAPIOMF#StructuredDataProperty]({
+    .fold[OMFError.Throwables \/ OWLAPIOMF#StructuredDataProperty]({
     (isTypeTermDefinedRecursively(source),
       isTypeTermDefinedRecursively(target)) match {
       case (true, true) =>
         makeDataRelationshipFromStructureToStructure(dIRI, name, uuid, source, target)
       case (false, true) =>
         Set(
-          entityScopeException(EntityExceptionKind.DataRelationshipFromStructureToStructure, dIRI,
+          entityScopeException(ElementExceptionKind.DataRelationshipFromStructureToStructure, dIRI,
             Map(RelationshipScopeAccessKind.Source -> source))
         ).left
       case (true, false) =>
         Set(
-          entityScopeException(EntityExceptionKind.DataRelationshipFromStructureToStructure, dIRI,
+          entityScopeException(ElementExceptionKind.DataRelationshipFromStructureToStructure, dIRI,
             Map(RelationshipScopeAccessKind.Target -> target))
         ).left
       case (false, false) =>
         Set(
-          entityScopeException(EntityExceptionKind.DataRelationshipFromStructureToStructure, dIRI,
+          entityScopeException(ElementExceptionKind.DataRelationshipFromStructureToStructure, dIRI,
             Map(RelationshipScopeAccessKind.Source -> source, RelationshipScopeAccessKind.Target -> target))
         ).left
     }
   }) { term =>
     Set(
-      entityConflictException(EntityExceptionKind.DataRelationshipFromStructureToStructure, dIRI, term)
+      entityConflictException(ElementExceptionKind.DataRelationshipFromStructureToStructure, dIRI, term)
     ).left
   }
 
@@ -2431,7 +2469,7 @@ trait MutableTerminologyBox
    sub: OWLAPIOMF#Concept,
    sup: OWLAPIOMF#Concept)
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#ConceptSpecializationAxiom
+  : OMFError.Throwables \/ OWLAPIOMF#ConceptSpecializationAxiom
   = sig.axioms
     .find {
       case axiom: ConceptSpecializationAxiom =>
@@ -2439,7 +2477,7 @@ trait MutableTerminologyBox
       case _ =>
         false
     }
-    .fold[Throwables \/ OWLAPIOMF#ConceptSpecializationAxiom](
+    .fold[OMFError.Throwables \/ OWLAPIOMF#ConceptSpecializationAxiom](
     for {
       axiom <- store
         .registerOMFEntityConceptSubClassAxiomInstance(this,
@@ -2459,7 +2497,7 @@ trait MutableTerminologyBox
    sub: OWLAPIOMF#Concept,
    sup: OWLAPIOMF#Concept)
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#ConceptSpecializationAxiom
+  : OMFError.Throwables \/ OWLAPIOMF#ConceptSpecializationAxiom
   = (isTypeTermDefinedRecursively(sub),
     isTypeTermDefinedRecursively(sup)) match {
     case (true, true) =>
@@ -2514,7 +2552,7 @@ trait MutableTerminologyBox
    rel: OWLAPIOMF#ReifiedRelationship,
    range: Entity)
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#EntityUniversalRestrictionAxiom
+  : OMFError.Throwables \/ OWLAPIOMF#EntityUniversalRestrictionAxiom
   = for {
     uuid <- entityUniversalRestrictionAxiomUUID(this, sub, rel, range)
     ax <- addEntityDefinitionUniversalRestrictionAxiom(uuid, sub, rel, range)
@@ -2526,7 +2564,7 @@ trait MutableTerminologyBox
    rel: OWLAPIOMF#ReifiedRelationship,
    range: Entity)
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#EntityUniversalRestrictionAxiom
+  : OMFError.Throwables \/ OWLAPIOMF#EntityUniversalRestrictionAxiom
   = (isTypeTermDefinedRecursively(sub),
     isTypeTermDefinedRecursively(rel),
     isTypeTermDefinedRecursively(range)) match {
@@ -2582,7 +2620,7 @@ trait MutableTerminologyBox
    rel: OWLAPIOMF#ReifiedRelationship,
    range: Entity)
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#EntityExistentialRestrictionAxiom
+  : OMFError.Throwables \/ OWLAPIOMF#EntityExistentialRestrictionAxiom
   = for {
     uuid <- entityExistentialRestrictionAxiomUUID(this, sub, rel, range)
     ax <- addEntityDefinitionExistentialRestrictionAxiom(uuid, sub, rel, range)
@@ -2594,7 +2632,7 @@ trait MutableTerminologyBox
    rel: OWLAPIOMF#ReifiedRelationship,
    range: Entity)
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#EntityExistentialRestrictionAxiom
+  : OMFError.Throwables \/ OWLAPIOMF#EntityExistentialRestrictionAxiom
   = (isTypeTermDefinedRecursively(sub),
     isTypeTermDefinedRecursively(rel),
     isTypeTermDefinedRecursively(range)) match {
@@ -2650,7 +2688,7 @@ trait MutableTerminologyBox
    scalarProperty: OWLAPIOMF#EntityScalarDataProperty,
    range: DataRange)
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#EntityScalarDataPropertyExistentialRestrictionAxiom
+  : OMFError.Throwables \/ OWLAPIOMF#EntityScalarDataPropertyExistentialRestrictionAxiom
   = (isTypeTermDefinedRecursively(restrictedEntity),
     isTypeTermDefinedRecursively(scalarProperty),
     isTypeTermDefinedRecursively(range)) match {
@@ -2706,7 +2744,7 @@ trait MutableTerminologyBox
    scalarProperty: OWLAPIOMF#EntityScalarDataProperty,
    range: DataRange)
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#EntityScalarDataPropertyUniversalRestrictionAxiom
+  : OMFError.Throwables \/ OWLAPIOMF#EntityScalarDataPropertyUniversalRestrictionAxiom
   = (isTypeTermDefinedRecursively(restrictedEntity),
     isTypeTermDefinedRecursively(scalarProperty),
     isTypeTermDefinedRecursively(range)) match {
@@ -2763,7 +2801,7 @@ trait MutableTerminologyBox
    scalarProperty: OWLAPIOMF#EntityScalarDataProperty,
    literalValue: LexicalValue)
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#EntityScalarDataPropertyParticularRestrictionAxiom
+  : OMFError.Throwables \/ OWLAPIOMF#EntityScalarDataPropertyParticularRestrictionAxiom
   = (isTypeTermDefinedRecursively(restrictedEntity),
     isTypeTermDefinedRecursively(scalarProperty)) match {
     case (true, true) =>
@@ -2810,7 +2848,7 @@ trait MutableTerminologyBox
    sub: OWLAPIOMF#Entity,
    sup: OWLAPIOMF#Aspect)
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#AspectSpecializationAxiom
+  : OMFError.Throwables \/ OWLAPIOMF#AspectSpecializationAxiom
   = sig.axioms
     .find {
       case axiom: AspectSpecializationAxiom =>
@@ -2818,7 +2856,7 @@ trait MutableTerminologyBox
       case _ =>
         false
     }
-    .fold[Throwables \/ OWLAPIOMF#AspectSpecializationAxiom](
+    .fold[OMFError.Throwables \/ OWLAPIOMF#AspectSpecializationAxiom](
     for {
       axiom <-
       store
@@ -2839,7 +2877,7 @@ trait MutableTerminologyBox
    sub: OWLAPIOMF#Entity,
    sup: OWLAPIOMF#Aspect)
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#AspectSpecializationAxiom
+  : OMFError.Throwables \/ OWLAPIOMF#AspectSpecializationAxiom
   = (isTypeTermDefinedRecursively(sub),
     isTypeTermDefinedRecursively(sup)) match {
     case (true, true) =>
@@ -2893,7 +2931,7 @@ trait MutableTerminologyBox
    entityConceptDesignation: OWLAPIOMF#Concept,
    designationTerminologyGraph: OWLAPIOMF#TerminologyBox)
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#ConceptDesignationTerminologyAxiom
+  : OMFError.Throwables \/ OWLAPIOMF#ConceptDesignationTerminologyAxiom
   = sig.conceptDesignation
     .find {
       case axiom: ConceptDesignationTerminologyAxiom =>
@@ -2902,7 +2940,7 @@ trait MutableTerminologyBox
       case _ =>
         false
     }
-    .fold[Throwables \/ ConceptDesignationTerminologyAxiom]({
+    .fold[OMFError.Throwables \/ ConceptDesignationTerminologyAxiom]({
     val axInstance = ConceptDesignationTerminologyAxiom(
       uuid, graph.uuid, entityConceptDesignation, designationTerminologyGraph)
     for {
@@ -2923,7 +2961,7 @@ trait MutableTerminologyBox
    entityConceptDesignation: OWLAPIOMF#Concept,
    designationTerminologyGraph: OWLAPIOMF#TerminologyBox)
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#ConceptDesignationTerminologyAxiom
+  : OMFError.Throwables \/ OWLAPIOMF#ConceptDesignationTerminologyAxiom
   = for {
     axiom <- createOMFEntityConceptDesignationTerminologyGraphAxiom(
       uuid, graph, entityConceptDesignation, designationTerminologyGraph)
@@ -2937,7 +2975,7 @@ trait MutableTerminologyBox
    sub: OWLAPIOMF#ReifiedRelationship,
    sup: OWLAPIOMF#ReifiedRelationship)
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#ReifiedRelationshipSpecializationAxiom
+  : OMFError.Throwables \/ OWLAPIOMF#ReifiedRelationshipSpecializationAxiom
   = sig.axioms
     .find {
       case axiom: ReifiedRelationshipSpecializationAxiom =>
@@ -2945,7 +2983,7 @@ trait MutableTerminologyBox
       case _ =>
         false
     }
-    .fold[Throwables \/ ReifiedRelationshipSpecializationAxiom]({
+    .fold[OMFError.Throwables \/ ReifiedRelationshipSpecializationAxiom]({
     val axInstance = ReifiedRelationshipSpecializationAxiom(uuid, sub, sup)
     for {
       axiom <- store
@@ -2965,7 +3003,7 @@ trait MutableTerminologyBox
    sub: OWLAPIOMF#ReifiedRelationship,
    sup: OWLAPIOMF#ReifiedRelationship)
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ OWLAPIOMF#ReifiedRelationshipSpecializationAxiom
+  : OMFError.Throwables \/ OWLAPIOMF#ReifiedRelationshipSpecializationAxiom
   = (isTypeTermDefinedRecursively(sub), isTypeTermDefinedRecursively(sup)) match {
     case (true, true) =>
       for {
