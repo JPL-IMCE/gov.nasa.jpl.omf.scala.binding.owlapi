@@ -20,7 +20,9 @@ package gov.nasa.jpl.omf.scala.binding.owlapi.descriptions
 
 import gov.nasa.jpl.omf.scala.binding.owlapi.common.Element
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.DataRelationshipToStructure
+import org.semanticweb.owlapi.model.OWLNamedIndividual
 
 abstract class SingletonInstanceStructuredDataPropertyContext extends Element {
   val structuredDataProperty: DataRelationshipToStructure
+  val ni: OWLNamedIndividual
 }

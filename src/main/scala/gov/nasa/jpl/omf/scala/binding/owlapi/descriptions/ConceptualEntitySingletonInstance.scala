@@ -19,7 +19,11 @@
 package gov.nasa.jpl.omf.scala.binding.owlapi.descriptions
 
 import gov.nasa.jpl.omf.scala.binding.owlapi.common.Resource
+import org.semanticweb.owlapi.model.OWLNamedIndividual
 
 abstract class ConceptualEntitySingletonInstance
   extends TerminologyInstanceAssertion
-  with Resource
+  with Resource {
+
+  val ni: OWLNamedIndividual
+}

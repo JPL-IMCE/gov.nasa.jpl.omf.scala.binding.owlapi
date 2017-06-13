@@ -23,10 +23,12 @@ import java.util.UUID
 import gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMF
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Concept
 import gov.nasa.jpl.omf.scala.core.OMLString.LocalName
+import org.semanticweb.owlapi.model.OWLNamedIndividual
 
 case class ConceptInstance
 (override val iri: OWLAPIOMF#IRI,
  override val uuid: UUID,
  override val name: LocalName,
+ override val ni: OWLNamedIndividual,
  conceptType: Concept)
   extends ConceptualEntitySingletonInstance

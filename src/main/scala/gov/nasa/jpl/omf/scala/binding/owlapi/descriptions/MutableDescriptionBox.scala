@@ -21,20 +21,20 @@ package gov.nasa.jpl.omf.scala.binding.owlapi.descriptions
 import java.util.UUID
 
 import gov.nasa.jpl.imce.oml.tables.{AnnotationEntry, AnnotationProperty}
-import gov.nasa.jpl.omf.scala.binding.owlapi.common.MutableModule
+import gov.nasa.jpl.omf.scala.binding.owlapi.common.{MutableModule, Resource}
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms._
 import gov.nasa.jpl.omf.scala.binding.owlapi._
-import gov.nasa.jpl.omf.scala.core.OMFError.Throwables
+import gov.nasa.jpl.omf.scala.core.OMFError
 import gov.nasa.jpl.omf.scala.core.{DescriptionBoxSignature, DescriptionKind, MutableDescriptionBoxSignature}
 import gov.nasa.jpl.omf.scala.core.OMLString.{LexicalValue, LocalName}
-import org.semanticweb.owlapi.model.OWLOntology
-import org.semanticweb.owlapi.model.IRI
+import org.semanticweb.owlapi.model._
 
 import scala.collection.immutable._
 import scala.collection.mutable.{HashMap, HashSet}
-import scala.{Any, Boolean, None, Some}
-import scala.Predef.{ArrowAssoc,String}
+import scala.compat.java8.StreamConverters._
+import scala.{Any, Boolean, None, Some, StringContext}
+import scala.Predef.{ArrowAssoc, String}
 import scalaz._
 import Scalaz._
 
@@ -48,7 +48,7 @@ object MutableDescriptionBox {
    ont: OWLOntology,
    backbone: OMFBackbone)
   (implicit store: OWLAPIOMFGraphStore, ops: OWLAPIOMFOps)
-  : Throwables \/ MutableDescriptionBox
+  : OMFError.Throwables \/ MutableDescriptionBox
   = MutableDescriptionBox(
     sig = DescriptionBoxSignature[OWLAPIOMF, HashSet](
       uuid, name, iri, kind,
@@ -68,7 +68,7 @@ object MutableDescriptionBox {
       annotations =
         HashSet.empty[(AnnotationProperty, scala.collection.immutable.Set[AnnotationEntry])]),
     ont = ont,
-    backbone = backbone)(ops).right[Throwables]
+    backbone = backbone)(ops).right[OMFError.Throwables]
 }
 
 case class MutableDescriptionBox
@@ -93,41 +93,61 @@ case class MutableDescriptionBox
   def addAnnotationProperty
   (ap: AnnotationProperty)
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ AnnotationProperty
-  = {
-    sig.annotationProperties += ap
-    ap.right
-  }
+  : OMFError.Throwables \/ AnnotationProperty
+  = for {
+    _ <- (sig.annotationProperties += ap).right[OMFError.Throwables]
+    ont_ap = owlDataFactory.getOWLAnnotationProperty(ap.iri)
+    _ <- applyOntologyChangeOrNoOp(ontManager,
+      new AddAxiom(ont, owlDataFactory.getOWLDeclarationAxiom(ont_ap)),
+      "addAnnotationProperty error")
+  } yield ap
 
   def addAnnotation
   (subject: OWLAPIOMF#Element,
    property: AnnotationProperty,
    value: String)
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ AnnotationEntry
-  = {
-    val a = AnnotationEntry(
-      moduleUUID=uuid.toString,
-      subjectUUID=subject.uuid.toString,
-      value)
-    sig.annotations.find { case (ap, _) => ap == property } match {
+  : OMFError.Throwables \/ AnnotationEntry
+  = for {
+    a <- AnnotationEntry(
+      moduleUUID = uuid.toString,
+      subjectUUID = subject.uuid.toString,
+      value).right[OMFError.Throwables]
+    _ = sig.annotations.find { case (ap, _) => ap == property } match {
       case Some((ap, aes)) =>
         sig.annotations -= property -> aes
         sig.annotations += property -> (aes + a)
       case None =>
         sig.annotations += property -> (Set.empty[AnnotationEntry] + a)
     }
-    a.right
-  }
+    ont_ap = owlDataFactory.getOWLAnnotationProperty(property.iri)
+    ont_lit = owlDataFactory.getOWLLiteral(value)
+    _ <- subject match {
+      case m: MutableDescriptionBox =>
+        applyOntologyChangeOrNoOp(
+          ontManager,
+          new AddOntologyAnnotation(ont, owlDataFactory.getOWLAnnotation(ont_ap, ont_lit)),
+          "addAnnotation error")
+      case r: Resource =>
+        applyOntologyChangeOrNoOp(
+          ontManager,
+          new AddAxiom(ont, owlDataFactory.getOWLAnnotationAssertionAxiom(ont_ap, r.iri, ont_lit)),
+          "addAnnotation error")
+      case _ =>
+        Set[java.lang.Throwable](
+          OMFError.omfError(s"addAnnotation is not supported for a non-resource subject: $subject")
+        ).left
+    }
+  } yield a
 
   def removeAnnotations
   (subject: OWLAPIOMF#Element,
    property: AnnotationProperty)
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ Set[AnnotationEntry]
-  = {
-    val sUUID = subject.uuid.toString
-    sig.annotations.find { case (ap, _) => ap == property } match {
+  : OMFError.Throwables \/ Set[AnnotationEntry]
+  = for {
+    sUUID <- subject.uuid.toString.right[OMFError.Throwables]
+    ae <- sig.annotations.find { case (ap, _) => ap == property } match {
       case Some((ap, aes)) =>
         sig.annotations -= property -> aes
         val removed = aes.filter(_.subjectUUID == sUUID)
@@ -136,13 +156,31 @@ case class MutableDescriptionBox
       case None =>
         Set.empty[AnnotationEntry].right
     }
-  }
+    ont_ap = owlDataFactory.getOWLAnnotationProperty(property.iri)
+    _ <- subject match {
+      case r: Resource =>
+        val aaas =
+          ont
+            .annotationAssertionAxioms(r.iri)
+            .toScala[Seq]
+            .filter { aaa => aaa.getAnnotation.getProperty.getIRI == ont_ap.getIRI }
+            .map { aaa => new RemoveAxiom(ont, aaa) }
+        if (aaas.nonEmpty)
+          applyOntologyChangesOrNoOp(ontManager, aaas, "removeAnnotations error")
+        else
+          ().right
+      case _ =>
+        Set[java.lang.Throwable](
+          OMFError.omfError(s"removeAnnotations is not supported for a non-resource subject: $subject")
+        ).left
+    }
+  } yield ae
 
   def addDescriptionBoxExtendsClosedWorldDefinitions
   (uuid: UUID,
    closedWorldDefinitions: TerminologyBox)
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ descriptions.DescriptionBoxExtendsClosedWorldDefinitions
+  : OMFError.Throwables \/ descriptions.DescriptionBoxExtendsClosedWorldDefinitions
   = {
     val i = descriptions.DescriptionBoxExtendsClosedWorldDefinitions(
       uuid,
@@ -157,7 +195,7 @@ case class MutableDescriptionBox
   (uuid: UUID,
    refinedDescriptionBox: descriptions.DescriptionBox)
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ descriptions.DescriptionBoxRefinement
+  : OMFError.Throwables \/ descriptions.DescriptionBoxRefinement
   = {
     val i = descriptions.DescriptionBoxRefinement(
       uuid,
@@ -168,22 +206,87 @@ case class MutableDescriptionBox
     i.right
   }
 
+  def createConceptInstance
+  (uuid: UUID,
+   iri: IRI,
+   ni: OWLNamedIndividual,
+   conceptType: Concept,
+   fragment: LocalName)
+  (implicit store: OWLAPIOMFGraphStore)
+  : OMFError.Throwables \/ descriptions.ConceptInstance
+  = iri2namedIndividual
+    .get(iri)
+    .fold[OMFError.Throwables \/ descriptions.ConceptInstance] {
+    val i = descriptions.ConceptInstance(
+      iri = iri,
+      uuid = uuid,
+      name = fragment,
+      ni = ni,
+      conceptType = conceptType)
+    sig.conceptInstances += i
+    iri2namedIndividual += iri -> i
+    i.right
+  } {
+    case ci: descriptions.ConceptInstance =>
+      Set[java.lang.Throwable](
+        ConceptInstanceAlreadyDefinedException(ElementExceptionKind.ConceptInstance, iri, ci)
+      ).left
+    case i =>
+      Set[java.lang.Throwable](
+        InstanceConflictException(ElementExceptionKind.ConceptInstance, iri, i)
+      ).left
+  }
+
   def addConceptInstance
   (uuid: UUID,
    iri: IRI,
    conceptType: Concept,
    fragment: LocalName)
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ descriptions.ConceptInstance
-  = {
-    val i = descriptions.ConceptInstance(
+  : OMFError.Throwables \/ descriptions.ConceptInstance
+  = for {
+    ni <- owlDataFactory.getOWLNamedIndividual(iri).right[OMFError.Throwables]
+    i <- createConceptInstance(uuid, iri, ni, conceptType, fragment)
+    _ <- applyOntologyChanges(ontManager,
+      Seq(
+        new AddAxiom(ont,
+          owlDataFactory
+            .getOWLDeclarationAxiom(ni)),
+        new AddAxiom(ont,
+          owlDataFactory
+            .getOWLClassAssertionAxiom(conceptType.e, ni))),
+      "addConceptInstance Error")
+  } yield i
+
+  def createReifiedRelationshipInstance
+  (uuid: UUID,
+   iri: IRI,
+   ni: OWLNamedIndividual,
+   relationshipType: ReifiedRelationship,
+   fragment: LocalName)
+  (implicit store: OWLAPIOMFGraphStore)
+  : OMFError.Throwables \/ descriptions.ReifiedRelationshipInstance
+  = iri2namedIndividual
+    .get(iri)
+    .fold[OMFError.Throwables \/ descriptions.ReifiedRelationshipInstance] {
+    val i = descriptions.ReifiedRelationshipInstance(
       iri = iri,
       uuid = uuid,
       name = fragment,
-      conceptType = conceptType)
-    sig.conceptInstances += i
-    // @TODO: create the OWL representation
+      ni = ni,
+      relationshipType = relationshipType)
+    sig.reifiedRelationshipInstances += i
+    iri2namedIndividual += iri -> i
     i.right
+  } {
+    case rri: descriptions.ReifiedRelationshipInstance =>
+      Set[java.lang.Throwable](
+        ReifiedRelationshipInstanceAlreadyDefinedException(ElementExceptionKind.ReifiedRelationshipInstance, iri, rri)
+      ).left
+    case i =>
+      Set[java.lang.Throwable](
+        InstanceConflictException(ElementExceptionKind.ConceptInstance, iri, i)
+      ).left
   }
 
   def addReifiedRelationshipInstance
@@ -192,42 +295,172 @@ case class MutableDescriptionBox
    relationshipType: ReifiedRelationship,
    fragment: LocalName)
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ descriptions.ReifiedRelationshipInstance
-  = {
-    val i = descriptions.ReifiedRelationshipInstance(
-      iri = iri,
-      uuid = uuid,
-      name = fragment,
-      relationshipType = relationshipType)
-    sig.reifiedRelationshipInstances += i
-    // @TODO: create the OWL representation
+  : OMFError.Throwables \/ descriptions.ReifiedRelationshipInstance
+  = for {
+    ni <- owlDataFactory.getOWLNamedIndividual(iri).right[OMFError.Throwables]
+    i <- createReifiedRelationshipInstance(uuid, iri, ni, relationshipType, fragment)
+    _ <- applyOntologyChanges(ontManager,
+      Seq(
+        new AddAxiom(ont,
+          owlDataFactory
+            .getOWLDeclarationAxiom(ni)),
+        new AddAxiom(ont,
+          owlDataFactory
+            .getOWLClassAssertionAxiom(relationshipType.e, ni))),
+      "addReifiedRelationshipInstance Error")
+  } yield i
+
+  def createReifiedRelationshipInstanceDomain
+  (uuid: UUID,
+   rri: descriptions.ReifiedRelationshipInstance,
+   source: descriptions.ConceptualEntitySingletonInstance)
+  (implicit store: OWLAPIOMFGraphStore)
+  : OMFError.Throwables \/ descriptions.ReifiedRelationshipInstanceDomain
+  = sig
+    .reifiedRelationshipInstanceDomains
+    .find {
+      case axiom: descriptions.ReifiedRelationshipInstanceDomain =>
+        axiom.relationshipInstance == rri &&
+        axiom.domain == source
+      case _ =>
+        false
+    }
+    .fold[OMFError.Throwables \/ descriptions.ReifiedRelationshipInstanceDomain] {
+    val i = descriptions.ReifiedRelationshipInstanceDomain(uuid, rri, source)
+    sig.reifiedRelationshipInstanceDomains += i
     i.right
+  } { other =>
+    Set[java.lang.Throwable](
+      ReifiedRelationshipInstanceDomainAlreadyDefinedException(AxiomExceptionKind.ReifiedRelationshipInstanceDomain, other)
+    ).left
   }
 
   def addReifiedRelationshipInstanceDomain
   (uuid: UUID,
-   relationshipInstance: descriptions.ReifiedRelationshipInstance,
+   rri: descriptions.ReifiedRelationshipInstance,
    source: descriptions.ConceptualEntitySingletonInstance)
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ descriptions.ReifiedRelationshipInstanceDomain
-  = {
-    val i = descriptions.ReifiedRelationshipInstanceDomain(uuid, relationshipInstance, source)
-    sig.reifiedRelationshipInstanceDomains += i
-    // @TODO: create the OWL representation
+  : OMFError.Throwables \/ descriptions.ReifiedRelationshipInstanceDomain
+  = for {
+    i <- createReifiedRelationshipInstanceDomain(uuid, rri, source)
+    _ <- applyOntologyChanges(ontManager,
+      Seq(
+        new AddAxiom(ont,
+          owlDataFactory
+            .getOWLObjectPropertyAssertionAxiom(rri.relationshipType.rSource, rri.ni, source.ni))),
+      "addReifiedRelationshipInstanceDomain Error")
+  } yield i
+
+  def createReifiedRelationshipInstanceRange
+  (uuid: UUID,
+   rri: descriptions.ReifiedRelationshipInstance,
+   target: descriptions.ConceptualEntitySingletonInstance)
+  (implicit store: OWLAPIOMFGraphStore)
+  : OMFError.Throwables \/ descriptions.ReifiedRelationshipInstanceRange
+  = sig
+    .reifiedRelationshipInstanceRanges
+    .find {
+      case axiom: descriptions.ReifiedRelationshipInstanceRange =>
+        axiom.relationshipInstance == rri &&
+          axiom.range == target
+      case _ =>
+        false
+    }
+    .fold[OMFError.Throwables \/ descriptions.ReifiedRelationshipInstanceRange] {
+    val i = descriptions.ReifiedRelationshipInstanceRange(uuid, rri, target)
+    sig.reifiedRelationshipInstanceRanges += i
     i.right
+  } { other =>
+    Set[java.lang.Throwable](
+      ReifiedRelationshipInstanceRangeAlreadyDefinedException(AxiomExceptionKind.ReifiedRelationshipInstanceRange, other)
+    ).left
   }
 
   def addReifiedRelationshipInstanceRange
   (uuid: UUID,
-   relationshipInstance: descriptions.ReifiedRelationshipInstance,
+   rri: descriptions.ReifiedRelationshipInstance,
    target: descriptions.ConceptualEntitySingletonInstance)
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ descriptions.ReifiedRelationshipInstanceRange
-  = {
-    val i = descriptions.ReifiedRelationshipInstanceRange(uuid, relationshipInstance, target)
-    sig.reifiedRelationshipInstanceRanges += i
-    // @TODO: create the OWL representation
+  : OMFError.Throwables \/ descriptions.ReifiedRelationshipInstanceRange
+  = for {
+    i <- createReifiedRelationshipInstanceRange(uuid, rri, target)
+    _ <- applyOntologyChanges(ontManager,
+      Seq(
+        new AddAxiom(ont,
+          owlDataFactory
+            .getOWLObjectPropertyAssertionAxiom(rri.relationshipType.rTarget, rri.ni, target.ni))),
+      "addReifiedRelationshipInstanceRange Error")
+  } yield i
+
+  def createUnreifiedRelationshipInstanceTuple
+  (uuid: UUID,
+   unreifiedRelationship: UnreifiedRelationship,
+   source: descriptions.ConceptualEntitySingletonInstance,
+   target: descriptions.ConceptualEntitySingletonInstance)
+  (implicit store: OWLAPIOMFGraphStore)
+  : OMFError.Throwables \/ descriptions.UnreifiedRelationshipInstanceTuple
+  = sig
+    .unreifiedRelationshipInstanceTuples
+    .find {
+      case axiom: descriptions.UnreifiedRelationshipInstanceTuple =>
+        axiom.unreifiedRelationship == unreifiedRelationship &&
+        axiom.domain == source &&
+        axiom.range == target
+      case _ =>
+        false
+    }
+    .fold[OMFError.Throwables \/ descriptions.UnreifiedRelationshipInstanceTuple] {
+    val i = descriptions.UnreifiedRelationshipInstanceTuple(uuid, unreifiedRelationship, source, target)
+    sig.unreifiedRelationshipInstanceTuples += i
     i.right
+  } { other =>
+    Set[java.lang.Throwable](
+      UnreifiedRelationshipInstanceTupleAlreadyDefinedException(AxiomExceptionKind.UnreifiedRelationshipInstanceTuple, other)
+    ).left
+  }
+
+  def addUnreifiedRelationshipInstanceTuple
+  (uuid: UUID,
+   unreifiedRelationship: UnreifiedRelationship,
+   source: descriptions.ConceptualEntitySingletonInstance,
+   target: descriptions.ConceptualEntitySingletonInstance)
+  (implicit store: OWLAPIOMFGraphStore)
+  : OMFError.Throwables \/ descriptions.UnreifiedRelationshipInstanceTuple
+  = for {
+    i <- createUnreifiedRelationshipInstanceTuple(uuid, unreifiedRelationship, source, target)
+    _ <- applyOntologyChanges(ontManager,
+      Seq(
+        new AddAxiom(ont,
+          owlDataFactory
+            .getOWLObjectPropertyAssertionAxiom(unreifiedRelationship.e, source.ni, target.ni))),
+      "addUnreifiedRelationshipInstanceTuple Error")
+  } yield i
+
+  def createSingletonInstanceScalarDataPropertyValue
+  (uuid: UUID,
+   ei: descriptions.ConceptualEntitySingletonInstance,
+   e2sc: EntityScalarDataProperty,
+   value: LexicalValue)
+  (implicit store: OWLAPIOMFGraphStore)
+  : OMFError.Throwables \/ descriptions.SingletonInstanceScalarDataPropertyValue
+  = sig
+    .singletonScalarDataPropertyValues
+    .find {
+      case axiom: descriptions.SingletonInstanceScalarDataPropertyValue =>
+        axiom.ei == ei &&
+          axiom.dataRelationship == e2sc
+      case _ =>
+        false
+    }
+    .fold[OMFError.Throwables \/ descriptions.SingletonInstanceScalarDataPropertyValue] {
+    val i = descriptions.SingletonInstanceScalarDataPropertyValue(uuid, ei, e2sc, value)
+    sig.singletonScalarDataPropertyValues += i
+    i.right
+  } { other =>
+    Set[java.lang.Throwable](
+      SingletonInstanceScalarDataPropertyValueAlreadyDefinedException(
+        AxiomExceptionKind.SingletonInstanceScalarDataPropertyValue, other)
+    ).left
   }
 
   def addSingletonInstanceScalarDataPropertyValue
@@ -236,12 +469,43 @@ case class MutableDescriptionBox
    e2sc: EntityScalarDataProperty,
    value: LexicalValue)
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ descriptions.SingletonInstanceScalarDataPropertyValue
-  = {
-    val i = descriptions.SingletonInstanceScalarDataPropertyValue(uuid, ei, e2sc, value)
-    sig.singletonScalarDataPropertyValues += i
-    // @TODO: create the OWL representation
+  : OMFError.Throwables \/ descriptions.SingletonInstanceScalarDataPropertyValue
+  = for {
+    i <- createSingletonInstanceScalarDataPropertyValue(uuid, ei, e2sc, value)
+    _ <- applyOntologyChanges(ontManager,
+      Seq(
+        new AddAxiom(ont,
+          owlDataFactory
+            .getOWLDataPropertyAssertionAxiom(e2sc.e, ei.ni, value))),
+      "addSingletonInstanceScalarDataPropertyValue Error")
+  } yield i
+
+  def createSingletonInstanceStructuredDataPropertyValue
+  (uuid: UUID,
+   ni: OWLNamedIndividual,
+   ei: descriptions.ConceptualEntitySingletonInstance,
+   e2st: EntityStructuredDataProperty)
+  (implicit store: OWLAPIOMFGraphStore)
+  : OMFError.Throwables \/ descriptions.SingletonInstanceStructuredDataPropertyValue
+  = sig
+    .singletonStructuredDataPropertyValues
+    .find {
+      case axiom: descriptions.SingletonInstanceStructuredDataPropertyValue =>
+        axiom.ni == ni &&
+          axiom.ei == ei &&
+          axiom.structuredDataProperty == e2st
+      case _ =>
+        false
+    }
+    .fold[OMFError.Throwables \/ descriptions.SingletonInstanceStructuredDataPropertyValue] {
+    val i = descriptions.SingletonInstanceStructuredDataPropertyValue(uuid, ni, ei, e2st)
+    sig.singletonStructuredDataPropertyValues += i
     i.right
+  } { other =>
+    Set[java.lang.Throwable](
+      SingletonInstanceStructuredDataPropertyValueAlreadyDefinedException(
+        AxiomExceptionKind.SingletonInstanceStructuredDataPropertyValue, other)
+    ).left
   }
 
   def addSingletonInstanceStructuredDataPropertyValue
@@ -249,12 +513,47 @@ case class MutableDescriptionBox
    ei: descriptions.ConceptualEntitySingletonInstance,
    e2st: EntityStructuredDataProperty)
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ descriptions.SingletonInstanceStructuredDataPropertyValue
-  = {
-    val i = descriptions.SingletonInstanceStructuredDataPropertyValue(uuid, ei, e2st)
-    sig.singletonStructuredDataPropertyValues += i
-    // @TODO: create the OWL representation
+  : OMFError.Throwables \/ descriptions.SingletonInstanceStructuredDataPropertyValue
+  = for {
+    ni_iri <- ops.withFragment(iri, LocalName(uuid.toString))
+    ni = owlDataFactory.getOWLNamedIndividual(ni_iri)
+    i <- createSingletonInstanceStructuredDataPropertyValue(uuid, ni, ei, e2st)
+    _ <- applyOntologyChanges(ontManager,
+      Seq(
+        new AddAxiom(ont,
+          owlDataFactory
+            .getOWLClassAssertionAxiom(e2st.range.e, ni)),
+        new AddAxiom(ont,
+          owlDataFactory
+            .getOWLObjectPropertyAssertionAxiom(e2st.e, ei.ni, ni))),
+      "addSingletonInstanceStructuredDataPropertyValue Error")
+  } yield i
+
+  def createScalarDataPropertyValue
+  (uuid: UUID,
+   context: SingletonInstanceStructuredDataPropertyContext,
+   s2sc: ScalarDataProperty,
+   value: LexicalValue)
+  (implicit store: OWLAPIOMFGraphStore)
+  : OMFError.Throwables \/ descriptions.ScalarDataPropertyValue
+  = sig
+    .scalarDataPropertyValues
+    .find {
+      case axiom: descriptions.ScalarDataPropertyValue =>
+        axiom.context == context &&
+          axiom.dataRelationship == s2sc
+      case _ =>
+        false
+    }
+    .fold[OMFError.Throwables \/ descriptions.ScalarDataPropertyValue] {
+    val i = descriptions.ScalarDataPropertyValue(uuid, context, s2sc, value)
+    sig.scalarDataPropertyValues += i
     i.right
+  } { other =>
+    Set[java.lang.Throwable](
+      ScalarDataPropertyValueAlreadyDefinedException(
+        AxiomExceptionKind.ScalarDataPropertyValue, other)
+    ).left
   }
 
   def makeScalarDataPropertyValue
@@ -263,12 +562,42 @@ case class MutableDescriptionBox
    s2sc: ScalarDataProperty,
    value: LexicalValue)
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ descriptions.ScalarDataPropertyValue
-  = {
-    val i = descriptions.ScalarDataPropertyValue(uuid, context, s2sc, value)
-    sig.scalarDataPropertyValues += i
-    // @TODO: create the OWL representation
+  : OMFError.Throwables \/ descriptions.ScalarDataPropertyValue
+  = for {
+    i <- createScalarDataPropertyValue(uuid, context, s2sc, value)
+    _ <- applyOntologyChanges(ontManager,
+      Seq(
+        new AddAxiom(ont,
+          owlDataFactory
+            .getOWLDataPropertyAssertionAxiom(s2sc.e, context.ni, value))),
+      "makeScalarDataPropertyValue Error")
+  } yield i
+
+  def createStructuredDataPropertyTuple
+  (uuid: UUID,
+   ni: OWLNamedIndividual,
+   context: SingletonInstanceStructuredDataPropertyContext,
+   s2st: StructuredDataProperty)
+  (implicit store: OWLAPIOMFGraphStore)
+  : OMFError.Throwables \/ descriptions.StructuredDataPropertyTuple
+  = sig
+    .structuredDataPropertyTuples
+    .find {
+      case axiom: descriptions.StructuredDataPropertyTuple =>
+        axiom.context == context &&
+          axiom.structuredDataProperty == s2st
+      case _ =>
+        false
+    }
+    .fold[OMFError.Throwables \/ descriptions.StructuredDataPropertyTuple] {
+    val i = descriptions.StructuredDataPropertyTuple(uuid, ni, context, s2st)
+    sig.structuredDataPropertyTuples += i
     i.right
+  } { other =>
+    Set[java.lang.Throwable](
+      StructuredDataPropertyTupleAlreadyDefinedException(
+        AxiomExceptionKind.StructuredDataPropertyTuple, other)
+    ).left
   }
 
   def makeStructuredDataPropertyTuple
@@ -276,12 +605,20 @@ case class MutableDescriptionBox
    context: SingletonInstanceStructuredDataPropertyContext,
    s2st: StructuredDataProperty)
   (implicit store: OWLAPIOMFGraphStore)
-  : Set[java.lang.Throwable] \/ descriptions.StructuredDataPropertyTuple
-  = {
-    val i = descriptions.StructuredDataPropertyTuple(uuid, context, s2st)
-    sig.structuredDataPropertyTuples += i
-    // @TODO: create the OWL representation
-    i.right
-  }
+  : OMFError.Throwables \/ descriptions.StructuredDataPropertyTuple
+  = for {
+    ni_iri <- ops.withFragment(iri, LocalName(uuid.toString))
+    ni = owlDataFactory.getOWLNamedIndividual(ni_iri)
+    i <- createStructuredDataPropertyTuple(uuid, ni, context, s2st)
+    _ <- applyOntologyChanges(ontManager,
+      Seq(
+        new AddAxiom(ont,
+          owlDataFactory
+            .getOWLClassAssertionAxiom(s2st.range.e, ni)),
+        new AddAxiom(ont,
+          owlDataFactory
+            .getOWLObjectPropertyAssertionAxiom(s2st.e, context.ni, ni))),
+      "makeStructuredDataPropertyTuple Error")
+  } yield i
 
 }

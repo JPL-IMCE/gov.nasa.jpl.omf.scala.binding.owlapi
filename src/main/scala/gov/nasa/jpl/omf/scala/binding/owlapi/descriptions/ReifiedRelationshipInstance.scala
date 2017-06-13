@@ -23,10 +23,12 @@ import java.util.UUID
 import gov.nasa.jpl.omf.scala.binding.owlapi._
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ReifiedRelationship
 import gov.nasa.jpl.omf.scala.core.OMLString.LocalName
+import org.semanticweb.owlapi.model.OWLNamedIndividual
 
 case class ReifiedRelationshipInstance
 (override val iri: OWLAPIOMF#IRI,
  override val uuid: UUID,
  override val name: LocalName,
+ override val ni: OWLNamedIndividual,
  relationshipType: ReifiedRelationship)
   extends ConceptualEntitySingletonInstance
