@@ -1,0 +1,7 @@
+gov.nasa.jpl.omf.scala.binding.owlapi 6.0.4 is a minor update
+
+## Issues Resolved
+
+- [#9 Add missing rules for creating DescriptionBox representations in OWL](https://github.com/JPL-IMCE/gov.nasa.jpl.omf.scala.binding.owlapi/issues/9)
+
+- [#10 Add missing rules for creating OWL representations of OML constructs](https://github.com/JPL-IMCE/gov.nasa.jpl.omf.scala.binding.owlapi/issues/10)
