@@ -1,0 +1,14 @@
+gov.nasa.jpl.omf.scala.binding.owlapi 6.1.0 is an API-breaking update
+
+## Issues Resolved
+
+- [#11 Import OWL implicitly, not explicitly](https://github.com/JPL-IMCE/gov.nasa.jpl.omf.scala.binding.owlapi/issues/11)
+
+- [#7 Handle circular imports among ontologies](https://github.com/JPL-IMCE/gov.nasa.jpl.omf.scala.binding.owlapi/issues/7)
+
+- [#12 Improve handling of annotation properties](https://github.com/JPL-IMCE/gov.nasa.jpl.omf.scala.binding.owlapi/issues/12)
+
+- [#13 Improve catalog resolution logic for IRIs ending in '/'](https://github.com/JPL-IMCE/gov.nasa.jpl.omf.scala.binding.owlapi/issues/13)
+
+## API Changes
+
