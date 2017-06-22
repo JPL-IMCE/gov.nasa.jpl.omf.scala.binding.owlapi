@@ -68,8 +68,10 @@ case class CatalogIRIMapper
 
   def getDocumentIRI(ontologyIRI: IRI): IRI =
     resolveIRI(ontologyIRI, loadResolutionStrategy) match {
-      case null => ontologyIRI
-      case resolvedIRI => resolvedIRI
+      case null =>
+        ontologyIRI
+      case resolvedIRI =>
+        resolvedIRI
     }
 
   def loadResolutionStrategy(resolved: String): Option[IRI] = {
@@ -81,8 +83,12 @@ case class CatalogIRIMapper
 
     val f1 = new URL(normalizedPath)
     val f2 =
-      if (normalizedPath.endsWith(".owl")) f1
-      else new URL(normalizedPath + ".owl")
+      if (normalizedPath.endsWith(".owl"))
+        f1
+      else if (normalizedPath.endsWith("/"))
+        new URL(normalizedPath.stripSuffix("/")+".owl")
+      else
+        new URL(normalizedPath + ".owl")
     try {
       for {
         is <- Option.apply(f2.openStream)
