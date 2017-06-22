@@ -104,7 +104,11 @@ lazy val core =
     // @TODO Need to fix these unit tests.
     testOptions in Test := Seq(Tests.Filter(s =>
       !s.endsWith("IMCEFoundationLoadTestFromOWLAPILocalCatalog") &&
-      !s.endsWith("IMCE_OWL2_MOF2_LoadTestFromOWLAPILocalCatalog"))),
+      !s.endsWith("IMCE_OWL2_MOF2_LoadTestFromOWLAPILocalCatalog") &&
+        !s.endsWith("OWLAPIOWFNestedGraphTestWithMetadataLocalCatalog") &&
+        !s.endsWith("OWLAPIOWFVocabularyMutabilityTestLocalCatalog") &&
+        !s.endsWith("OWLAPIOWFVocabularyImmutabilityTestLocalCatalog")
+    )),
 
     libraryDependencies ++= Seq(
 

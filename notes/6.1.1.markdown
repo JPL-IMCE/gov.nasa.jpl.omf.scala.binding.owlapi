@@ -1,0 +1,7 @@
+gov.nasa.jpl.omf.scala.binding.owlapi 6.1.1 is a minor update that disables unit tests
+
+## Changes
+
+- Disable failing unit tests until they can be re-enabled when the OML Conversions succeed.
+
+    See [Re-enable unit tests when the ontologies.public has been properly updated](https://github.com/JPL-IMCE/gov.nasa.jpl.omf.scala.binding.owlapi/issues/14)
