@@ -1558,6 +1558,23 @@ created as part of exporting an OTI artifact of some kind (Metamodel, Profile, M
       </a>
     </span>
       
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi#annotationNSPrefixes" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="annotationNSPrefixes:scala.collection.immutable.Map[String,String]"></a>
+      <a id="annotationNSPrefixes:Map[String,String]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">annotationNSPrefixes</span><span class="result">: <span class="extype" name="scala.collection.immutable.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.package@annotationNSPrefixes:scala.collection.immutable.Map[String,String]" title="Permalink" target="_top">
+        <img src="../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
     </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi#applyOntologyChange" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="applyOntologyChange(ontManager:org.semanticweb.owlapi.model.OWLOntologyManager,ontChange:org.semanticweb.owlapi.model.OWLOntologyChange,ifError:String,ifSuccess:Option[()=&gt;Unit]):scalaz.\/[gov.nasa.jpl.omf.scala.core.OMFError.Throwables,Unit]"></a>
       <a id="applyOntologyChange(OWLOntologyManager,OWLOntologyChange,String,Option[()⇒Unit]):\/[Throwables,Unit]"></a>
@@ -1780,18 +1797,35 @@ created as part of exporting an OTI artifact of some kind (Metamodel, Profile, M
     </span>
       
     </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi#getAnnotationPropertyFromOWLAnnotation" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="getAnnotationPropertyFromOWLAnnotation(a:org.semanticweb.owlapi.model.OWLAnnotation):gov.nasa.jpl.imce.oml.tables.AnnotationProperty"></a>
-      <a id="getAnnotationPropertyFromOWLAnnotation(OWLAnnotation):AnnotationProperty"></a>
+      <a id="getAnnotationPropertyFromOWLAnnotation(a:org.semanticweb.owlapi.model.OWLAnnotation):scalaz.\/[gov.nasa.jpl.omf.scala.core.OMFError.Throwables,gov.nasa.jpl.imce.oml.tables.AnnotationProperty]"></a>
+      <a id="getAnnotationPropertyFromOWLAnnotation(OWLAnnotation):\/[Throwables,AnnotationProperty]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">getAnnotationPropertyFromOWLAnnotation</span><span class="params">(<span name="a">a: <span class="extype" name="org.semanticweb.owlapi.model.OWLAnnotation">OWLAnnotation</span></span>)</span><span class="result">: <span class="extype" name="gov.nasa.jpl.imce.oml.tables.AnnotationProperty">AnnotationProperty</span></span>
+        <span class="name">getAnnotationPropertyFromOWLAnnotation</span><span class="params">(<span name="a">a: <span class="extype" name="org.semanticweb.owlapi.model.OWLAnnotation">OWLAnnotation</span></span>)</span><span class="result">: <span class="extype" name="scalaz.\/">\/</span>[<span class="extype" name="gov.nasa.jpl.omf.scala.core.OMFError.Throwables">Throwables</span>, <span class="extype" name="gov.nasa.jpl.imce.oml.tables.AnnotationProperty">AnnotationProperty</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.package@getAnnotationPropertyFromOWLAnnotation(a:org.semanticweb.owlapi.model.OWLAnnotation):gov.nasa.jpl.imce.oml.tables.AnnotationProperty" title="Permalink" target="_top">
+      <a href="../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.package@getAnnotationPropertyFromOWLAnnotation(a:org.semanticweb.owlapi.model.OWLAnnotation):scalaz.\/[gov.nasa.jpl.omf.scala.core.OMFError.Throwables,gov.nasa.jpl.imce.oml.tables.AnnotationProperty]" title="Permalink" target="_top">
+        <img src="../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi#getAnnotationPropertyFromOWLAnnotationProperty" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="getAnnotationPropertyFromOWLAnnotationProperty(ap:org.semanticweb.owlapi.model.OWLAnnotationProperty):scalaz.\/[gov.nasa.jpl.omf.scala.core.OMFError.Throwables,gov.nasa.jpl.imce.oml.tables.AnnotationProperty]"></a>
+      <a id="getAnnotationPropertyFromOWLAnnotationProperty(OWLAnnotationProperty):\/[Throwables,AnnotationProperty]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getAnnotationPropertyFromOWLAnnotationProperty</span><span class="params">(<span name="ap">ap: <span class="extype" name="org.semanticweb.owlapi.model.OWLAnnotationProperty">OWLAnnotationProperty</span></span>)</span><span class="result">: <span class="extype" name="scalaz.\/">\/</span>[<span class="extype" name="gov.nasa.jpl.omf.scala.core.OMFError.Throwables">Throwables</span>, <span class="extype" name="gov.nasa.jpl.imce.oml.tables.AnnotationProperty">AnnotationProperty</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.package@getAnnotationPropertyFromOWLAnnotationProperty(ap:org.semanticweb.owlapi.model.OWLAnnotationProperty):scalaz.\/[gov.nasa.jpl.omf.scala.core.OMFError.Throwables,gov.nasa.jpl.imce.oml.tables.AnnotationProperty]" title="Permalink" target="_top">
         <img src="../../../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -1813,6 +1847,23 @@ created as part of exporting an OTI artifact of some kind (Metamodel, Profile, M
       </a>
     </span>
       
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi#getAnnotationPropertyUUIDfromOWLAnnotationProperty" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="getAnnotationPropertyUUIDfromOWLAnnotationProperty(ap:org.semanticweb.owlapi.model.OWLAnnotationProperty):gov.nasa.jpl.imce.oml.tables.UUID"></a>
+      <a id="getAnnotationPropertyUUIDfromOWLAnnotationProperty(OWLAnnotationProperty):UUID"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getAnnotationPropertyUUIDfromOWLAnnotationProperty</span><span class="params">(<span name="ap">ap: <span class="extype" name="org.semanticweb.owlapi.model.OWLAnnotationProperty">OWLAnnotationProperty</span></span>)</span><span class="result">: <span class="extype" name="gov.nasa.jpl.imce.oml.tables.UUID">UUID</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.package@getAnnotationPropertyUUIDfromOWLAnnotationProperty(ap:org.semanticweb.owlapi.model.OWLAnnotationProperty):gov.nasa.jpl.imce.oml.tables.UUID" title="Permalink" target="_top">
+        <img src="../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
     </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi#getAnnotationValueFromOWLAnnotation" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="getAnnotationValueFromOWLAnnotation(av:org.semanticweb.owlapi.model.OWLAnnotationValue):scalaz.\/[gov.nasa.jpl.omf.scala.core.OMFError.Throwables,String]"></a>
       <a id="getAnnotationValueFromOWLAnnotation(OWLAnnotationValue):\/[Throwables,String]"></a>
@@ -1826,6 +1877,23 @@ created as part of exporting an OTI artifact of some kind (Metamodel, Profile, M
       </span>
       </h4><span class="permalink">
       <a href="../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.package@getAnnotationValueFromOWLAnnotation(av:org.semanticweb.owlapi.model.OWLAnnotationValue):scalaz.\/[gov.nasa.jpl.omf.scala.core.OMFError.Throwables,String]" title="Permalink" target="_top">
+        <img src="../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi#getDefaultNSPrefix" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="getDefaultNSPrefix(aIRI:String):String"></a>
+      <a id="getDefaultNSPrefix(String):String"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getDefaultNSPrefix</span><span class="params">(<span name="aIRI">aIRI: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.package@getDefaultNSPrefix(aIRI:String):String" title="Permalink" target="_top">
         <img src="../../../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
