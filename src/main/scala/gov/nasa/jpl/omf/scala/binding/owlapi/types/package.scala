@@ -119,6 +119,7 @@ package object types {
   : Throwables \/ ImmutableResolver
   = {
     implicit val ops = omfStore.ops
+    implicit val store = omfStore
 
     val getOntologyUUID: Option[String] =
       ont
@@ -189,11 +190,18 @@ package object types {
 
           for {
 
+            _ <- as.foldLeft(types.rightUnitNES) { case (acc, ap) =>
+              for {
+                _ <- acc
+                _ <- g.addAnnotationProperty(ap)
+              } yield ()
+            }
+
             _ <- getRelevantOntologyAnnotations(ont).foldLeft(types.rightUnitNES) { case (acc, a) =>
               for {
                 _ <- acc
                 av <- getAnnotationValueFromOWLAnnotation(a.getValue)
-                ap = getAnnotationPropertyFromOWLAnnotation(a)
+                ap <- getAnnotationPropertyFromOWLAnnotation(a)
                 _ <- g.addAnnotation(g, ap, av)(omfStore)
               } yield ()
             }
@@ -231,11 +239,18 @@ package object types {
 
           for {
 
+            _ <- as.foldLeft(types.rightUnitNES) { case (acc, ap) =>
+              for {
+                _ <- acc
+                _ <- g.addAnnotationProperty(ap)
+              } yield ()
+            }
+
             _ <- getRelevantOntologyAnnotations(ont).foldLeft(types.rightUnitNES) { case (acc, a) =>
               for {
                 _ <- acc
                 av <- getAnnotationValueFromOWLAnnotation(a.getValue)
-                ap = getAnnotationPropertyFromOWLAnnotation(a)
+                ap <- getAnnotationPropertyFromOWLAnnotation(a)
                 _ <- g.addAnnotation(g, ap, av)(omfStore)
               } yield ()
             }
@@ -289,11 +304,18 @@ package object types {
 
           for {
 
+            _ <- as.foldLeft(types.rightUnitNES) { case (acc, ap) =>
+              for {
+                _ <- acc
+                _ <- g.addAnnotationProperty(ap)
+              } yield ()
+            }
+
             _ <- getRelevantOntologyAnnotations(ont).foldLeft(types.rightUnitNES) { case (acc, a) =>
               for {
                 _ <- acc
                 av <- getAnnotationValueFromOWLAnnotation(a.getValue)
-                ap = getAnnotationPropertyFromOWLAnnotation(a)
+                ap <- getAnnotationPropertyFromOWLAnnotation(a)
                 _ <- g.addAnnotation(g, ap, av)(omfStore)
               } yield ()
             }

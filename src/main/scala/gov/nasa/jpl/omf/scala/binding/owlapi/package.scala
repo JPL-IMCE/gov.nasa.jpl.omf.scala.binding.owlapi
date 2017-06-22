@@ -34,7 +34,7 @@ import org.semanticweb.owlapi.model._
 import scala.collection.immutable._
 import scala.compat.java8.StreamConverters._
 import scala.{None, Option, StringContext, Unit}
-import scala.Predef.String
+import scala.Predef.{ArrowAssoc,String}
 import scalaz._
 import Scalaz._
 
@@ -198,6 +198,54 @@ package object owlapi {
   : Throwables \/ Unit
   = s.catalogIRIMapper.parseCatalog(file.toUri)
 
+  def getAnnotationPropertyUUIDfromOWLAnnotationProperty
+  (ap: OWLAnnotationProperty)
+  : UUID
+  = generateUUID(ap.getIRI.getIRIString).toString
+
+  val annotationNSPrefixes: Map[String, String] = Map(
+    "http://purl.org/dc/elements/1.1/" -> "dc:",
+    "http://www.w3.org/2000/01/rdf-schema#" -> "rdfs:",
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#" -> "rdf:"
+  )
+
+  def getDefaultNSPrefix(aIRI: String)
+  : String
+  = {
+    val hash = aIRI.lastIndexOf('#')
+    if (hash > 0) {
+      val slash = aIRI.lastIndexOf('/')
+      if (slash > 0) {
+        val ns = aIRI.substring(slash + 1, hash)
+        ns + ":"
+      } else
+        ""
+    } else
+      ""
+  }
+
+  def getAnnotationPropertyFromOWLAnnotationProperty
+  (ap: OWLAnnotationProperty)
+  : Throwables \/ AnnotationProperty
+  = {
+    val aIRI = ap.getIRI.getIRIString
+    val shortIRI = ap.getIRI.getShortForm
+    val abIRI = if (shortIRI.contains(":"))
+      shortIRI
+    else
+      annotationNSPrefixes
+        .find { case (ns,_) => aIRI.startsWith(ns) }
+        .map { case (_,prefix) => prefix }
+        .getOrElse { getDefaultNSPrefix(aIRI) } + shortIRI
+
+    if (abIRI.contains(":"))
+      AnnotationProperty(getAnnotationPropertyUUIDfromOWLAnnotationProperty(ap), aIRI, abIRI).right
+    else
+      Set[java.lang.Throwable](new java.lang.IllegalArgumentException(
+        s"Unknown abbreviated IRI for $aIRI (short form=$abIRI)")
+      ).left
+  }
+
   def getAnnotationPropertyUUIDfromOWLAnnotation
   (a: OWLAnnotation)
   : UUID
@@ -205,11 +253,8 @@ package object owlapi {
 
   def getAnnotationPropertyFromOWLAnnotation
   (a: OWLAnnotation)
-  : AnnotationProperty
-  = AnnotationProperty(
-    getAnnotationPropertyUUIDfromOWLAnnotation(a),
-    a.getProperty.getIRI.getIRIString,
-    a.getProperty.getIRI.getShortForm)
+  : Throwables \/ AnnotationProperty
+  = getAnnotationPropertyFromOWLAnnotationProperty(a.getProperty)
 
   def getAnnotationValueFromOWLAnnotation
   (av: OWLAnnotationValue)

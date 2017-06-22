@@ -1184,7 +1184,7 @@ trait OWLAPIMutableTerminologyGraphOps
   = aas.foldLeft[types.UnitNES](types.rightUnitNES) { case (acc, aa) =>
     for {
       _ <- acc
-      ap = getAnnotationPropertyFromOWLAnnotation(aa.getAnnotation)
+      ap <- getAnnotationPropertyFromOWLAnnotation(aa.getAnnotation)
       _ <- tbox.addAnnotationProperty(ap)
       av <- getAnnotationValueFromOWLAnnotation(aa.getValue)
       _ <- tbox.addAnnotation(subject, ap, av)

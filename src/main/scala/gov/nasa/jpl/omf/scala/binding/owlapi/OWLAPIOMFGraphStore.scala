@@ -1025,12 +1025,12 @@ extends OWLAPIOMFGraphStoreMetadata(omfModule, ontManager) {
 
     val annotationProperties
     : Throwables \/ Set[AnnotationProperty]
-    = getRelevantOntologyAnnotations(ont)
+    = ont.annotationPropertiesInSignature().toScala[Set]
       .foldLeft(Set.empty[AnnotationProperty].right[Throwables]) {
-      case (acc, a) =>
+      case (acc, ont_ap) =>
         for {
           as <- acc
-          ap = getAnnotationPropertyFromOWLAnnotation(a)
+          ap <- getAnnotationPropertyFromOWLAnnotationProperty(ont_ap)
         } yield as + ap
     }
 
@@ -1100,14 +1100,23 @@ extends OWLAPIOMFGraphStoreMetadata(omfModule, ontManager) {
   : Throwables \/ Unit
   = g.save(os)
 
+  def hasBuiltAnnotations
+  (iri: IRI)
+  : Boolean
+  = {
+    val siri = iri.toString
+    "http://www.w3.org/2002/07/owl" == siri
+  }
+
   def isBuiltInIRI
   (iri: IRI)
   : Boolean
   = {
     val siri = iri.toString
-    "http://www.w3.org/2001/XMLSchema" == siri ||
-      "http://www.w3.org/1999/02/22-rdf-syntax-ns#" == siri ||
       "http://www.w3.org/2002/07/owl" == siri ||
+      "http://www.w3.org/2001/XMLSchema" == siri ||
+      "http://www.w3.org/2000/01/rdf-schema" == siri ||
+      "http://www.w3.org/1999/02/22-rdf-syntax-ns#" == siri ||
       "http://www.w3.org/2003/11/swrl" == siri
   }
 
