@@ -164,10 +164,21 @@ object OWLAPIOMFLoader {
   def getOntologyDirectlyExtendedModules
   (ont: OWLOntology,
    ontIRI: IRI)
-  (implicit store: OWLAPIOMFGraphStore)
+  (implicit ops: OWLAPIOMFOps, store: OWLAPIOMFGraphStore, drc: BuiltInDatatypeMap)
   : Set[ExtendingOntologyToExtendedModuleIRI]
-  = getOntologyDirectlyImportedDocuments(ont)
-    .map(iri => ExtendingOntologyToExtendedModuleIRI(extending = ontIRI, extended = iri))
+  = {
+    val explicit = getOntologyDirectlyImportedDocuments(ont)
+      .map(iri => ExtendingOntologyToExtendedModuleIRI(extending = ontIRI, extended = iri))
+    if (ontIRI != omlIRI) {
+      explicit
+    } else {
+      val builtin = drc.builtInDatatypeModules.map { m =>
+        val mIRI = ops.getModuleIRI(m)
+        ExtendingOntologyToExtendedModuleIRI(extending = omlIRI, extended = mIRI)
+      }
+      explicit ++ builtin
+    }
+  }
 
   case class OntologyLoadedState
   (ontologies: Map[IRI, OWLOntology],
@@ -177,11 +188,12 @@ object OWLAPIOMFLoader {
   object OntologyLoadedState {
 
     def loadAllOntologies
-    (iri: IRI)
+    (iri: IRI,
+     drc: BuiltInDatatypeMap)
     (implicit ops: OWLAPIOMFOps, store: OWLAPIOMFGraphStore)
     : Throwables \/ OntologyLoadedState
     = Internal.loadOntologiesRecursively(
-      Internal.OntologyLoaderState(queue = Set(iri)))
+      Internal.OntologyLoaderState(queue = Set(iri)))(ops, store, drc)
 
     private object Internal {
 
@@ -194,7 +206,7 @@ object OWLAPIOMFLoader {
       @annotation.tailrec
       def loadOntologiesRecursively
       (s: OntologyLoaderState)
-      (implicit ops: OWLAPIOMFOps, store: OWLAPIOMFGraphStore)
+      (implicit ops: OWLAPIOMFOps, store: OWLAPIOMFGraphStore, drc: BuiltInDatatypeMap)
       : Throwables \/ OntologyLoadedState
       = if (s.queue.isEmpty)
           OntologyLoadedState(
@@ -212,9 +224,12 @@ object OWLAPIOMFLoader {
       def loadOneOntology
       (s: OntologyLoaderState,
        iri: IRI)
-      (implicit ops: OWLAPIOMFOps, store: OWLAPIOMFGraphStore)
+      (implicit ops: OWLAPIOMFOps, store: OWLAPIOMFGraphStore, drc: BuiltInDatatypeMap)
       : Throwables \/ OntologyLoaderState
-      = s
+      = if (drc.isBuiltInModule(iri))
+        \/-(s.copy(queue = s.queue - iri))
+      else
+        s
         .ontologies
         .get(iri)
         .fold[Throwables \/ OntologyLoaderState] {
@@ -222,7 +237,7 @@ object OWLAPIOMFLoader {
           .withApply {
             cause: java.lang.Throwable =>
               Set(OMFError.omfException(
-                s"loadTerminologyGraph failed: ${cause.getMessage}",
+                s"loadTerminologyGraph($iri) failed: ${cause.getMessage}",
                 cause)).left
           }
           .apply {
@@ -276,6 +291,7 @@ object OWLAPIOMFLoader {
     */
   type OMFDocumentTopologicalOrder = OMFDocumentGraph#TopologicalOrder[Graph[IRI, DiEdge]#NodeT]
 
+  val omlIRI = IRI.create("http://imce.jpl.nasa.gov/oml/oml")
 
   /**
     * Need to perform a 2-pass load:
@@ -304,8 +320,16 @@ object OWLAPIOMFLoader {
     case None =>
       implicit val graphConfig = CoreConfig(orderHint = 5000, Hints(64, 0, 64, 75))
 
+      val builtInEdges = drc.builtInDatatypeModules.flatMap { fM =>
+        val fIRI = ops.getModuleIRI(fM)
+        fM.sig.importedTerminologies.map { tM =>
+          val tIRI = ops.getModuleIRI(tM)
+          fIRI -> tIRI
+        }
+      }
+
       for {
-        s <- OntologyLoadedState.loadAllOntologies(iri)
+        s <- OntologyLoadedState.loadAllOntologies(iri, drc)
         om = OntologyMapping.initialize(m2i, drc)
 
         // Add nodes for every OMF document ontology document IRI loaded.
@@ -313,12 +337,11 @@ object OWLAPIOMFLoader {
 
         // Add edges for every OMF document extension relationship
         g1 = (g0 /: s.extensions) { (gi, e) =>
+          gi + e.extending ~> e.extended
+        }
 
-          // load the extended parent graph before the extending child graph
-          // because terms in the extending child graph can reference
-          // terms in scope of the extended parent graph
-          gi + e.extended ~> e.extending
-
+        g2 = (g1 /: builtInEdges) { case (gi, (fIRI, tIRI)) =>
+          gi + fIRI ~> tIRI
         }
 
         lorder <- hierarchicalTopologicalSort(Seq(g2), Seq.empty).map(_.reverse)
@@ -328,20 +351,10 @@ object OWLAPIOMFLoader {
           lorder.foreach { iri =>
             java.lang.System.out.println(s"=> load: $iri")
           }
+          java.lang.System.out.println()
         }
 
-        nonBuiltinDatatypeMapRoots =
-        g1
-          .degreeNodeSeq(
-            nodeDegree = g1.InDegree,
-            degreeFilter = {
-              _ == 0
-            })
-          .map(_._2.value)
-          .filter(store.isBuiltinDatatypeMap(_).isEmpty)
-          .to[Set]
-
-        resultPair <- loadModules(lorder, s, nonBuiltinDatatypeMapRoots, om).flatMap { loadedOM =>
+        resultPair <- loadModules(lorder, s, om).flatMap { loadedOM =>
           loadedOM.m2i.lookupValue(iri) match {
             case Some(im) =>
               (im -> loadedOM).right
@@ -360,7 +373,6 @@ object OWLAPIOMFLoader {
   def loadModules
   (queue: Seq[IRI],
    s: OntologyLoadedState,
-   nonBuiltinDatatypeMapRoots: Set[IRI],
    currentM2I: OntologyMapping)
   (implicit ops: OWLAPIOMFOps, store: OWLAPIOMFGraphStore)
   : Throwables \/ OntologyMapping
@@ -368,25 +380,38 @@ object OWLAPIOMFLoader {
     .foldLeft[Throwables \/ OntologyMapping]{
     currentM2I.right
   } {
-    loadModuleFromOntologyDocument(s,nonBuiltinDatatypeMapRoots)
+    loadModuleFromOntologyDocument(s)
   }
 
   def loadModuleFromOntologyDocument
-  (s: OntologyLoadedState,
-   nonBuiltinDatatypeMapRoots: Set[IRI])
+  (s: OntologyLoadedState)
   (acc: Throwables \/ OntologyMapping,
    ontIRI: IRI)
   (implicit ops: OWLAPIOMFOps, store: OWLAPIOMFGraphStore)
   : Throwables \/ OntologyMapping
   = acc.flatMap { om =>
-    assert(s.ontologies.contains(ontIRI))
-    val ont = s.ontologies(ontIRI)
-
-    if (om.ont2i.contains(ont))
-      om.right
-    else {
-      val result = store.convertModuleFromOntologyDocument(s, om, ontIRI, ont)
-      result
+    s.ontologies.get(ontIRI) match {
+      case Some(ont) =>
+        if (om.ont2i.contains(ont))
+          om.right
+        else om.lookupImmutableModule(ontIRI) match {
+          case None =>
+            val result = store.convertModuleFromOntologyDocument(s, om, ontIRI, ont)
+            result
+          case Some(_) =>
+            // Already converted
+            om.right
+        }
+      case None =>
+        om.lookupImmutableModule(ontIRI) match {
+          case Some(_) =>
+            // Already converted
+            om.right
+          case None =>
+            Set(OMFError.omfError(
+              s"BUG: loadModuleFromOntologyDocument(ontIRI=$ontIRI) -- Cannot convert unloaded ontology!")
+            ).left
+        }
     }
   }
 

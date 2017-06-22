@@ -44,6 +44,7 @@ import org.semanticweb.owlapi.util.PriorityCollection
 
 import scala.collection.immutable.{Set, _}
 import scala.collection.JavaConverters._
+import scala.compat.java8.StreamConverters._
 import scala.util.control.Exception._
 import scala.{Boolean, None, Option, Some, StringContext, Unit}
 import scala.Predef.{Map => _, Set => _, _}
@@ -966,9 +967,65 @@ extends OWLAPIOMFGraphStoreMetadata(omfModule, ontManager) {
   (m2i: Mutable2ImmutableModuleMap,
    iri: IRI)
   : Throwables \/ ImmutableModuleConversionMap
-  = loadBuiltinDatatypeMap().flatMap { drc =>
-    builtInDatatypeMap = Some(drc)
-    OWLAPIOMFLoader.loadModule(iri, m2i, drc)(ops, this)
+  = m2i.lookupValue(iri) match {
+    case Some(im) =>
+      (im -> m2i).right
+    case None =>
+      loadBuiltinDatatypeMap().flatMap { mdrc =>
+        for {
+          builtin_m2i <-
+          mdrc.builtInDatatypeModules.foldLeft {
+            Map.empty[MutableTerminologyGraph, ImmutableTerminologyGraph].right[Throwables]
+          } {
+            case (acc, mg: MutableTerminologyGraph) =>
+              for {
+                prev <- acc
+                ig <- ImmutableTerminologyGraph.initialize(
+                  toImmutableTerminologyBoxSignature(mg.sig),
+                  mg.ont, mg.extraProvenanceMetadata, mg.backbone)(this)
+                next = prev + (mg -> ig)
+              } yield next
+            case (acc, _: ImmutableTerminologyGraph) =>
+              acc
+            case (_, other) =>
+              -\/(Set(OMFError.omfError(
+                s"loadModule($iri) failed to convert builtin datatype map graph: $other")))
+          }
+          idrc = BuiltInDatatypeMaps.DataRangeCategories[OWLAPIOMF](
+            builtInImport = mdrc.builtInImport.flatMap {
+              case mi: MutableTerminologyGraph =>
+                builtin_m2i.get(mi).map(_.asInstanceOf[OWLAPIOMF#TerminologyBox])
+              case ig: ImmutableTerminologyGraph =>
+                Some(ig.asInstanceOf[OWLAPIOMF#TerminologyBox])
+            },
+            builtInDatatypeModules =
+              builtin_m2i.values.map(_.asInstanceOf[OWLAPIOMF#Module]).to[Set] ++
+                mdrc.builtInDatatypeModules.filter {
+                  case _: ImmutableTerminologyGraph =>
+                    true
+                  case _ =>
+                    false
+                },
+            anyAtomicType = mdrc.anyAtomicType,
+            boolean = mdrc.boolean,
+            numeric = mdrc.numeric,
+            string = mdrc.string,
+            plainLiteral = mdrc.plainLiteral,
+            xmlLiteral = mdrc.xmlLiteral,
+            binary = mdrc.binary,
+            iri = mdrc.iri,
+            time = mdrc.time,
+            nonNormative = mdrc.nonNormative)
+          _ = builtInDatatypeMap = Some(idrc)
+          m2i_withBuiltin <- builtin_m2i.foldLeft(m2i.right[Throwables]) { case (acc, (m, i)) =>
+            for {
+              prev <- acc
+              next <- prev :+ (m -> i)
+            } yield next
+          }
+          result <- OWLAPIOMFLoader.loadModule(iri, m2i_withBuiltin, idrc)(ops, this)
+        } yield result
+      }
   }
 
   type ResolverTupleState =
@@ -984,8 +1041,15 @@ extends OWLAPIOMFGraphStoreMetadata(omfModule, ontManager) {
   = {
 
     val builtInImports
-    : Set[Module]
-    = om.drc.builtInDatatypeModules
+    : Set[ImmutableModule]
+    = if (om.drc.isBuiltInModule(ontIRI))
+        Set.empty
+    else om.drc.lookupBuiltInModule(omlIRI) match {
+      case ioml: ImmutableModule =>
+        Set(ioml)
+      case _ =>
+        Set.empty
+    }
 
     val extendedGraphs
     : Throwables \/ Set[ImmutableModule]
@@ -1040,7 +1104,7 @@ extends OWLAPIOMFGraphStoreMetadata(omfModule, ontManager) {
       as <- annotationProperties
       extensions <- extendedGraphs
       nesting <- nestingContextAndGraphIfAny
-      resolver <- types.immutableModuleResolver(omfMetadata, s, ont, as, extensions, nesting, om, this)
+      resolver <- types.immutableModuleResolver(omfMetadata, s, ont, as, extensions ++ builtInImports, nesting, om, this)
       resolved <- resolver.resolve()
     } yield {
       resolved._2
