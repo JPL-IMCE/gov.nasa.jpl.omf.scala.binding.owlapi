@@ -50,14 +50,7 @@ object OWLAPIOMFLoader {
   : Throwables \/ Seq[N]
   = queue match {
     case Nil =>
-      val sort: Seq[N] = (before ++ after).reverse
-      import java.lang.System.out._
-      import scala.StringContext
-      println(s"hierarchicalTopologicalSort: ${sort.size} nodes")
-      sort.zipWithIndex.foreach { case (n, i) =>
-        println(s" $i: $n")
-      }
-      sort.right
+      (before ++ after).right
     case g :: gs =>
 
       // Workaround
@@ -71,6 +64,7 @@ object OWLAPIOMFLoader {
           ()
       }
 
+      // TODO detect disconnected components!
       val dag = GraphComponents.graphToComponents(g).stronglyConnectedComponentsDag
 
       dag.topologicalSortByComponent().toList match {
@@ -327,7 +321,7 @@ object OWLAPIOMFLoader {
 
         }
 
-        lorder <- hierarchicalTopologicalSort(Seq(g1), Seq.empty)
+        lorder <- hierarchicalTopologicalSort(Seq(g2), Seq.empty).map(_.reverse)
 
         _ = {
           java.lang.System.out.println(s"loadModule(iri=$iri) ordered ${lorder.size} modules:")
