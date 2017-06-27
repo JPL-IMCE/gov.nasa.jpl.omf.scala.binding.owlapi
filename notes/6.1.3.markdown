@@ -1,0 +1,6 @@
+gov.nasa.jpl.omf.scala.binding.owlapi 6.1.3 is a minor update
+
+## Issues Resolved
+
+- [#17 MutableDescriptionBox needs to create OWL DataPropertyAssertionAxioms with typed literals](https://github.com/JPL-IMCE/gov.nasa.jpl.omf.scala.binding.owlapi/issues/17)
+
