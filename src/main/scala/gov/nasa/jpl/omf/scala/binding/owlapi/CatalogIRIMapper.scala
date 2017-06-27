@@ -123,11 +123,13 @@ case class CatalogIRIMapper
     val normalizedPath = normalized.toString
     val normalizedOwlPath =
       if (normalizedPath.endsWith(".owl")) normalizedPath
+      else if (normalizedPath.endsWith("/")) normalizedPath.stripSuffix("/")+".owl"
       else normalizedPath + ".owl"
+
     val f1 = new URL(normalizedOwlPath)
     val outputFile =
-      if (resolved.startsWith("file:")) new File(resolved.substring(5))
-      else new File(resolved)
+      if (normalizedOwlPath.startsWith("file:")) new File(normalizedOwlPath.substring(5))
+      else new File(normalizedOwlPath)
 
     outputFile.getParentFile match {
       case null =>
