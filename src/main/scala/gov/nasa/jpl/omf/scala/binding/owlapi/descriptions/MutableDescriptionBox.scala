@@ -472,11 +472,12 @@ case class MutableDescriptionBox
   : OMFError.Throwables \/ descriptions.SingletonInstanceScalarDataPropertyValue
   = for {
     i <- createSingletonInstanceScalarDataPropertyValue(uuid, ei, e2sc, value)
+    lit = owlDataFactory.getOWLLiteral(value, e2sc.range.e)
     _ <- applyOntologyChanges(ontManager,
       Seq(
         new AddAxiom(ont,
           owlDataFactory
-            .getOWLDataPropertyAssertionAxiom(e2sc.e, ei.ni, value))),
+            .getOWLDataPropertyAssertionAxiom(e2sc.e, ei.ni, lit))),
       "addSingletonInstanceScalarDataPropertyValue Error")
   } yield i
 
@@ -565,11 +566,12 @@ case class MutableDescriptionBox
   : OMFError.Throwables \/ descriptions.ScalarDataPropertyValue
   = for {
     i <- createScalarDataPropertyValue(uuid, context, s2sc, value)
+    lit = owlDataFactory.getOWLLiteral(value, s2sc.range.e)
     _ <- applyOntologyChanges(ontManager,
       Seq(
         new AddAxiom(ont,
           owlDataFactory
-            .getOWLDataPropertyAssertionAxiom(s2sc.e, context.ni, value))),
+            .getOWLDataPropertyAssertionAxiom(s2sc.e, context.ni, lit))),
       "makeScalarDataPropertyValue Error")
   } yield i
 
