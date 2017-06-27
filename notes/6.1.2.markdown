@@ -1,0 +1,7 @@
+gov.nasa.jpl.omf.scala.binding.owlapi 6.1.2 is a minor update
+
+## Issues Resolved
+
+- [#15 CatalogIRIMapper.saveResolutionStrategy needs to handle IRI ending in '/'](https://github.com/JPL-IMCE/gov.nasa.jpl.omf.scala.binding.owlapi/issues/15)
+
+
