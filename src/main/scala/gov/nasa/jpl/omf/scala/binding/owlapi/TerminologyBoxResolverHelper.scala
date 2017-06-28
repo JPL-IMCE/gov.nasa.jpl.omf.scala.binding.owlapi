@@ -834,7 +834,9 @@ case class TerminologyBoxResolverHelper
   = {
     val sub_sup = for {
       (subC, subM) <- conceptCMs
-      supC <- reasoner.getSuperClasses(subC, true).entities().toScala[Set]
+      supE = reasoner.getSuperClasses(subC, true).entities()
+      supS = supE.toScala[Set]
+      supC <- supS
       supM <- findEntityConcept(supC.getIRI, allConceptsIncludingImported)
     } yield (subM, supM)
 
@@ -856,7 +858,9 @@ case class TerminologyBoxResolverHelper
   = {
     val sub_sup = for {
       (subC, subM) <- reifiedRelationshipCMs
-      supC <- reasoner.getSuperClasses(subC, true).entities().toScala[Set]
+      supE = reasoner.getSuperClasses(subC, true).entities()
+      supS = supE.toScala[Set]
+      supC <- supS
       supM <- findEntityReifiedRelationship(supC.getIRI, allReifiedRelationshipsIncludingImported)
     } yield (subM, supM)
 
@@ -879,7 +883,9 @@ case class TerminologyBoxResolverHelper
 
     val sub_sup = for {
       (subC, subM) <- allEntityDefinitions
-      supC <- reasoner.getSuperClasses(subC, true).entities().toScala[Set]
+      supE = reasoner.getSuperClasses(subC, true).entities()
+      supS = supE.toScala[Set]
+      supC <- supS
       supM <- findEntityAspect(supC.getIRI, allAspectsIncludingImported)
     } yield (subM, supM)
 
