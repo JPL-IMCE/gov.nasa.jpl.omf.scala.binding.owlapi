@@ -862,6 +862,10 @@ case class ImmutableTerminologyBoxResolver(resolver: TerminologyBoxResolverHelpe
                   val _allEntityDefinitionsIncludingImported =
                     _allEntityDefinitions ++ importedEntityDefinitionMaps ++ _allEntityReifiedRelationshipsIncludingImported
 
+                  (resolveDefinitionAspectSubClassAxioms(_allEntityDefinitions, _allAspectsIncludingImported) +++
+                    resolveReifiedRelationshipSubClassAxioms(_entityReifiedRelationshipCMs, _allEntityReifiedRelationshipsIncludingImported)
+                    ).flatMap { _ =>
+
                   resolveUnreifiedRelationships(
                     topUnreifiedObjectPropertySubOPs,
                     _allEntityDefinitionsIncludingImported
@@ -964,10 +968,6 @@ case class ImmutableTerminologyBoxResolver(resolver: TerminologyBoxResolverHelpe
 
                       val _allScalarDefinitions: Map[OWLDatatype, DataRange] =
                         importedScalarDatatypeDefinitionMaps ++ dataRanges
-
-                      (resolveDefinitionAspectSubClassAxioms(_allEntityDefinitions, _allAspectsIncludingImported) +++
-                        resolveReifiedRelationshipSubClassAxioms(_entityReifiedRelationshipCMs, allImportedReifiedRelationships)
-                        ).flatMap { _ =>
 
                         resolveDataRelationshipsFromEntity2Scalars(_allEntityDefinitions, dataPropertyDPIRIs, _allScalarDefinitions)
                           .flatMap { dataRelationshipsFromEntity2Scalar =>
