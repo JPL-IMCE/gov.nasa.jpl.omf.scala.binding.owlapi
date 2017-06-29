@@ -181,30 +181,32 @@ case class MutableDescriptionBox
    closedWorldDefinitions: TerminologyBox)
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ descriptions.DescriptionBoxExtendsClosedWorldDefinitions
-  = {
-    val i = descriptions.DescriptionBoxExtendsClosedWorldDefinitions(
+  = for {
+    _ <- applyOntologyChangeOrNoOp(ontManager,
+      new AddImport(ont, owlDataFactory.getOWLImportsDeclaration(closedWorldDefinitions.iri)),
+      "addDescriptionBoxExtendsClosedWorldDefinitions error")
+    ax = descriptions.DescriptionBoxExtendsClosedWorldDefinitions(
       uuid,
       sourceModule = this.uuid,
       targetModule = closedWorldDefinitions)
-    sig.closedWorldDefinitions += i
-    // @TODO: create the OWL representation
-    i.right
-  }
+    _ = sig.closedWorldDefinitions += ax
+  } yield ax
 
   def addDescriptionBoxRefinement
   (uuid: UUID,
    refinedDescriptionBox: descriptions.DescriptionBox)
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ descriptions.DescriptionBoxRefinement
-  = {
-    val i = descriptions.DescriptionBoxRefinement(
+  = for {
+    _ <- applyOntologyChangeOrNoOp(ontManager,
+      new AddImport(ont, owlDataFactory.getOWLImportsDeclaration(refinedDescriptionBox.iri)),
+      "addDescriptionBoxRefinement error")
+    ax = descriptions.DescriptionBoxRefinement(
       uuid,
       sourceModule = this.uuid,
       targetModule = refinedDescriptionBox)
-    sig.descriptionBoxRefinements += i
-    // @TODO: create the OWL representation
-    i.right
-  }
+    _ = sig.descriptionBoxRefinements += ax
+  } yield ax
 
   def createConceptInstance
   (uuid: UUID,
