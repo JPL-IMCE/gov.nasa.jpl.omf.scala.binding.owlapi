@@ -1,0 +1,12 @@
+gov.nasa.jpl.omf.scala.binding.owlapi 6.1.4 is a minor update
+
+## Issues Resolved
+
+- [#18 Some OWL Axioms are lost](https://github.com/JPL-IMCE/gov.nasa.jpl.omf.scala.binding.owlapi/issues/18)
+
+- [#19 Some ReifiedRelationship specializations are lost](https://github.com/JPL-IMCE/gov.nasa.jpl.omf.scala.binding.owlapi/issues/19)
+
+- [#20 OWL representation of SWRL rules is incorrect.](https://github.com/JPL-IMCE/gov.nasa.jpl.omf.scala.binding.owlapi/issues/20)
+
+- [#21 Incomplete resolution of OWL subclass axioms involving a foreign specific class](https://github.com/JPL-IMCE/gov.nasa.jpl.omf.scala.binding.owlapi/issues/21)
+
