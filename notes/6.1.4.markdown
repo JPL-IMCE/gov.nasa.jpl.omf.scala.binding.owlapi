@@ -8,5 +8,9 @@ gov.nasa.jpl.omf.scala.binding.owlapi 6.1.4 is a minor update
 
 - [#20 OWL representation of SWRL rules is incorrect.](https://github.com/JPL-IMCE/gov.nasa.jpl.omf.scala.binding.owlapi/issues/20)
 
+    This problem seems to be a temporary result of WIP on other issues.
+    Closed No Change.
+        
 - [#21 Incomplete resolution of OWL subclass axioms involving a foreign specific class](https://github.com/JPL-IMCE/gov.nasa.jpl.omf.scala.binding.owlapi/issues/21)
 
+- [#22 Incomplete OWL representation of OML DescriptionBox](https://github.com/JPL-IMCE/gov.nasa.jpl.omf.scala.binding.owlapi/issues/22)
