@@ -24,6 +24,7 @@ import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms._
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies._
 import gov.nasa.jpl.omf.scala.core._
 import org.semanticweb.owlapi.model._
+import org.semanticweb.owlapi.model.parameters.Imports
 import org.semanticweb.owlapi.reasoner.{NodeSet, OWLReasoner}
 
 import scala.collection.JavaConversions._
@@ -826,18 +827,28 @@ case class TerminologyBoxResolverHelper
     (_op_.getIRI, _op_, _d_, _r_, INV)
   }).toSet
 
+  def owlclassOfCE(ce: Option[OWLClassExpression])
+  : Option[OWLClass]
+  = ce match {
+      case Some(subc: OWLClass) =>
+        Some(subc)
+      case _ =>
+        None
+    }
+
   def resolveConceptSubClassAxioms
-  (conceptCMs: Map[OWLClass, Concept],
-   allConceptsIncludingImported: Map[OWLClass, Concept])
+  (allConceptsIncludingImported: Map[OWLClass, Concept])
   (implicit reasoner: OWLReasoner, backbone: OMFBackbone)
   : Set[java.lang.Throwable] \/ Unit
   = {
+    val subaxs = ont.axioms(AxiomType.SUBCLASS_OF, Imports.EXCLUDED).toScala[Set]
+
     val sub_sup = for {
-      (subC, subM) <- conceptCMs
-      supE = reasoner.getSuperClasses(subC, true).entities()
-      supS = supE.toScala[Set]
-      supC <- supS
-      supM <- findEntityConcept(supC.getIRI, allConceptsIncludingImported)
+      subax <- subaxs
+      subC <- owlclassOfCE(Option.apply(subax.getSubClass))
+      subM <- allConceptsIncludingImported.get(subC)
+      supC <- owlclassOfCE(Option.apply(subax.getSuperClass))
+      supM <- allConceptsIncludingImported.get(supC)
     } yield (subM, supM)
 
     ( ().right[Set[java.lang.Throwable]] /: sub_sup ) {
@@ -851,17 +862,18 @@ case class TerminologyBoxResolverHelper
   }
 
   def resolveReifiedRelationshipSubClassAxioms
-  (reifiedRelationshipCMs: Map[OWLClass, ReifiedRelationship],
-   allReifiedRelationshipsIncludingImported: Map[OWLClass, ReifiedRelationship])
+  (allReifiedRelationshipsIncludingImported: Map[OWLClass, ReifiedRelationship])
   (implicit reasoner: OWLReasoner, backbone: OMFBackbone)
   : Set[java.lang.Throwable] \/ Unit
   = {
+    val subaxs = ont.axioms(AxiomType.SUBCLASS_OF, Imports.EXCLUDED).toScala[Set]
+
     val sub_sup = for {
-      (subC, subM) <- reifiedRelationshipCMs
-      supE = reasoner.getSuperClasses(subC, true).entities()
-      supS = supE.toScala[Set]
-      supC <- supS
-      supM <- findEntityReifiedRelationship(supC.getIRI, allReifiedRelationshipsIncludingImported)
+      subax <- subaxs
+      subC <- owlclassOfCE(Option.apply(subax.getSubClass))
+      subM <- allReifiedRelationshipsIncludingImported.get(subC)
+      supC <- owlclassOfCE(Option.apply(subax.getSuperClass))
+      supM <- allReifiedRelationshipsIncludingImported.get(supC)
     } yield (subM, supM)
 
     ( ().right[Set[java.lang.Throwable]] /: sub_sup ) {
@@ -880,13 +892,14 @@ case class TerminologyBoxResolverHelper
   (implicit reasoner: OWLReasoner, backbone: OMFBackbone)
   : Set[java.lang.Throwable] \/ Unit
   = {
+    val subaxs = ont.axioms(AxiomType.SUBCLASS_OF, Imports.EXCLUDED).toScala[Set]
 
     val sub_sup = for {
-      (subC, subM) <- allEntityDefinitions
-      supE = reasoner.getSuperClasses(subC, true).entities()
-      supS = supE.toScala[Set]
-      supC <- supS
-      supM <- findEntityAspect(supC.getIRI, allAspectsIncludingImported)
+      subax <- subaxs
+      subC <- owlclassOfCE(Option.apply(subax.getSubClass))
+      subM <- allEntityDefinitions.get(subC)
+      supC <- owlclassOfCE(Option.apply(subax.getSuperClass))
+      supM <- allAspectsIncludingImported.get(supC)
     } yield (subM, supM)
 
     ( ().right[Set[java.lang.Throwable]] /: sub_sup ) {

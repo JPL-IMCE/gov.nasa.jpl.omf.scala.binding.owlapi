@@ -839,7 +839,7 @@ case class ImmutableTerminologyBoxResolver(resolver: TerminologyBoxResolverHelpe
         allConceptsIncludingImported.flatMap { _allConceptsIncludingImported =>
           aspectCMs.flatMap { _aspectCMs =>
             conceptCMs.flatMap { _conceptCMs =>
-              resolveConceptSubClassAxioms(_conceptCMs, _allConceptsIncludingImported).flatMap { _ =>
+              resolveConceptSubClassAxioms(_allConceptsIncludingImported).flatMap { _ =>
                 resolveEntityDefinitionsForRelationships(
                   _allEntityDefinitionsExceptRelationships,
                   reifiedObjectPropertyCIRIs,
@@ -862,8 +862,8 @@ case class ImmutableTerminologyBoxResolver(resolver: TerminologyBoxResolverHelpe
                   val _allEntityDefinitionsIncludingImported =
                     _allEntityDefinitions ++ importedEntityDefinitionMaps ++ _allEntityReifiedRelationshipsIncludingImported
 
-                  (resolveDefinitionAspectSubClassAxioms(_allEntityDefinitions, _allAspectsIncludingImported) +++
-                    resolveReifiedRelationshipSubClassAxioms(_entityReifiedRelationshipCMs, _allEntityReifiedRelationshipsIncludingImported)
+                  (resolveDefinitionAspectSubClassAxioms(_allEntityDefinitionsIncludingImported, _allAspectsIncludingImported) +++
+                    resolveReifiedRelationshipSubClassAxioms(_allEntityReifiedRelationshipsIncludingImported)
                     ).flatMap { _ =>
 
                   resolveUnreifiedRelationships(
