@@ -47,7 +47,7 @@ abstract class IMCEMissionDomainTBoxOWLAPIExampleCatalogTest(@transient val cata
 
 class IMCEMissionDomainTBoxOWLAPIExampleLocalCatalog
   extends IMCEMissionDomainTBoxOWLAPIExampleCatalogTest(catalogManager = new CatalogManager()) {
-  val catalogFile = "/ontologies/imce.local.catalog.xml"
+  val catalogFile = "/ontologies/oml.catalog.xml"
 
   Option.apply(classOf[OWLAPIOWFVocabularyMutabilityTestLocalCatalog].getResource(catalogFile))
   .fold[Unit]({

@@ -49,7 +49,7 @@ abstract class IMCE_OWL2_MOF2_LoadTestFromOWLAPICatalog( @transient val catalogM
 class IMCE_OWL2_MOF2_LoadTestFromOWLAPILocalCatalog
   extends IMCE_OWL2_MOF2_LoadTestFromOWLAPICatalog( catalogManager = new CatalogManager() ) {
 
-  val catalogFile = "/ontologies/imce.local.catalog.xml"
+  val catalogFile = "/ontologies/oml.catalog.xml"
   Option.apply(classOf[IMCE_OWL2_MOF2_LoadTestFromOWLAPILocalCatalog].getResource(catalogFile))
     .fold[Unit]({
     Option.apply(java.nio.file.Paths.get("ontologies", "imce.local.catalog.xml"))

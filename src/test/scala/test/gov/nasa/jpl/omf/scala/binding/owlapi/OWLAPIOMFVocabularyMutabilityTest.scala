@@ -59,11 +59,11 @@ abstract class OWLAPIOMFVocabularyMutabilityCatalogTest( @transient val catalogM
 class OWLAPIOWFVocabularyMutabilityTestLocalCatalog
   extends OWLAPIOMFVocabularyMutabilityCatalogTest( catalogManager = new CatalogManager() ) {
 
-  val catalogFile = "/ontologies/imce.local.catalog.xml"
+  val catalogFile = "/ontologies/oml.catalog.xml"
 
   Option.apply(classOf[OWLAPIOWFVocabularyMutabilityTestLocalCatalog].getResource(catalogFile))
     .fold[Unit]({
-    Option.apply(java.nio.file.Paths.get("ontologies", "imce.local.catalog.xml"))
+    Option.apply(java.nio.file.Paths.get("ontologies", "oml.catalog.xml"))
       .fold[Unit]({
       throw new IllegalArgumentException(s"There should be a '$catalogFile' resource on the classpath")
     }) { p =>

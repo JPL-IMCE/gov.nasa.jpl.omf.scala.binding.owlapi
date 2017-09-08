@@ -49,7 +49,7 @@ abstract class IMCEFoundationLoadTestFromOWLAPICatalog( @transient val catalogMa
 class IMCEFoundationLoadTestFromOWLAPILocalCatalog
   extends IMCEFoundationLoadTestFromOWLAPICatalog( catalogManager = new CatalogManager() ) {
 
-  val catalogFile = "/ontologies/imce.local.catalog.xml"
+  val catalogFile = "/ontologies/oml.catalog.xml"
 
   Option.apply(classOf[IMCEFoundationLoadTestFromOWLAPILocalCatalog].getResource(catalogFile))
     .fold[Unit]({

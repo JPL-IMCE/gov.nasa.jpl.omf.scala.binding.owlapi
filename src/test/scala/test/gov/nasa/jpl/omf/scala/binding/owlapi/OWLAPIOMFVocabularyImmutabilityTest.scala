@@ -60,7 +60,7 @@ abstract class OWLAPIOMFVocabularyImmutabilityCatalogTest( @transient val catalo
 class OWLAPIOWFVocabularyImmutabilityTestLocalCatalog
   extends OWLAPIOMFVocabularyImmutabilityCatalogTest( catalogManager = new CatalogManager() ) {
 
-  val catalogFile = "/ontologies/imce.local.catalog.xml"
+  val catalogFile = "/ontologies/oml.catalog.xml"
 
   Option.apply(classOf[OWLAPIOWFVocabularyMutabilityTestLocalCatalog].getResource(catalogFile))
     .fold[Unit]({

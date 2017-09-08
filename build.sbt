@@ -101,15 +101,6 @@ lazy val core =
 
     resourceDirectory in Test := baseDirectory.value / "target" / "extracted" / "imce-omf_ontologies",
 
-    // @TODO Need to fix these unit tests.
-    testOptions in Test := Seq(Tests.Filter(s =>
-      !s.endsWith("IMCEFoundationLoadTestFromOWLAPILocalCatalog") &&
-      !s.endsWith("IMCE_OWL2_MOF2_LoadTestFromOWLAPILocalCatalog") &&
-        !s.endsWith("OWLAPIOWFNestedGraphTestWithMetadataLocalCatalog") &&
-        !s.endsWith("OWLAPIOWFVocabularyMutabilityTestLocalCatalog") &&
-        !s.endsWith("OWLAPIOWFVocabularyImmutabilityTestLocalCatalog")
-    )),
-
     libraryDependencies ++= Seq(
 
       "gov.nasa.jpl.imce" %% "imce.third_party.scala_graph_libraries"
@@ -184,7 +175,9 @@ lazy val core =
 
     classpathTypes += "test-jar",
 
-    unmanagedClasspath in Test += baseDirectory.value / "target" / "extracted" / "gov.nasa.jpl.imce.ontologies.public"
+    unmanagedResourceDirectories in Test += {
+      baseDirectory.value / "target" / "extracted" / "gov.nasa.jpl.imce.ontologies.public"
+    }
     // for local development assuming that gov.nasa.jpl.imce.ontologies.public is cloned as a peer project, use this:
     // unmanagedClasspath in Test += baseDirectory.value / ".." / "gov.nasa.jpl.imce.ontologies.public"
   )
@@ -218,16 +211,6 @@ lazy val core =
         % Versions_imce_omf_ontologies.version
         % "test->compile;compile->compile" artifacts
         Artifact("gov.nasa.jpl.imce.ontologies.public", "zip", "zip", "resource")
-    )
-  )
-  .dependsOnSourceProjectOrLibraryArtifacts(
-    "gov.nasa.jpl.imce.ontologies.workflow",
-    "gov.nasa.jpl.imce.ontologies.workflow",
-    Seq(
-      "gov.nasa.jpl.imce" % "gov.nasa.jpl.imce.ontologies.workflow"
-        % Versions_imce_omf_digests.version
-        % "test->compile;compile->compile" artifacts
-        Artifact("gov.nasa.jpl.imce.ontologies.workflow", "zip", "zip", "digests")
     )
   )
   .dependsOn(

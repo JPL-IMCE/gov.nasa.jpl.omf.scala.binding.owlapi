@@ -60,7 +60,7 @@ abstract class OWLAPIOMFNestedGraphCatalogTestWithMetadata(@transient val catalo
 class OWLAPIOWFNestedGraphTestWithMetadataLocalCatalog
   extends OWLAPIOMFNestedGraphCatalogTestWithMetadata( catalogManager = new CatalogManager() ) {
 
-  val catalogFile = "/ontologies/imce.local.catalog.xml"
+  val catalogFile = "/ontologies/oml.catalog.xml"
 
   Option.apply(classOf[OWLAPIOWFVocabularyMutabilityTestLocalCatalog].getResource(catalogFile))
     .fold[Unit]({
