@@ -22,11 +22,11 @@ import java.util.UUID
 
 import gov.nasa.jpl.omf.scala.binding.owlapi.common.Element
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ScalarDataProperty
-import gov.nasa.jpl.omf.scala.core.OMLString.LexicalValue
+import gov.nasa.jpl.imce.oml.tables.LiteralValue
 
 case class ScalarDataPropertyValue
 ( override val uuid: UUID,
   context: SingletonInstanceStructuredDataPropertyContext,
   dataRelationship: ScalarDataProperty,
-  value: LexicalValue)
+  value: LiteralValue)
   extends Element

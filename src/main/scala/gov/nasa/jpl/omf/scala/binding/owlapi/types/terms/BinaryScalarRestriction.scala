@@ -20,6 +20,7 @@ package gov.nasa.jpl.omf.scala.binding.owlapi.types.terms
 
 import java.util.UUID
 
+import gov.nasa.jpl.imce.oml.tables
 import gov.nasa.jpl.omf.scala.core.OMLString.LocalName
 import org.semanticweb.owlapi.model.{IRI, OWLDatatype}
 
@@ -31,9 +32,9 @@ case class BinaryScalarRestriction
  override val uuid: UUID,
  override val name: LocalName,
  override val restrictedDataRange: DataRange,
- length: Option[Int],
- minLength: Option[Int],
- maxLength: Option[Int])
+ length: Option[tables.PositiveIntegerLiteral],
+ minLength: Option[tables.PositiveIntegerLiteral],
+ maxLength: Option[tables.PositiveIntegerLiteral])
   extends RestrictedDataRange {
 
   override def canEqual(other: Any)

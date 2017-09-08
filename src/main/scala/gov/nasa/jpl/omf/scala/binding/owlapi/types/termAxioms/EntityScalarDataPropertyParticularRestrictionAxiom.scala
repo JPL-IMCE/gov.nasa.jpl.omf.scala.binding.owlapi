@@ -20,7 +20,7 @@ package gov.nasa.jpl.omf.scala.binding.owlapi.types.termAxioms
 
 import java.util.UUID
 
-import gov.nasa.jpl.imce.oml.tables.LexicalValue
+import gov.nasa.jpl.imce.oml.tables.LiteralValue
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.{Entity, EntityScalarDataProperty}
 
 import scala.{Any,Boolean,Int}
@@ -29,7 +29,7 @@ case class EntityScalarDataPropertyParticularRestrictionAxiom
 (override val uuid: UUID,
  override val restrictedEntity: Entity,
  override val scalarProperty: EntityScalarDataProperty,
- literalValue: LexicalValue)
+ literalValue: LiteralValue)
 extends EntityScalarDataPropertyRestrictionAxiom {
 
   override def canEqual(other: Any)

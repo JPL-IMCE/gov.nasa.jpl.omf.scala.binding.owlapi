@@ -35,8 +35,9 @@ package gov.nasa.jpl.omf.scala.binding.owlapi
  * License Terms
  */
 
-import java.lang.{Integer, System}
+import java.lang.System
 
+import gov.nasa.jpl.imce.oml.tables
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms._
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyBox
 import gov.nasa.jpl.omf.scala.core.OMFError.Throwables
@@ -47,6 +48,7 @@ import org.semanticweb.owlapi.reasoner.structural.StructuralReasonerFactory
 
 import scala.collection.immutable._
 import scala.compat.java8.StreamConverters._
+import scala.util.{Failure,Success}
 import scala.util.control.Exception._
 import scala.{Boolean, Int, None, Option, Some, StringContext, Tuple2, Tuple3, Tuple4, Tuple5, Unit}
 import scala.Predef.{ArrowAssoc, String, require}
@@ -73,17 +75,17 @@ case class ImmutableTerminologyBoxResolver(resolver: TerminologyBoxResolverHelpe
   = facets.find { f => facetPrefixedName == f.getFacet.getPrefixedName }.map(_.getFacetValue.getLiteral)
 
   private def getFacetIntValueIfAny(facets: List[OWLFacetRestriction], facetPrefixedName: String)
-  : Throwables \/ Option[Int]
+  : Throwables \/ Option[tables.PositiveIntegerLiteral]
   = facets
     .find { f => facetPrefixedName == f.getFacet.getPrefixedName }
     .map(_.getFacetValue.getLiteral)
-    .fold[Throwables \/ Option[Int]](None.right) { v =>
-    nonFatalCatch[Throwables \/ Option[Int]]
+    .fold[Throwables \/ Option[tables.PositiveIntegerLiteral]](None.right) { v =>
+    nonFatalCatch[Throwables \/ Option[tables.PositiveIntegerLiteral]]
       .withApply {
         (cause: java.lang.Throwable) =>
           Set[java.lang.Throwable](cause).left
       }
-      .apply(Some(Integer.parseInt(v)).right)
+      .apply(Some(v).right)
   }
 
   private def resolveDataRanges
@@ -106,6 +108,8 @@ case class ImmutableTerminologyBoxResolver(resolver: TerminologyBoxResolverHelpe
             resolveDataRanges(resolved, queue)
       }
     case dt :: dts =>
+      import LiteralConversions.{toLiteralNumber,toLiteralDateTime}
+
       resolver.omfStore.getBuildInDatatypeMap.lookupBuiltInDataRange(dt.getIRI)(resolver.omfStore.ops) match {
         case Some(dr) =>
           dr match {
@@ -157,7 +161,13 @@ case class ImmutableTerminologyBoxResolver(resolver: TerminologyBoxResolverHelpe
                               _ <- ls.foldLeft[types.UnitNES](types.rightUnitNES) { case (acc, li) =>
                                 for {
                                   _ <- acc
-                                  _ <- tboxG.createScalarOneOfLiteralAxiom(scalarOneOf, li.getLiteral)
+                                  v <- LiteralConversions.fromOWLLiteral(li, ont.getOWLOntologyManager.getOWLDataFactory) match {
+                                    case Success(v) =>
+                                      \/-(v)
+                                    case Failure(t) =>
+                                      -\/(Set(t))
+                                  }
+                                  _ <- tboxG.createScalarOneOfLiteralAxiom(scalarOneOf, v)
                                 } yield ()
                               }
                             } yield scalarOneOf
@@ -179,11 +189,12 @@ case class ImmutableTerminologyBoxResolver(resolver: TerminologyBoxResolverHelpe
                 case r: OWLDatatypeRestriction =>
                   resolved.get(r.getDatatype) match {
                     case Some(restrictedRange) =>
+
                       val facets = r.facetRestrictions().toScala[List]
 
-                      val len: Throwables \/ Option[Int] = getFacetIntValueIfAny(facets, "xsd:length")
-                      val minL: Throwables \/ Option[Int] = getFacetIntValueIfAny(facets, "xsd:minLength")
-                      val maxL: Throwables \/ Option[Int] = getFacetIntValueIfAny(facets, "xsd:maxLength")
+                      val len: Throwables \/ Option[tables.PositiveIntegerLiteral] = getFacetIntValueIfAny(facets, "xsd:length")
+                      val minL: Throwables \/ Option[tables.PositiveIntegerLiteral] = getFacetIntValueIfAny(facets, "xsd:minLength")
+                      val maxL: Throwables \/ Option[tables.PositiveIntegerLiteral] = getFacetIntValueIfAny(facets, "xsd:maxLength")
                       val patt: Option[String] = getFacetValueIfAny(facets, "xsd:pattern")
                       val minI: Option[String] = getFacetValueIfAny(facets, "xsd:minInclusive")
                       val maxI: Option[String] = getFacetValueIfAny(facets, "xsd:maxInclusive")
@@ -233,7 +244,8 @@ case class ImmutableTerminologyBoxResolver(resolver: TerminologyBoxResolverHelpe
                           minl <- minL
                           maxl <- maxL
                           sc <- if (facets.size <= 4 && Seq(l, minl, maxl, patt, lang).forall(_.isEmpty))
-                            tboxG.createNumericScalarRestriction(tboxG.uuid, dt, restrictedRange, minI, maxI, minE, maxE)(resolver.omfStore)
+                            tboxG.createNumericScalarRestriction(tboxG.uuid, dt, restrictedRange,
+                              minI, maxI, minE, maxE)(resolver.omfStore)
                           else
                             Set[java.lang.Throwable](OMFError.omfError(
                               s"resolveDataRanges: $dt ill-formed numeric restriction per OWL2 sections 4.1, 4.2: $r")
@@ -251,7 +263,8 @@ case class ImmutableTerminologyBoxResolver(resolver: TerminologyBoxResolverHelpe
                           minl <- minL
                           maxl <- maxL
                           sc <- if (facets.size <= 5 && Seq(minI, maxI, minE, maxE).forall(_.isEmpty))
-                            tboxG.createPlainLiteralScalarRestriction(tboxG.uuid, dt, restrictedRange, l, minl, maxl, patt, lang)(resolver.omfStore)
+                            tboxG.createPlainLiteralScalarRestriction(tboxG.uuid, dt, restrictedRange, l,
+                              minl, maxl, patt, lang)(resolver.omfStore)
                           else
                             Set[java.lang.Throwable](OMFError.omfError(
                               s"resolveDataRanges: $dt ill-formed PlainLiteral restriction per OWL2 section 4.3: $r")
@@ -287,7 +300,9 @@ case class ImmutableTerminologyBoxResolver(resolver: TerminologyBoxResolverHelpe
                           minl <- minL
                           maxl <- maxL
                           sc <- if (facets.size <= 4 && Seq(l, minl, maxl, patt, lang).forall(_.isEmpty))
-                            tboxG.createTimeScalarRestriction(tboxG.uuid, dt, restrictedRange, minI, maxI, minE, maxE)(resolver.omfStore)
+                            tboxG.createTimeScalarRestriction(
+                              tboxG.uuid, dt, restrictedRange,
+                              minI, maxI, minE, maxE)(resolver.omfStore)
                           else
                             Set[java.lang.Throwable](OMFError.omfError(
                               s"resolveDataRanges: $dt ill-formed time restriction per OWL2 section 4.7: $r")
@@ -352,9 +367,9 @@ case class ImmutableTerminologyBoxResolver(resolver: TerminologyBoxResolverHelpe
                   case Some(restrictedRange) =>
                     val facets = drRestrictions.flatMap(_.facetRestrictions().toScala[List])
 
-                    val len: Throwables \/ Option[Int] = getFacetIntValueIfAny(facets, "xsd:length")
-                    val minL: Throwables \/ Option[Int] = getFacetIntValueIfAny(facets, "xsd:minLength")
-                    val maxL: Throwables \/ Option[Int] = getFacetIntValueIfAny(facets, "xsd:maxLength")
+                    val len: Throwables \/ Option[tables.PositiveIntegerLiteral] = getFacetIntValueIfAny(facets, "xsd:length")
+                    val minL: Throwables \/ Option[tables.PositiveIntegerLiteral] = getFacetIntValueIfAny(facets, "xsd:minLength")
+                    val maxL: Throwables \/ Option[tables.PositiveIntegerLiteral] = getFacetIntValueIfAny(facets, "xsd:maxLength")
                     val patt: Option[String] = getFacetValueIfAny(facets, "xsd:pattern")
                     val minI: Option[String] = getFacetValueIfAny(facets, "xsd:minInclusive")
                     val maxI: Option[String] = getFacetValueIfAny(facets, "xsd:maxInclusive")
@@ -458,7 +473,8 @@ case class ImmutableTerminologyBoxResolver(resolver: TerminologyBoxResolverHelpe
                         minl <- minL
                         maxl <- maxL
                         sc <- if (facets.size <= 4 && Seq(l, minl, maxl, patt, lang).forall(_.isEmpty))
-                          tboxG.createTimeScalarRestriction(tboxG.uuid, dt, restrictedRange, minI, maxI, minE, maxE)(resolver.omfStore)
+                          tboxG.createTimeScalarRestriction(tboxG.uuid, dt, restrictedRange,
+                            minI, maxI, minE, maxE)(resolver.omfStore)
                         else
                           Set[java.lang.Throwable](OMFError.omfError(
                             s"resolveDataRanges: $dt ill-formed time restriction per OWL2 section 4.7: $dt")
@@ -1033,7 +1049,8 @@ case class ImmutableTerminologyBoxResolver(resolver: TerminologyBoxResolverHelpe
                                       case ParticularOWLDataRestrictionKind(value) =>
                                         acc +++
                                           addEntityScalarDataPropertyParticularRestrictionAxiom(
-                                            tboxG, entityC, restrictingSC, OMLString.LexicalValue(value)
+                                            tboxG, entityC, restrictingSC,
+                                            tables.LiteralValue(tables.LiteralStringType, value)
                                           ).map(_ => ())
                                     }
                                   }

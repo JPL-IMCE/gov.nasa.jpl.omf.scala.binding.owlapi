@@ -18,7 +18,7 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.types
 
-import gov.nasa.jpl.imce.oml.tables.{AnnotationEntry, AnnotationProperty}
+import gov.nasa.jpl.imce.oml.tables.{AnnotationProperty, AnnotationPropertyValue}
 import gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMF
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.bundleStatements.{AnonymousConceptTaxonomyAxiom, RootConceptTaxonomyAxiom, SpecificDisjointConceptAxiom}
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.termAxioms.ScalarOneOfLiteralAxiom
@@ -67,7 +67,7 @@ package object terminologies {
     annotationProperties =
       Set.empty[AnnotationProperty] ++ sig.annotationProperties,
     annotations =
-      Set.empty[(AnnotationProperty, scala.collection.immutable.Set[AnnotationEntry])] ++
+      Set.empty[AnnotationPropertyValue] ++
         sig.annotations)
 
 }

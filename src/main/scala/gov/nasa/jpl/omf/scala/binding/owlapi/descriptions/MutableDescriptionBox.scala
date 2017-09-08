@@ -20,20 +20,19 @@ package gov.nasa.jpl.omf.scala.binding.owlapi.descriptions
 
 import java.util.UUID
 
-import gov.nasa.jpl.imce.oml.tables.{AnnotationEntry, AnnotationProperty}
+import gov.nasa.jpl.imce.oml.tables.{AnnotationProperty, AnnotationPropertyValue, LiteralValue}
 import gov.nasa.jpl.omf.scala.binding.owlapi.common.{MutableModule, Resource}
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms._
 import gov.nasa.jpl.omf.scala.binding.owlapi._
-import gov.nasa.jpl.omf.scala.core.OMFError
-import gov.nasa.jpl.omf.scala.core.{DescriptionBoxSignature, DescriptionKind, MutableDescriptionBoxSignature}
-import gov.nasa.jpl.omf.scala.core.OMLString.{LexicalValue, LocalName}
+import gov.nasa.jpl.omf.scala.core.{DescriptionBoxSignature, DescriptionKind, MutableDescriptionBoxSignature, OMFError, uuidG}
+import gov.nasa.jpl.omf.scala.core.OMLString.{LocalName}
 import org.semanticweb.owlapi.model._
 
 import scala.collection.immutable._
 import scala.collection.mutable.{HashMap, HashSet}
 import scala.compat.java8.StreamConverters._
-import scala.{Any, Boolean, None, Some, StringContext}
+import scala.{Any, Boolean, Option, None, Some, StringContext}
 import scala.Predef.{ArrowAssoc, String}
 import scalaz._
 import Scalaz._
@@ -66,7 +65,7 @@ object MutableDescriptionBox {
       annotationProperties =
         HashSet.empty[AnnotationProperty],
       annotations =
-        HashSet.empty[(AnnotationProperty, scala.collection.immutable.Set[AnnotationEntry])]),
+        HashSet.empty[AnnotationPropertyValue]),
     ont = ont,
     backbone = backbone)(ops).right[OMFError.Throwables]
 }
@@ -107,23 +106,24 @@ case class MutableDescriptionBox
    property: AnnotationProperty,
    value: String)
   (implicit store: OWLAPIOMFGraphStore)
-  : OMFError.Throwables \/ AnnotationEntry
+  : OMFError.Throwables \/ AnnotationPropertyValue
   = for {
-    a <- AnnotationEntry(
-      moduleUUID = uuid.toString,
+    a <- new AnnotationPropertyValue(
+      oug = uuidG,
       subjectUUID = subject.uuid.toString,
-      value).right[OMFError.Throwables]
-    _ = sig.annotations.find { case (ap, _) => ap == property } match {
-      case Some((ap, aes)) =>
-        sig.annotations -= property -> aes
-        sig.annotations += property -> (aes + a)
+      propertyUUID = property.uuid,
+      value = value).right[OMFError.Throwables]
+    _ = sig.annotations.find { a => a.subjectUUID == subject.uuid.toString && a.propertyUUID == property.uuid } match {
+      case Some(a0) =>
+        sig.annotations -= a0
+        sig.annotations += a
       case None =>
-        sig.annotations += property -> (Set.empty[AnnotationEntry] + a)
+        sig.annotations += a
     }
     ont_ap = owlDataFactory.getOWLAnnotationProperty(property.iri)
     ont_lit = owlDataFactory.getOWLLiteral(value)
     _ <- subject match {
-      case m: MutableDescriptionBox =>
+      case m: MutableModule =>
         applyOntologyChangeOrNoOp(
           ontManager,
           new AddOntologyAnnotation(ont, owlDataFactory.getOWLAnnotation(ont_ap, ont_lit)),
@@ -144,17 +144,15 @@ case class MutableDescriptionBox
   (subject: OWLAPIOMF#Element,
    property: AnnotationProperty)
   (implicit store: OWLAPIOMFGraphStore)
-  : OMFError.Throwables \/ Set[AnnotationEntry]
+  : OMFError.Throwables \/ Set[AnnotationPropertyValue]
   = for {
     sUUID <- subject.uuid.toString.right[OMFError.Throwables]
-    ae <- sig.annotations.find { case (ap, _) => ap == property } match {
-      case Some((ap, aes)) =>
-        sig.annotations -= property -> aes
-        val removed = aes.filter(_.subjectUUID == sUUID)
-        sig.annotations += property -> (aes -- removed)
-        removed.right
+    ae <- sig.annotations.find { a => a.subjectUUID == sUUID && a.propertyUUID == property.uuid } match {
+      case Some(a0) =>
+        sig.annotations -= a0
+        Set(a0).right
       case None =>
-        Set.empty[AnnotationEntry].right
+        Set.empty[AnnotationPropertyValue].right
     }
     ont_ap = owlDataFactory.getOWLAnnotationProperty(property.iri)
     _ <- subject match {
@@ -442,7 +440,7 @@ case class MutableDescriptionBox
   (uuid: UUID,
    ei: descriptions.ConceptualEntitySingletonInstance,
    e2sc: EntityScalarDataProperty,
-   value: LexicalValue)
+   value: LiteralValue)
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ descriptions.SingletonInstanceScalarDataPropertyValue
   = sig
@@ -469,12 +467,12 @@ case class MutableDescriptionBox
   (uuid: UUID,
    ei: descriptions.ConceptualEntitySingletonInstance,
    e2sc: EntityScalarDataProperty,
-   value: LexicalValue)
+   value: LiteralValue)
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ descriptions.SingletonInstanceScalarDataPropertyValue
   = for {
     i <- createSingletonInstanceScalarDataPropertyValue(uuid, ei, e2sc, value)
-    lit = owlDataFactory.getOWLLiteral(value, e2sc.range.e)
+    lit = LiteralConversions.toOWLLiteral(value, owlDataFactory, Option.apply(e2sc.range.e))
     _ <- applyOntologyChanges(ontManager,
       Seq(
         new AddAxiom(ont,
@@ -536,7 +534,7 @@ case class MutableDescriptionBox
   (uuid: UUID,
    context: SingletonInstanceStructuredDataPropertyContext,
    s2sc: ScalarDataProperty,
-   value: LexicalValue)
+   value: LiteralValue)
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ descriptions.ScalarDataPropertyValue
   = sig
@@ -563,12 +561,12 @@ case class MutableDescriptionBox
   (uuid: UUID,
    context: SingletonInstanceStructuredDataPropertyContext,
    s2sc: ScalarDataProperty,
-   value: LexicalValue)
+   value: LiteralValue)
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ descriptions.ScalarDataPropertyValue
   = for {
     i <- createScalarDataPropertyValue(uuid, context, s2sc, value)
-    lit = owlDataFactory.getOWLLiteral(value, s2sc.range.e)
+    lit = LiteralConversions.toOWLLiteral(value, owlDataFactory, Option.apply(s2sc.range.e))
     _ <- applyOntologyChanges(ontManager,
       Seq(
         new AddAxiom(ont,

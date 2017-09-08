@@ -20,7 +20,7 @@ package gov.nasa.jpl.omf.scala.binding.owlapi.descriptions
 
 import java.util.UUID
 
-import gov.nasa.jpl.imce.oml.tables.{AnnotationEntry, AnnotationProperty}
+import gov.nasa.jpl.imce.oml.tables.{AnnotationProperty, AnnotationPropertyValue}
 import gov.nasa.jpl.omf.scala.binding.owlapi.common.ImmutableModule
 import gov.nasa.jpl.omf.scala.binding.owlapi.{OMFBackbone, OWLAPIOMF, OWLAPIOMFGraphStore, OWLAPIOMFOps}
 import gov.nasa.jpl.omf.scala.core.OMFError.Throwables
@@ -71,7 +71,7 @@ object ImmutableDescriptionBox {
       annotationProperties =
         Set.empty[AnnotationProperty],
       annotations =
-        Set.empty[(AnnotationProperty, Set[AnnotationEntry])]),
+        Set.empty[AnnotationPropertyValue]),
     ont, backbone)
 
 
@@ -109,7 +109,7 @@ object ImmutableDescriptionBox {
       annotationProperties =
         Set.empty[AnnotationProperty] ++ s.annotationProperties,
       annotations =
-        Set.empty[(AnnotationProperty, Set[AnnotationEntry])] ++
+        Set.empty[AnnotationPropertyValue] ++
           s.annotations),
     ont, backbone)(store.ops).right
 }

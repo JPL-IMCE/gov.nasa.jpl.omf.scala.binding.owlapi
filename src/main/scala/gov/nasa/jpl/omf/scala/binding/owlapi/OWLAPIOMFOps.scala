@@ -22,7 +22,8 @@ import java.io.File
 import java.net.URI
 import java.util.UUID
 
-import gov.nasa.jpl.imce.oml.tables.{AnnotationEntry, AnnotationProperty}
+import gov.nasa.jpl.imce.oml.tables
+import gov.nasa.jpl.imce.oml.tables.{AnnotationProperty, AnnotationPropertyValue, LiteralValue}
 import gov.nasa.jpl.omf.scala.binding.owlapi.common.{ImmutableModule, Module, MutableModule}
 import gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.{DescriptionBox, ImmutableDescriptionBox, MutableDescriptionBox, SingletonInstanceStructuredDataPropertyContext}
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.bundleStatements.ConceptTreeDisjunction
@@ -39,8 +40,8 @@ import org.apache.commons.codec.binary.Hex
 import org.apache.commons.codec.digest.DigestUtils
 import org.semanticweb.owlapi.model._
 
-import scala.{Boolean, Int, None, Option, Some, StringContext, Unit}
-import scala.collection.immutable.{Map, Set, _}
+import scala.{Boolean, None, Option, Some, StringContext, Unit}
+import scala.collection.immutable.{Iterable, Seq, Set, Vector}
 import scala.compat.java8.StreamConverters._
 import scala.util.control.Exception._
 import scala.Predef.{Map => _, Set => _, _}
@@ -233,8 +234,8 @@ trait OWLAPIStoreOps
   def annotations
   (m: Module)
   (implicit store: OWLAPIOMFGraphStore)
-  : Map[AnnotationProperty, Set[AnnotationEntry]]
-  = m.sig.annotations.map { case (ap, aes) => ap -> aes.to[Set] }.toMap
+  : Set[AnnotationPropertyValue]
+  = m.sig.annotations.to[Set]
 
   override def foldModule[T]
   (funImmutableTerminologyGraph: OWLAPIOMF#ImmutableTerminologyGraph => T,
@@ -603,8 +604,8 @@ trait OWLAPIImmutableTerminologyGraphOps
 
   override def getAnnotations
   (tbox: OWLAPIOMF#TerminologyBox)
-  : Map[AnnotationProperty, Set[AnnotationEntry]]
-  = tbox.sig.annotations.map { case (ap, aes) => ap -> aes.to[Set] }.toMap
+  : Set[AnnotationPropertyValue]
+  = tbox.sig.annotations.to[Set]
 
   def getTerminologyKind
   (tbox: TerminologyBox)
@@ -1070,22 +1071,30 @@ trait OWLAPIImmutableTerminologyGraphOps
   override def fromBinaryScalarRestriction
   (ax: OWLAPIOMF#BinaryScalarRestriction)
   : BinaryScalarRestrictionSignature[OWLAPIOMF]
-  = BinaryScalarRestrictionSignature[OWLAPIOMF](ax.uuid, ax.name, ax.iri, ax.length, ax.minLength, ax.maxLength, ax.restrictedDataRange)
+  = BinaryScalarRestrictionSignature[OWLAPIOMF](
+    ax.uuid, ax.name, ax.iri,
+    ax.length, ax.minLength, ax.maxLength, ax.restrictedDataRange)
 
   override def fromIRIScalarRestriction
   (ax: OWLAPIOMF#IRIScalarRestriction)
   : IRIScalarRestrictionSignature[OWLAPIOMF]
-  = IRIScalarRestrictionSignature[OWLAPIOMF](ax.uuid, ax.name, ax.iri, ax.length, ax.minLength, ax.maxLength, ax.pattern, ax.restrictedDataRange)
+  = IRIScalarRestrictionSignature[OWLAPIOMF](ax.uuid, ax.name, ax.iri,
+    ax.length, ax.minLength, ax.maxLength, ax.pattern,
+    ax.restrictedDataRange)
 
   override def fromNumericScalarRestriction
   (ax: OWLAPIOMF#NumericScalarRestriction)
   : NumericScalarRestrictionSignature[OWLAPIOMF]
-  = NumericScalarRestrictionSignature[OWLAPIOMF](ax.uuid, ax.name, ax.iri, ax.minInclusive, ax.maxInclusive, ax.minExclusive, ax.maxExclusive, ax.restrictedDataRange)
+  = NumericScalarRestrictionSignature[OWLAPIOMF](ax.uuid, ax.name, ax.iri,
+    ax.minInclusive, ax.maxInclusive, ax.minExclusive, ax.maxExclusive,
+    ax.restrictedDataRange)
 
   override def fromPlainLiteralScalarRestriction
   (ax: OWLAPIOMF#PlainLiteralScalarRestriction)
   : PlainLiteralScalarRestrictionSignature[OWLAPIOMF]
-  = PlainLiteralScalarRestrictionSignature[OWLAPIOMF](ax.uuid, ax.name, ax.iri, ax.length, ax.minLength, ax.maxLength, ax.pattern, ax.language, ax.restrictedDataRange)
+  = PlainLiteralScalarRestrictionSignature[OWLAPIOMF](ax.uuid, ax.name, ax.iri,
+    ax.length, ax.minLength, ax.maxLength, ax.pattern, ax.language,
+    ax.restrictedDataRange)
 
   override def fromScalarOneOfRestriction
   (ax: OWLAPIOMF#ScalarOneOfRestriction)
@@ -1095,7 +1104,9 @@ trait OWLAPIImmutableTerminologyGraphOps
   override def fromStringScalarRestriction
   (ax: OWLAPIOMF#StringScalarRestriction)
   : StringScalarRestrictionSignature[OWLAPIOMF]
-  = StringScalarRestrictionSignature[OWLAPIOMF](ax.uuid, ax.name, ax.iri, ax.length, ax.minLength, ax.maxLength, ax.pattern, ax.restrictedDataRange)
+  = StringScalarRestrictionSignature[OWLAPIOMF](ax.uuid, ax.name, ax.iri,
+    ax.length, ax.minLength, ax.maxLength,
+    ax.pattern, ax.restrictedDataRange)
 
   override def fromSynonymScalarRestriction
   (ax: OWLAPIOMF#SynonymScalarRestriction)
@@ -1105,7 +1116,9 @@ trait OWLAPIImmutableTerminologyGraphOps
   override def fromTimeScalarRestriction
   (ax: OWLAPIOMF#TimeScalarRestriction)
   : TimeScalarRestrictionSignature[OWLAPIOMF]
-  = TimeScalarRestrictionSignature[OWLAPIOMF](ax.uuid, ax.name, ax.iri, ax.minInclusive, ax.maxInclusive, ax.minExclusive, ax.maxExclusive, ax.restrictedDataRange)
+  = TimeScalarRestrictionSignature[OWLAPIOMF](ax.uuid, ax.name, ax.iri,
+    ax.minInclusive, ax.maxInclusive, ax.minExclusive, ax.maxExclusive,
+    ax.restrictedDataRange)
 
   override def fromConceptDesignationTerminologyAxiom
   (ax: OWLAPIOMF#ConceptDesignationTerminologyAxiom)
@@ -1161,7 +1174,7 @@ trait OWLAPIMutableTerminologyGraphOps
    property: AnnotationProperty,
    value: String)
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ AnnotationEntry
+  : Throwables \/ AnnotationPropertyValue
   = for {
     _ <- tbox.addAnnotationProperty(property)
     a <- tbox.addAnnotation(subject, property, value)
@@ -1172,7 +1185,7 @@ trait OWLAPIMutableTerminologyGraphOps
    subject: OWLAPIOMF#Element,
    property: AnnotationProperty)
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ Set[AnnotationEntry]
+  : Throwables \/ Set[AnnotationPropertyValue]
   = tbox.removeAnnotations(subject, property)
 
   def addAnnotationAssertions
@@ -1298,9 +1311,9 @@ trait OWLAPIMutableTerminologyGraphOps
    dataTypeUUID: UUID,
    dataTypeIRI: IRI,
    dataTypeName: LocalName,
-   length: Option[Int],
-   minLength: Option[Int],
-   maxLength: Option[Int],
+   length: Option[tables.PositiveIntegerLiteral],
+   minLength: Option[tables.PositiveIntegerLiteral],
+   maxLength: Option[tables.PositiveIntegerLiteral],
    restrictedRange: DataRange)
   (implicit store: OWLAPIOMFGraphStore)
   : Throwables \/ BinaryScalarRestriction
@@ -1313,10 +1326,10 @@ trait OWLAPIMutableTerminologyGraphOps
    dataTypeUUID: UUID,
    dataTypeIRI: IRI,
    dataTypeName: LocalName,
-   length: Option[Int],
-   minLength: Option[Int],
-   maxLength: Option[Int],
-   pattern: Option[Pattern],
+   length: Option[tables.PositiveIntegerLiteral],
+   minLength: Option[tables.PositiveIntegerLiteral],
+   maxLength: Option[tables.PositiveIntegerLiteral],
+   pattern: Option[tables.LiteralPattern],
    restrictedRange: DataRange)
   (implicit store: OWLAPIOMFGraphStore)
   : Throwables \/ IRIScalarRestriction
@@ -1329,10 +1342,10 @@ trait OWLAPIMutableTerminologyGraphOps
    dataTypeUUID: UUID,
    dataTypeIRI: IRI,
    dataTypeName: LocalName,
-   minInclusive: Option[LexicalValue],
-   maxInclusive: Option[LexicalValue],
-   minExclusive: Option[LexicalValue],
-   maxExclusive: Option[LexicalValue],
+   minInclusive: Option[tables.LiteralNumber],
+   maxInclusive: Option[tables.LiteralNumber],
+   minExclusive: Option[tables.LiteralNumber],
+   maxExclusive: Option[tables.LiteralNumber],
    restrictedRange: DataRange)
   (implicit store: OWLAPIOMFGraphStore)
   : Throwables \/ NumericScalarRestriction
@@ -1345,10 +1358,10 @@ trait OWLAPIMutableTerminologyGraphOps
    dataTypeUUID: UUID,
    dataTypeIRI: IRI,
    dataTypeName: LocalName,
-   length: Option[Int],
-   minLength: Option[Int],
-   maxLength: Option[Int],
-   pattern: Option[Pattern],
+   length: Option[tables.PositiveIntegerLiteral],
+   minLength: Option[tables.PositiveIntegerLiteral],
+   maxLength: Option[tables.PositiveIntegerLiteral],
+   pattern: Option[tables.LiteralPattern],
    language: Option[LangRange],
    restrictedRange: DataRange)
   (implicit store: OWLAPIOMFGraphStore)
@@ -1362,10 +1375,10 @@ trait OWLAPIMutableTerminologyGraphOps
    dataTypeUUID: UUID,
    dataTypeIRI: IRI,
    dataTypeName: LocalName,
-   length: Option[Int],
-   minLength: Option[Int],
-   maxLength: Option[Int],
-   pattern: Option[Pattern],
+   length: Option[tables.PositiveIntegerLiteral],
+   minLength: Option[tables.PositiveIntegerLiteral],
+   maxLength: Option[tables.PositiveIntegerLiteral],
+   pattern: Option[tables.LiteralPattern],
    restrictedRange: DataRange)
   (implicit store: OWLAPIOMFGraphStore)
   : Throwables \/ StringScalarRestriction
@@ -1388,7 +1401,7 @@ trait OWLAPIMutableTerminologyGraphOps
   (tbox: MutableTerminologyBox,
    axiomUUID: UUID,
    scalarOneOfRestriction: ScalarOneOfRestriction,
-   value: String)
+   value: LiteralValue)
   (implicit store: OWLAPIOMFGraphStore)
   : Throwables \/ ScalarOneOfLiteralAxiom
   = tbox.addScalarOneOfLiteralAxiom(axiomUUID, scalarOneOfRestriction, value)
@@ -1398,10 +1411,10 @@ trait OWLAPIMutableTerminologyGraphOps
    dataTypeUUID: UUID,
    dataTypeIRI: IRI,
    dataTypeName: LocalName,
-   minInclusive: Option[LexicalValue],
-   maxInclusive: Option[LexicalValue],
-   minExclusive: Option[LexicalValue],
-   maxExclusive: Option[LexicalValue],
+   minInclusive: Option[tables.LiteralDateTime],
+   maxInclusive: Option[tables.LiteralDateTime],
+   minExclusive: Option[tables.LiteralDateTime],
+   maxExclusive: Option[tables.LiteralDateTime],
    restrictedRange: DataRange)
   (implicit store: OWLAPIOMFGraphStore)
   : Throwables \/ TimeScalarRestriction
@@ -1526,7 +1539,7 @@ trait OWLAPIMutableTerminologyGraphOps
    uuid: UUID,
    restrictedEntity: Entity,
    scalarProperty: EntityScalarDataProperty,
-   literalValue: LexicalValue)
+   literalValue: LiteralValue)
   (implicit store: OWLAPIOMFGraphStore)
   : Throwables \/ EntityScalarDataPropertyParticularRestrictionAxiom
   = tbox.addEntityScalarDataPropertyParticularRestrictionAxiom(uuid, restrictedEntity, scalarProperty, literalValue)
@@ -1682,7 +1695,7 @@ trait OWLAPIMutableDescriptionBoxOps
    property: AnnotationProperty,
    value: String)
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ AnnotationEntry
+  : Throwables \/ AnnotationPropertyValue
   = for {
     _ <- dbox.addAnnotationProperty(property)
     a <- dbox.addAnnotation(subject, property, value)
@@ -1693,7 +1706,7 @@ trait OWLAPIMutableDescriptionBoxOps
    subject: OWLAPIOMF#Element,
    property: AnnotationProperty)
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ Set[AnnotationEntry]
+  : Throwables \/ Set[AnnotationPropertyValue]
   = dbox.removeAnnotations(subject, property)
 
   override def getMutableDescriptionBoxIRI
@@ -1769,7 +1782,7 @@ trait OWLAPIMutableDescriptionBoxOps
    dbox: descriptions.MutableDescriptionBox,
    ei: descriptions.ConceptualEntitySingletonInstance,
    e2sc: EntityScalarDataProperty,
-   value: LexicalValue)
+   value: LiteralValue)
   (implicit store: OWLAPIOMFGraphStore)
   : Throwables \/ descriptions.SingletonInstanceScalarDataPropertyValue
   = dbox.addSingletonInstanceScalarDataPropertyValue(uuid, ei, e2sc, value)
@@ -1788,7 +1801,7 @@ trait OWLAPIMutableDescriptionBoxOps
    dbox: descriptions.MutableDescriptionBox,
    structuredDataPropertyContext: SingletonInstanceStructuredDataPropertyContext,
    scalarDataProperty: ScalarDataProperty,
-   value: LexicalValue)
+   value: LiteralValue)
   (implicit store: OWLAPIOMFGraphStore)
   : Throwables \/ descriptions.ScalarDataPropertyValue
   = dbox.makeScalarDataPropertyValue(uuid, structuredDataPropertyContext, scalarDataProperty, value)

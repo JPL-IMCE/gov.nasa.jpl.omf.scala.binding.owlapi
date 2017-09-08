@@ -1,0 +1,7 @@
+gov.nasa.jpl.omf.scala.binding.owlapi 8.0.0 is a major update
+
+## Issues Resolved
+
+- [#14 Re-enable unit tests when the ontologies.public has been properly updated](https://github.com/JPL-IMCE/gov.nasa.jpl.omf.scala.binding.owlapi/issues/14)
+
+- [#23 Update for OML Datatypes and AnnotationPropertyValues](https://github.com/JPL-IMCE/gov.nasa.jpl.omf.scala.binding.owlapi/issues/23)

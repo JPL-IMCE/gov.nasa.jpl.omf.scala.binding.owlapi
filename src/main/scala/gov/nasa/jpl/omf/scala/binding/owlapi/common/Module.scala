@@ -20,7 +20,7 @@ package gov.nasa.jpl.omf.scala.binding.owlapi.common
 
 import java.util.UUID
 
-import gov.nasa.jpl.imce.oml.tables.{AnnotationEntry, AnnotationProperty}
+import gov.nasa.jpl.imce.oml.tables.{AnnotationProperty, AnnotationPropertyValue}
 import gov.nasa.jpl.omf.scala.binding.owlapi.{OMFBackbone, OWLAPIOMF}
 import gov.nasa.jpl.omf.scala.core.OMLString.{LocalName, NamespacePrefix}
 import gov.nasa.jpl.omf.scala.core.{ModuleSignature, generateUUID}
@@ -28,7 +28,7 @@ import org.semanticweb.owlapi.model.{IRI, OWLOntology}
 
 import scala.collection.immutable.Set
 import scala.{Any, Boolean}
-import scala.Predef.{require,ArrowAssoc}
+import scala.Predef.{require}
 
 trait Module
   extends Element with Resource {
@@ -67,7 +67,7 @@ trait Module
 
   final def annotations
   ()
-  : Set[(AnnotationProperty, Set[AnnotationEntry])]
-  = sig.annotations.map { case (ap, aes) => ap -> aes.to[Set] }.to[Set]
+  : Set[AnnotationPropertyValue]
+  = sig.annotations.to[Set]
 
 }

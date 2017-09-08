@@ -18,7 +18,7 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi
 
-import gov.nasa.jpl.imce.oml.tables.{AnnotationEntry, AnnotationProperty}
+import gov.nasa.jpl.imce.oml.tables.{AnnotationProperty, AnnotationPropertyValue}
 import gov.nasa.jpl.omf.scala.core.{DescriptionBoxSignature, ImmutableDescriptionBoxSignature, MutableDescriptionBoxSignature}
 
 import scala.collection.immutable.{Map, Set}
@@ -58,6 +58,6 @@ package object descriptions {
     annotationProperties =
       Set.empty[AnnotationProperty] ++ sig.annotationProperties,
     annotations =
-      Set.empty[(AnnotationProperty, scala.collection.immutable.Set[AnnotationEntry])] ++
+      Set.empty[AnnotationPropertyValue] ++
         sig.annotations)
 }

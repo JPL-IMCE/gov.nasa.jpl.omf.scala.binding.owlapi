@@ -780,40 +780,48 @@ abstract class OWLAPIOMFGraphStoreMetadata(omfModule: OWLAPIOMFModule, ontManage
   : Set[java.lang.Throwable] \/ TerminologyExtensionAxiom
   = omfMetadata.fold[Set[java.lang.Throwable] \/ TerminologyExtensionAxiom](axiom.right) { mo =>
     val extendingI = omfModule2Instance(extendingG)
-    val extendedI = omfModule2Instance(axiom.extendedTerminology)
-    for {
-      directImportingIRI <-
-      makeMetadataInstanceIRI(mo, "DI", extendingG.kindIRI, axiom.extendedTerminology.kindIRI)
+    omfModule2Instance
+      .get(axiom.extendedTerminology)
+      .fold[Set[java.lang.Throwable] \/ TerminologyExtensionAxiom] {
+      \/-(axiom)
+    } { extendedI =>
+      for {
+        directImportingIRI <-
+        makeMetadataInstanceIRI(mo, "DI", extendingG.kindIRI, axiom.extendedTerminology.kindIRI)
 
-      directImportingI = owlDataFactory.getOWLNamedIndividual(directImportingIRI)
-      _ = if (LOG) {
-        System.out.println(
-          s"""|## createTerminologyGraphDirectExtensionAxiom:
-              |extending: ${extendingG.kindIRI}
-              |extended: ${axiom.extendedTerminology.kindIRI}
-              |result: $directImportingI"""
-            .stripMargin)
+        directImportingI = owlDataFactory.getOWLNamedIndividual(directImportingIRI)
+        _ = if (LOG) {
+          System.out.println(
+            s"""|## createTerminologyGraphDirectExtensionAxiom:
+                |extending: ${extendingG.kindIRI}
+                |extended: ${axiom.extendedTerminology.kindIRI}
+                |result: $directImportingI""".stripMargin
+          )
+        }
+        _ <-
+        applyOntologyChangesOrNoOp(ontManager,
+          Seq(
+            new AddAxiom(mo,
+              owlDataFactory.getOWLDeclarationAxiom(directImportingI)),
+            new
+                AddAxiom(mo,
+                  owlDataFactory.getOWLClassAssertionAxiom(
+                    OMF_TERMINOLOGY_GRAPH_DIRECT_EXTENSION_AXIOM,
+                    directImportingI)),
+            new AddAxiom(mo,
+              owlDataFactory.getOWLObjectPropertyAssertionAxiom(
+                OMF_HAS_DIRECT_EXTENDED_PARENT,
+                directImportingI,
+                extendedI)),
+            new AddAxiom(mo,
+              owlDataFactory.getOWLObjectPropertyAssertionAxiom(
+                OMF_HAS_DIRECT_EXTENSIONING_CHILD,
+                directImportingI, extendingI))),
+          "createTerminologyGraphDirectExtensionAxiom errors")
+      } yield {
+        OMF_TERMINOLOGY_GRAPH_DIRECT_EXTENSION_AXIOM2Instance += (axiom -> directImportingI)
+        axiom
       }
-      _ <- applyOntologyChangesOrNoOp(ontManager,
-        Seq(
-          new AddAxiom(mo, owlDataFactory
-            .getOWLDeclarationAxiom(directImportingI)),
-          new AddAxiom(mo, owlDataFactory
-            .getOWLClassAssertionAxiom(
-              OMF_TERMINOLOGY_GRAPH_DIRECT_EXTENSION_AXIOM,
-              directImportingI)),
-          new AddAxiom(mo, owlDataFactory
-            .getOWLObjectPropertyAssertionAxiom(
-              OMF_HAS_DIRECT_EXTENDED_PARENT,
-              directImportingI, extendedI)),
-          new AddAxiom(mo, owlDataFactory
-            .getOWLObjectPropertyAssertionAxiom(
-              OMF_HAS_DIRECT_EXTENSIONING_CHILD,
-              directImportingI, extendingI))),
-        "createTerminologyGraphDirectExtensionAxiom errors")
-    } yield {
-      OMF_TERMINOLOGY_GRAPH_DIRECT_EXTENSION_AXIOM2Instance += (axiom -> directImportingI)
-      axiom
     }
   }
 
@@ -1770,7 +1778,8 @@ abstract class OWLAPIOMFGraphStoreMetadata(omfModule: OWLAPIOMFModule, ontManage
           new AddAxiom(mo, owlDataFactory
             .getOWLObjectPropertyAssertionAxiom(OMF_HAS_RESTRICTING_SCALAR_DATA_RELATIONSHIP, axiomI, dpropI)),
           new AddAxiom(mo, owlDataFactory
-            .getOWLDataPropertyAssertionAxiom(OMF_HAS_LITERAL_RESTRICTION, axiomI, axiomT.literalValue))
+            .getOWLDataPropertyAssertionAxiom(OMF_HAS_LITERAL_RESTRICTION, axiomI,
+              LiteralConversions.toOWLLiteral(axiomT.literalValue, owlDataFactory)))
         ),
         "createOMFEntityScalarDataPropertyParticularRestrictionAxiomInstance error")
     } yield {

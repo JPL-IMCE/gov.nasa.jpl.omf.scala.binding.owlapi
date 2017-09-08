@@ -35,9 +35,9 @@ import scalax.collection.GraphPredef._
 import scala.collection.immutable._
 import scala.compat.java8.StreamConverters._
 import scala.reflect.ClassTag
-import scala.util.control.Exception._
+import scala.util.control.Exception.nonFatalCatch
 import scala.{None, Option, Some, StringContext, annotation}
-import scala.Predef.{Map => _, Set => _, _}
+import scala.Predef.{assert,require,ArrowAssoc}
 
 import scalaz._
 import Scalaz._
@@ -193,7 +193,9 @@ object OWLAPIOMFLoader {
     (implicit ops: OWLAPIOMFOps, store: OWLAPIOMFGraphStore)
     : Throwables \/ OntologyLoadedState
     = Internal.loadOntologiesRecursively(
-      Internal.OntologyLoaderState(queue = Set(iri)))(ops, store, drc)
+      Internal.OntologyLoaderState(
+        ontologies = drc.builtInDatatypeModules.map { m => m.iri -> m.ont }.toMap,
+        queue = Set(iri)))(ops, store, drc)
 
     private object Internal {
 
@@ -226,49 +228,51 @@ object OWLAPIOMFLoader {
        iri: IRI)
       (implicit ops: OWLAPIOMFOps, store: OWLAPIOMFGraphStore, drc: BuiltInDatatypeMap)
       : Throwables \/ OntologyLoaderState
-      = if (drc.isBuiltInModule(iri))
-        \/-(s.copy(queue = s.queue - iri))
-      else
-        s
-        .ontologies
-        .get(iri)
+      = drc
+        .lookupBuiltInModule(iri)
         .fold[Throwables \/ OntologyLoaderState] {
-        nonFatalCatch[OntologyLoaderState]
-          .withApply {
-            cause: java.lang.Throwable =>
-              Set(OMFError.omfException(
-                s"loadTerminologyGraph($iri) failed: ${cause.getMessage}",
-                cause)).left
+          s
+            .ontologies
+            .get(iri)
+            .fold[Throwables \/ OntologyLoaderState] {
+            nonFatalCatch[OntologyLoaderState]
+              .withApply {
+                cause: java.lang.Throwable =>
+                  Set(OMFError.omfException(
+                    s"loadTerminologyGraph($iri) failed: ${cause.getMessage}",
+                    cause)).left
+              }
+              .apply {
+                val ont: OWLOntology =
+                  if (store.ontManager.contains(iri))
+                    store.ontManager.getOntology(iri)
+                  else
+                    store.ontManager.loadOntology(iri)
+                assert(null != ont)
+
+                val es = getOntologyDirectlyExtendedModules(ont, iri)
+                val nc = getNestedOntologyToNestingContextIRIIfAny(ont, iri)
+
+                // in principle, we should exclude the known ontology IRIs
+                // i.e., -- s.ontologies.keySet
+                // but this would be more expensive than tail recursive calls
+                val newIRIs = es.map(_.extended)
+
+                \/-(OntologyLoaderState(
+                  s.ontologies + (iri -> ont),
+                  s.extensions ++ es,
+                  s.nested2context ++ nc,
+                  s.queue - iri ++ newIRIs))
+
+              }
+          } { _: OWLOntology =>
+            \/-(s.copy(queue = s.queue - iri))
           }
-          .apply {
-            val ont: OWLOntology =
-              if (store.ontManager.contains(iri))
-                store.ontManager.getOntology(iri)
-              else
-                store.ontManager.loadOntology(iri)
-            assert(null != ont)
-
-            val es = getOntologyDirectlyExtendedModules(ont, iri)
-            val nc = getNestedOntologyToNestingContextIRIIfAny(ont, iri)
-
-            // in principle, we should exclude the known ontology IRIs
-            // i.e., -- s.ontologies.keySet
-            // but this would be more expensive than tail recursive calls
-            val newIRIs = es.map(_.extended)
-
-            \/-(OntologyLoaderState(
-              s.ontologies + (iri -> ont),
-              s.extensions ++ es,
-              s.nested2context ++ nc,
-              s.queue - iri ++ newIRIs))
-
-          }
-      } { _: OWLOntology =>
-
-        \/-(s.copy(queue = s.queue - iri))
-
-      }
-
+        } { m =>
+          \/-(s.copy(
+            ontologies = s.ontologies + (iri -> m.ont),
+            queue = s.queue - iri))
+        }
     }
 
   }

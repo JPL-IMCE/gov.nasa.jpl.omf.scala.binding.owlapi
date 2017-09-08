@@ -20,7 +20,7 @@ package gov.nasa.jpl.omf.scala.binding.owlapi.types.termAxioms
 
 import java.util.UUID
 
-import gov.nasa.jpl.imce.oml.tables.LexicalValue
+import gov.nasa.jpl.imce.oml.tables.LiteralValue
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.Axiom
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ScalarOneOfRestriction
 
@@ -29,7 +29,7 @@ import scala.{Any,Boolean,Int}
 case class ScalarOneOfLiteralAxiom
 (override val uuid: UUID,
  axiom: ScalarOneOfRestriction,
- value: LexicalValue)
+ value: LiteralValue)
 extends Axiom {
 
   override def canEqual(other: Any)

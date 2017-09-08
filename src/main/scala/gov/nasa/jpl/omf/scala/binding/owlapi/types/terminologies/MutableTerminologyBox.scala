@@ -18,9 +18,11 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies
 
+import java.lang.Integer
 import java.util.UUID
 
-import gov.nasa.jpl.imce.oml.tables.{AnnotationEntry, AnnotationProperty}
+import gov.nasa.jpl.imce.oml.tables
+import gov.nasa.jpl.imce.oml.tables.{AnnotationProperty, AnnotationPropertyValue, LiteralValue}
 import gov.nasa.jpl.omf.scala.binding.owlapi.AxiomExceptionKind
 import gov.nasa.jpl.omf.scala.binding.owlapi.ElementExceptionKind
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.{axiomScopeException, duplicateModelTermAxiomException, duplicateTerminologyGraphAxiomException, entityAlreadyDefinedException, entityConflictException, entityScopeException, terms}
@@ -30,7 +32,7 @@ import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms._
 import gov.nasa.jpl.omf.scala.binding.owlapi._
 import gov.nasa.jpl.omf.scala.binding.owlapi.common.{MutableModule, Resource}
 import gov.nasa.jpl.omf.scala.core.OMFError
-import gov.nasa.jpl.omf.scala.core.OMLString.{LexicalValue, LocalName}
+import gov.nasa.jpl.omf.scala.core.OMLString.LocalName
 import gov.nasa.jpl.omf.scala.core._
 import gov.nasa.jpl.omf.scala.core.RelationshipCharacteristics.RelationshipCharacteristics
 import org.semanticweb.owlapi.model.parameters.ChangeApplied
@@ -40,7 +42,7 @@ import org.semanticweb.owlapi.vocab.OWLFacet
 import scala.collection.JavaConversions._
 import scala.compat.java8.StreamConverters._
 import scala.collection.immutable.{Iterable, Map, Seq, Set}
-import scala.{Any, Boolean, Int, None, Option, Some, StringContext}
+import scala.{Any, Boolean, None, Option, Some, StringContext}
 import scala.Predef.{ArrowAssoc, String, require}
 import scalaz._
 import Scalaz._
@@ -83,18 +85,19 @@ trait MutableTerminologyBox
    property: AnnotationProperty,
    value: String)
   (implicit store: OWLAPIOMFGraphStore)
-  : OMFError.Throwables \/ AnnotationEntry
+  : OMFError.Throwables \/ AnnotationPropertyValue
   = for {
-    a <- AnnotationEntry(
-      moduleUUID = uuid.toString,
+    a <- new AnnotationPropertyValue(
+      oug = uuidG,
       subjectUUID = subject.uuid.toString,
-      value).right[OMFError.Throwables]
-    _ = sig.annotations.find { case (ap, _) => ap == property } match {
-      case Some((ap, aes)) =>
-        sig.annotations -= property -> aes
-        sig.annotations += property -> (aes + a)
+      propertyUUID = property.uuid,
+      value = value).right[OMFError.Throwables]
+    _ = sig.annotations.find { a => a.subjectUUID == subject.uuid.toString && a.propertyUUID == property.uuid } match {
+      case Some(a0) =>
+        sig.annotations -= a0
+        sig.annotations += a
       case None =>
-        sig.annotations += property -> (Set.empty[AnnotationEntry] + a)
+        sig.annotations += a
     }
     ont_ap = owlDataFactory.getOWLAnnotationProperty(property.iri)
     ont_lit = owlDataFactory.getOWLLiteral(value)
@@ -120,17 +123,15 @@ trait MutableTerminologyBox
   (subject: OWLAPIOMF#Element,
    property: AnnotationProperty)
   (implicit store: OWLAPIOMFGraphStore)
-  : OMFError.Throwables \/ Set[AnnotationEntry]
+  : OMFError.Throwables \/ Set[AnnotationPropertyValue]
   = for {
     sUUID <- subject.uuid.toString.right[OMFError.Throwables]
-    ae <- sig.annotations.find { case (ap, _) => ap == property } match {
-      case Some((ap, aes)) =>
-        sig.annotations -= property -> aes
-        val removed = aes.filter(_.subjectUUID == sUUID)
-        sig.annotations += property -> (aes -- removed)
-        removed.right
+    ae <- sig.annotations.find { a => a.subjectUUID == sUUID && a.propertyUUID == property.uuid } match {
+      case Some(a0) =>
+        sig.annotations -= a0
+        Set(a0).right
       case None =>
-        Set.empty[AnnotationEntry].right
+        Set.empty[AnnotationPropertyValue].right
     }
     ont_ap = owlDataFactory.getOWLAnnotationProperty(property.iri)
     _ <- subject match {
@@ -1038,7 +1039,7 @@ trait MutableTerminologyBox
     */
   def createScalarOneOfLiteralAxiom
   (scalarOneOfRestriction: OWLAPIOMF#ScalarOneOfRestriction,
-   value: String)
+   value: LiteralValue)
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#ScalarOneOfLiteralAxiom
   = for {
@@ -1049,7 +1050,7 @@ trait MutableTerminologyBox
   def createScalarOneOfLiteralAxiom
   (axiomUUID: UUID,
    scalarOneOfRestriction: OWLAPIOMF#ScalarOneOfRestriction,
-   value: String)
+   value: LiteralValue)
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#ScalarOneOfLiteralAxiom
   = types.termAxioms.ScalarOneOfLiteralAxiom(axiomUUID, scalarOneOfRestriction, value).right
@@ -1057,7 +1058,7 @@ trait MutableTerminologyBox
   def addScalarOneOfLiteralAxiom
   (axiomUUID: UUID,
    scalarOneOfRestriction: OWLAPIOMF#ScalarOneOfRestriction,
-   value: String)
+   value: LiteralValue)
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#ScalarOneOfLiteralAxiom
   = for {
@@ -1075,7 +1076,8 @@ trait MutableTerminologyBox
             new AddAxiom(ont, owlDataFactory
               .getOWLDatatypeDefinitionAxiom(
                 restrictionDT,
-                owlDataFactory.getOWLDataOneOf(owlDataFactory.getOWLLiteral(value, restrictedDT))))
+                owlDataFactory.getOWLDataOneOf(
+                  LiteralConversions.toOWLLiteral(value, owlDataFactory, Option.apply(restrictedDT)))))
           ),
           "addScalarOneOfLiteralAxiom error")
       } yield axiom
@@ -1084,7 +1086,8 @@ trait MutableTerminologyBox
         case dof: OWLDataOneOf =>
           val values = java.util.stream.Stream.concat(
             dof.values,
-            java.util.stream.Stream.of[OWLLiteral](owlDataFactory.getOWLLiteral(value, restrictedDT)))
+            java.util.stream.Stream.of[OWLLiteral](
+              LiteralConversions.toOWLLiteral(value, owlDataFactory, Option.apply(restrictedDT))))
           for {
             _ <- applyOntologyChanges(ontManager,
               Seq(
@@ -1122,9 +1125,9 @@ trait MutableTerminologyBox
   (tboxUUID: UUID,
    restrictionDT: OWLDatatype,
    restrictedRange: OWLAPIOMF#DataRange,
-   length: Option[Int],
-   minLength: Option[Int],
-   maxLength: Option[Int])
+   length: Option[tables.PositiveIntegerLiteral],
+   minLength: Option[tables.PositiveIntegerLiteral],
+   maxLength: Option[tables.PositiveIntegerLiteral])
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#BinaryScalarRestriction
   = for {
@@ -1140,9 +1143,9 @@ trait MutableTerminologyBox
   def createBinaryScalarRestriction
   (restrictionDT: OWLDatatype, name: LocalName, uuid: UUID,
    restrictedRange: OWLAPIOMF#DataRange,
-   length: Option[Int],
-   minLength: Option[Int],
-   maxLength: Option[Int])
+   length: Option[tables.PositiveIntegerLiteral],
+   minLength: Option[tables.PositiveIntegerLiteral],
+   maxLength: Option[tables.PositiveIntegerLiteral])
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#BinaryScalarRestriction
   = if (store.isBuiltInDatatypeMapConstructed || store.isBinaryKind(restrictedRange)) {
@@ -1173,9 +1176,9 @@ trait MutableTerminologyBox
   def addBinaryScalarRestriction
   (dataTypeIRI: IRI, name: LocalName, uuid: UUID,
    restrictedRange: OWLAPIOMF#DataRange,
-   length: Option[Int],
-   minLength: Option[Int],
-   maxLength: Option[Int])
+   length: Option[tables.PositiveIntegerLiteral],
+   minLength: Option[tables.PositiveIntegerLiteral],
+   maxLength: Option[tables.PositiveIntegerLiteral])
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#BinaryScalarRestriction
   = {
@@ -1205,21 +1208,21 @@ trait MutableTerminologyBox
             restrictionDT,
             owlDataFactory.getOWLDatatypeRestriction(
               rdr.restrictedDataRange.e,
-              owlDataFactory.getOWLFacetRestriction(OWLFacet.LENGTH, l))))
+              owlDataFactory.getOWLFacetRestriction(OWLFacet.LENGTH, Integer.parseInt(l)))))
       } ++ rdr.minLength.map { minL =>
         new AddAxiom(ont, owlDataFactory
           .getOWLDatatypeDefinitionAxiom(
             restrictionDT,
             owlDataFactory.getOWLDatatypeRestriction(
               rdr.restrictedDataRange.e,
-              owlDataFactory.getOWLFacetRestriction(OWLFacet.MIN_LENGTH, minL))))
+              owlDataFactory.getOWLFacetRestriction(OWLFacet.MIN_LENGTH, Integer.parseInt(minL)))))
       } ++ rdr.maxLength.map { maxL =>
         new AddAxiom(ont, owlDataFactory
           .getOWLDatatypeDefinitionAxiom(
             restrictionDT,
             owlDataFactory.getOWLDatatypeRestriction(
               rdr.restrictedDataRange.e,
-              owlDataFactory.getOWLFacetRestriction(OWLFacet.MAX_LENGTH, maxL))))
+              owlDataFactory.getOWLFacetRestriction(OWLFacet.MAX_LENGTH, Integer.parseInt(maxL)))))
       },
       s"addBinaryScalarRestriction error: ${restrictionDT.getIRI}")
     _ = iri2typeTerm += restrictionDT.getIRI -> rdr
@@ -1245,9 +1248,9 @@ trait MutableTerminologyBox
   (tboxUUID: UUID,
    restrictionDT: OWLDatatype,
    restrictedRange: OWLAPIOMF#DataRange,
-   length: Option[Int],
-   minLength: Option[Int],
-   maxLength: Option[Int],
+   length: Option[tables.PositiveIntegerLiteral],
+   minLength: Option[tables.PositiveIntegerLiteral],
+   maxLength: Option[tables.PositiveIntegerLiteral],
    pattern: Option[String])
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#IRIScalarRestriction
@@ -1264,9 +1267,9 @@ trait MutableTerminologyBox
   def createIRIScalarRestriction
   (restrictionDT: OWLDatatype, name: LocalName, uuid: UUID,
    restrictedRange: OWLAPIOMF#DataRange,
-   length: Option[Int],
-   minLength: Option[Int],
-   maxLength: Option[Int],
+   length: Option[tables.PositiveIntegerLiteral],
+   minLength: Option[tables.PositiveIntegerLiteral],
+   maxLength: Option[tables.PositiveIntegerLiteral],
    pattern: Option[String])
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#IRIScalarRestriction
@@ -1298,9 +1301,9 @@ trait MutableTerminologyBox
   def addIRIScalarRestriction
   (dataTypeIRI: IRI, name: LocalName, uuid: UUID,
    restrictedRange: OWLAPIOMF#DataRange,
-   length: Option[Int],
-   minLength: Option[Int],
-   maxLength: Option[Int],
+   length: Option[tables.PositiveIntegerLiteral],
+   minLength: Option[tables.PositiveIntegerLiteral],
+   maxLength: Option[tables.PositiveIntegerLiteral],
    pattern: Option[String])
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#IRIScalarRestriction
@@ -1331,21 +1334,21 @@ trait MutableTerminologyBox
               restrictionDT,
               owlDataFactory.getOWLDatatypeRestriction(
                 rdr.restrictedDataRange.e,
-                owlDataFactory.getOWLFacetRestriction(OWLFacet.LENGTH, l))))
+                owlDataFactory.getOWLFacetRestriction(OWLFacet.LENGTH, Integer.parseInt(l)))))
         } ++ rdr.minLength.map { minL =>
           new AddAxiom(ont, owlDataFactory
             .getOWLDatatypeDefinitionAxiom(
               restrictionDT,
               owlDataFactory.getOWLDatatypeRestriction(
                 rdr.restrictedDataRange.e,
-                owlDataFactory.getOWLFacetRestriction(OWLFacet.MIN_LENGTH, minL))))
+                owlDataFactory.getOWLFacetRestriction(OWLFacet.MIN_LENGTH, Integer.parseInt(minL)))))
         } ++ rdr.maxLength.map { maxL =>
           new AddAxiom(ont, owlDataFactory
             .getOWLDatatypeDefinitionAxiom(
               restrictionDT,
               owlDataFactory.getOWLDatatypeRestriction(
                 rdr.restrictedDataRange.e,
-                owlDataFactory.getOWLFacetRestriction(OWLFacet.MAX_LENGTH, maxL))))
+                owlDataFactory.getOWLFacetRestriction(OWLFacet.MAX_LENGTH, Integer.parseInt(maxL)))))
         } ++ rdr.pattern.map { patt =>
           new AddAxiom(ont, owlDataFactory
             .getOWLDatatypeDefinitionAxiom(
@@ -1379,10 +1382,10 @@ trait MutableTerminologyBox
   (tboxUUID: UUID,
    restrictionDT: OWLDatatype,
    restrictedRange: OWLAPIOMF#DataRange,
-   minInclusive: Option[String],
-   maxInclusive: Option[String],
-   minExclusive: Option[String],
-   maxExclusive: Option[String])
+   minInclusive: Option[tables.LiteralNumber],
+   maxInclusive: Option[tables.LiteralNumber],
+   minExclusive: Option[tables.LiteralNumber],
+   maxExclusive: Option[tables.LiteralNumber])
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#NumericScalarRestriction
   = for {
@@ -1398,10 +1401,10 @@ trait MutableTerminologyBox
   def createNumericScalarRestriction
   (restrictionDT: OWLDatatype, name: LocalName, uuid: UUID,
    restrictedRange: OWLAPIOMF#DataRange,
-   minInclusive: Option[String],
-   maxInclusive: Option[String],
-   minExclusive: Option[String],
-   maxExclusive: Option[String])
+   minInclusive: Option[tables.LiteralNumber],
+   maxInclusive: Option[tables.LiteralNumber],
+   minExclusive: Option[tables.LiteralNumber],
+   maxExclusive: Option[tables.LiteralNumber])
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#NumericScalarRestriction
   = if (store.isBuiltInDatatypeMapConstructed || store.isNumericKind(restrictedRange)) {
@@ -1432,10 +1435,10 @@ trait MutableTerminologyBox
   def addNumericScalarRestriction
   (dataTypeIRI: IRI, name: LocalName, uuid: UUID,
    restrictedRange: OWLAPIOMF#DataRange,
-   minInclusive: Option[String],
-   maxInclusive: Option[String],
-   minExclusive: Option[String],
-   maxExclusive: Option[String])
+   minInclusive: Option[tables.LiteralNumber],
+   maxInclusive: Option[tables.LiteralNumber],
+   minExclusive: Option[tables.LiteralNumber],
+   maxExclusive: Option[tables.LiteralNumber])
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#NumericScalarRestriction
   = {
@@ -1467,7 +1470,7 @@ trait MutableTerminologyBox
                 rdr.restrictedDataRange.e,
                 owlDataFactory.getOWLFacetRestriction(
                   OWLFacet.MIN_INCLUSIVE,
-                  owlDataFactory.getOWLLiteral(minI)))))
+                  LiteralConversions.toOWLLiteral(minI, owlDataFactory, Option.apply(rdr.restrictedDataRange.e))))))
         } ++ rdr.maxInclusive.map { maxI =>
           new AddAxiom(ont, owlDataFactory
             .getOWLDatatypeDefinitionAxiom(
@@ -1476,8 +1479,8 @@ trait MutableTerminologyBox
                 rdr.restrictedDataRange.e,
                 owlDataFactory.getOWLFacetRestriction(
                   OWLFacet.MAX_INCLUSIVE,
-                  owlDataFactory.getOWLLiteral(maxI)))))
-        } ++ rdr.minExclusive.map { patt =>
+                  LiteralConversions.toOWLLiteral(maxI, owlDataFactory, Option.apply(rdr.restrictedDataRange.e))))))
+        } ++ rdr.minExclusive.map { minE =>
           new AddAxiom(ont, owlDataFactory
             .getOWLDatatypeDefinitionAxiom(
               restrictionDT,
@@ -1485,8 +1488,8 @@ trait MutableTerminologyBox
                 rdr.restrictedDataRange.e,
                 owlDataFactory.getOWLFacetRestriction(
                   OWLFacet.MIN_EXCLUSIVE,
-                  owlDataFactory.getOWLLiteral(patt)))))
-        } ++ rdr.maxExclusive.map { patt =>
+                  LiteralConversions.toOWLLiteral(minE, owlDataFactory, Option.apply(rdr.restrictedDataRange.e))))))
+        } ++ rdr.maxExclusive.map { maxE =>
           new AddAxiom(ont, owlDataFactory
             .getOWLDatatypeDefinitionAxiom(
               restrictionDT,
@@ -1494,7 +1497,7 @@ trait MutableTerminologyBox
                 rdr.restrictedDataRange.e,
                 owlDataFactory.getOWLFacetRestriction(
                   OWLFacet.MAX_EXCLUSIVE,
-                  owlDataFactory.getOWLLiteral(patt)))))
+                  LiteralConversions.toOWLLiteral(maxE, owlDataFactory, Option.apply(rdr.restrictedDataRange.e))))))
         },
         s"addNumericScalarRestriction error: ${restrictionDT.getIRI}")
     _ = iri2typeTerm += restrictionDT.getIRI -> rdr
@@ -1521,9 +1524,9 @@ trait MutableTerminologyBox
   (tboxUUID: UUID,
    restrictionDT: OWLDatatype,
    restrictedRange: OWLAPIOMF#DataRange,
-   length: Option[Int],
-   minLength: Option[Int],
-   maxLength: Option[Int],
+   length: Option[tables.PositiveIntegerLiteral],
+   minLength: Option[tables.PositiveIntegerLiteral],
+   maxLength: Option[tables.PositiveIntegerLiteral],
    pattern: Option[String],
    language: Option[String])
   (implicit store: OWLAPIOMFGraphStore)
@@ -1541,9 +1544,9 @@ trait MutableTerminologyBox
   def createPlainLiteralScalarRestriction
   (restrictionDT: OWLDatatype, name: LocalName, uuid: UUID,
    restrictedRange: OWLAPIOMF#DataRange,
-   length: Option[Int],
-   minLength: Option[Int],
-   maxLength: Option[Int],
+   length: Option[tables.PositiveIntegerLiteral],
+   minLength: Option[tables.PositiveIntegerLiteral],
+   maxLength: Option[tables.PositiveIntegerLiteral],
    pattern: Option[String],
    language: Option[String])
   (implicit store: OWLAPIOMFGraphStore)
@@ -1576,9 +1579,9 @@ trait MutableTerminologyBox
   def addPlainLiteralScalarRestriction
   (dataTypeIRI: IRI, name: LocalName, uuid: UUID,
    restrictedRange: OWLAPIOMF#DataRange,
-   length: Option[Int],
-   minLength: Option[Int],
-   maxLength: Option[Int],
+   length: Option[tables.PositiveIntegerLiteral],
+   minLength: Option[tables.PositiveIntegerLiteral],
+   maxLength: Option[tables.PositiveIntegerLiteral],
    pattern: Option[String],
    language: Option[String])
   (implicit store: OWLAPIOMFGraphStore)
@@ -1610,21 +1613,27 @@ trait MutableTerminologyBox
               restrictionDT,
               owlDataFactory.getOWLDatatypeRestriction(
                 rdr.restrictedDataRange.e,
-                owlDataFactory.getOWLFacetRestriction(OWLFacet.LENGTH, l))))
+                owlDataFactory.getOWLFacetRestriction(
+                  OWLFacet.LENGTH,
+                  Integer.parseInt(l)))))
         } ++ rdr.minLength.map { minL =>
           new AddAxiom(ont, owlDataFactory
             .getOWLDatatypeDefinitionAxiom(
               restrictionDT,
               owlDataFactory.getOWLDatatypeRestriction(
                 rdr.restrictedDataRange.e,
-                owlDataFactory.getOWLFacetRestriction(OWLFacet.MIN_LENGTH, minL))))
+                owlDataFactory.getOWLFacetRestriction(
+                  OWLFacet.MIN_LENGTH,
+                  Integer.parseInt(minL)))))
         } ++ rdr.maxLength.map { maxL =>
           new AddAxiom(ont, owlDataFactory
             .getOWLDatatypeDefinitionAxiom(
               restrictionDT,
               owlDataFactory.getOWLDatatypeRestriction(
                 rdr.restrictedDataRange.e,
-                owlDataFactory.getOWLFacetRestriction(OWLFacet.MAX_LENGTH, maxL))))
+                owlDataFactory.getOWLFacetRestriction(
+                  OWLFacet.MAX_LENGTH,
+                  Integer.parseInt(maxL)))))
         } ++ rdr.pattern.map { patt =>
           new AddAxiom(ont, owlDataFactory
             .getOWLDatatypeDefinitionAxiom(
@@ -1668,9 +1677,9 @@ trait MutableTerminologyBox
   (tboxUUID: UUID,
    restrictionDT: OWLDatatype,
    restrictedRange: OWLAPIOMF#DataRange,
-   length: Option[Int],
-   minLength: Option[Int],
-   maxLength: Option[Int],
+   length: Option[tables.PositiveIntegerLiteral],
+   minLength: Option[tables.PositiveIntegerLiteral],
+   maxLength: Option[tables.PositiveIntegerLiteral],
    pattern: Option[String])
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#StringScalarRestriction
@@ -1687,9 +1696,9 @@ trait MutableTerminologyBox
   def createStringScalarRestriction
   (restrictionDT: OWLDatatype, name: LocalName, uuid: UUID,
    restrictedRange: OWLAPIOMF#DataRange,
-   length: Option[Int],
-   minLength: Option[Int],
-   maxLength: Option[Int],
+   length: Option[tables.PositiveIntegerLiteral],
+   minLength: Option[tables.PositiveIntegerLiteral],
+   maxLength: Option[tables.PositiveIntegerLiteral],
    pattern: Option[String])
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#StringScalarRestriction
@@ -1721,9 +1730,9 @@ trait MutableTerminologyBox
   def addStringScalarRestriction
   (dataTypeIRI: IRI, name: LocalName, uuid: UUID,
    restrictedRange: OWLAPIOMF#DataRange,
-   length: Option[Int],
-   minLength: Option[Int],
-   maxLength: Option[Int],
+   length: Option[tables.PositiveIntegerLiteral],
+   minLength: Option[tables.PositiveIntegerLiteral],
+   maxLength: Option[tables.PositiveIntegerLiteral],
    pattern: Option[String])
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#StringScalarRestriction
@@ -1754,21 +1763,21 @@ trait MutableTerminologyBox
             restrictionDT,
             owlDataFactory.getOWLDatatypeRestriction(
               rdr.restrictedDataRange.e,
-              owlDataFactory.getOWLFacetRestriction(OWLFacet.LENGTH, l))))
+              owlDataFactory.getOWLFacetRestriction(OWLFacet.LENGTH, Integer.parseInt(l)))))
       } ++ rdr.minLength.map { minL =>
         new AddAxiom(ont, owlDataFactory
           .getOWLDatatypeDefinitionAxiom(
             restrictionDT,
             owlDataFactory.getOWLDatatypeRestriction(
               rdr.restrictedDataRange.e,
-              owlDataFactory.getOWLFacetRestriction(OWLFacet.MIN_LENGTH, minL))))
+              owlDataFactory.getOWLFacetRestriction(OWLFacet.MIN_LENGTH, Integer.parseInt(minL)))))
       } ++ rdr.maxLength.map { maxL =>
         new AddAxiom(ont, owlDataFactory
           .getOWLDatatypeDefinitionAxiom(
             restrictionDT,
             owlDataFactory.getOWLDatatypeRestriction(
               rdr.restrictedDataRange.e,
-              owlDataFactory.getOWLFacetRestriction(OWLFacet.MAX_LENGTH, maxL))))
+              owlDataFactory.getOWLFacetRestriction(OWLFacet.MAX_LENGTH, Integer.parseInt(maxL)))))
       } ++ rdr.pattern.map { patt =>
         new AddAxiom(ont, owlDataFactory
           .getOWLDatatypeDefinitionAxiom(
@@ -1884,10 +1893,10 @@ trait MutableTerminologyBox
   (tboxUUID: UUID,
    restrictionDT: OWLDatatype,
    restrictedRange: OWLAPIOMF#DataRange,
-   minInclusive: Option[String],
-   maxInclusive: Option[String],
-   minExclusive: Option[String],
-   maxExclusive: Option[String])
+   minInclusive: Option[tables.LiteralDateTime],
+   maxInclusive: Option[tables.LiteralDateTime],
+   minExclusive: Option[tables.LiteralDateTime],
+   maxExclusive: Option[tables.LiteralDateTime])
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#TimeScalarRestriction
   = for {
@@ -1903,10 +1912,10 @@ trait MutableTerminologyBox
   def createTimeScalarRestriction
   (restrictionDT: OWLDatatype, name: LocalName, uuid: UUID,
    restrictedRange: OWLAPIOMF#DataRange,
-   minInclusive: Option[String],
-   maxInclusive: Option[String],
-   minExclusive: Option[String],
-   maxExclusive: Option[String])
+   minInclusive: Option[tables.LiteralDateTime],
+   maxInclusive: Option[tables.LiteralDateTime],
+   minExclusive: Option[tables.LiteralDateTime],
+   maxExclusive: Option[tables.LiteralDateTime])
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#TimeScalarRestriction
   = if (store.isBuiltInDatatypeMapConstructed || store.isTimeKind(restrictedRange)) {
@@ -1937,10 +1946,10 @@ trait MutableTerminologyBox
   def addTimeScalarRestriction
   (dataTypeIRI: IRI, name: LocalName, uuid: UUID,
    restrictedRange: OWLAPIOMF#DataRange,
-   minInclusive: Option[String],
-   maxInclusive: Option[String],
-   minExclusive: Option[String],
-   maxExclusive: Option[String])
+   minInclusive: Option[tables.LiteralDateTime],
+   maxInclusive: Option[tables.LiteralDateTime],
+   minExclusive: Option[tables.LiteralDateTime],
+   maxExclusive: Option[tables.LiteralDateTime])
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#TimeScalarRestriction
   = {
@@ -1972,7 +1981,7 @@ trait MutableTerminologyBox
               rdr.restrictedDataRange.e,
               owlDataFactory.getOWLFacetRestriction(
                 OWLFacet.MIN_INCLUSIVE,
-                owlDataFactory.getOWLLiteral(minI)))))
+                LiteralConversions.toOWLLiteral(minI, owlDataFactory, Option.apply(rdr.restrictedDataRange.e))))))
       } ++ rdr.maxInclusive.map { maxI =>
         new AddAxiom(ont, owlDataFactory
           .getOWLDatatypeDefinitionAxiom(
@@ -1981,7 +1990,7 @@ trait MutableTerminologyBox
               rdr.restrictedDataRange.e,
               owlDataFactory.getOWLFacetRestriction(
                 OWLFacet.MAX_INCLUSIVE,
-                owlDataFactory.getOWLLiteral(maxI)))))
+                LiteralConversions.toOWLLiteral(maxI, owlDataFactory, Option.apply(rdr.restrictedDataRange.e))))))
       } ++ rdr.minExclusive.map { minE =>
         new AddAxiom(ont, owlDataFactory
           .getOWLDatatypeDefinitionAxiom(
@@ -1990,7 +1999,7 @@ trait MutableTerminologyBox
               rdr.restrictedDataRange.e,
               owlDataFactory.getOWLFacetRestriction(
                 OWLFacet.MIN_EXCLUSIVE,
-                owlDataFactory.getOWLLiteral(minE)))))
+                LiteralConversions.toOWLLiteral(minE, owlDataFactory, Option.apply(rdr.restrictedDataRange.e))))))
       } ++ rdr.maxExclusive.map { maxE =>
         new AddAxiom(ont, owlDataFactory
           .getOWLDatatypeDefinitionAxiom(
@@ -1999,7 +2008,7 @@ trait MutableTerminologyBox
               rdr.restrictedDataRange.e,
               owlDataFactory.getOWLFacetRestriction(
                 OWLFacet.MAX_EXCLUSIVE,
-                owlDataFactory.getOWLLiteral(maxE)))))
+                LiteralConversions.toOWLLiteral(maxE, owlDataFactory, Option.apply(rdr.restrictedDataRange.e))))))
       },
       s"addTimeScalarRestriction error: ${restrictionDT.getIRI}")
     _ = iri2typeTerm += restrictionDT.getIRI -> rdr
@@ -2799,7 +2808,7 @@ trait MutableTerminologyBox
   (uuid: UUID,
    restrictedEntity: OWLAPIOMF#Entity,
    scalarProperty: OWLAPIOMF#EntityScalarDataProperty,
-   literalValue: LexicalValue)
+   literalValue: LiteralValue)
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#EntityScalarDataPropertyParticularRestrictionAxiom
   = (isTypeTermDefinedRecursively(restrictedEntity),
@@ -2817,7 +2826,8 @@ trait MutableTerminologyBox
             owlDataFactory
               .getOWLSubClassOfAxiom(
                 subC,
-                owlDataFactory.getOWLDataHasValue(scalarProperty.e, owlDataFactory.getOWLLiteral(literalValue)),
+                owlDataFactory.getOWLDataHasValue(scalarProperty.e,
+                  LiteralConversions.toOWLLiteral(literalValue, owlDataFactory, Option.apply(scalarProperty.range.e))),
                 java.util.Collections.singleton(createOMFProvenanceAnnotation(uuid)))),
           ifError = {
             "addEntityScalarDataPropertyParticularRestrictionAxiom Error"

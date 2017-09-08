@@ -20,11 +20,11 @@ package gov.nasa.jpl.omf.scala.binding.owlapi.types.terms
 
 import java.util.UUID
 
+import gov.nasa.jpl.imce.oml.tables
 import gov.nasa.jpl.omf.scala.core.OMLString.LocalName
 import org.semanticweb.owlapi.model.{IRI, OWLDatatype}
 
 import scala.{Any, Boolean, Int, Option}
-import scala.Predef.String
 
 case class TimeScalarRestriction
 (override val e: OWLDatatype,
@@ -32,10 +32,10 @@ case class TimeScalarRestriction
  override val uuid: UUID,
  override val name: LocalName,
  override val restrictedDataRange: DataRange,
- minInclusive: Option[String],
- maxInclusive: Option[String],
- minExclusive: Option[String],
- maxExclusive: Option[String])
+ minInclusive: Option[tables.LiteralDateTime],
+ maxInclusive: Option[tables.LiteralDateTime],
+ minExclusive: Option[tables.LiteralDateTime],
+ maxExclusive: Option[tables.LiteralDateTime])
   extends RestrictedDataRange {
 
   override def canEqual(other: Any)

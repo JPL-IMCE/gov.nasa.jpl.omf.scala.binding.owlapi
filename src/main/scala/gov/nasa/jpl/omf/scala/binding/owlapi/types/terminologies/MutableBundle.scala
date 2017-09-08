@@ -20,7 +20,7 @@ package gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies
 
 import java.util.UUID
 
-import gov.nasa.jpl.imce.oml.tables.{AnnotationEntry, AnnotationProperty}
+import gov.nasa.jpl.imce.oml.tables.{AnnotationProperty, AnnotationPropertyValue}
 import gov.nasa.jpl.omf.scala.binding.owlapi._
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.bundleStatements.{AnonymousConceptTaxonomyAxiom, ConceptTreeDisjunction, RootConceptTaxonomyAxiom, SpecificDisjointConceptAxiom}
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.{Axiom, duplicateTerminologyGraphAxiomException}
@@ -180,7 +180,7 @@ object MutableBundle {
       sTAxioms = HashSet.empty[SpecificDisjointConceptAxiom],
       bAxioms = HashSet.empty[BundledTerminologyAxiom],
       annotationProperties = HashSet.empty[AnnotationProperty],
-      annotations = HashSet.empty[(AnnotationProperty, scala.collection.immutable.Set[AnnotationEntry])]),
+      annotations = HashSet.empty[AnnotationPropertyValue]),
     ont = ont,
     extraProvenanceMetadata = extraProvenanceMetadata,
     backbone = backbone)(ops).right[Throwables]
