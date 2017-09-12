@@ -165,12 +165,14 @@ object LiteralConversions {
         Success(tables.LiteralValue(tables.LiteralPositiveIntegerType, lit))
       case "http://www.w3.org/2001/XMLSchema#decimal" =>
         Success(tables.LiteralValue(tables.LiteralDecimalType, lit))
-      case _ =>
+      case "http://www.w3.org/2001/XMLSchema#string" =>
         if (lit.startsWith("uuid"))
           Success(tables.LiteralValue(tables.LiteralUUIDType, lit))
         else if (lit.startsWith("\"") && lit.endsWith("\""))
           Success(tables.LiteralValue(tables.LiteralStringType, lit))
         else
+          Success(tables.LiteralValue(tables.LiteralStringType, lit))
+      case _ =>
           Failure(new java.lang.IllegalArgumentException(
             s"fromOWLLiteral: unrecognized datatype: $dt and value '$lit'"
           ))
