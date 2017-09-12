@@ -57,7 +57,7 @@ package object descriptions {
       Set.empty[StructuredDataPropertyTuple] ++ sig.structuredDataPropertyTuples,
     annotationProperties =
       Set.empty[AnnotationProperty] ++ sig.annotationProperties,
-    annotations =
+    annotationPropertyValues =
       Set.empty[AnnotationPropertyValue] ++
-        sig.annotations)
+        sig.annotationPropertyValues)
 }

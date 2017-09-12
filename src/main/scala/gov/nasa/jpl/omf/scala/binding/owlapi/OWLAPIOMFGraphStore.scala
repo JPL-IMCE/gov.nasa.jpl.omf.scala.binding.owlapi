@@ -19,8 +19,9 @@
 package gov.nasa.jpl.omf.scala.binding.owlapi
 
 import java.io.File
-import java.lang.System
+import java.lang.{IllegalArgumentException,System}
 import java.util.UUID
+import java.util.function.Predicate
 
 import gov.nasa.jpl.imce.oml.tables.AnnotationProperty
 import gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader._
@@ -44,6 +45,7 @@ import org.semanticweb.owlapi.util.PriorityCollection
 
 import scala.collection.immutable.{Set, _}
 import scala.collection.JavaConverters._
+import scala.compat.java8.OptionConverters.RichOptionalGeneric
 import scala.compat.java8.StreamConverters._
 import scala.util.control.Exception._
 import scala.{Boolean, None, Option, Some, StringContext, Unit}
@@ -962,6 +964,61 @@ extends OWLAPIOMFGraphStoreMetadata(omfModule, ontManager) {
 
   } yield om
 
+  def loadModule
+  (m2i: Mutable2ImmutableModuleMap,
+   inputFile: File)
+  : Throwables \/ ImmutableModuleConversionMap
+  = for {
+    iri <-
+    nonFatalCatch[OMFError.Throwables \/ IRI]
+      .withApply {
+        case t: OWLOntologyAlreadyExistsException =>
+          t.getOntologyID.getOntologyIRI.asScala.fold[OMFError.Throwables \/ IRI] {
+            -\/(Set[java.lang.Throwable](new IllegalArgumentException(
+              s"No OntologyIRI for ontology file: $inputFile"
+            )))
+          } { iri =>
+            \/-(iri)
+          }
+        case t: java.lang.Throwable =>
+          -\/(Set[java.lang.Throwable](new IllegalArgumentException(
+            s"Failed to load ontology file: $inputFile", t
+          )))
+      }
+      .apply {
+        val inputIRI = inputFile.toURI.toString
+        val ont = ontManager
+          .ontologies()
+          .filter( new Predicate[OWLOntology]() {
+            override def test(ont: OWLOntology): Boolean = {
+              val docIRI = ontManager.getOntologyDocumentIRI(ont).toString
+              val found = docIRI == inputIRI
+              found
+            }
+          })
+          .findFirst()
+          .asScala match {
+          case Some(o) =>
+            System.out.println(s"# Already loaded      : $inputFile")
+            o
+          case None =>
+            ontManager.loadOntologyFromOntologyDocument(inputFile)
+        }
+
+        ont.getOntologyID.getOntologyIRI.asScala.fold[OMFError.Throwables \/ IRI] {
+          -\/(Set[java.lang.Throwable](new IllegalArgumentException(
+            s"No OntologyIRI for ontology file: $inputFile"
+          )))
+        } { iri =>
+          System.out.println(s"# Ontology document   : $inputFile")
+          System.out.println(s"# Ontology raw IRI   => $iri")
+          val cleanIRI = IRI.create(iri.toString.stripSuffix("#"))
+          System.out.println(s"# Ontology clean IRI => $cleanIRI")
+          \/-(cleanIRI)
+        }
+      }
+    loadResult <- loadModule(m2i, iri)
+  } yield loadResult
 
   def loadModule
   (m2i: Mutable2ImmutableModuleMap,

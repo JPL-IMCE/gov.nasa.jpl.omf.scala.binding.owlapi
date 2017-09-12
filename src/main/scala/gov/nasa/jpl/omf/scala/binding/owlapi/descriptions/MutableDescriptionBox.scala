@@ -64,7 +64,7 @@ object MutableDescriptionBox {
       structuredDataPropertyTuples = HashSet.empty[StructuredDataPropertyTuple],
       annotationProperties =
         HashSet.empty[AnnotationProperty],
-      annotations =
+      annotationPropertyValues =
         HashSet.empty[AnnotationPropertyValue]),
     ont = ont,
     backbone = backbone)(ops).right[OMFError.Throwables]
@@ -113,12 +113,12 @@ case class MutableDescriptionBox
       subjectUUID = subject.uuid.toString,
       propertyUUID = property.uuid,
       value = value).right[OMFError.Throwables]
-    _ = sig.annotations.find { a => a.subjectUUID == subject.uuid.toString && a.propertyUUID == property.uuid } match {
+    _ = sig.annotationPropertyValues.find { a => a.subjectUUID == subject.uuid.toString && a.propertyUUID == property.uuid } match {
       case Some(a0) =>
-        sig.annotations -= a0
-        sig.annotations += a
+        sig.annotationPropertyValues -= a0
+        sig.annotationPropertyValues += a
       case None =>
-        sig.annotations += a
+        sig.annotationPropertyValues += a
     }
     ont_ap = owlDataFactory.getOWLAnnotationProperty(property.iri)
     ont_lit = owlDataFactory.getOWLLiteral(value)
@@ -147,9 +147,9 @@ case class MutableDescriptionBox
   : OMFError.Throwables \/ Set[AnnotationPropertyValue]
   = for {
     sUUID <- subject.uuid.toString.right[OMFError.Throwables]
-    ae <- sig.annotations.find { a => a.subjectUUID == sUUID && a.propertyUUID == property.uuid } match {
+    ae <- sig.annotationPropertyValues.find { a => a.subjectUUID == sUUID && a.propertyUUID == property.uuid } match {
       case Some(a0) =>
-        sig.annotations -= a0
+        sig.annotationPropertyValues -= a0
         Set(a0).right
       case None =>
         Set.empty[AnnotationPropertyValue].right

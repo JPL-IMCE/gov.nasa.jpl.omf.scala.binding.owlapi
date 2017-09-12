@@ -180,7 +180,7 @@ object MutableBundle {
       sTAxioms = HashSet.empty[SpecificDisjointConceptAxiom],
       bAxioms = HashSet.empty[BundledTerminologyAxiom],
       annotationProperties = HashSet.empty[AnnotationProperty],
-      annotations = HashSet.empty[AnnotationPropertyValue]),
+      annotationPropertyValues = HashSet.empty[AnnotationPropertyValue]),
     ont = ont,
     extraProvenanceMetadata = extraProvenanceMetadata,
     backbone = backbone)(ops).right[Throwables]

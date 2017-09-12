@@ -68,6 +68,6 @@ trait Module
   final def annotations
   ()
   : Set[AnnotationPropertyValue]
-  = sig.annotations.to[Set]
+  = sig.annotationPropertyValues.to[Set]
 
 }

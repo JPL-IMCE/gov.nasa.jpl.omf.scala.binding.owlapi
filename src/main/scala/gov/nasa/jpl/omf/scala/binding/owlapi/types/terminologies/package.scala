@@ -66,8 +66,8 @@ package object terminologies {
     bAxioms = Set.empty[BundledTerminologyAxiom] ++ sig.bAxioms,
     annotationProperties =
       Set.empty[AnnotationProperty] ++ sig.annotationProperties,
-    annotations =
+    annotationPropertyValues =
       Set.empty[AnnotationPropertyValue] ++
-        sig.annotations)
+        sig.annotationPropertyValues)
 
 }

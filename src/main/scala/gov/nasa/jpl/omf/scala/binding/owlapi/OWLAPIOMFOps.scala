@@ -235,7 +235,7 @@ trait OWLAPIStoreOps
   (m: Module)
   (implicit store: OWLAPIOMFGraphStore)
   : Set[AnnotationPropertyValue]
-  = m.sig.annotations.to[Set]
+  = m.sig.annotationPropertyValues.to[Set]
 
   override def foldModule[T]
   (funImmutableTerminologyGraph: OWLAPIOMF#ImmutableTerminologyGraph => T,
@@ -605,7 +605,7 @@ trait OWLAPIImmutableTerminologyGraphOps
   override def getAnnotations
   (tbox: OWLAPIOMF#TerminologyBox)
   : Set[AnnotationPropertyValue]
-  = tbox.sig.annotations.to[Set]
+  = tbox.sig.annotationPropertyValues.to[Set]
 
   def getTerminologyKind
   (tbox: TerminologyBox)

@@ -70,7 +70,7 @@ object ImmutableDescriptionBox {
         Set.empty[StructuredDataPropertyTuple],
       annotationProperties =
         Set.empty[AnnotationProperty],
-      annotations =
+      annotationPropertyValues =
         Set.empty[AnnotationPropertyValue]),
     ont, backbone)
 
@@ -108,9 +108,9 @@ object ImmutableDescriptionBox {
         Set.empty[StructuredDataPropertyTuple] ++ s.structuredDataPropertyTuples,
       annotationProperties =
         Set.empty[AnnotationProperty] ++ s.annotationProperties,
-      annotations =
+      annotationPropertyValues =
         Set.empty[AnnotationPropertyValue] ++
-          s.annotations),
+          s.annotationPropertyValues),
     ont, backbone)(store.ops).right
 }
 
