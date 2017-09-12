@@ -18,6 +18,8 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi
 
+import java.lang.{IllegalArgumentException,System}
+
 import gov.nasa.jpl.omf.scala.binding.owlapi.BackboneDeclaractions.BackboneDeclaractions
 import gov.nasa.jpl.omf.scala.core.OMFError.Throwables
 import gov.nasa.jpl.omf.scala.core._
@@ -33,6 +35,7 @@ import scalax.collection.GraphEdge._
 import scalax.collection.GraphPredef._
 
 import scala.collection.immutable._
+import scala.compat.java8.OptionConverters.RichOptionalGeneric
 import scala.compat.java8.StreamConverters._
 import scala.reflect.ClassTag
 import scala.util.control.Exception.nonFatalCatch
@@ -189,18 +192,21 @@ object OWLAPIOMFLoader {
 
     def loadAllOntologies
     (iri: IRI,
+     m2i: Mutable2ImmutableModuleMap,
      drc: BuiltInDatatypeMap)
     (implicit ops: OWLAPIOMFOps, store: OWLAPIOMFGraphStore)
     : Throwables \/ OntologyLoadedState
     = Internal.loadOntologiesRecursively(
       Internal.OntologyLoaderState(
+        m2i = m2i,
         ontologies = drc.builtInDatatypeModules.map { m => m.iri -> m.ont }.toMap,
         queue = Set(iri)))(ops, store, drc)
 
     private object Internal {
 
       case class OntologyLoaderState
-      (ontologies: Map[IRI, OWLOntology] = Map.empty,
+      (m2i: Mutable2ImmutableModuleMap,
+       ontologies: Map[IRI, OWLOntology] = Map.empty,
        extensions: Set[ExtendingOntologyToExtendedModuleIRI] = Set.empty,
        nested2context: Set[NestedOntologyToNestingContextIRI] = Set.empty,
        queue: Set[IRI] = Set.empty) {}
@@ -211,10 +217,10 @@ object OWLAPIOMFLoader {
       (implicit ops: OWLAPIOMFOps, store: OWLAPIOMFGraphStore, drc: BuiltInDatatypeMap)
       : Throwables \/ OntologyLoadedState
       = if (s.queue.isEmpty)
-          OntologyLoadedState(
-            ontologies = s.ontologies,
-            extensions = s.extensions,
-            nested2context = s.nested2context).right
+        OntologyLoadedState(
+          ontologies = s.ontologies,
+          extensions = s.extensions,
+          nested2context = s.nested2context).right
       else
         loadOneOntology(s, s.queue.head) match {
           case -\/(nels) =>
@@ -231,48 +237,101 @@ object OWLAPIOMFLoader {
       = drc
         .lookupBuiltInModule(iri)
         .fold[Throwables \/ OntologyLoaderState] {
-          s
-            .ontologies
-            .get(iri)
-            .fold[Throwables \/ OntologyLoaderState] {
-            nonFatalCatch[OntologyLoaderState]
-              .withApply {
-                cause: java.lang.Throwable =>
-                  Set(OMFError.omfException(
-                    s"loadTerminologyGraph($iri) failed: ${cause.getMessage}",
-                    cause)).left
-              }
-              .apply {
-                val ont: OWLOntology =
-                  if (store.ontManager.contains(iri))
-                    store.ontManager.getOntology(iri)
-                  else
-                    store.ontManager.loadOntology(iri)
-                assert(null != ont)
+        s
+          .m2i
+          .lookupValue(iri) match {
+          case Some(im) =>
+            System.out.println(s"! loadOneOntology($iri) : already loaded!")
+            val ont = im.ont
 
-                val es = getOntologyDirectlyExtendedModules(ont, iri)
-                val nc = getNestedOntologyToNestingContextIRIIfAny(ont, iri)
+            val es = getOntologyDirectlyExtendedModules(ont, iri)
+            val nc = getNestedOntologyToNestingContextIRIIfAny(ont, iri)
 
-                // in principle, we should exclude the known ontology IRIs
-                // i.e., -- s.ontologies.keySet
-                // but this would be more expensive than tail recursive calls
-                val newIRIs = es.map(_.extended)
+            // in principle, we should exclude the known ontology IRIs
+            // i.e., -- s.ontologies.keySet
+            // but this would be more expensive than tail recursive calls
+            val newIRIs = es.map(_.extended)
 
-                \/-(OntologyLoaderState(
-                  s.ontologies + (iri -> ont),
-                  s.extensions ++ es,
-                  s.nested2context ++ nc,
-                  s.queue - iri ++ newIRIs))
+            OntologyLoaderState(
+              s.m2i,
+              s.ontologies + (iri -> ont),
+              s.extensions ++ es,
+              s.nested2context ++ nc,
+              s.queue - iri ++ newIRIs).right[Throwables]
+          case None =>
+            s
+              .ontologies
+              .get(iri)
+              .fold[Throwables \/ OntologyLoaderState] {
+              for {
+                ont <- nonFatalCatch[Throwables \/ OWLOntology]
+                  .withApply {
+                    case t: OWLOntologyAlreadyExistsException =>
+                      t.getOntologyID.getOntologyIRI.asScala.fold[Throwables \/ OWLOntology] {
+                        Set[java.lang.Throwable](new IllegalArgumentException(
+                          s"loadOneOntology failed for: $iri"
+                        )).left
+                      } { iri =>
+                        System.out.println(s"!!! OWLOntologyAlreadyExistsException => $iri")
+                        val ont = store.ontManager.getOntology(iri)
+                        assert(null != ont)
+                        ont.right[Throwables]
+                      }
 
-              }
-          } { _: OWLOntology =>
-            \/-(s.copy(queue = s.queue - iri))
-          }
-        } { m =>
-          \/-(s.copy(
-            ontologies = s.ontologies + (iri -> m.ont),
-            queue = s.queue - iri))
+                    case cause: java.lang.Throwable =>
+                      Set[java.lang.Throwable](OMFError.omfException(
+                        s"loadTerminologyGraph($iri) failed: ${cause.getMessage}",
+                        cause)).left
+                  }
+                  .apply {
+                    val ont: OWLOntology =
+                      if (store.ontManager.contains(iri))
+                        store.ontManager.getOntology(iri)
+                      else
+                        store.ontManager.loadOntology(iri)
+                    assert(null != ont)
+                    ont.right[Throwables]
+                  }
+                result <- nonFatalCatch[Throwables \/ OntologyLoaderState]
+                  .withApply {
+                    cause: java.lang.Throwable =>
+                      Set[java.lang.Throwable](OMFError.omfException(
+                        s"loadTerminologyGraph($iri) failed: ${cause.getMessage}",
+                        cause)).left
+                  }
+                  .apply {
+
+
+                    val es = getOntologyDirectlyExtendedModules(ont, iri)
+                    val nc = getNestedOntologyToNestingContextIRIIfAny(ont, iri)
+
+                    // in principle, we should exclude the known ontology IRIs
+                    // i.e., -- s.ontologies.keySet
+                    // but this would be more expensive than tail recursive calls
+                    val newIRIs = es.map(_.extended)
+
+                    OntologyLoaderState(
+                      s.m2i,
+                      s.ontologies + (iri -> ont),
+                      s.extensions ++ es,
+                      s.nested2context ++ nc,
+                      s.queue - iri ++ newIRIs).right[Throwables]
+
+                  }
+              } yield result
+            } { _: OWLOntology =>
+              s.copy(
+                queue = s.queue - iri
+              ).right[Throwables]
+            }
         }
+      } { m =>
+        s.copy(
+          ontologies = s.ontologies + (iri -> m.ont),
+          queue = s.queue - iri
+        ).right[Throwables]
+      }
+
     }
 
   }
@@ -333,7 +392,7 @@ object OWLAPIOMFLoader {
       }
 
       for {
-        s <- OntologyLoadedState.loadAllOntologies(iri, drc)
+        s <- OntologyLoadedState.loadAllOntologies(iri, m2i, drc)
         om = OntologyMapping.initialize(m2i, drc)
 
         // Add nodes for every OMF document ontology document IRI loaded.
