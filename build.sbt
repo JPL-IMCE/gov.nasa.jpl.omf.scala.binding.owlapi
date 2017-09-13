@@ -66,8 +66,6 @@ val extractArchives
 lazy val core =
   Project("omf-scala-binding-owlapi", file("."))
   .enablePlugins(IMCEGitPlugin)
-  //.enablePlugins(IMCEReleasePlugin)
-  //.settings(IMCEReleasePlugin.packageReleaseProcessSettings)
   .settings(dynamicScriptsResourceSettings("gov.nasa.jpl.omf.scala.binding.owlapi"))
   .settings(IMCEPlugin.strictScalacFatalWarningsSettings)
   .settings(
@@ -102,10 +100,6 @@ lazy val core =
     resourceDirectory in Test := baseDirectory.value / "target" / "extracted" / "imce-omf_ontologies",
 
     libraryDependencies ++= Seq(
-
-      "gov.nasa.jpl.imce" %% "imce.third_party.scala_graph_libraries"
-        % Versions_scala_graph_libraries.version artifacts
-        Artifact("imce.third_party.scala_graph_libraries", "zip", "zip", "resource"),
 
       "gov.nasa.jpl.imce" %% "imce.third_party.owlapi_libraries"
         % Versions_owlapi_libraries.version artifacts
@@ -212,9 +206,6 @@ lazy val core =
         % "test->compile;compile->compile" artifacts
         Artifact("gov.nasa.jpl.imce.ontologies.public", "zip", "zip", "resource")
     )
-  )
-  .dependsOn(
-    ProjectRef(uri("https://github.com/NicolasRouquette/scala-graph.git#5a9d477"), "Graph-misc")
   )
 
 def dynamicScriptsResourceSettings(projectName: String): Seq[Setting[_]] = {
