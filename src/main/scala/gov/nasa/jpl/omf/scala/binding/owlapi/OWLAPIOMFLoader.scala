@@ -97,19 +97,28 @@ object OWLAPIOMFLoader {
       result.right
     case g :: gs =>
 
-      val sccs = g.strongComponentTraverser().map(_.toGraph).to[List].sortWith(subGraphPrecedence(g))
+      if (g.isAcyclic) {
+        val gsorted = g.topologicalSort().right.get.toOuter.toOuter.to[Seq]
+        hierarchicalTopologicalSort(gs, result ++ gsorted)
+      } else {
+        val sccs1 = g.strongComponentTraverser()
+        val sccs2 = sccs1.map(_.toGraph)
+        val sccs3 = sccs2.to[List]
+        val sccs4 = sccs3.filter(_.nonEmpty)
+        val sccs = sccs4.sortWith(subGraphPrecedence(g))
 
-      sccs.toList match {
-        case Nil =>
-          result.right[Throwables]
+        sccs.toList match {
+          case Nil =>
+            result.right[Throwables]
 
-        case n :: ns =>
-          if (n.isAcyclic) {
-            val rs: Seq[N] = n.toOuterNodes.to[Seq]
-            hierarchicalTopologicalSort(ns ++ gs, result ++ rs)
-          } else {
-            hierarchicalTopologicalSort(sccs ++ gs, result)
-          }
+          case n :: ns =>
+            if (n.isAcyclic) {
+              val rs: Seq[N] = n.toOuterNodes.to[Seq]
+              hierarchicalTopologicalSort(ns ++ gs, result ++ rs)
+            } else {
+              hierarchicalTopologicalSort(sccs ++ gs, result)
+            }
+        }
       }
   }
 
