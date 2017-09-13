@@ -28,7 +28,6 @@ import org.semanticweb.owlapi.model._
 import org.semanticweb.owlapi.model.parameters.Imports
 
 import scalax.collection.config._
-import scalax.collection.connectivity.GraphComponents
 import scalax.collection.mutable.ArraySet.Hints
 import scalax.collection.Graph
 import scalax.collection.GraphEdge._
@@ -39,7 +38,7 @@ import scala.compat.java8.OptionConverters.RichOptionalGeneric
 import scala.compat.java8.StreamConverters._
 import scala.reflect.ClassTag
 import scala.util.control.Exception.nonFatalCatch
-import scala.{None, Option, Some, StringContext, annotation}
+import scala.{Boolean, Int, None, Option, Ordering, Some, StringContext, annotation}
 import scala.Predef.{assert,require,ArrowAssoc}
 
 import scalaz._
@@ -47,45 +46,70 @@ import Scalaz._
 
 object OWLAPIOMFLoader {
 
+  def subGraphPrecedence
+  [N: ClassTag, E[M] <: DiEdge[M]]
+  (g: Graph[N, E])
+  (lt: Graph[N, E], gt: Graph[N, E])
+  (implicit nOrder: Ordering[N])
+  : Boolean
+  = {
+    require(lt.nonEmpty)
+    require(gt.nonEmpty)
+
+    val before =
+      lt.toOuterNodes.exists { ln =>
+        val n1 = g.get(ln)
+        gt.toOuterNodes.exists { rn =>
+          val n2 = g.get(rn)
+          n1.isPredecessorOf(n2)
+        }
+      }
+
+    if (before)
+      true
+    else {
+      val inverse =
+      lt.toOuterNodes.exists { ln =>
+        val n1 = g.get(ln)
+        gt.toOuterNodes.exists { rn =>
+          val n2 = g.get(rn)
+          n2.isPredecessorOf(n1)
+        }
+      }
+
+      if (inverse)
+        false
+      else {
+        val lns = lt.toOuterNodes.to[Vector].sorted
+        val rns = gt.toOuterNodes.to[Vector].sorted
+        nOrder.compare(lns.head, rns.head) <= 0
+      }
+    }
+  }
+
   @scala.annotation.tailrec
   final def hierarchicalTopologicalSort[N: ClassTag, E[M] <: DiEdge[M]]
-  (queue: Seq[Graph[N, E]], before: Seq[N] = Seq.empty, after: Seq[N] = Seq.empty)
+  (queue: Seq[Graph[N, E]], result: Seq[N] = Seq.empty)
+  (implicit nOrder: Ordering[N])
   : Throwables \/ Seq[N]
   = queue match {
     case Nil =>
-      (before ++ after).right
+      result.right
     case g :: gs =>
 
-      // Workaround
-      // https://github.com/scala-graph/scala-graph/issues/75
-      Option.apply(
-        org.apache.log4j.LogManager.getLogger("scalax.collection.connectivity.GraphComponents")
-      ) match {
-        case Some(logger) =>
-          logger.setLevel(org.apache.log4j.Level.OFF)
-        case None =>
-          ()
-      }
+      val sccs = g.strongComponentTraverser().map(_.toGraph).to[List].sortWith(subGraphPrecedence(g))
 
-      // TODO detect disconnected components!
-      val dag = GraphComponents.graphToComponents(g).stronglyConnectedComponentsDag
-
-      dag.topologicalSortByComponent().toList match {
+      sccs.toList match {
         case Nil =>
-          (before ++ after).right[Throwables]
+          result.right[Throwables]
 
         case n :: ns =>
-          if (n.isLeft) {
-            val n1 = n.left.get
-            val ns: Seq[N] = n1.toOuter.toOuterNodes.to[Seq]
-            hierarchicalTopologicalSort(gs, before ++ ns, after)
-          } else if (n.isRight) {
-            val cycle = n.right.get
-            val ns: Seq[N] = cycle.toOuterNodes.to[Seq].flatMap(_.toOuterNodes.to[Seq])
-            hierarchicalTopologicalSort(gs, before ++ ns, after)
-          } else
-            hierarchicalTopologicalSort(gs, before, after)
-
+          if (n.isAcyclic) {
+            val rs: Seq[N] = n.toOuterNodes.to[Seq]
+            hierarchicalTopologicalSort(ns ++ gs, result ++ rs)
+          } else {
+            hierarchicalTopologicalSort(sccs ++ gs, result)
+          }
       }
   }
 
@@ -381,6 +405,9 @@ object OWLAPIOMFLoader {
     case Some(im) =>
       (im -> m2i).right
     case None =>
+      implicit val iriOrdering = new Ordering[IRI] {
+        override def compare(x: IRI, y: IRI): Int = x.toString.compareTo(y.toString)
+      }
       implicit val graphConfig = CoreConfig(orderHint = 5000, Hints(64, 0, 64, 75))
 
       val builtInEdges = drc.builtInDatatypeModules.flatMap { fM =>
