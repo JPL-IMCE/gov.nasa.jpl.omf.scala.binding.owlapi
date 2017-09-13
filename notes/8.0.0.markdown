@@ -11,3 +11,7 @@ gov.nasa.jpl.omf.scala.binding.owlapi 8.0.0 is a major update
 - [#25 Check OWL ontology manager before loading an ontology document](https://github.com/JPL-IMCE/gov.nasa.jpl.omf.scala.binding.owlapi/issues/25)
 
 - [#26 Use the updated graph-core library instead of the unpublished graph-misc](https://github.com/JPL-IMCE/gov.nasa.jpl.omf.scala.binding.owlapi/issues/26)
+
+- [#27 Emulate graph-misc strongly connected graph components in graph-core](https://github.com/JPL-IMCE/gov.nasa.jpl.omf.scala.binding.owlapi/issues/27)
+
+  The adaptation works for the OMF/OWLAPI unit tests.
