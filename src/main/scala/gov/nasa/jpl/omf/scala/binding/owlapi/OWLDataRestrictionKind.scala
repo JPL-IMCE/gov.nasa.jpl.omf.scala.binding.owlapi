@@ -20,7 +20,7 @@ package gov.nasa.jpl.omf.scala.binding.owlapi
 
 import org.semanticweb.owlapi.model.OWLDatatype
 
-import scala.StringContext
+import scala.{Option,StringContext}
 import scala.Predef.String
 
 trait OWLDataRestrictionKind
@@ -40,8 +40,9 @@ case class UniversalOWLDataRestrictionKind
 }
 
 case class ParticularOWLDataRestrictionKind
-(literal: String)
+(literal: String,
+ valueType: Option[OWLDatatype])
   extends OWLDataRestrictionKind {
 
-  override def toString: String = s"Particular data property restriction with value $literal"
+  override def toString: String = s"Particular data property restriction with value $literal, valueType=${valueType.map(_.getIRI)}"
 }

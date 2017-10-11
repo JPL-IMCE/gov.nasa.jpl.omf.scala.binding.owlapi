@@ -167,7 +167,7 @@ case class ImmutableTerminologyBoxResolver(resolver: TerminologyBoxResolverHelpe
                                     case Failure(t) =>
                                       -\/(Set(t))
                                   }
-                                  _ <- tboxG.createScalarOneOfLiteralAxiom(scalarOneOf, v)
+                                  _ <- tboxG.createScalarOneOfLiteralAxiom(scalarOneOf, v, Some(restrictedRange))
                                 } yield ()
                               }
                             } yield scalarOneOf
@@ -1046,11 +1046,29 @@ case class ImmutableTerminologyBoxResolver(resolver: TerminologyBoxResolverHelpe
                                             ).map(_ => ())
                                         }
 
-                                      case ParticularOWLDataRestrictionKind(value) =>
+                                      case ParticularOWLDataRestrictionKind(value, Some(valueTypeDT)) =>
+                                        dataRanges
+                                          .get(valueTypeDT)
+                                          .fold[RestrictionInfoValidation](
+                                          -\/(Set(OMFError.omfError(
+                                            s"Unresolved restricted data range $valueTypeDT " +
+                                              s"for entity $entityC and " +
+                                              s"restricting data property $restrictedDP with kind=$kind")))
+                                        ) { valueType =>
+                                          acc +++
+                                            addEntityScalarDataPropertyParticularRestrictionAxiom(
+                                              tboxG, entityC, restrictingSC,
+                                              tables.LiteralValue(tables.LiteralStringType, value),
+                                              Some(valueType)
+                                            ).map(_ => ())
+                                        }
+
+                                      case ParticularOWLDataRestrictionKind(value, None) =>
                                         acc +++
                                           addEntityScalarDataPropertyParticularRestrictionAxiom(
                                             tboxG, entityC, restrictingSC,
-                                            tables.LiteralValue(tables.LiteralStringType, value)
+                                            tables.LiteralValue(tables.LiteralStringType, value),
+                                            None
                                           ).map(_ => ())
                                     }
                                   }

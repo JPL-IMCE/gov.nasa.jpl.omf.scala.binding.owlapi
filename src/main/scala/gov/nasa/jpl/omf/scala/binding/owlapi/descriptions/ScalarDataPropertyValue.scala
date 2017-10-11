@@ -21,12 +21,15 @@ package gov.nasa.jpl.omf.scala.binding.owlapi.descriptions
 import java.util.UUID
 
 import gov.nasa.jpl.omf.scala.binding.owlapi.common.Element
-import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ScalarDataProperty
+import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.{DataRange,ScalarDataProperty}
 import gov.nasa.jpl.imce.oml.tables.LiteralValue
+
+import scala.Option
 
 case class ScalarDataPropertyValue
 ( override val uuid: UUID,
   context: SingletonInstanceStructuredDataPropertyContext,
   dataRelationship: ScalarDataProperty,
-  value: LiteralValue)
+  value: LiteralValue,
+  valueType: Option[DataRange])
   extends Element

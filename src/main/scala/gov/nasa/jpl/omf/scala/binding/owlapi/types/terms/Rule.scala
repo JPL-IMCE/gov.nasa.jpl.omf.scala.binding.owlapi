@@ -19,20 +19,15 @@
 package gov.nasa.jpl.omf.scala.binding.owlapi.types.terms
 
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.Term
-import org.semanticweb.owlapi.model.OWLNamedObject
 
 import scala.{Any, Boolean}
 
-trait DataRelationship extends Term {
-
-  override val e: OWLNamedObject
-
-  override val iri = e.getIRI
+trait Rule extends Term {
 
   override def canEqual(other: Any)
   : Boolean
   = other match {
-    case _: DataRelationship => true
+    case _: Rule => true
     case _ => false
   }
 }

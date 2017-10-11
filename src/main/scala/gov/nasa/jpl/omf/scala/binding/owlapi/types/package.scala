@@ -577,7 +577,9 @@ package object types {
 
             restrictingProperty match {
               case (Some(dp)) =>
-                Some(Tuple2(dp, ParticularOWLDataRestrictionKind(restriction.getFiller.getLiteral)))
+                Some(Tuple2(dp, ParticularOWLDataRestrictionKind(
+                  restriction.getFiller.getLiteral,
+                  Option.apply(restriction.getFiller.getDatatype))))
 
               case _ =>
                 None

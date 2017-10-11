@@ -18,21 +18,18 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.types.terms
 
-import gov.nasa.jpl.omf.scala.binding.owlapi.types.Term
-import org.semanticweb.owlapi.model.OWLNamedObject
+import org.semanticweb.owlapi.model.SWRLObjectPropertyAtom
 
 import scala.{Any, Boolean}
 
-trait DataRelationship extends Term {
+trait BinarySegmentPropertyPredicate extends SegmentPredicate {
 
-  override val e: OWLNamedObject
-
-  override val iri = e.getIRI
+  override val a: SWRLObjectPropertyAtom
 
   override def canEqual(other: Any)
   : Boolean
   = other match {
-    case _: DataRelationship => true
+    case _: BinarySegmentPropertyPredicate => true
     case _ => false
   }
 }

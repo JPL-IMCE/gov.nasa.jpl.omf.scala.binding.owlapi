@@ -16,39 +16,38 @@
  * License Terms
  */
 
-package gov.nasa.jpl.omf.scala.binding.owlapi.types.termAxioms
+package gov.nasa.jpl.omf.scala.binding.owlapi.types.terms
 
 import java.util.UUID
 
-import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.{Entity, EntityRelationship}
+import org.semanticweb.owlapi.model.SWRLObjectPropertyAtom
 
 import scala.{Any,Boolean,Int}
 
-case class EntityExistentialRestrictionAxiom
-(override val uuid: UUID,
- override val restrictedDomain: Entity,
- override val restrictedRelation: EntityRelationship,
- override val restrictedRange: Entity)
-  extends EntityRestrictionAxiom {
+case class ReifiedRelationshipTargetInversePropertyPredicate
+(override val a: SWRLObjectPropertyAtom,
+ override val bodySegment: RuleBodySegment,
+ override val termPredicate: ReifiedRelationship,
+ override val uuid: UUID
+ ) extends BinarySegmentReversePropertyPredicate {
 
   override def canEqual(other: Any)
   : Boolean
   = other match {
-    case _: EntityExistentialRestrictionAxiom => true
+    case _: ReifiedRelationshipTargetInversePropertyPredicate => true
     case _ => false
   }
 
-  override val hashCode: Int = (uuid, restrictedDomain, restrictedRelation, restrictedRange).##
+  override val hashCode: Int = (uuid, termPredicate, bodySegment, a).##
 
   override def equals(other: Any): Boolean = other match {
-    case that: EntityExistentialRestrictionAxiom =>
+    case that: ReifiedRelationshipTargetInversePropertyPredicate =>
       (that canEqual this) &&
         (this.uuid == that.uuid) &&
-        (this.restrictedDomain == that.restrictedDomain) &&
-        (this.restrictedRelation == that.restrictedRelation) &&
-        (this.restrictedRange == that.restrictedRange)
+        (this.termPredicate == that.termPredicate) &&
+        (this.bodySegment == that.bodySegment) &&
+        (this.a == that.a)
     case _ =>
       false
   }
-
 }

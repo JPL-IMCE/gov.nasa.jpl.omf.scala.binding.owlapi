@@ -224,8 +224,8 @@ extends OWLAPIOMFGraphStoreMetadata(omfModule, ontManager) {
   : Throwables \/ MutableTerminologyBox
   = for {
     name <- ops.lastSegment(iri)
-    uuid = generateUUID(ops.fromIRI(iri))
-    g <- ops.makeTerminologyGraphWithPath(uuid, name,
+    g <- ops.makeTerminologyGraphWithPath(
+      name,
       iri,
       relativeIRIPath = Option.empty[String],
       relativeIRIHashPrefix = Option.empty[String],
@@ -1242,8 +1242,7 @@ extends OWLAPIOMFGraphStoreMetadata(omfModule, ontManager) {
   }
 
   def makeTerminologyGraph
-  (uuid: UUID,
-   name: LocalName,
+  (name: LocalName,
    iri: IRI,
    relativeIRIPath: Option[String],
    relativeIRIHashPrefix: Option[String],
@@ -1267,8 +1266,7 @@ extends OWLAPIOMFGraphStoreMetadata(omfModule, ontManager) {
       ontManager.createOntology(iri), kind, extraProvenanceMetadata)
 
   def makeBundle
-  (uuid: UUID,
-   name: LocalName,
+  (name: LocalName,
    iri: IRI,
    relativeIRIPath: Option[String],
    relativeIRIHashPrefix: Option[String],
@@ -1297,8 +1295,7 @@ extends OWLAPIOMFGraphStoreMetadata(omfModule, ontManager) {
   = ???
 
   def makeDescriptionBox
-  (uuid: UUID,
-   name: LocalName,
+  (name: LocalName,
    iri: IRI,
    relativeIRIPath: Option[String],
    relativeIRIHashPrefix: Option[String],

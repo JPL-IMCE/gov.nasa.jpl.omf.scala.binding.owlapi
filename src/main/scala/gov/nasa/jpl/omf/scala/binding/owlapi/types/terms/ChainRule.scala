@@ -18,21 +18,38 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.types.terms
 
-import gov.nasa.jpl.omf.scala.binding.owlapi.types.Term
-import org.semanticweb.owlapi.model.OWLNamedObject
+import java.util.UUID
 
-import scala.{Any, Boolean}
+import gov.nasa.jpl.omf.scala.core.OMLString.LocalName
+import org.semanticweb.owlapi.model.{IRI, SWRLRule}
 
-trait DataRelationship extends Term {
+import scala.{Any,Boolean,Int}
 
-  override val e: OWLNamedObject
-
-  override val iri = e.getIRI
+case class ChainRule
+(override val e: SWRLRule,
+ override val iri: IRI,
+ override val name: LocalName,
+ override val uuid: UUID,
+ head: UnreifiedRelationship) extends Rule {
 
   override def canEqual(other: Any)
   : Boolean
   = other match {
-    case _: DataRelationship => true
+    case _: ChainRule => true
     case _ => false
   }
+
+  override val hashCode: Int = (uuid, name, e, head).##
+
+  override def equals(other: Any): Boolean = other match {
+    case that: ChainRule =>
+      (that canEqual this) &&
+        (this.uuid == that.uuid) &&
+        (this.name == that.name) &&
+        (this.e == that.e) &&
+        (this.head == that.head)
+    case _ =>
+      false
+  }
 }
+

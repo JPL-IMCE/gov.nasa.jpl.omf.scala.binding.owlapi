@@ -500,8 +500,7 @@ trait OWLAPIStoreOps
   = store.getExtensionAxioms(extendingChildG)
 
   def makeTerminologyGraphWithPath
-  (uuid: UUID,
-   name: LocalName,
+  (name: LocalName,
    iri: IRI,
    relativeIRIPath: Option[String],
    relativeIRIHashPrefix: Option[String],
@@ -509,26 +508,23 @@ trait OWLAPIStoreOps
    extraProvenanceMetadata: Option[OTI2OMFModelTerminologyGraphProvenance])
   (implicit store: OWLAPIOMFGraphStore)
   : Throwables \/ MutableTerminologyGraph
-  = store.makeTerminologyGraph(
-    uuid, name, iri, relativeIRIPath, relativeIRIHashPrefix, kind, extraProvenanceMetadata)(this)
+  = store.makeTerminologyGraph(name, iri, relativeIRIPath, relativeIRIHashPrefix, kind, extraProvenanceMetadata)(this)
 
-  override def makeTerminologyGraph
-  (uuid: UUID,
-   name: LocalName,
+  override protected def makeTerminologyGraph
+  (name: LocalName,
    iri: IRI,
    kind: TerminologyKind)
   (implicit store: OWLAPIOMFGraphStore)
   : Throwables \/ MutableTerminologyGraph
   = makeTerminologyGraphWithPath(
-    uuid, name, iri,
+    name, iri,
     relativeIRIPath=Option.empty[String],
     relativeIRIHashPrefix=Option.empty[String],
     kind,
     extraProvenanceMetadata=Option.empty[OTI2OMFModelTerminologyGraphProvenance])(store)
 
   def makeBundleWithPath
-  (uuid: UUID,
-   name: LocalName,
+  (name: LocalName,
    iri: IRI,
    kind: TerminologyKind,
    relativeIRIPath: Option[String],
@@ -536,18 +532,16 @@ trait OWLAPIStoreOps
    extraProvenanceMetadata: Option[OTI2OMFModelTerminologyGraphProvenance])
   (implicit store: OWLAPIOMFGraphStore)
   : Throwables \/ MutableBundle
-  = store.makeBundle(
-    uuid, name, iri, relativeIRIPath, relativeIRIHashPrefix, kind, extraProvenanceMetadata)(this)
+  = store.makeBundle(name, iri, relativeIRIPath, relativeIRIHashPrefix, kind, extraProvenanceMetadata)(this)
 
-  override def makeBundle
-  (uuid: UUID,
-   name: LocalName,
+  override protected def makeBundle
+  (name: LocalName,
    iri: IRI,
    kind: TerminologyKind)
   (implicit store: OWLAPIOMFGraphStore)
   : Throwables \/ MutableBundle
   = makeBundleWithPath(
-    uuid, name, iri,
+    name, iri,
     relativeIRIPath=Option.empty[String],
     relativeIRIHashPrefix=Option.empty[String],
     kind=kind,
@@ -567,14 +561,13 @@ trait OWLAPIStoreOps
   = store.saveTerminology(g, os)(this)
 
   override def makeDescriptionBox
-  (uuid: UUID,
-   name: LocalName,
+  (name: LocalName,
    iri: IRI,
    k: DescriptionKind)
   (implicit store: OWLAPIOMFGraphStore)
   : Throwables \/ descriptions.MutableDescriptionBox
   = store.makeDescriptionBox(
-    uuid, name, iri,
+    name, iri,
     relativeIRIPath=Option.empty[String],
     relativeIRIHashPrefix=Option.empty[String],
     k)
@@ -825,7 +818,8 @@ trait OWLAPIImmutableTerminologyGraphOps
    funEntityScalarDataProperty: OWLAPIOMF#EntityScalarDataProperty => T,
    funEntityStructuredDataProperty: OWLAPIOMF#EntityStructuredDataProperty => T,
    funScalarDataProperty: OWLAPIOMF#ScalarDataProperty => T,
-   funStructuredDataProperty: OWLAPIOMF#StructuredDataProperty => T)
+   funStructuredDataProperty: OWLAPIOMF#StructuredDataProperty => T,
+   funChainRule: OWLAPIOMF#ChainRule => T)
   (t: types.Term)
   : T = t match {
     case et: OWLAPIOMF#Aspect =>
@@ -1055,7 +1049,7 @@ trait OWLAPIImmutableTerminologyGraphOps
   (ax: OWLAPIOMF#EntityScalarDataPropertyParticularRestrictionAxiom)
   : EntityScalarDataPropertyParticularRestrictionSignature[OWLAPIOMF]
   = EntityScalarDataPropertyParticularRestrictionSignature[OWLAPIOMF](
-    ax.uuid, ax.restrictedEntity, ax.scalarProperty, ax.literalValue)
+    ax.uuid, ax.restrictedEntity, ax.scalarProperty, ax.literalValue, ax.valueType)
 
   override def fromEntityScalarDataPropertyUniversalRestrictionAxiom
   (ax: OWLAPIOMF#EntityScalarDataPropertyUniversalRestrictionAxiom)
@@ -1066,7 +1060,7 @@ trait OWLAPIImmutableTerminologyGraphOps
   override def fromScalarOneOfLiteralAxiom
   (ax: OWLAPIOMF#ScalarOneOfLiteralAxiom)
   : ScalarOneOfLiteralSignature[OWLAPIOMF]
-  = ScalarOneOfLiteralSignature[OWLAPIOMF](ax.uuid, ax.axiom, ax.value)
+  = ScalarOneOfLiteralSignature[OWLAPIOMF](ax.uuid, ax.axiom, ax.value, ax.valueType)
 
   override def fromBinaryScalarRestriction
   (ax: OWLAPIOMF#BinaryScalarRestriction)
@@ -1154,6 +1148,17 @@ trait OWLAPIImmutableTerminologyGraphOps
   (ax: OWLAPIOMF#SpecificDisjointConceptAxiom)
   : SpecificDisjointConceptSignature[OWLAPIOMF]
   = SpecificDisjointConceptSignature[OWLAPIOMF](ax.uuid, ax.terminologyBundle, ax.disjointTaxonomyParent, ax.disjointLeaf)
+
+  override def fromChainRule
+  (ax: OWLAPIOMF#ChainRule)
+  : ChainRuleSignature[OWLAPIOMF]
+  = ChainRuleSignature[OWLAPIOMF](ax.uuid, ax.head)
+
+  override def fromRuleBodySegment
+  (ax: OWLAPIOMF#RuleBodySegment)
+  : RuleBodySegmentSignature[OWLAPIOMF]
+  = RuleBodySegmentSignature[OWLAPIOMF](ax.uuid, ax.position, ax.chainRule, ax.previousSegment)
+
 }
 
 trait OWLAPIMutableTerminologyGraphOps
@@ -1401,10 +1406,11 @@ trait OWLAPIMutableTerminologyGraphOps
   (tbox: MutableTerminologyBox,
    axiomUUID: UUID,
    scalarOneOfRestriction: ScalarOneOfRestriction,
-   value: LiteralValue)
+   value: LiteralValue,
+   valueType: Option[DataRange])
   (implicit store: OWLAPIOMFGraphStore)
   : Throwables \/ ScalarOneOfLiteralAxiom
-  = tbox.addScalarOneOfLiteralAxiom(axiomUUID, scalarOneOfRestriction, value)
+  = tbox.addScalarOneOfLiteralAxiom(axiomUUID, scalarOneOfRestriction, value, valueType)
 
   override protected def addTimeScalarRestriction
   (tbox: MutableTerminologyBox,
@@ -1467,6 +1473,123 @@ trait OWLAPIMutableTerminologyGraphOps
   : Throwables \/ StructuredDataProperty
   = tbox.addDataRelationshipFromStructureToStructure(dataRelationshipIRI, dataRelationshipName, uuid, source, target)
 
+  override protected def addChainRule
+  (tbox: MutableTerminologyBox,
+   uuid: UUID,
+   iri: IRI,
+   head: UnreifiedRelationship)
+  (implicit store: OWLAPIOMFGraphStore)
+  : Throwables \/ ChainRule
+  = tbox.addChainRule(iri, uuid, head)
+
+  override protected def addRuleBodySegment
+  (tbox: MutableTerminologyBox,
+   uuid: UUID,
+   chainRule: Option[ChainRule],
+   previousSegment: Option[RuleBodySegment])
+  (implicit store: OWLAPIOMFGraphStore)
+  : Throwables \/ RuleBodySegment
+  = tbox.addRuleBodySegment(uuid, chainRule, previousSegment)
+
+  override protected def addAspectPredicate
+  (tbox: MutableTerminologyBox,
+   uuid: UUID,
+   bodySegment: RuleBodySegment,
+   aspect: Aspect)
+  (implicit store: OWLAPIOMFGraphStore)
+  : Throwables \/ AspectPredicate
+  = tbox.addAspectPredicate(uuid, bodySegment, aspect)
+
+  override protected def addConceptPredicate
+  (tbox: MutableTerminologyBox,
+   uuid: UUID,
+   bodySegment: RuleBodySegment,
+   concept: Concept)
+  (implicit store: OWLAPIOMFGraphStore)
+  : Throwables \/ ConceptPredicate
+  = tbox.addConceptPredicate(uuid, bodySegment, concept)
+
+  override protected def addReifiedRelationshipPredicate
+  (tbox: MutableTerminologyBox,
+   uuid: UUID,
+   bodySegment: RuleBodySegment,
+   reifiedRelationship: ReifiedRelationship)
+  (implicit store: OWLAPIOMFGraphStore)
+  : Throwables \/ ReifiedRelationshipPredicate
+  = tbox.addReifiedRelationshipPredicate(uuid, bodySegment, reifiedRelationship)
+
+  override protected def addReifiedRelationshipPropertyPredicate
+  (tbox: MutableTerminologyBox,
+   uuid: UUID,
+   bodySegment: RuleBodySegment,
+   reifiedRelationship: ReifiedRelationship)
+  (implicit store: OWLAPIOMFGraphStore)
+  : Throwables \/ ReifiedRelationshipPropertyPredicate
+  = tbox.addReifiedRelationshipPropertyPredicate(uuid, bodySegment, reifiedRelationship)
+
+  override protected def addReifiedRelationshipInversePropertyPredicate
+  (tbox: MutableTerminologyBox,
+   uuid: UUID,
+   bodySegment: RuleBodySegment,
+   reifiedRelationship: ReifiedRelationship)
+  (implicit store: OWLAPIOMFGraphStore)
+  : Throwables \/ ReifiedRelationshipInversePropertyPredicate
+  = tbox.addReifiedRelationshipInversePropertyPredicate(uuid, bodySegment, reifiedRelationship)
+
+  override protected def addReifiedRelationshipSourcePropertyPredicate
+  (tbox: MutableTerminologyBox,
+   uuid: UUID,
+   bodySegment: RuleBodySegment,
+   reifiedRelationship: ReifiedRelationship)
+  (implicit store: OWLAPIOMFGraphStore)
+  : Throwables \/ ReifiedRelationshipSourcePropertyPredicate
+  = tbox.addReifiedRelationshipSourcePropertyPredicate(uuid, bodySegment, reifiedRelationship)
+
+  override protected def addReifiedRelationshipSourceInversePropertyPredicate
+  (tbox: MutableTerminologyBox,
+   uuid: UUID,
+   bodySegment: RuleBodySegment,
+   reifiedRelationship: ReifiedRelationship)
+  (implicit store: OWLAPIOMFGraphStore)
+  : Throwables \/ ReifiedRelationshipSourceInversePropertyPredicate
+  = tbox.addReifiedRelationshipSourceInversePropertyPredicate(uuid, bodySegment, reifiedRelationship)
+
+  override protected def addReifiedRelationshipTargetPropertyPredicate
+  (tbox: MutableTerminologyBox,
+   uuid: UUID,
+   bodySegment: RuleBodySegment,
+   reifiedRelationship: ReifiedRelationship)
+  (implicit store: OWLAPIOMFGraphStore)
+  : Throwables \/ ReifiedRelationshipTargetPropertyPredicate
+  = tbox.addReifiedRelationshipTargetPropertyPredicate(uuid, bodySegment, reifiedRelationship)
+
+  override protected def addReifiedRelationshipTargetInversePropertyPredicate
+  (tbox: MutableTerminologyBox,
+   uuid: UUID,
+   bodySegment: RuleBodySegment,
+   reifiedRelationship: ReifiedRelationship)
+  (implicit store: OWLAPIOMFGraphStore)
+  : Throwables \/ ReifiedRelationshipTargetInversePropertyPredicate
+  = tbox.addReifiedRelationshipTargetInversePropertyPredicate(uuid, bodySegment, reifiedRelationship)
+
+  override protected def addUnreifiedRelationshipPropertyPredicate
+  (tbox: MutableTerminologyBox,
+   uuid: UUID,
+   bodySegment: RuleBodySegment,
+   unreifiedRelationship: UnreifiedRelationship)
+  (implicit store: OWLAPIOMFGraphStore)
+  : Throwables \/ UnreifiedRelationshipPropertyPredicate
+  = tbox.addUnreifiedRelationshipPropertyPredicate(uuid, bodySegment, unreifiedRelationship)
+
+  override protected def addUnreifiedRelationshipInversePropertyPredicate
+  (tbox: MutableTerminologyBox,
+   uuid: UUID,
+   bodySegment: RuleBodySegment,
+   unreifiedRelationship: UnreifiedRelationship)
+  (implicit store: OWLAPIOMFGraphStore)
+  : Throwables \/ UnreifiedRelationshipInversePropertyPredicate
+  = tbox.addUnreifiedRelationshipInversePropertyPredicate(uuid, bodySegment, unreifiedRelationship)
+
   override protected def addAspectSpecializationAxiom
   (tbox: MutableTerminologyBox,
    uuid: UUID,
@@ -1498,7 +1621,7 @@ trait OWLAPIMutableTerminologyGraphOps
   (tbox: MutableTerminologyBox,
    uuid: UUID,
    sub: Entity,
-   rel: ReifiedRelationship,
+   rel: EntityRelationship,
    range: Entity)
   (implicit store: OWLAPIOMFGraphStore)
   : Throwables \/ EntityUniversalRestrictionAxiom
@@ -1508,7 +1631,7 @@ trait OWLAPIMutableTerminologyGraphOps
   (tbox: MutableTerminologyBox,
    uuid: UUID,
    sub: Entity,
-   rel: ReifiedRelationship,
+   rel: EntityRelationship,
    range: Entity)
   (implicit store: OWLAPIOMFGraphStore)
   : Throwables \/ EntityExistentialRestrictionAxiom
@@ -1539,10 +1662,11 @@ trait OWLAPIMutableTerminologyGraphOps
    uuid: UUID,
    restrictedEntity: Entity,
    scalarProperty: EntityScalarDataProperty,
-   literalValue: LiteralValue)
+   literalValue: LiteralValue,
+   valueType: Option[DataRange])
   (implicit store: OWLAPIOMFGraphStore)
   : Throwables \/ EntityScalarDataPropertyParticularRestrictionAxiom
-  = tbox.addEntityScalarDataPropertyParticularRestrictionAxiom(uuid, restrictedEntity, scalarProperty, literalValue)
+  = tbox.addEntityScalarDataPropertyParticularRestrictionAxiom(uuid, restrictedEntity, scalarProperty, literalValue, valueType)
 
   override protected def addBundledTerminologyAxiom
   (uuid: UUID,
@@ -1643,7 +1767,7 @@ trait OWLAPIImmutableDescriptionBoxOps
   (e2sc: descriptions.SingletonInstanceScalarDataPropertyValue)
   : SingletonInstanceScalarDataPropertyValueSignature[OWLAPIOMF]
   = SingletonInstanceScalarDataPropertyValueSignature[OWLAPIOMF](
-    e2sc.uuid, e2sc.ei, e2sc.dataRelationship, e2sc.value)
+    e2sc.uuid, e2sc.ei, e2sc.dataRelationship, e2sc.value, e2sc.valueType)
 
   override def fromSingletonInstanceStructuredDataPropertyValue
   (dbox: descriptions.DescriptionBox, e2st: descriptions.SingletonInstanceStructuredDataPropertyValue)
@@ -1655,7 +1779,7 @@ trait OWLAPIImmutableDescriptionBoxOps
   (s2sc: descriptions.ScalarDataPropertyValue)
   : ScalarDataPropertyValueSignature[OWLAPIOMF]
   = ScalarDataPropertyValueSignature[OWLAPIOMF](
-    s2sc.uuid, s2sc.context, s2sc.dataRelationship, s2sc.value)
+    s2sc.uuid, s2sc.context, s2sc.dataRelationship, s2sc.value, s2sc.valueType)
 
   override def fromStructuredDataPropertyTuple
   (dbox: descriptions.DescriptionBox, s2st: descriptions.StructuredDataPropertyTuple)
@@ -1713,7 +1837,7 @@ trait OWLAPIMutableDescriptionBoxOps
   (dbox: descriptions.MutableDescriptionBox)
   = dbox.iri
 
-  def addDescriptionBoxExtendsClosedWorldDefinitions
+  override protected def addDescriptionBoxExtendsClosedWorldDefinitions
   (uuid: UUID,
    dbox: descriptions.MutableDescriptionBox,
    closedWorldDefinitions: TerminologyBox)
@@ -1721,7 +1845,7 @@ trait OWLAPIMutableDescriptionBoxOps
   : Throwables \/ descriptions.DescriptionBoxExtendsClosedWorldDefinitions
   = dbox.addDescriptionBoxExtendsClosedWorldDefinitions(uuid, closedWorldDefinitions)
 
-  def addDescriptionBoxRefinement
+  override protected def addDescriptionBoxRefinement
   (uuid: UUID,
    refiningDescriptionBox: descriptions.MutableDescriptionBox,
    refinedDescriptionBox: descriptions.DescriptionBox)
@@ -1729,7 +1853,7 @@ trait OWLAPIMutableDescriptionBoxOps
   : Throwables \/ descriptions.DescriptionBoxRefinement
   = refiningDescriptionBox.addDescriptionBoxRefinement(uuid, refinedDescriptionBox)
 
-  override def addConceptInstance
+  override protected def addConceptInstance
   (uuid: UUID,
    dbox: descriptions.MutableDescriptionBox,
    iri: IRI,
@@ -1739,7 +1863,7 @@ trait OWLAPIMutableDescriptionBoxOps
   : Throwables \/ descriptions.ConceptInstance
   = dbox.addConceptInstance(uuid, iri, conceptType, fragment)
 
-  override def addReifiedRelationshipInstance
+  override protected def addReifiedRelationshipInstance
   (uuid: UUID,
    dbox: descriptions.MutableDescriptionBox,
    iri: IRI,
@@ -1749,7 +1873,7 @@ trait OWLAPIMutableDescriptionBoxOps
   : Throwables \/ descriptions.ReifiedRelationshipInstance
   = dbox.addReifiedRelationshipInstance(uuid, iri, relationshipType, fragment)
 
-  override def addReifiedRelationshipInstanceDomain
+  override protected def addReifiedRelationshipInstanceDomain
   (uuid: UUID,
    dbox: descriptions.MutableDescriptionBox,
    relationshipInstance: descriptions.ReifiedRelationshipInstance,
@@ -1758,7 +1882,7 @@ trait OWLAPIMutableDescriptionBoxOps
   : Throwables \/ descriptions.ReifiedRelationshipInstanceDomain
   = dbox.addReifiedRelationshipInstanceDomain(uuid, relationshipInstance, source)
 
-  override def addReifiedRelationshipInstanceRange
+  override protected def addReifiedRelationshipInstanceRange
   (uuid: UUID,
    dbox: descriptions.MutableDescriptionBox,
    relationshipInstance: descriptions.ReifiedRelationshipInstance,
@@ -1767,7 +1891,7 @@ trait OWLAPIMutableDescriptionBoxOps
   : Throwables \/ descriptions.ReifiedRelationshipInstanceRange
   = dbox.addReifiedRelationshipInstanceRange(uuid, relationshipInstance, target)
 
-  override def addUnreifiedRelationshipInstanceTuple
+  override protected def addUnreifiedRelationshipInstanceTuple
   (uuid: UUID,
    dbox: descriptions.MutableDescriptionBox,
    unreifiedRelationship: UnreifiedRelationship,
@@ -1777,17 +1901,18 @@ trait OWLAPIMutableDescriptionBoxOps
   : Throwables \/ descriptions.UnreifiedRelationshipInstanceTuple
   = dbox.addUnreifiedRelationshipInstanceTuple(uuid, unreifiedRelationship, source, target)
 
-  override def addSingletonInstanceScalarDataPropertyValue
+  override protected def addSingletonInstanceScalarDataPropertyValue
   (uuid: UUID,
    dbox: descriptions.MutableDescriptionBox,
    ei: descriptions.ConceptualEntitySingletonInstance,
    e2sc: EntityScalarDataProperty,
-   value: LiteralValue)
+   value: LiteralValue,
+   valueType: Option[DataRange])
   (implicit store: OWLAPIOMFGraphStore)
   : Throwables \/ descriptions.SingletonInstanceScalarDataPropertyValue
-  = dbox.addSingletonInstanceScalarDataPropertyValue(uuid, ei, e2sc, value)
+  = dbox.addSingletonInstanceScalarDataPropertyValue(uuid, ei, e2sc, value, valueType)
 
-  override def addSingletonInstanceStructuredDataPropertyValue
+  override protected def addSingletonInstanceStructuredDataPropertyValue
   (uuid: UUID,
    dbox: descriptions.MutableDescriptionBox,
    ei: descriptions.ConceptualEntitySingletonInstance,
@@ -1796,17 +1921,18 @@ trait OWLAPIMutableDescriptionBoxOps
   : Throwables \/ descriptions.SingletonInstanceStructuredDataPropertyValue
   = dbox.addSingletonInstanceStructuredDataPropertyValue(uuid, ei, e2st)
 
-  override def makeScalarDataPropertyValue
+  override protected def makeScalarDataPropertyValue
   (uuid: UUID,
    dbox: descriptions.MutableDescriptionBox,
    structuredDataPropertyContext: SingletonInstanceStructuredDataPropertyContext,
    scalarDataProperty: ScalarDataProperty,
-   value: LiteralValue)
+   value: LiteralValue,
+   valueType: Option[DataRange])
   (implicit store: OWLAPIOMFGraphStore)
   : Throwables \/ descriptions.ScalarDataPropertyValue
-  = dbox.makeScalarDataPropertyValue(uuid, structuredDataPropertyContext, scalarDataProperty, value)
+  = dbox.makeScalarDataPropertyValue(uuid, structuredDataPropertyContext, scalarDataProperty, value, valueType)
 
-  def makeStructuredDataPropertyTuple
+  override protected def makeStructuredDataPropertyTuple
   (uuid: UUID,
    dbox: descriptions.MutableDescriptionBox,
    structuredDataPropertyContext: SingletonInstanceStructuredDataPropertyContext,

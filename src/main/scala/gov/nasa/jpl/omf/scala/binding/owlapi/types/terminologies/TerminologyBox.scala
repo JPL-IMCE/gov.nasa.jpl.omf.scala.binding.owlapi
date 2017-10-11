@@ -28,6 +28,7 @@ import gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologyAxioms._
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.{Axiom, Term}
 import gov.nasa.jpl.omf.scala.core.{OMFError, TerminologyBoxSignature, terminologyBoxImportClosure}
 import gov.nasa.jpl.omf.scala.core.OMLString.LocalName
+import org.semanticweb.owlapi.formats._
 import org.semanticweb.owlapi.model._
 
 import scala.collection.immutable.{Iterable, Map, Seq, Set}
@@ -185,6 +186,45 @@ trait TerminologyBox extends Module {
     .toScala[Set]
     .find(_.getProperty.getIRI == ops.AnnotationHasURL)
 
+  private val f0 = new RDFJsonLDDocumentFormatFactory().createFormat()
+
+  private val f1 = new ManchesterSyntaxDocumentFormatFactory().createFormat()
+
+  private val f2 = new RDFXMLDocumentFormatFactory().createFormat()
+
+//  private val f2 = {
+//    val f = new TrigDocumentFormatFactory()
+//    f.createFormat()
+//  }
+//  private val f3 = {
+//    val f = new TrixDocumentFormatFactory()
+//    f.createFormat()
+//  }
+//  private val f4 = {
+//    val f = new RioTurtleDocumentFormatFactory()
+//    f.createFormat()
+//  }
+//  private val f5 = {
+//    val f = new RioRDFXMLDocumentFormatFactory()
+//    f.createFormat()
+//  }
+//  private val f6 = {
+//    val f = new RDFaDocumentFormatFactory()
+//    f.createFormat()
+//  }
+//  private val f7 = {
+//    val f = new NTriplesDocumentFormatFactory()
+//    f.createFormat()
+//  }
+//  private val f8 = {
+//    val f = new NQuadsDocumentFormatFactory()
+//    f.createFormat()
+//  }
+//  private val f9 = {
+//    val f = new N3DocumentFormatFactory()
+//    f.createFormat()
+//  }
+
   def save(saveIRI: IRI): Set[java.lang.Throwable] \/ Unit
   = nonFatalCatch[Unit]
     .withApply {
@@ -196,7 +236,7 @@ trait TerminologyBox extends Module {
         ).left
     }
     .apply({
-      ontManager.saveOntology(ont, saveIRI).right
+      ontManager.saveOntology(ont, f1, saveIRI).right
     })
 
   def save(os: OutputStream): Set[java.lang.Throwable] \/ Unit
@@ -210,6 +250,6 @@ trait TerminologyBox extends Module {
         ).left
     }
     .apply {
-      ontManager.saveOntology(ont, os).right
+      ontManager.saveOntology(ont, f1, os).right
     }
 }

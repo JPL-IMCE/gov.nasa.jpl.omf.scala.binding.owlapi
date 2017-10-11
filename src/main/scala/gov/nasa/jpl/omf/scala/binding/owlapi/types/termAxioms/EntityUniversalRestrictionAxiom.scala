@@ -20,14 +20,14 @@ package gov.nasa.jpl.omf.scala.binding.owlapi.types.termAxioms
 
 import java.util.UUID
 
-import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.{Entity, ReifiedRelationship}
+import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.{Entity, EntityRelationship}
 
 import scala.{Any,Boolean,Int}
 
 case class EntityUniversalRestrictionAxiom
 (override val uuid: UUID,
  override val restrictedDomain: Entity,
- override val restrictedRelation: ReifiedRelationship,
+ override val restrictedRelation: EntityRelationship,
  override val restrictedRange: Entity )
   extends EntityRestrictionAxiom {
 

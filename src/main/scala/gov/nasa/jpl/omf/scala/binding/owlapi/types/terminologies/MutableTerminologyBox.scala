@@ -1039,30 +1039,33 @@ trait MutableTerminologyBox
     */
   def createScalarOneOfLiteralAxiom
   (scalarOneOfRestriction: OWLAPIOMF#ScalarOneOfRestriction,
-   value: LiteralValue)
+   value: LiteralValue,
+   valueType: Option[DataRange])
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#ScalarOneOfLiteralAxiom
   = for {
-    axiomUUID <- scalarOneOfLiteralAxiomUUID(this, scalarOneOfRestriction, value)
-    ax <- createScalarOneOfLiteralAxiom(axiomUUID, scalarOneOfRestriction, value)
+    axiomUUID <- scalarOneOfLiteralAxiomUUID(this, scalarOneOfRestriction)
+    ax <- createScalarOneOfLiteralAxiom(axiomUUID, scalarOneOfRestriction, value, valueType)
   } yield ax
 
   def createScalarOneOfLiteralAxiom
   (axiomUUID: UUID,
    scalarOneOfRestriction: OWLAPIOMF#ScalarOneOfRestriction,
-   value: LiteralValue)
+   value: LiteralValue,
+   valueType: Option[DataRange])
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#ScalarOneOfLiteralAxiom
-  = types.termAxioms.ScalarOneOfLiteralAxiom(axiomUUID, scalarOneOfRestriction, value).right
+  = types.termAxioms.ScalarOneOfLiteralAxiom(axiomUUID, scalarOneOfRestriction, value, valueType).right
 
   def addScalarOneOfLiteralAxiom
   (axiomUUID: UUID,
    scalarOneOfRestriction: OWLAPIOMF#ScalarOneOfRestriction,
-   value: LiteralValue)
+   value: LiteralValue,
+   valueType: Option[DataRange])
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#ScalarOneOfLiteralAxiom
   = for {
-    axiom <- createScalarOneOfLiteralAxiom(axiomUUID, scalarOneOfRestriction, value)
+    axiom <- createScalarOneOfLiteralAxiom(axiomUUID, scalarOneOfRestriction, value, valueType)
     restrictionDT = scalarOneOfRestriction.e
     restrictedDT = scalarOneOfRestriction.restrictedDataRange.e
     result <- ont
@@ -1077,7 +1080,8 @@ trait MutableTerminologyBox
               .getOWLDatatypeDefinitionAxiom(
                 restrictionDT,
                 owlDataFactory.getOWLDataOneOf(
-                  LiteralConversions.toOWLLiteral(value, owlDataFactory, Option.apply(restrictedDT)))))
+                  LiteralConversions.toOWLLiteral(value, owlDataFactory,
+                    valueType.map(_.e).orElse(Option.apply(restrictedDT))))))
           ),
           "addScalarOneOfLiteralAxiom error")
       } yield axiom
@@ -2473,6 +2477,110 @@ trait MutableTerminologyBox
     ).left
   }
 
+  def addChainRule
+  (iri: IRI,
+   uuid: UUID,
+   head: OWLAPIOMF#UnreifiedRelationship)
+  (implicit store: OWLAPIOMFGraphStore)
+  : OMFError.Throwables \/ OWLAPIOMF#ChainRule
+  = scala.Predef.???
+
+  def addRuleBodySegment
+  (uuid: UUID,
+   chainRule: Option[OWLAPIOMF#ChainRule],
+   previousSegment: Option[OWLAPIOMF#RuleBodySegment])
+  (implicit store: OWLAPIOMFGraphStore)
+  : OMFError.Throwables \/ OWLAPIOMF#RuleBodySegment
+  = scala.Predef.???
+
+  def addAspectPredicate
+  (uuid: UUID,
+   bodySegment: OWLAPIOMF#RuleBodySegment,
+   aspect: OWLAPIOMF#Aspect)
+  (implicit store: OWLAPIOMFGraphStore)
+  : OMFError.Throwables \/ OWLAPIOMF#AspectPredicate
+  = scala.Predef.???
+
+  def addConceptPredicate
+  (uuid: UUID,
+   bodySegment: OWLAPIOMF#RuleBodySegment,
+   concept: OWLAPIOMF#Concept)
+  (implicit store: OWLAPIOMFGraphStore)
+  : OMFError.Throwables \/ OWLAPIOMF#ConceptPredicate
+  = scala.Predef.???
+
+  def addReifiedRelationshipPredicate
+  (uuid: UUID,
+   bodySegment: OWLAPIOMF#RuleBodySegment,
+   reifiedRelationship: OWLAPIOMF#ReifiedRelationship)
+  (implicit store: OWLAPIOMFGraphStore)
+  : OMFError.Throwables \/ OWLAPIOMF#ReifiedRelationshipPredicate
+  = scala.Predef.???
+
+  def addReifiedRelationshipPropertyPredicate
+  (uuid: UUID,
+   bodySegment: OWLAPIOMF#RuleBodySegment,
+   reifiedRelationship: OWLAPIOMF#ReifiedRelationship)
+  (implicit store: OWLAPIOMFGraphStore)
+  : OMFError.Throwables \/ OWLAPIOMF#ReifiedRelationshipPropertyPredicate
+  = scala.Predef.???
+
+  def addReifiedRelationshipInversePropertyPredicate
+  (uuid: UUID,
+   bodySegment: OWLAPIOMF#RuleBodySegment,
+   reifiedRelationship: OWLAPIOMF#ReifiedRelationship)
+  (implicit store: OWLAPIOMFGraphStore)
+  : OMFError.Throwables \/ OWLAPIOMF#ReifiedRelationshipInversePropertyPredicate
+  = scala.Predef.???
+
+  def addReifiedRelationshipSourcePropertyPredicate
+  (uuid: UUID,
+   bodySegment: OWLAPIOMF#RuleBodySegment,
+   reifiedRelationship: OWLAPIOMF#ReifiedRelationship)
+  (implicit store: OWLAPIOMFGraphStore)
+  : OMFError.Throwables \/ OWLAPIOMF#ReifiedRelationshipSourcePropertyPredicate
+  = scala.Predef.???
+
+  def addReifiedRelationshipSourceInversePropertyPredicate
+  (uuid: UUID,
+   bodySegment: OWLAPIOMF#RuleBodySegment,
+   reifiedRelationship: OWLAPIOMF#ReifiedRelationship)
+  (implicit store: OWLAPIOMFGraphStore)
+  : OMFError.Throwables \/ OWLAPIOMF#ReifiedRelationshipSourceInversePropertyPredicate
+  = scala.Predef.???
+
+  def addReifiedRelationshipTargetPropertyPredicate
+  (uuid: UUID,
+   bodySegment: OWLAPIOMF#RuleBodySegment,
+   reifiedRelationship: OWLAPIOMF#ReifiedRelationship)
+  (implicit store: OWLAPIOMFGraphStore)
+  : OMFError.Throwables \/ OWLAPIOMF#ReifiedRelationshipTargetPropertyPredicate
+  = scala.Predef.???
+
+  def addReifiedRelationshipTargetInversePropertyPredicate
+  (uuid: UUID,
+   bodySegment: OWLAPIOMF#RuleBodySegment,
+   reifiedRelationship: OWLAPIOMF#ReifiedRelationship)
+  (implicit store: OWLAPIOMFGraphStore)
+  : OMFError.Throwables \/ OWLAPIOMF#ReifiedRelationshipTargetInversePropertyPredicate
+  = scala.Predef.???
+
+  def addUnreifiedRelationshipPropertyPredicate
+  (uuid: UUID,
+   bodySegment: OWLAPIOMF#RuleBodySegment,
+   unreifiedRelationship: OWLAPIOMF#UnreifiedRelationship)
+  (implicit store: OWLAPIOMFGraphStore)
+  : OMFError.Throwables \/ OWLAPIOMF#UnreifiedRelationshipPropertyPredicate
+  = scala.Predef.???
+
+  def addUnreifiedRelationshipInversePropertyPredicate
+  (uuid: UUID,
+   bodySegment: OWLAPIOMF#RuleBodySegment,
+   unreifiedRelationship: OWLAPIOMF#UnreifiedRelationship)
+  (implicit store: OWLAPIOMFGraphStore)
+  : OMFError.Throwables \/ OWLAPIOMF#UnreifiedRelationshipInversePropertyPredicate
+  = scala.Predef.???
+
   def createEntityConceptSubClassAxiom
   (uuid: UUID,
    sub: OWLAPIOMF#Concept,
@@ -2558,7 +2666,7 @@ trait MutableTerminologyBox
 
   def addEntityDefinitionUniversalRestrictionAxiom
   (sub: OWLAPIOMF#Entity,
-   rel: OWLAPIOMF#ReifiedRelationship,
+   rel: OWLAPIOMF#EntityRelationship,
    range: Entity)
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#EntityUniversalRestrictionAxiom
@@ -2570,7 +2678,7 @@ trait MutableTerminologyBox
   def addEntityDefinitionUniversalRestrictionAxiom
   (uuid: UUID,
    sub: OWLAPIOMF#Entity,
-   rel: OWLAPIOMF#ReifiedRelationship,
+   rel: OWLAPIOMF#EntityRelationship,
    range: Entity)
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#EntityUniversalRestrictionAxiom
@@ -2585,13 +2693,19 @@ trait MutableTerminologyBox
         store
           .registerOMFEntityDefinitionUniversalRestrictionAxiomInstance(this,
             EntityUniversalRestrictionAxiom(uuid, sub, rel, range))
+        op = rel match {
+          case rr: OWLAPIOMF#ReifiedRelationship =>
+            rr.unreified
+          case ur: OWLAPIOMF#UnreifiedRelationship =>
+            ur.e
+        }
         _ <- applyOntologyChangeOrNoOp(
           ontManager,
           new AddAxiom(ont,
             owlDataFactory
               .getOWLSubClassOfAxiom(
                 subC,
-                owlDataFactory.getOWLObjectAllValuesFrom(rel.unreified, rangeC),
+                owlDataFactory.getOWLObjectAllValuesFrom(op, rangeC),
                 java.util.Collections.singleton(createOMFProvenanceAnnotation(uuid)))),
           ifError = {
             "addEntityDefinitionUniversalRestrictionAxiom Error"
@@ -2626,7 +2740,7 @@ trait MutableTerminologyBox
 
   def addEntityDefinitionExistentialRestrictionAxiom
   (sub: OWLAPIOMF#Entity,
-   rel: OWLAPIOMF#ReifiedRelationship,
+   rel: OWLAPIOMF#EntityRelationship,
    range: Entity)
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#EntityExistentialRestrictionAxiom
@@ -2638,7 +2752,7 @@ trait MutableTerminologyBox
   def addEntityDefinitionExistentialRestrictionAxiom
   (uuid: UUID,
    sub: OWLAPIOMF#Entity,
-   rel: OWLAPIOMF#ReifiedRelationship,
+   rel: OWLAPIOMF#EntityRelationship,
    range: Entity)
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#EntityExistentialRestrictionAxiom
@@ -2653,6 +2767,12 @@ trait MutableTerminologyBox
         store
           .registerOMFEntityDefinitionExistentialRestrictionAxiomInstance(this,
             EntityExistentialRestrictionAxiom(uuid, sub, rel, range))
+        op = rel match {
+          case rr: OWLAPIOMF#ReifiedRelationship =>
+            rr.unreified
+          case ur: OWLAPIOMF#UnreifiedRelationship =>
+            ur.e
+        }
         _ <- store.applyModelTermAxiomChanges(
           axiom,
           "addEntityDefinitionExistentialRestrictionAxiom",
@@ -2661,7 +2781,7 @@ trait MutableTerminologyBox
               owlDataFactory
                 .getOWLSubClassOfAxiom(
                   subC,
-                  owlDataFactory.getOWLObjectSomeValuesFrom(rel.unreified, rangeC),
+                  owlDataFactory.getOWLObjectSomeValuesFrom(op, rangeC),
                   java.util.Collections.singleton(createOMFProvenanceAnnotation(uuid))))
           ))
       } yield {
@@ -2808,7 +2928,8 @@ trait MutableTerminologyBox
   (uuid: UUID,
    restrictedEntity: OWLAPIOMF#Entity,
    scalarProperty: OWLAPIOMF#EntityScalarDataProperty,
-   literalValue: LiteralValue)
+   literalValue: LiteralValue,
+   valueType: Option[DataRange])
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#EntityScalarDataPropertyParticularRestrictionAxiom
   = (isTypeTermDefinedRecursively(restrictedEntity),
@@ -2819,7 +2940,7 @@ trait MutableTerminologyBox
         axiom <-
         store
           .registerOMFEntityScalarDataPropertyParticularRestrictionAxiomInstance(this,
-            EntityScalarDataPropertyParticularRestrictionAxiom(uuid, restrictedEntity, scalarProperty, literalValue))
+            EntityScalarDataPropertyParticularRestrictionAxiom(uuid, restrictedEntity, scalarProperty, literalValue, valueType))
         _ <- applyOntologyChangeOrNoOp(
           ontManager,
           new AddAxiom(ont,
@@ -2827,7 +2948,8 @@ trait MutableTerminologyBox
               .getOWLSubClassOfAxiom(
                 subC,
                 owlDataFactory.getOWLDataHasValue(scalarProperty.e,
-                  LiteralConversions.toOWLLiteral(literalValue, owlDataFactory, Option.apply(scalarProperty.range.e))),
+                  LiteralConversions.toOWLLiteral(literalValue, owlDataFactory,
+                    valueType.map(_.e).orElse(Option.apply(scalarProperty.range.e)))),
                 java.util.Collections.singleton(createOMFProvenanceAnnotation(uuid)))),
           ifError = {
             "addEntityScalarDataPropertyParticularRestrictionAxiom Error"

@@ -625,9 +625,10 @@ case class TerminologyBoxResolverHelper
               d <- reasoner.getObjectPropertyDomains(op, true).entities().toScala[List] match {
                 case ld :: Nil =>
                   ld.right
-                case _ =>
+                case lds =>
                   Set[java.lang.Throwable](OMFError.omfError(
-                    s"resolveUnreifiedRelationships: ObjectProperty must have a single domain class: $op")).left
+                    s"resolveUnreifiedRelationships: ObjectProperty must have a single domain class: $op, got: ${lds.size}:" +
+                    lds.map(_.getIRI).mkString("\n# ", "\n# ", "\n"))).left
               }
               ed <- entities.get(d) match {
                 case Some(e) =>

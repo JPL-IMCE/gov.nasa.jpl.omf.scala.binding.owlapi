@@ -19,18 +19,16 @@
 package gov.nasa.jpl.omf.scala.binding.owlapi.types
 
 import gov.nasa.jpl.omf.scala.binding.owlapi.common.Resource
-import org.semanticweb.owlapi.model.OWLNamedObject
+import org.semanticweb.owlapi.model.OWLObject
 
 import scala.{Any, Boolean}
 import scala.Predef.require
 
 trait Term extends Resource with TerminologyBoxStatement {
 
-  val e: OWLNamedObject
+  val e: OWLObject
 
   require(null != e)
-
-  override val iri = e.getIRI
 
   override def canEqual(other: Any)
   : Boolean

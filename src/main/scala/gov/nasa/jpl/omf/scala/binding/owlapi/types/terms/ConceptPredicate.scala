@@ -18,21 +18,37 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.types.terms
 
-import gov.nasa.jpl.omf.scala.binding.owlapi.types.Term
-import org.semanticweb.owlapi.model.OWLNamedObject
+import java.util.UUID
 
-import scala.{Any, Boolean}
+import org.semanticweb.owlapi.model.SWRLClassAtom
 
-trait DataRelationship extends Term {
+import scala.{Any, Boolean, Int}
 
-  override val e: OWLNamedObject
-
-  override val iri = e.getIRI
+case class ConceptPredicate
+(override val a: SWRLClassAtom,
+ override val bodySegment: RuleBodySegment,
+ override val termPredicate: Concept,
+ override val uuid: UUID
+) extends UnarySegmentPredicate {
 
   override def canEqual(other: Any)
   : Boolean
   = other match {
-    case _: DataRelationship => true
+    case _: ConceptPredicate => true
     case _ => false
   }
+
+  override val hashCode: Int = (uuid, termPredicate, bodySegment, a).##
+
+  override def equals(other: Any): Boolean = other match {
+    case that: ConceptPredicate =>
+      (that canEqual this) &&
+        (this.uuid == that.uuid) &&
+        (this.termPredicate == that.termPredicate) &&
+        (this.bodySegment == that.bodySegment) &&
+        (this.a == that.a)
+    case _ =>
+      false
+  }
+
 }

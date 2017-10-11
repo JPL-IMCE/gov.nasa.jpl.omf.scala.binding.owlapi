@@ -20,12 +20,14 @@ package gov.nasa.jpl.omf.scala.binding.owlapi.descriptions
 
 import java.util.UUID
 
-import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.EntityScalarDataProperty
+import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.{DataRange,EntityScalarDataProperty}
 import gov.nasa.jpl.imce.oml.tables.LiteralValue
+import scala.Option
 
 case class SingletonInstanceScalarDataPropertyValue
 ( override val uuid: UUID,
   ei: ConceptualEntitySingletonInstance,
   dataRelationship: EntityScalarDataProperty,
-  value: LiteralValue)
+  value: LiteralValue,
+  valueType: Option[DataRange])
   extends TerminologyInstanceAssertion

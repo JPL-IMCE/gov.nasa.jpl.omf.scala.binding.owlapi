@@ -59,6 +59,8 @@ def fromConfigurationReport
   net.virtualvoid.sbt.graph.ModuleGraph(root +: nodes, edges.flatten)
 }
 
+val owlapiLibs = taskKey[Seq[Attributed[File]]]("OWLAPI libraries")
+
 val extractArchives
 : TaskKey[Unit]
 = TaskKey[Unit]("extract-archives", "Extracts ZIP files")
@@ -74,6 +76,8 @@ lazy val core =
 
     buildInfoPackage := "gov.nasa.jpl.omf.scala.binding.owlapi",
     buildInfoKeys ++= Seq[BuildInfoKey](BuildInfoKey.action("buildDateUTC") { buildUTCDate.value }),
+
+    scalaVersion := Versions.scala,
 
     scalacOptions in (Compile, compile) += "-explaintypes",
 
@@ -98,6 +102,9 @@ lazy val core =
     publishArtifact in Test := true,
 
     resourceDirectory in Test := baseDirectory.value / "target" / "extracted" / "imce-omf_ontologies",
+
+    // Needed to transitively get dependencies from the gov.nasa.jpl.imce:imce.third_party.* zip aggregates
+    classpathTypes += "zip",
 
     libraryDependencies ++= Seq(
 
@@ -137,8 +144,37 @@ lazy val core =
       }
     },
 
-    resolvers += Resolver.bintrayRepo("jpl-imce", "gov.nasa.jpl.imce"),
-    resolvers += Resolver.bintrayRepo("tiwg", "org.omg.tiwg"),
+    owlapiLibs := {
+      val s = streams.value
+      val owlapiDir = baseDirectory.value / "target" / "owlapi"
+      if (owlapiDir.exists()) {
+          s.log.warn(s"*** Skip extracting to folder: $owlapiDir")
+      } else {
+        owlapiDir.mkdirs()
+        for {
+          c <- update.value.configurations
+          if c.configuration == "compile"
+          m <- c.modules
+          (artifact, archive) <- m.artifacts
+          if artifact.name.startsWith("imce.third_party.owlapi_libraries")
+          if artifact.extension.contains("zip")
+          _ = s.log.info(s"*** Artifact=$archive")
+          files = IO.unzip(archive, owlapiDir)
+        } yield ()
+      }
+
+      val jars = (owlapiDir ** "lib" * "*.jar").get.map(Attributed.blank)
+      s.log.warn(s"=> Adding ${jars.size} unmanaged jars for the owlapi")
+
+      jars
+    },
+
+    unmanagedJars in Compile ++= owlapiLibs.value,
+
+    // temporary workaround to JFrog issue #70187
+    resolvers += Resolver.mavenLocal,
+    // restore when JFrog issue #70187 is closed.
+    //resolvers += Resolver.bintrayRepo("jpl-imce", "gov.nasa.jpl.imce"),
 
     resolvers += "Artima Maven Repository" at "http://repo.artima.com/releases",
     scalacOptions in (Compile, compile) += s"-P:artima-supersafe:config-file:${baseDirectory.value}/project/supersafe.cfg",
@@ -151,8 +187,6 @@ lazy val core =
       (compile in Test).value
     },
 
-    libraryDependencies += "com.lihaoyi" % "ammonite" % "0.8.2" % "test" cross CrossVersion.full,
-
     // Avoid unresolvable dependencies from old versions of log4j
     libraryDependencies ~= {
       _ map {
@@ -164,8 +198,16 @@ lazy val core =
         case m => m
       }
     },
-    
-    initialCommands in (Test, console) := """ammonite.Main().run()""",
+
+    // Remove when
+    libraryDependencies ~= {
+      _ map {
+        case m if m.organization == "gov.nasa.jpl.imce" =>
+          m
+            .exclude("net.sourceforge.owlapi", "owlapi-distribution")
+        case m => m
+      }
+    },
 
     classpathTypes += "test-jar",
 

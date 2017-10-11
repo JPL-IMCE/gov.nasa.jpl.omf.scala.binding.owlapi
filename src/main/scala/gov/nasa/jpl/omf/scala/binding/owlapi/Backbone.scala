@@ -255,6 +255,18 @@ object Backbone {
           new AddOntologyAnnotation(ont, b.df.getOWLAnnotation(defP, b.df.getOWLLiteral(true)))
 
         case TerminologyKind.isDesignation =>
+          val defP = b.df.getOWLAnnotationProperty(ops.AnnotationIsDefinition)
+          new AddOntologyAnnotation(ont, b.df.getOWLAnnotation(defP, b.df.getOWLLiteral(false)))
+      },
+      "Error creating backbone ontology")
+    _ <- applyOntologyChangeOrNoOp(
+      ont.getOWLOntologyManager,
+      kind match {
+        case TerminologyKind.isDefinition =>
+          val desP = b.df.getOWLAnnotationProperty(ops.AnnotationIsDesignation)
+          new AddOntologyAnnotation(ont, b.df.getOWLAnnotation(desP, b.df.getOWLLiteral(false)))
+
+        case TerminologyKind.isDesignation =>
           val desP = b.df.getOWLAnnotationProperty(ops.AnnotationIsDesignation)
           new AddOntologyAnnotation(ont, b.df.getOWLAnnotation(desP, b.df.getOWLLiteral(true)))
       },

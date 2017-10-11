@@ -196,6 +196,63 @@ trait OWLAPIOMFtbox extends OMFtbox with OMLAPIOMFcbox {
   override type StructuredDataProperty =
     types.terms.StructuredDataProperty
 
+  override type Rule =
+    types.terms.Rule
+
+  override type ChainRule =
+    types.terms.ChainRule
+
+  override type RuleBodySegment =
+    types.terms.RuleBodySegment
+
+  override type SegmentPredicate =
+    types.terms.SegmentPredicate
+
+  override type UnarySegmentPredicate =
+    types.terms.UnarySegmentPredicate
+
+  override type AspectPredicate =
+    types.terms.AspectPredicate
+
+  override type ConceptPredicate =
+    types.terms.ConceptPredicate
+
+  override type ReifiedRelationshipPredicate =
+    types.terms.ReifiedRelationshipPredicate
+
+  override type BinarySegmentPropertyPredicate =
+    types.terms.BinarySegmentPropertyPredicate
+
+  override type BinarySegmentForwardPropertyPredicate =
+    types.terms.BinarySegmentForwardPropertyPredicate
+
+  override type BinarySegmentReversePropertyPredicate =
+    types.terms.BinarySegmentReversePropertyPredicate
+
+  override type ReifiedRelationshipPropertyPredicate =
+    types.terms.ReifiedRelationshipPropertyPredicate
+
+  override type ReifiedRelationshipInversePropertyPredicate =
+    types.terms.ReifiedRelationshipInversePropertyPredicate
+
+  override type ReifiedRelationshipSourcePropertyPredicate =
+    types.terms.ReifiedRelationshipSourcePropertyPredicate
+
+  override type ReifiedRelationshipSourceInversePropertyPredicate =
+    types.terms.ReifiedRelationshipSourceInversePropertyPredicate
+
+  override type ReifiedRelationshipTargetPropertyPredicate =
+    types.terms.ReifiedRelationshipTargetPropertyPredicate
+
+  override type ReifiedRelationshipTargetInversePropertyPredicate =
+    types.terms.ReifiedRelationshipTargetInversePropertyPredicate
+
+  override type UnreifiedRelationshipPropertyPredicate =
+    types.terms.UnreifiedRelationshipPropertyPredicate
+
+  override type UnreifiedRelationshipInversePropertyPredicate =
+    types.terms.UnreifiedRelationshipInversePropertyPredicate
+
   override type Axiom =
     types.Axiom
 

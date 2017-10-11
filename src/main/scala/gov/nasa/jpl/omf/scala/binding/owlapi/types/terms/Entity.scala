@@ -27,6 +27,8 @@ trait Entity extends Term {
 
   override val e: OWLClass
 
+  override val iri = e.getIRI
+
   override def canEqual(other: Any)
   : Boolean
   = other match {

@@ -22,14 +22,15 @@ import java.util.UUID
 
 import gov.nasa.jpl.imce.oml.tables.LiteralValue
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.Axiom
-import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ScalarOneOfRestriction
+import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.{DataRange,ScalarOneOfRestriction}
 
-import scala.{Any,Boolean,Int}
+import scala.{Any,Boolean,Int,Option}
 
 case class ScalarOneOfLiteralAxiom
 (override val uuid: UUID,
  axiom: ScalarOneOfRestriction,
- value: LiteralValue)
+ value: LiteralValue,
+ valueType: Option[DataRange])
 extends Axiom {
 
   override def canEqual(other: Any)
@@ -48,7 +49,8 @@ extends Axiom {
       (that canEqual this) &&
         (this.uuid == that.uuid) &&
         (this.axiom == that.axiom) &&
-        (this.value == that.value)
+        (this.value == that.value) &&
+        (this.valueType == that.valueType)
     case _ =>
       false
   }

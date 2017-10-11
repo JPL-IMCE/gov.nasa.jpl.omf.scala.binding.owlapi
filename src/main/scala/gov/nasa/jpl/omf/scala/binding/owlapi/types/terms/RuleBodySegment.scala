@@ -18,21 +18,39 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.types.terms
 
-import gov.nasa.jpl.omf.scala.binding.owlapi.types.Term
-import org.semanticweb.owlapi.model.OWLNamedObject
+import java.util.UUID
 
-import scala.{Any, Boolean}
+import gov.nasa.jpl.omf.scala.binding.owlapi.common.Element
 
-trait DataRelationship extends Term {
+import scala.{Any,Boolean,Int,Option,None,Some}
 
-  override val e: OWLNamedObject
+case class RuleBodySegment
+(override val uuid: UUID,
+ chainRule: Option[ChainRule],
+ previousSegment: Option[RuleBodySegment])
+  extends Element {
 
-  override val iri = e.getIRI
+  val position: Int = previousSegment match {
+    case None => 1
+    case Some(seg) => 1 + seg.position
+  }
 
   override def canEqual(other: Any)
   : Boolean
   = other match {
-    case _: DataRelationship => true
+    case _: RuleBodySegment => true
     case _ => false
+  }
+
+  override val hashCode: Int = (uuid, chainRule, previousSegment).##
+
+  override def equals(other: Any): Boolean = other match {
+    case that: RuleBodySegment =>
+      (that canEqual this) &&
+        (this.uuid == that.uuid) &&
+        (this.chainRule == that.chainRule) &&
+        (this.previousSegment == that.previousSegment)
+    case _ =>
+      false
   }
 }

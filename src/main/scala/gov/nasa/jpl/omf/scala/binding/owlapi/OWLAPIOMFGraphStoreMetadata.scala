@@ -294,7 +294,7 @@ abstract class OWLAPIOMFGraphStoreMetadata(omfModule: OWLAPIOMFModule, ontManage
 
   lazy val OMF_MODEL_ENTITY_RELATIONSHIP = omfModelClasses("ModelEntityReifiedRelationship")
   protected val OMF_MODEL_ENTITY_RELATIONSHIP2Instance =
-    scala.collection.mutable.HashMap[ReifiedRelationship, OWLNamedIndividual]()
+    scala.collection.mutable.HashMap[EntityRelationship, OWLNamedIndividual]()
 
   lazy val OMF_MODEL_ENTITY_UNREIFIED_RELATIONSHIP = omfModelClasses("ModelEntityUnreifiedRelationship")
   protected val OMF_MODEL_ENTITY_UNREIFIED_RELATIONSHIP2Instance =

@@ -440,7 +440,8 @@ case class MutableDescriptionBox
   (uuid: UUID,
    ei: descriptions.ConceptualEntitySingletonInstance,
    e2sc: EntityScalarDataProperty,
-   value: LiteralValue)
+   value: LiteralValue,
+   valueType: Option[DataRange])
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ descriptions.SingletonInstanceScalarDataPropertyValue
   = sig
@@ -453,7 +454,7 @@ case class MutableDescriptionBox
         false
     }
     .fold[OMFError.Throwables \/ descriptions.SingletonInstanceScalarDataPropertyValue] {
-    val i = descriptions.SingletonInstanceScalarDataPropertyValue(uuid, ei, e2sc, value)
+    val i = descriptions.SingletonInstanceScalarDataPropertyValue(uuid, ei, e2sc, value, valueType)
     sig.singletonScalarDataPropertyValues += i
     i.right
   } { other =>
@@ -467,12 +468,13 @@ case class MutableDescriptionBox
   (uuid: UUID,
    ei: descriptions.ConceptualEntitySingletonInstance,
    e2sc: EntityScalarDataProperty,
-   value: LiteralValue)
+   value: LiteralValue,
+   valueType: Option[DataRange])
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ descriptions.SingletonInstanceScalarDataPropertyValue
   = for {
-    i <- createSingletonInstanceScalarDataPropertyValue(uuid, ei, e2sc, value)
-    lit = LiteralConversions.toOWLLiteral(value, owlDataFactory, Option.apply(e2sc.range.e))
+    i <- createSingletonInstanceScalarDataPropertyValue(uuid, ei, e2sc, value, valueType)
+    lit = LiteralConversions.toOWLLiteral(value, owlDataFactory, valueType.map(_.e).orElse(Option.apply(e2sc.range.e)))
     _ <- applyOntologyChanges(ontManager,
       Seq(
         new AddAxiom(ont,
@@ -534,7 +536,8 @@ case class MutableDescriptionBox
   (uuid: UUID,
    context: SingletonInstanceStructuredDataPropertyContext,
    s2sc: ScalarDataProperty,
-   value: LiteralValue)
+   value: LiteralValue,
+   valueType: Option[DataRange])
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ descriptions.ScalarDataPropertyValue
   = sig
@@ -547,7 +550,7 @@ case class MutableDescriptionBox
         false
     }
     .fold[OMFError.Throwables \/ descriptions.ScalarDataPropertyValue] {
-    val i = descriptions.ScalarDataPropertyValue(uuid, context, s2sc, value)
+    val i = descriptions.ScalarDataPropertyValue(uuid, context, s2sc, value, valueType)
     sig.scalarDataPropertyValues += i
     i.right
   } { other =>
@@ -561,12 +564,13 @@ case class MutableDescriptionBox
   (uuid: UUID,
    context: SingletonInstanceStructuredDataPropertyContext,
    s2sc: ScalarDataProperty,
-   value: LiteralValue)
+   value: LiteralValue,
+   valueType: Option[DataRange])
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ descriptions.ScalarDataPropertyValue
   = for {
-    i <- createScalarDataPropertyValue(uuid, context, s2sc, value)
-    lit = LiteralConversions.toOWLLiteral(value, owlDataFactory, Option.apply(s2sc.range.e))
+    i <- createScalarDataPropertyValue(uuid, context, s2sc, value, valueType)
+    lit = LiteralConversions.toOWLLiteral(value, owlDataFactory, valueType.map(_.e).orElse(Option.apply(s2sc.range.e)))
     _ <- applyOntologyChanges(ontManager,
       Seq(
         new AddAxiom(ont,

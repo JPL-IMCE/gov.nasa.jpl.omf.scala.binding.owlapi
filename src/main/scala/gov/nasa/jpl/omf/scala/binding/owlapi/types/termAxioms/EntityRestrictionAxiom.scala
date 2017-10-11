@@ -18,14 +18,14 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.types.termAxioms
 
-import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.{Entity, ReifiedRelationship}
+import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.{Entity, EntityRelationship}
 
 import scala.{Any,Boolean}
 import scala.Predef.require
 
 trait EntityRestrictionAxiom extends TermAxiom {
   val restrictedDomain: Entity
-  val restrictedRelation: ReifiedRelationship
+  val restrictedRelation: EntityRelationship
   val restrictedRange: Entity
 
   require(null != restrictedDomain)
