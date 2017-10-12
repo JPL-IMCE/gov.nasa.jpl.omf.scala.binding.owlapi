@@ -236,7 +236,7 @@ trait TerminologyBox extends Module {
         ).left
     }
     .apply({
-      ontManager.saveOntology(ont, f1, saveIRI).right
+      ontManager.saveOntology(ont, f2, saveIRI).right
     })
 
   def save(os: OutputStream): Set[java.lang.Throwable] \/ Unit
@@ -250,6 +250,6 @@ trait TerminologyBox extends Module {
         ).left
     }
     .apply {
-      ontManager.saveOntology(ont, f1, os).right
+      ontManager.saveOntology(ont, f2, os).right
     }
 }
