@@ -30,6 +30,7 @@ case class DescriptionBoxResolverHelper
  dboxImports: Iterable[ImmutableDescriptionBox],
  ont: OWLOntology,
  omfStore: OWLAPIOMFGraphStore,
- om: OntologyMapping) {
+ om: OntologyMapping,
+ ontOps: OWLOntologyOps) {
 
 }

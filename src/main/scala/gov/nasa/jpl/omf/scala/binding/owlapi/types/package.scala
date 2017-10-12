@@ -121,6 +121,8 @@ package object types {
     implicit val ops = omfStore.ops
     implicit val store = omfStore
 
+    implicit val ontOps = new OWLOntologyOps(ont)
+
     val getOntologyUUID: Option[String] =
       ont
         .annotations
@@ -169,16 +171,14 @@ package object types {
             None
         })
 
-    val ontOps = new OWLOntologyOps(ont)
 
     if (ontOps.isBundleOntology) {
       // Bundle
-      val isOpen = ontOps.isOpenWorldDefinitionTerminologyBoxOntology
       val kind =
-        if (isOpen)
-          TerminologyKind.isDefinition
+        if (ontOps.isOpenWorldDefinitionTerminologyBoxOntology)
+          TerminologyKind.isOpenWorld
         else
-          TerminologyKind.isDesignation
+          TerminologyKind.isClosedWorld
 
       omfStore.createOMFBundle(
         ont.getOntologyID.getOntologyIRI.get,
@@ -218,14 +218,13 @@ package object types {
                 )).left[Set[ImmutableTerminologyBox]]
             }
 
-            resolver = TerminologyBoxResolverHelper(omfMetadata, g, tboxExtensions, ont, omfStore, om)
+            resolver = TerminologyBoxResolverHelper(omfMetadata, g, tboxExtensions, ont, omfStore, om, ontOps)
           } yield
             ImmutableTerminologyBoxResolver(resolver)
         }
     } else if (ontOps.isDescriptionBoxOntology) {
       // DescriptionBox
-      val isPartial = ontOps.isFinalDescriptionBoxOntology
-      val kind = if (isPartial)
+      val kind = if (ontOps.isFinalDescriptionBoxOntology)
         DescriptionKind.isPartial
       else
         DescriptionKind.isFinal
@@ -281,18 +280,17 @@ package object types {
                 acc
             }
 
-            resolver = DescriptionBoxResolverHelper(g, tboxImports, dboxImports, ont, omfStore, om)
+            resolver = DescriptionBoxResolverHelper(g, tboxImports, dboxImports, ont, omfStore, om, ontOps)
           } yield
             ImmutableDescriptionBoxResolver(resolver)
         }
     } else {
       // TerminologyGraph
-      val isOpen = ontOps.isOpenWorldDefinitionTerminologyBoxOntology
       val kind =
-        if (isOpen)
-          TerminologyKind.isDefinition
+        if (ontOps.isOpenWorldDefinitionTerminologyBoxOntology)
+          TerminologyKind.isOpenWorld
         else
-          TerminologyKind.isDesignation
+          TerminologyKind.isClosedWorld
 
       omfStore.createOMFTerminologyGraph(
         ont.getOntologyID.getOntologyIRI.get,
@@ -338,7 +336,7 @@ package object types {
                 .map(_ => ())
             }
 
-            resolver = TerminologyBoxResolverHelper(omfMetadata, g, tboxExtensions, ont, omfStore, om)
+            resolver = TerminologyBoxResolverHelper(omfMetadata, g, tboxExtensions, ont, omfStore, om, ontOps)
           } yield
             ImmutableTerminologyBoxResolver(resolver)
         }

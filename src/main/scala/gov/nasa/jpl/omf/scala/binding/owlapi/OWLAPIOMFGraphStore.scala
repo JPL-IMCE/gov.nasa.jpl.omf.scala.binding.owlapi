@@ -229,7 +229,7 @@ extends OWLAPIOMFGraphStoreMetadata(omfModule, ontManager) {
       iri,
       relativeIRIPath = Option.empty[String],
       relativeIRIHashPrefix = Option.empty[String],
-      TerminologyKind.isDefinition,
+      TerminologyKind.isOpenWorld,
       extraProvenanceMetadata =
         Some(OTI2OMFModelTerminologyGraphProvenance(
           provenanceKind = OMFModelTerminologyGraphW3CProvenanceKind,
@@ -744,7 +744,7 @@ extends OWLAPIOMFGraphStoreMetadata(omfModule, ontManager) {
       md.ont, md.backbone)
 
     @scala.annotation.tailrec
-    def convert
+    final def convert
     (acc: OntologyMapping,
      queue: Seq[MutableModule],
      visited: Seq[MutableModule])

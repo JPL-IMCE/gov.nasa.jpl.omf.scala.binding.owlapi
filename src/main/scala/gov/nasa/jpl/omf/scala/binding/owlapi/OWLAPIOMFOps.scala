@@ -1944,26 +1944,24 @@ trait OWLAPIMutableDescriptionBoxOps
 }
 
 class OWLAPIOMFOps
-( val rdfs_label: IRI,
-  val AnnotationHasUUID: IRI,
-  val AnnotationHasID: IRI,
-  val AnnotationHasURL: IRI,
-  val AnnotationHasRelativeIRI: IRI,
-  val AnnotationHasIRIHashPrefix: IRI,
-  val AnnotationHasIRIHashSuffix: IRI,
-  val AnnotationIsAbstract: IRI,
-  val AnnotationIsDerived: IRI,
-  val AnnotationIsBundle: IRI,
-  val AnnotationIsDefinition: IRI,
-  val AnnotationIsDesignation: IRI,
-  val AnnotationIsDescription: IRI,
-  val AnnotationIsDBoxPartial: IRI,
-  val AnnotationIsDBoxFinal: IRI,
-  val AnnotationIsToplevel: IRI,
-  val AnnotationHasContext: IRI,
-  val AnnotationHasGraph: IRI,
-  val AnnotationHasRestrictedSourceProperty: IRI,
-  val AnnotationHasRestrictedTargetProperty: IRI)
+(val rdfs_label: IRI,
+ val AnnotationHasUUID: IRI,
+ val AnnotationHasID: IRI,
+ val AnnotationHasURL: IRI,
+ val AnnotationHasRelativeIRI: IRI,
+ val AnnotationHasIRIHashPrefix: IRI,
+ val AnnotationHasIRIHashSuffix: IRI,
+ val AnnotationIsAbstract: IRI,
+ val AnnotationIsDerived: IRI,
+ val AnnotationIsBundle: IRI,
+ val AnnotationIsDescriptionBox: IRI,
+ val AnnotationIsTerminologyGraph: IRI,
+ val AnnotationIsTerminologyBoxOpen: IRI,
+ val AnnotationIsDescriptionBoxRefinable: IRI,
+ val AnnotationHasContext: IRI,
+ val AnnotationHasGraph: IRI,
+ val AnnotationHasRestrictedSourceProperty: IRI,
+ val AnnotationHasRestrictedTargetProperty: IRI)
   extends OMFOps[OWLAPIOMF]
           with OWLAPIIRIOps
           with OWLAPIMutableTerminologyGraphOps
@@ -2007,8 +2005,34 @@ final class OWLOntologyOps
 (val ont: OWLOntology)
 (implicit val ops: OWLAPIOMFOps) {
 
-  def hasOntologyAnnotation(ap: IRI): Boolean
-  = ont.annotations.toScala[Set].find { _.getProperty.getIRI == ap } match {
+  val df: OWLDataFactory = ont.getOWLOntologyManager.getOWLDataFactory
+
+  val ontAS: Seq[OWLAnnotation] = ont.annotations().toScala[Seq]
+
+  def booleanAnnotationValue(a: OWLAnnotation)
+  : Option[Boolean]
+  = a.getValue match {
+    case l: OWLLiteral if l.isBoolean =>
+      Some(l.parseBoolean)
+    case _ =>
+      None
+  }
+
+  val isBundleAP: OWLAnnotationProperty = df.getOWLAnnotationProperty(ops.AnnotationIsBundle)
+  val ontIsBundle: Boolean = ont.annotations(isBundleAP).toScala[Seq].exists(a => booleanAnnotationValue(a).contains(true))
+
+  val isTerminologyGraphAP: OWLAnnotationProperty = df.getOWLAnnotationProperty(ops.AnnotationIsTerminologyGraph)
+  val isDescriptionBoxAP: OWLAnnotationProperty = df.getOWLAnnotationProperty(ops.AnnotationIsDescriptionBox)
+
+  val isTerminologyBoxOpenAP: OWLAnnotationProperty = df.getOWLAnnotationProperty(ops.AnnotationIsTerminologyBoxOpen)
+  val isDescriptionBoxRefinableAP: OWLAnnotationProperty = df.getOWLAnnotationProperty(ops.AnnotationIsDescriptionBoxRefinable)
+
+
+  def findOntologyAnnotation(ap: IRI): Option[OWLAnnotation]
+  = ontAS.find { _.getProperty.getIRI == ap }
+
+  def checkOntologyAnnotationPresent(ap: IRI, ifAbsent: Boolean): Boolean
+  = findOntologyAnnotation(ap) match {
     case Some(a) =>
       a.getValue match {
         case l: OWLLiteral if l.isBoolean =>
@@ -2017,63 +2041,57 @@ final class OWLOntologyOps
           false
       }
     case _ =>
-      false
+      ifAbsent
+  }
+
+  def checkOntologyAnnotationAbsent(ap: IRI): Boolean
+  = findOntologyAnnotation(ap) match {
+    case Some(a) =>
+      a.getValue match {
+        case l: OWLLiteral if l.isBoolean =>
+          !l.parseBoolean()
+        case _ =>
+          false
+      }
+    case _ =>
+      true
   }
 
   def isTerminologyBoxOntology
   : Boolean
-  = hasOntologyAnnotation(ops.AnnotationIsDefinition) ||
-    hasOntologyAnnotation(ops.AnnotationIsDesignation) ||
-    hasOntologyAnnotation(ops.AnnotationIsBundle)
+  = isBundleOntology || isTerminologyGraphOntology
 
   def isOpenWorldDefinitionTerminologyBoxOntology
   : Boolean
-  = hasOntologyAnnotation(ops.AnnotationIsDefinition) &&
-    !( hasOntologyAnnotation(ops.AnnotationIsDesignation) ||
-       hasOntologyAnnotation(ops.AnnotationIsDescription))
+  = isTerminologyBoxOntology &&
+    checkOntologyAnnotationPresent(ops.AnnotationIsTerminologyBoxOpen, ifAbsent=true)
 
   def isClosedWorldDesignationTerminologyBoxOntology
   : Boolean
-  = hasOntologyAnnotation(ops.AnnotationIsDesignation) &&
-    !(hasOntologyAnnotation(ops.AnnotationIsDefinition) ||
-      hasOntologyAnnotation(ops.AnnotationIsDescription))
+  = isTerminologyBoxOntology &&
+    checkOntologyAnnotationPresent(ops.AnnotationIsTerminologyBoxOpen, ifAbsent=false)
 
   def isTerminologyGraphOntology
   : Boolean
-  = (hasOntologyAnnotation(ops.AnnotationIsDefinition) ||
-     hasOntologyAnnotation(ops.AnnotationIsDesignation)) &&
-    !hasOntologyAnnotation(ops.AnnotationIsBundle)
+  = checkOntologyAnnotationPresent(ops.AnnotationIsTerminologyGraph, ifAbsent=true) &&
+    !isBundleOntology && !isDescriptionBoxOntology
 
   def isBundleOntology
   : Boolean
-  = (hasOntologyAnnotation(ops.AnnotationIsDefinition) ||
-     hasOntologyAnnotation(ops.AnnotationIsDesignation)) &&
-    hasOntologyAnnotation(ops.AnnotationIsBundle)
+  = checkOntologyAnnotationPresent(ops.AnnotationIsBundle, ifAbsent=false)
 
   def isDescriptionBoxOntology
   : Boolean
-  = !(hasOntologyAnnotation(ops.AnnotationIsDefinition) ||
-      hasOntologyAnnotation(ops.AnnotationIsDesignation) ||
-      hasOntologyAnnotation(ops.AnnotationIsBundle)) &&
-    ( hasOntologyAnnotation(ops.AnnotationIsDescription) ||
-      hasOntologyAnnotation(ops.AnnotationIsDBoxPartial) ||
-      hasOntologyAnnotation(ops.AnnotationIsDBoxFinal))
+  = checkOntologyAnnotationPresent(ops.AnnotationIsDescriptionBox, ifAbsent=false)
 
   def isFinalDescriptionBoxOntology
   : Boolean
-  = !(hasOntologyAnnotation(ops.AnnotationIsDefinition) ||
-    hasOntologyAnnotation(ops.AnnotationIsDesignation) ||
-    hasOntologyAnnotation(ops.AnnotationIsBundle)) &&
-    ( hasOntologyAnnotation(ops.AnnotationIsDescription) ||
-      hasOntologyAnnotation(ops.AnnotationIsDBoxFinal) ) &&
-      !hasOntologyAnnotation(ops.AnnotationIsDBoxPartial)
+  = isDescriptionBoxOntology &&
+    checkOntologyAnnotationPresent(ops.AnnotationIsDescriptionBoxRefinable, ifAbsent=false)
 
   def isPartialDescriptionBoxOntology
   : Boolean
-  = !(hasOntologyAnnotation(ops.AnnotationIsDefinition) ||
-    hasOntologyAnnotation(ops.AnnotationIsDesignation) ||
-    hasOntologyAnnotation(ops.AnnotationIsBundle)) &&
-    ( hasOntologyAnnotation(ops.AnnotationIsDescription) ||
-      hasOntologyAnnotation(ops.AnnotationIsDBoxPartial) ) &&
-    !hasOntologyAnnotation(ops.AnnotationIsDBoxFinal)
+  = isDescriptionBoxOntology &&
+    checkOntologyAnnotationPresent(ops.AnnotationIsDescriptionBoxRefinable, ifAbsent=true)
+
 }

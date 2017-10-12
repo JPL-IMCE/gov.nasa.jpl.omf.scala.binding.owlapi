@@ -171,10 +171,9 @@ lazy val core =
 
     unmanagedJars in Compile ++= owlapiLibs.value,
 
-    // temporary workaround to JFrog issue #70187
-    resolvers += Resolver.mavenLocal,
-    // restore when JFrog issue #70187 is closed.
-    //resolvers += Resolver.bintrayRepo("jpl-imce", "gov.nasa.jpl.imce"),
+    scalacOptions in Compile += "-Xexperimental",
+
+    resolvers += Resolver.bintrayRepo("jpl-imce", "gov.nasa.jpl.imce"),
 
     resolvers += "Artima Maven Repository" at "http://repo.artima.com/releases",
     scalacOptions in (Compile, compile) += s"-P:artima-supersafe:config-file:${baseDirectory.value}/project/supersafe.cfg",

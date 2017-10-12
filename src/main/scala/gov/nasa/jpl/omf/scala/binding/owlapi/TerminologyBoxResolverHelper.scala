@@ -42,7 +42,8 @@ case class TerminologyBoxResolverHelper
  imports: Iterable[ImmutableTerminologyBox],
  ont: OWLOntology,
  omfStore: OWLAPIOMFGraphStore,
- om: OntologyMapping) {
+ om: OntologyMapping,
+ ontOps: OWLOntologyOps) {
 
   require(null != omfMetadata)
   require(null != imports)

@@ -18,26 +18,22 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi
 
-import java.util.stream.{Stream => JStream}
 
 import org.semanticweb.owlapi.model.OWLOntology
 import org.semanticweb.owlapi.model.OWLClass
 import org.semanticweb.owlapi.model.IRI
 import org.semanticweb.owlapi.model.AddAxiom
 import org.semanticweb.owlapi.model.AddOntologyAnnotation
-import org.semanticweb.owlapi.model.OWLAnnotation
 import org.semanticweb.owlapi.model.OWLObjectProperty
 import org.semanticweb.owlapi.model.OWLDataProperty
 import org.semanticweb.owlapi.model.OWLEntity
-import org.semanticweb.owlapi.model.OWLLiteral
 
 import gov.nasa.jpl.omf.scala.core._
 import gov.nasa.jpl.omf.scala.core.OMLString.LocalName
 import gov.nasa.jpl.omf.scala.core.TerminologyKind
 
-import scala.compat.java8.FunctionConverters._
 import scala.collection.immutable._
-import scala.{Boolean,Enumeration,Option}
+import scala.{Enumeration,Option}
 import scala.Predef.{Set=>_,Map=>_,_}
 import scalaz._, Scalaz._
 
@@ -250,25 +246,13 @@ object Backbone {
     _ <- applyOntologyChangeOrNoOp(
       ont.getOWLOntologyManager,
       kind match {
-        case TerminologyKind.isDefinition =>
-          val defP = b.df.getOWLAnnotationProperty(ops.AnnotationIsDefinition)
+        case TerminologyKind.`isOpenWorld` =>
+          val defP = b.df.getOWLAnnotationProperty(ops.AnnotationIsTerminologyBoxOpen)
           new AddOntologyAnnotation(ont, b.df.getOWLAnnotation(defP, b.df.getOWLLiteral(true)))
 
-        case TerminologyKind.isDesignation =>
-          val defP = b.df.getOWLAnnotationProperty(ops.AnnotationIsDefinition)
+        case TerminologyKind.`isClosedWorld` =>
+          val defP = b.df.getOWLAnnotationProperty(ops.AnnotationIsTerminologyBoxOpen)
           new AddOntologyAnnotation(ont, b.df.getOWLAnnotation(defP, b.df.getOWLLiteral(false)))
-      },
-      "Error creating backbone ontology")
-    _ <- applyOntologyChangeOrNoOp(
-      ont.getOWLOntologyManager,
-      kind match {
-        case TerminologyKind.isDefinition =>
-          val desP = b.df.getOWLAnnotationProperty(ops.AnnotationIsDesignation)
-          new AddOntologyAnnotation(ont, b.df.getOWLAnnotation(desP, b.df.getOWLLiteral(false)))
-
-        case TerminologyKind.isDesignation =>
-          val desP = b.df.getOWLAnnotationProperty(ops.AnnotationIsDesignation)
-          new AddOntologyAnnotation(ont, b.df.getOWLAnnotation(desP, b.df.getOWLLiteral(true)))
       },
       "Error creating backbone ontology")
   } yield b
@@ -281,12 +265,12 @@ object Backbone {
       ont.getOWLOntologyManager,
       kind match {
         case DescriptionKind.isPartial =>
-          val ap = b.df.getOWLAnnotationProperty(ops.AnnotationIsDBoxPartial)
+          val ap = b.df.getOWLAnnotationProperty(ops.AnnotationIsDescriptionBoxRefinable)
           new AddOntologyAnnotation(ont, b.df.getOWLAnnotation(ap, b.df.getOWLLiteral(true)))
 
         case DescriptionKind.isFinal =>
-          val sp = b.df.getOWLAnnotationProperty(ops.AnnotationIsDBoxFinal)
-          new AddOntologyAnnotation(ont, b.df.getOWLAnnotation(sp, b.df.getOWLLiteral(true)))
+          val sp = b.df.getOWLAnnotationProperty(ops.AnnotationIsDescriptionBoxRefinable)
+          new AddOntologyAnnotation(ont, b.df.getOWLAnnotation(sp, b.df.getOWLLiteral(false)))
       },
       "Error creating backbone ontology")
   } yield b
@@ -378,12 +362,13 @@ object Backbone {
   /**
    * @todo needs: annotation:isAbstract
    */
-  def resolveBackbone(
-    ont: OWLOntology,
+  def resolveTerminologyBoxBackbone
+  ( ont: OWLOntology,
     bCs: Set[OWLClass],
     bOPs: Set[OWLObjectProperty],
     bDPs: Set[OWLDataProperty],
-    ops: OWLAPIOMFOps )
+    ops: OWLAPIOMFOps,
+    ontOps: OWLOntologyOps)
   : Set[java.lang.Throwable] \/ Backbone = {
     import ops._
     val bIRI = toBackboneIRI(ont.getOntologyID.getOntologyIRI.get)
@@ -397,22 +382,10 @@ object Backbone {
             .right
         }
 
-    val aFilter = (a: OWLAnnotation) => a.getProperty.getIRI == ops.AnnotationIsDesignation
-
-    val mapper = (a: OWLAnnotation) =>
-      a.getValue match {
-        case l: OWLLiteral if l.isBoolean =>
-          JStream.of[Boolean](l.parseBoolean)
-        case _ =>
-          JStream.of[Boolean]()
-      }
-
-    val hasIsDesignation = ont.annotations().
-      filter(aFilter.asJava).
-      flatMap(mapper.asJava).findFirst()
-
-    val kind: TerminologyKind =
-      if (hasIsDesignation.orElse(false)) TerminologyKind.isDesignation else TerminologyKind.isDefinition
+    val kind: TerminologyKind = if (ontOps.isOpenWorldDefinitionTerminologyBoxOntology)
+      TerminologyKind.isOpenWorld
+    else
+      TerminologyKind.isClosedWorld
 
     for {
       _Thing <- lookup(LocalName("Thing"), bCs)

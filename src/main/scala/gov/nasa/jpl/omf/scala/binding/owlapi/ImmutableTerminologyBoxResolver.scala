@@ -556,7 +556,7 @@ case class ImmutableTerminologyBoxResolver(resolver: TerminologyBoxResolverHelpe
         .filter(ont.isDeclared)
         .partition { c => isBackboneIRI(c.getIRI) }
 
-      b <- Backbone.resolveBackbone(ont, bCs, bOPs, bDPs, resolver.omfStore.ops)
+      b <- Backbone.resolveTerminologyBoxBackbone(ont, bCs, bOPs, bDPs, resolver.omfStore.ops, resolver.ontOps)
 
       resolved <- b match {
         case backbone: OMFBackbone =>

@@ -276,7 +276,11 @@ package object owlapi {
   = ont
     .annotations()
     .toScala[Vector]
-    .filterNot(_.getProperty.getIRI.getIRIString.startsWith("http://imce.jpl.nasa.gov/foundation"))
+    .filterNot { a =>
+      val apIRI = a.getProperty.getIRI.getIRIString
+      apIRI.startsWith("http://imce.jpl.nasa.gov/foundation") ||
+        apIRI.startsWith("http://imce.jpl.nasa.gov/oml")
+    }
 
   def getRelevantSubjectAnnotationAssertions
   (ont: OWLOntology, iri: IRI)
@@ -284,6 +288,10 @@ package object owlapi {
   = ont
     .annotationAssertionAxioms(iri)
     .toScala[Vector]
-    .filterNot(_.getProperty.getIRI.getIRIString.startsWith("http://imce.jpl.nasa.gov/foundation"))
+    .filterNot { a =>
+      val apIRI = a.getProperty.getIRI.getIRIString
+      apIRI.startsWith("http://imce.jpl.nasa.gov/foundation") ||
+        apIRI.startsWith("http://imce.jpl.nasa.gov/oml")
+    }
 
 }

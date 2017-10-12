@@ -245,7 +245,7 @@ object OWLAPIOMFLoader {
        queue: Set[IRI] = Set.empty) {}
 
       @annotation.tailrec
-      def loadOntologiesRecursively
+      final def loadOntologiesRecursively
       (s: OntologyLoaderState)
       (implicit ops: OWLAPIOMFOps, store: OWLAPIOMFGraphStore, drc: BuiltInDatatypeMap)
       : Throwables \/ OntologyLoadedState

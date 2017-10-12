@@ -76,25 +76,19 @@ object OWLAPIOMFModule {
     OWLAPIIRIOps.makeIRI("http://imce.jpl.nasa.gov/foundation/annotation/annotation#isDerived")
 
     AnnotationIsBundle <-
-    OWLAPIIRIOps.makeIRI("http://imce.jpl.nasa.gov/foundation/annotation/annotation#isBundle")
+    OWLAPIIRIOps.makeIRI("http://imce.jpl.nasa.gov/oml/oml#isOMLBundle")
 
-    AnnotationIsDefinition <-
-    OWLAPIIRIOps.makeIRI("http://imce.jpl.nasa.gov/foundation/annotation/annotation#isDefinition")
+    AnnotationIsDescriptionBox <-
+    OWLAPIIRIOps.makeIRI("http://imce.jpl.nasa.gov/oml/oml#isOMLDescriptionBox")
 
-    AnnotationIsDesignation <-
-    OWLAPIIRIOps.makeIRI("http://imce.jpl.nasa.gov/foundation/annotation/annotation#isDesignation")
+    AnnotationIsTerminologyGraph <-
+    OWLAPIIRIOps.makeIRI("http://imce.jpl.nasa.gov/oml/oml#isOMLTerminologyGraph")
 
-    AnnotationIsDescription <-
-    OWLAPIIRIOps.makeIRI("http://imce.jpl.nasa.gov/foundation/annotation/annotation#isDescription")
+    AnnotationIsTerminologyBoxOpen <-
+    OWLAPIIRIOps.makeIRI("http://imce.jpl.nasa.gov/oml/oml#isTerminologyBoxOpen")
 
-    AnnotationIsDBoxPartial <-
-    OWLAPIIRIOps.makeIRI("http://imce.jpl.nasa.gov/foundation/annotation/annotation#isPartialDescriptionBox")
-
-    AnnotationIsDBoxFinal <-
-    OWLAPIIRIOps.makeIRI("http://imce.jpl.nasa.gov/foundation/annotation/annotation#isFinalDescriptionBox")
-
-    AnnotationIsToplevel <-
-    OWLAPIIRIOps.makeIRI("http://imce.jpl.nasa.gov/foundation/annotation/annotation#isToplevel")
+    AnnotationIsDescriptionBoxRefinable <-
+    OWLAPIIRIOps.makeIRI("http://imce.jpl.nasa.gov/oml/oml#isDescriptionBoxRefinable")
 
     AnnotationHasContext <-
     OWLAPIIRIOps.makeIRI("http://imce.jpl.nasa.gov/foundation/annotation/annotation#hasContext")
@@ -122,12 +116,10 @@ object OWLAPIOMFModule {
       AnnotationIsAbstract,
       AnnotationIsDerived,
       AnnotationIsBundle,
-      AnnotationIsDefinition,
-      AnnotationIsDesignation,
-      AnnotationIsDescription,
-      AnnotationIsDBoxPartial,
-      AnnotationIsDBoxFinal,
-      AnnotationIsToplevel,
+      AnnotationIsDescriptionBox,
+      AnnotationIsTerminologyGraph,
+      AnnotationIsTerminologyBoxOpen,
+      AnnotationIsDescriptionBoxRefinable,
       AnnotationHasContext,
       AnnotationHasGraph,
       AnnotationHasRestrictedSourceProperty,

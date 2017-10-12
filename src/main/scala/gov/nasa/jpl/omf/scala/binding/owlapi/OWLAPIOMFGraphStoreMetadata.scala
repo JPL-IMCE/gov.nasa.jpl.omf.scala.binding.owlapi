@@ -564,9 +564,9 @@ abstract class OWLAPIOMFGraphStoreMetadata(omfModule: OWLAPIOMFModule, ontManage
               owlDataFactory
                 .getOWLObjectPropertyAssertionAxiom(OMF_HAS_TERMINOLOGY_KIND, graphI,
                   it.sig.kind match {
-                    case TerminologyKind.isDefinition =>
+                    case TerminologyKind.`isOpenWorld` =>
                       OMF_DEFINITION_TBOX
-                    case TerminologyKind.isDesignation =>
+                    case TerminologyKind.`isClosedWorld` =>
                       OMF_TOPLEVEL_DESIGNATION_TBOX
                   }))) ++
               createOntologyChangesForOMFModelTerminologyGraphProvenanceMetadata(mo, it, graphI)
@@ -625,9 +625,9 @@ abstract class OWLAPIOMFGraphStoreMetadata(omfModule: OWLAPIOMFModule, ontManage
       graphIRI <- makeMetadataInstanceIRI(mo, "Grw", iri)
       graphI = owlDataFactory.getOWLNamedIndividual(graphIRI)
       okind = kind match {
-        case TerminologyKind.isDefinition =>
+        case TerminologyKind.`isOpenWorld` =>
           OMF_DEFINITION_TBOX
-        case TerminologyKind.isDesignation =>
+        case TerminologyKind.`isClosedWorld` =>
           OMF_DESIGNATION_TBOX
       }
       _ <- applyOntologyChangesOrNoOp(ontManager,
@@ -684,9 +684,9 @@ abstract class OWLAPIOMFGraphStoreMetadata(omfModule: OWLAPIOMFModule, ontManage
       graphIRI <- makeMetadataInstanceIRI(mo, "Grw", iri)
       graphI = owlDataFactory.getOWLNamedIndividual(graphIRI)
       okind = kind match {
-        case TerminologyKind.isDefinition =>
+        case TerminologyKind.`isOpenWorld` =>
           OMF_DEFINITION_TBOX
-        case TerminologyKind.isDesignation =>
+        case TerminologyKind.`isClosedWorld` =>
           OMF_DESIGNATION_TBOX
       }
       _ <- applyOntologyChangesOrNoOp(ontManager,
