@@ -230,7 +230,8 @@ case class TerminologyBoxResolverHelper
         |inv o. p.=${ropInfo._5}
         |""".stripMargin('|')
 
-  type Chains = Set[(OWLObjectProperty, OWLObjectProperty, OWLObjectProperty)]
+  type Chain = (OWLObjectProperty, OWLObjectProperty, OWLObjectProperty)
+  type Chains = Set[Chain]
 
   def chainToString(chain: (OWLObjectProperty, OWLObjectProperty, OWLObjectProperty))
   : String
@@ -621,14 +622,14 @@ case class TerminologyBoxResolverHelper
                   o.right
                 case inv: OWLObjectInverseOf =>
                   Set[java.lang.Throwable](OMFError.omfError(
-                    s"resolveUnreifiedRelationships: OWLObjectPropertyInverseOf not allowed: $exp")).left
+                    s"resolveUnreifiedRelationships: $subOP: OWLObjectPropertyInverseOf not allowed: $exp")).left
               }
               d <- reasoner.getObjectPropertyDomains(op, true).entities().toScala[List] match {
                 case ld :: Nil =>
                   ld.right
                 case lds =>
                   Set[java.lang.Throwable](OMFError.omfError(
-                    s"resolveUnreifiedRelationships: ObjectProperty must have a single domain class: $op, got: ${lds.size}:" +
+                    s"resolveUnreifiedRelationships: $subOP: ObjectProperty must have a single domain class: $op, got: ${lds.size}:" +
                     lds.map(_.getIRI).mkString("\n# ", "\n# ", "\n"))).left
               }
               ed <- entities.get(d) match {
@@ -636,21 +637,21 @@ case class TerminologyBoxResolverHelper
                   e.right
                 case None =>
                   Set[java.lang.Throwable](OMFError.omfError(
-                    s"resolveUnreifiedRelationships: ObjectProperty $op domain is not an entity: $d")).left
+                    s"resolveUnreifiedRelationships: $subOP: ObjectProperty $op domain is not an entity: $d")).left
               }
               r <- reasoner.getObjectPropertyRanges(op, true).entities().toScala[List] match {
                 case lr :: Nil =>
                   lr.right
                 case _ =>
                   Set[java.lang.Throwable](OMFError.omfError(
-                    s"resolveUnreifiedRelationships: ObjectProperty must have a single range class: $op")).left
+                    s"resolveUnreifiedRelationships: $subOP: ObjectProperty must have a single range class: $op")).left
               }
               er <- entities.get(r) match {
                 case Some(e) =>
                   e.right
                 case None =>
                   Set[java.lang.Throwable](OMFError.omfError(
-                    s"resolveUnreifiedRelationships: ObjectProperty $op range is not an entity: $r")).left
+                    s"resolveUnreifiedRelationships: $subOP: ObjectProperty $op range is not an entity: $r")).left
               }
 
               maybeFunctional
@@ -913,4 +914,170 @@ case class TerminologyBoxResolverHelper
         } yield next
     }
   }
+
+  def resolveImplicationRule
+  (rl: Set[java.lang.Throwable] \/ SWRLRule,
+   unreifiedRelationships: Map[OWLObjectProperty, UnreifiedRelationship],
+   reifiedRelationships: Map[OWLObjectProperty, ReifiedRelationship],
+   entities: Map[OWLClass, Entity])
+  : Set[java.lang.Throwable] \/ Unit
+  = for {
+    r <- rl
+    head: Seq[SWRLAtom] =r.head.toScala[Seq]
+    body: Seq[SWRLAtom] = r.body().toScala[Seq]
+    as: Seq[OWLAnnotation] = r.annotations(ontOps.df.getRDFSLabel()).toScala[Seq]
+
+    _ <- if (1 != head.size || body.isEmpty || 1 != as.size)
+      -\/(Set[java.lang.Throwable](
+        OMFError.omfError(
+          s"An OML chain rule in OWL2-DL + SWRL must have exactly 1 head (got: ${head.size}), " +
+            s"at least one body (got ${body.size}) and exactly one rdfs:label annotation (got ${as.size}):\n$r")))
+    else
+      \/-(())
+
+    label <- as.head.getValue match {
+      case lit: OWLLiteral =>
+        \/-(OMLString.LocalName(lit.getLiteral))
+      case other =>
+        -\/(Set[java.lang.Throwable](
+          OMFError.omfError(
+            s"An OML chain rule in OWL2-DL + SWRL must have exactly 1 rdfs:label literal annotation, got $other"
+          )))
+    }
+
+    chainRule <- head.head.getPredicate match {
+      case op: OWLObjectProperty =>
+        unreifiedRelationships.get(op) match {
+          case Some(ur) =>
+            tboxG.createChainRule(r, OMLString.LocalName(label), ur)
+          case None =>
+            -\/(Set[java.lang.Throwable](
+              OMFError.omfError(
+                s"${op.getIRI} is an unrecognized OML UnreifiedRelationship predicate for the head of an An OML chain rule in OWL2-DL + SWRL"
+              )))
+        }
+      case other =>
+        -\/(Set[java.lang.Throwable](
+          OMFError.omfError(
+            s"An OML chain rule in OWL2-DL + SWRL must have exactly 1 OWLObjectProperty head predicate, got $other"
+          )))
+    }
+
+    firstSegment = resolveBodyAtom(
+      body.head, Some(chainRule), None,
+      unreifiedRelationships, reifiedRelationships, entities)
+
+    _ <- body.tail.foldLeft[Set[java.lang.Throwable] \/ RuleBodySegment](firstSegment) { case (prev, atom) =>
+      for {
+        previousSegment <- prev
+        nextSegment <- resolveBodyAtom(
+          atom, None, Some(previousSegment),
+          unreifiedRelationships, reifiedRelationships, entities)
+      } yield nextSegment
+    }
+
+  } yield ()
+
+  def resolveBodyAtom
+  (atom: SWRLAtom,
+   rule: Option[ChainRule],
+   previousSegment: Option[RuleBodySegment],
+   unreifiedRelationships: Map[OWLObjectProperty, UnreifiedRelationship],
+   reifiedRelationships: Map[OWLObjectProperty, ReifiedRelationship],
+   entities: Map[OWLClass, Entity])
+  : Set[java.lang.Throwable] \/ RuleBodySegment
+  = for {
+    bodySegment <- tboxG.createRuleBodySegment(rule, previousSegment)
+    segmentPredicate <- atom match {
+      case a: SWRLClassAtom =>
+        a.getPredicate match {
+          case cls: OWLClass =>
+            entities.get(cls) match {
+              case Some(oA: Aspect) =>
+                tboxG.createAspectPredicate(a, bodySegment, oA)
+              case Some(oC: Concept) =>
+                tboxG.createConceptPredicate(a, bodySegment, oC)
+              case Some(oRR: ReifiedRelationship) =>
+                tboxG.createReifiedRelationshipPredicate(a, bodySegment, oRR)
+              case other =>
+                -\/(Set[java.lang.Throwable](
+                  OMFError.omfError(
+                    s"Invalid body class atom predicate: $cls as OML: $other")))
+            }
+          case ce =>
+            -\/(Set[java.lang.Throwable](
+              OMFError.omfError(
+                s"Unrecognized body class atom predicate: $ce")))
+        }
+      case a: SWRLObjectPropertyAtom =>
+        a.getPredicate match {
+          case op: OWLObjectProperty =>
+            unreifiedRelationships.get(op) match {
+              case Some(ur) =>
+                tboxG.createUnreifiedRelationshipPropertyPredicate(a, bodySegment, ur)
+              case None =>
+                reifiedRelationships.get(op) match {
+                  case Some(rr) =>
+                    if (rr.unreified == op)
+                      tboxG.createReifiedRelationshipPropertyPredicate(a, bodySegment, rr)
+                    else if (rr.rSource == op)
+                      tboxG.createReifiedRelationshipSourcePropertyPredicate(a, bodySegment, rr)
+                    else if (rr.rTarget == op)
+                      tboxG.createReifiedRelationshipTargetPropertyPredicate(a, bodySegment, rr)
+                    else if (rr.inverse.contains(op))
+                      tboxG.createReifiedRelationshipInversePropertyPredicate(a, bodySegment, rr)
+                    else
+                      -\/(Set[java.lang.Throwable](
+                        OMFError.omfError(
+                          s"Unrecognized body object property atom predicate: $op from OML ReifiedRelatinship: $rr")))
+                  case None =>
+                    -\/(Set[java.lang.Throwable](
+                      OMFError.omfError(
+                        s"Unrecognized body object property atom predicate: $op")))
+                }
+            }
+          case inv: OWLObjectInverseOf =>
+            inv.getInverseProperty match {
+              case op: OWLObjectProperty =>
+                unreifiedRelationships.get(op) match {
+                  case Some(ur) =>
+                    tboxG.createUnreifiedRelationshipInversePropertyPredicate(a, bodySegment, ur)
+                  case None =>
+                    reifiedRelationships.get(op) match {
+                      case Some(rr) =>
+                        if (rr.unreified == op)
+                          tboxG.createReifiedRelationshipInversePropertyPredicate(a, bodySegment, rr)
+                        else if (rr.rSource == op)
+                          tboxG.createReifiedRelationshipSourceInversePropertyPredicate(a, bodySegment, rr)
+                        else if (rr.rTarget == op)
+                          tboxG.createReifiedRelationshipTargetInversePropertyPredicate(a, bodySegment, rr)
+                        else if (rr.inverse.contains(op))
+                          tboxG.createReifiedRelationshipPropertyPredicate(a, bodySegment, rr)
+                        else
+                          -\/(Set[java.lang.Throwable](
+                            OMFError.omfError(
+                              s"Unrecognized body inverse object property atom predicate: $op from OML ReifiedRelatinship: $rr")))
+                      case None =>
+                        -\/(Set[java.lang.Throwable](
+                          OMFError.omfError(
+                            s"Unrecognized body inverse object property atom predicate: $op")))
+                    }
+                }
+              case ope =>
+                -\/(Set[java.lang.Throwable](
+                  OMFError.omfError(
+                    s"Unrecognized body inverse object property atom predicate: $ope")))
+            }
+          case ope =>
+            -\/(Set[java.lang.Throwable](
+              OMFError.omfError(
+                s"Unrecognized body object property atom predicate: $ope")))
+        }
+      case other =>
+        -\/(Set[java.lang.Throwable](
+          OMFError.omfError(
+            s"Unrecognized body atom predicate: $other")))
+    }
+  } yield bodySegment
+
 }

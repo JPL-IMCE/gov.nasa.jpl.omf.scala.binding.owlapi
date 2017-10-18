@@ -20,13 +20,10 @@ package gov.nasa.jpl.omf.scala.binding.owlapi.types.terms
 
 import java.util.UUID
 
-import org.semanticweb.owlapi.model.SWRLObjectPropertyAtom
-
 import scala.{Any,Boolean,Int}
 
 case class ReifiedRelationshipSourceInversePropertyPredicate
-(override val a: SWRLObjectPropertyAtom,
- override val bodySegment: RuleBodySegment,
+(override val bodySegment: RuleBodySegment,
  override val termPredicate: ReifiedRelationship,
  override val uuid: UUID
  ) extends BinarySegmentReversePropertyPredicate {
@@ -38,15 +35,14 @@ case class ReifiedRelationshipSourceInversePropertyPredicate
     case _ => false
   }
 
-  override val hashCode: Int = (uuid, termPredicate, bodySegment, a).##
+  override val hashCode: Int = (uuid, termPredicate, bodySegment).##
 
   override def equals(other: Any): Boolean = other match {
     case that: ReifiedRelationshipSourceInversePropertyPredicate =>
       (that canEqual this) &&
         (this.uuid == that.uuid) &&
         (this.termPredicate == that.termPredicate) &&
-        (this.bodySegment == that.bodySegment) &&
-        (this.a == that.a)
+        (this.bodySegment == that.bodySegment)
     case _ =>
       false
   }

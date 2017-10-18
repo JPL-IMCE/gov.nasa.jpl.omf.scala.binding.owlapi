@@ -22,13 +22,10 @@ import gov.nasa.jpl.omf.scala.binding.owlapi.common.Resource
 import org.semanticweb.owlapi.model.OWLObject
 
 import scala.{Any, Boolean}
-import scala.Predef.require
 
 trait Term extends Resource with TerminologyBoxStatement {
 
   val e: OWLObject
-
-  require(null != e)
 
   override def canEqual(other: Any)
   : Boolean

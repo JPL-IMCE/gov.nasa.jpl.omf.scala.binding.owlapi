@@ -42,6 +42,7 @@ object ElementExceptionKind extends Enumeration {
   TimeScalarRestriction,
   ConceptInstance,
   ReifiedRelationshipInstance,
-  AnnotationProperty
+  AnnotationProperty,
+  ChainRule
   = Value
 }

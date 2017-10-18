@@ -1152,18 +1152,73 @@ trait OWLAPIImmutableTerminologyGraphOps
   override def fromChainRule
   (ax: OWLAPIOMF#ChainRule)
   : ChainRuleSignature[OWLAPIOMF]
-  = ChainRuleSignature[OWLAPIOMF](ax.uuid, ax.head)
+  = ChainRuleSignature[OWLAPIOMF](ax.name, ax.uuid, ax.head)
 
   override def fromRuleBodySegment
   (ax: OWLAPIOMF#RuleBodySegment)
   : RuleBodySegmentSignature[OWLAPIOMF]
   = RuleBodySegmentSignature[OWLAPIOMF](ax.uuid, ax.position, ax.chainRule, ax.previousSegment)
 
+  override def fromAspectPredicate
+  (ax: OWLAPIOMF#AspectPredicate)
+  : AspectPredicateSignature[OWLAPIOMF]
+  = AspectPredicateSignature[OWLAPIOMF](ax.uuid, ax.bodySegment, ax.termPredicate)
+
+  override def fromConceptPredicate
+  (ax: OWLAPIOMF#ConceptPredicate)
+  : ConceptPredicateSignature[OWLAPIOMF]
+  = ConceptPredicateSignature[OWLAPIOMF](ax.uuid, ax.bodySegment, ax.termPredicate)
+
+  override def fromReifiedRelationshipPredicate
+  (ax: OWLAPIOMF#ReifiedRelationshipPredicate)
+  : ReifiedRelationshipPredicateSignature[OWLAPIOMF]
+  = ReifiedRelationshipPredicateSignature[OWLAPIOMF](ax.uuid, ax.bodySegment, ax.termPredicate)
+
+  override def fromReifiedRelationshipPropertyPredicate
+  (ax: OWLAPIOMF#ReifiedRelationshipPropertyPredicate)
+  : ReifiedRelationshipPropertyPredicateSignature[OWLAPIOMF]
+  = ReifiedRelationshipPropertyPredicateSignature[OWLAPIOMF](ax.uuid, ax.bodySegment, ax.termPredicate)
+
+  override def fromReifiedRelationshipInversePropertyPredicate
+  (ax: OWLAPIOMF#ReifiedRelationshipInversePropertyPredicate)
+  : ReifiedRelationshipInversePropertyPredicateSignature[OWLAPIOMF]
+  = ReifiedRelationshipInversePropertyPredicateSignature[OWLAPIOMF](ax.uuid, ax.bodySegment, ax.termPredicate)
+
+  override def fromReifiedRelationshipSourcePropertyPredicate
+  (ax: OWLAPIOMF#ReifiedRelationshipSourcePropertyPredicate)
+  : ReifiedRelationshipSourcePropertyPredicateSignature[OWLAPIOMF]
+  = ReifiedRelationshipSourcePropertyPredicateSignature[OWLAPIOMF](ax.uuid, ax.bodySegment, ax.termPredicate)
+
+  override def fromReifiedRelationshipSourceInversePropertyPredicate
+  (ax: OWLAPIOMF#ReifiedRelationshipSourceInversePropertyPredicate)
+  : ReifiedRelationshipSourceInversePropertyPredicateSignature[OWLAPIOMF]
+  = ReifiedRelationshipSourceInversePropertyPredicateSignature[OWLAPIOMF](ax.uuid, ax.bodySegment, ax.termPredicate)
+
+  override def fromReifiedRelationshipTargetPropertyPredicate
+  (ax: OWLAPIOMF#ReifiedRelationshipTargetPropertyPredicate)
+  : ReifiedRelationshipTargetPropertyPredicateSignature[OWLAPIOMF]
+  = ReifiedRelationshipTargetPropertyPredicateSignature[OWLAPIOMF](ax.uuid, ax.bodySegment, ax.termPredicate)
+
+  override def fromReifiedRelationshipTargetInversePropertyPredicate
+  (ax: OWLAPIOMF#ReifiedRelationshipTargetInversePropertyPredicate)
+  : ReifiedRelationshipTargetInversePropertyPredicateSignature[OWLAPIOMF]
+  = ReifiedRelationshipTargetInversePropertyPredicateSignature[OWLAPIOMF](ax.uuid, ax.bodySegment, ax.termPredicate)
+
+  override def fromUnreifiedRelationshipPropertyPredicate
+  (ax: OWLAPIOMF#UnreifiedRelationshipPropertyPredicate)
+  : UnreifiedRelationshipPropertyPredicateSignature[OWLAPIOMF]
+  = UnreifiedRelationshipPropertyPredicateSignature[OWLAPIOMF](ax.uuid, ax.bodySegment, ax.termPredicate)
+
+  override def fromUnreifiedRelationshipInversePropertyPredicate
+  (ax: OWLAPIOMF#UnreifiedRelationshipInversePropertyPredicate)
+  : UnreifiedRelationshipInversePropertyPredicateSignature[OWLAPIOMF]
+  = UnreifiedRelationshipInversePropertyPredicateSignature[OWLAPIOMF](ax.uuid, ax.bodySegment, ax.termPredicate)
+
 }
 
 trait OWLAPIMutableTerminologyGraphOps
   extends MutableTerminologyGraphOps[OWLAPIOMF]
-          with OWLAPIImmutableTerminologyGraphOps {
+    with OWLAPIImmutableTerminologyGraphOps {
   self: OWLAPIOMFOps =>
 
   override def addTerminologyAnnotationProperty
@@ -1472,6 +1527,13 @@ trait OWLAPIMutableTerminologyGraphOps
   (implicit store: OWLAPIOMFGraphStore)
   : Throwables \/ StructuredDataProperty
   = tbox.addDataRelationshipFromStructureToStructure(dataRelationshipIRI, dataRelationshipName, uuid, source, target)
+
+  override def makeChainRule
+  (tbox: MutableTerminologyBox,
+   rule: ChainRule)
+  (implicit store: OWLAPIOMFGraphStore)
+  : Throwables \/ Unit
+  = tbox.makeChainRule(rule)
 
   override protected def addChainRule
   (tbox: MutableTerminologyBox,

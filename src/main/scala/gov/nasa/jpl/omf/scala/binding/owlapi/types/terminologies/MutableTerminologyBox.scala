@@ -19,7 +19,7 @@
 package gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies
 
 import java.lang.Integer
-import java.util.UUID
+import java.util.{Collections,UUID}
 
 import gov.nasa.jpl.imce.oml.tables
 import gov.nasa.jpl.imce.oml.tables.{AnnotationProperty, AnnotationPropertyValue, LiteralValue}
@@ -42,7 +42,7 @@ import org.semanticweb.owlapi.vocab.OWLFacet
 import scala.collection.JavaConversions._
 import scala.compat.java8.StreamConverters._
 import scala.collection.immutable.{Iterable, Map, Seq, Set}
-import scala.{Any, Boolean, None, Option, Some, StringContext}
+import scala.{Any, Boolean, Int, None, Option, Some, StringContext, Unit}
 import scala.Predef.{ArrowAssoc, String, require}
 import scalaz._
 import Scalaz._
@@ -52,6 +52,15 @@ trait MutableTerminologyBox
     with MutableModule {
 
   import ops._
+
+  val chainRule2SWRLRule = new scala.collection.mutable.HashMap[ChainRule, SWRLRule]()
+
+  def makeVariable(index: Int)
+  : OMFError.Throwables \/ SWRLIArgument
+  = for {
+    viri <- withFragment(iri, LocalName(s"v$index"))
+    v = owlDataFactory.getSWRLVariable(viri)
+  } yield v
 
   override type MS = MutableTerminologyBoxSignature[OWLAPIOMF]
 
@@ -2477,13 +2486,239 @@ trait MutableTerminologyBox
     ).left
   }
 
+  protected def findSegmentPredicate
+  (seg: OWLAPIOMF#RuleBodySegment)
+  : OMFError.Throwables \/ OWLAPIOMF#SegmentPredicate
+  = sig.aspectPredicates.find(_.bodySegment == seg) orElse
+    sig.conceptPredicates.find(_.bodySegment == seg) orElse
+    sig.reifiedRelationshipPredicates.find(_.bodySegment == seg) orElse
+    sig.reifiedRelationshipPropertyPredicates.find(_.bodySegment == seg) orElse
+    sig.reifiedRelationshipInversePropertyPredicates.find(_.bodySegment == seg) orElse
+    sig.reifiedRelationshipSourcePropertyPredicates.find(_.bodySegment == seg) orElse
+    sig.reifiedRelationshipSourceInversePropertyPredicates.find(_.bodySegment == seg) orElse
+    sig.reifiedRelationshipTargetPropertyPredicates.find(_.bodySegment == seg) orElse
+    sig.reifiedRelationshipTargetInversePropertyPredicates.find(_.bodySegment == seg) orElse
+    sig.unreifiedRelationshipPropertyPredicates.find(_.bodySegment == seg) orElse
+    sig.unreifiedRelationshipInversePropertyPredicates.find(_.bodySegment == seg)  match {
+    case Some(p) =>
+      p.right
+    case None =>
+      Set(
+        OMFError.omfError(s"There should be a SegmentPredicate for: $seg")
+      ).left
+  }
+
+  @scala.annotation.tailrec
+  protected final def collectSegmentPredicates
+  (seg: OWLAPIOMF#RuleBodySegment,
+   predicates: Seq[OWLAPIOMF#SegmentPredicate])
+  : OMFError.Throwables \/ Seq[OWLAPIOMF#SegmentPredicate]
+  = findSegmentPredicate(seg) match {
+    case \/-(pred) =>
+      sig.ruleBodySegments.find(_.previousSegment.contains(seg)) match {
+        case Some(next) =>
+          collectSegmentPredicates(next, predicates :+ pred)
+        case None =>
+          predicates.right
+      }
+    case -\/(errors) =>
+      -\/(errors)
+  }
+
+  protected def collectRuleBodyPredicates
+  (rule: OWLAPIOMF#ChainRule)
+  : OMFError.Throwables \/ Seq[SegmentPredicate]
+  = sig.ruleBodySegments.find(_.chainRule.contains(rule)) match {
+    case Some(seg) =>
+      collectSegmentPredicates(seg, Seq.empty)
+    case None =>
+      Set(
+        OMFError.omfError(s"There should be a RuleBodySegment for rule: $rule")
+      ).left
+  }
+
+  @scala.annotation.tailrec
+  protected final def convertBodyPredicates2Atoms
+  (vIndex: Int,
+   prevV: SWRLIArgument,
+   predicates: Seq[SegmentPredicate],
+   nextV: SWRLIArgument,
+   atoms: Seq[SWRLAtom])
+  : OMFError.Throwables \/ Seq[SWRLAtom]
+  = if (predicates.isEmpty)
+    atoms.right
+  else {
+    val range
+    : OMFError.Throwables \/ (SWRLIArgument, Int)
+    = predicates.head match {
+      case _: UnarySegmentPredicate =>
+        (prevV -> vIndex).right
+      case _: BinarySegmentPredicate =>
+        if (predicates.tail.exists {
+          case _: UnarySegmentPredicate => false
+          case _: BinarySegmentPredicate => true
+        })
+          makeVariable(vIndex).map {
+            _ -> (1 + vIndex)
+          }
+        else
+          (prevV -> vIndex).right
+    }
+    range match {
+      case \/-((rangeV, vNext)) =>
+        predicates.head match {
+          case p0: AspectPredicate =>
+            val p1 = owlDataFactory.getSWRLClassAtom(p0.termPredicate.e, prevV)
+            convertBodyPredicates2Atoms(vNext, rangeV, predicates.tail, nextV, atoms :+ p1)
+
+          case p0: ConceptPredicate =>
+            val p1 = owlDataFactory.getSWRLClassAtom(p0.termPredicate.e, prevV)
+            convertBodyPredicates2Atoms(vNext, rangeV, predicates.tail, nextV, atoms :+ p1)
+
+          case p0: ReifiedRelationshipPredicate =>
+            val p1 = owlDataFactory.getSWRLClassAtom(p0.termPredicate.e, prevV)
+            convertBodyPredicates2Atoms(vNext, rangeV, predicates.tail, nextV, atoms :+ p1)
+
+          case p0: ReifiedRelationshipPropertyPredicate =>
+            val p1 = owlDataFactory.getSWRLObjectPropertyAtom(p0.termPredicate.unreified, prevV, rangeV)
+            convertBodyPredicates2Atoms(vNext, rangeV, predicates.tail, nextV, atoms :+ p1)
+
+          case p0: ReifiedRelationshipInversePropertyPredicate =>
+            val p1 = p0.termPredicate.inverse match {
+              case Some(inv) =>
+                owlDataFactory.getSWRLObjectPropertyAtom(
+                  inv, prevV, rangeV)
+              case None =>
+                owlDataFactory.getSWRLObjectPropertyAtom(
+                  owlDataFactory.getOWLObjectInverseOf(p0.termPredicate.unreified), prevV, rangeV)
+            }
+            convertBodyPredicates2Atoms(vNext, rangeV, predicates.tail, nextV, atoms :+ p1)
+
+          case p0: ReifiedRelationshipSourcePropertyPredicate =>
+            val p1 = owlDataFactory.getSWRLObjectPropertyAtom(
+              p0.termPredicate.rSource, prevV, rangeV)
+            convertBodyPredicates2Atoms(vNext, rangeV, predicates.tail, nextV, atoms :+ p1)
+
+          case p0: ReifiedRelationshipSourceInversePropertyPredicate =>
+            val p1 = owlDataFactory.getSWRLObjectPropertyAtom(
+              owlDataFactory.getOWLObjectInverseOf(p0.termPredicate.rSource), prevV, rangeV)
+            convertBodyPredicates2Atoms(vNext, rangeV, predicates.tail, nextV, atoms :+ p1)
+
+          case p0: ReifiedRelationshipTargetPropertyPredicate =>
+            val p1 = owlDataFactory.getSWRLObjectPropertyAtom(
+              p0.termPredicate.rTarget, prevV, rangeV)
+            convertBodyPredicates2Atoms(vNext, rangeV, predicates.tail, nextV, atoms :+ p1)
+
+          case p0: ReifiedRelationshipTargetInversePropertyPredicate =>
+            val p1 = owlDataFactory.getSWRLObjectPropertyAtom(
+              owlDataFactory.getOWLObjectInverseOf(p0.termPredicate.rTarget), prevV, rangeV)
+            convertBodyPredicates2Atoms(vNext, rangeV, predicates.tail, nextV, atoms :+ p1)
+
+          case p0: UnreifiedRelationshipPropertyPredicate =>
+            val p1 = owlDataFactory.getSWRLObjectPropertyAtom(
+              p0.termPredicate.e, prevV, rangeV)
+            convertBodyPredicates2Atoms(vNext, rangeV, predicates.tail, nextV, atoms :+ p1)
+
+          case p0: UnreifiedRelationshipInversePropertyPredicate =>
+            val p1 = owlDataFactory.getSWRLObjectPropertyAtom(
+              owlDataFactory.getOWLObjectInverseOf(p0.termPredicate.e), prevV, rangeV)
+            convertBodyPredicates2Atoms(vNext, rangeV, predicates.tail, nextV, atoms :+ p1)
+
+        }
+      case -\/(errors) =>
+        -\/(errors)
+    }
+  }
+
+  def makeChainRule
+  (rule: OWLAPIOMF#ChainRule)
+  : OMFError.Throwables \/ Unit
+  = for {
+    v0 <- makeVariable(0)
+    v1 <- makeVariable(1)
+    predicates <- collectRuleBodyPredicates(rule)
+    a0 = owlDataFactory.getSWRLClassAtom(rule.head.source.e, v0)
+    a1 = owlDataFactory.getSWRLClassAtom(rule.head.target.e, v1)
+    name <- getFragment(iri)
+    headAtom = owlDataFactory.getSWRLObjectPropertyAtom(rule.head.e, v0, v1)
+    bodyAtoms <- convertBodyPredicates2Atoms(2, v0, predicates, v1, Seq.empty)
+    r = owlDataFactory.getSWRLRule(
+      Collections.singleton(a0),
+      Collections.singleton(headAtom),
+      Collections.singleton(
+        owlDataFactory.getOWLAnnotation(
+          owlDataFactory.getRDFSLabel(),
+          owlDataFactory.getOWLLiteral(name, owlDataFactory.getStringOWLDatatype))
+      ))
+    _ <- applyOntologyChanges(ontManager,
+      Seq(
+        new AddAxiom(ont, r)
+      ),
+      "addChainRule Error")
+  } yield ()
+
+  def createChainRule
+  (e: SWRLRule,
+   name: LocalName,
+   head: OWLAPIOMF#UnreifiedRelationship)
+  (implicit store: OWLAPIOMFGraphStore)
+  : OMFError.Throwables \/ OWLAPIOMF#ChainRule
+  = for {
+    iri <- store.ops.withFragment(this.iri, name)
+    u = generateUUID(this.uuid, "name" -> name)
+    r <- iri2typeTerm.get(iri).fold[OMFError.Throwables \/ OWLAPIOMF#ChainRule] {
+      val cr = types.terms.ChainRule(iri, name, u, head)
+      sig.chainRules.add(cr)
+      \/-(cr)
+    } { t =>
+      Set(
+        entityAlreadyDefinedException(ElementExceptionKind.ChainRule, iri, t)
+      ).left
+    }
+  } yield r
+
   def addChainRule
   (iri: IRI,
    uuid: UUID,
    head: OWLAPIOMF#UnreifiedRelationship)
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#ChainRule
-  = scala.Predef.???
+  = {
+    val rule = ChainRule(iri, name, uuid, head)
+    sig.chainRules.add(rule)
+    rule.right
+  }
+
+  def createRuleBodySegment
+  (chainRule: Option[OWLAPIOMF#ChainRule],
+   previousSegment: Option[OWLAPIOMF#RuleBodySegment])
+  (implicit store: OWLAPIOMFGraphStore)
+  : OMFError.Throwables \/ OWLAPIOMF#RuleBodySegment
+  = for {
+    chainRuleUUID <- chainRule match {
+      case Some(cr) =>
+        \/-(cr.uuid.toString)
+      case None =>
+        previousSegment match {
+          case Some(ps) =>
+            \/-(ps.uuid.toString)
+          case None =>
+            Set(
+              OMFError.omfError(
+                s"createRuleBodySegment: either chainRule or previousSegment must be defined; both cannot be underfined")
+            ).left
+        }
+    }
+    positionUUID = previousSegment match {
+      case None =>
+        "1"
+      case Some(ps) =>
+        ps.position.toString
+    }
+    u = generateUUID("RuleBodySegment", "chainRule" -> chainRuleUUID, "position" -> positionUUID)
+    ruleBodySegment = types.terms.RuleBodySegment(u, chainRule, previousSegment)
+    _ = sig.ruleBodySegments.add(ruleBodySegment)
+  } yield ruleBodySegment
 
   def addRuleBodySegment
   (uuid: UUID,
@@ -2491,7 +2726,27 @@ trait MutableTerminologyBox
    previousSegment: Option[OWLAPIOMF#RuleBodySegment])
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#RuleBodySegment
-  = scala.Predef.???
+  = {
+    val rbs = RuleBodySegment(uuid, chainRule, previousSegment)
+    sig.ruleBodySegments.add(rbs)
+    rbs.right
+  }
+
+  def createAspectPredicate
+  (a: SWRLClassAtom,
+   bodySegment: OWLAPIOMF#RuleBodySegment,
+   aspect: OWLAPIOMF#Aspect)
+  (implicit store: OWLAPIOMFGraphStore)
+  : OMFError.Throwables \/ OWLAPIOMF#AspectPredicate
+  = {
+    val u = generateUUID(
+      "AspectPredicate",
+      "aspect" -> aspect.uuid.toString,
+      "bodySegment" -> bodySegment.uuid.toString)
+    val p = types.terms.AspectPredicate(bodySegment, aspect, u)
+    sig.aspectPredicates.add(p)
+    p.right
+  }
 
   def addAspectPredicate
   (uuid: UUID,
@@ -2499,7 +2754,27 @@ trait MutableTerminologyBox
    aspect: OWLAPIOMF#Aspect)
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#AspectPredicate
-  = scala.Predef.???
+  = {
+    val p = AspectPredicate(bodySegment, aspect, uuid)
+    sig.aspectPredicates.add(p)
+    p.right
+  }
+
+  def createConceptPredicate
+  (a: SWRLClassAtom,
+   bodySegment: OWLAPIOMF#RuleBodySegment,
+   concept: OWLAPIOMF#Concept)
+  (implicit store: OWLAPIOMFGraphStore)
+  : OMFError.Throwables \/ OWLAPIOMF#ConceptPredicate
+  = {
+    val u = generateUUID(
+      "ConceptPredicate",
+      "bodySegment" -> bodySegment.uuid.toString,
+      "concept" -> concept.uuid.toString)
+    val p = types.terms.ConceptPredicate(bodySegment, concept, u)
+    sig.conceptPredicates.add(p)
+    p.right
+  }
 
   def addConceptPredicate
   (uuid: UUID,
@@ -2507,7 +2782,27 @@ trait MutableTerminologyBox
    concept: OWLAPIOMF#Concept)
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#ConceptPredicate
-  = scala.Predef.???
+  = {
+    val p = ConceptPredicate(bodySegment, concept, uuid)
+    sig.conceptPredicates.add(p)
+    p.right
+  }
+
+  def createReifiedRelationshipPredicate
+  (a: SWRLClassAtom,
+   bodySegment: OWLAPIOMF#RuleBodySegment,
+   reifiedRelationship: OWLAPIOMF#ReifiedRelationship)
+  (implicit store: OWLAPIOMFGraphStore)
+  : OMFError.Throwables \/ OWLAPIOMF#ReifiedRelationshipPredicate
+  = {
+    val u = generateUUID(
+      "ReifiedRelationshipPredicate",
+      "bodySegment" -> bodySegment.uuid.toString,
+      "reifiedRelationship" -> reifiedRelationship.uuid.toString)
+    val p = types.terms.ReifiedRelationshipPredicate(bodySegment, reifiedRelationship, u)
+    sig.reifiedRelationshipPredicates.add(p)
+    p.right
+  }
 
   def addReifiedRelationshipPredicate
   (uuid: UUID,
@@ -2515,7 +2810,27 @@ trait MutableTerminologyBox
    reifiedRelationship: OWLAPIOMF#ReifiedRelationship)
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#ReifiedRelationshipPredicate
-  = scala.Predef.???
+  = {
+    val p = ReifiedRelationshipPredicate(bodySegment, reifiedRelationship, uuid)
+    sig.reifiedRelationshipPredicates.add(p)
+    p.right
+  }
+
+  def createReifiedRelationshipPropertyPredicate
+  (a: SWRLObjectPropertyAtom,
+   bodySegment: OWLAPIOMF#RuleBodySegment,
+   reifiedRelationship: OWLAPIOMF#ReifiedRelationship)
+  (implicit store: OWLAPIOMFGraphStore)
+  : OMFError.Throwables \/ OWLAPIOMF#ReifiedRelationshipPropertyPredicate
+  = {
+    val u = generateUUID(
+      "ReifiedRelationshipPropertyPredicate",
+      "bodySegment" -> bodySegment.uuid.toString,
+      "reifiedRelationship" -> reifiedRelationship.uuid.toString)
+    val p = types.terms.ReifiedRelationshipPropertyPredicate(bodySegment, reifiedRelationship, u)
+    sig.reifiedRelationshipPropertyPredicates.add(p)
+    p.right
+  }
 
   def addReifiedRelationshipPropertyPredicate
   (uuid: UUID,
@@ -2523,7 +2838,27 @@ trait MutableTerminologyBox
    reifiedRelationship: OWLAPIOMF#ReifiedRelationship)
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#ReifiedRelationshipPropertyPredicate
-  = scala.Predef.???
+  = {
+    val p = ReifiedRelationshipPropertyPredicate(bodySegment, reifiedRelationship, uuid)
+    sig.reifiedRelationshipPropertyPredicates.add(p)
+    p.right
+  }
+
+  def createReifiedRelationshipInversePropertyPredicate
+  (a: SWRLObjectPropertyAtom,
+   bodySegment: OWLAPIOMF#RuleBodySegment,
+   reifiedRelationship: OWLAPIOMF#ReifiedRelationship)
+  (implicit store: OWLAPIOMFGraphStore)
+  : OMFError.Throwables \/ OWLAPIOMF#ReifiedRelationshipInversePropertyPredicate
+  = {
+    val u = generateUUID(
+      "ReifiedRelationshipInversePropertyPredicate",
+      "bodySegment" -> bodySegment.uuid.toString,
+      "reifiedRelationship" -> reifiedRelationship.uuid.toString)
+    val p = types.terms.ReifiedRelationshipInversePropertyPredicate(bodySegment, reifiedRelationship, u)
+    sig.reifiedRelationshipInversePropertyPredicates.add(p)
+    p.right
+  }
 
   def addReifiedRelationshipInversePropertyPredicate
   (uuid: UUID,
@@ -2531,7 +2866,27 @@ trait MutableTerminologyBox
    reifiedRelationship: OWLAPIOMF#ReifiedRelationship)
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#ReifiedRelationshipInversePropertyPredicate
-  = scala.Predef.???
+  = {
+    val p = ReifiedRelationshipInversePropertyPredicate(bodySegment, reifiedRelationship, uuid)
+    sig.reifiedRelationshipInversePropertyPredicates.add(p)
+    p.right
+  }
+
+  def createReifiedRelationshipSourcePropertyPredicate
+  (a: SWRLObjectPropertyAtom,
+   bodySegment: OWLAPIOMF#RuleBodySegment,
+   reifiedRelationship: OWLAPIOMF#ReifiedRelationship)
+  (implicit store: OWLAPIOMFGraphStore)
+  : OMFError.Throwables \/ OWLAPIOMF#ReifiedRelationshipSourcePropertyPredicate
+  = {
+    val u = generateUUID(
+      "ReifiedRelationshipSourcePropertyPredicate",
+      "bodySegment" -> bodySegment.uuid.toString,
+      "reifiedRelationship" -> reifiedRelationship.uuid.toString)
+    val p = types.terms.ReifiedRelationshipSourcePropertyPredicate(bodySegment, reifiedRelationship, u)
+    sig.reifiedRelationshipSourcePropertyPredicates.add(p)
+    p.right
+  }
 
   def addReifiedRelationshipSourcePropertyPredicate
   (uuid: UUID,
@@ -2539,7 +2894,27 @@ trait MutableTerminologyBox
    reifiedRelationship: OWLAPIOMF#ReifiedRelationship)
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#ReifiedRelationshipSourcePropertyPredicate
-  = scala.Predef.???
+  = {
+    val p = ReifiedRelationshipSourcePropertyPredicate(bodySegment, reifiedRelationship, uuid)
+    sig.reifiedRelationshipSourcePropertyPredicates.add(p)
+    p.right
+  }
+
+  def createReifiedRelationshipSourceInversePropertyPredicate
+  (a: SWRLObjectPropertyAtom,
+   bodySegment: OWLAPIOMF#RuleBodySegment,
+   reifiedRelationship: OWLAPIOMF#ReifiedRelationship)
+  (implicit store: OWLAPIOMFGraphStore)
+  : OMFError.Throwables \/ OWLAPIOMF#ReifiedRelationshipSourceInversePropertyPredicate
+  = {
+    val u = generateUUID(
+      "ReifiedRelationshipSourceInversePropertyPredicate",
+      "bodySegment" -> bodySegment.uuid.toString,
+      "reifiedRelationship" -> reifiedRelationship.uuid.toString)
+    val p = types.terms.ReifiedRelationshipSourceInversePropertyPredicate(bodySegment, reifiedRelationship, u)
+    sig.reifiedRelationshipSourceInversePropertyPredicates.add(p)
+    p.right
+  }
 
   def addReifiedRelationshipSourceInversePropertyPredicate
   (uuid: UUID,
@@ -2547,7 +2922,27 @@ trait MutableTerminologyBox
    reifiedRelationship: OWLAPIOMF#ReifiedRelationship)
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#ReifiedRelationshipSourceInversePropertyPredicate
-  = scala.Predef.???
+  = {
+    val p = ReifiedRelationshipSourceInversePropertyPredicate(bodySegment, reifiedRelationship, uuid)
+    sig.reifiedRelationshipSourceInversePropertyPredicates.add(p)
+    p.right
+  }
+
+  def createReifiedRelationshipTargetPropertyPredicate
+  (a: SWRLObjectPropertyAtom,
+   bodySegment: OWLAPIOMF#RuleBodySegment,
+   reifiedRelationship: OWLAPIOMF#ReifiedRelationship)
+  (implicit store: OWLAPIOMFGraphStore)
+  : OMFError.Throwables \/ OWLAPIOMF#ReifiedRelationshipTargetPropertyPredicate
+  = {
+    val u = generateUUID(
+      "ReifiedRelationshipTargetPropertyPredicate",
+      "bodySegment" -> bodySegment.uuid.toString,
+      "reifiedRelationship" -> reifiedRelationship.uuid.toString)
+    val p = types.terms.ReifiedRelationshipTargetPropertyPredicate(bodySegment, reifiedRelationship, u)
+    sig.reifiedRelationshipTargetPropertyPredicates.add(p)
+    p.right
+  }
 
   def addReifiedRelationshipTargetPropertyPredicate
   (uuid: UUID,
@@ -2555,7 +2950,27 @@ trait MutableTerminologyBox
    reifiedRelationship: OWLAPIOMF#ReifiedRelationship)
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#ReifiedRelationshipTargetPropertyPredicate
-  = scala.Predef.???
+  = {
+    val p = ReifiedRelationshipTargetPropertyPredicate(bodySegment, reifiedRelationship, uuid)
+    sig.reifiedRelationshipTargetPropertyPredicates.add(p)
+    p.right
+  }
+
+  def createReifiedRelationshipTargetInversePropertyPredicate
+  (a: SWRLObjectPropertyAtom,
+   bodySegment: OWLAPIOMF#RuleBodySegment,
+   reifiedRelationship: OWLAPIOMF#ReifiedRelationship)
+  (implicit store: OWLAPIOMFGraphStore)
+  : OMFError.Throwables \/ OWLAPIOMF#ReifiedRelationshipTargetInversePropertyPredicate
+  = {
+    val u = generateUUID(
+      "ReifiedRelationshipTargetInversePropertyPredicate",
+      "bodySegment" -> bodySegment.uuid.toString,
+      "reifiedRelationship" -> reifiedRelationship.uuid.toString)
+    val p = types.terms.ReifiedRelationshipTargetInversePropertyPredicate(bodySegment, reifiedRelationship, u)
+    sig.reifiedRelationshipTargetInversePropertyPredicates.add(p)
+    p.right
+  }
 
   def addReifiedRelationshipTargetInversePropertyPredicate
   (uuid: UUID,
@@ -2563,7 +2978,27 @@ trait MutableTerminologyBox
    reifiedRelationship: OWLAPIOMF#ReifiedRelationship)
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#ReifiedRelationshipTargetInversePropertyPredicate
-  = scala.Predef.???
+  = {
+    val p = ReifiedRelationshipTargetInversePropertyPredicate(bodySegment, reifiedRelationship, uuid)
+    sig.reifiedRelationshipTargetInversePropertyPredicates.add(p)
+    p.right
+  }
+
+  def createUnreifiedRelationshipPropertyPredicate
+  (a: SWRLObjectPropertyAtom,
+   bodySegment: OWLAPIOMF#RuleBodySegment,
+   unreifiedRelationship: OWLAPIOMF#UnreifiedRelationship)
+  (implicit store: OWLAPIOMFGraphStore)
+  : OMFError.Throwables \/ OWLAPIOMF#UnreifiedRelationshipPropertyPredicate
+  = {
+    val u = generateUUID(
+      "UnreifiedRelationshipPropertyPredicate",
+      "bodySegment" -> bodySegment.uuid.toString,
+      "unreifiedRelationship" -> unreifiedRelationship.uuid.toString)
+    val p = types.terms.UnreifiedRelationshipPropertyPredicate(bodySegment, unreifiedRelationship, u)
+    sig.unreifiedRelationshipPropertyPredicates.add(p)
+    p.right
+  }
 
   def addUnreifiedRelationshipPropertyPredicate
   (uuid: UUID,
@@ -2571,7 +3006,27 @@ trait MutableTerminologyBox
    unreifiedRelationship: OWLAPIOMF#UnreifiedRelationship)
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#UnreifiedRelationshipPropertyPredicate
-  = scala.Predef.???
+  = {
+    val p = UnreifiedRelationshipPropertyPredicate(bodySegment, unreifiedRelationship, uuid)
+    sig.unreifiedRelationshipPropertyPredicates.add(p)
+    p.right
+  }
+
+  def createUnreifiedRelationshipInversePropertyPredicate
+  (a: SWRLObjectPropertyAtom,
+   bodySegment: OWLAPIOMF#RuleBodySegment,
+   unreifiedRelationship: OWLAPIOMF#UnreifiedRelationship)
+  (implicit store: OWLAPIOMFGraphStore)
+  : OMFError.Throwables \/ OWLAPIOMF#UnreifiedRelationshipInversePropertyPredicate
+  = {
+    val u = generateUUID(
+      "UnreifiedRelationshipInversePropertyPredicate",
+      "bodySegment" -> bodySegment.uuid.toString,
+      "unreifiedRelationship" -> unreifiedRelationship.uuid.toString)
+    val p = types.terms.UnreifiedRelationshipInversePropertyPredicate(bodySegment, unreifiedRelationship, u)
+    sig.unreifiedRelationshipInversePropertyPredicates.add(p)
+    p.right
+  }
 
   def addUnreifiedRelationshipInversePropertyPredicate
   (uuid: UUID,
@@ -2579,7 +3034,11 @@ trait MutableTerminologyBox
    unreifiedRelationship: OWLAPIOMF#UnreifiedRelationship)
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#UnreifiedRelationshipInversePropertyPredicate
-  = scala.Predef.???
+  = {
+    val p = UnreifiedRelationshipInversePropertyPredicate(bodySegment, unreifiedRelationship, uuid)
+    sig.unreifiedRelationshipInversePropertyPredicates.add(p)
+    p.right
+  }
 
   def createEntityConceptSubClassAxiom
   (uuid: UUID,

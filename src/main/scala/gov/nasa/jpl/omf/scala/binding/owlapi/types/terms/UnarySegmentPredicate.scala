@@ -18,13 +18,9 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.types.terms
 
-import org.semanticweb.owlapi.model.SWRLClassAtom
-
 import scala.{Any,Boolean}
 
 trait UnarySegmentPredicate extends SegmentPredicate {
-
-  override val a: SWRLClassAtom
 
   override def canEqual(other: Any)
   : Boolean

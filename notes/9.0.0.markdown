@@ -3,3 +3,5 @@ gov.nasa.jpl.omf.scala.binding.owlapi 9.0.0 is a major update
 ## Issues Resolved
 
 - [#28 Update for OML Conversions](https://github.com/JPL-IMCE/gov.nasa.jpl.omf.scala.binding.owlapi/issues/28)
+
+- [#29 Basic conversion of OML ChainRules to/from OWL](https://github.com/JPL-IMCE/gov.nasa.jpl.omf.scala.binding.owlapi/issues/29)
