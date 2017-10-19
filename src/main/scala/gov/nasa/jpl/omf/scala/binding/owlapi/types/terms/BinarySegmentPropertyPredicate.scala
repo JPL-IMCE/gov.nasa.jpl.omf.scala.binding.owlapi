@@ -20,7 +20,7 @@ package gov.nasa.jpl.omf.scala.binding.owlapi.types.terms
 
 import scala.{Any, Boolean}
 
-trait BinarySegmentPropertyPredicate extends SegmentPredicate {
+trait BinarySegmentPropertyPredicate extends BinarySegmentPredicate {
 
   override def canEqual(other: Any)
   : Boolean

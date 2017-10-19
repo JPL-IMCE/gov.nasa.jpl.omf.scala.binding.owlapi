@@ -2562,7 +2562,7 @@ trait MutableTerminologyBox
             _ -> (1 + vIndex)
           }
         else
-          (prevV -> vIndex).right
+          (nextV -> vIndex).right
     }
     range match {
       case \/-((rangeV, vNext)) =>
@@ -2637,18 +2637,15 @@ trait MutableTerminologyBox
     v0 <- makeVariable(0)
     v1 <- makeVariable(1)
     predicates <- collectRuleBodyPredicates(rule)
-    a0 = owlDataFactory.getSWRLClassAtom(rule.head.source.e, v0)
-    a1 = owlDataFactory.getSWRLClassAtom(rule.head.target.e, v1)
-    name <- getFragment(iri)
     headAtom = owlDataFactory.getSWRLObjectPropertyAtom(rule.head.e, v0, v1)
     bodyAtoms <- convertBodyPredicates2Atoms(2, v0, predicates, v1, Seq.empty)
     r = owlDataFactory.getSWRLRule(
-      Collections.singleton(a0),
+      bodyAtoms,
       Collections.singleton(headAtom),
       Collections.singleton(
         owlDataFactory.getOWLAnnotation(
           owlDataFactory.getRDFSLabel(),
-          owlDataFactory.getOWLLiteral(name, owlDataFactory.getStringOWLDatatype))
+          owlDataFactory.getOWLLiteral(rule.name, owlDataFactory.getStringOWLDatatype))
       ))
     _ <- applyOntologyChanges(ontManager,
       Seq(
@@ -2683,11 +2680,11 @@ trait MutableTerminologyBox
    head: OWLAPIOMF#UnreifiedRelationship)
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#ChainRule
-  = {
-    val rule = ChainRule(iri, name, uuid, head)
-    sig.chainRules.add(rule)
-    rule.right
-  }
+  = for {
+    n <- getFragment(iri)
+    rule = ChainRule(iri, n, uuid, head)
+    _ = sig.chainRules.add(rule)
+  } yield rule
 
   def createRuleBodySegment
   (chainRule: Option[OWLAPIOMF#ChainRule],
