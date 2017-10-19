@@ -16,5 +16,5 @@ git config --global push.default simple
 git config --global user.email "nicolas.f.rouquette@jpl.nasa.gov"
 git config --global user.name "Travis CI (on behalf of Nicolas F. Rouquette)"
 
-sbt -jvm-opts travis/jvmopts.compile -Dproject.version=$TRAVIS_TAG compile  extractArchives test publishSigned ghpagesPushSite
+sbt -batch -jvm-opts travis/jvmopts.compile -Dproject.version=$TRAVIS_TAG compile  extractArchives test publishSigned ghpagesPushSite
 
