@@ -19,7 +19,7 @@
 package gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies
 
 import java.lang.Integer
-import java.util.{Collections,UUID}
+import java.util.{Collections, UUID}
 
 import gov.nasa.jpl.imce.oml.tables
 import gov.nasa.jpl.imce.oml.tables.{AnnotationProperty, AnnotationPropertyValue, LiteralValue}
@@ -2515,11 +2515,12 @@ trait MutableTerminologyBox
   : OMFError.Throwables \/ Seq[OWLAPIOMF#SegmentPredicate]
   = findSegmentPredicate(seg) match {
     case \/-(pred) =>
+      val nextPredicates = predicates :+ pred
       sig.ruleBodySegments.find(_.previousSegment.contains(seg)) match {
         case Some(next) =>
-          collectSegmentPredicates(next, predicates :+ pred)
+          collectSegmentPredicates(next, nextPredicates)
         case None =>
-          predicates.right
+          nextPredicates.right
       }
     case -\/(errors) =>
       -\/(errors)
