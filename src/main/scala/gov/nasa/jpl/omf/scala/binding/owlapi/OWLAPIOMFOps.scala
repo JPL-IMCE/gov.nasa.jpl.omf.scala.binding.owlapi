@@ -1149,6 +1149,24 @@ trait OWLAPIImmutableTerminologyGraphOps
   : SpecificDisjointConceptSignature[OWLAPIOMF]
   = SpecificDisjointConceptSignature[OWLAPIOMF](ax.uuid, ax.terminologyBundle, ax.disjointTaxonomyParent, ax.disjointLeaf)
 
+  @scala.annotation.tailrec
+  override final def getChainRule
+  (ax: OWLAPIOMF#RuleBodySegment)
+  : Throwables \/ OWLAPIOMF#ChainRule
+  = ax.chainRule match {
+    case Some(cr) =>
+      cr.right
+    case None =>
+      ax.previousSegment match {
+        case Some(prev) =>
+          getChainRule(prev)
+        case None =>
+          Set[java.lang.Throwable](
+            OMFError.omfError(s"getChainRule: $ax must have either a chain rule or a previous segment!")
+          ).left
+      }
+  }
+
   override def fromChainRule
   (ax: OWLAPIOMF#ChainRule)
   : ChainRuleSignature[OWLAPIOMF]
