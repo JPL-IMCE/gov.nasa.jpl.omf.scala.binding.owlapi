@@ -2699,7 +2699,7 @@ trait MutableTerminologyBox
       case None =>
         previousSegment match {
           case Some(ps) =>
-            \/-(ps.uuid.toString)
+            store.ops.getChainRule(ps).map(_.uuid.toString)
           case None =>
             Set(
               OMFError.omfError(
@@ -2711,7 +2711,7 @@ trait MutableTerminologyBox
       case None =>
         "1"
       case Some(ps) =>
-        ps.position.toString
+        (1 + ps.position).toString
     }
     u = generateUUID("RuleBodySegment", "chainRule" -> chainRuleUUID, "position" -> positionUUID)
     ruleBodySegment = types.terms.RuleBodySegment(u, chainRule, previousSegment)
