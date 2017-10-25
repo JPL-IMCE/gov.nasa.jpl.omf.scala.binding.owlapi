@@ -2082,6 +2082,12 @@ trait MutableTerminologyBox
     val escDP = owlDataFactory.getOWLDataProperty(dIRI)
     for {
       term <- createDataRelationshipFromEntityToScalar(escDP, name, isIdentityCriteria, uuid, source, target)
+      func = if (isIdentityCriteria)
+        Option(new AddAxiom(ont,
+          owlDataFactory
+            .getOWLFunctionalDataPropertyAxiom(escDP)))
+      else
+        Option.empty
     } yield {
       for {
         change <- Seq(
@@ -2097,7 +2103,7 @@ trait MutableTerminologyBox
           new AddAxiom(ont,
             owlDataFactory
               .getOWLDataPropertyRangeAxiom(escDP, owlDataFactory.getOWLDatatype(target.iri)))
-        )
+        ) ++ func
       } {
         val result = ontManager.applyChange(change)
         require(
@@ -2197,6 +2203,12 @@ trait MutableTerminologyBox
     val escDP = owlDataFactory.getOWLObjectProperty(dIRI)
     for {
       term <- createDataRelationshipFromEntityToStructure(escDP, name, isIdentityCriteria, uuid, source, target)
+      func = if (isIdentityCriteria)
+        Option(new AddAxiom(ont,
+          owlDataFactory
+            .getOWLFunctionalObjectPropertyAxiom(escDP)))
+      else
+        Option.empty
     } yield {
       for {
         change <- Seq(
@@ -2212,7 +2224,7 @@ trait MutableTerminologyBox
           new AddAxiom(ont,
             owlDataFactory
               .getOWLObjectPropertyRangeAxiom(escDP, target.e))
-        )
+        ) ++ func
       } {
         val result = ontManager.applyChange(change)
         require(
@@ -3379,7 +3391,6 @@ trait MutableTerminologyBox
       ).left
 
   }
-
 
   def addEntityScalarDataPropertyParticularRestrictionAxiom
   (uuid: UUID,

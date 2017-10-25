@@ -150,6 +150,8 @@ case class TerminologyBoxResolverHelper
     dataPropertyType = dataPropertyRange.getRange.asOWLDatatype
   } yield (dataPropertyDP, dataPropertyDomain, dataPropertyType)
 
+  // @TODO need a similar process for resolveDataRelationshipsFromEntity2Structures
+
   def resolveDataRelationshipsFromEntity2Scalars
   (entityDefinitions: Map[OWLClass, Entity],
    dataPropertyDPIRIs: Iterable[DOPInfo],
@@ -180,7 +182,12 @@ case class TerminologyBoxResolverHelper
     } {
       (acc, dataPropertyDPIRI) =>
         val (e2sc_dp, e2sc_source, e2sc_target) = dataPropertyDPIRI
-        val isIdentityCriteria: Boolean = false // ??? // TODO
+        val isIdentityCriteria: Boolean = tboxG.ont.axioms(e2sc_dp).anyMatch {
+          case _: OWLFunctionalDataPropertyAxiom =>
+            true
+          case _ =>
+            false
+        }
         entityDefinitions.get(e2sc_source).fold[Acc](acc) { e2sc_sourceDef =>
           DTs.get(e2sc_target).fold[Acc]({
             System.out.println(s"DOPInfo_E2SC_append: $e2sc_dp (source: $e2sc_source) failed to find: $e2sc_target")
