@@ -283,6 +283,21 @@ trait OWLAPIOMFtbox extends OMFtbox with OMLAPIOMFcbox {
   override type EntityScalarDataPropertyUniversalRestrictionAxiom =
     types.termAxioms.EntityScalarDataPropertyUniversalRestrictionAxiom
 
+  override type EntityStructuredDataPropertyRestrictionAxiom =
+    types.termAxioms.EntityStructuredDataPropertyRestrictionAxiom
+
+  override type EntityStructuredDataPropertyParticularRestrictionAxiom =
+    types.termAxioms.EntityStructuredDataPropertyParticularRestrictionAxiom
+
+  override type RestrictionStructuredDataPropertyContext =
+    types.RestrictionStructuredDataPropertyContext
+
+  override type RestrictionStructuredDataPropertyTuple =
+    types.RestrictionStructuredDataPropertyTuple
+
+  override type RestrictionScalarDataPropertyValue =
+    types.RestrictionScalarDataPropertyValue
+
   override type SpecializationAxiom =
     types.termAxioms.SpecializationAxiom
 

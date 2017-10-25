@@ -34,6 +34,9 @@ object AxiomExceptionKind extends Enumeration {
   EntityScalarDataPropertyExistentialRestrictionAxiomException,
   EntityScalarDataPropertyUniversalRestrictionAxiomException,
   EntityScalarDataPropertyParticularRestrictionAxiomException,
+  EntityStructuredDataPropertyParticularRestrictionAxiomException,
+  RestrictionStructuredDataPropertyTupleException,
+  RestrictionScalarDataPropertyValueException,
 
   BundledTerminologyAxiomException,
   EntityConceptDesignationTerminologyGraphAxiomException,

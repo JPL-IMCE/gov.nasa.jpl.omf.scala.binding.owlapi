@@ -18,10 +18,14 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.types.terms
 
+import org.semanticweb.owlapi.model.OWLDataProperty
+
 import scala.Predef.require
 
 trait DataRelationshipToScalar extends DataRelationshipRange {
   val range: DataRange
+
+  override val e: OWLDataProperty
 
   require(null != range)
 }

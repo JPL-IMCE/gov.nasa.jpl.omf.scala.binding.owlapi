@@ -16,21 +16,23 @@
  * License Terms
  */
 
-package gov.nasa.jpl.omf.scala.binding.owlapi.types.termAxioms
+package gov.nasa.jpl.omf.scala.binding.owlapi.types
 
-import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.{Entity, EntityScalarDataProperty}
+import gov.nasa.jpl.omf.scala.binding.owlapi.common.ModuleElement
+import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.DataRelationshipToStructure
+import org.semanticweb.owlapi.model.OWLNamedIndividual
 
-import scala.{Any,Boolean}
+import scala.{Any, Boolean}
 
-trait EntityScalarDataPropertyRestrictionAxiom extends TermAxiom {
+trait RestrictionStructuredDataPropertyContext extends ModuleElement {
 
-  val restrictedEntity: Entity
-  val scalarProperty: EntityScalarDataProperty
+  val structuredDataProperty: DataRelationshipToStructure
+  val e: OWLNamedIndividual
 
   override def canEqual(other: Any)
   : Boolean
   = other match {
-    case _: EntityScalarDataPropertyRestrictionAxiom => true
+    case _: RestrictionStructuredDataPropertyContext => true
     case _ => false
   }
 }

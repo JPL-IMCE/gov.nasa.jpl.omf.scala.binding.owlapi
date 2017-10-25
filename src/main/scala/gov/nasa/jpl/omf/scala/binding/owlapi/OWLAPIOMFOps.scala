@@ -26,6 +26,7 @@ import gov.nasa.jpl.imce.oml.tables
 import gov.nasa.jpl.imce.oml.tables.{AnnotationProperty, AnnotationPropertyValue, LiteralValue}
 import gov.nasa.jpl.omf.scala.binding.owlapi.common.{ImmutableModule, Module, MutableModule}
 import gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.{DescriptionBox, ImmutableDescriptionBox, MutableDescriptionBox, SingletonInstanceStructuredDataPropertyContext}
+import gov.nasa.jpl.omf.scala.binding.owlapi.types.{RestrictionScalarDataPropertyValue, RestrictionStructuredDataPropertyContext, RestrictionStructuredDataPropertyTuple}
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.bundleStatements.ConceptTreeDisjunction
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.termAxioms._
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms._
@@ -1057,6 +1058,24 @@ trait OWLAPIImmutableTerminologyGraphOps
   = EntityScalarDataPropertyQuantifiedRestrictionSignature[OWLAPIOMF](
     ax.uuid, ax.restrictedEntity, ax.scalarProperty, ax.scalarRestriction, false)
 
+  override def fromEntityStructuredDataPropertyParticularRestrictionAxiom
+  (ax: OWLAPIOMF#EntityStructuredDataPropertyParticularRestrictionAxiom)
+  : EntityStructuredDataPropertyParticularRestrictionSignature[OWLAPIOMF]
+  = EntityStructuredDataPropertyParticularRestrictionSignature[OWLAPIOMF](
+    ax.uuid, ax.restrictedEntity, ax.structuredDataProperty)
+
+  override def fromRestrictionStructuredDataPropertyTuple
+  (ax: OWLAPIOMF#RestrictionStructuredDataPropertyTuple)
+  : RestrictionStructuredDataPropertyTupleSignature[OWLAPIOMF]
+  = RestrictionStructuredDataPropertyTupleSignature[OWLAPIOMF](
+    ax.uuid, ax.structuredDataPropertyContext, ax.structuredDataProperty)
+
+  override def fromRestrictionScalarDataPropertyValue
+  (ax: OWLAPIOMF#RestrictionScalarDataPropertyValue)
+  : RestrictionScalarDataPropertyValueSignature[OWLAPIOMF]
+  = RestrictionScalarDataPropertyValueSignature[OWLAPIOMF](
+    ax.uuid, ax.structuredDataPropertyContext, ax.scalarProperty, ax.literalValue, ax.valueType)
+
   override def fromScalarOneOfLiteralAxiom
   (ax: OWLAPIOMF#ScalarOneOfLiteralAxiom)
   : ScalarOneOfLiteralSignature[OWLAPIOMF]
@@ -1747,6 +1766,35 @@ trait OWLAPIMutableTerminologyGraphOps
   (implicit store: OWLAPIOMFGraphStore)
   : Throwables \/ EntityScalarDataPropertyParticularRestrictionAxiom
   = tbox.addEntityScalarDataPropertyParticularRestrictionAxiom(uuid, restrictedEntity, scalarProperty, literalValue, valueType)
+
+  override protected def addEntityStructuredDataPropertyParticularRestrictionAxiom
+  (tbox: MutableTerminologyBox,
+   uuid: UUID,
+   restrictedEntity: Entity,
+   structuredProperty: EntityStructuredDataProperty)
+  (implicit store: OWLAPIOMFGraphStore)
+  : Throwables \/ EntityStructuredDataPropertyParticularRestrictionAxiom
+  = tbox.addEntityStructuredDataPropertyParticularRestrictionAxiom(uuid, restrictedEntity, structuredProperty)
+
+  override protected def addRestrictionStructuredDataPropertyTuple
+  (tbox: MutableTerminologyBox,
+   uuid: UUID,
+   structuredDataPropertyContext: RestrictionStructuredDataPropertyContext,
+   structuredProperty: DataRelationshipToStructure)
+  (implicit store: OWLAPIOMFGraphStore)
+  : Throwables \/ RestrictionStructuredDataPropertyTuple
+  = tbox.addRestrictionStructuredDataPropertyTuple(uuid, structuredDataPropertyContext, structuredProperty)
+
+  override protected def addRestrictionScalarDataPropertyValue
+  (tbox: MutableTerminologyBox,
+   uuid: UUID,
+   structuredDataPropertyContext: RestrictionStructuredDataPropertyContext,
+   scalarProperty: DataRelationshipToScalar,
+   literalValue: LiteralValue,
+   valueType: Option[DataRange])
+  (implicit store: OWLAPIOMFGraphStore)
+  : Throwables \/ RestrictionScalarDataPropertyValue
+  = tbox.addRestrictionScalarDataPropertyValue(uuid, structuredDataPropertyContext, scalarProperty, literalValue, valueType)
 
   override protected def addBundledTerminologyAxiom
   (uuid: UUID,

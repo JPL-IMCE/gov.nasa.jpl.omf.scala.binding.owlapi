@@ -78,6 +78,8 @@ object MutableTerminologyGraph {
       entityStructuredDataProperties = HashSet.empty[EntityStructuredDataProperty],
       scalarDataProperties = HashSet.empty[ScalarDataProperty],
       structuredDataProperties = HashSet.empty[StructuredDataProperty],
+      restrictionStructuredDataPropertyTuples = HashSet.empty[RestrictionStructuredDataPropertyTuple],
+      restrictionScalarDataPropertyValues = HashSet.empty[RestrictionScalarDataPropertyValue],
       chainRules = HashSet.empty[ChainRule],
       ruleBodySegments = HashSet.empty[RuleBodySegment],
       aspectPredicates = HashSet.empty[AspectPredicate],

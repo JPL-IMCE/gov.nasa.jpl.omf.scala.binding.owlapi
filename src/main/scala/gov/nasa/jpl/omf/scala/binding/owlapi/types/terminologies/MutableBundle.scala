@@ -23,7 +23,7 @@ import java.util.UUID
 import gov.nasa.jpl.imce.oml.tables.{AnnotationProperty, AnnotationPropertyValue}
 import gov.nasa.jpl.omf.scala.binding.owlapi._
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.bundleStatements.{AnonymousConceptTaxonomyAxiom, ConceptTreeDisjunction, RootConceptTaxonomyAxiom, SpecificDisjointConceptAxiom}
-import gov.nasa.jpl.omf.scala.binding.owlapi.types.{Axiom, duplicateTerminologyGraphAxiomException}
+import gov.nasa.jpl.omf.scala.binding.owlapi.types.{Axiom, RestrictionScalarDataPropertyValue, RestrictionStructuredDataPropertyTuple, duplicateTerminologyGraphAxiomException}
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.termAxioms.ScalarOneOfLiteralAxiom
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologyAxioms.{BundledTerminologyAxiom, ConceptDesignationTerminologyAxiom, TerminologyExtensionAxiom, TerminologyNestingAxiom}
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms._
@@ -174,6 +174,8 @@ object MutableBundle {
       entityStructuredDataProperties = HashSet.empty[EntityStructuredDataProperty],
       scalarDataProperties = HashSet.empty[ScalarDataProperty],
       structuredDataProperties = HashSet.empty[StructuredDataProperty],
+      restrictionStructuredDataPropertyTuples = HashSet.empty[RestrictionStructuredDataPropertyTuple],
+      restrictionScalarDataPropertyValues = HashSet.empty[RestrictionScalarDataPropertyValue],
       chainRules = HashSet.empty[ChainRule],
       ruleBodySegments = HashSet.empty[RuleBodySegment],
       aspectPredicates = HashSet.empty[AspectPredicate],

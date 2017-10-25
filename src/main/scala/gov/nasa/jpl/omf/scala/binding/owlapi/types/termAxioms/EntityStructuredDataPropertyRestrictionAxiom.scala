@@ -18,19 +18,18 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.types.termAxioms
 
-import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.{Entity, EntityScalarDataProperty}
+import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Entity
 
 import scala.{Any,Boolean}
 
-trait EntityScalarDataPropertyRestrictionAxiom extends TermAxiom {
+trait EntityStructuredDataPropertyRestrictionAxiom extends TermAxiom {
 
   val restrictedEntity: Entity
-  val scalarProperty: EntityScalarDataProperty
 
   override def canEqual(other: Any)
   : Boolean
   = other match {
-    case _: EntityScalarDataPropertyRestrictionAxiom => true
+    case _: EntityStructuredDataPropertyRestrictionAxiom => true
     case _ => false
   }
 }

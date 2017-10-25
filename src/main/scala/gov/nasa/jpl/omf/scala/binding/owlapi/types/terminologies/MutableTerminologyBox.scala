@@ -25,7 +25,7 @@ import gov.nasa.jpl.imce.oml.tables
 import gov.nasa.jpl.imce.oml.tables.{AnnotationProperty, AnnotationPropertyValue, LiteralValue}
 import gov.nasa.jpl.omf.scala.binding.owlapi.AxiomExceptionKind
 import gov.nasa.jpl.omf.scala.binding.owlapi.ElementExceptionKind
-import gov.nasa.jpl.omf.scala.binding.owlapi.types.{axiomScopeException, duplicateModelTermAxiomException, duplicateTerminologyGraphAxiomException, entityAlreadyDefinedException, entityConflictException, entityScopeException, terms}
+import gov.nasa.jpl.omf.scala.binding.owlapi.types.{RestrictionScalarDataPropertyValue, RestrictionStructuredDataPropertyTuple, axiomScopeException, duplicateModelTermAxiomException, duplicateTerminologyGraphAxiomException, entityAlreadyDefinedException, entityConflictException, entityScopeException, terms}
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologyAxioms._
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.termAxioms._
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms._
@@ -3442,6 +3442,139 @@ trait MutableTerminologyBox
       ).left
 
   }
+
+  def addEntityStructuredDataPropertyParticularRestrictionAxiom
+  (uuid: UUID,
+   restrictedEntity: OWLAPIOMF#Entity,
+   structuredProperty: OWLAPIOMF#EntityStructuredDataProperty)
+  (implicit store: OWLAPIOMFGraphStore)
+  : OMFError.Throwables \/ OWLAPIOMF#EntityStructuredDataPropertyParticularRestrictionAxiom
+  = (isTypeTermDefinedRecursively(restrictedEntity),
+    isTypeTermDefinedRecursively(structuredProperty)) match {
+    case (true, true) =>
+      for {
+        e_iri <- withFragment(iri, OMLString.LocalName(uuid.toString))
+        e_ni = owlDataFactory.getOWLNamedIndividual(e_iri)
+        axiom = EntityStructuredDataPropertyParticularRestrictionAxiom(uuid, restrictedEntity, structuredProperty, e_ni)
+        key = if (sig.kind == TerminologyKind.isClosedWorld)
+          Option(new AddAxiom(ont,
+            owlDataFactory
+              .getOWLHasKeyAxiom(restrictedEntity.e, Collections.singleton(structuredProperty.e)))
+          )
+        else
+          Option.empty
+        _ <- applyOntologyChangesOrNoOp(
+          ontManager,
+          Seq(
+            new AddAxiom(ont,
+              owlDataFactory
+              .getOWLDeclarationAxiom(e_ni)),
+            new AddAxiom(ont,
+              owlDataFactory
+              .getOWLClassAssertionAxiom(structuredProperty.range.e, e_ni)),
+            new AddAxiom(ont,
+              owlDataFactory
+              .getOWLSubClassOfAxiom(
+                restrictedEntity.e,
+                owlDataFactory.getOWLObjectHasValue(structuredProperty.e, e_ni)))
+          ) ++ key,
+          ifError = {
+            "addEntityStructuredDataPropertyParticularRestrictionAxiom Error"
+          })
+      } yield {
+        sig.axioms += axiom
+        axiom
+      }
+
+    case (false, _) =>
+      Set(
+        axiomScopeException(
+          AxiomExceptionKind.EntityStructuredDataPropertyParticularRestrictionAxiomException,
+          Map(AxiomScopeAccessKind.Domain -> restrictedEntity))
+      ).left
+
+    case (_, false) =>
+      Set(
+        axiomScopeException(
+          AxiomExceptionKind.EntityStructuredDataPropertyParticularRestrictionAxiomException,
+          Map(AxiomScopeAccessKind.Rel -> structuredProperty))
+      ).left
+
+  }
+
+  def addRestrictionStructuredDataPropertyTuple
+  (uuid: UUID,
+   structuredDataPropertyContext: OWLAPIOMF#RestrictionStructuredDataPropertyContext,
+   structuredProperty: OWLAPIOMF#DataRelationshipToStructure)
+  (implicit store: OWLAPIOMFGraphStore)
+  : OMFError.Throwables \/ OWLAPIOMF#RestrictionStructuredDataPropertyTuple
+  = if (isTypeTermDefinedRecursively(structuredProperty)) {
+    for {
+      e_iri <- withFragment(iri, OMLString.LocalName(uuid.toString))
+      e_ni = owlDataFactory.getOWLNamedIndividual(e_iri)
+      tuple = RestrictionStructuredDataPropertyTuple(uuid, structuredDataPropertyContext, structuredProperty, e_ni)
+      _ <- applyOntologyChangesOrNoOp(
+        ontManager,
+        Seq(
+          new AddAxiom(ont,
+            owlDataFactory
+              .getOWLDeclarationAxiom(e_ni)),
+          new AddAxiom(ont,
+            owlDataFactory
+              .getOWLClassAssertionAxiom(structuredProperty.range.e, e_ni)),
+          new AddAxiom(ont,
+            owlDataFactory
+              .getOWLObjectPropertyAssertionAxiom(structuredProperty.e, structuredDataPropertyContext.e, e_ni))
+        ),
+        ifError = {
+          "addRestrictionStructuredDataPropertyTuple Error"
+        })
+    } yield {
+      sig.restrictionStructuredDataPropertyTuples += tuple
+      tuple
+    }
+  } else
+      Set(
+        axiomScopeException(
+          AxiomExceptionKind.RestrictionStructuredDataPropertyTupleException,
+          Map(AxiomScopeAccessKind.Rel -> structuredProperty))
+      ).left
+
+  def addRestrictionScalarDataPropertyValue
+  (uuid: UUID,
+   structuredDataPropertyContext: OWLAPIOMF#RestrictionStructuredDataPropertyContext,
+   scalarProperty: OWLAPIOMF#DataRelationshipToScalar,
+   literalValue: LiteralValue,
+   valueType: Option[DataRange])
+  (implicit store: OWLAPIOMFGraphStore)
+  : OMFError.Throwables \/ OWLAPIOMF#RestrictionScalarDataPropertyValue
+  = if (isTypeTermDefinedRecursively(scalarProperty)) {
+    val value = RestrictionScalarDataPropertyValue(uuid, structuredDataPropertyContext, scalarProperty, literalValue, valueType)
+    for {
+      _ <- applyOntologyChangesOrNoOp(
+        ontManager,
+        Seq(
+          new AddAxiom(ont,
+            owlDataFactory
+              .getOWLDataPropertyAssertionAxiom(
+                scalarProperty.e,
+                structuredDataPropertyContext.e,
+                LiteralConversions.toOWLLiteral(literalValue, owlDataFactory,
+                  valueType.map(_.e).orElse(Option.apply(scalarProperty.range.e)))))
+        ),
+        ifError = {
+          "addRestrictionScalarDataPropertyValue Error"
+        })
+    } yield {
+      sig.restrictionScalarDataPropertyValues += value
+      value
+    }
+  } else
+    Set(
+      axiomScopeException(
+        AxiomExceptionKind.RestrictionScalarDataPropertyValueException,
+        Map(AxiomScopeAccessKind.Rel -> scalarProperty))
+    ).left
 
   def createEntityDefinitionAspectSubClassAxiom
   (uuid: UUID,

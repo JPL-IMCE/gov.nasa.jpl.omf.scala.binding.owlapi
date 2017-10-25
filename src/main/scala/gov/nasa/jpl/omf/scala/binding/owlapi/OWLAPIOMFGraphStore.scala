@@ -891,6 +891,8 @@ extends OWLAPIOMFGraphStoreMetadata(omfModule, ontManager) {
             registerOMFEntityScalarDataPropertyParticularRestrictionAxiomInstance(ig, ax).map(_ => ())
           case ax: EntityScalarDataPropertyUniversalRestrictionAxiom =>
             registerOMFEntityScalarDataPropertyUniversalRestrictionAxiomInstance(ig, ax).map(_ => ())
+          case _: EntityStructuredDataPropertyParticularRestrictionAxiom =>
+            types.rightUnitNES
           case ax =>
             Set(
               OMFError

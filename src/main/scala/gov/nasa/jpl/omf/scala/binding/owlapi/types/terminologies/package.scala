@@ -59,6 +59,8 @@ package object terminologies {
     entityStructuredDataProperties = Set.empty[EntityStructuredDataProperty] ++ sig.entityStructuredDataProperties,
     scalarDataProperties = Set.empty[ScalarDataProperty] ++ sig.scalarDataProperties,
     structuredDataProperties = Set.empty[StructuredDataProperty] ++ sig.structuredDataProperties,
+    restrictionStructuredDataPropertyTuples = Set.empty[RestrictionStructuredDataPropertyTuple] ++ sig.restrictionStructuredDataPropertyTuples,
+    restrictionScalarDataPropertyValues = Set.empty[RestrictionScalarDataPropertyValue] ++ sig.restrictionScalarDataPropertyValues,
     chainRules = Set.empty[ChainRule] ++ sig.chainRules,
     ruleBodySegments = Set.empty[RuleBodySegment] ++ sig.ruleBodySegments,
     aspectPredicates = Set.empty[AspectPredicate] ++ sig.aspectPredicates,
