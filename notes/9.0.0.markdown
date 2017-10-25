@@ -9,3 +9,11 @@ gov.nasa.jpl.omf.scala.binding.owlapi 9.0.0 is a major update
 - [#30 Implement chain rule lookup for rule body segment](https://github.com/JPL-IMCE/gov.nasa.jpl.omf.scala.binding.owlapi/issues/30)
 
 - [#31 Incorrect UUID derivation for rule body segment](https://github.com/JPL-IMCE/gov.nasa.jpl.omf.scala.binding.owlapi/issues/31)
+
+- [#32 For Closed TerminologyBoxes, map particular restrictions to OWL2-DL key axioms](https://github.com/JPL-IMCE/gov.nasa.jpl.omf.scala.binding.owlapi/issues/32)
+
+- [#33 Add support for EntityStructuredDataPropertyParticularRestrictionAxiom](https://github.com/JPL-IMCE/gov.nasa.jpl.omf.scala.binding.owlapi/issues/33)
+
+- [#34 Map DataRelationshipFromEntity with isIdentityCriteria to functional properties in OWL](https://github.com/JPL-IMCE/gov.nasa.jpl.omf.scala.binding.owlapi/issues/34)
+
+  Partial, need resolveDataRelationshipsFromEntity2Structures
