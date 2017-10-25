@@ -3403,22 +3403,27 @@ trait MutableTerminologyBox
   = (isTypeTermDefinedRecursively(restrictedEntity),
     isTypeTermDefinedRecursively(scalarProperty)) match {
     case (true, true) =>
-      val subC = owlDataFactory.getOWLClass(restrictedEntity.iri)
+      val axiom = EntityScalarDataPropertyParticularRestrictionAxiom(uuid, restrictedEntity, scalarProperty, literalValue, valueType)
+      val key = if (sig.kind == TerminologyKind.isClosedWorld)
+        Option(new AddAxiom(ont,
+          owlDataFactory
+            .getOWLHasKeyAxiom(restrictedEntity.e, Collections.singleton(scalarProperty.e)))
+        )
+      else
+        Option.empty
       for {
-        axiom <-
-        store
-          .registerOMFEntityScalarDataPropertyParticularRestrictionAxiomInstance(this,
-            EntityScalarDataPropertyParticularRestrictionAxiom(uuid, restrictedEntity, scalarProperty, literalValue, valueType))
-        _ <- applyOntologyChangeOrNoOp(
+        _ <- applyOntologyChangesOrNoOp(
           ontManager,
-          new AddAxiom(ont,
+          Seq(
+            new AddAxiom(ont,
             owlDataFactory
               .getOWLSubClassOfAxiom(
-                subC,
+                restrictedEntity.e,
                 owlDataFactory.getOWLDataHasValue(scalarProperty.e,
                   LiteralConversions.toOWLLiteral(literalValue, owlDataFactory,
                     valueType.map(_.e).orElse(Option.apply(scalarProperty.range.e)))),
-                java.util.Collections.singleton(createOMFProvenanceAnnotation(uuid)))),
+                java.util.Collections.singleton(createOMFProvenanceAnnotation(uuid))))
+          ) ++ key,
           ifError = {
             "addEntityScalarDataPropertyParticularRestrictionAxiom Error"
           })
