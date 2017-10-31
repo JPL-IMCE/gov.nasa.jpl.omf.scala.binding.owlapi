@@ -18,4 +18,25 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.common
 
-trait MutableModule extends Module
+import gov.nasa.jpl.imce.oml.tables.{AnnotationProperty, AnnotationPropertyValue}
+import gov.nasa.jpl.omf.scala.binding.owlapi.{OWLAPIOMF, OWLAPIOMFGraphStore}
+import gov.nasa.jpl.omf.scala.core.OMFError
+
+import scala.Predef.String
+
+import scalaz.\/
+
+trait MutableModule extends Module {
+
+  def addAnnotationProperty
+  (ap: AnnotationProperty)
+  (implicit store: OWLAPIOMFGraphStore)
+  : OMFError.Throwables \/ AnnotationProperty
+
+  def addAnnotation
+  (subject: OWLAPIOMF#Element,
+   property: AnnotationProperty,
+   value: String)
+  (implicit store: OWLAPIOMFGraphStore)
+  : OMFError.Throwables \/ AnnotationPropertyValue
+}
