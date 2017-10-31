@@ -21,7 +21,6 @@ package gov.nasa.jpl.omf.scala.binding.owlapi.types.termAxioms
 import java.util.UUID
 
 import gov.nasa.jpl.imce.oml.tables.LiteralValue
-import gov.nasa.jpl.omf.scala.binding.owlapi.types.Axiom
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.{DataRange,ScalarOneOfRestriction}
 
 import scala.{Any,Boolean,Int,Option}
@@ -31,7 +30,7 @@ case class ScalarOneOfLiteralAxiom
  axiom: ScalarOneOfRestriction,
  value: LiteralValue,
  valueType: Option[DataRange])
-extends Axiom {
+extends TermAxiom {
 
   override def canEqual(other: Any)
   : Boolean
