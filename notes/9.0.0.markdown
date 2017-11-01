@@ -21,3 +21,10 @@ gov.nasa.jpl.omf.scala.binding.owlapi 9.0.0 is a major update
 - [#35 MutableModule is missing addAnnotation and addAnnotationProperty methods](https://github.com/JPL-IMCE/gov.nasa.jpl.omf.scala.binding.owlapi/issues/35)
 
 - [#36 ScalarOneOfLiteralAxiom should extend TermAxiom, not Axiom](https://github.com/JPL-IMCE/gov.nasa.jpl.omf.scala.binding.owlapi/issues/36)
+
+- [#37 When parsing SWRL rules, need to reorder the body atoms for OML](https://github.com/JPL-IMCE/gov.nasa.jpl.omf.scala.binding.owlapi/issues/37)
+
+- [#38 BUG: MutableTerminologyBox allows creating multiple rules with the same name](https://github.com/JPL-IMCE/gov.nasa.jpl.omf.scala.binding.owlapi/issues/38)
+
+- [#39 Tolerate duplicate SWRL rules for the reified relationship pattern](https://github.com/JPL-IMCE/gov.nasa.jpl.omf.scala.binding.owlapi/issues/39)
+
