@@ -291,7 +291,8 @@ case class TerminologyBoxResolverHelper
     }
   }
 
-  def resolveEntityDefinitionsForRelationships
+  @scala.annotation.tailrec
+  final def resolveEntityDefinitionsForRelationships
   (entityDefinitions: Map[OWLClass, Entity],
    RCs: Map[IRI, OWLClass],
    ROPs: Iterable[ROPInfo],
@@ -326,7 +327,7 @@ case class TerminologyBoxResolverHelper
     remainingTargetROPs ++= resolvableTargetROPs
 
     val m: Set[java.lang.Throwable] \/ Map[OWLClass, ReifiedRelationship]
-    = ( Map[OWLClass, ReifiedRelationship]().right[Set[java.lang.Throwable]] /: chains ) {
+    = (Map[OWLClass, ReifiedRelationship]().right[Set[java.lang.Throwable]] /: chains) {
       case (acc1, (chainOP, chainSource, chainTarget)) =>
 
         val chainOP_iri = chainOP.getIRI
@@ -346,7 +347,7 @@ case class TerminologyBoxResolverHelper
               .get(r_source)
               .fold[Set[java.lang.Throwable] \/ Map[OWLClass, ReifiedRelationship]](
               acc2
-            ){ r_sourceDef =>
+            ) { r_sourceDef =>
 
               val r_source_iri = r_source.getIRI
 
@@ -354,11 +355,11 @@ case class TerminologyBoxResolverHelper
                 .get(r_target)
                 .fold[Set[java.lang.Throwable] \/ Map[OWLClass, ReifiedRelationship]](
                 acc2
-              ){ r_targetDef =>
+              ) { r_targetDef =>
 
                 val r_target_iri = r_target.getIRI
 
-                ( acc2 /: resolvableSourceROPs ) {
+                (acc2 /: resolvableSourceROPs) {
                   case (accS, (s_iri, s_op, s_source, s_target, s_inv_op)) if
                   s_iri == chainSource_iri && s_target.getIRI == r_source_iri =>
 
@@ -366,7 +367,7 @@ case class TerminologyBoxResolverHelper
                       System.out.println(s"s_op: ${s_op.getIRI}")
                     }
 
-                    ( accS /: resolvableTargetROPs ) {
+                    (accS /: resolvableTargetROPs) {
 
                       case (accT, (t_iri, t_op, t_source, t_target, t_inv_op)) if
                       t_iri == chainTarget_iri && t_target.getIRI == r_target_iri && s_source == t_source =>
@@ -500,7 +501,7 @@ case class TerminologyBoxResolverHelper
                         accT +++ newERR
 
                       case (
-                        accT, _) =>accT
+                        accT, _) => accT
                     }
 
                   case (accS, _) =>
@@ -508,7 +509,7 @@ case class TerminologyBoxResolverHelper
                 }
               }
             }
-          case ( acc2, _ ) =>
+          case (acc2, _) =>
             acc2
         }
     }
@@ -540,8 +541,7 @@ case class TerminologyBoxResolverHelper
                   |$trops
                   |""".stripMargin('|'))
         ).left
-    } else
-    if (remainingROPs.isEmpty && remainingSourceROPs.isEmpty && remainingTargetROPs.isEmpty &&
+    } else if (remainingROPs.isEmpty && remainingSourceROPs.isEmpty && remainingTargetROPs.isEmpty &&
       unresolvedROPs.isEmpty && unresolvableSourceROPs.isEmpty && unresolvableTargetROPs.isEmpty)
 
       m +++ entityReifiedRelationships.right
@@ -590,21 +590,24 @@ case class TerminologyBoxResolverHelper
     //              |*** ${unresolvableTargetROPs.size} unresolved target ROPs ***
     //              |$utrops
     //              |""".stripMargin( '|' ) )
-      m.flatMap { _m =>
 
-        if (_m.isEmpty)
-          entityReifiedRelationships.right
-        else {
-          //      System.out.println(s"\n#resolveEntityDefinitionsForRelationships with ${m.size}")
-          resolveEntityDefinitionsForRelationships(
-            entityDefinitions ++ _m,
-            RCs ++ (_m map { case (rc, _) => rc.getIRI -> rc }).toMap,
-            unresolvedROPs ++ remainingROPs,
-            unresolvableSourceROPs ++ remainingSourceROPs,
-            unresolvableTargetROPs ++ remainingTargetROPs,
-            chains,
-            entityReifiedRelationships ++ _m)
-        }
+      m match {
+        case \/-(_m) =>
+          if (_m.isEmpty)
+            entityReifiedRelationships.right
+          else {
+            //      System.out.println(s"\n#resolveEntityDefinitionsForRelationships with ${m.size}")
+            resolveEntityDefinitionsForRelationships(
+              entityDefinitions ++ _m,
+              RCs ++ (_m map { case (rc, _) => rc.getIRI -> rc }).toMap,
+              unresolvedROPs ++ remainingROPs,
+              unresolvableSourceROPs ++ remainingSourceROPs,
+              unresolvableTargetROPs ++ remainingTargetROPs,
+              chains,
+              entityReifiedRelationships ++ _m)
+          }
+        case -\/(errors) =>
+          -\/(errors)
       }
   }
 
@@ -792,21 +795,27 @@ case class TerminologyBoxResolverHelper
   } yield structuredDatatypeCIRI -> structuredDatatypeC).toMap
 
   def resolveDomainRangeForObjectProperties
-  (subOPs: NodeSet[OWLObjectPropertyExpression], tOPs: Set[OWLObjectProperty])
+  (subOPs: NodeSet[OWLObjectPropertyExpression],
+   tOPs: Set[OWLObjectProperty],
+   ignore: Set[OWLObjectProperty] = Set.empty)
   (implicit reasoner: OWLReasoner)
   : Iterable[ROPInfo]
   = (for {
     _n_ <- subOPs
     _op_ <- _n_ flatMap {
       case op: OWLObjectProperty =>
-        if (tOPs.contains(op) && !isAnnotatedDerived(tboxG.ont, op.getIRI).fold(_ => false, identity))
+        if (!ignore.contains(op) &&
+          tOPs.contains(op) &&
+          !isAnnotatedDerived(tboxG.ont, op.getIRI).fold(_ => false, identity))
           Some(op)
         else
           None
       case inv: OWLObjectInverseOf =>
         inv.getInverse match {
           case op: OWLObjectProperty =>
-            if (tOPs.contains(op) && !isAnnotatedDerived(tboxG.ont, op.getIRI).fold(_ => false, identity))
+            if (!ignore.contains(op) &&
+              tOPs.contains(op) &&
+              !isAnnotatedDerived(tboxG.ont, op.getIRI).fold(_ => false, identity))
               Some(op)
             else
               None
@@ -1168,7 +1177,14 @@ case class TerminologyBoxResolverHelper
       val pui = tboxG.sig.unreifiedRelationshipInversePropertyPredicates.size
       val ps = pa + pc + prr + prp + pri + psp + psi + ptp + pti + pup + pui
       if (ns != ps)
-        require(ns == ps)
+        \/-(())
+      else
+        -\/(Set[java.lang.Throwable](
+          OMFError.omfError(
+            s"ChainRule construction problem for $bodySegment and $segmentPredicate:\n"+
+              s"$ns segments vs. $ps predicates\n"+
+              s"pa=$pa,pc=$pc,prr=$prr,prp=$prp,pri=$pri,psp=$psp,psi=$psi,ptp=$ptp,pti=$pti,pup=$pup,pui=$pui"
+          )))
     }
   } yield bodySegment
 

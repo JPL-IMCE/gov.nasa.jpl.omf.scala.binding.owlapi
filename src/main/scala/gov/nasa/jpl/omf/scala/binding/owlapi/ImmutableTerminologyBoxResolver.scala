@@ -668,127 +668,148 @@ case class ImmutableTerminologyBoxResolver(resolver: TerminologyBoxResolverHelpe
         reasoner.getSubClasses(backbone.AspectC, false),
         aCs)
 
-    val subPropertyChainAxioms: Set[SWRLRule] = ont.logicalAxioms(Imports.EXCLUDED).toScala[Set].flatMap {
+    val rules: Set[SWRLRule] = ont.logicalAxioms(Imports.EXCLUDED).toScala[Set].flatMap {
       case ax: SWRLRule =>
         Some(ax)
       case _ =>
         None
     }
 
-    val (chains, otherRules)
-    : (Chains, Set[SWRLRule])
-    = subPropertyChainAxioms.foldLeft[(Chains, Set[SWRLRule])](Set.empty, Set.empty) {
-      case ((ci, ri), r) =>
+    val (chains, recognizedRules, ignoredSourceOPs, ignoredTargetOPs, otherRules)
+    : (Chains, Set[SWRLRule], Set[OWLObjectProperty], Set[OWLObjectProperty], Set[SWRLRule])
+    = rules.foldLeft[(Chains, Set[SWRLRule], Set[OWLObjectProperty], Set[OWLObjectProperty], Set[SWRLRule])] {
+      (Set.empty, Set.empty, Set.empty, Set.empty, Set.empty)
+    } {
+        case ((ci, ri, isi, iti, oi), s) =>
 
-        val c: Option[Chain] = for {
-          rule <- Option(r)
-          variables: Set[SWRLVariable] = rule.variables.toScala[Set]
-          if 3 == variables.size
+          val c: Option[Chain] = for {
+            rule <- Option(s)
+            variables: Set[SWRLVariable] = rule.variables.toScala[Set]
+            if 3 == variables.size
 
-          heads: Set[SWRLAtom] = rule.head.toScala[Set]
-          if 1 == heads.size
-          head: SWRLObjectPropertyAtom <- heads.head match {
-            case opa: SWRLObjectPropertyAtom =>
-              Some(opa)
-            case _ =>
-              None
-          }
-          head_op: OWLObjectProperty <- head.getPredicate match {
-            case op: OWLObjectProperty =>
-              Some(op)
-            case _ =>
-              None
-          }
-          head_v1: SWRLVariable <- head.getFirstArgument match {
-            case v: SWRLVariable => Some(v)
-            case _ => None
-          }
-          head_v2: SWRLVariable <- head.getSecondArgument match {
-            case v: SWRLVariable => Some(v)
-            case _ => None
-          }
-          bodies: Set[SWRLAtom] = rule.body.toScala[Set]
-          if 2 == bodies.size
-          body1: SWRLObjectPropertyAtom <- bodies.head match {
-            case opa: SWRLObjectPropertyAtom =>
-              Some(opa)
-            case _ =>
-              None
-          }
-          body1_op: OWLObjectProperty <- body1.getPredicate match {
-            case op: OWLObjectProperty =>
-              Some(op)
-            case _ =>
-              None
-          }
-          body1_v1: SWRLVariable <- body1.getFirstArgument match {
-            case v: SWRLVariable => Some(v)
-            case _ => None
-          }
-          body1_v2: SWRLVariable <- body1.getSecondArgument match {
-            case v: SWRLVariable => Some(v)
-            case _ => None
-          }
-          body2: SWRLObjectPropertyAtom <- bodies.tail.head match {
-            case opa: SWRLObjectPropertyAtom =>
-              Some(opa)
-            case _ =>
-              None
-          }
-          body2_op: OWLObjectProperty <- body2.getPredicate match {
-            case op: OWLObjectProperty =>
-              Some(op)
-            case _ =>
-              None
-          }
-          body2_v1: SWRLVariable <- body2.getFirstArgument match {
-            case v: SWRLVariable =>
-              Some(v)
-            case _ =>
-              None
-          }
-          body2_v2: SWRLVariable <- body2.getSecondArgument match {
-            case v: SWRLVariable =>
-              Some(v)
-            case _ =>
-              None
-          }
-          if body1_v1 == body2_v1
+            heads: Set[SWRLAtom] = rule.head.toScala[Set]
+            if 1 == heads.size
+            head: SWRLObjectPropertyAtom <- heads.head match {
+              case opa: SWRLObjectPropertyAtom =>
+                Some(opa)
+              case _ =>
+                None
+            }
+            head_op: OWLObjectProperty <- head.getPredicate match {
+              case op: OWLObjectProperty =>
+                Some(op)
+              case _ =>
+                None
+            }
+            head_v1: SWRLVariable <- head.getFirstArgument match {
+              case v: SWRLVariable => Some(v)
+              case _ => None
+            }
+            head_v2: SWRLVariable <- head.getSecondArgument match {
+              case v: SWRLVariable => Some(v)
+              case _ => None
+            }
+            bodies: Set[SWRLAtom] = rule.body.toScala[Set]
+            if 2 == bodies.size
+            body1: SWRLObjectPropertyAtom <- bodies.head match {
+              case opa: SWRLObjectPropertyAtom =>
+                Some(opa)
+              case _ =>
+                None
+            }
+            body1_op: OWLObjectProperty <- body1.getPredicate match {
+              case op: OWLObjectProperty =>
+                Some(op)
+              case _ =>
+                None
+            }
+            body1_v1: SWRLVariable <- body1.getFirstArgument match {
+              case v: SWRLVariable => Some(v)
+              case _ => None
+            }
+            body1_v2: SWRLVariable <- body1.getSecondArgument match {
+              case v: SWRLVariable => Some(v)
+              case _ => None
+            }
+            body2: SWRLObjectPropertyAtom <- bodies.tail.head match {
+              case opa: SWRLObjectPropertyAtom =>
+                Some(opa)
+              case _ =>
+                None
+            }
+            body2_op: OWLObjectProperty <- body2.getPredicate match {
+              case op: OWLObjectProperty =>
+                Some(op)
+              case _ =>
+                None
+            }
+            body2_v1: SWRLVariable <- body2.getFirstArgument match {
+              case v: SWRLVariable =>
+                Some(v)
+              case _ =>
+                None
+            }
+            body2_v2: SWRLVariable <- body2.getSecondArgument match {
+              case v: SWRLVariable =>
+                Some(v)
+              case _ =>
+                None
+            }
+            if body1_v1 == body2_v1
 
-          _ = if (LOG1) {
-            System.out.println(s"\nhead op: $head_op, v1: $head_v1, v2: $head_v2")
-            System.out.println(s"body1 op: $body1_op, v1: $body1_v1, v2: $body1_v2")
-            System.out.println(s"body2 op: $body2_op, v1: $body2_v1, v2: $body2_v2")
+            _ = if (LOG1) {
+              System.out.println(s"\nhead op: $head_op, v1: $head_v1, v2: $head_v2")
+              System.out.println(s"body1 op: $body1_op, v1: $body1_v1, v2: $body1_v2")
+              System.out.println(s"body2 op: $body2_op, v1: $body2_v1, v2: $body2_v2")
+            }
+
+            _ = require((head_v1 == body1_v2 && head_v2 == body2_v2) || (head_v1 == body2_v2 && head_v2 == body1_v2))
+
+            hasSource = if (head_v1 == body1_v2 && head_v2 == body2_v2) body1_op else body2_op
+            hasTarget = if (head_v1 == body1_v2 && head_v2 == body2_v2) body2_op else body1_op
+            _ = if (LOG1) {
+              System.out.println(s"hasSource: $hasSource, hasTarget: $hasTarget")
+            }
+          } yield Tuple3(head_op, hasSource, hasTarget)
+
+          val (cj, rj, isj, itj, oj) = c match {
+            case Some(_c) =>
+              // https://github.com/JPL-IMCE/gov.nasa.jpl.imce.ontologies.public/issues/35
+              // There may be multiple rules with the same head (_1) but different source/target (_2, _3)
+              ci.find(_._1 == _c._1) match {
+                case Some(ch) =>
+                  // There is already a triple, ch.
+                  if (s.annotations(ontOps.df.getRDFSLabel()).count() == 1L)
+                  // Prefer _c because it is a labelled rule.
+                    (ci - ch + _c, ri + s,
+                      if (ch._2 == _c._2) isi else isi + ch._2,
+                      if (ch._3 == _c._3) iti else iti + ch._3,
+                      oi)
+                  else
+                  // Ignore _c because it is an unlabelled rule.
+                    (ci, ri + s,
+                      if (ch._2 == _c._2) isi else isi + _c._2,
+                      if (ch._3 == _c._3) iti else iti + _c._3,
+                      oi)
+                case None =>
+                  (ci + _c, ri + s, isi, iti, oi)
+              }
+            case None =>
+              (ci, ri, isi, iti, oi + s)
           }
 
-          _ = require((head_v1 == body1_v2 && head_v2 == body2_v2) || (head_v1 == body2_v2 && head_v2 == body1_v2))
-
-          hasSource = if (head_v1 == body1_v2 && head_v2 == body2_v2) body1_op else body2_op
-          hasTarget = if (head_v1 == body1_v2 && head_v2 == body2_v2) body2_op else body1_op
-          _ = if (LOG1) {
-            System.out.println(s"hasSource: $hasSource, hasTarget: $hasTarget")
-          }
-        } yield Tuple3(head_op, hasSource, hasTarget)
-
-        val (cj, rj) = c match {
-          case Some(_c) =>
-            (ci + _c) -> ri
-          case None =>
-            ci -> (ri + r)
-        }
-
-        val ni = ci.size + ri.size
-        val nj = cj.size + rj.size
-        if ((ni + 1) != nj)
-          require((ni + 1) == nj)
-        cj -> rj
-    }
+          val ni = ri.size + oi.size
+          val nj = rj.size + oj.size
+          if ((ni + 1) != nj)
+            require((ni + 1) == nj)
+          (cj, rj, isj, itj, oj)
+      }
 
     System.out.println(s"#-------------------")
-    System.out.println(s"# Rules: ${chains.size} ROP SWRL rule chains and ${otherRules.size} inference rules (${subPropertyChainAxioms.size} rules).")
+    System.out.println(s"# Rules: recognized ${recognizedRules.size} rules {${chains.size} ROP SWRL rule chains and ${otherRules.size} inference rules} (${rules.size} rules).")
     System.out.println(s"#-------------------")
 
-    require((chains.size + otherRules.size) == subPropertyChainAxioms.size)
+    require((recognizedRules.size + otherRules.size) == rules.size)
 
     val aspectCMs: Throwables \/ Map[OWLClass, Aspect] =
       (Map[OWLClass, Aspect]().right[Set[java.lang.Throwable]] /: aspectCIRIs) {
@@ -862,13 +883,13 @@ case class ImmutableTerminologyBoxResolver(resolver: TerminologyBoxResolverHelpe
       reasoner.getSubObjectProperties(backbone.topReifiedObjectPropertySourceOP, false)
 
     val reifiedObjectPropertySourceOPIRIs =
-      resolveDomainRangeForObjectProperties(topReifiedObjectPropertySourceSubOPs, tOPs)
+      resolveDomainRangeForObjectProperties(topReifiedObjectPropertySourceSubOPs, tOPs, ignoredSourceOPs)
 
     val topReifiedObjectPropertyTargetSubOPs =
       reasoner.getSubObjectProperties(backbone.topReifiedObjectPropertyTargetOP, false)
 
     val reifiedObjectPropertyTargetOPIRIs =
-      resolveDomainRangeForObjectProperties(topReifiedObjectPropertyTargetSubOPs, tOPs)
+      resolveDomainRangeForObjectProperties(topReifiedObjectPropertyTargetSubOPs, tOPs, ignoredTargetOPs)
 
     val dataPropertyDPIRIs =
       resolveDataPropertyDPIRIs(reasoner.getSubDataProperties(backbone.topDataPropertyDP, false), tDPs)
