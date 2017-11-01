@@ -2679,6 +2679,7 @@ trait MutableTerminologyBox
     r <- iri2typeTerm.get(iri).fold[OMFError.Throwables \/ OWLAPIOMF#ChainRule] {
       val cr = types.terms.ChainRule(iri, name, u, head)
       sig.chainRules.add(cr)
+      iri2typeTerm += iri -> cr
       \/-(cr)
     } { t =>
       Set(
