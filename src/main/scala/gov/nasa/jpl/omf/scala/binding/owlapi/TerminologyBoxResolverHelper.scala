@@ -922,6 +922,55 @@ case class TerminologyBoxResolverHelper
     }
   }
 
+  @scala.annotation.tailrec
+  protected final def reorderAtoms
+  (v1: SWRLIArgument,
+   cs: Set[SWRLClassAtom],
+   ps: Set[SWRLObjectPropertyAtom],
+   v2: SWRLIArgument,
+   as: Seq[SWRLAtom])
+  : Option[Seq[SWRLAtom]]
+  = if (v1 == v2 && cs.isEmpty && ps.isEmpty)
+    Some(as)
+  else
+    cs.find(_.getArgument == v1) match {
+    case Some(a) =>
+      reorderAtoms(v1, cs - a, ps, v2, as :+ a)
+    case None =>
+      ps.find(_.getFirstArgument == v1) match {
+        case Some(a) =>
+          reorderAtoms(a.getSecondArgument, cs, ps - a, v2, as :+ a)
+        case None =>
+          None
+      }
+  }
+
+  protected def resolveRule
+  (hs: List[SWRLAtom],
+   bs: Seq[SWRLAtom],
+   vs: Seq[SWRLVariable])
+  : Option[(SWRLAtom, Seq[SWRLAtom])]
+  = hs match {
+    case (rh: SWRLObjectPropertyAtom) :: Nil =>
+      val (cs: Set[SWRLClassAtom], ps: Set[SWRLObjectPropertyAtom], os: Seq[SWRLAtom]) =
+        bs
+          .foldLeft((Set.empty[SWRLClassAtom], Set.empty[SWRLObjectPropertyAtom], Seq.empty[SWRLAtom])) {
+            case ((ci, pi, oi), c: SWRLClassAtom) =>
+              (ci + c, pi, oi)
+            case ((ci, pi, oi), p: SWRLObjectPropertyAtom) =>
+              (ci, pi + p, oi)
+            case ((ci, pi, oi), o) =>
+              (ci, pi, oi :+ o)
+          }
+      if (os.nonEmpty)
+        None
+      else {
+        reorderAtoms(rh.getFirstArgument, cs, ps, rh.getSecondArgument, Seq.empty).map(rh -> _)
+      }
+    case _ =>
+      None
+  }
+
   def resolveImplicationRule
   (rl: Set[java.lang.Throwable] \/ SWRLRule,
    unreifiedRelationships: Map[OWLObjectProperty, UnreifiedRelationship],
@@ -930,11 +979,12 @@ case class TerminologyBoxResolverHelper
   : Set[java.lang.Throwable] \/ Unit
   = for {
     r <- rl
-    head: Seq[SWRLAtom] =r.head.toScala[Seq]
+    head: List[SWRLAtom] = r.head.toScala[List]
     body: Seq[SWRLAtom] = r.body().toScala[Seq]
     as: Seq[OWLAnnotation] = r.annotations(ontOps.df.getRDFSLabel()).toScala[Seq]
+    vs: Seq[SWRLVariable] = r.variables().toScala[Seq]
 
-    _ <- if (1 != head.size || body.isEmpty || 1 != as.size)
+    _ <- if (1 != head.size || body.isEmpty || as.size > 1)
       -\/(Set[java.lang.Throwable](
         OMFError.omfError(
           s"An OML chain rule in OWL2-DL + SWRL must have exactly 1 head (got: ${head.size}), " +
@@ -942,17 +992,34 @@ case class TerminologyBoxResolverHelper
     else
       \/-(())
 
-    label <- as.head.getValue match {
-      case lit: OWLLiteral =>
-        \/-(OMLString.LocalName(lit.getLiteral))
-      case other =>
+    tuple <- resolveRule(head, body, vs) match {
+      case Some((h, bs)) =>
+        (h -> bs).right[Set[java.lang.Throwable]]
+      case None =>
         -\/(Set[java.lang.Throwable](
           OMFError.omfError(
-            s"An OML chain rule in OWL2-DL + SWRL must have exactly 1 rdfs:label literal annotation, got $other"
-          )))
+            s"An OML chain rule in OWL2-DL + SWRL must have exactly 1 head (got: ${head.size}), " +
+              s"at least one body (got ${body.size})")))
     }
 
-    chainRule <- head.head.getPredicate match {
+    (rh, rbs) = tuple
+
+    label <- as.headOption match {
+      case Some(a) =>
+        a.getValue match {
+          case lit: OWLLiteral =>
+            \/-(OMLString.LocalName(lit.getLiteral))
+          case other =>
+            -\/(Set[java.lang.Throwable](
+              OMFError.omfError(
+                s"An OML chain rule in OWL2-DL + SWRL must have exactly 1 rdfs:label literal annotation, got $other"
+              )))
+        }
+      case None =>
+        \/-(OMLString.LocalName("R" + scala.util.Random.nextInt(100000).toString))
+    }
+
+    chainRule <- rh.getPredicate match {
       case op: OWLObjectProperty =>
         unreifiedRelationships.get(op) match {
           case Some(ur) =>
@@ -971,10 +1038,10 @@ case class TerminologyBoxResolverHelper
     }
 
     firstSegment = resolveBodyAtom(
-      body.head, Some(chainRule), None,
+      rbs.head, Some(chainRule), None,
       unreifiedRelationships, reifiedRelationships, entities)
 
-    _ <- body.tail.foldLeft[Set[java.lang.Throwable] \/ RuleBodySegment](firstSegment) { case (prev, atom) =>
+    _ <- rbs.tail.foldLeft[Set[java.lang.Throwable] \/ RuleBodySegment](firstSegment) { case (prev, atom) =>
       for {
         previousSegment <- prev
         nextSegment <- resolveBodyAtom(
@@ -1084,6 +1151,24 @@ case class TerminologyBoxResolverHelper
         -\/(Set[java.lang.Throwable](
           OMFError.omfError(
             s"Unrecognized body atom predicate: $other")))
+    }
+
+    _ = {
+      val ns = tboxG.sig.ruleBodySegments.size
+      val pa = tboxG.sig.aspectPredicates.size
+      val pc = tboxG.sig.conceptPredicates.size
+      val prr = tboxG.sig.reifiedRelationshipPredicates.size
+      val prp = tboxG.sig.reifiedRelationshipPropertyPredicates.size
+      val pri = tboxG.sig.reifiedRelationshipInversePropertyPredicates.size
+      val psp = tboxG.sig.reifiedRelationshipSourcePropertyPredicates.size
+      val psi = tboxG.sig.reifiedRelationshipSourceInversePropertyPredicates.size
+      val ptp = tboxG.sig.reifiedRelationshipTargetPropertyPredicates.size
+      val pti = tboxG.sig.reifiedRelationshipTargetInversePropertyPredicates.size
+      val pup = tboxG.sig.unreifiedRelationshipPropertyPredicates.size
+      val pui = tboxG.sig.unreifiedRelationshipInversePropertyPredicates.size
+      val ps = pa + pc + prr + prp + pri + psp + psi + ptp + pti + pup + pui
+      if (ns != ps)
+        require(ns == ps)
     }
   } yield bodySegment
 

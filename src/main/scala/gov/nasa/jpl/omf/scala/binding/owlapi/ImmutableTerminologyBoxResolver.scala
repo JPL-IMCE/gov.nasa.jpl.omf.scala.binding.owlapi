@@ -770,17 +770,25 @@ case class ImmutableTerminologyBoxResolver(resolver: TerminologyBoxResolverHelpe
           }
         } yield Tuple3(head_op, hasSource, hasTarget)
 
-        c match {
-          case Some(cj) =>
-            (ci + cj) -> ri
+        val (cj, rj) = c match {
+          case Some(_c) =>
+            (ci + _c) -> ri
           case None =>
             ci -> (ri + r)
         }
+
+        val ni = ci.size + ri.size
+        val nj = cj.size + rj.size
+        if ((ni + 1) != nj)
+          require((ni + 1) == nj)
+        cj -> rj
     }
 
     System.out.println(s"#-------------------")
-    System.out.println(s"# Rules: ${chains.size} ROP SWRL rule chains and ${otherRules.size} inference rules.")
+    System.out.println(s"# Rules: ${chains.size} ROP SWRL rule chains and ${otherRules.size} inference rules (${subPropertyChainAxioms.size} rules).")
     System.out.println(s"#-------------------")
+
+    require((chains.size + otherRules.size) == subPropertyChainAxioms.size)
 
     val aspectCMs: Throwables \/ Map[OWLClass, Aspect] =
       (Map[OWLClass, Aspect]().right[Set[java.lang.Throwable]] /: aspectCIRIs) {
