@@ -31,3 +31,5 @@ gov.nasa.jpl.omf.scala.binding.owlapi 9.0.0 is a major update
 - [#40 Remove the OMF Metadata support](https://github.com/JPL-IMCE/gov.nasa.jpl.omf.scala.binding.owlapi/issues/40)
 
 - [#42 Cleanup and repair unit tests](https://github.com/JPL-IMCE/gov.nasa.jpl.omf.scala.binding.owlapi/issues/42)
+
+- [#43 Migrate the hierarchical graph sorting algorithm to the resolver library](https://github.com/JPL-IMCE/gov.nasa.jpl.omf.scala.binding.owlapi/issues/43)

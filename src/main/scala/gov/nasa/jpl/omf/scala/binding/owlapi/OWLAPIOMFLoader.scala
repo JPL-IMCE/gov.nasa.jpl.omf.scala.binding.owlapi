@@ -20,6 +20,7 @@ package gov.nasa.jpl.omf.scala.binding.owlapi
 
 import java.lang.{IllegalArgumentException,System}
 
+import gov.nasa.jpl.imce.oml.graphs.hierarchicalTopologicalSort
 import gov.nasa.jpl.omf.scala.binding.owlapi.BackboneDeclaractions.BackboneDeclaractions
 import gov.nasa.jpl.omf.scala.core.OMFError.Throwables
 import gov.nasa.jpl.omf.scala.core._
@@ -36,91 +37,14 @@ import scalax.collection.GraphPredef._
 import scala.collection.immutable._
 import scala.compat.java8.OptionConverters.RichOptionalGeneric
 import scala.compat.java8.StreamConverters._
-import scala.reflect.ClassTag
 import scala.util.control.Exception.nonFatalCatch
-import scala.{Boolean, Int, None, Option, Ordering, Some, StringContext, annotation}
+import scala.{Int, None, Option, Ordering, Some, StringContext, annotation}
 import scala.Predef.{assert,require,ArrowAssoc}
 
 import scalaz._
 import Scalaz._
 
 object OWLAPIOMFLoader {
-
-  def subGraphPrecedence
-  [N: ClassTag, E[M] <: DiEdge[M]]
-  (g: Graph[N, E])
-  (lt: Graph[N, E], gt: Graph[N, E])
-  (implicit nOrder: Ordering[N])
-  : Boolean
-  = {
-    require(lt.nonEmpty)
-    require(gt.nonEmpty)
-
-    val before =
-      lt.toOuterNodes.exists { ln =>
-        val n1 = g.get(ln)
-        gt.toOuterNodes.exists { rn =>
-          val n2 = g.get(rn)
-          n1.isPredecessorOf(n2)
-        }
-      }
-
-    if (before)
-      true
-    else {
-      val inverse =
-      lt.toOuterNodes.exists { ln =>
-        val n1 = g.get(ln)
-        gt.toOuterNodes.exists { rn =>
-          val n2 = g.get(rn)
-          n2.isPredecessorOf(n1)
-        }
-      }
-
-      if (inverse)
-        false
-      else {
-        val lns = lt.toOuterNodes.to[Vector].sorted
-        val rns = gt.toOuterNodes.to[Vector].sorted
-        nOrder.compare(lns.head, rns.head) <= 0
-      }
-    }
-  }
-
-  @scala.annotation.tailrec
-  final def hierarchicalTopologicalSort[N: ClassTag, E[M] <: DiEdge[M]]
-  (queue: Seq[Graph[N, E]], result: Seq[N] = Seq.empty)
-  (implicit nOrder: Ordering[N])
-  : Throwables \/ Seq[N]
-  = queue match {
-    case Nil =>
-      result.right
-    case g :: gs =>
-
-      if (g.isAcyclic) {
-        val gsorted = g.topologicalSort().right.get.toOuter.toOuter.to[Seq]
-        hierarchicalTopologicalSort(gs, result ++ gsorted)
-      } else {
-        val sccs1 = g.strongComponentTraverser()
-        val sccs2 = sccs1.map(_.toGraph)
-        val sccs3 = sccs2.to[List]
-        val sccs4 = sccs3.filter(_.nonEmpty)
-        val sccs = sccs4.sortWith(subGraphPrecedence(g))
-
-        sccs.toList match {
-          case Nil =>
-            result.right[Throwables]
-
-          case n :: ns =>
-            if (n.isAcyclic) {
-              val rs: Seq[N] = n.toOuterNodes.to[Seq]
-              hierarchicalTopologicalSort(ns ++ gs, result ++ rs)
-            } else {
-              hierarchicalTopologicalSort(sccs ++ gs, result)
-            }
-        }
-      }
-  }
 
   /**
     * Get the classes directly declared in an ontology.
