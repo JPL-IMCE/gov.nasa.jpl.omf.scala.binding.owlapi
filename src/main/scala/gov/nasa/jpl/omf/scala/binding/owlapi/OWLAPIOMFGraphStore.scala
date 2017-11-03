@@ -543,7 +543,12 @@ case class OWLAPIOMFGraphStore
      mg: MutableTerminologyGraph)
     (implicit store: OWLAPIOMFGraphStore)
     : Throwables \/ ImmutableTerminologyGraph
-    = ImmutableTerminologyGraph.initialize(toImmutableTerminologyBoxSignature(mg.sig), mg.ont, mg.backbone)
+    = for {
+      ig <- ImmutableTerminologyGraph.initialize(toImmutableTerminologyBoxSignature(mg.sig), mg.ont, mg.backbone)
+      _ = ig.sig.nesting.foreach { ax =>
+        directNestingAxioms += (ig -> ax)
+      }
+    } yield ig
 
     def convert1NewBundle
     (acc: OntologyMapping,
@@ -814,7 +819,7 @@ case class OWLAPIOMFGraphStore
         }
         .headOption
         .fold[types.NestingConceptAndGraphOptionNES] {
-        -\/(Set(OMFError.omfError(s"Failued to resolve immutable OMF Terminology Graph for $n2n")))
+        -\/(Set(OMFError.omfError(s"Failed to resolve immutable OMF Terminology Graph for $n2n")))
       } { pair =>
         \/-(Some(pair))
       }

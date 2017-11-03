@@ -181,10 +181,10 @@ lazy val core =
     scalacOptions in (Compile, doc) += "-Xplugin-disable:artima-supersafe",
     scalacOptions in (Test, doc) += "-Xplugin-disable:artima-supersafe",
 
-    // Re-enable when https://github.com/JPL-IMCE/gov.nasa.jpl.imce.ontologies.public/issues/31 is fixed.
-    testOptions in Test := Seq(Tests.Filter(s =>
-      !s.endsWith("IMCEFoundationLoadTestFromOWLAPILocalCatalog")
-    )),
+    // If it is necessary to disable unit tests.
+//    testOptions in Test := Seq(Tests.Filter(s =>
+//      !s.endsWith("IMCEFoundationLoadTestFromOWLAPILocalCatalog")
+//    )),
 
     compile in Test := {
       val _ = extractArchives.value

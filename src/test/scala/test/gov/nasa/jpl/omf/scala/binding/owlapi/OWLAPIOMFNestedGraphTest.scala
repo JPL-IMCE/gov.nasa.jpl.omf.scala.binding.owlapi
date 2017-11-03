@@ -12,16 +12,16 @@ import java.lang.IllegalArgumentException
 
 import org.apache.xml.resolver.tools.CatalogResolver
 
-abstract class OWLAPIOMFNestedGraphTestNoMetadata
+abstract class OWLAPIOMFNestedGraphTest
 (override val saveStore: OWLAPIOMFGraphStore,
  override val loadStore: OWLAPIOMFGraphStore )
   extends testFunctionalAPI.OMFNestedGraphTest[OWLAPIOMF](
-    "NestedGraphTestNoMetadata",
+    "NestedGraphTest",
     saveStore, saveStore.omfModule.ops,
     loadStore, loadStore.omfModule.ops )
 
-abstract class OWLAPIOMFNestedGraphCatalogTestNoMetadata( @transient val catalogManager: CatalogManager )
-  extends OWLAPIOMFNestedGraphTestNoMetadata(
+abstract class OWLAPIOMFNestedGraphCatalogTest(@transient val catalogManager: CatalogManager )
+  extends OWLAPIOMFNestedGraphTest(
     saveStore = OWLAPIOMFGraphStore.initGraphStore(
       OWLAPIOMFModule.owlAPIOMFModule(catalogManager, withOMFMetadata = false).valueOr { (errors: Set[java.lang.Throwable]) =>
         val message = s"${errors.size} errors" + errors.map(_.getMessage).toList.mkString("\n => ","\n => ","\n")
@@ -39,8 +39,8 @@ abstract class OWLAPIOMFNestedGraphCatalogTestNoMetadata( @transient val catalog
       new CatalogResolver(catalogManager),
       catalogManager.getPrivateCatalog) )
 
-class OWLAPIOWFNestedGraphTestNoMetadataLocalCatalog
-  extends OWLAPIOMFNestedGraphCatalogTestNoMetadata( catalogManager = new CatalogManager() ) {
+class OWLAPIOWFNestedGraphTestLocalCatalog
+  extends OWLAPIOMFNestedGraphCatalogTest( catalogManager = new CatalogManager() ) {
 
   val catalogFile = "/ontologies/oml.catalog.xml"
 
@@ -73,7 +73,7 @@ class OWLAPIOWFNestedGraphTestNoMetadataLocalCatalog
   override def postOMFSave(): Unit = {
   }
 
-  Option.apply(classOf[OWLAPIOWFNestedGraphTestWithMetadataLocalCatalog].getResource(catalogFile))
+  Option.apply(classOf[OWLAPIOMFNestedGraphTest].getResource(catalogFile))
     .fold[Unit]({
     Option.apply(java.nio.file.Paths.get("ontologies", "imce.local.catalog.xml"))
       .fold[Unit]({
