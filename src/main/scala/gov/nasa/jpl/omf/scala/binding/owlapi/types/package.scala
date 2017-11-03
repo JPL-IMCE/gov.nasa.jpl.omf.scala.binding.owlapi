@@ -38,7 +38,7 @@ import org.semanticweb.owlapi.model._
 import scala.{Boolean, None, Option, Some, StringContext, Tuple2, Tuple5, Unit}
 import scala.collection.immutable._
 import scala.compat.java8.StreamConverters._
-import scala.Predef.{String, classOf}
+import scala.Predef.classOf
 import scalaz._
 import Scalaz._
 
@@ -108,8 +108,7 @@ package object types {
   = (ms, Set.empty[MutableModule], emptyMutable2ImmutableModuleMap)
 
   def immutableModuleResolver
-  (omfMetadata: Option[OWLOntology],
-   s: OntologyLoadedState,
+  (s: OntologyLoadedState,
    ont: OWLOntology,
    as: Set[AnnotationProperty],
    extensions: Set[ImmutableModule],
@@ -123,55 +122,6 @@ package object types {
 
     implicit val ontOps = new OWLOntologyOps(ont)
 
-    val getOntologyUUID: Option[String] =
-      ont
-        .annotations
-        .toScala[Set]
-        .find(_.getProperty.getIRI == ops.AnnotationHasUUID)
-        .flatMap(_.getValue match {
-          case l: OWLLiteral =>
-            Some(l.getLiteral)
-          case _ =>
-            None
-        })
-
-    val getOntologyRelativeIRI: Option[String] =
-      ont
-        .annotations
-        .toScala[Set]
-        .find(_.getProperty.getIRI == ops.AnnotationHasRelativeIRI)
-        .flatMap(_.getValue match {
-          case l: OWLLiteral =>
-            Some(l.getLiteral)
-          case _ =>
-            None
-        })
-
-    val getOntologyIRIHashPrefix: Option[String] =
-      ont
-        .annotations
-        .toScala[Set]
-        .find(_.getProperty.getIRI == ops.AnnotationHasIRIHashPrefix)
-        .flatMap(_.getValue match {
-          case l: OWLLiteral =>
-            Some(l.getLiteral)
-          case _ =>
-            None
-        })
-
-    val getOntologyIRIHashSuffix: Option[String] =
-      ont
-        .annotations
-        .toScala[Set]
-        .find(_.getProperty.getIRI == ops.AnnotationHasIRIHashSuffix)
-        .flatMap(_.getValue match {
-          case l: OWLLiteral =>
-            Some(l.getLiteral)
-          case _ =>
-            None
-        })
-
-
     if (ontOps.isBundleOntology) {
       // Bundle
       val kind =
@@ -180,12 +130,8 @@ package object types {
         else
           TerminologyKind.isClosedWorld
 
-      omfStore.createOMFBundle(
-        ont.getOntologyID.getOntologyIRI.get,
-        relativeIRIPath = getOntologyRelativeIRI,
-        relativeIRIHashPrefix = getOntologyIRIHashPrefix,
-        ont, kind,
-        extraProvenanceMetadata = OTI2OMFModelTerminologyGraphProvenance.asOMFGraphOntologyProvenance(ont))
+      omfStore
+        .createOMFBundle(ont.getOntologyID.getOntologyIRI.get, ont, kind)
         .flatMap { g: MutableBundle =>
 
           for {
@@ -218,7 +164,7 @@ package object types {
                 )).left[Set[ImmutableTerminologyBox]]
             }
 
-            resolver = TerminologyBoxResolverHelper(omfMetadata, g, tboxExtensions, ont, omfStore, om, ontOps)
+            resolver = TerminologyBoxResolverHelper(g, tboxExtensions, ont, omfStore, om, ontOps)
           } yield
             ImmutableTerminologyBoxResolver(resolver)
         }
@@ -229,11 +175,8 @@ package object types {
       else
         DescriptionKind.isFinal
 
-      omfStore.createOMFDescriptionBox(
-        ont.getOntologyID.getOntologyIRI.get,
-        relativeIRIPath = getOntologyRelativeIRI,
-        relativeIRIHashPrefix = getOntologyIRIHashPrefix,
-        ont, kind)
+      omfStore
+        .createOMFDescriptionBox(ont.getOntologyID.getOntologyIRI.get, ont, kind)
         .flatMap { g: MutableDescriptionBox =>
 
           for {
@@ -292,12 +235,8 @@ package object types {
         else
           TerminologyKind.isClosedWorld
 
-      omfStore.createOMFTerminologyGraph(
-        ont.getOntologyID.getOntologyIRI.get,
-        relativeIRIPath = getOntologyRelativeIRI,
-        relativeIRIHashPrefix = getOntologyIRIHashPrefix,
-        ont, kind,
-        extraProvenanceMetadata = OTI2OMFModelTerminologyGraphProvenance.asOMFGraphOntologyProvenance(ont))
+      omfStore
+        .createOMFTerminologyGraph(ont.getOntologyID.getOntologyIRI.get, ont, kind)
         .flatMap { g: MutableTerminologyGraph =>
 
           for {
@@ -336,7 +275,7 @@ package object types {
                 .map(_ => ())
             }
 
-            resolver = TerminologyBoxResolverHelper(omfMetadata, g, tboxExtensions, ont, omfStore, om, ontOps)
+            resolver = TerminologyBoxResolverHelper(g, tboxExtensions, ont, omfStore, om, ontOps)
           } yield
             ImmutableTerminologyBoxResolver(resolver)
         }

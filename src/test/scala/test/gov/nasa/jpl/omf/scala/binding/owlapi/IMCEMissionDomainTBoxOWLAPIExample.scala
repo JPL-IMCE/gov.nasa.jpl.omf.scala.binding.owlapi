@@ -72,12 +72,4 @@ class IMCEMissionDomainTBoxOWLAPIExampleLocalCatalog
       }
   }
 
-  val metadataIRI =
-    store.omfModule.ops.makeIRI("http://imce.jpl.nasa.gov/test/OWLAPIOMFVocabularySave")
-    .valueOr { (errors: Set[java.lang.Throwable]) =>
-      val message = s"${errors.size} errors" + errors.map(_.getMessage).toList.mkString("\n => ","\n => ","\n")
-      throw new scala.IllegalArgumentException(message)
-    }
-  val metadataOnt = store.ontManager.createOntology(metadataIRI)
-  store.setOMFMetadataOntology(metadataOnt)
 }

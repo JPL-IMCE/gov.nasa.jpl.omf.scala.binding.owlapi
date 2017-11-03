@@ -74,12 +74,4 @@ class IMCEFoundationLoadTestFromOWLAPILocalCatalog
       }
   }
 
-  val loadMetadataIRI =
-    loadStore.omfModule.ops.makeIRI("http://imce.jpl.nasa.gov/test/IMCEFoundationLoadTest")
-      .valueOr { (errors: Set[java.lang.Throwable]) =>
-        val message = s"${errors.size} errors" + errors.map(_.getMessage).toList.mkString("\n => ","\n => ","\n")
-        throw new scala.IllegalArgumentException(message)
-      }
-  val loadMetadataOnt = loadStore.ontManager.createOntology( loadMetadataIRI )
-  loadStore.setOMFMetadataOntology( loadMetadataOnt )
 }

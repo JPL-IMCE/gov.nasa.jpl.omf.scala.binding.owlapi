@@ -24,14 +24,13 @@ import gov.nasa.jpl.omf.scala.core.ImmutableTerminologyBoxSignature
 import gov.nasa.jpl.omf.scala.core.OMFError.Throwables
 import org.semanticweb.owlapi.model._
 
-import scala.{Any, Boolean, Int, Option}
+import scala.{Any, Boolean, Int}
 import scala.Predef.{Map => _, Set => _, _}
 import scalaz._
 
 case class ImmutableTerminologyGraph
 (override val sig: ImmutableTerminologyBoxSignature[OWLAPIOMF],
  override val ont: OWLOntology,
- override val extraProvenanceMetadata: Option[OTI2OMFModelTerminologyGraphProvenance],
  override val backbone: OMFBackbone)
 (override implicit val ops: OWLAPIOMFOps)
   extends TerminologyGraph
@@ -48,14 +47,13 @@ case class ImmutableTerminologyGraph
     case _ => false
   }
 
-  override val hashCode: Int = (sig, ont, extraProvenanceMetadata).##
+  override val hashCode: Int = (sig, ont).##
 
   override def equals(other: Any): Boolean = other match {
     case that: ImmutableTerminologyGraph =>
       (that canEqual this) &&
         (this.sig == that.sig) &&
-        (this.ont == that.ont) &&
-        (this.extraProvenanceMetadata == that.extraProvenanceMetadata)
+        (this.ont == that.ont)
     case _ =>
       false
   }
@@ -73,20 +71,12 @@ object ImmutableTerminologyGraph {
   def initialize
   (sig: ImmutableTerminologyBoxSignature[OWLAPIOMF],
    ont: OWLOntology,
-   extraProvenanceMetadata: Option[OTI2OMFModelTerminologyGraphProvenance],
    backbone: OMFBackbone)
   (implicit store: OWLAPIOMFGraphStore)
   : Throwables \/ ImmutableTerminologyGraph
   = {
     import scalaz._
-
-    val ig = ImmutableTerminologyGraph(sig, ont, extraProvenanceMetadata, backbone)(store.ops)
-
-    // we cannot set the name & uuid annotations because the OWLAPI ontology object may be immutable.
-    //      for {
-    //        _ <- mg.setTerminologyGraphLocalName(Some(name))
-    //        _ <- mg.setTerminologyGraphUUID(uuid)
-    //      } yield mg
+    val ig = ImmutableTerminologyGraph(sig, ont, backbone)(store.ops)
     \/-(ig)
   }
 

@@ -34,7 +34,7 @@ import org.semanticweb.owlapi.model._
 
 import scala.collection.immutable._
 import scala.collection.mutable.HashSet
-import scala.{Any, Boolean, Int, None, Option, Some}
+import scala.{Any, Boolean, Int, None, Some}
 import scala.Predef.{Map => _, Set => _, _}
 import scalaz._
 import Scalaz._
@@ -47,7 +47,6 @@ object MutableTerminologyGraph {
    iri: IRI,
    kind: TerminologyKind,
    ont: OWLOntology,
-   extraProvenanceMetadata: Option[OTI2OMFModelTerminologyGraphProvenance],
    backbone: OMFBackbone)
   (implicit store: OWLAPIOMFGraphStore, ops: OWLAPIOMFOps)
   : Throwables \/ MutableTerminologyGraph
@@ -101,7 +100,6 @@ object MutableTerminologyGraph {
       annotationProperties = HashSet.empty[AnnotationProperty],
       annotationPropertyValues = HashSet.empty[AnnotationPropertyValue]),
     ont = ont,
-    extraProvenanceMetadata = extraProvenanceMetadata,
     backbone = backbone)(ops).right[Throwables]
 
 }
@@ -109,7 +107,6 @@ object MutableTerminologyGraph {
 case class MutableTerminologyGraph
 (override val sig: MutableTerminologyBoxSignature[OWLAPIOMF],
  override val ont: OWLOntology,
- override val extraProvenanceMetadata: Option[OTI2OMFModelTerminologyGraphProvenance],
  override val backbone: OMFBackbone)
 (override implicit val ops: OWLAPIOMFOps)
   extends TerminologyGraph with MutableTerminologyBox {
@@ -123,14 +120,13 @@ case class MutableTerminologyGraph
     case _ => false
   }
 
-  override val hashCode: Int = (sig, ont, extraProvenanceMetadata).##
+  override val hashCode: Int = (sig, ont).##
 
   override def equals(other: Any): Boolean = other match {
     case that: MutableTerminologyGraph =>
       (that canEqual this) &&
         (this.sig == that.sig) &&
-        (this.ont == that.ont) &&
-        (this.extraProvenanceMetadata == that.extraProvenanceMetadata)
+        (this.ont == that.ont)
     case _ =>
       false
   }
@@ -188,7 +184,7 @@ case class MutableTerminologyGraph
           .getOWLAnnotation(
             store.ANNOTATION_HAS_CONTEXT,
             parentContext.iri,
-            java.util.Collections.singleton(createOMFProvenanceAnnotation(uuid))))
+            createOMLProvenanceAnnotations(uuid)))
       ),
       "addNestedTerminologyGraph error")
   } yield axiom

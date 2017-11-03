@@ -33,7 +33,7 @@ import gov.nasa.jpl.omf.scala.core.{MutableTerminologyBoxSignature, TerminologyB
 import org.semanticweb.owlapi.model._
 
 import scala.collection.immutable._
-import scala.{Any, Boolean, Int, Option}
+import scala.{Any, Boolean, Int}
 import scala.Predef.{???, String}
 import scalaz._
 import Scalaz._
@@ -42,7 +42,6 @@ import scala.collection.mutable.HashSet
 case class MutableBundle
 (override val sig: MutableTerminologyBoxSignature[OWLAPIOMF],
  override val ont: OWLOntology,
- override val extraProvenanceMetadata: Option[OTI2OMFModelTerminologyGraphProvenance],
  backbone: OMFBackbone)
 (override implicit val ops: OWLAPIOMFOps)
   extends Bundle with MutableTerminologyBox {
@@ -62,14 +61,13 @@ case class MutableBundle
     case _ => false
   }
 
-  override val hashCode: Int = (sig, ont, extraProvenanceMetadata).##
+  override val hashCode: Int = (sig, ont).##
 
   override def equals(other: Any): Boolean = other match {
     case that: MutableBundle =>
       (that canEqual this) &&
         (this.sig == that.sig) &&
-        (this.ont == that.ont) &&
-        (this.extraProvenanceMetadata == that.extraProvenanceMetadata)
+        (this.ont == that.ont)
     case _ =>
       false
   }
@@ -143,7 +141,6 @@ object MutableBundle {
    iri: IRI,
    kind: TerminologyKind,
    ont: OWLOntology,
-   extraProvenanceMetadata: Option[OTI2OMFModelTerminologyGraphProvenance],
    backbone: OMFBackbone)
   (implicit store: OWLAPIOMFGraphStore, ops: OWLAPIOMFOps)
   : Throwables \/ MutableBundle
@@ -197,7 +194,6 @@ object MutableBundle {
       annotationProperties = HashSet.empty[AnnotationProperty],
       annotationPropertyValues = HashSet.empty[AnnotationPropertyValue]),
     ont = ont,
-    extraProvenanceMetadata = extraProvenanceMetadata,
     backbone = backbone)(ops).right[Throwables]
 
 }

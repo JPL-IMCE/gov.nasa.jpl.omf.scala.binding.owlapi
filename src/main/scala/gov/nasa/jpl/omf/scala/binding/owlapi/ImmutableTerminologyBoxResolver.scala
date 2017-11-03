@@ -526,7 +526,6 @@ case class ImmutableTerminologyBoxResolver(resolver: TerminologyBoxResolverHelpe
         for {
           m <- acc
           dr <- tboxG.createModelScalarDataType(tboxG.uuid, dt)
-          _ <- resolver.omfStore.registerOMFModelScalarDataTypeInstance(tboxG, dr)
         } yield m + (dt -> dr)
       }
 
@@ -817,11 +816,8 @@ case class ImmutableTerminologyBoxResolver(resolver: TerminologyBoxResolverHelpe
           acc +++
             tboxG
               .createModelEntityAspect(tboxG.uuid, aspectC)
-              .flatMap { aspectM =>
-                resolver.omfStore.registerOMFModelEntityAspectInstance(tboxG, aspectM)
-                  .map { _ =>
-                    Map(aspectC -> aspectM)
-                  }
+              .map { aspectM =>
+                Map(aspectC -> aspectM)
               }
       }
 
@@ -840,11 +836,8 @@ case class ImmutableTerminologyBoxResolver(resolver: TerminologyBoxResolverHelpe
           acc +++
             tboxG
               .createModelEntityConcept(tboxG.uuid, conceptC)
-              .flatMap { conceptM =>
-                resolver.omfStore.registerOMFModelEntityConceptInstance(tboxG, conceptM)
-                  .map { _ =>
+              .map { conceptM =>
                     Map(conceptC -> conceptM)
-                  }
               }
       }
 
@@ -863,9 +856,8 @@ case class ImmutableTerminologyBoxResolver(resolver: TerminologyBoxResolverHelpe
           acc +++
             tboxG
               .createModelStructuredDataType(tboxG.uuid, structuredDatatypeC)
-              .flatMap { structuredDatatypeST =>
-                resolver.omfStore.registerOMFModelStructuredDataTypeInstance(tboxG, structuredDatatypeST)
-                  .map(_ => Map(structuredDatatypeC -> structuredDatatypeST))
+              .map { structuredDatatypeST =>
+                Map(structuredDatatypeC -> structuredDatatypeST)
               }
       }
 

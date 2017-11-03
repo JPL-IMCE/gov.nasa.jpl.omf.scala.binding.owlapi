@@ -37,15 +37,13 @@ import scalaz._
 import Scalaz._
 
 case class TerminologyBoxResolverHelper
-(omfMetadata: Option[OWLOntology],
- tboxG: MutableTerminologyBox,
+(tboxG: MutableTerminologyBox,
  imports: Iterable[ImmutableTerminologyBox],
  ont: OWLOntology,
  omfStore: OWLAPIOMFGraphStore,
  om: OntologyMapping,
  ontOps: OWLOntologyOps) {
 
-  require(null != omfMetadata)
   require(null != imports)
   require(null != ont)
   require(null != omfStore)
@@ -473,29 +471,24 @@ case class TerminologyBoxResolverHelper
                                 maybeReflexive ++ maybeIrreflexive ++
                                 maybeEssential ++ maybeInverseEssential
                           )
-                          .flatMap { _rr =>
+                          .map { _rr =>
 
-                            // val rcIRI = rc.getIRI
-                            val entry
-                            : Set[java.lang.Throwable] \/ Map[OWLClass, ReifiedRelationship]
-                            = omfStore.registerOMFModelEntityReifiedRelationshipInstance(tboxG, _rr)
-                              .map[Map[OWLClass, ReifiedRelationship]] { _ =>
-                              if (LOG1) {
-                                System.out.println(s"rop=$r_iri $s_iri $t_iri")
-                              }
-                              remainingROPs -= resolvedROP
-                              remainingSourceROPs -= resolvedSourceROP
-                              remainingTargetROPs -= resolvedTargetROP
-                              if (LOG1) {
-                                System.out.println(
-                                  s"""|resolveEntityDefinitionsForRelationship:
-                                      |${_rr}
-                                      |""".stripMargin('|')
-                                )
-                              }
-                              Map(rc -> _rr)
+                            if (LOG1) {
+                              System.out.println(s"rop=$r_iri $s_iri $t_iri")
                             }
-                            entry
+                            remainingROPs -= resolvedROP
+                            remainingSourceROPs -= resolvedSourceROP
+                            remainingTargetROPs -= resolvedTargetROP
+                            if (LOG1) {
+                              System.out.println(
+                                s"""|resolveEntityDefinitionsForRelationship:
+                                    |${_rr}
+
+                                    |""".
+                                  stripMargin('|')
+                              )
+                            }
+                            Map(rc -> _rr)
                           }
 
                         accT +++ newERR

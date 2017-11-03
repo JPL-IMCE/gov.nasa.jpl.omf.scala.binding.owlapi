@@ -500,40 +500,13 @@ trait OWLAPIStoreOps
   : Set[TerminologyExtensionAxiom]
   = store.getExtensionAxioms(extendingChildG)
 
-  def makeTerminologyGraphWithPath
-  (name: LocalName,
-   iri: IRI,
-   relativeIRIPath: Option[String],
-   relativeIRIHashPrefix: Option[String],
-   kind: TerminologyKind,
-   extraProvenanceMetadata: Option[OTI2OMFModelTerminologyGraphProvenance])
-  (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ MutableTerminologyGraph
-  = store.makeTerminologyGraph(name, iri, relativeIRIPath, relativeIRIHashPrefix, kind, extraProvenanceMetadata)(this)
-
   override protected def makeTerminologyGraph
   (name: LocalName,
    iri: IRI,
    kind: TerminologyKind)
   (implicit store: OWLAPIOMFGraphStore)
   : Throwables \/ MutableTerminologyGraph
-  = makeTerminologyGraphWithPath(
-    name, iri,
-    relativeIRIPath=Option.empty[String],
-    relativeIRIHashPrefix=Option.empty[String],
-    kind,
-    extraProvenanceMetadata=Option.empty[OTI2OMFModelTerminologyGraphProvenance])(store)
-
-  def makeBundleWithPath
-  (name: LocalName,
-   iri: IRI,
-   kind: TerminologyKind,
-   relativeIRIPath: Option[String],
-   relativeIRIHashPrefix: Option[String],
-   extraProvenanceMetadata: Option[OTI2OMFModelTerminologyGraphProvenance])
-  (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ MutableBundle
-  = store.makeBundle(name, iri, relativeIRIPath, relativeIRIHashPrefix, kind, extraProvenanceMetadata)(this)
+  = store.makeTerminologyGraph(name, iri, kind)(this)
 
   override protected def makeBundle
   (name: LocalName,
@@ -541,12 +514,7 @@ trait OWLAPIStoreOps
    kind: TerminologyKind)
   (implicit store: OWLAPIOMFGraphStore)
   : Throwables \/ MutableBundle
-  = makeBundleWithPath(
-    name, iri,
-    relativeIRIPath=Option.empty[String],
-    relativeIRIHashPrefix=Option.empty[String],
-    kind=kind,
-    extraProvenanceMetadata=Option.empty[OTI2OMFModelTerminologyGraphProvenance])(store)
+  = store.makeBundle(name, iri, kind)(this)
 
   override def saveTerminology
   (g: TerminologyBox)
@@ -567,11 +535,7 @@ trait OWLAPIStoreOps
    k: DescriptionKind)
   (implicit store: OWLAPIOMFGraphStore)
   : Throwables \/ descriptions.MutableDescriptionBox
-  = store.makeDescriptionBox(
-    name, iri,
-    relativeIRIPath=Option.empty[String],
-    relativeIRIHashPrefix=Option.empty[String],
-    k)
+  = store.makeDescriptionBox(name, iri, k)
 
   override def saveDescriptionBox
   (g: descriptions.DescriptionBox)
@@ -1308,10 +1272,7 @@ trait OWLAPIMutableTerminologyGraphOps
    aspectName: LocalName)
   (implicit store: OWLAPIOMFGraphStore)
   : Throwables \/ Aspect
-  = for {
-    result <- tbox.addEntityAspect(aspectIRI, aspectName, uuid)
-    _ <- store.registerOMFModelEntityAspectInstance(tbox, result)
-  } yield result
+  = tbox.addEntityAspect(aspectIRI, aspectName, uuid)
 
   override protected def addConcept
   (tbox: MutableTerminologyBox,
@@ -1320,10 +1281,7 @@ trait OWLAPIMutableTerminologyGraphOps
    conceptName: LocalName)
   (implicit store: OWLAPIOMFGraphStore)
   : Throwables \/ Concept
-  = for {
-    result <- tbox.addEntityConcept(conceptIRI, conceptName, uuid)
-    _ <- store.registerOMFModelEntityConceptInstance(tbox, result)
-  } yield result
+  = tbox.addEntityConcept(conceptIRI, conceptName, uuid)
 
   override protected def addReifiedRelationship
   (tbox: MutableTerminologyBox,
@@ -1350,7 +1308,6 @@ trait OWLAPIMutableTerminologyGraphOps
       uIRI, uiIRI,
       source, target,
       characteristics)
-    _ <- store.registerOMFModelEntityReifiedRelationshipInstance(tbox, result)
   } yield result
 
   override protected def addUnreifiedRelationship
@@ -1363,13 +1320,10 @@ trait OWLAPIMutableTerminologyGraphOps
    unreifiedRelationshipName: LocalName)
   (implicit store: OWLAPIOMFGraphStore)
   : Throwables \/ UnreifiedRelationship
-  = for {
-    result <- tbox.addEntityUnreifiedRelationship(
+  = tbox.addEntityUnreifiedRelationship(
       rIRI, unreifiedRelationshipName, uuid,
       source, target,
       characteristics)
-    _ <- store.registerOMFModelEntityUnreifiedRelationshipInstance(tbox, result)
-  } yield result
 
   override protected def addScalarDataType
   (tbox: MutableTerminologyBox,
@@ -1387,10 +1341,7 @@ trait OWLAPIMutableTerminologyGraphOps
    dataTypeName: LocalName)
   (implicit store: OWLAPIOMFGraphStore)
   : Throwables \/ Structure
-  = for {
-    result <- tbox.addStructuredDataType(dataTypeIRI, dataTypeName, dataTypeUUID)
-    _ <- store.registerOMFModelStructuredDataTypeInstance(tbox, result)
-  } yield result
+  = tbox.addStructuredDataType(dataTypeIRI, dataTypeName, dataTypeUUID)
 
   override protected def addScalarOneOfRestriction
   (tbox: MutableTerminologyBox,
@@ -2074,11 +2025,6 @@ trait OWLAPIMutableDescriptionBoxOps
 class OWLAPIOMFOps
 (val rdfs_label: IRI,
  val AnnotationHasUUID: IRI,
- val AnnotationHasID: IRI,
- val AnnotationHasURL: IRI,
- val AnnotationHasRelativeIRI: IRI,
- val AnnotationHasIRIHashPrefix: IRI,
- val AnnotationHasIRIHashSuffix: IRI,
  val AnnotationIsAbstract: IRI,
  val AnnotationIsDerived: IRI,
  val AnnotationIsBundle: IRI,

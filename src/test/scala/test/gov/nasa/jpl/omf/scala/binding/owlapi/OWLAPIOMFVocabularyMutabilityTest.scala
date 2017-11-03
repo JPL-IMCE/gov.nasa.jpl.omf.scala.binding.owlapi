@@ -84,25 +84,10 @@ class OWLAPIOWFVocabularyMutabilityTestLocalCatalog
       }
   }
 
-  val saveMetadataIRI =
-    saveStore.omfModule.ops.makeIRI("http://imce.jpl.nasa.gov/test/OWLAPIOMFVocabularySave")
-      .valueOr { (errors: Set[java.lang.Throwable]) =>
-        val message = s"${errors.size} errors" + errors.map(_.getMessage).toList.mkString("\n => ","\n => ","\n")
-        throw new scala.IllegalArgumentException(message)
-      }
-  val saveMetadataOnt = saveStore.ontManager.createOntology( saveMetadataIRI )
-  saveStore.setOMFMetadataOntology( saveMetadataOnt )
-
   override def preOMFSave(): Unit = {
   }
 
   override def postOMFSave(): Unit = {
-    val saveIRI = saveStore.catalogIRIMapper.resolveIRI(saveMetadataIRI, saveStore.catalogIRIMapper.saveResolutionStrategy)
-    saveStore.saveOMFMetadataOntology(saveIRI).fold[Unit](
-      (nels: Set[java.lang.Throwable]) =>
-        fail("Errors during saving the metadata ontology", nels.head),
-      identity
-    )
   }
 
   Option.apply(classOf[OWLAPIOWFVocabularyMutabilityTestLocalCatalog].getResource(catalogFile))
@@ -128,25 +113,9 @@ class OWLAPIOWFVocabularyMutabilityTestLocalCatalog
       }
   }
 
-  val loadMetadataIRI =
-    loadStore.omfModule.ops.makeIRI("http://imce.jpl.nasa.gov/test/OWLAPIOMFVocabularyLoad")
-      .valueOr { (errors: Set[java.lang.Throwable]) =>
-        val message = s"${errors.size} errors" + errors.map(_.getMessage).toList.mkString("\n => ","\n => ","\n")
-        throw new scala.IllegalArgumentException(message)
-      }
-  val loadMetadataOnt = loadStore.ontManager.createOntology( loadMetadataIRI )
-  loadStore.setOMFMetadataOntology( loadMetadataOnt )
-
   override def preOMFLoad(): Unit = {
   }
 
   override def postOMFLoad(): Unit = {
-    val loadIRI = loadStore.catalogIRIMapper.resolveIRI(loadMetadataIRI, saveStore.catalogIRIMapper.saveResolutionStrategy)
-    loadStore.saveOMFMetadataOntology(loadIRI).fold[Unit](
-      (nels: Set[java.lang.Throwable]) =>
-        fail("Errors during saving the metadata ontology", nels.head),
-      identity
-    )
   }
-
 }

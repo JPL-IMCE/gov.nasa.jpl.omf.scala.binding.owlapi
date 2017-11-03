@@ -97,7 +97,7 @@ case class MutableDescriptionBox
     _ <- (sig.annotationProperties += ap).right[OMFError.Throwables]
     ont_ap = owlDataFactory.getOWLAnnotationProperty(ap.iri)
     _ <- applyOntologyChangeOrNoOp(ontManager,
-      new AddAxiom(ont, owlDataFactory.getOWLDeclarationAxiom(ont_ap)),
+      new AddAxiom(ont, owlDataFactory.getOWLDeclarationAxiom(ont_ap, createOMLProvenanceAnnotations(ap.uuid))),
       "addAnnotationProperty error")
   } yield ap
 
@@ -251,10 +251,10 @@ case class MutableDescriptionBox
       Seq(
         new AddAxiom(ont,
           owlDataFactory
-            .getOWLDeclarationAxiom(ni)),
+            .getOWLDeclarationAxiom(ni, createOMLProvenanceAnnotations(uuid))),
         new AddAxiom(ont,
           owlDataFactory
-            .getOWLClassAssertionAxiom(conceptType.e, ni))),
+            .getOWLClassAssertionAxiom(conceptType.e, ni, createOMLProvenanceAnnotations(uuid)))),
       "addConceptInstance Error")
   } yield i
 
@@ -303,10 +303,10 @@ case class MutableDescriptionBox
       Seq(
         new AddAxiom(ont,
           owlDataFactory
-            .getOWLDeclarationAxiom(ni)),
+            .getOWLDeclarationAxiom(ni, createOMLProvenanceAnnotations(uuid))),
         new AddAxiom(ont,
           owlDataFactory
-            .getOWLClassAssertionAxiom(relationshipType.e, ni))),
+            .getOWLClassAssertionAxiom(relationshipType.e, ni, createOMLProvenanceAnnotations(uuid)))),
       "addReifiedRelationshipInstance Error")
   } yield i
 
@@ -347,7 +347,11 @@ case class MutableDescriptionBox
       Seq(
         new AddAxiom(ont,
           owlDataFactory
-            .getOWLObjectPropertyAssertionAxiom(rri.relationshipType.rSource, rri.ni, source.ni))),
+            .getOWLObjectPropertyAssertionAxiom(
+              rri.relationshipType.rSource,
+              rri.ni,
+              source.ni,
+              createOMLProvenanceAnnotations(uuid)))),
       "addReifiedRelationshipInstanceDomain Error")
   } yield i
 
@@ -388,7 +392,11 @@ case class MutableDescriptionBox
       Seq(
         new AddAxiom(ont,
           owlDataFactory
-            .getOWLObjectPropertyAssertionAxiom(rri.relationshipType.rTarget, rri.ni, target.ni))),
+            .getOWLObjectPropertyAssertionAxiom(
+              rri.relationshipType.rTarget,
+              rri.ni,
+              target.ni,
+              createOMLProvenanceAnnotations(uuid)))),
       "addReifiedRelationshipInstanceRange Error")
   } yield i
 
@@ -432,7 +440,11 @@ case class MutableDescriptionBox
       Seq(
         new AddAxiom(ont,
           owlDataFactory
-            .getOWLObjectPropertyAssertionAxiom(unreifiedRelationship.e, source.ni, target.ni))),
+            .getOWLObjectPropertyAssertionAxiom(
+              unreifiedRelationship.e,
+              source.ni,
+              target.ni,
+              createOMLProvenanceAnnotations(uuid)))),
       "addUnreifiedRelationshipInstanceTuple Error")
   } yield i
 
@@ -479,7 +491,7 @@ case class MutableDescriptionBox
       Seq(
         new AddAxiom(ont,
           owlDataFactory
-            .getOWLDataPropertyAssertionAxiom(e2sc.e, ei.ni, lit))),
+            .getOWLDataPropertyAssertionAxiom(e2sc.e, ei.ni, lit, createOMLProvenanceAnnotations(uuid)))),
       "addSingletonInstanceScalarDataPropertyValue Error")
   } yield i
 
@@ -525,10 +537,10 @@ case class MutableDescriptionBox
       Seq(
         new AddAxiom(ont,
           owlDataFactory
-            .getOWLClassAssertionAxiom(e2st.range.e, ni)),
+            .getOWLClassAssertionAxiom(e2st.range.e, ni, createOMLProvenanceAnnotations(uuid))),
         new AddAxiom(ont,
           owlDataFactory
-            .getOWLObjectPropertyAssertionAxiom(e2st.e, ei.ni, ni))),
+            .getOWLObjectPropertyAssertionAxiom(e2st.e, ei.ni, ni, createOMLProvenanceAnnotations(uuid)))),
       "addSingletonInstanceStructuredDataPropertyValue Error")
   } yield i
 
@@ -575,7 +587,7 @@ case class MutableDescriptionBox
       Seq(
         new AddAxiom(ont,
           owlDataFactory
-            .getOWLDataPropertyAssertionAxiom(s2sc.e, context.ni, lit))),
+            .getOWLDataPropertyAssertionAxiom(s2sc.e, context.ni, lit, createOMLProvenanceAnnotations(uuid)))),
       "makeScalarDataPropertyValue Error")
   } yield i
 
@@ -620,10 +632,10 @@ case class MutableDescriptionBox
       Seq(
         new AddAxiom(ont,
           owlDataFactory
-            .getOWLClassAssertionAxiom(s2st.range.e, ni)),
+            .getOWLClassAssertionAxiom(s2st.range.e, ni, createOMLProvenanceAnnotations(uuid))),
         new AddAxiom(ont,
           owlDataFactory
-            .getOWLObjectPropertyAssertionAxiom(s2st.e, context.ni, ni))),
+            .getOWLObjectPropertyAssertionAxiom(s2st.e, context.ni, ni, createOMLProvenanceAnnotations(uuid)))),
       "makeStructuredDataPropertyTuple Error")
   } yield i
 

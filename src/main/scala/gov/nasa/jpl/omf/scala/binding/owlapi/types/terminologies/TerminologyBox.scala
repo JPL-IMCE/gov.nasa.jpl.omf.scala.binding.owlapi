@@ -19,7 +19,6 @@
 package gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies
 
 import java.io.OutputStream
-import java.util.UUID
 
 import gov.nasa.jpl.omf.scala.binding.owlapi._
 import gov.nasa.jpl.omf.scala.binding.owlapi.common.Module
@@ -45,8 +44,6 @@ trait TerminologyBox extends Module {
 
   override val sig: MS
 
-  val extraProvenanceMetadata: Option[OTI2OMFModelTerminologyGraphProvenance]
-
   override def canEqual(other: Any)
   : Boolean
   = other match {
@@ -68,15 +65,6 @@ trait TerminologyBox extends Module {
   val isDerivedAP = owlDataFactory.getOWLAnnotationProperty(AnnotationIsDerived)
 
   protected val iri2typeTerm: scala.collection.Map[IRI, Term]
-
-  def createOMFProvenanceAnnotation
-  (uuid: UUID)
-  (implicit store: OWLAPIOMFGraphStore)
-  : OWLAnnotation
-  = owlDataFactory.getOWLAnnotation(
-    store.ANNOTATION_HAS_UUID,
-    owlDataFactory.getOWLLiteral(uuid.toString)
-  )
 
   def isTypeTermDefined
   (t: Term)
@@ -157,34 +145,10 @@ trait TerminologyBox extends Module {
   : LocalName
   = name
 
-  def getTerminologyGraphUUIDAnnotation
-  : Option[OWLAnnotation]
-  = ont.annotations.toScala[Set].find(_.getProperty.getIRI == ops.AnnotationHasUUID)
-
-
   def getTermLocalNameAnnotationAssertionAxiom
   (term: types.Term)
   : Option[OWLAnnotationAssertionAxiom]
   = findAnnotationAssertionAxiom(ont, term.iri, ops.rdfs_label)
-
-  def getTermUUIDAnnotationAssertionAxiom
-  (term: types.Term)
-  : Option[OWLAnnotationAssertionAxiom]
-  = findAnnotationAssertionAxiom(ont, term.iri, ops.AnnotationHasUUID)
-
-  def getTermIDAnnotationAssertionAxiom
-  (term: types.Term)
-  : Option[OWLAnnotationAssertionAxiom]
-  = ont.annotationAssertionAxioms(term.iri)
-    .toScala[Set]
-    .find(_.getProperty.getIRI == ops.AnnotationHasID)
-
-  def getTermURLAnnotationAssertionAxiom
-  (term: types.Term)
-  : Option[OWLAnnotationAssertionAxiom]
-  = ont.annotationAssertionAxioms(term.iri)
-    .toScala[Set]
-    .find(_.getProperty.getIRI == ops.AnnotationHasURL)
 
   private val f0 = new RDFJsonLDDocumentFormatFactory().createFormat()
 

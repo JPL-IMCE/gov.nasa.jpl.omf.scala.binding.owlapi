@@ -52,22 +52,7 @@ object OWLAPIOMFModule {
     OWLAPIIRIOps.makeIRI("http://www.w3.org/2000/01/rdf-schema#label")
 
     AnnotationHasUUID <-
-    OWLAPIIRIOps.makeIRI("http://imce.jpl.nasa.gov/foundation/annotation/annotation#hasUUID")
-
-    AnnotationHasID <-
-    OWLAPIIRIOps.makeIRI("http://imce.jpl.nasa.gov/foundation/annotation/annotation#hasOTIToolSpecificID")
-
-    AnnotationHasURL <-
-    OWLAPIIRIOps.makeIRI("http://imce.jpl.nasa.gov/foundation/annotation/annotation#hasOTIToolSpecificURL")
-
-    AnnotationHasRelativeIRI <-
-    OWLAPIIRIOps.makeIRI("http://imce.jpl.nasa.gov/foundation/annotation/annotation#hasRelativeIRI")
-
-    AnnotationHasIRIHashPrefix <-
-    OWLAPIIRIOps.makeIRI("http://imce.jpl.nasa.gov/foundation/annotation/annotation#hashIRIHashPrefix")
-
-    AnnotationHasIRIHashSuffix <-
-      OWLAPIIRIOps.makeIRI("http://imce.jpl.nasa.gov/foundation/annotation/annotation#hasIRIHashSuffix")
+    OWLAPIIRIOps.makeIRI("http://imce.jpl.nasa.gov/oml/oml#omlElementUUID")
 
     AnnotationIsAbstract <-
     OWLAPIIRIOps.makeIRI("http://imce.jpl.nasa.gov/foundation/annotation/annotation#isAbstract")
@@ -108,11 +93,6 @@ object OWLAPIOMFModule {
     ops = new OWLAPIOMFOps(
       rdfs_label,
       AnnotationHasUUID,
-      AnnotationHasID,
-      AnnotationHasURL,
-      AnnotationHasRelativeIRI,
-      AnnotationHasIRIHashPrefix,
-      AnnotationHasIRIHashSuffix,
       AnnotationIsAbstract,
       AnnotationIsDerived,
       AnnotationIsBundle,

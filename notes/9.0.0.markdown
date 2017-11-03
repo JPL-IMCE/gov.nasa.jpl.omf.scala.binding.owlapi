@@ -28,3 +28,4 @@ gov.nasa.jpl.omf.scala.binding.owlapi 9.0.0 is a major update
 
 - [#39 Tolerate duplicate SWRL rules for the reified relationship pattern](https://github.com/JPL-IMCE/gov.nasa.jpl.omf.scala.binding.owlapi/issues/39)
 
+- [#40 Remove the OMF Metadata support](https://github.com/JPL-IMCE/gov.nasa.jpl.omf.scala.binding.owlapi/issues/40)

@@ -85,7 +85,7 @@ trait MutableTerminologyBox
     _ <- (sig.annotationProperties += ap).right[OMFError.Throwables]
     ont_ap = owlDataFactory.getOWLAnnotationProperty(ap.iri)
     _ <- applyOntologyChangeOrNoOp(ontManager,
-      new AddAxiom(ont, owlDataFactory.getOWLDeclarationAxiom(ont_ap)),
+      new AddAxiom(ont, owlDataFactory.getOWLDeclarationAxiom(ont_ap, createOMLProvenanceAnnotations(ap.uuid))),
       "addAnnotationProperty error")
   } yield ap
 
@@ -259,8 +259,8 @@ trait MutableTerminologyBox
       result <- createModelEntityAspect(aspectC, name, uuid)
       _ <- applyOntologyChanges(ontManager,
         Seq(
-          new AddAxiom(ont, owlDataFactory.getOWLDeclarationAxiom(aspectC)),
-          new AddAxiom(ont, owlDataFactory.getOWLSubClassOfAxiom(aspectC, backbone.AspectC))),
+          new AddAxiom(ont, owlDataFactory.getOWLDeclarationAxiom(aspectC, createOMLProvenanceAnnotations(uuid))),
+          new AddAxiom(ont, owlDataFactory.getOWLSubClassOfAxiom(aspectC, backbone.AspectC, createOMLProvenanceAnnotations(uuid)))),
         "addAspect Error")
     } yield result
   } {
@@ -329,10 +329,10 @@ trait MutableTerminologyBox
         Seq(
           new AddAxiom(ont,
             owlDataFactory
-              .getOWLDeclarationAxiom(conceptC)),
+              .getOWLDeclarationAxiom(conceptC, createOMLProvenanceAnnotations(uuid))),
           new AddAxiom(ont,
             owlDataFactory
-              .getOWLSubClassOfAxiom(conceptC, backbone.EntityC))),
+              .getOWLSubClassOfAxiom(conceptC, backbone.EntityC, createOMLProvenanceAnnotations(uuid)))),
         "addConcept Error")
     } yield result
   } {
@@ -450,74 +450,78 @@ trait MutableTerminologyBox
 
       head = owlDataFactory.getSWRLObjectPropertyAtom(u, vs, vt)
 
-      rule = owlDataFactory.getSWRLRule(Set(body1, body2), Set(head))
+      rule = owlDataFactory.getSWRLRule(
+        Set(body1, body2),
+        Set(head),
+        createOMLProvenanceAnnotationsWithLabel(s"$unreifiedRelationshipName derivarion", uuid))
 
       _ <-
       applyOntologyChangesOrNoOp(ontManager,
         Seq(
           new AddAxiom(ont, owlDataFactory.getOWLDeclarationAxiom(
-            r)),
+            r, createOMLProvenanceAnnotations(uuid))),
           new AddAxiom(ont, owlDataFactory.getOWLSubClassOfAxiom(
-            r, backbone.ReifiedObjectPropertyC)),
+            r, backbone.ReifiedObjectPropertyC, createOMLProvenanceAnnotations(uuid))),
 
           new AddAxiom(ont, owlDataFactory.getOWLDeclarationAxiom(
-            rSource)),
+            rSource, createOMLProvenanceAnnotations(uuid))),
           new AddAxiom(ont, owlDataFactory.getOWLSubObjectPropertyOfAxiom(
-            rSource, backbone.topReifiedObjectPropertySourceOP)),
+            rSource, backbone.topReifiedObjectPropertySourceOP, createOMLProvenanceAnnotations(uuid))),
           new AddAxiom(ont, owlDataFactory.getOWLObjectPropertyDomainAxiom(
-            rSource, r)),
+            rSource, r, createOMLProvenanceAnnotations(uuid))),
           new AddAxiom(ont, owlDataFactory.getOWLObjectPropertyRangeAxiom(
-            rSource, sourceC)),
+            rSource, sourceC, createOMLProvenanceAnnotations(uuid))),
           new AddAxiom(ont, owlDataFactory.getOWLFunctionalObjectPropertyAxiom(
-            rSource)),
+            rSource, createOMLProvenanceAnnotations(uuid))),
 
           new AddAxiom(ont, owlDataFactory.getOWLDeclarationAxiom(
-            rTarget)),
+            rTarget, createOMLProvenanceAnnotations(uuid))),
           new AddAxiom(ont, owlDataFactory.getOWLSubObjectPropertyOfAxiom(
-            rTarget, backbone.topReifiedObjectPropertyTargetOP)),
+            rTarget, backbone.topReifiedObjectPropertyTargetOP, createOMLProvenanceAnnotations(uuid))),
           new AddAxiom(ont, owlDataFactory.getOWLObjectPropertyDomainAxiom(
-            rTarget, r)),
+            rTarget, r, createOMLProvenanceAnnotations(uuid))),
           new AddAxiom(ont, owlDataFactory.getOWLObjectPropertyRangeAxiom(
-            rTarget, targetC)),
+            rTarget, targetC, createOMLProvenanceAnnotations(uuid))),
           new AddAxiom(ont, owlDataFactory.getOWLFunctionalObjectPropertyAxiom(
-            rTarget)),
+            rTarget, createOMLProvenanceAnnotations(uuid))),
 
           new AddAxiom(ont, owlDataFactory.getOWLDeclarationAxiom(
-            u)),
+            u, createOMLProvenanceAnnotations(uuid))),
           new AddAxiom(ont, owlDataFactory.getOWLSubObjectPropertyOfAxiom(
-            u, backbone.topReifiedObjectPropertyOP)),
+            u, backbone.topReifiedObjectPropertyOP, createOMLProvenanceAnnotations(uuid))),
           new AddAxiom(ont, owlDataFactory.getOWLObjectPropertyDomainAxiom(
-            u, sourceC)),
+            u, sourceC, createOMLProvenanceAnnotations(uuid))),
           new AddAxiom(ont, owlDataFactory.getOWLObjectPropertyRangeAxiom(
-            u, targetC)),
+            u, targetC, createOMLProvenanceAnnotations(uuid))),
 
           new AddAxiom(ont, rule)
         ) ++
           ui.fold[Seq[OWLOntologyChange]](Seq.empty) { _ui =>
             Seq(
               new AddAxiom(ont, owlDataFactory.getOWLDeclarationAxiom(
-                _ui)),
+                _ui, createOMLProvenanceAnnotations(uuid))),
               new AddAxiom(ont, owlDataFactory.getOWLAnnotationAssertionAxiom(isDerivedAP,
-                _ui.getIRI, owlDataFactory.getOWLLiteral(true))),
+                _ui.getIRI, owlDataFactory.getOWLLiteral(true), createOMLProvenanceAnnotations(uuid))),
               new AddAxiom(ont, owlDataFactory.getOWLSubObjectPropertyOfAxiom(
-                _ui, backbone.topReifiedObjectPropertyOP)),
+                _ui, backbone.topReifiedObjectPropertyOP, createOMLProvenanceAnnotations(uuid))),
               new AddAxiom(ont, owlDataFactory.getOWLObjectPropertyDomainAxiom(
-                _ui, targetC)),
+                _ui, targetC, createOMLProvenanceAnnotations(uuid))),
               new AddAxiom(ont, owlDataFactory.getOWLObjectPropertyRangeAxiom(
-                _ui, sourceC)),
-              new AddAxiom(ont, owlDataFactory.getOWLInverseObjectPropertiesAxiom(u, _ui))
+                _ui, sourceC, createOMLProvenanceAnnotations(uuid))),
+              new AddAxiom(ont, owlDataFactory.getOWLInverseObjectPropertiesAxiom(
+                u, _ui, createOMLProvenanceAnnotations(uuid)))
             )
           } ++
           (if (characteristics.contains(RelationshipCharacteristics.isFunctional))
             Seq(
               new AddAxiom(ont, owlDataFactory.getOWLInverseFunctionalObjectPropertyAxiom(
-                rSource)),
+                rSource, createOMLProvenanceAnnotations(uuid))),
               new AddAxiom(ont, owlDataFactory.getOWLFunctionalObjectPropertyAxiom(
-                u))
+                u, createOMLProvenanceAnnotations(uuid)))
             ) ++ ui.fold[Seq[OWLOntologyChange]](Seq.empty) { _ui =>
               Seq(
                 new AddAxiom(ont, owlDataFactory.getOWLInverseFunctionalObjectPropertyAxiom(
-                  _ui))
+                  _ui, createOMLProvenanceAnnotations(uuid)))
               )
             }
           else
@@ -525,13 +529,13 @@ trait MutableTerminologyBox
           (if (characteristics.contains(RelationshipCharacteristics.isInverseFunctional))
             Seq(
               new AddAxiom(ont, owlDataFactory.getOWLInverseFunctionalObjectPropertyAxiom(
-                rTarget)),
+                rTarget, createOMLProvenanceAnnotations(uuid))),
               new AddAxiom(ont, owlDataFactory.getOWLInverseFunctionalObjectPropertyAxiom(
-                u))
+                u, createOMLProvenanceAnnotations(uuid)))
             ) ++ ui.fold[Seq[OWLOntologyChange]](Seq.empty) { _ui =>
               Seq(
                 new AddAxiom(ont, owlDataFactory.getOWLFunctionalObjectPropertyAxiom(
-                  _ui))
+                  _ui, createOMLProvenanceAnnotations(uuid)))
               )
             }
           else
@@ -539,11 +543,11 @@ trait MutableTerminologyBox
           (if (characteristics.contains(RelationshipCharacteristics.isSymmetric))
             Seq(
               new AddAxiom(ont, owlDataFactory.getOWLSymmetricObjectPropertyAxiom(
-                u))
+                u, createOMLProvenanceAnnotations(uuid)))
             ) ++ ui.fold[Seq[OWLOntologyChange]](Seq.empty) { _ui =>
               Seq(
                 new AddAxiom(ont, owlDataFactory.getOWLSymmetricObjectPropertyAxiom(
-                  _ui))
+                  _ui, createOMLProvenanceAnnotations(uuid)))
               )
             }
             else
@@ -551,11 +555,11 @@ trait MutableTerminologyBox
           (if (characteristics.contains(RelationshipCharacteristics.isAsymmetric))
             Seq(
               new AddAxiom(ont, owlDataFactory.getOWLAsymmetricObjectPropertyAxiom(
-                u))
+                u, createOMLProvenanceAnnotations(uuid)))
             ) ++ ui.fold[Seq[OWLOntologyChange]](Seq.empty) { _ui =>
               Seq(
                 new AddAxiom(ont, owlDataFactory.getOWLAsymmetricObjectPropertyAxiom(
-                  _ui))
+                  _ui, createOMLProvenanceAnnotations(uuid)))
               )
             }
           else
@@ -563,11 +567,11 @@ trait MutableTerminologyBox
           (if (characteristics.contains(RelationshipCharacteristics.isReflexive))
             Seq(
               new AddAxiom(ont, owlDataFactory.getOWLReflexiveObjectPropertyAxiom(
-                u))
+                u, createOMLProvenanceAnnotations(uuid)))
             ) ++ ui.fold[Seq[OWLOntologyChange]](Seq.empty) { _ui =>
               Seq(
                 new AddAxiom(ont, owlDataFactory.getOWLReflexiveObjectPropertyAxiom(
-                  _ui))
+                  _ui, createOMLProvenanceAnnotations(uuid)))
               )
             }
           else
@@ -575,11 +579,11 @@ trait MutableTerminologyBox
           (if (characteristics.contains(RelationshipCharacteristics.isIrreflexive))
             Seq(
               new AddAxiom(ont, owlDataFactory.getOWLIrreflexiveObjectPropertyAxiom(
-                u))
+                u, createOMLProvenanceAnnotations(uuid)))
             ) ++ ui.fold[Seq[OWLOntologyChange]](Seq.empty) { _ui =>
               Seq(
                 new AddAxiom(ont, owlDataFactory.getOWLIrreflexiveObjectPropertyAxiom(
-                  _ui))
+                  _ui, createOMLProvenanceAnnotations(uuid)))
               )
             }
           else
@@ -587,7 +591,9 @@ trait MutableTerminologyBox
           (if (characteristics.contains(RelationshipCharacteristics.isEssential))
             Seq(
               new AddAxiom(ont, owlDataFactory.getOWLSubClassOfAxiom(
-                sourceC, owlDataFactory.getOWLObjectExactCardinality(1, u, targetC)))
+                sourceC,
+                owlDataFactory.getOWLObjectExactCardinality(1, u, targetC),
+                createOMLProvenanceAnnotations(uuid)))
             )
           else
             Seq.empty) ++
@@ -595,7 +601,9 @@ trait MutableTerminologyBox
             ui.fold[Seq[OWLOntologyChange]](Seq.empty) { _ui =>
               Seq(
                 new AddAxiom(ont, owlDataFactory.getOWLSubClassOfAxiom(
-                  targetC, owlDataFactory.getOWLObjectExactCardinality(1, _ui, sourceC)))
+                  targetC,
+                  owlDataFactory.getOWLObjectExactCardinality(1, _ui, sourceC),
+                  createOMLProvenanceAnnotations(uuid)))
               )
             }
           else
@@ -741,31 +749,20 @@ trait MutableTerminologyBox
         source,
         target,
         characteristics)
-    } yield {
-
-      for {
-        change <-
+      _ <- applyOntologyChangesOrNoOp(ontManager,
         Seq(
           new AddAxiom(ont, owlDataFactory.getOWLDeclarationAxiom(
-            r)),
+            r, createOMLProvenanceAnnotations(uuid))),
           new AddAxiom(ont, owlDataFactory.getOWLSubObjectPropertyOfAxiom(
-            r, backbone.topUnreifiedObjectPropertyOP)),
+            r, backbone.topUnreifiedObjectPropertyOP, createOMLProvenanceAnnotations(uuid))),
 
           new AddAxiom(ont, owlDataFactory.getOWLObjectPropertyDomainAxiom(
-            r, sourceC)),
+            r, sourceC, createOMLProvenanceAnnotations(uuid))),
           new AddAxiom(ont, owlDataFactory.getOWLObjectPropertyRangeAxiom(
-            r, targetC))
-        )
-      } {
-        val result = ontManager.applyChange(change)
-        require(
-          result == ChangeApplied.SUCCESSFULLY || result == ChangeApplied.NO_OPERATION,
-          s"\nmakeUnreifiedRelationship (result=$result):\n$change")
-      }
-
-      result
-    }
-
+            r, targetC, createOMLProvenanceAnnotations(uuid)))
+        ),
+        "makeUnreifiedRelationship")
+    } yield result
   }
 
   def addEntityUnreifiedRelationship
@@ -841,11 +838,11 @@ trait MutableTerminologyBox
   : OMFError.Throwables \/ OWLAPIOMF#Scalar
   = iri2typeTerm
     .get(dt.getIRI)
-    .fold[OMFError.Throwables \/ Scalar]{
+    .fold[OMFError.Throwables \/ Scalar] {
     val _dt = terms.Scalar(dt, dt.getIRI, name, uuid)
     sig.scalarDataTypes += _dt
     iri2typeTerm += dt.getIRI -> _dt
-    store.registerOMFModelScalarDataTypeInstance(this, _dt).map(_ => _dt)
+    _dt.right
   } {
     case t: Scalar =>
       Set(
@@ -871,7 +868,7 @@ trait MutableTerminologyBox
         Seq(
           new AddAxiom(ont,
             owlDataFactory
-              .getOWLDeclarationAxiom(scalarDT))
+              .getOWLDeclarationAxiom(scalarDT, createOMLProvenanceAnnotations(uuid)))
         ),
         s"addScalarDataType error: $scalarIRI, name=$name")
     } yield result
@@ -941,11 +938,11 @@ trait MutableTerminologyBox
       _ <- applyOntologyChanges(ontManager,
         Seq(
           new AddAxiom(ont,
-            owlDataFactory
-              .getOWLDeclarationAxiom(structuredDataTypeC)),
+            owlDataFactory.getOWLDeclarationAxiom(
+              structuredDataTypeC, createOMLProvenanceAnnotations(uuid))),
           new AddAxiom(ont,
-            owlDataFactory
-              .getOWLSubClassOfAxiom(structuredDataTypeC, backbone.StructuredDatatypeC))
+            owlDataFactory.getOWLSubClassOfAxiom(
+              structuredDataTypeC, backbone.StructuredDatatypeC, createOMLProvenanceAnnotations(uuid)))
         ),
         "addStructuredDataType error")
     } yield result
@@ -989,12 +986,12 @@ trait MutableTerminologyBox
   : OMFError.Throwables \/ OWLAPIOMF#ScalarOneOfRestriction
   = iri2typeTerm
     .get(restrictionDT.getIRI)
-    .fold[OMFError.Throwables \/ OWLAPIOMF#ScalarOneOfRestriction]{
+    .fold[OMFError.Throwables \/ OWLAPIOMF#ScalarOneOfRestriction] {
     val _rdt = terms.ScalarOneOfRestriction(
       restrictionDT, restrictionDT.getIRI, uuid, name, restrictedRange)
     sig.scalarOneOfRestrictions += _rdt
     iri2typeTerm += restrictionDT.getIRI -> _rdt
-    store.registerOMFModelScalarDataTypeInstance(this, _rdt).map(_ => _rdt)
+    _rdt.right
   } {
     case t: OWLAPIOMF#ScalarOneOfRestriction =>
       Set(
@@ -1020,8 +1017,8 @@ trait MutableTerminologyBox
       result <- createScalarOneOfRestriction(restrictionDT, name, uuid, restrictedRange)
       _ <- applyOntologyChanges(ontManager,
         Seq(
-          new AddAxiom(ont, owlDataFactory
-            .getOWLDeclarationAxiom(restrictionDT))
+          new AddAxiom(ont, owlDataFactory.getOWLDeclarationAxiom(
+            restrictionDT, createOMLProvenanceAnnotations(uuid)))
         ),
         "addScalarOneOfRestriction error")
     } yield {
@@ -1085,12 +1082,12 @@ trait MutableTerminologyBox
       for {
         _ <- applyOntologyChanges(ontManager,
           Seq(
-            new AddAxiom(ont, owlDataFactory
-              .getOWLDatatypeDefinitionAxiom(
-                restrictionDT,
-                owlDataFactory.getOWLDataOneOf(
+            new AddAxiom(ont, owlDataFactory.getOWLDatatypeDefinitionAxiom(
+              restrictionDT,
+              owlDataFactory.getOWLDataOneOf(
                   LiteralConversions.toOWLLiteral(value, owlDataFactory,
-                    valueType.map(_.e).orElse(Option.apply(restrictedDT))))))
+                    valueType.map(_.e).orElse(Option.apply(restrictedDT)))),
+              createOMLProvenanceAnnotations(uuid)))
           ),
           "addScalarOneOfLiteralAxiom error")
       } yield axiom
@@ -1108,7 +1105,8 @@ trait MutableTerminologyBox
                 new AddAxiom(ont, owlDataFactory
                   .getOWLDatatypeDefinitionAxiom(
                     restrictionDT,
-                    owlDataFactory.getOWLDataOneOf(values)))
+                    owlDataFactory.getOWLDataOneOf(values),
+                    createOMLProvenanceAnnotations(uuid)))
               ),
               "addScalarOneOfLiteralAxiom error")
           } yield axiom
@@ -1170,7 +1168,7 @@ trait MutableTerminologyBox
         length, minLength, maxLength)
       sig.binaryScalarRestrictions += _rdt
       iri2typeTerm += restrictionDT.getIRI -> _rdt
-      store.registerOMFModelScalarDataTypeInstance(this, _rdt).map(_ => _rdt)
+      _rdt.right
     } {
       case t: OWLAPIOMF#BinaryScalarRestriction =>
         Set(
@@ -1210,32 +1208,32 @@ trait MutableTerminologyBox
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#BinaryScalarRestriction
   = for {
-    _ <- store.registerOMFModelScalarDataTypeInstance(this, rdr)
     _ <- applyOntologyChangesOrNoOp(ontManager,
       Seq(
-        new AddAxiom(ont, owlDataFactory
-          .getOWLDeclarationAxiom(restrictionDT))
+        new AddAxiom(ont, owlDataFactory.getOWLDeclarationAxiom(
+          restrictionDT,
+          createOMLProvenanceAnnotations(uuid)))
       ) ++ rdr.length.map { l =>
-        new AddAxiom(ont, owlDataFactory
-          .getOWLDatatypeDefinitionAxiom(
-            restrictionDT,
-            owlDataFactory.getOWLDatatypeRestriction(
-              rdr.restrictedDataRange.e,
-              owlDataFactory.getOWLFacetRestriction(OWLFacet.LENGTH, Integer.parseInt(l)))))
+        new AddAxiom(ont, owlDataFactory.getOWLDatatypeDefinitionAxiom(
+          restrictionDT,
+          owlDataFactory.getOWLDatatypeRestriction(
+            rdr.restrictedDataRange.e,
+            owlDataFactory.getOWLFacetRestriction(OWLFacet.LENGTH, Integer.parseInt(l))),
+          createOMLProvenanceAnnotations(uuid)))
       } ++ rdr.minLength.map { minL =>
-        new AddAxiom(ont, owlDataFactory
-          .getOWLDatatypeDefinitionAxiom(
-            restrictionDT,
-            owlDataFactory.getOWLDatatypeRestriction(
-              rdr.restrictedDataRange.e,
-              owlDataFactory.getOWLFacetRestriction(OWLFacet.MIN_LENGTH, Integer.parseInt(minL)))))
+        new AddAxiom(ont, owlDataFactory.getOWLDatatypeDefinitionAxiom(
+          restrictionDT,
+          owlDataFactory.getOWLDatatypeRestriction(
+            rdr.restrictedDataRange.e,
+            owlDataFactory.getOWLFacetRestriction(OWLFacet.MIN_LENGTH, Integer.parseInt(minL))),
+          createOMLProvenanceAnnotations(uuid)))
       } ++ rdr.maxLength.map { maxL =>
-        new AddAxiom(ont, owlDataFactory
-          .getOWLDatatypeDefinitionAxiom(
-            restrictionDT,
-            owlDataFactory.getOWLDatatypeRestriction(
-              rdr.restrictedDataRange.e,
-              owlDataFactory.getOWLFacetRestriction(OWLFacet.MAX_LENGTH, Integer.parseInt(maxL)))))
+        new AddAxiom(ont, owlDataFactory.getOWLDatatypeDefinitionAxiom(
+          restrictionDT,
+          owlDataFactory.getOWLDatatypeRestriction(
+            rdr.restrictedDataRange.e,
+            owlDataFactory.getOWLFacetRestriction(OWLFacet.MAX_LENGTH, Integer.parseInt(maxL))),
+          createOMLProvenanceAnnotations(uuid)))
       },
       s"addBinaryScalarRestriction error: ${restrictionDT.getIRI}")
     _ = iri2typeTerm += restrictionDT.getIRI -> rdr
@@ -1295,7 +1293,7 @@ trait MutableTerminologyBox
         length, minLength, maxLength, pattern)
       sig.iriScalarRestrictions += _rdt
       iri2typeTerm += restrictionDT.getIRI -> _rdt
-      store.registerOMFModelScalarDataTypeInstance(this, _rdt).map(_ => _rdt)
+      _rdt.right
     } {
       case t: OWLAPIOMF#IRIScalarRestriction =>
         Set(
@@ -1336,39 +1334,39 @@ trait MutableTerminologyBox
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#IRIScalarRestriction
   = for {
-    _ <- store.registerOMFModelScalarDataTypeInstance(this, rdr)
     _ <- applyOntologyChangesOrNoOp(ontManager,
         Seq(
-          new AddAxiom(ont, owlDataFactory
-            .getOWLDeclarationAxiom(restrictionDT))
+          new AddAxiom(ont, owlDataFactory.getOWLDeclarationAxiom(
+            restrictionDT,
+            createOMLProvenanceAnnotations(uuid)))
         ) ++ rdr.length.map { l =>
-          new AddAxiom(ont, owlDataFactory
-            .getOWLDatatypeDefinitionAxiom(
-              restrictionDT,
-              owlDataFactory.getOWLDatatypeRestriction(
-                rdr.restrictedDataRange.e,
-                owlDataFactory.getOWLFacetRestriction(OWLFacet.LENGTH, Integer.parseInt(l)))))
+          new AddAxiom(ont, owlDataFactory.getOWLDatatypeDefinitionAxiom(
+            restrictionDT,
+            owlDataFactory.getOWLDatatypeRestriction(
+              rdr.restrictedDataRange.e,
+              owlDataFactory.getOWLFacetRestriction(OWLFacet.LENGTH, Integer.parseInt(l))),
+            createOMLProvenanceAnnotations(uuid)))
         } ++ rdr.minLength.map { minL =>
-          new AddAxiom(ont, owlDataFactory
-            .getOWLDatatypeDefinitionAxiom(
-              restrictionDT,
-              owlDataFactory.getOWLDatatypeRestriction(
-                rdr.restrictedDataRange.e,
-                owlDataFactory.getOWLFacetRestriction(OWLFacet.MIN_LENGTH, Integer.parseInt(minL)))))
+          new AddAxiom(ont, owlDataFactory.getOWLDatatypeDefinitionAxiom(
+            restrictionDT,
+            owlDataFactory.getOWLDatatypeRestriction(
+              rdr.restrictedDataRange.e,
+              owlDataFactory.getOWLFacetRestriction(OWLFacet.MIN_LENGTH, Integer.parseInt(minL))),
+            createOMLProvenanceAnnotations(uuid)))
         } ++ rdr.maxLength.map { maxL =>
-          new AddAxiom(ont, owlDataFactory
-            .getOWLDatatypeDefinitionAxiom(
-              restrictionDT,
-              owlDataFactory.getOWLDatatypeRestriction(
-                rdr.restrictedDataRange.e,
-                owlDataFactory.getOWLFacetRestriction(OWLFacet.MAX_LENGTH, Integer.parseInt(maxL)))))
+          new AddAxiom(ont, owlDataFactory.getOWLDatatypeDefinitionAxiom(
+            restrictionDT,
+            owlDataFactory.getOWLDatatypeRestriction(
+              rdr.restrictedDataRange.e,
+              owlDataFactory.getOWLFacetRestriction(OWLFacet.MAX_LENGTH, Integer.parseInt(maxL))),
+            createOMLProvenanceAnnotations(uuid)))
         } ++ rdr.pattern.map { patt =>
-          new AddAxiom(ont, owlDataFactory
-            .getOWLDatatypeDefinitionAxiom(
-              restrictionDT,
-              owlDataFactory.getOWLDatatypeRestriction(
-                rdr.restrictedDataRange.e,
-                owlDataFactory.getOWLFacetRestriction(OWLFacet.PATTERN, owlDataFactory.getOWLLiteral(patt)))))
+          new AddAxiom(ont, owlDataFactory.getOWLDatatypeDefinitionAxiom(
+            restrictionDT,
+            owlDataFactory.getOWLDatatypeRestriction(
+              rdr.restrictedDataRange.e,
+              owlDataFactory.getOWLFacetRestriction(OWLFacet.PATTERN, owlDataFactory.getOWLLiteral(patt))),
+            createOMLProvenanceAnnotations(uuid)))
         },
         s"addIRIScalarRestriction error: ${restrictionDT.getIRI}")
     _ = iri2typeTerm += restrictionDT.getIRI -> rdr
@@ -1429,7 +1427,7 @@ trait MutableTerminologyBox
         minInclusive, maxInclusive, minExclusive, maxExclusive)
       sig.numericScalarRestrictions += _rdt
       iri2typeTerm += restrictionDT.getIRI -> _rdt
-      store.registerOMFModelScalarDataTypeInstance(this, _rdt).map(_ => _rdt)
+      _rdt.right
     } {
       case t: OWLAPIOMF#NumericScalarRestriction =>
         Set(
@@ -1470,47 +1468,47 @@ trait MutableTerminologyBox
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#NumericScalarRestriction
   = for {
-    _ <- store.registerOMFModelScalarDataTypeInstance(this, rdr)
     _ <- applyOntologyChangesOrNoOp(ontManager,
         Seq(
-          new AddAxiom(ont, owlDataFactory
-            .getOWLDeclarationAxiom(restrictionDT))
+          new AddAxiom(ont, owlDataFactory.getOWLDeclarationAxiom(
+            restrictionDT,
+            createOMLProvenanceAnnotations(uuid)))
         ) ++ rdr.minInclusive.map { minI =>
-          new AddAxiom(ont, owlDataFactory
-            .getOWLDatatypeDefinitionAxiom(
-              restrictionDT,
-              owlDataFactory.getOWLDatatypeRestriction(
-                rdr.restrictedDataRange.e,
-                owlDataFactory.getOWLFacetRestriction(
-                  OWLFacet.MIN_INCLUSIVE,
-                  LiteralConversions.toOWLLiteral(minI, owlDataFactory, Option.apply(rdr.restrictedDataRange.e))))))
+          new AddAxiom(ont, owlDataFactory.getOWLDatatypeDefinitionAxiom(
+            restrictionDT,
+            owlDataFactory.getOWLDatatypeRestriction(
+              rdr.restrictedDataRange.e,
+              owlDataFactory.getOWLFacetRestriction(
+                OWLFacet.MIN_INCLUSIVE,
+                LiteralConversions.toOWLLiteral(minI, owlDataFactory, Option.apply(rdr.restrictedDataRange.e)))),
+            createOMLProvenanceAnnotations(uuid)))
         } ++ rdr.maxInclusive.map { maxI =>
-          new AddAxiom(ont, owlDataFactory
-            .getOWLDatatypeDefinitionAxiom(
-              restrictionDT,
-              owlDataFactory.getOWLDatatypeRestriction(
-                rdr.restrictedDataRange.e,
-                owlDataFactory.getOWLFacetRestriction(
-                  OWLFacet.MAX_INCLUSIVE,
-                  LiteralConversions.toOWLLiteral(maxI, owlDataFactory, Option.apply(rdr.restrictedDataRange.e))))))
+          new AddAxiom(ont, owlDataFactory.getOWLDatatypeDefinitionAxiom(
+            restrictionDT,
+            owlDataFactory.getOWLDatatypeRestriction(
+              rdr.restrictedDataRange.e,
+              owlDataFactory.getOWLFacetRestriction(
+                OWLFacet.MAX_INCLUSIVE,
+                LiteralConversions.toOWLLiteral(maxI, owlDataFactory, Option.apply(rdr.restrictedDataRange.e)))),
+            createOMLProvenanceAnnotations(uuid)))
         } ++ rdr.minExclusive.map { minE =>
-          new AddAxiom(ont, owlDataFactory
-            .getOWLDatatypeDefinitionAxiom(
-              restrictionDT,
-              owlDataFactory.getOWLDatatypeRestriction(
-                rdr.restrictedDataRange.e,
-                owlDataFactory.getOWLFacetRestriction(
-                  OWLFacet.MIN_EXCLUSIVE,
-                  LiteralConversions.toOWLLiteral(minE, owlDataFactory, Option.apply(rdr.restrictedDataRange.e))))))
+          new AddAxiom(ont, owlDataFactory.getOWLDatatypeDefinitionAxiom(
+            restrictionDT,
+            owlDataFactory.getOWLDatatypeRestriction(
+              rdr.restrictedDataRange.e,
+              owlDataFactory.getOWLFacetRestriction(
+                OWLFacet.MIN_EXCLUSIVE,
+                LiteralConversions.toOWLLiteral(minE, owlDataFactory, Option.apply(rdr.restrictedDataRange.e)))),
+            createOMLProvenanceAnnotations(uuid)))
         } ++ rdr.maxExclusive.map { maxE =>
-          new AddAxiom(ont, owlDataFactory
-            .getOWLDatatypeDefinitionAxiom(
-              restrictionDT,
-              owlDataFactory.getOWLDatatypeRestriction(
-                rdr.restrictedDataRange.e,
-                owlDataFactory.getOWLFacetRestriction(
-                  OWLFacet.MAX_EXCLUSIVE,
-                  LiteralConversions.toOWLLiteral(maxE, owlDataFactory, Option.apply(rdr.restrictedDataRange.e))))))
+          new AddAxiom(ont, owlDataFactory.getOWLDatatypeDefinitionAxiom(
+            restrictionDT,
+            owlDataFactory.getOWLDatatypeRestriction(
+              rdr.restrictedDataRange.e,
+              owlDataFactory.getOWLFacetRestriction(
+                OWLFacet.MAX_EXCLUSIVE,
+                LiteralConversions.toOWLLiteral(maxE, owlDataFactory, Option.apply(rdr.restrictedDataRange.e)))),
+            createOMLProvenanceAnnotations(uuid)))
         },
         s"addNumericScalarRestriction error: ${restrictionDT.getIRI}")
     _ = iri2typeTerm += restrictionDT.getIRI -> rdr
@@ -1573,7 +1571,7 @@ trait MutableTerminologyBox
         length, minLength, maxLength, pattern, language)
       sig.plainLiteralScalarRestrictions += _rdt
       iri2typeTerm += restrictionDT.getIRI -> _rdt
-      store.registerOMFModelScalarDataTypeInstance(this, _rdt).map(_ => _rdt)
+      _rdt.right
     } {
       case t: OWLAPIOMF#PlainLiteralScalarRestriction =>
         Set(
@@ -1615,7 +1613,6 @@ trait MutableTerminologyBox
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#PlainLiteralScalarRestriction
   = for {
-    _ <- store.registerOMFModelScalarDataTypeInstance(this, rdr)
   _ <- applyOntologyChangesOrNoOp(ontManager,
         Seq(
           new AddAxiom(ont, owlDataFactory
@@ -1724,7 +1721,7 @@ trait MutableTerminologyBox
         length, minLength, maxLength, pattern)
       sig.stringScalarRestrictions += _rdt
       iri2typeTerm += restrictionDT.getIRI -> _rdt
-      store.registerOMFModelScalarDataTypeInstance(this, _rdt).map(_ => _rdt)
+      _rdt.right
     } {
       case t: OWLAPIOMF#StringScalarRestriction =>
         Set(
@@ -1765,7 +1762,6 @@ trait MutableTerminologyBox
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#StringScalarRestriction
   = for {
-    _ <- store.registerOMFModelScalarDataTypeInstance(this, rdr)
     _ <- applyOntologyChangesOrNoOp(ontManager,
       Seq(
         new AddAxiom(ont, owlDataFactory
@@ -1844,7 +1840,7 @@ trait MutableTerminologyBox
       restrictionDT, restrictionDT.getIRI, uuid, name, restrictedRange)
     sig.synonymScalarRestrictions += _rdt
     iri2typeTerm += restrictionDT.getIRI -> _rdt
-    store.registerOMFModelScalarDataTypeInstance(this, _rdt).map(_ => _rdt)
+    _rdt.right
   } {
     case t: OWLAPIOMF#SynonymScalarRestriction =>
       Set(
@@ -1876,7 +1872,6 @@ trait MutableTerminologyBox
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#SynonymScalarRestriction
   = for {
-    _ <- store.registerOMFModelScalarDataTypeInstance(this, rdr)
     _ <- applyOntologyChangesOrNoOp(ontManager,
       Seq(
         new AddAxiom(ont, owlDataFactory
@@ -1940,7 +1935,7 @@ trait MutableTerminologyBox
         minInclusive, maxInclusive, minExclusive, maxExclusive)
       sig.timeScalarRestrictions += _rdt
       iri2typeTerm += restrictionDT.getIRI -> _rdt
-      store.registerOMFModelScalarDataTypeInstance(this, _rdt).map(_ => _rdt)
+      _rdt.right
     } {
       case t: OWLAPIOMF#TimeScalarRestriction =>
         Set(
@@ -1981,7 +1976,6 @@ trait MutableTerminologyBox
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#TimeScalarRestriction
   = for {
-    _ <- store.registerOMFModelScalarDataTypeInstance(this, rdr)
     _ <- applyOntologyChangesOrNoOp(ontManager,
       Seq(
         new AddAxiom(ont, owlDataFactory
@@ -2052,15 +2046,12 @@ trait MutableTerminologyBox
     val escIRI: IRI = esc.getIRI
     iri2typeTerm
       .get(escIRI)
-      .fold[OMFError.Throwables \/ OWLAPIOMF#EntityScalarDataProperty](
-      for {
-        _esc <- store.registerDataRelationshipFromEntityToScalar(
-          this, terms.EntityScalarDataProperty(esc, esc.getIRI, name, isIdentityCriteria, uuid, source, target))
-      } yield {
-        sig.entityScalarDataProperties += _esc
-        iri2typeTerm += escIRI -> _esc
-        _esc
-      }) {
+      .fold[OMFError.Throwables \/ OWLAPIOMF#EntityScalarDataProperty] {
+      val _esc = terms.EntityScalarDataProperty(esc, esc.getIRI, name, isIdentityCriteria, uuid, source, target)
+      sig.entityScalarDataProperties += _esc
+      iri2typeTerm += escIRI -> _esc
+      _esc.right
+    } {
       case t: OWLAPIOMF#EntityScalarDataProperty =>
         Set(
           entityAlreadyDefinedException(ElementExceptionKind.DataRelationshipFromEntityToScalar, escIRI, t)
@@ -2173,15 +2164,12 @@ trait MutableTerminologyBox
     val escIRI: IRI = esc.getIRI
     iri2typeTerm
       .get(escIRI)
-      .fold[OMFError.Throwables \/ OWLAPIOMF#EntityStructuredDataProperty](
-      for {
-        _esc <- store.registerDataRelationshipFromEntityToStructure(
-          this, terms.EntityStructuredDataProperty(esc, esc.getIRI, name, isIdentityCriteria, uuid, source, target))
-      } yield {
-        sig.entityStructuredDataProperties += _esc
-        iri2typeTerm += escIRI -> _esc
-        _esc
-      }) {
+      .fold[OMFError.Throwables \/ OWLAPIOMF#EntityStructuredDataProperty] {
+      val _esc = terms.EntityStructuredDataProperty(esc, esc.getIRI, name, isIdentityCriteria, uuid, source, target)
+      sig.entityStructuredDataProperties += _esc
+      iri2typeTerm += escIRI -> _esc
+      _esc.right
+    } {
       case t: OWLAPIOMF#EntityStructuredDataProperty =>
         Set(
           entityAlreadyDefinedException(ElementExceptionKind.DataRelationshipFromEntityToStructure, escIRI, t)
@@ -2293,15 +2281,12 @@ trait MutableTerminologyBox
     val escIRI: IRI = esc.getIRI
     iri2typeTerm
       .get(escIRI)
-      .fold[OMFError.Throwables \/ OWLAPIOMF#ScalarDataProperty](
-      for {
-        _esc <- store.registerDataRelationshipFromStructureToScalar(
-          this, terms.ScalarDataProperty(esc, esc.getIRI, name, uuid, source, target))
-      } yield {
-        sig.scalarDataProperties += _esc
-        iri2typeTerm += escIRI -> _esc
-        _esc
-      }) {
+      .fold[OMFError.Throwables \/ OWLAPIOMF#ScalarDataProperty] {
+      val _esc = terms.ScalarDataProperty(esc, esc.getIRI, name, uuid, source, target)
+      sig.scalarDataProperties += _esc
+      iri2typeTerm += escIRI -> _esc
+      _esc.right
+    } {
       case t: OWLAPIOMF#ScalarDataProperty =>
         Set(
           entityAlreadyDefinedException(ElementExceptionKind.DataRelationshipFromStructureToScalar, escIRI, t)
@@ -2407,15 +2392,12 @@ trait MutableTerminologyBox
     val escIRI: IRI = esc.getIRI
     iri2typeTerm
       .get(escIRI)
-      .fold[OMFError.Throwables \/ OWLAPIOMF#StructuredDataProperty](
-      for {
-        _esc <- store.registerDataRelationshipFromStructureToStructure(
-          this, terms.StructuredDataProperty(esc, esc.getIRI, name, uuid, source, target))
-      } yield {
-        sig.structuredDataProperties += _esc
-        iri2typeTerm += escIRI -> _esc
-        _esc
-      }) {
+      .fold[OMFError.Throwables \/ OWLAPIOMF#StructuredDataProperty] {
+      val _esc = terms.StructuredDataProperty(esc, esc.getIRI, name, uuid, source, target)
+      sig.structuredDataProperties += _esc
+      iri2typeTerm += escIRI -> _esc
+      _esc.right
+    } {
       case t: OWLAPIOMF#StructuredDataProperty =>
         Set(
           entityAlreadyDefinedException(ElementExceptionKind.DataRelationshipFromStructureToStructure, escIRI, t)
@@ -2437,9 +2419,9 @@ trait MutableTerminologyBox
     val escDP = owlDataFactory.getOWLObjectProperty(dIRI)
     for {
       term <- createDataRelationshipFromStructureToStructure(escDP, name, uuid, source, target)
-    } yield {
-      for {
-        change <- Seq(
+      anns = createOMLProvenanceAnnotations(uuid)
+      _ <- applyOntologyChanges(ontManager,
+        Seq(
           new AddAxiom(ont,
             owlDataFactory
               .getOWLDeclarationAxiom(escDP)),
@@ -2452,15 +2434,9 @@ trait MutableTerminologyBox
           new AddAxiom(ont,
             owlDataFactory
               .getOWLObjectPropertyRangeAxiom(escDP, target.e))
-        )
-      } {
-        val result = ontManager.applyChange(change)
-        require(
-          result == ChangeApplied.SUCCESSFULLY,
-          s"\nmakeDataRelationshipFromStructureToStucture:\n$change")
-      }
-      term
-    }
+        ),
+        s"makeDataRelationshipFromStructureToStucture")
+    } yield term
   }
 
   def addDataRelationshipFromStructureToStructure
@@ -2645,6 +2621,7 @@ trait MutableTerminologyBox
 
   def makeChainRule
   (rule: OWLAPIOMF#ChainRule)
+  (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ Unit
   = for {
     v0 <- makeVariable(0)
@@ -2655,11 +2632,7 @@ trait MutableTerminologyBox
     r = owlDataFactory.getSWRLRule(
       bodyAtoms,
       Collections.singleton(headAtom),
-      Collections.singleton(
-        owlDataFactory.getOWLAnnotation(
-          owlDataFactory.getRDFSLabel(),
-          owlDataFactory.getOWLLiteral(rule.name, owlDataFactory.getStringOWLDatatype))
-      ))
+      createOMLProvenanceAnnotationsWithLabel(rule.name, rule.uuid))
     _ <- applyOntologyChanges(ontManager,
       Seq(
         new AddAxiom(ont, r)
@@ -3064,16 +3037,11 @@ trait MutableTerminologyBox
       case _ =>
         false
     }
-    .fold[OMFError.Throwables \/ OWLAPIOMF#ConceptSpecializationAxiom](
-    for {
-      axiom <- store
-        .registerOMFEntityConceptSubClassAxiomInstance(this,
-          ConceptSpecializationAxiom(uuid, sub, sup))
-    } yield {
+    .fold[OMFError.Throwables \/ OWLAPIOMF#ConceptSpecializationAxiom] {
+      val axiom = ConceptSpecializationAxiom(uuid, sub, sup)
       sig.axioms += axiom
-      axiom
-    }
-  ) { other =>
+      axiom.right
+    } { other =>
     Set(
       duplicateModelTermAxiomException(AxiomExceptionKind.EntityConceptSubClassAxiomException, other)
     ).left
@@ -3090,27 +3058,19 @@ trait MutableTerminologyBox
     case (true, true) =>
       for {
         axiom <- createEntityConceptSubClassAxiom(uuid, sub, sup)
-      } yield {
-        val subC = owlDataFactory.getOWLClass(sub.iri)
-        val supC = owlDataFactory.getOWLClass(sup.iri)
-        for {
-          change <- Seq(
+        subC = owlDataFactory.getOWLClass(sub.iri)
+        supC = owlDataFactory.getOWLClass(sup.iri)
+        _ <- applyOntologyChanges(ontManager,
+          Seq(
             new AddAxiom(ont,
               owlDataFactory
                 .getOWLSubClassOfAxiom(
                   subC,
                   supC,
-                  java.util.Collections.singleton(createOMFProvenanceAnnotation(uuid))))
-          )
-        } {
-
-          val result = ontManager.applyChange(change)
-          require(
-            result == ChangeApplied.SUCCESSFULLY,
-            s"\naddEntityConceptSubClassAxiom:\n$change")
-        }
-        axiom
-      }
+                  createOMLProvenanceAnnotations(uuid)))
+          ),
+          s"addEntityConceptSubClassAxiom")
+      } yield axiom
 
     case (false, true) =>
       Set(
@@ -3155,20 +3115,19 @@ trait MutableTerminologyBox
   = (isTypeTermDefinedRecursively(sub),
     isTypeTermDefinedRecursively(rel),
     isTypeTermDefinedRecursively(range)) match {
+
     case (true, true, true) =>
+
       val subC = owlDataFactory.getOWLClass(sub.iri)
       val rangeC = owlDataFactory.getOWLClass(range.iri)
+      val axiom = EntityUniversalRestrictionAxiom(uuid, sub, rel, range)
+      val op = rel match {
+        case rr: OWLAPIOMF#ReifiedRelationship =>
+          rr.unreified
+        case ur: OWLAPIOMF#UnreifiedRelationship =>
+          ur.e
+      }
       for {
-        axiom <-
-        store
-          .registerOMFEntityDefinitionUniversalRestrictionAxiomInstance(this,
-            EntityUniversalRestrictionAxiom(uuid, sub, rel, range))
-        op = rel match {
-          case rr: OWLAPIOMF#ReifiedRelationship =>
-            rr.unreified
-          case ur: OWLAPIOMF#UnreifiedRelationship =>
-            ur.e
-        }
         _ <- applyOntologyChangeOrNoOp(
           ontManager,
           new AddAxiom(ont,
@@ -3176,7 +3135,7 @@ trait MutableTerminologyBox
               .getOWLSubClassOfAxiom(
                 subC,
                 owlDataFactory.getOWLObjectAllValuesFrom(op, rangeC),
-                java.util.Collections.singleton(createOMFProvenanceAnnotation(uuid)))),
+                createOMLProvenanceAnnotations(uuid))),
           ifError = {
             "addEntityDefinitionUniversalRestrictionAxiom Error"
           })
@@ -3205,7 +3164,6 @@ trait MutableTerminologyBox
           AxiomExceptionKind.ConceptRestrictionAxiomException,
           Map(AxiomScopeAccessKind.Range -> range))
       ).left
-
   }
 
   def addEntityDefinitionExistentialRestrictionAxiom
@@ -3232,17 +3190,14 @@ trait MutableTerminologyBox
     case (true, true, true) =>
       val subC = owlDataFactory.getOWLClass(sub.iri)
       val rangeC = owlDataFactory.getOWLClass(range.iri)
+      val axiom = EntityExistentialRestrictionAxiom(uuid, sub, rel, range)
+      val op = rel match {
+        case rr: OWLAPIOMF#ReifiedRelationship =>
+          rr.unreified
+        case ur: OWLAPIOMF#UnreifiedRelationship =>
+          ur.e
+      }
       for {
-        axiom <-
-        store
-          .registerOMFEntityDefinitionExistentialRestrictionAxiomInstance(this,
-            EntityExistentialRestrictionAxiom(uuid, sub, rel, range))
-        op = rel match {
-          case rr: OWLAPIOMF#ReifiedRelationship =>
-            rr.unreified
-          case ur: OWLAPIOMF#UnreifiedRelationship =>
-            ur.e
-        }
         _ <- store.applyModelTermAxiomChanges(
           axiom,
           "addEntityDefinitionExistentialRestrictionAxiom",
@@ -3252,7 +3207,7 @@ trait MutableTerminologyBox
                 .getOWLSubClassOfAxiom(
                   subC,
                   owlDataFactory.getOWLObjectSomeValuesFrom(op, rangeC),
-                  java.util.Collections.singleton(createOMFProvenanceAnnotation(uuid))))
+                  createOMLProvenanceAnnotations(uuid)))
           ))
       } yield {
         sig.axioms += axiom
@@ -3293,11 +3248,8 @@ trait MutableTerminologyBox
     isTypeTermDefinedRecursively(range)) match {
     case (true, true, true) =>
       val subC = owlDataFactory.getOWLClass(restrictedEntity.iri)
+      val axiom = EntityScalarDataPropertyExistentialRestrictionAxiom(uuid, restrictedEntity, scalarProperty, range)
       for {
-        axiom <-
-        store
-          .registerOMFEntityScalarDataPropertyExistentialRestrictionAxiomInstance(this,
-            EntityScalarDataPropertyExistentialRestrictionAxiom(uuid, restrictedEntity, scalarProperty, range))
         _ <- applyOntologyChangeOrNoOp(
           ontManager,
           new AddAxiom(ont,
@@ -3305,7 +3257,7 @@ trait MutableTerminologyBox
               .getOWLSubClassOfAxiom(
                 subC,
                 owlDataFactory.getOWLDataSomeValuesFrom(scalarProperty.e, range.e),
-                java.util.Collections.singleton(createOMFProvenanceAnnotation(uuid)))),
+                createOMLProvenanceAnnotations(uuid))),
           ifError = {
             "addEntityScalarDataPropertyExistentialRestrictionAxiom Error"
           })
@@ -3349,11 +3301,8 @@ trait MutableTerminologyBox
     isTypeTermDefinedRecursively(range)) match {
     case (true, true, true) =>
       val subC = owlDataFactory.getOWLClass(restrictedEntity.iri)
+      val axiom = EntityScalarDataPropertyUniversalRestrictionAxiom(uuid, restrictedEntity, scalarProperty, range)
       for {
-        axiom <-
-        store
-          .registerOMFEntityScalarDataPropertyUniversalRestrictionAxiomInstance(this,
-            EntityScalarDataPropertyUniversalRestrictionAxiom(uuid, restrictedEntity, scalarProperty, range))
         _ <- applyOntologyChangeOrNoOp(
           ontManager,
           new AddAxiom(ont,
@@ -3361,7 +3310,7 @@ trait MutableTerminologyBox
               .getOWLSubClassOfAxiom(
                 subC,
                 owlDataFactory.getOWLDataAllValuesFrom(scalarProperty.e, range.e),
-                java.util.Collections.singleton(createOMFProvenanceAnnotation(uuid)))),
+                createOMLProvenanceAnnotations(uuid))),
           ifError = {
             "addEntityScalarDataPropertyUniversalRestrictionAxiom Error"
           })
@@ -3423,7 +3372,7 @@ trait MutableTerminologyBox
                 owlDataFactory.getOWLDataHasValue(scalarProperty.e,
                   LiteralConversions.toOWLLiteral(literalValue, owlDataFactory,
                     valueType.map(_.e).orElse(Option.apply(scalarProperty.range.e)))),
-                java.util.Collections.singleton(createOMFProvenanceAnnotation(uuid))))
+                createOMLProvenanceAnnotations(uuid)))
           ) ++ key,
           ifError = {
             "addEntityScalarDataPropertyParticularRestrictionAxiom Error"
@@ -3595,17 +3544,11 @@ trait MutableTerminologyBox
       case _ =>
         false
     }
-    .fold[OMFError.Throwables \/ OWLAPIOMF#AspectSpecializationAxiom](
-    for {
-      axiom <-
-      store
-        .registerOMFEntityDefinitionAspectSubClassAxiomInstance(this,
-          AspectSpecializationAxiom(uuid, sub, sup))
-    } yield {
-      sig.axioms += axiom
-      axiom
-    }
-  ) { other =>
+    .fold[OMFError.Throwables \/ OWLAPIOMF#AspectSpecializationAxiom] {
+    val axiom = AspectSpecializationAxiom(uuid, sub, sup)
+    sig.axioms += axiom
+    axiom.right
+  } { other =>
     Set(
       duplicateModelTermAxiomException(AxiomExceptionKind.EntityDefinitionAspectSubClassAxiomException, other)
     ).left
@@ -3630,7 +3573,7 @@ trait MutableTerminologyBox
               .getOWLSubClassOfAxiom(
                 sub.e,
                 sup.e,
-                java.util.Collections.singleton(createOMFProvenanceAnnotation(uuid))))
+                createOMLProvenanceAnnotations(uuid)))
           )
         } {
 
@@ -3679,16 +3622,12 @@ trait MutableTerminologyBox
       case _ =>
         false
     }
-    .fold[OMFError.Throwables \/ ConceptDesignationTerminologyAxiom]({
-    val axInstance = ConceptDesignationTerminologyAxiom(
+    .fold[OMFError.Throwables \/ ConceptDesignationTerminologyAxiom] {
+    val axiom = ConceptDesignationTerminologyAxiom(
       uuid, graph.uuid, entityConceptDesignation, designationTerminologyGraph)
-    for {
-      axiom <- store.registerEntityConceptDesignationTerminologyGraphAxiom(this, axInstance)
-    } yield {
-      sig.conceptDesignation += axiom
-      axiom
-    }
-  }) { other =>
+    sig.conceptDesignation += axiom
+    axiom.right
+  } { other =>
     Set(
       duplicateTerminologyGraphAxiomException(AxiomExceptionKind.EntityConceptDesignationTerminologyGraphAxiomException, other)
     ).left
@@ -3722,16 +3661,11 @@ trait MutableTerminologyBox
       case _ =>
         false
     }
-    .fold[OMFError.Throwables \/ ReifiedRelationshipSpecializationAxiom]({
-    val axInstance = ReifiedRelationshipSpecializationAxiom(uuid, sub, sup)
-    for {
-      axiom <- store
-        .registerOMFEntityReifiedRelationshipSubClassAxiomInstance(this, axInstance)
-    } yield {
-      sig.axioms += axiom
-      axiom
-    }
-  }) { other =>
+    .fold[OMFError.Throwables \/ ReifiedRelationshipSpecializationAxiom] {
+    val axiom = ReifiedRelationshipSpecializationAxiom(uuid, sub, sup)
+    sig.axioms += axiom
+    axiom.right
+  } { other =>
     Set(
       duplicateModelTermAxiomException(AxiomExceptionKind.EntityReifiedRelationshipSubClassAxiomException, other)
     ).left
@@ -3755,19 +3689,19 @@ trait MutableTerminologyBox
                 .getOWLSubClassOfAxiom(
                   sub.e,
                   sup.e,
-                  java.util.Collections.singleton(createOMFProvenanceAnnotation(uuid)))),
+                  createOMLProvenanceAnnotations(uuid))),
             new AddAxiom(ont,
               owlDataFactory
                 .getOWLSubObjectPropertyOfAxiom(
                   sub.rSource,
                   sup.rSource,
-                  java.util.Collections.singleton(createOMFProvenanceAnnotation(uuid)))),
+                  createOMLProvenanceAnnotations(uuid))),
             new AddAxiom(ont,
               owlDataFactory
                 .getOWLSubObjectPropertyOfAxiom(
                   sub.rTarget,
                   sup.rTarget,
-                  java.util.Collections.singleton(createOMFProvenanceAnnotation(uuid))))
+                  createOMLProvenanceAnnotations(uuid)))
           )
         } {
           val result = ontManager.applyChange(change)
