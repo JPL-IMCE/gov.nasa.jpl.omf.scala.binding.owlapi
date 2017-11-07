@@ -97,7 +97,9 @@ case class MutableDescriptionBox
     _ <- (sig.annotationProperties += ap).right[OMFError.Throwables]
     ont_ap = owlDataFactory.getOWLAnnotationProperty(ap.iri)
     _ <- applyOntologyChangeOrNoOp(ontManager,
-      new AddAxiom(ont, owlDataFactory.getOWLDeclarationAxiom(ont_ap, createOMLProvenanceAnnotations(ap.uuid))),
+      new AddAxiom(ont, owlDataFactory.getOWLDeclarationAxiom(
+        ont_ap,
+        createOMLProvenanceAnnotations(ap.uuid))),
       "addAnnotationProperty error")
   } yield ap
 
@@ -249,12 +251,13 @@ case class MutableDescriptionBox
     i <- createConceptInstance(uuid, iri, ni, conceptType, fragment)
     _ <- applyOntologyChanges(ontManager,
       Seq(
-        new AddAxiom(ont,
-          owlDataFactory
-            .getOWLDeclarationAxiom(ni, createOMLProvenanceAnnotations(uuid))),
-        new AddAxiom(ont,
-          owlDataFactory
-            .getOWLClassAssertionAxiom(conceptType.e, ni, createOMLProvenanceAnnotations(uuid)))),
+        new AddAxiom(ont, owlDataFactory.getOWLDeclarationAxiom(
+          ni,
+          createOMLProvenanceAnnotations(uuid))),
+        new AddAxiom(ont, owlDataFactory.getOWLClassAssertionAxiom(
+          conceptType.e,
+          ni,
+          createOMLProvenanceAnnotations(uuid)))),
       "addConceptInstance Error")
   } yield i
 
@@ -301,12 +304,13 @@ case class MutableDescriptionBox
     i <- createReifiedRelationshipInstance(uuid, iri, ni, relationshipType, fragment)
     _ <- applyOntologyChanges(ontManager,
       Seq(
-        new AddAxiom(ont,
-          owlDataFactory
-            .getOWLDeclarationAxiom(ni, createOMLProvenanceAnnotations(uuid))),
-        new AddAxiom(ont,
-          owlDataFactory
-            .getOWLClassAssertionAxiom(relationshipType.e, ni, createOMLProvenanceAnnotations(uuid)))),
+        new AddAxiom(ont, owlDataFactory.getOWLDeclarationAxiom(
+          ni,
+          createOMLProvenanceAnnotations(uuid))),
+        new AddAxiom(ont, owlDataFactory.getOWLClassAssertionAxiom(
+          relationshipType.e,
+          ni,
+          createOMLProvenanceAnnotations(uuid)))),
       "addReifiedRelationshipInstance Error")
   } yield i
 
@@ -345,13 +349,11 @@ case class MutableDescriptionBox
     i <- createReifiedRelationshipInstanceDomain(uuid, rri, source)
     _ <- applyOntologyChanges(ontManager,
       Seq(
-        new AddAxiom(ont,
-          owlDataFactory
-            .getOWLObjectPropertyAssertionAxiom(
-              rri.relationshipType.rSource,
-              rri.ni,
-              source.ni,
-              createOMLProvenanceAnnotations(uuid)))),
+        new AddAxiom(ont, owlDataFactory.getOWLObjectPropertyAssertionAxiom(
+          rri.relationshipType.rSource,
+          rri.ni,
+          source.ni,
+          createOMLProvenanceAnnotations(uuid)))),
       "addReifiedRelationshipInstanceDomain Error")
   } yield i
 
@@ -438,13 +440,11 @@ case class MutableDescriptionBox
     i <- createUnreifiedRelationshipInstanceTuple(uuid, unreifiedRelationship, source, target)
     _ <- applyOntologyChanges(ontManager,
       Seq(
-        new AddAxiom(ont,
-          owlDataFactory
-            .getOWLObjectPropertyAssertionAxiom(
-              unreifiedRelationship.e,
-              source.ni,
-              target.ni,
-              createOMLProvenanceAnnotations(uuid)))),
+        new AddAxiom(ont, owlDataFactory.getOWLObjectPropertyAssertionAxiom(
+          unreifiedRelationship.e,
+          source.ni,
+          target.ni,
+          createOMLProvenanceAnnotations(uuid)))),
       "addUnreifiedRelationshipInstanceTuple Error")
   } yield i
 
@@ -535,12 +535,15 @@ case class MutableDescriptionBox
     i <- createSingletonInstanceStructuredDataPropertyValue(uuid, ni, ei, e2st)
     _ <- applyOntologyChanges(ontManager,
       Seq(
-        new AddAxiom(ont,
-          owlDataFactory
-            .getOWLClassAssertionAxiom(e2st.range.e, ni, createOMLProvenanceAnnotations(uuid))),
-        new AddAxiom(ont,
-          owlDataFactory
-            .getOWLObjectPropertyAssertionAxiom(e2st.e, ei.ni, ni, createOMLProvenanceAnnotations(uuid)))),
+        new AddAxiom(ont, owlDataFactory.getOWLClassAssertionAxiom(
+          e2st.range.e,
+          ni,
+          createOMLProvenanceAnnotations(uuid))),
+        new AddAxiom(ont, owlDataFactory.getOWLObjectPropertyAssertionAxiom(
+          e2st.e,
+          ei.ni,
+          ni,
+          createOMLProvenanceAnnotations(uuid)))),
       "addSingletonInstanceStructuredDataPropertyValue Error")
   } yield i
 
@@ -585,9 +588,10 @@ case class MutableDescriptionBox
     lit = LiteralConversions.toOWLLiteral(value, owlDataFactory, valueType.map(_.e).orElse(Option.apply(s2sc.range.e)))
     _ <- applyOntologyChanges(ontManager,
       Seq(
-        new AddAxiom(ont,
-          owlDataFactory
-            .getOWLDataPropertyAssertionAxiom(s2sc.e, context.ni, lit, createOMLProvenanceAnnotations(uuid)))),
+        new AddAxiom(ont, owlDataFactory.getOWLDataPropertyAssertionAxiom(
+          s2sc.e, context.ni,
+          lit,
+          createOMLProvenanceAnnotations(uuid)))),
       "makeScalarDataPropertyValue Error")
   } yield i
 
@@ -630,12 +634,15 @@ case class MutableDescriptionBox
     i <- createStructuredDataPropertyTuple(uuid, ni, context, s2st)
     _ <- applyOntologyChanges(ontManager,
       Seq(
-        new AddAxiom(ont,
-          owlDataFactory
-            .getOWLClassAssertionAxiom(s2st.range.e, ni, createOMLProvenanceAnnotations(uuid))),
-        new AddAxiom(ont,
-          owlDataFactory
-            .getOWLObjectPropertyAssertionAxiom(s2st.e, context.ni, ni, createOMLProvenanceAnnotations(uuid)))),
+        new AddAxiom(ont, owlDataFactory.getOWLClassAssertionAxiom(
+          s2st.range.e,
+          ni,
+          createOMLProvenanceAnnotations(uuid))),
+        new AddAxiom(ont, owlDataFactory.getOWLObjectPropertyAssertionAxiom(
+          s2st.e,
+          context.ni,
+          ni,
+          createOMLProvenanceAnnotations(uuid)))),
       "makeStructuredDataPropertyTuple Error")
   } yield i
 

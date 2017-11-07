@@ -804,10 +804,6 @@ case class ImmutableTerminologyBoxResolver(resolver: TerminologyBoxResolverHelpe
           (cj, rj, isj, itj, oj)
       }
 
-    System.out.println(s"#-------------------")
-    System.out.println(s"# Rules: recognized ${recognizedRules.size} rules {${chains.size} ROP SWRL rule chains and ${otherRules.size} inference rules} (${rules.size} rules).")
-    System.out.println(s"#-------------------")
-
     require((recognizedRules.size + otherRules.size) == rules.size)
 
     val aspectCMs: Throwables \/ Map[OWLClass, Aspect] =
