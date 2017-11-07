@@ -35,7 +35,6 @@ import gov.nasa.jpl.omf.scala.core.OMFError
 import gov.nasa.jpl.omf.scala.core.OMLString.LocalName
 import gov.nasa.jpl.omf.scala.core._
 import gov.nasa.jpl.omf.scala.core.RelationshipCharacteristics.RelationshipCharacteristics
-import org.semanticweb.owlapi.model.parameters.ChangeApplied
 import org.semanticweb.owlapi.model._
 import org.semanticweb.owlapi.vocab.OWLFacet
 
