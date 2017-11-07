@@ -19,23 +19,16 @@
 package gov.nasa.jpl.omf.scala.binding.owlapi
 
 
-import org.semanticweb.owlapi.model.OWLOntology
-import org.semanticweb.owlapi.model.OWLClass
-import org.semanticweb.owlapi.model.IRI
-import org.semanticweb.owlapi.model.AddAxiom
-import org.semanticweb.owlapi.model.AddOntologyAnnotation
-import org.semanticweb.owlapi.model.OWLObjectProperty
-import org.semanticweb.owlapi.model.OWLDataProperty
-import org.semanticweb.owlapi.model.OWLEntity
-
+import org.semanticweb.owlapi.model._
 import gov.nasa.jpl.omf.scala.core._
 import gov.nasa.jpl.omf.scala.core.OMLString.LocalName
 import gov.nasa.jpl.omf.scala.core.TerminologyKind
 
 import scala.collection.immutable._
-import scala.{Enumeration,Option}
-import scala.Predef.{Set=>_,Map=>_,_}
-import scalaz._, Scalaz._
+import scala.{Enumeration, Option}
+import scala.Predef.{Map => _, Set => _, _}
+import scalaz._
+import Scalaz._
 
 /**
   * Used for calculating the declared entities of an OWL ontology
@@ -239,39 +232,45 @@ object Backbone {
    *
    * @todo needs: annotation:isAbstract, annotation:noMapping
    */
-  def createBackbone( ont: OWLOntology, kind: TerminologyKind, ops: OWLAPIOMFOps )
+  def createBackbone( ont: OWLOntology, kind: TerminologyKind, isOMLKindAP: OWLAnnotationProperty, ops: OWLAPIOMFOps )
   : Set[java.lang.Throwable] \/ OMFBackbone
   = for {
     b <- createBackbone(ont, ops)
-    _ <- applyOntologyChangeOrNoOp(
+    _ <- applyOntologyChangesOrNoOp(
       ont.getOWLOntologyManager,
-      kind match {
-        case TerminologyKind.`isOpenWorld` =>
-          val defP = b.df.getOWLAnnotationProperty(ops.AnnotationIsTerminologyBoxOpen)
-          new AddOntologyAnnotation(ont, b.df.getOWLAnnotation(defP, b.df.getOWLLiteral(true)))
+      Seq(
+        kind match {
+          case TerminologyKind.`isOpenWorld` =>
+            val defP = b.df.getOWLAnnotationProperty(ops.AnnotationIsTerminologyBoxOpen)
+            new AddOntologyAnnotation(ont, b.df.getOWLAnnotation(defP, b.df.getOWLLiteral(true)))
 
-        case TerminologyKind.`isClosedWorld` =>
-          val defP = b.df.getOWLAnnotationProperty(ops.AnnotationIsTerminologyBoxOpen)
-          new AddOntologyAnnotation(ont, b.df.getOWLAnnotation(defP, b.df.getOWLLiteral(false)))
-      },
+          case TerminologyKind.`isClosedWorld` =>
+            val defP = b.df.getOWLAnnotationProperty(ops.AnnotationIsTerminologyBoxOpen)
+            new AddOntologyAnnotation(ont, b.df.getOWLAnnotation(defP, b.df.getOWLLiteral(false)))
+        },
+        new AddOntologyAnnotation(ont, b.df.getOWLAnnotation(isOMLKindAP, b.df.getOWLLiteral(true)))
+      ),
       "Error creating backbone ontology")
   } yield b
 
-  def createBackbone( ont: OWLOntology, kind: DescriptionKind, ops: OWLAPIOMFOps )
+  def createBackbone( ont: OWLOntology, kind: DescriptionKind, isOMLKindAP: OWLAnnotationProperty, ops: OWLAPIOMFOps )
   : Set[java.lang.Throwable] \/ OMFBackbone
   = for {
     b <- createBackbone(ont, ops)
-    _ <- applyOntologyChangeOrNoOp(
+    _ <- applyOntologyChangesOrNoOp(
       ont.getOWLOntologyManager,
-      kind match {
-        case DescriptionKind.isPartial =>
-          val ap = b.df.getOWLAnnotationProperty(ops.AnnotationIsDescriptionBoxRefinable)
-          new AddOntologyAnnotation(ont, b.df.getOWLAnnotation(ap, b.df.getOWLLiteral(true)))
+      Seq(
+        kind match {
+          case DescriptionKind.isPartial =>
+            val ap = b.df.getOWLAnnotationProperty(ops.AnnotationIsDescriptionBoxRefinable)
+            new AddOntologyAnnotation(ont, b.df.getOWLAnnotation(ap, b.df.getOWLLiteral(true)))
 
-        case DescriptionKind.isFinal =>
-          val sp = b.df.getOWLAnnotationProperty(ops.AnnotationIsDescriptionBoxRefinable)
-          new AddOntologyAnnotation(ont, b.df.getOWLAnnotation(sp, b.df.getOWLLiteral(false)))
-      },
+          case DescriptionKind.isFinal =>
+            val sp = b.df.getOWLAnnotationProperty(ops.AnnotationIsDescriptionBoxRefinable)
+            new AddOntologyAnnotation(ont, b.df.getOWLAnnotation(sp, b.df.getOWLLiteral(false)))
+        },
+        new AddOntologyAnnotation(ont, b.df.getOWLAnnotation(isOMLKindAP, b.df.getOWLLiteral(true)))
+      ),
       "Error creating backbone ontology")
   } yield b
 

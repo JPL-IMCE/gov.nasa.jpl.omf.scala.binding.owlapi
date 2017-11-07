@@ -520,14 +520,20 @@ trait OWLAPIStoreOps
   (g: TerminologyBox)
   (implicit store: OWLAPIOMFGraphStore)
   : Throwables \/ Unit
-  = store.saveTerminology(g)(this)
+  = if (g.owlVocabularyNotToBeSerialized)
+      ().right
+    else
+      store.saveTerminology(g)(this)
 
   override def saveTerminology
   (g: TerminologyBox,
    os: java.io.OutputStream)
   (implicit store: OWLAPIOMFGraphStore)
   : Throwables \/ Unit
-  = store.saveTerminology(g, os)(this)
+  = if (g.owlVocabularyNotToBeSerialized)
+    ().right
+  else
+    store.saveTerminology(g, os)(this)
 
   override def makeDescriptionBox
   (name: LocalName,

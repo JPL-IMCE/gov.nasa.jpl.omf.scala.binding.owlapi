@@ -42,6 +42,19 @@ trait Module
 
   override val iri: IRI = sig.iri
 
+  val builtInVocabulary: Boolean = {
+    val iriString = iri.toString
+    iriString.startsWith("http://www.w3.org/") || iriString.startsWith("http://purl.org")
+  }
+
+  /**
+    * If true, this means that this Module is a representation of a vocabulary that should not be serialized to OWL.
+    */
+  val owlVocabularyNotToBeSerialized: Boolean = {
+    val iriString = iri.toString
+    iriString.startsWith("http://www.w3.org/") || iriString.startsWith("http://purl.org")
+  }
+
   require(ont.getOntologyID.getOntologyIRI.isPresent())
   require(sig.iri == ont.getOntologyID.getOntologyIRI.get)
 

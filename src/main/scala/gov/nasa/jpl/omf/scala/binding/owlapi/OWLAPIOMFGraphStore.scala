@@ -456,7 +456,10 @@ case class OWLAPIOMFGraphStore
     name <- ops.lastSegment(iri)
     uuid = generateUUID(ops.fromIRI(iri))
     result <- Backbone
-      .createBackbone(tboxOnt, kind, ops)
+      .createBackbone(
+        tboxOnt, kind,
+        tboxOnt.getOWLOntologyManager.getOWLDataFactory.getOWLAnnotationProperty(ops.AnnotationIsTerminologyGraph),
+        ops)
       .flatMap { backbone =>
         terminologies.MutableTerminologyGraph.initialize(
             uuid, name, iri, kind = kind, ont = tboxOnt,
@@ -473,7 +476,10 @@ case class OWLAPIOMFGraphStore
     name <- ops.lastSegment(iri)
     uuid = generateUUID(ops.fromIRI(iri))
     result <- Backbone
-      .createBackbone(tboxOnt, ops)
+      .createBackbone(
+        tboxOnt, kind,
+        tboxOnt.getOWLOntologyManager.getOWLDataFactory.getOWLAnnotationProperty(ops.AnnotationIsBundle),
+        ops)
       .flatMap { backbone =>
         terminologies.MutableBundle.initialize(
             uuid, name, iri, kind, ont = tboxOnt,
@@ -490,7 +496,10 @@ case class OWLAPIOMFGraphStore
     name <- ops.lastSegment(iri)
     uuid = generateUUID(ops.fromIRI(iri))
     result <- Backbone
-      .createBackbone(dboxOnt, kind, ops)
+      .createBackbone(
+        dboxOnt, kind,
+        dboxOnt.getOWLOntologyManager.getOWLDataFactory.getOWLAnnotationProperty(ops.AnnotationIsDescriptionBox),
+        ops)
       .flatMap { backbone =>
         MutableDescriptionBox.initialize(
             uuid, name, iri, kind = kind, ont = dboxOnt, backbone = backbone)(this, ops)
@@ -896,6 +905,7 @@ case class OWLAPIOMFGraphStore
   : Boolean
   = {
     val siri = iri.toString
+    "http://purl.org/dc/elements/1.1/" == siri ||
       "http://www.w3.org/2002/07/owl" == siri ||
       "http://www.w3.org/2001/XMLSchema" == siri ||
       "http://www.w3.org/2000/01/rdf-schema" == siri ||
