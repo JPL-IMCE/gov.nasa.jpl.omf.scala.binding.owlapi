@@ -1061,7 +1061,11 @@ trait MutableTerminologyBox
    valueType: Option[DataRange])
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#ScalarOneOfLiteralAxiom
-  = types.termAxioms.ScalarOneOfLiteralAxiom(axiomUUID, scalarOneOfRestriction, value, valueType).right
+  = {
+    val ax = types.termAxioms.ScalarOneOfLiteralAxiom(axiomUUID, scalarOneOfRestriction, value, valueType)
+    sig.scalarOneOfLiterals += ax
+    ax.right
+  }
 
   def addScalarOneOfLiteralAxiom
   (axiomUUID: UUID,
