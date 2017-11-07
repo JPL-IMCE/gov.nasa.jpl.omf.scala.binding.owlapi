@@ -39,3 +39,5 @@ gov.nasa.jpl.omf.scala.binding.owlapi 9.0.0 is a major update
 - [#45 Support for built-in vocabulary (w3, purl)](https://github.com/JPL-IMCE/gov.nasa.jpl.omf.scala.binding.owlapi/issues/45)
 
 - [#46 Add OML provenance for every OWL2 logical axiom](https://github.com/JPL-IMCE/gov.nasa.jpl.omf.scala.binding.owlapi/issues/46)
+
+- [#47 Incorrect parsing & serialization of unreified object properties characteristics](https://github.com/JPL-IMCE/gov.nasa.jpl.omf.scala.binding.owlapi/issues/47)

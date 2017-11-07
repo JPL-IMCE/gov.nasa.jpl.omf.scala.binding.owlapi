@@ -833,7 +833,73 @@ trait MutableTerminologyBox
             r,
             targetC,
             createOMLProvenanceAnnotations(uuid)))
-        ),
+        ) ++
+          (if (characteristics.contains(RelationshipCharacteristics.isFunctional))
+            Seq(
+              new AddAxiom(ont, owlDataFactory.getOWLFunctionalObjectPropertyAxiom(
+                r,
+                createOMLProvenanceAnnotations(uuid)))
+            )
+          else
+            Seq.empty) ++
+          (if (characteristics.contains(RelationshipCharacteristics.isInverseFunctional))
+            Seq(
+              new AddAxiom(ont, owlDataFactory.getOWLInverseFunctionalObjectPropertyAxiom(
+                r,
+                createOMLProvenanceAnnotations(uuid)))
+            )
+          else
+            Seq.empty) ++
+          (if (characteristics.contains(RelationshipCharacteristics.isSymmetric))
+            Seq(
+              new AddAxiom(ont, owlDataFactory.getOWLSymmetricObjectPropertyAxiom(
+                r,
+                createOMLProvenanceAnnotations(uuid)))
+            )
+          else
+            Seq.empty) ++
+          (if (characteristics.contains(RelationshipCharacteristics.isAsymmetric))
+            Seq(
+              new AddAxiom(ont, owlDataFactory.getOWLAsymmetricObjectPropertyAxiom(
+                r,
+                createOMLProvenanceAnnotations(uuid)))
+            )
+          else
+            Seq.empty) ++
+          (if (characteristics.contains(RelationshipCharacteristics.isReflexive))
+            Seq(
+              new AddAxiom(ont, owlDataFactory.getOWLReflexiveObjectPropertyAxiom(
+                r,
+                createOMLProvenanceAnnotations(uuid)))
+            )
+          else
+            Seq.empty) ++
+          (if (characteristics.contains(RelationshipCharacteristics.isIrreflexive))
+            Seq(
+              new AddAxiom(ont, owlDataFactory.getOWLIrreflexiveObjectPropertyAxiom(
+                r,
+                createOMLProvenanceAnnotations(uuid)))
+            )
+          else
+            Seq.empty) ++
+          (if (characteristics.contains(RelationshipCharacteristics.isEssential))
+            Seq(
+              new AddAxiom(ont, owlDataFactory.getOWLSubClassOfAxiom(
+                sourceC,
+                owlDataFactory.getOWLObjectExactCardinality(1, r, targetC),
+                createOMLProvenanceAnnotations(uuid)))
+            )
+          else
+            Seq.empty) ++
+          (if (characteristics.contains(RelationshipCharacteristics.isInverseEssential))
+            Seq(
+              new AddAxiom(ont, owlDataFactory.getOWLSubClassOfAxiom(
+                targetC,
+                owlDataFactory.getOWLObjectExactCardinality(1, owlDataFactory.getOWLObjectInverseOf(r), sourceC),
+                createOMLProvenanceAnnotations(uuid)))
+            )
+          else
+            Seq.empty),
         "makeUnreifiedRelationship")
     } yield result
   }
