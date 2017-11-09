@@ -70,7 +70,7 @@ object OWLAPIOMFModule {
     OWLAPIIRIOps.makeIRI("http://imce.jpl.nasa.gov/oml/oml#isOMLTerminologyGraph")
 
     AnnotationIsTerminologyBoxOpen <-
-    OWLAPIIRIOps.makeIRI("http://imce.jpl.nasa.gov/oml/oml#isTerminologyBoxOpen")
+    OWLAPIIRIOps.makeIRI("http://imce.jpl.nasa.gov/oml/oml#isOMLTerminologyBoxOpen")
 
     AnnotationIsDescriptionBoxRefinable <-
     OWLAPIIRIOps.makeIRI("http://imce.jpl.nasa.gov/oml/oml#isDescriptionBoxRefinable")
