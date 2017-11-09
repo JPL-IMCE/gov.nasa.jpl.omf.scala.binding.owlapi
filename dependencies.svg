@@ -9,12 +9,12 @@
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 10917.2)">
 <title>dependency&#45;graph</title>
 <polygon fill="white" stroke="none" points="-4,4 -4,-10917.2 8892,-10917.2 8892,4 -4,4"/>
-<!-- gov.nasa.jpl.imce:gov.nasa.jpl.omf.scala.binding.owlapi_2.11:9.0.0&#45;M17 -->
-<g id="node1" class="node"><title>gov.nasa.jpl.imce:gov.nasa.jpl.omf.scala.binding.owlapi_2.11:9.0.0&#45;M17</title>
+<!-- gov.nasa.jpl.imce:gov.nasa.jpl.omf.scala.binding.owlapi_2.11:9.0.0&#45;M18 -->
+<g id="node1" class="node"><title>gov.nasa.jpl.imce:gov.nasa.jpl.omf.scala.binding.owlapi_2.11:9.0.0&#45;M18</title>
 <ellipse fill="none" stroke="black" cx="188" cy="-857.207" rx="188.181" ry="35.2113"/>
 <text text-anchor="start" x="139.5" y="-868.007" font-family="Times,serif" font-size="14.00">gov.nasa.jpl.imce</text>
 <text text-anchor="start" x="63" y="-854.007" font-family="Times,serif" font-weight="bold" font-size="14.00">gov.nasa.jpl.omf.scala.binding.owlapi_2.11</text>
-<text text-anchor="start" x="158.5" y="-840.007" font-family="Times,serif" font-size="14.00">9.0.0&#45;M17</text>
+<text text-anchor="start" x="158.5" y="-840.007" font-family="Times,serif" font-size="14.00">9.0.0&#45;M18</text>
 </g>
 <!-- gov.nasa.jpl.imce:gov.nasa.jpl.imce.ontologies.public:1.4.6 -->
 <g id="node2" class="node"><title>gov.nasa.jpl.imce:gov.nasa.jpl.imce.ontologies.public:1.4.6</title>
@@ -23,8 +23,8 @@
 <text text-anchor="start" x="467.5" y="-984.007" font-family="Times,serif" font-weight="bold" font-size="14.00">gov.nasa.jpl.imce.ontologies.public</text>
 <text text-anchor="start" x="555" y="-970.007" font-family="Times,serif" font-size="14.00">1.4.6</text>
 </g>
-<!-- gov.nasa.jpl.imce:gov.nasa.jpl.omf.scala.binding.owlapi_2.11:9.0.0&#45;M17&#45;&gt;gov.nasa.jpl.imce:gov.nasa.jpl.imce.ontologies.public:1.4.6 -->
-<g id="edge1" class="edge"><title>gov.nasa.jpl.imce:gov.nasa.jpl.omf.scala.binding.owlapi_2.11:9.0.0&#45;M17&#45;&gt;gov.nasa.jpl.imce:gov.nasa.jpl.imce.ontologies.public:1.4.6</title>
+<!-- gov.nasa.jpl.imce:gov.nasa.jpl.omf.scala.binding.owlapi_2.11:9.0.0&#45;M18&#45;&gt;gov.nasa.jpl.imce:gov.nasa.jpl.imce.ontologies.public:1.4.6 -->
+<g id="edge1" class="edge"><title>gov.nasa.jpl.imce:gov.nasa.jpl.omf.scala.binding.owlapi_2.11:9.0.0&#45;M18&#45;&gt;gov.nasa.jpl.imce:gov.nasa.jpl.imce.ontologies.public:1.4.6</title>
 <path fill="none" stroke="black" d="M268.647,-889.005C311.447,-905.658 365.291,-925.916 414,-942.207 429.094,-947.255 445.123,-952.291 460.916,-957.07"/>
 <polygon fill="black" stroke="black" points="460.125,-960.487 470.709,-960.01 462.138,-953.782 460.125,-960.487"/>
 </g>
@@ -35,8 +35,8 @@
 <text text-anchor="start" x="474.5" y="-895.007" font-family="Times,serif" font-weight="bold" font-size="14.00">gov.nasa.jpl.omf.scala.core_2.11</text>
 <text text-anchor="start" x="539.5" y="-881.007" font-family="Times,serif" font-size="14.00">9.0.0&#45;M12</text>
 </g>
-<!-- gov.nasa.jpl.imce:gov.nasa.jpl.omf.scala.binding.owlapi_2.11:9.0.0&#45;M17&#45;&gt;gov.nasa.jpl.imce:gov.nasa.jpl.omf.scala.core_2.11:9.0.0&#45;M12 -->
-<g id="edge2" class="edge"><title>gov.nasa.jpl.imce:gov.nasa.jpl.omf.scala.binding.owlapi_2.11:9.0.0&#45;M17&#45;&gt;gov.nasa.jpl.imce:gov.nasa.jpl.omf.scala.core_2.11:9.0.0&#45;M12</title>
+<!-- gov.nasa.jpl.imce:gov.nasa.jpl.omf.scala.binding.owlapi_2.11:9.0.0&#45;M18&#45;&gt;gov.nasa.jpl.imce:gov.nasa.jpl.omf.scala.core_2.11:9.0.0&#45;M12 -->
+<g id="edge2" class="edge"><title>gov.nasa.jpl.imce:gov.nasa.jpl.omf.scala.binding.owlapi_2.11:9.0.0&#45;M18&#45;&gt;gov.nasa.jpl.imce:gov.nasa.jpl.omf.scala.core_2.11:9.0.0&#45;M12</title>
 <path fill="none" stroke="black" d="M351.104,-874.743C376.108,-877.448 401.762,-880.223 426.275,-882.875"/>
 <polygon fill="black" stroke="black" points="426.019,-886.367 436.338,-883.963 426.772,-879.408 426.019,-886.367"/>
 </g>
@@ -47,8 +47,8 @@
 <text text-anchor="start" x="1543" y="-1028.01" font-family="Times,serif" font-weight="bold" font-size="14.00">imce.third_party.owlapi_libraries_2.11</text>
 <text text-anchor="start" x="1627.5" y="-1014.01" font-family="Times,serif" font-size="14.00">3.6.0&#45;M02</text>
 </g>
-<!-- gov.nasa.jpl.imce:gov.nasa.jpl.omf.scala.binding.owlapi_2.11:9.0.0&#45;M17&#45;&gt;gov.nasa.jpl.imce:imce.third_party.owlapi_libraries_2.11:3.6.0&#45;M02 -->
-<g id="edge55" class="edge"><title>gov.nasa.jpl.imce:gov.nasa.jpl.omf.scala.binding.owlapi_2.11:9.0.0&#45;M17&#45;&gt;gov.nasa.jpl.imce:imce.third_party.owlapi_libraries_2.11:3.6.0&#45;M02</title>
+<!-- gov.nasa.jpl.imce:gov.nasa.jpl.omf.scala.binding.owlapi_2.11:9.0.0&#45;M18&#45;&gt;gov.nasa.jpl.imce:imce.third_party.owlapi_libraries_2.11:3.6.0&#45;M02 -->
+<g id="edge55" class="edge"><title>gov.nasa.jpl.imce:gov.nasa.jpl.omf.scala.binding.owlapi_2.11:9.0.0&#45;M18&#45;&gt;gov.nasa.jpl.imce:imce.third_party.owlapi_libraries_2.11:3.6.0&#45;M02</title>
 <path fill="none" stroke="black" d="M360.566,-843.025C425.502,-838.768 500.113,-835.207 568,-835.207 568,-835.207 568,-835.207 1100,-835.207 1287.53,-835.207 1491.43,-935.604 1592.21,-992.689"/>
 <polygon fill="black" stroke="black" points="1590.63,-995.817 1601.05,-997.736 1594.1,-989.738 1590.63,-995.817"/>
 </g>
@@ -59,8 +59,8 @@
 <text text-anchor="start" x="5202" y="-745.007" font-family="Times,serif" font-weight="bold" font-size="14.00">scalac&#45;scapegoat&#45;plugin_2.11</text>
 <text text-anchor="start" x="5272" y="-731.007" font-family="Times,serif" font-size="14.00">1.0.0</text>
 </g>
-<!-- gov.nasa.jpl.imce:gov.nasa.jpl.omf.scala.binding.owlapi_2.11:9.0.0&#45;M17&#45;&gt;com.sksamuel.scapegoat:scalac&#45;scapegoat&#45;plugin_2.11:1.0.0 -->
-<g id="edge702" class="edge"><title>gov.nasa.jpl.imce:gov.nasa.jpl.omf.scala.binding.owlapi_2.11:9.0.0&#45;M17&#45;&gt;com.sksamuel.scapegoat:scalac&#45;scapegoat&#45;plugin_2.11:1.0.0</title>
+<!-- gov.nasa.jpl.imce:gov.nasa.jpl.omf.scala.binding.owlapi_2.11:9.0.0&#45;M18&#45;&gt;com.sksamuel.scapegoat:scalac&#45;scapegoat&#45;plugin_2.11:1.0.0 -->
+<g id="edge699" class="edge"><title>gov.nasa.jpl.imce:gov.nasa.jpl.omf.scala.binding.owlapi_2.11:9.0.0&#45;M18&#45;&gt;com.sksamuel.scapegoat:scalac&#45;scapegoat&#45;plugin_2.11:1.0.0</title>
 <path fill="none" stroke="black" d="M250.71,-823.921C324.123,-787.494 451.437,-734.207 568,-734.207 568,-734.207 568,-734.207 2832,-734.207 3112.66,-734.207 3182.34,-709.207 3463,-709.207 3463,-709.207 3463,-709.207 4201,-709.207 4541.98,-709.207 4942.9,-728.717 5148.39,-740.139"/>
 <polygon fill="black" stroke="black" points="5148.45,-743.647 5158.63,-740.71 5148.84,-736.658 5148.45,-743.647"/>
 </g>
@@ -826,7 +826,7 @@
 <polygon fill="black" stroke="black" points="2166.69,-947.483 2176.23,-942.877 2165.9,-940.528 2166.69,-947.483"/>
 </g>
 <!-- gov.nasa.jpl.imce:imce.third_party.owlapi_libraries_2.11:3.6.0&#45;M02&#45;&gt;com.sksamuel.scapegoat:scalac&#45;scapegoat&#45;plugin_2.11:1.0.0 -->
-<g id="edge699" class="edge"><title>gov.nasa.jpl.imce:imce.third_party.owlapi_libraries_2.11:3.6.0&#45;M02&#45;&gt;com.sksamuel.scapegoat:scalac&#45;scapegoat&#45;plugin_2.11:1.0.0</title>
+<g id="edge700" class="edge"><title>gov.nasa.jpl.imce:imce.third_party.owlapi_libraries_2.11:3.6.0&#45;M02&#45;&gt;com.sksamuel.scapegoat:scalac&#45;scapegoat&#45;plugin_2.11:1.0.0</title>
 <path fill="none" stroke="black" d="M1829.73,-1029.29C2042.82,-1025.48 2384.11,-1014.09 2432,-980.207 2448.58,-968.475 2433.39,-949.897 2450,-938.207 2539.57,-875.152 2586.57,-927.941 2696,-923.207 2830.58,-917.384 5013.5,-943.697 5120,-861.207 5143.02,-843.375 5117.93,-819.302 5138,-798.207 5147.65,-788.071 5159.42,-779.99 5172.07,-773.548"/>
 <polygon fill="black" stroke="black" points="5173.86,-776.571 5181.41,-769.14 5170.88,-770.24 5173.86,-776.571"/>
 </g>
@@ -1586,7 +1586,7 @@
 <polygon fill="black" stroke="black" points="4652.54,-494.438 4662.24,-498.704 4657.32,-489.322 4652.54,-494.438"/>
 </g>
 <!-- gov.nasa.jpl.imce:imce.third_party.other_scala_libraries_2.11:3.5.0&#45;&gt;com.sksamuel.scapegoat:scalac&#45;scapegoat&#45;plugin_2.11:1.0.0 -->
-<g id="edge700" class="edge"><title>gov.nasa.jpl.imce:imce.third_party.other_scala_libraries_2.11:3.5.0&#45;&gt;com.sksamuel.scapegoat:scalac&#45;scapegoat&#45;plugin_2.11:1.0.0</title>
+<g id="edge701" class="edge"><title>gov.nasa.jpl.imce:imce.third_party.other_scala_libraries_2.11:3.5.0&#45;&gt;com.sksamuel.scapegoat:scalac&#45;scapegoat&#45;plugin_2.11:1.0.0</title>
 <path fill="none" stroke="black" d="M2250.06,-2931.7C2283.76,-2810.85 2392.73,-2403.8 2432,-2059.21 2435.05,-2032.46 2431.87,-1110.11 2450,-1090.21 2562.69,-966.452 3784.62,-975.207 3952,-975.207 3952,-975.207 3952,-975.207 4699,-975.207 4745.8,-975.207 5085.67,-993.019 5120,-961.207 5146.89,-936.286 5114.97,-825.734 5138,-797.207 5146.28,-786.948 5156.78,-778.822 5168.34,-772.387"/>
 <polygon fill="black" stroke="black" points="5170.05,-775.446 5177.37,-767.789 5166.87,-769.208 5170.05,-775.446"/>
 </g>
@@ -6356,7 +6356,7 @@
 <polygon fill="black" stroke="black" points="6370.56,-1282.04 6381.15,-1282.21 6372.98,-1275.47 6370.56,-1282.04"/>
 </g>
 <!-- gov.nasa.jpl.imce:imce.third_party.scala_libraries_2.11:3.0.5&#45;&gt;com.sksamuel.scapegoat:scalac&#45;scapegoat&#45;plugin_2.11:1.0.0 -->
-<g id="edge701" class="edge"><title>gov.nasa.jpl.imce:imce.third_party.scala_libraries_2.11:3.0.5&#45;&gt;com.sksamuel.scapegoat:scalac&#45;scapegoat&#45;plugin_2.11:1.0.0</title>
+<g id="edge702" class="edge"><title>gov.nasa.jpl.imce:imce.third_party.scala_libraries_2.11:3.0.5&#45;&gt;com.sksamuel.scapegoat:scalac&#45;scapegoat&#45;plugin_2.11:1.0.0</title>
 <path fill="none" stroke="black" d="M4782.98,-563.467C4810.98,-576.382 4840.89,-593.551 4864,-615.207 4875.62,-626.101 4869.28,-636.612 4882,-646.207 4888.08,-650.794 5061.51,-693.717 5178.86,-722.401"/>
 <polygon fill="black" stroke="black" points="5178.07,-725.811 5188.61,-724.785 5179.73,-719.011 5178.07,-725.811"/>
 </g>
