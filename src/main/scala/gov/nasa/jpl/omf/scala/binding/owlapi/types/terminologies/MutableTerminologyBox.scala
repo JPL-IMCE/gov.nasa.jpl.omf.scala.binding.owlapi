@@ -3108,8 +3108,8 @@ trait MutableTerminologyBox
   = {
     val u = generateUUID(
       "UnreifiedRelationshipPropertyPredicate",
-      "bodySegment" -> bodySegment.uuid.toString,
-      "unreifiedRelationship" -> unreifiedRelationship.uuid.toString)
+      "unreifiedRelationship" -> unreifiedRelationship.uuid.toString,
+      "bodySegment" -> bodySegment.uuid.toString)
     val p = types.terms.UnreifiedRelationshipPropertyPredicate(bodySegment, unreifiedRelationship, u)
     sig.unreifiedRelationshipPropertyPredicates.add(p)
     p.right
