@@ -117,6 +117,14 @@ trait MutableTerminologyBox
           ontManager,
           new AddOntologyAnnotation(ont, owlDataFactory.getOWLAnnotation(ont_ap, ont_lit)),
           "addAnnotation error")
+      case rr: ReifiedRelationship =>
+        applyOntologyChangeOrNoOp(
+          ontManager,
+          new AddAxiom(ont, owlDataFactory.getOWLAnnotationAssertionAxiom(
+            ont_ap,
+            rr.unreified.getIRI,
+            ont_lit)),
+          "addAnnotation error")
       case r: Resource =>
         applyOntologyChangeOrNoOp(
           ontManager,
@@ -393,7 +401,7 @@ trait MutableTerminologyBox
       r, rn, ru,
       un, u, in, ui,
       source, rSource, target, rTarget, characteristics)
-    aas = getRelevantSubjectAnnotationAssertions(ont, r.getIRI)
+    aas = getRelevantSubjectAnnotationAssertions(ont, u.getIRI)
     _ <- store.ops.addAnnotationAssertions(this, term, aas)
   } yield term
 

@@ -45,3 +45,5 @@ gov.nasa.jpl.omf.scala.binding.owlapi 9.0.0 is a major update
 - [#49 Inconsistencies in UUID generation for UnreifiedRelationshipPropertyPredicate](https://github.com/JPL-IMCE/gov.nasa.jpl.omf.scala.binding.owlapi/issues/49)
 
 - [#50 Align built-in OML annotation property IRI: oml#isOMLTerminologyBoxOpen](https://github.com/JPL-IMCE/gov.nasa.jpl.omf.scala.binding.owlapi/issues/50)
+
+- [#51 Handle dc:description for OML ReifiedRelationship](https://github.com/JPL-IMCE/gov.nasa.jpl.omf.scala.binding.owlapi/issues/51)
