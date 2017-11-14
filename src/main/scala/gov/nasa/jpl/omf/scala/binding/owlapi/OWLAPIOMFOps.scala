@@ -928,6 +928,8 @@ trait OWLAPIImmutableTerminologyGraphOps
    : OWLAPIOMF#EntityScalarDataPropertyParticularRestrictionAxiom => T,
    funEntityScalarDataPropertyUniversalRestrictionAxiom
    : OWLAPIOMF#EntityScalarDataPropertyUniversalRestrictionAxiom => T,
+   funEntityStructuredDataPropertyParticularRestrictionAxiom
+   : OWLAPIOMF#EntityStructuredDataPropertyParticularRestrictionAxiom => T,
    funScalarOneOfLiteralAxiom
    : OWLAPIOMF#ScalarOneOfLiteralAxiom => T)
   (t: types.Axiom)
@@ -949,6 +951,8 @@ trait OWLAPIImmutableTerminologyGraphOps
       funEntityScalarDataPropertyParticularRestrictionAxiom(ax)
     case ax: OWLAPIOMF#EntityScalarDataPropertyUniversalRestrictionAxiom =>
       funEntityScalarDataPropertyUniversalRestrictionAxiom(ax)
+    case ax: OWLAPIOMF#EntityStructuredDataPropertyParticularRestrictionAxiom =>
+      funEntityStructuredDataPropertyParticularRestrictionAxiom(ax)
     case ax: OWLAPIOMF#ScalarOneOfLiteralAxiom =>
       funScalarOneOfLiteralAxiom(ax)
   }
