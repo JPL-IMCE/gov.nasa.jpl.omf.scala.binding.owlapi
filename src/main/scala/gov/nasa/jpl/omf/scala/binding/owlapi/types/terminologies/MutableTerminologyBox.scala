@@ -3847,8 +3847,20 @@ trait MutableTerminologyBox
             new AddAxiom(ont, owlDataFactory.getOWLSubObjectPropertyOfAxiom(
               sub.rTarget,
               sup.rTarget,
-              createOMLProvenanceAnnotations(uuid)))
-          ),
+              createOMLProvenanceAnnotations(uuid))),
+            new AddAxiom(ont, owlDataFactory.getOWLSubObjectPropertyOfAxiom(
+              sub.unreified,
+              sup.unreified
+            ))
+          ) ++ sub.inverse.fold[Seq[OWLOntologyChange]](Seq.empty) { subi =>
+            sup.inverse.fold[Seq[OWLOntologyChange]](Seq.empty) { supi =>
+              Seq(
+                new AddAxiom(ont, owlDataFactory.getOWLSubObjectPropertyOfAxiom(
+                  subi, supi
+                ))
+              )
+            }
+          },
           s"addEntityReifiedRelationshipSubClassAxiom")
       } yield axiom
 
