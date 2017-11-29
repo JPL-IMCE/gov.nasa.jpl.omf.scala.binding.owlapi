@@ -19,10 +19,13 @@
 package gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies
 
 import java.lang.Integer
-import java.util.{Collections, UUID}
+import java.util.Collections
 
+import gov.nasa.jpl.imce.oml.resolver.toUUIDString
+import gov.nasa.jpl.imce.oml.resolver.api
 import gov.nasa.jpl.imce.oml.tables
 import gov.nasa.jpl.imce.oml.tables.{AnnotationProperty, AnnotationPropertyValue, LiteralValue}
+import gov.nasa.jpl.imce.oml.tables.taggedTypes.{localName,LocalName,StringDataType}
 import gov.nasa.jpl.omf.scala.binding.owlapi.AxiomExceptionKind
 import gov.nasa.jpl.omf.scala.binding.owlapi.ElementExceptionKind
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.{RestrictionScalarDataPropertyValue, RestrictionStructuredDataPropertyTuple, axiomScopeException, duplicateModelTermAxiomException, duplicateTerminologyGraphAxiomException, entityAlreadyDefinedException, entityConflictException, entityScopeException, terms}
@@ -32,7 +35,6 @@ import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms._
 import gov.nasa.jpl.omf.scala.binding.owlapi._
 import gov.nasa.jpl.omf.scala.binding.owlapi.common.{MutableModule, Resource}
 import gov.nasa.jpl.omf.scala.core.OMFError
-import gov.nasa.jpl.omf.scala.core.OMLString.LocalName
 import gov.nasa.jpl.omf.scala.core._
 import gov.nasa.jpl.omf.scala.core.RelationshipCharacteristics.RelationshipCharacteristics
 import org.semanticweb.owlapi.model._
@@ -42,7 +44,7 @@ import scala.collection.JavaConversions._
 import scala.compat.java8.StreamConverters._
 import scala.collection.immutable.{Iterable, Map, Seq, Set}
 import scala.{Any, Boolean, Int, None, Option, Some, StringContext, Unit}
-import scala.Predef.{ArrowAssoc, String, require}
+import scala.Predef.{ArrowAssoc, require}
 import scalaz._
 import Scalaz._
 
@@ -57,7 +59,7 @@ trait MutableTerminologyBox
   def makeVariable(index: Int)
   : OMFError.Throwables \/ SWRLIArgument
   = for {
-    viri <- withFragment(iri, LocalName(s"v$index"))
+    viri <- withFragment(iri, localName(s"v$index"))
     v = owlDataFactory.getSWRLVariable(viri)
   } yield v
 
@@ -93,16 +95,16 @@ trait MutableTerminologyBox
   def addAnnotation
   (subject: OWLAPIOMF#Element,
    property: AnnotationProperty,
-   value: String)
+   value: StringDataType)
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ AnnotationPropertyValue
   = for {
     a <- new AnnotationPropertyValue(
       oug = uuidG,
-      subjectUUID = subject.uuid.toString,
+      subjectUUID = subject.uuid,
       propertyUUID = property.uuid,
       value = value).right[OMFError.Throwables]
-    _ = sig.annotationPropertyValues.find { a => a.subjectUUID == subject.uuid.toString && a.propertyUUID == property.uuid } match {
+    _ = sig.annotationPropertyValues.find { a => a.subjectUUID == subject.uuid && a.propertyUUID == property.uuid } match {
       case Some(a0) =>
         sig.annotationPropertyValues -= a0
         sig.annotationPropertyValues += a
@@ -186,7 +188,7 @@ trait MutableTerminologyBox
   } yield ax
 
   def createTerminologyExtensionAxiom
-  (uuid: UUID,
+  (uuid: api.taggedTypes.TerminologyExtensionAxiomUUID,
    extendedG: TerminologyBox)
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ TerminologyExtensionAxiom
@@ -207,7 +209,7 @@ trait MutableTerminologyBox
   }
 
   def addTerminologyGraphExtension
-  (uuid: UUID,
+  (uuid: api.taggedTypes.TerminologyExtensionAxiomUUID,
    extendedG: TerminologyBox)
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ TerminologyExtensionAxiom
@@ -228,19 +230,19 @@ trait MutableTerminologyBox
     * @return The OMF Aspect corresponding to its OWL Class `a` representation
     */
   def createModelEntityAspect
-  (tboxUUID: UUID, a: OWLClass)
+  (tboxUUID: api.taggedTypes.TerminologyBoxUUID, a: OWLClass)
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#Aspect
   = for {
     n <- getFragment(a.getIRI)
-    u = generateUUID(tboxUUID, "name" -> LocalName(n))
+    u = api.taggedTypes.aspectUUID(generateUUIDFromString(tboxUUID, "name" -> n))
     term <- createModelEntityAspect(a, n, u)
     aas = getRelevantSubjectAnnotationAssertions(ont, a.getIRI)
     _ <- store.ops.addAnnotationAssertions(this, term, aas)
   } yield term
 
   def createModelEntityAspect
-  (a: OWLClass, name: LocalName, uuid: UUID)
+  (a: OWLClass, name: LocalName, uuid: api.taggedTypes.AspectUUID)
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#Aspect
   = iri2typeTerm
@@ -262,7 +264,7 @@ trait MutableTerminologyBox
   }
 
   def addEntityAspect
-  (aspectIRI: IRI, name: LocalName, uuid: UUID)
+  (aspectIRI: IRI, name: LocalName, uuid: api.taggedTypes.AspectUUID)
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#Aspect
   = iri2typeTerm
@@ -300,20 +302,20 @@ trait MutableTerminologyBox
     * @return The OMF Concept corresponding to its OWL Class `c` representation
     */
   def createModelEntityConcept
-  (tboxUUID: UUID,
+  (tboxUUID: api.taggedTypes.TerminologyBoxUUID,
    c: OWLClass)
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#Concept
   = for {
     n <- getFragment(c.getIRI)
-    u = generateUUID(tboxUUID, "name" -> LocalName(n))
+    u = api.taggedTypes.conceptUUID(generateUUIDFromString(tboxUUID, "name" -> n))
     term <- createModelEntityConcept(c, n, u)
     aas = getRelevantSubjectAnnotationAssertions(ont, c.getIRI)
     _ <- store.ops.addAnnotationAssertions(this, term, aas)
   } yield term
 
   def createModelEntityConcept
-  (c: OWLClass, name: LocalName, uuid: UUID)
+  (c: OWLClass, name: LocalName, uuid: api.taggedTypes.ConceptUUID)
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#Concept
   = iri2typeTerm
@@ -335,7 +337,7 @@ trait MutableTerminologyBox
   }
 
   def addEntityConcept
-  (conceptIRI: IRI, name: LocalName, uuid: UUID)
+  (conceptIRI: IRI, name: LocalName, uuid: api.taggedTypes.ConceptUUID)
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#Concept
   = iri2typeTerm
@@ -382,7 +384,7 @@ trait MutableTerminologyBox
     * @return
     */
   def createEntityReifiedRelationship
-  (tboxUUID: UUID,
+  (tboxUUID: api.taggedTypes.TerminologyBoxUUID,
    r: OWLClass,
    u: OWLObjectProperty, ui: Option[OWLObjectProperty],
    source: Entity, rSource: OWLObjectProperty,
@@ -392,7 +394,7 @@ trait MutableTerminologyBox
   : OMFError.Throwables \/ OWLAPIOMF#ReifiedRelationship
   = for {
     rn <- getFragment(r.getIRI)
-    ru = generateUUID(tboxUUID, "name" -> LocalName(rn))
+    ru = api.taggedTypes.reifiedRelationshipUUID(generateUUIDFromString(tboxUUID, "name" -> rn))
     un <- getFragment(u.getIRI)
     in <- ui.fold[OMFError.Throwables \/ Option[LocalName]](None.right) { i =>
       getFragment(i.getIRI).map(Some(_))
@@ -406,7 +408,7 @@ trait MutableTerminologyBox
   } yield term
 
   def createEntityReifiedRelationship
-  (r: OWLClass, name: LocalName, uuid: UUID,
+  (r: OWLClass, name: LocalName, uuid: api.taggedTypes.ReifiedRelationshipUUID,
    unreifiedPropertyName: LocalName, u: OWLObjectProperty,
    inversePropertyName: Option[LocalName], ui: Option[OWLObjectProperty],
    source: Entity, rSource: OWLObjectProperty,
@@ -439,7 +441,7 @@ trait MutableTerminologyBox
    name: LocalName,
    unreifiedRelationshipName: LocalName,
    unreifiedInverseRelationshipName: Option[LocalName],
-   uuid: UUID,
+   uuid: api.taggedTypes.ReifiedRelationshipUUID,
    rIRISource: IRI, rIRITarget: IRI,
    uIRI: IRI, uiIRI: Option[IRI],
    source: Entity, target: Entity,
@@ -691,7 +693,7 @@ trait MutableTerminologyBox
   (rIRI: IRI, name: LocalName,
    unreifiedRelationshipName: LocalName,
    unreifiedInverseRelationshipName: Option[LocalName],
-   uuid: UUID,
+   uuid: api.taggedTypes.ReifiedRelationshipUUID,
    rIRISource: IRI, rIRITarget: IRI,
    uIRI: IRI, uiIRI: Option[IRI],
    source: Entity, target: Entity,
@@ -766,7 +768,7 @@ trait MutableTerminologyBox
     * @return
     */
   def createEntityUnreifiedRelationship
-  (tboxUUID: UUID,
+  (tboxUUID: api.taggedTypes.TerminologyBoxUUID,
    r: OWLObjectProperty,
    source: Entity,
    target: Entity,
@@ -775,7 +777,7 @@ trait MutableTerminologyBox
   : OMFError.Throwables \/ OWLAPIOMF#UnreifiedRelationship
   = for {
     rn <- getFragment(r.getIRI)
-    ru = generateUUID(tboxUUID, "name" -> LocalName(rn))
+    ru = api.taggedTypes.unreifiedRelationshipUUID(generateUUIDFromString(tboxUUID, "name" -> rn))
     term <- createEntityUnreifiedRelationship(
       r, rn, ru, source, target, characteristics)
     aas = getRelevantSubjectAnnotationAssertions(ont, r.getIRI)
@@ -783,7 +785,7 @@ trait MutableTerminologyBox
   } yield term
 
   def createEntityUnreifiedRelationship
-  (r: OWLObjectProperty, name: LocalName, uuid: UUID,
+  (r: OWLObjectProperty, name: LocalName, uuid: api.taggedTypes.UnreifiedRelationshipUUID,
    source: Entity,
    target: Entity,
    characteristics: Iterable[RelationshipCharacteristics])
@@ -808,7 +810,7 @@ trait MutableTerminologyBox
   }
 
   protected def makeUnreifiedRelationship
-  (rIRI: IRI, name: LocalName, uuid: UUID,
+  (rIRI: IRI, name: LocalName, uuid: api.taggedTypes.UnreifiedRelationshipUUID,
    source: Entity, target: Entity,
    characteristics: Iterable[RelationshipCharacteristics])
   (implicit store: OWLAPIOMFGraphStore)
@@ -913,7 +915,7 @@ trait MutableTerminologyBox
   }
 
   def addEntityUnreifiedRelationship
-  (rIRI: IRI, name: LocalName, uuid: UUID,
+  (rIRI: IRI, name: LocalName, uuid: api.taggedTypes.UnreifiedRelationshipUUID,
    source: Entity, target: Entity,
    characteristics: Iterable[RelationshipCharacteristics])
   (implicit store: OWLAPIOMFGraphStore)
@@ -967,20 +969,20 @@ trait MutableTerminologyBox
     * @return
     */
   def createModelScalarDataType
-  (tboxUUID: UUID,
+  (tboxUUID: api.taggedTypes.TerminologyBoxUUID,
    dt: OWLDatatype)
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#Scalar
   = for {
     n <- getFragment(dt.getIRI)
-    u = generateUUID(tboxUUID, "name" -> LocalName(n))
+    u = api.taggedTypes.scalarUUID(generateUUIDFromString(tboxUUID, "name" -> n))
     term <- createModelScalarDataType(dt, n, u)
     aas = getRelevantSubjectAnnotationAssertions(ont, dt.getIRI)
     _ <- store.ops.addAnnotationAssertions(this, term, aas)
   } yield term
 
   def createModelScalarDataType
-  (dt: OWLDatatype, name: LocalName, uuid: UUID)
+  (dt: OWLDatatype, name: LocalName, uuid: api.taggedTypes.ScalarUUID)
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#Scalar
   = iri2typeTerm
@@ -1002,7 +1004,7 @@ trait MutableTerminologyBox
   }
 
   def addScalarDataType
-  (scalarIRI: IRI, name: LocalName, uuid: UUID)
+  (scalarIRI: IRI, name: LocalName, uuid: api.taggedTypes.ScalarUUID)
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#Scalar
   = iri2typeTerm
@@ -1038,20 +1040,20 @@ trait MutableTerminologyBox
     * @return
     */
   def createModelStructuredDataType
-  (tboxUUID: UUID,
+  (tboxUUID: api.taggedTypes.TerminologyBoxUUID,
    dt: OWLClass)
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#Structure
   = for {
     n <- getFragment(dt.getIRI)
-    u = generateUUID(tboxUUID, "name" -> LocalName(n))
+    u = api.taggedTypes.structureUUID(generateUUIDFromString(tboxUUID, "name" -> n))
     term <- createModelStructuredDataType(dt, n, u)
     aas = getRelevantSubjectAnnotationAssertions(ont, dt.getIRI)
     _ <- store.ops.addAnnotationAssertions(this, term, aas)
   } yield term
 
   def createModelStructuredDataType
-  (dt: OWLClass, name: LocalName, uuid: UUID)
+  (dt: OWLClass, name: LocalName, uuid: api.taggedTypes.StructureUUID)
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#Structure
   = iri2typeTerm
@@ -1073,7 +1075,7 @@ trait MutableTerminologyBox
   }
 
   def addStructuredDataType
-  (structuredDataTypeIRI: IRI, name: LocalName, uuid: UUID)
+  (structuredDataTypeIRI: IRI, name: LocalName, uuid: api.taggedTypes.StructureUUID)
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#Structure
   = iri2typeTerm
@@ -1116,14 +1118,14 @@ trait MutableTerminologyBox
     * @return
     */
   def createScalarOneOfRestriction
-  (tboxUUID: UUID,
+  (tboxUUID: api.taggedTypes.TerminologyBoxUUID,
    restrictionDT: OWLDatatype,
    restrictedRange: OWLAPIOMF#DataRange)
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#ScalarOneOfRestriction
   = for {
     n <- getFragment(restrictionDT.getIRI)
-    u = generateUUID(tboxUUID, "name" -> LocalName(n))
+    u = api.taggedTypes.scalarOneOfRestrictionUUID(generateUUIDFromString(tboxUUID, "name" -> n))
     term <- createScalarOneOfRestriction(
       restrictionDT, n, u, restrictedRange)
     aas = getRelevantSubjectAnnotationAssertions(ont, restrictionDT.getIRI)
@@ -1131,7 +1133,7 @@ trait MutableTerminologyBox
   } yield term
 
   def createScalarOneOfRestriction
-  (restrictionDT: OWLDatatype, name: LocalName, uuid: UUID,
+  (restrictionDT: OWLDatatype, name: LocalName, uuid: api.taggedTypes.ScalarOneOfRestrictionUUID,
    restrictedRange: DataRange)
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#ScalarOneOfRestriction
@@ -1155,7 +1157,7 @@ trait MutableTerminologyBox
   }
 
   def addScalarOneOfRestriction
-  (dataTypeIRI: IRI, name: LocalName, uuid: UUID,
+  (dataTypeIRI: IRI, name: LocalName, uuid: api.taggedTypes.ScalarOneOfRestrictionUUID,
    restrictedRange: OWLAPIOMF#DataRange)
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#ScalarOneOfRestriction
@@ -1207,7 +1209,7 @@ trait MutableTerminologyBox
   } yield ax
 
   def createScalarOneOfLiteralAxiom
-  (axiomUUID: UUID,
+  (axiomUUID: api.taggedTypes.ScalarOneOfLiteralAxiomUUID,
    scalarOneOfRestriction: OWLAPIOMF#ScalarOneOfRestriction,
    value: LiteralValue,
    valueType: Option[DataRange])
@@ -1220,7 +1222,7 @@ trait MutableTerminologyBox
   }
 
   def addScalarOneOfLiteralAxiom
-  (axiomUUID: UUID,
+  (axiomUUID: api.taggedTypes.ScalarOneOfLiteralAxiomUUID,
    scalarOneOfRestriction: OWLAPIOMF#ScalarOneOfRestriction,
    value: LiteralValue,
    valueType: Option[DataRange])
@@ -1287,17 +1289,17 @@ trait MutableTerminologyBox
     * @return
     */
   def createBinaryScalarRestriction
-  (tboxUUID: UUID,
+  (tboxUUID: api.taggedTypes.TerminologyBoxUUID,
    restrictionDT: OWLDatatype,
    restrictedRange: OWLAPIOMF#DataRange,
-   length: Option[tables.PositiveIntegerLiteral],
-   minLength: Option[tables.PositiveIntegerLiteral],
-   maxLength: Option[tables.PositiveIntegerLiteral])
+   length: Option[tables.taggedTypes.PositiveIntegerLiteral],
+   minLength: Option[tables.taggedTypes.PositiveIntegerLiteral],
+   maxLength: Option[tables.taggedTypes.PositiveIntegerLiteral])
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#BinaryScalarRestriction
   = for {
       n <- getFragment(restrictionDT.getIRI)
-      u = generateUUID(tboxUUID, "name" -> LocalName(n))
+      u = api.taggedTypes.binaryScalarRestrictionUUID(generateUUIDFromString(tboxUUID, "name" -> n))
       term <- createBinaryScalarRestriction(
         restrictionDT, n, u, restrictedRange,
         length, minLength, maxLength)
@@ -1306,11 +1308,11 @@ trait MutableTerminologyBox
     } yield term
 
   def createBinaryScalarRestriction
-  (restrictionDT: OWLDatatype, name: LocalName, uuid: UUID,
+  (restrictionDT: OWLDatatype, name: LocalName, uuid: api.taggedTypes.BinaryScalarRestrictionUUID,
    restrictedRange: OWLAPIOMF#DataRange,
-   length: Option[tables.PositiveIntegerLiteral],
-   minLength: Option[tables.PositiveIntegerLiteral],
-   maxLength: Option[tables.PositiveIntegerLiteral])
+   length: Option[tables.taggedTypes.PositiveIntegerLiteral],
+   minLength: Option[tables.taggedTypes.PositiveIntegerLiteral],
+   maxLength: Option[tables.taggedTypes.PositiveIntegerLiteral])
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#BinaryScalarRestriction
   = if (store.isBuiltInDatatypeMapConstructed || store.isBinaryKind(restrictedRange)) {
@@ -1339,11 +1341,12 @@ trait MutableTerminologyBox
     ).left
 
   def addBinaryScalarRestriction
-  (dataTypeIRI: IRI, name: LocalName, uuid: UUID,
+  (dataTypeIRI: IRI, name: LocalName,
+   uuid: api.taggedTypes.BinaryScalarRestrictionUUID,
    restrictedRange: OWLAPIOMF#DataRange,
-   length: Option[tables.PositiveIntegerLiteral],
-   minLength: Option[tables.PositiveIntegerLiteral],
-   maxLength: Option[tables.PositiveIntegerLiteral])
+   length: Option[tables.taggedTypes.PositiveIntegerLiteral],
+   minLength: Option[tables.taggedTypes.PositiveIntegerLiteral],
+   maxLength: Option[tables.taggedTypes.PositiveIntegerLiteral])
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#BinaryScalarRestriction
   = {
@@ -1410,18 +1413,18 @@ trait MutableTerminologyBox
     * @return
     */
   def createIRIScalarRestriction
-  (tboxUUID: UUID,
+  (tboxUUID: api.taggedTypes.TerminologyBoxUUID,
    restrictionDT: OWLDatatype,
    restrictedRange: OWLAPIOMF#DataRange,
-   length: Option[tables.PositiveIntegerLiteral],
-   minLength: Option[tables.PositiveIntegerLiteral],
-   maxLength: Option[tables.PositiveIntegerLiteral],
-   pattern: Option[String])
+   length: Option[tables.taggedTypes.PositiveIntegerLiteral],
+   minLength: Option[tables.taggedTypes.PositiveIntegerLiteral],
+   maxLength: Option[tables.taggedTypes.PositiveIntegerLiteral],
+   pattern: Option[tables.taggedTypes.LiteralPattern])
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#IRIScalarRestriction
   = for {
     n <- getFragment(restrictionDT.getIRI)
-    u = generateUUID(tboxUUID, "name" -> LocalName(n))
+    u = api.taggedTypes.iriScalarRestrictionUUID(generateUUIDFromString(tboxUUID, "name" -> n))
     term <- createIRIScalarRestriction(
       restrictionDT, n, u, restrictedRange,
       length, minLength, maxLength, pattern)
@@ -1430,12 +1433,13 @@ trait MutableTerminologyBox
   } yield term
 
   def createIRIScalarRestriction
-  (restrictionDT: OWLDatatype, name: LocalName, uuid: UUID,
+  (restrictionDT: OWLDatatype, name: LocalName,
+   uuid: api.taggedTypes.IRIScalarRestrictionUUID,
    restrictedRange: OWLAPIOMF#DataRange,
-   length: Option[tables.PositiveIntegerLiteral],
-   minLength: Option[tables.PositiveIntegerLiteral],
-   maxLength: Option[tables.PositiveIntegerLiteral],
-   pattern: Option[String])
+   length: Option[tables.taggedTypes.PositiveIntegerLiteral],
+   minLength: Option[tables.taggedTypes.PositiveIntegerLiteral],
+   maxLength: Option[tables.taggedTypes.PositiveIntegerLiteral],
+   pattern: Option[tables.taggedTypes.LiteralPattern])
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#IRIScalarRestriction
   = if (store.isBuiltInDatatypeMapConstructed || store.isIRIKind(restrictedRange)) {
@@ -1464,12 +1468,13 @@ trait MutableTerminologyBox
     ).left
 
   def addIRIScalarRestriction
-  (dataTypeIRI: IRI, name: LocalName, uuid: UUID,
+  (dataTypeIRI: IRI, name: LocalName,
+   uuid: api.taggedTypes.IRIScalarRestrictionUUID,
    restrictedRange: OWLAPIOMF#DataRange,
-   length: Option[tables.PositiveIntegerLiteral],
-   minLength: Option[tables.PositiveIntegerLiteral],
-   maxLength: Option[tables.PositiveIntegerLiteral],
-   pattern: Option[String])
+   length: Option[tables.taggedTypes.PositiveIntegerLiteral],
+   minLength: Option[tables.taggedTypes.PositiveIntegerLiteral],
+   maxLength: Option[tables.taggedTypes.PositiveIntegerLiteral],
+   pattern: Option[tables.taggedTypes.LiteralPattern])
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#IRIScalarRestriction
   = {
@@ -1544,7 +1549,7 @@ trait MutableTerminologyBox
     * @return
     */
   def createNumericScalarRestriction
-  (tboxUUID: UUID,
+  (tboxUUID: api.taggedTypes.TerminologyBoxUUID,
    restrictionDT: OWLDatatype,
    restrictedRange: OWLAPIOMF#DataRange,
    minInclusive: Option[tables.LiteralNumber],
@@ -1555,7 +1560,7 @@ trait MutableTerminologyBox
   : OMFError.Throwables \/ OWLAPIOMF#NumericScalarRestriction
   = for {
     n <- getFragment(restrictionDT.getIRI)
-    u = generateUUID(tboxUUID, "name" -> LocalName(n))
+    u = api.taggedTypes.numericScalarRestrictionUUID(generateUUIDFromString(tboxUUID, "name" -> n))
     term <- createNumericScalarRestriction(
       restrictionDT, n, u, restrictedRange,
       minInclusive, maxInclusive, minExclusive, maxExclusive)
@@ -1564,7 +1569,8 @@ trait MutableTerminologyBox
   } yield term
 
   def createNumericScalarRestriction
-  (restrictionDT: OWLDatatype, name: LocalName, uuid: UUID,
+  (restrictionDT: OWLDatatype, name: LocalName,
+   uuid: api.taggedTypes.NumericScalarRestrictionUUID,
    restrictedRange: OWLAPIOMF#DataRange,
    minInclusive: Option[tables.LiteralNumber],
    maxInclusive: Option[tables.LiteralNumber],
@@ -1598,7 +1604,8 @@ trait MutableTerminologyBox
     ).left
 
   def addNumericScalarRestriction
-  (dataTypeIRI: IRI, name: LocalName, uuid: UUID,
+  (dataTypeIRI: IRI, name: LocalName,
+   uuid: api.taggedTypes.NumericScalarRestrictionUUID,
    restrictedRange: OWLAPIOMF#DataRange,
    minInclusive: Option[tables.LiteralNumber],
    maxInclusive: Option[tables.LiteralNumber],
@@ -1686,19 +1693,19 @@ trait MutableTerminologyBox
     * @return
     */
   def createPlainLiteralScalarRestriction
-  (tboxUUID: UUID,
+  (tboxUUID: api.taggedTypes.TerminologyBoxUUID,
    restrictionDT: OWLDatatype,
    restrictedRange: OWLAPIOMF#DataRange,
-   length: Option[tables.PositiveIntegerLiteral],
-   minLength: Option[tables.PositiveIntegerLiteral],
-   maxLength: Option[tables.PositiveIntegerLiteral],
-   pattern: Option[String],
-   language: Option[String])
+   length: Option[tables.taggedTypes.PositiveIntegerLiteral],
+   minLength: Option[tables.taggedTypes.PositiveIntegerLiteral],
+   maxLength: Option[tables.taggedTypes.PositiveIntegerLiteral],
+   pattern: Option[tables.taggedTypes.LiteralPattern],
+   language: Option[tables.taggedTypes.LanguageTagDataType])
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#PlainLiteralScalarRestriction
   = for {
     n <- getFragment(restrictionDT.getIRI)
-    u = generateUUID(tboxUUID, "name" -> LocalName(n))
+    u = api.taggedTypes.plainLiteralScalarRestrictionUUID(generateUUIDFromString(tboxUUID, "name" -> n))
     term <- createPlainLiteralScalarRestriction(
       restrictionDT, n, u, restrictedRange,
       length, minLength, maxLength, pattern, language)
@@ -1707,13 +1714,14 @@ trait MutableTerminologyBox
   } yield term
 
   def createPlainLiteralScalarRestriction
-  (restrictionDT: OWLDatatype, name: LocalName, uuid: UUID,
+  (restrictionDT: OWLDatatype, name: LocalName,
+   uuid: api.taggedTypes.PlainLiteralScalarRestrictionUUID,
    restrictedRange: OWLAPIOMF#DataRange,
-   length: Option[tables.PositiveIntegerLiteral],
-   minLength: Option[tables.PositiveIntegerLiteral],
-   maxLength: Option[tables.PositiveIntegerLiteral],
-   pattern: Option[String],
-   language: Option[String])
+   length: Option[tables.taggedTypes.PositiveIntegerLiteral],
+   minLength: Option[tables.taggedTypes.PositiveIntegerLiteral],
+   maxLength: Option[tables.taggedTypes.PositiveIntegerLiteral],
+   pattern: Option[tables.taggedTypes.LiteralPattern],
+   language: Option[tables.taggedTypes.LanguageTagDataType])
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#PlainLiteralScalarRestriction
   = if (store.isBuiltInDatatypeMapConstructed || store.isPlainLiteralKind(restrictedRange)) {
@@ -1742,13 +1750,14 @@ trait MutableTerminologyBox
     ).left
 
   def addPlainLiteralScalarRestriction
-  (dataTypeIRI: IRI, name: LocalName, uuid: UUID,
+  (dataTypeIRI: IRI, name: LocalName,
+   uuid: api.taggedTypes.PlainLiteralScalarRestrictionUUID,
    restrictedRange: OWLAPIOMF#DataRange,
-   length: Option[tables.PositiveIntegerLiteral],
-   minLength: Option[tables.PositiveIntegerLiteral],
-   maxLength: Option[tables.PositiveIntegerLiteral],
-   pattern: Option[String],
-   language: Option[String])
+   length: Option[tables.taggedTypes.PositiveIntegerLiteral],
+   minLength: Option[tables.taggedTypes.PositiveIntegerLiteral],
+   maxLength: Option[tables.taggedTypes.PositiveIntegerLiteral],
+   pattern: Option[tables.taggedTypes.LiteralPattern],
+   language: Option[tables.taggedTypes.LanguageTagDataType])
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#PlainLiteralScalarRestriction
   = {
@@ -1838,18 +1847,18 @@ trait MutableTerminologyBox
     * @return
     */
   def createStringScalarRestriction
-  (tboxUUID: UUID,
+  (tboxUUID: api.taggedTypes.TerminologyBoxUUID,
    restrictionDT: OWLDatatype,
    restrictedRange: OWLAPIOMF#DataRange,
-   length: Option[tables.PositiveIntegerLiteral],
-   minLength: Option[tables.PositiveIntegerLiteral],
-   maxLength: Option[tables.PositiveIntegerLiteral],
-   pattern: Option[String])
+   length: Option[tables.taggedTypes.PositiveIntegerLiteral],
+   minLength: Option[tables.taggedTypes.PositiveIntegerLiteral],
+   maxLength: Option[tables.taggedTypes.PositiveIntegerLiteral],
+   pattern: Option[tables.taggedTypes.LiteralPattern])
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#StringScalarRestriction
   = for {
     n <- getFragment(restrictionDT.getIRI)
-    u = generateUUID(tboxUUID, "name" -> LocalName(n))
+    u = api.taggedTypes.stringScalarRestrictionUUID(generateUUIDFromString(tboxUUID, "name" -> n))
     term <- createStringScalarRestriction(
       restrictionDT, n, u, restrictedRange,
       length, minLength, maxLength, pattern)
@@ -1858,12 +1867,13 @@ trait MutableTerminologyBox
   } yield term
 
   def createStringScalarRestriction
-  (restrictionDT: OWLDatatype, name: LocalName, uuid: UUID,
+  (restrictionDT: OWLDatatype, name: LocalName,
+   uuid: api.taggedTypes.StringScalarRestrictionUUID,
    restrictedRange: OWLAPIOMF#DataRange,
-   length: Option[tables.PositiveIntegerLiteral],
-   minLength: Option[tables.PositiveIntegerLiteral],
-   maxLength: Option[tables.PositiveIntegerLiteral],
-   pattern: Option[String])
+   length: Option[tables.taggedTypes.PositiveIntegerLiteral],
+   minLength: Option[tables.taggedTypes.PositiveIntegerLiteral],
+   maxLength: Option[tables.taggedTypes.PositiveIntegerLiteral],
+   pattern: Option[tables.taggedTypes.LiteralPattern])
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#StringScalarRestriction
   = if (store.isBuiltInDatatypeMapConstructed || store.isStringKind(restrictedRange)) {
@@ -1892,12 +1902,13 @@ trait MutableTerminologyBox
     ).left
 
   def addStringScalarRestriction
-  (dataTypeIRI: IRI, name: LocalName, uuid: UUID,
+  (dataTypeIRI: IRI, name: LocalName,
+   uuid: api.taggedTypes.StringScalarRestrictionUUID,
    restrictedRange: OWLAPIOMF#DataRange,
-   length: Option[tables.PositiveIntegerLiteral],
-   minLength: Option[tables.PositiveIntegerLiteral],
-   maxLength: Option[tables.PositiveIntegerLiteral],
-   pattern: Option[String])
+   length: Option[tables.taggedTypes.PositiveIntegerLiteral],
+   minLength: Option[tables.taggedTypes.PositiveIntegerLiteral],
+   maxLength: Option[tables.taggedTypes.PositiveIntegerLiteral],
+   pattern: Option[tables.taggedTypes.LiteralPattern])
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#StringScalarRestriction
   = {
@@ -1968,14 +1979,14 @@ trait MutableTerminologyBox
     * @return
     */
   def createSynonymScalarRestriction
-  (tboxUUID: UUID,
+  (tboxUUID: api.taggedTypes.TerminologyBoxUUID,
    restrictionDT: OWLDatatype,
    restrictedRange: OWLAPIOMF#DataRange)
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#SynonymScalarRestriction
   = for {
     n <- getFragment(restrictionDT.getIRI)
-    u = generateUUID(tboxUUID, "name" -> LocalName(n))
+    u = api.taggedTypes.synonymScalarRestrictionUUID(generateUUIDFromString(tboxUUID, "name" -> n))
     term <- createSynonymScalarRestriction(
       restrictionDT, n, u, restrictedRange)
     aas = getRelevantSubjectAnnotationAssertions(ont, restrictionDT.getIRI)
@@ -1983,7 +1994,8 @@ trait MutableTerminologyBox
   } yield term
 
   def createSynonymScalarRestriction
-  (restrictionDT: OWLDatatype, name: LocalName, uuid: UUID,
+  (restrictionDT: OWLDatatype, name: LocalName,
+   uuid: api.taggedTypes.SynonymScalarRestrictionUUID,
    restrictedRange: OWLAPIOMF#DataRange)
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#SynonymScalarRestriction
@@ -2007,7 +2019,8 @@ trait MutableTerminologyBox
   }
 
   def addSynonymScalarRestriction
-  (dataTypeIRI: IRI, name: LocalName, uuid: UUID,
+  (dataTypeIRI: IRI, name: LocalName,
+   uuid: api.taggedTypes.SynonymScalarRestrictionUUID,
    restrictedRange: OWLAPIOMF#DataRange)
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#SynonymScalarRestriction
@@ -2057,7 +2070,7 @@ trait MutableTerminologyBox
     * @return
     */
   def createTimeScalarRestriction
-  (tboxUUID: UUID,
+  (tboxUUID: api.taggedTypes.TerminologyBoxUUID,
    restrictionDT: OWLDatatype,
    restrictedRange: OWLAPIOMF#DataRange,
    minInclusive: Option[tables.LiteralDateTime],
@@ -2068,7 +2081,7 @@ trait MutableTerminologyBox
   : OMFError.Throwables \/ OWLAPIOMF#TimeScalarRestriction
   = for {
     n <- getFragment(restrictionDT.getIRI)
-    u = generateUUID(tboxUUID, "name" -> LocalName(n))
+    u = api.taggedTypes.timeScalarRestrictionUUID(generateUUIDFromString(tboxUUID, "name" -> n))
     term <- createTimeScalarRestriction(
       restrictionDT, n, u, restrictedRange,
       minInclusive, maxInclusive, minExclusive, maxExclusive)
@@ -2077,7 +2090,8 @@ trait MutableTerminologyBox
   } yield term
 
   def createTimeScalarRestriction
-  (restrictionDT: OWLDatatype, name: LocalName, uuid: UUID,
+  (restrictionDT: OWLDatatype, name: LocalName,
+   uuid: api.taggedTypes.TimeScalarRestrictionUUID,
    restrictedRange: OWLAPIOMF#DataRange,
    minInclusive: Option[tables.LiteralDateTime],
    maxInclusive: Option[tables.LiteralDateTime],
@@ -2111,7 +2125,8 @@ trait MutableTerminologyBox
     ).left
 
   def addTimeScalarRestriction
-  (dataTypeIRI: IRI, name: LocalName, uuid: UUID,
+  (dataTypeIRI: IRI, name: LocalName,
+   uuid: api.taggedTypes.TimeScalarRestrictionUUID,
    restrictedRange: OWLAPIOMF#DataRange,
    minInclusive: Option[tables.LiteralDateTime],
    maxInclusive: Option[tables.LiteralDateTime],
@@ -2183,7 +2198,7 @@ trait MutableTerminologyBox
   } yield rdr
 
   def createDataRelationshipFromEntityToScalar
-  (tboxUUID: UUID,
+  (tboxUUID: api.taggedTypes.TerminologyBoxUUID,
    esc: OWLDataProperty,
    isIdentityCriteria: Boolean,
    source: OWLAPIOMF#Entity,
@@ -2192,12 +2207,13 @@ trait MutableTerminologyBox
   : OMFError.Throwables \/ OWLAPIOMF#EntityScalarDataProperty
   = for {
     n <- getFragment(esc.getIRI)
-    u = generateUUID(tboxUUID, "name" -> LocalName(n))
+    u = api.taggedTypes.entityScalarDataPropertyUUID(generateUUIDFromString(tboxUUID, "name" -> n))
     term <- createDataRelationshipFromEntityToScalar(esc, n, isIdentityCriteria, u, source, target)
   } yield term
 
   def createDataRelationshipFromEntityToScalar
-  (esc: OWLDataProperty, name: LocalName, isIdentityCriteria: Boolean, uuid: UUID,
+  (esc: OWLDataProperty, name: LocalName, isIdentityCriteria: Boolean,
+   uuid: api.taggedTypes.EntityScalarDataPropertyUUID,
    source: OWLAPIOMF#Entity,
    target: OWLAPIOMF#DataRange)
   (implicit store: OWLAPIOMFGraphStore)
@@ -2224,7 +2240,8 @@ trait MutableTerminologyBox
   }
 
   protected def makeDataRelationshipFromEntityToScalar
-  (dIRI: IRI, name: LocalName, isIdentityCriteria: Boolean, uuid: UUID,
+  (dIRI: IRI, name: LocalName, isIdentityCriteria: Boolean,
+   uuid: api.taggedTypes.EntityScalarDataPropertyUUID,
    source: OWLAPIOMF#Entity,
    target: OWLAPIOMF#DataRange)
   (implicit store: OWLAPIOMFGraphStore)
@@ -2259,7 +2276,8 @@ trait MutableTerminologyBox
   }
 
   def addDataRelationshipFromEntityToScalar
-  (dIRI: IRI, name: LocalName, isIdentityCriteria: Boolean, uuid: UUID,
+  (dIRI: IRI, name: LocalName, isIdentityCriteria: Boolean,
+   uuid: api.taggedTypes.EntityScalarDataPropertyUUID,
    source: OWLAPIOMF#Entity,
    target: OWLAPIOMF#DataRange)
   (implicit store: OWLAPIOMFGraphStore)
@@ -2294,7 +2312,7 @@ trait MutableTerminologyBox
   }
 
   def createDataRelationshipFromEntityToStructure
-  (tboxUUID: UUID,
+  (tboxUUID: api.taggedTypes.TerminologyBoxUUID,
    esc: OWLObjectProperty,
    isIdentityCriteria: Boolean,
    source: OWLAPIOMF#Entity,
@@ -2303,12 +2321,13 @@ trait MutableTerminologyBox
   : OMFError.Throwables \/ OWLAPIOMF#EntityStructuredDataProperty
   = for {
     n <- getFragment(esc.getIRI)
-    u = generateUUID(tboxUUID, "name" -> LocalName(n))
+    u = api.taggedTypes.entityStructuredDataPropertyUUID(generateUUIDFromString(tboxUUID, "name" -> n))
     term <- createDataRelationshipFromEntityToStructure(esc, n, isIdentityCriteria, u, source, target)
   } yield term
 
   def createDataRelationshipFromEntityToStructure
-  (esc: OWLObjectProperty, name: LocalName, isIdentityCriteria: Boolean, uuid: UUID,
+  (esc: OWLObjectProperty, name: LocalName, isIdentityCriteria: Boolean,
+   uuid: api.taggedTypes.EntityStructuredDataPropertyUUID,
    source: OWLAPIOMF#Entity,
    target: OWLAPIOMF#Structure)
   (implicit store: OWLAPIOMFGraphStore)
@@ -2335,7 +2354,8 @@ trait MutableTerminologyBox
   }
 
   protected def makeDataRelationshipFromEntityToStructure
-  (dIRI: IRI, name: LocalName, isIdentityCriteria: Boolean, uuid: UUID,
+  (dIRI: IRI, name: LocalName, isIdentityCriteria: Boolean,
+   uuid: api.taggedTypes.EntityStructuredDataPropertyUUID,
    source: OWLAPIOMF#Entity,
    target: OWLAPIOMF#Structure)
   (implicit store: OWLAPIOMFGraphStore)
@@ -2370,7 +2390,8 @@ trait MutableTerminologyBox
   }
 
   def addDataRelationshipFromEntityToStructure
-  (dIRI: IRI, name: LocalName, isIdentityCriteria: Boolean, uuid: UUID,
+  (dIRI: IRI, name: LocalName, isIdentityCriteria: Boolean,
+   uuid: api.taggedTypes.EntityStructuredDataPropertyUUID,
    source: OWLAPIOMF#Entity,
    target: OWLAPIOMF#Structure)
   (implicit store: OWLAPIOMFGraphStore)
@@ -2405,7 +2426,7 @@ trait MutableTerminologyBox
   }
 
   def createDataRelationshipFromStructureToScalar
-  (tboxUUID: UUID,
+  (tboxUUID: api.taggedTypes.ScalarDataPropertyUUID,
    esc: OWLDataProperty,
    source: OWLAPIOMF#Structure,
    target: OWLAPIOMF#DataRange)
@@ -2413,12 +2434,13 @@ trait MutableTerminologyBox
   : OMFError.Throwables \/ OWLAPIOMF#ScalarDataProperty
   = for {
     n <- getFragment(esc.getIRI)
-    u = generateUUID(tboxUUID, "name" -> LocalName(n))
+    u = api.taggedTypes.scalarDataPropertyUUID(generateUUIDFromString(tboxUUID, "name" -> n))
     term <- createDataRelationshipFromStructureToScalar(esc, n, u, source, target)
   } yield term
 
   def createDataRelationshipFromStructureToScalar
-  (esc: OWLDataProperty, name: LocalName, uuid: UUID,
+  (esc: OWLDataProperty, name: LocalName,
+   uuid: api.taggedTypes.ScalarDataPropertyUUID,
    source: OWLAPIOMF#Structure,
    target: OWLAPIOMF#DataRange)
   (implicit store: OWLAPIOMFGraphStore)
@@ -2445,7 +2467,8 @@ trait MutableTerminologyBox
   }
 
   protected def makeDataRelationshipFromStructureToScalar
-  (dIRI: IRI, name: LocalName, uuid: UUID,
+  (dIRI: IRI, name: LocalName,
+   uuid: api.taggedTypes.ScalarDataPropertyUUID,
    source: OWLAPIOMF#Structure,
    target: OWLAPIOMF#DataRange)
   (implicit store: OWLAPIOMFGraphStore)
@@ -2474,7 +2497,8 @@ trait MutableTerminologyBox
   }
 
   def addDataRelationshipFromStructureToScalar
-  (dIRI: IRI, name: LocalName, uuid: UUID,
+  (dIRI: IRI, name: LocalName,
+   uuid: api.taggedTypes.ScalarDataPropertyUUID,
    source: OWLAPIOMF#Structure,
    target: OWLAPIOMF#DataRange)
   (implicit store: OWLAPIOMFGraphStore)
@@ -2509,7 +2533,7 @@ trait MutableTerminologyBox
   }
 
   def createDataRelationshipFromStructureToStructure
-  (tboxUUID: UUID,
+  (tboxUUID: api.taggedTypes.TerminologyBoxUUID,
    esc: OWLObjectProperty,
    source: OWLAPIOMF#Structure,
    target: OWLAPIOMF#Structure)
@@ -2517,12 +2541,13 @@ trait MutableTerminologyBox
   : OMFError.Throwables \/ OWLAPIOMF#StructuredDataProperty
   = for {
     n <- getFragment(esc.getIRI)
-    u = generateUUID(tboxUUID, "name" -> LocalName(n))
+    u = api.taggedTypes.structuredDataPropertyUUID(generateUUIDFromString(tboxUUID, "name" -> n))
     term <- createDataRelationshipFromStructureToStructure(esc, n, u, source, target)
   } yield term
 
   def createDataRelationshipFromStructureToStructure
-  (esc: OWLObjectProperty, name: LocalName, uuid: UUID,
+  (esc: OWLObjectProperty, name: LocalName,
+   uuid: api.taggedTypes.StructuredDataPropertyUUID,
    source: OWLAPIOMF#Structure,
    target: OWLAPIOMF#Structure)
   (implicit store: OWLAPIOMFGraphStore)
@@ -2549,7 +2574,8 @@ trait MutableTerminologyBox
   }
 
   protected def makeDataRelationshipFromStructureToStructure
-  (dIRI: IRI, name: LocalName, uuid: UUID,
+  (dIRI: IRI, name: LocalName,
+   uuid: api.taggedTypes.StructuredDataPropertyUUID,
    source: OWLAPIOMF#Structure,
    target: OWLAPIOMF#Structure)
   (implicit store: OWLAPIOMFGraphStore)
@@ -2579,7 +2605,8 @@ trait MutableTerminologyBox
   }
 
   def addDataRelationshipFromStructureToStructure
-  (dIRI: IRI, name: LocalName, uuid: UUID,
+  (dIRI: IRI, name: LocalName,
+   uuid: api.taggedTypes.StructuredDataPropertyUUID,
    source: OWLAPIOMF#Structure,
    target: OWLAPIOMF#Structure)
   (implicit store: OWLAPIOMFGraphStore)
@@ -2787,7 +2814,7 @@ trait MutableTerminologyBox
   : OMFError.Throwables \/ OWLAPIOMF#ChainRule
   = for {
     iri <- store.ops.withFragment(this.iri, name)
-    u = generateUUID(this.uuid, "name" -> name)
+    u = api.taggedTypes.chainRuleUUID(generateUUIDFromString(this.uuid, "name" -> name))
     r <- iri2typeTerm.get(iri).fold[OMFError.Throwables \/ OWLAPIOMF#ChainRule] {
       val cr = types.terms.ChainRule(iri, name, u, head)
       sig.chainRules.add(cr)
@@ -2802,7 +2829,7 @@ trait MutableTerminologyBox
 
   def addChainRule
   (iri: IRI,
-   uuid: UUID,
+   uuid: api.taggedTypes.ChainRuleUUID,
    head: OWLAPIOMF#UnreifiedRelationship)
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#ChainRule
@@ -2838,13 +2865,16 @@ trait MutableTerminologyBox
       case Some(ps) =>
         (1 + ps.position).toString
     }
-    u = generateUUID("RuleBodySegment", "chainRule" -> chainRuleUUID, "position" -> positionUUID)
+    u = api.taggedTypes.ruleBodySegmentUUID(generateUUIDFromString(
+      "RuleBodySegment",
+      "chainRule" -> chainRuleUUID,
+      "position" -> positionUUID))
     ruleBodySegment = types.terms.RuleBodySegment(u, chainRule, previousSegment)
     _ = sig.ruleBodySegments.add(ruleBodySegment)
   } yield ruleBodySegment
 
   def addRuleBodySegment
-  (uuid: UUID,
+  (uuid: api.taggedTypes.RuleBodySegmentUUID,
    chainRule: Option[OWLAPIOMF#ChainRule],
    previousSegment: Option[OWLAPIOMF#RuleBodySegment])
   (implicit store: OWLAPIOMFGraphStore)
@@ -2862,17 +2892,17 @@ trait MutableTerminologyBox
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#AspectPredicate
   = {
-    val u = generateUUID(
+    val u = api.taggedTypes.aspectPredicateUUID(generateUUIDFromUUID(
       "AspectPredicate",
-      "aspect" -> aspect.uuid.toString,
-      "bodySegment" -> bodySegment.uuid.toString)
+      "aspect" -> aspect.uuid,
+      "bodySegment" -> bodySegment.uuid))
     val p = types.terms.AspectPredicate(bodySegment, aspect, u)
     sig.aspectPredicates.add(p)
     p.right
   }
 
   def addAspectPredicate
-  (uuid: UUID,
+  (uuid: api.taggedTypes.AspectPredicateUUID,
    bodySegment: OWLAPIOMF#RuleBodySegment,
    aspect: OWLAPIOMF#Aspect)
   (implicit store: OWLAPIOMFGraphStore)
@@ -2890,17 +2920,17 @@ trait MutableTerminologyBox
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#ConceptPredicate
   = {
-    val u = generateUUID(
+    val u = api.taggedTypes.conceptPredicateUUID(generateUUIDFromUUID(
       "ConceptPredicate",
-      "bodySegment" -> bodySegment.uuid.toString,
-      "concept" -> concept.uuid.toString)
+      "bodySegment" -> bodySegment.uuid,
+      "concept" -> concept.uuid))
     val p = types.terms.ConceptPredicate(bodySegment, concept, u)
     sig.conceptPredicates.add(p)
     p.right
   }
 
   def addConceptPredicate
-  (uuid: UUID,
+  (uuid: api.taggedTypes.ConceptPredicateUUID,
    bodySegment: OWLAPIOMF#RuleBodySegment,
    concept: OWLAPIOMF#Concept)
   (implicit store: OWLAPIOMFGraphStore)
@@ -2918,17 +2948,17 @@ trait MutableTerminologyBox
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#ReifiedRelationshipPredicate
   = {
-    val u = generateUUID(
+    val u = api.taggedTypes.reifiedRelationshipPredicateUUID(generateUUIDFromUUID(
       "ReifiedRelationshipPredicate",
-      "bodySegment" -> bodySegment.uuid.toString,
-      "reifiedRelationship" -> reifiedRelationship.uuid.toString)
+      "bodySegment" -> bodySegment.uuid,
+      "reifiedRelationship" -> reifiedRelationship.uuid))
     val p = types.terms.ReifiedRelationshipPredicate(bodySegment, reifiedRelationship, u)
     sig.reifiedRelationshipPredicates.add(p)
     p.right
   }
 
   def addReifiedRelationshipPredicate
-  (uuid: UUID,
+  (uuid: api.taggedTypes.ReifiedRelationshipPredicateUUID,
    bodySegment: OWLAPIOMF#RuleBodySegment,
    reifiedRelationship: OWLAPIOMF#ReifiedRelationship)
   (implicit store: OWLAPIOMFGraphStore)
@@ -2946,17 +2976,17 @@ trait MutableTerminologyBox
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#ReifiedRelationshipPropertyPredicate
   = {
-    val u = generateUUID(
+    val u = api.taggedTypes.reifiedRelationshipPropertyPredicateUUID(generateUUIDFromUUID(
       "ReifiedRelationshipPropertyPredicate",
-      "bodySegment" -> bodySegment.uuid.toString,
-      "reifiedRelationship" -> reifiedRelationship.uuid.toString)
+      "bodySegment" -> bodySegment.uuid,
+      "reifiedRelationship" -> reifiedRelationship.uuid))
     val p = types.terms.ReifiedRelationshipPropertyPredicate(bodySegment, reifiedRelationship, u)
     sig.reifiedRelationshipPropertyPredicates.add(p)
     p.right
   }
 
   def addReifiedRelationshipPropertyPredicate
-  (uuid: UUID,
+  (uuid: api.taggedTypes.ReifiedRelationshipPropertyPredicateUUID,
    bodySegment: OWLAPIOMF#RuleBodySegment,
    reifiedRelationship: OWLAPIOMF#ReifiedRelationship)
   (implicit store: OWLAPIOMFGraphStore)
@@ -2974,17 +3004,17 @@ trait MutableTerminologyBox
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#ReifiedRelationshipInversePropertyPredicate
   = {
-    val u = generateUUID(
+    val u = api.taggedTypes.reifiedRelationshipInversePropertyPredicateUUID(generateUUIDFromUUID(
       "ReifiedRelationshipInversePropertyPredicate",
-      "bodySegment" -> bodySegment.uuid.toString,
-      "reifiedRelationship" -> reifiedRelationship.uuid.toString)
+      "bodySegment" -> bodySegment.uuid,
+      "reifiedRelationship" -> reifiedRelationship.uuid))
     val p = types.terms.ReifiedRelationshipInversePropertyPredicate(bodySegment, reifiedRelationship, u)
     sig.reifiedRelationshipInversePropertyPredicates.add(p)
     p.right
   }
 
   def addReifiedRelationshipInversePropertyPredicate
-  (uuid: UUID,
+  (uuid: api.taggedTypes.ReifiedRelationshipInversePropertyPredicateUUID,
    bodySegment: OWLAPIOMF#RuleBodySegment,
    reifiedRelationship: OWLAPIOMF#ReifiedRelationship)
   (implicit store: OWLAPIOMFGraphStore)
@@ -3002,17 +3032,17 @@ trait MutableTerminologyBox
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#ReifiedRelationshipSourcePropertyPredicate
   = {
-    val u = generateUUID(
+    val u = api.taggedTypes.reifiedRelationshipSourcePropertyPredicateUUID(generateUUIDFromUUID(
       "ReifiedRelationshipSourcePropertyPredicate",
-      "bodySegment" -> bodySegment.uuid.toString,
-      "reifiedRelationship" -> reifiedRelationship.uuid.toString)
+      "bodySegment" -> bodySegment.uuid,
+      "reifiedRelationship" -> reifiedRelationship.uuid))
     val p = types.terms.ReifiedRelationshipSourcePropertyPredicate(bodySegment, reifiedRelationship, u)
     sig.reifiedRelationshipSourcePropertyPredicates.add(p)
     p.right
   }
 
   def addReifiedRelationshipSourcePropertyPredicate
-  (uuid: UUID,
+  (uuid: api.taggedTypes.ReifiedRelationshipSourcePropertyPredicateUUID,
    bodySegment: OWLAPIOMF#RuleBodySegment,
    reifiedRelationship: OWLAPIOMF#ReifiedRelationship)
   (implicit store: OWLAPIOMFGraphStore)
@@ -3030,17 +3060,17 @@ trait MutableTerminologyBox
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#ReifiedRelationshipSourceInversePropertyPredicate
   = {
-    val u = generateUUID(
+    val u = api.taggedTypes.reifiedRelationshipSourceInversePropertyPredicateUUID(generateUUIDFromUUID(
       "ReifiedRelationshipSourceInversePropertyPredicate",
-      "bodySegment" -> bodySegment.uuid.toString,
-      "reifiedRelationship" -> reifiedRelationship.uuid.toString)
+      "bodySegment" -> bodySegment.uuid,
+      "reifiedRelationship" -> reifiedRelationship.uuid))
     val p = types.terms.ReifiedRelationshipSourceInversePropertyPredicate(bodySegment, reifiedRelationship, u)
     sig.reifiedRelationshipSourceInversePropertyPredicates.add(p)
     p.right
   }
 
   def addReifiedRelationshipSourceInversePropertyPredicate
-  (uuid: UUID,
+  (uuid: api.taggedTypes.ReifiedRelationshipSourceInversePropertyPredicateUUID,
    bodySegment: OWLAPIOMF#RuleBodySegment,
    reifiedRelationship: OWLAPIOMF#ReifiedRelationship)
   (implicit store: OWLAPIOMFGraphStore)
@@ -3058,17 +3088,17 @@ trait MutableTerminologyBox
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#ReifiedRelationshipTargetPropertyPredicate
   = {
-    val u = generateUUID(
+    val u = api.taggedTypes.reifiedRelationshipTargetPropertyPredicateUUID(generateUUIDFromUUID(
       "ReifiedRelationshipTargetPropertyPredicate",
-      "bodySegment" -> bodySegment.uuid.toString,
-      "reifiedRelationship" -> reifiedRelationship.uuid.toString)
+      "bodySegment" -> bodySegment.uuid,
+      "reifiedRelationship" -> reifiedRelationship.uuid))
     val p = types.terms.ReifiedRelationshipTargetPropertyPredicate(bodySegment, reifiedRelationship, u)
     sig.reifiedRelationshipTargetPropertyPredicates.add(p)
     p.right
   }
 
   def addReifiedRelationshipTargetPropertyPredicate
-  (uuid: UUID,
+  (uuid: api.taggedTypes.ReifiedRelationshipTargetPropertyPredicateUUID,
    bodySegment: OWLAPIOMF#RuleBodySegment,
    reifiedRelationship: OWLAPIOMF#ReifiedRelationship)
   (implicit store: OWLAPIOMFGraphStore)
@@ -3086,17 +3116,17 @@ trait MutableTerminologyBox
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#ReifiedRelationshipTargetInversePropertyPredicate
   = {
-    val u = generateUUID(
+    val u = api.taggedTypes.reifiedRelationshipTargetInversePropertyPredicateUUID(generateUUIDFromUUID(
       "ReifiedRelationshipTargetInversePropertyPredicate",
-      "bodySegment" -> bodySegment.uuid.toString,
-      "reifiedRelationship" -> reifiedRelationship.uuid.toString)
+      "bodySegment" -> bodySegment.uuid,
+      "reifiedRelationship" -> reifiedRelationship.uuid))
     val p = types.terms.ReifiedRelationshipTargetInversePropertyPredicate(bodySegment, reifiedRelationship, u)
     sig.reifiedRelationshipTargetInversePropertyPredicates.add(p)
     p.right
   }
 
   def addReifiedRelationshipTargetInversePropertyPredicate
-  (uuid: UUID,
+  (uuid: api.taggedTypes.ReifiedRelationshipTargetInversePropertyPredicateUUID,
    bodySegment: OWLAPIOMF#RuleBodySegment,
    reifiedRelationship: OWLAPIOMF#ReifiedRelationship)
   (implicit store: OWLAPIOMFGraphStore)
@@ -3114,17 +3144,17 @@ trait MutableTerminologyBox
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#UnreifiedRelationshipPropertyPredicate
   = {
-    val u = generateUUID(
+    val u = api.taggedTypes.unreifiedRelationshipPropertyPredicateUUID(generateUUIDFromUUID(
       "UnreifiedRelationshipPropertyPredicate",
-      "unreifiedRelationship" -> unreifiedRelationship.uuid.toString,
-      "bodySegment" -> bodySegment.uuid.toString)
+      "unreifiedRelationship" -> unreifiedRelationship.uuid,
+      "bodySegment" -> bodySegment.uuid))
     val p = types.terms.UnreifiedRelationshipPropertyPredicate(bodySegment, unreifiedRelationship, u)
     sig.unreifiedRelationshipPropertyPredicates.add(p)
     p.right
   }
 
   def addUnreifiedRelationshipPropertyPredicate
-  (uuid: UUID,
+  (uuid: api.taggedTypes.UnreifiedRelationshipPropertyPredicateUUID,
    bodySegment: OWLAPIOMF#RuleBodySegment,
    unreifiedRelationship: OWLAPIOMF#UnreifiedRelationship)
   (implicit store: OWLAPIOMFGraphStore)
@@ -3142,17 +3172,17 @@ trait MutableTerminologyBox
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#UnreifiedRelationshipInversePropertyPredicate
   = {
-    val u = generateUUID(
+    val u = api.taggedTypes.unreifiedRelationshipInversePropertyPredicateUUID(generateUUIDFromUUID(
       "UnreifiedRelationshipInversePropertyPredicate",
-      "bodySegment" -> bodySegment.uuid.toString,
-      "unreifiedRelationship" -> unreifiedRelationship.uuid.toString)
+      "bodySegment" -> bodySegment.uuid,
+      "unreifiedRelationship" -> unreifiedRelationship.uuid))
     val p = types.terms.UnreifiedRelationshipInversePropertyPredicate(bodySegment, unreifiedRelationship, u)
     sig.unreifiedRelationshipInversePropertyPredicates.add(p)
     p.right
   }
 
   def addUnreifiedRelationshipInversePropertyPredicate
-  (uuid: UUID,
+  (uuid: api.taggedTypes.UnreifiedRelationshipInversePropertyPredicateUUID,
    bodySegment: OWLAPIOMF#RuleBodySegment,
    unreifiedRelationship: OWLAPIOMF#UnreifiedRelationship)
   (implicit store: OWLAPIOMFGraphStore)
@@ -3164,7 +3194,7 @@ trait MutableTerminologyBox
   }
 
   def createEntityConceptSubClassAxiom
-  (uuid: UUID,
+  (uuid: api.taggedTypes.ConceptSpecializationAxiomUUID,
    sub: OWLAPIOMF#Concept,
    sup: OWLAPIOMF#Concept)
   (implicit store: OWLAPIOMFGraphStore)
@@ -3187,7 +3217,7 @@ trait MutableTerminologyBox
   }
 
   def addEntityConceptSubClassAxiom
-  (uuid: UUID,
+  (uuid: api.taggedTypes.ConceptSpecializationAxiomUUID,
    sub: OWLAPIOMF#Concept,
    sup: OWLAPIOMF#Concept)
   (implicit store: OWLAPIOMFGraphStore)
@@ -3244,7 +3274,7 @@ trait MutableTerminologyBox
   } yield ax
 
   def addEntityDefinitionUniversalRestrictionAxiom
-  (uuid: UUID,
+  (uuid: api.taggedTypes.EntityUniversalRestrictionAxiomUUID,
    sub: OWLAPIOMF#Entity,
    rel: OWLAPIOMF#EntityRelationship,
    range: Entity)
@@ -3315,7 +3345,7 @@ trait MutableTerminologyBox
   } yield ax
 
   def addEntityDefinitionExistentialRestrictionAxiom
-  (uuid: UUID,
+  (uuid: api.taggedTypes.EntityExistentialRestrictionAxiomUUID,
    sub: OWLAPIOMF#Entity,
    rel: OWLAPIOMF#EntityRelationship,
    range: Entity)
@@ -3372,7 +3402,7 @@ trait MutableTerminologyBox
   }
 
   def addEntityScalarDataPropertyExistentialRestrictionAxiom
-  (uuid: UUID,
+  (uuid: api.taggedTypes.EntityScalarDataPropertyExistentialRestrictionAxiomUUID,
    restrictedEntity: OWLAPIOMF#Entity,
    scalarProperty: OWLAPIOMF#EntityScalarDataProperty,
    range: DataRange)
@@ -3423,7 +3453,7 @@ trait MutableTerminologyBox
   }
 
   def addEntityScalarDataPropertyUniversalRestrictionAxiom
-  (uuid: UUID,
+  (uuid: api.taggedTypes.EntityScalarDataPropertyUniversalRestrictionAxiomUUID,
    restrictedEntity: OWLAPIOMF#Entity,
    scalarProperty: OWLAPIOMF#EntityScalarDataProperty,
    range: DataRange)
@@ -3475,7 +3505,7 @@ trait MutableTerminologyBox
   }
 
   def addEntityScalarDataPropertyParticularRestrictionAxiom
-  (uuid: UUID,
+  (uuid: api.taggedTypes.EntityScalarDataPropertyParticularRestrictionAxiomUUID,
    restrictedEntity: OWLAPIOMF#Entity,
    scalarProperty: OWLAPIOMF#EntityScalarDataProperty,
    literalValue: LiteralValue,
@@ -3530,7 +3560,7 @@ trait MutableTerminologyBox
   }
 
   def addEntityStructuredDataPropertyParticularRestrictionAxiom
-  (uuid: UUID,
+  (uuid: api.taggedTypes.EntityStructuredDataPropertyParticularRestrictionAxiomUUID,
    restrictedEntity: OWLAPIOMF#Entity,
    structuredProperty: OWLAPIOMF#EntityStructuredDataProperty)
   (implicit store: OWLAPIOMFGraphStore)
@@ -3539,7 +3569,7 @@ trait MutableTerminologyBox
     isTypeTermDefinedRecursively(structuredProperty)) match {
     case (true, true) =>
       for {
-        e_iri <- withFragment(iri, OMLString.LocalName(uuid.toString))
+        e_iri <- withFragment(iri, localName(uuid.toString))
         e_ni = owlDataFactory.getOWLNamedIndividual(e_iri)
         axiom = EntityStructuredDataPropertyParticularRestrictionAxiom(uuid, restrictedEntity, structuredProperty, e_ni)
         key = if (sig.kind == TerminologyKind.isClosedWorld)
@@ -3590,14 +3620,14 @@ trait MutableTerminologyBox
   }
 
   def addRestrictionStructuredDataPropertyTuple
-  (uuid: UUID,
+  (uuid: api.taggedTypes.RestrictionStructuredDataPropertyTupleUUID,
    structuredDataPropertyContext: OWLAPIOMF#RestrictionStructuredDataPropertyContext,
    structuredProperty: OWLAPIOMF#DataRelationshipToStructure)
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#RestrictionStructuredDataPropertyTuple
   = if (isTypeTermDefinedRecursively(structuredProperty)) {
     for {
-      e_iri <- withFragment(iri, OMLString.LocalName(uuid.toString))
+      e_iri <- withFragment(iri, localName(uuid.toString))
       e_ni = owlDataFactory.getOWLNamedIndividual(e_iri)
       tuple = RestrictionStructuredDataPropertyTuple(uuid, structuredDataPropertyContext, structuredProperty, e_ni)
       _ <- applyOntologyChangesOrNoOp(
@@ -3628,7 +3658,7 @@ trait MutableTerminologyBox
       ).left
 
   def addRestrictionScalarDataPropertyValue
-  (uuid: UUID,
+  (uuid: api.taggedTypes.RestrictionScalarDataPropertyValueUUID,
    structuredDataPropertyContext: OWLAPIOMF#RestrictionStructuredDataPropertyContext,
    scalarProperty: OWLAPIOMF#DataRelationshipToScalar,
    literalValue: LiteralValue,
@@ -3663,7 +3693,7 @@ trait MutableTerminologyBox
     ).left
 
   def createEntityDefinitionAspectSubClassAxiom
-  (uuid: UUID,
+  (uuid: api.taggedTypes.AspectSpecializationAxiomUUID,
    sub: OWLAPIOMF#Entity,
    sup: OWLAPIOMF#Aspect)
   (implicit store: OWLAPIOMFGraphStore)
@@ -3686,7 +3716,7 @@ trait MutableTerminologyBox
   }
 
   def addEntityDefinitionAspectSubClassAxiom
-  (uuid: UUID,
+  (uuid: api.taggedTypes.AspectSpecializationAxiomUUID,
    sub: OWLAPIOMF#Entity,
    sup: OWLAPIOMF#Aspect)
   (implicit store: OWLAPIOMFGraphStore)
@@ -3730,7 +3760,7 @@ trait MutableTerminologyBox
   }
 
   def createOMFEntityConceptDesignationTerminologyGraphAxiom
-  (uuid: UUID,
+  (uuid: api.taggedTypes.ConceptDesignationTerminologyAxiomUUID,
    graph: OWLAPIOMF#MutableTerminologyBox,
    entityConceptDesignation: OWLAPIOMF#Concept,
    designationTerminologyGraph: OWLAPIOMF#TerminologyBox)
@@ -3756,7 +3786,7 @@ trait MutableTerminologyBox
   }
 
   def addEntityConceptDesignationTerminologyGraphAxiom
-  (uuid: UUID,
+  (uuid: api.taggedTypes.ConceptDesignationTerminologyAxiomUUID,
    graph: OWLAPIOMF#MutableTerminologyBox,
    entityConceptDesignation: OWLAPIOMF#Concept,
    designationTerminologyGraph: OWLAPIOMF#TerminologyBox)
@@ -3771,7 +3801,7 @@ trait MutableTerminologyBox
   }
 
   def createEntityReifiedRelationshipSubClassAxiom
-  (uuid: UUID,
+  (uuid: api.taggedTypes.ReifiedRelationshipSpecializationAxiomUUID,
    sub: OWLAPIOMF#ReifiedRelationship,
    sup: OWLAPIOMF#ReifiedRelationship)
   (implicit store: OWLAPIOMFGraphStore)
@@ -3794,7 +3824,7 @@ trait MutableTerminologyBox
   }
 
   def addEntityReifiedRelationshipSubClassAxiom
-  (uuid: UUID,
+  (uuid: api.taggedTypes.ReifiedRelationshipSpecializationAxiomUUID,
    sub: OWLAPIOMF#ReifiedRelationship,
    sup: OWLAPIOMF#ReifiedRelationship)
   (implicit store: OWLAPIOMFGraphStore)

@@ -18,11 +18,15 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.types.terms
 
+import gov.nasa.jpl.imce.oml.resolver.api.taggedTypes.DataRelationshipToScalarUUID
 import org.semanticweb.owlapi.model.OWLDataProperty
 
 import scala.Predef.require
 
 trait DataRelationshipToScalar extends DataRelationshipRange {
+
+  override val uuid: DataRelationshipToScalarUUID
+
   val range: DataRange
 
   override val e: OWLDataProperty

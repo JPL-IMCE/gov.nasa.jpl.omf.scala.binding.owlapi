@@ -18,7 +18,7 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi
 
-import java.util.UUID
+import gov.nasa.jpl.imce.oml.resolver.api
 
 import org.semanticweb.owlapi.model.{IRI, OWLOntology}
 import gov.nasa.jpl.omf.scala.binding.owlapi.common.{ImmutableModule, Module, MutableModule}
@@ -80,17 +80,17 @@ case class OntologyMapping
   = lookupImmutableModule(iri) orElse lookupMutableModule(iri)
 
   def lookupImmutableModule
-  (uuid: UUID)
+  (uuid: api.taggedTypes.ModuleUUID)
   : Option[ImmutableModule]
   = m2i.is.get(uuid)
 
   def lookupMutableModule
-  (uuid: UUID)
+  (uuid: api.taggedTypes.ModuleUUID)
   : Option[MutableModule]
   = m2i.ms.get(uuid)
 
   def lookupModule
-  (uuid: UUID)
+  (uuid: api.taggedTypes.ModuleUUID)
   : Option[Module]
   = lookupImmutableModule(uuid) orElse lookupMutableModule(uuid)
 

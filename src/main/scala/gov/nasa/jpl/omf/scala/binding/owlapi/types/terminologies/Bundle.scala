@@ -18,12 +18,16 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies
 
+import gov.nasa.jpl.imce.oml.resolver.api.taggedTypes.BundleUUID
+
 import scala.{Any, Boolean}
 
 trait Bundle extends TerminologyBox {
 
   override val isGraph: Boolean = false
   override val isBundle: Boolean = true
+
+  override val uuid: BundleUUID = sig.uuid.asInstanceOf[BundleUUID]
 
   override def canEqual(other: Any)
   : Boolean

@@ -18,7 +18,7 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.types
 
-import java.util.UUID
+import gov.nasa.jpl.imce.oml.resolver.api
 
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.DataRelationshipToStructure
 import org.semanticweb.owlapi.model.OWLNamedIndividual
@@ -26,7 +26,7 @@ import org.semanticweb.owlapi.model.OWLNamedIndividual
 import scala.{Any, Boolean, Int}
 
 case class RestrictionStructuredDataPropertyTuple
-(override val uuid: UUID,
+(override val uuid: api.taggedTypes.RestrictionStructuredDataPropertyTupleUUID,
  structuredDataPropertyContext: RestrictionStructuredDataPropertyContext,
  override val structuredDataProperty: DataRelationshipToStructure,
  override val e: OWLNamedIndividual)

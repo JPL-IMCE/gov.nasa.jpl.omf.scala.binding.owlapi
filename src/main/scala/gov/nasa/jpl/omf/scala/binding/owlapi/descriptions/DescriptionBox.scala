@@ -20,6 +20,7 @@ package gov.nasa.jpl.omf.scala.binding.owlapi.descriptions
 
 import java.io.OutputStream
 
+import gov.nasa.jpl.imce.oml.resolver.api.taggedTypes.DescriptionBoxUUID
 import gov.nasa.jpl.omf.scala.binding.owlapi.{OWLAPIOMF, OWLAPIOMFOps}
 import gov.nasa.jpl.omf.scala.binding.owlapi.common.Module
 
@@ -36,6 +37,8 @@ trait DescriptionBox extends Module {
   override type MS <: DescriptionBoxSignature[OWLAPIOMF, scala.collection.Iterable]
 
   override val sig: MS
+
+  override val uuid: DescriptionBoxUUID = sig.uuid.asInstanceOf[DescriptionBoxUUID]
 
   override def canEqual(other: Any)
   : Boolean

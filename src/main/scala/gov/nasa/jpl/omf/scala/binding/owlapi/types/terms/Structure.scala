@@ -18,9 +18,8 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.types.terms
 
-import java.util.UUID
-
-import gov.nasa.jpl.omf.scala.core.OMLString.LocalName
+import gov.nasa.jpl.imce.oml.resolver.api
+import gov.nasa.jpl.imce.oml.tables.taggedTypes.LocalName
 import org.semanticweb.owlapi.model.{IRI, OWLClass}
 
 import scala.{Any, Boolean, Int}
@@ -29,7 +28,7 @@ case class Structure
 (override val e: OWLClass,
  override val iri: IRI,
  override val name: LocalName,
- override val uuid: UUID )
+ override val uuid: api.taggedTypes.StructureUUID )
   extends Datatype {
 
   override def canEqual(other: Any)

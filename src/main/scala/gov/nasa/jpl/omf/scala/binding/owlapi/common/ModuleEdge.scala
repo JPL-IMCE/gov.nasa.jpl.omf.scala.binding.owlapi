@@ -18,13 +18,17 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.common
 
-import java.util.UUID
+import gov.nasa.jpl.imce.oml.resolver.api
+import gov.nasa.jpl.imce.oml.resolver.api.taggedTypes.ModuleEdgeUUID
 
 import scala.{Any, Boolean}
 
 trait ModuleEdge extends Element {
 
-  val sourceModule: UUID
+  override val uuid: ModuleEdgeUUID
+
+
+  val sourceModule: api.taggedTypes.ModuleUUID
   val targetModule: Module
 
   override def canEqual(other: Any)

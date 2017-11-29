@@ -18,6 +18,4 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.types.terms
 
-import gov.nasa.jpl.omf.scala.binding.owlapi.types.Term
-
-trait DataRelationshipDomain extends Term
+trait DataRelationshipDomain extends DataRelationship

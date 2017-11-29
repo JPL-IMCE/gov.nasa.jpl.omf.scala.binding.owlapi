@@ -18,10 +18,10 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.descriptions
 
-import java.util.UUID
+import gov.nasa.jpl.imce.oml.resolver.api
 
 case class DescriptionBoxRefinement
-( override val uuid: UUID,
-  override val sourceModule: UUID,
+( override val uuid: api.taggedTypes.DescriptionBoxRefinementUUID,
+  override val sourceModule: api.taggedTypes.DescriptionBoxUUID,
   override val targetModule: DescriptionBox)
 extends DescriptionBoxRelationship

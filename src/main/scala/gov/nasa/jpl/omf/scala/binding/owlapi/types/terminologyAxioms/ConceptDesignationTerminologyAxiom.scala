@@ -18,8 +18,7 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologyAxioms
 
-import java.util.UUID
-
+import gov.nasa.jpl.imce.oml.resolver.api
 import gov.nasa.jpl.omf.scala.binding.owlapi.common.Module
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Concept
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox
@@ -28,8 +27,8 @@ import scala.{Any, Boolean, Int}
 import scala.Predef.require
 
 case class ConceptDesignationTerminologyAxiom
-(override val uuid: UUID,
- graph: UUID,
+(override val uuid: api.taggedTypes.ConceptDesignationTerminologyAxiomUUID,
+ graph: api.taggedTypes.TerminologyBoxUUID,
  designatedConcept: Concept,
  designatedTerminology: TerminologyBox)
   extends TerminologyBoxAxiom {
@@ -57,6 +56,6 @@ case class ConceptDesignationTerminologyAxiom
       false
   }
 
-  override val sourceModule: UUID = graph
+  override val sourceModule: api.taggedTypes.TerminologyBoxUUID = graph
   override val targetModule: Module = designatedTerminology
 }

@@ -18,14 +18,13 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.types.termAxioms
 
-import java.util.UUID
-
+import gov.nasa.jpl.imce.oml.resolver.api
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.{Entity, EntityRelationship}
 
 import scala.{Any,Boolean,Int}
 
 case class EntityExistentialRestrictionAxiom
-(override val uuid: UUID,
+(override val uuid: api.taggedTypes.EntityExistentialRestrictionAxiomUUID,
  override val restrictedDomain: Entity,
  override val restrictedRelation: EntityRelationship,
  override val restrictedRange: Entity)

@@ -18,15 +18,15 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.common
 
-import gov.nasa.jpl.omf.scala.binding.owlapi._
-import gov.nasa.jpl.omf.scala.core.OMLString.{AbbrevIRI, LocalName}
+import gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMF
+import gov.nasa.jpl.imce.oml.tables
 
 import scala.{Any, Boolean}
 
 trait Resource {
   val iri: OWLAPIOMF#IRI
-  val name: LocalName
-  lazy val abbrevIRI: AbbrevIRI = AbbrevIRI(iri.getShortForm)
+  val name: tables.taggedTypes.LocalName
+  lazy val abbrevIRI: tables.taggedTypes.AbbrevIRI = tables.taggedTypes.abbrevIRI(iri.getShortForm)
 
   def canEqual(other: Any): Boolean
 }

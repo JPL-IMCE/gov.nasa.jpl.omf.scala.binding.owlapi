@@ -18,8 +18,7 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.types.termAxioms
 
-import java.util.UUID
-
+import gov.nasa.jpl.imce.oml.resolver.api
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.RestrictionStructuredDataPropertyContext
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.{Entity, EntityStructuredDataProperty}
 import org.semanticweb.owlapi.model.OWLNamedIndividual
@@ -27,7 +26,7 @@ import org.semanticweb.owlapi.model.OWLNamedIndividual
 import scala.{Any, Boolean, Int}
 
 case class EntityStructuredDataPropertyParticularRestrictionAxiom
-(override val uuid: UUID,
+(override val uuid: api.taggedTypes.EntityStructuredDataPropertyParticularRestrictionAxiomUUID,
  override val restrictedEntity: Entity,
  override val structuredDataProperty: EntityStructuredDataProperty,
  override val e: OWLNamedIndividual)

@@ -20,6 +20,7 @@ package gov.nasa.jpl.omf.scala.binding.owlapi
 
 import java.lang.System
 
+import gov.nasa.jpl.imce.oml.tables.taggedTypes.localName
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms._
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies._
 import gov.nasa.jpl.omf.scala.core._
@@ -1010,7 +1011,7 @@ case class TerminologyBoxResolverHelper
       case Some(a) =>
         a.getValue match {
           case lit: OWLLiteral =>
-            \/-(OMLString.LocalName(lit.getLiteral))
+            \/-(localName(lit.getLiteral))
           case other =>
             -\/(Set[java.lang.Throwable](
               OMFError.omfError(
@@ -1018,14 +1019,14 @@ case class TerminologyBoxResolverHelper
               )))
         }
       case None =>
-        \/-(OMLString.LocalName("R" + scala.util.Random.nextInt(100000).toString))
+        \/-(localName("R" + scala.util.Random.nextInt(100000).toString))
     }
 
     chainRule <- rh.getPredicate match {
       case op: OWLObjectProperty =>
         unreifiedRelationships.get(op) match {
           case Some(ur) =>
-            tboxG.createChainRule(r, OMLString.LocalName(label), ur)
+            tboxG.createChainRule(r, label, ur)
           case None =>
             -\/(Set[java.lang.Throwable](
               OMFError.omfError(

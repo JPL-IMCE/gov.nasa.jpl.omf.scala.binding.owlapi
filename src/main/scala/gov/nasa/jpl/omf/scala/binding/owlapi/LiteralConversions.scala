@@ -19,6 +19,7 @@
 package gov.nasa.jpl.omf.scala.binding.owlapi
 
 import gov.nasa.jpl.imce.oml.tables
+import gov.nasa.jpl.omf.scala.core.OMFError
 import org.semanticweb.owlapi.model.{OWLDataFactory, OWLDatatype, OWLLiteral}
 
 import scala.{Int, Option, StringContext}
@@ -29,8 +30,13 @@ object LiteralConversions {
 
   implicit def toPositiveIntegerLiteral
   (i: Option[Int])
-  : Option[tables.PositiveIntegerLiteral]
-  = i.map(_.toString)
+  : Option[tables.taggedTypes.PositiveIntegerLiteral]
+  = i.map { n =>
+    if (n >= 0)
+      tables.taggedTypes.positiveIntegerLiteral(n.toString)
+    else
+      throw OMFError.omfError("A PositiveIntegerLiteral must be a positive number; got: "+n)
+  }
 
   implicit def toLiteralNumber
   (v: Option[String])

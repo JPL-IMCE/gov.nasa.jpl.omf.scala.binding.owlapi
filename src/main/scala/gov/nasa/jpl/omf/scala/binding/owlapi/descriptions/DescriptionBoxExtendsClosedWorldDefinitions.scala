@@ -18,12 +18,11 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.descriptions
 
-import java.util.UUID
-
+import gov.nasa.jpl.imce.oml.resolver.api
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox
 
 case class DescriptionBoxExtendsClosedWorldDefinitions
-( override val uuid: UUID,
-  override val sourceModule: UUID,
+( override val uuid: api.taggedTypes.DescriptionBoxExtendsClosedWorldDefinitionsUUID,
+  override val sourceModule: api.taggedTypes.DescriptionBoxUUID,
   override val targetModule: TerminologyBox)
   extends DescriptionBoxRelationship

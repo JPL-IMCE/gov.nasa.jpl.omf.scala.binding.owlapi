@@ -18,9 +18,8 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.types.terms
 
-import java.util.UUID
-
-import gov.nasa.jpl.omf.scala.core.OMLString.LocalName
+import gov.nasa.jpl.imce.oml.resolver.api
+import gov.nasa.jpl.imce.oml.tables.taggedTypes.LocalName
 import gov.nasa.jpl.omf.scala.core.RelationshipCharacteristics._
 import org.semanticweb.owlapi.model.{IRI, OWLObjectProperty}
 
@@ -32,7 +31,7 @@ case class UnreifiedRelationship
 ( override val e: OWLObjectProperty,
   override val iri: IRI,
   override val name: LocalName,
-  override val uuid: UUID,
+  override val uuid: api.taggedTypes.UnreifiedRelationshipUUID,
   override val source: Entity,
   override val target: Entity,
   override val characteristics: Iterable[RelationshipCharacteristics] )

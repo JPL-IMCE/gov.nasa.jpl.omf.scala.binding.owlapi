@@ -18,9 +18,8 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.types.terms
 
-import java.util.UUID
-
-import gov.nasa.jpl.omf.scala.core.OMLString.LocalName
+import gov.nasa.jpl.imce.oml.resolver.api
+import gov.nasa.jpl.imce.oml.tables.taggedTypes.LocalName
 import org.semanticweb.owlapi.model.{IRI, OWLObjectProperty}
 
 import scala.{Any, Boolean, Int}
@@ -30,7 +29,7 @@ case class StructuredDataProperty
 (override val e: OWLObjectProperty,
  override val iri: IRI,
  override val name: LocalName,
- override val uuid: UUID,
+ override val uuid: api.taggedTypes.StructuredDataPropertyUUID,
  override val domain: Structure,
  override val range: Structure)
   extends DataRelationship

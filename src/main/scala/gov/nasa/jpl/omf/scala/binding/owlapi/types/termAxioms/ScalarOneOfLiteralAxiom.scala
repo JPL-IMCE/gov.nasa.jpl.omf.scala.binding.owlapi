@@ -18,15 +18,14 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.types.termAxioms
 
-import java.util.UUID
-
+import gov.nasa.jpl.imce.oml.resolver.api
 import gov.nasa.jpl.imce.oml.tables.LiteralValue
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.{DataRange,ScalarOneOfRestriction}
 
 import scala.{Any,Boolean,Int,Option}
 
 case class ScalarOneOfLiteralAxiom
-(override val uuid: UUID,
+(override val uuid: api.taggedTypes.ScalarOneOfLiteralAxiomUUID,
  axiom: ScalarOneOfRestriction,
  value: LiteralValue,
  valueType: Option[DataRange])

@@ -18,25 +18,23 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.types.terms
 
-import java.util.UUID
-
+import gov.nasa.jpl.imce.oml.resolver.api
+import gov.nasa.jpl.imce.oml.tables.taggedTypes.LocalName
 import gov.nasa.jpl.imce.oml.tables
-import gov.nasa.jpl.omf.scala.core.OMLString.LocalName
 import org.semanticweb.owlapi.model.{IRI, OWLDatatype}
 
 import scala.{Any, Boolean, Int, Option}
-import scala.Predef.String
 
 case class IRIScalarRestriction
 (override val e: OWLDatatype,
  override val iri: IRI,
- override val uuid: UUID,
+ override val uuid: api.taggedTypes.IRIScalarRestrictionUUID,
  override val name: LocalName,
  override val restrictedDataRange: DataRange,
- length: Option[tables.PositiveIntegerLiteral],
- minLength: Option[tables.PositiveIntegerLiteral],
- maxLength: Option[tables.PositiveIntegerLiteral],
- pattern: Option[String])
+ length: Option[tables.taggedTypes.PositiveIntegerLiteral],
+ minLength: Option[tables.taggedTypes.PositiveIntegerLiteral],
+ maxLength: Option[tables.taggedTypes.PositiveIntegerLiteral],
+ pattern: Option[tables.taggedTypes.LiteralPattern])
   extends RestrictedDataRange {
 
   override def canEqual(other: Any)

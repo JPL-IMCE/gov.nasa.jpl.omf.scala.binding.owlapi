@@ -18,15 +18,14 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.types.termAxioms
 
-import java.util.UUID
-
+import gov.nasa.jpl.imce.oml.resolver.api
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ReifiedRelationship
 
 import scala.{Any,Boolean,Int}
 import scala.Predef.require
 
 case class ReifiedRelationshipSpecializationAxiom
-(override val uuid: UUID,
+(override val uuid: api.taggedTypes.ReifiedRelationshipSpecializationAxiomUUID,
  sub: ReifiedRelationship,
  sup: ReifiedRelationship)
   extends SpecializationAxiom {

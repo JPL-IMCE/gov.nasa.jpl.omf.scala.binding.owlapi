@@ -18,14 +18,13 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.types.terms
 
-import java.util.UUID
-
+import gov.nasa.jpl.imce.oml.resolver.api
 import gov.nasa.jpl.omf.scala.binding.owlapi.common.Element
 
 import scala.{Any,Boolean,Int,Option,None,Some}
 
 case class RuleBodySegment
-(override val uuid: UUID,
+(override val uuid: api.taggedTypes.RuleBodySegmentUUID,
  chainRule: Option[ChainRule],
  previousSegment: Option[RuleBodySegment])
   extends Element {

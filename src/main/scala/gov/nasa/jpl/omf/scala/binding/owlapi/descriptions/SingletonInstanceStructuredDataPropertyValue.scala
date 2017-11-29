@@ -18,14 +18,13 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.descriptions
 
-import java.util.UUID
-
+import gov.nasa.jpl.imce.oml.resolver.api
 import gov.nasa.jpl.omf.scala.binding.owlapi.common.ModuleElement
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.EntityStructuredDataProperty
 import org.semanticweb.owlapi.model.OWLNamedIndividual
 
 case class SingletonInstanceStructuredDataPropertyValue
-( override val uuid: UUID,
+( override val uuid: api.taggedTypes.SingletonInstanceStructuredDataPropertyValueUUID,
   override val ni: OWLNamedIndividual,
   ei: ConceptualEntitySingletonInstance,
   override val structuredDataProperty: EntityStructuredDataProperty)

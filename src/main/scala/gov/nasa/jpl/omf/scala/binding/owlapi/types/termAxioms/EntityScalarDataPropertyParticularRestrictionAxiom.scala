@@ -18,15 +18,14 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.types.termAxioms
 
-import java.util.UUID
-
+import gov.nasa.jpl.imce.oml.resolver.api
 import gov.nasa.jpl.imce.oml.tables.LiteralValue
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.{DataRange, Entity, EntityScalarDataProperty}
 
 import scala.{Any,Boolean,Int,Option}
 
 case class EntityScalarDataPropertyParticularRestrictionAxiom
-(override val uuid: UUID,
+(override val uuid: api.taggedTypes.EntityScalarDataPropertyParticularRestrictionAxiomUUID,
  override val restrictedEntity: Entity,
  override val scalarProperty: EntityScalarDataProperty,
  literalValue: LiteralValue,

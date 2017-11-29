@@ -20,11 +20,14 @@ package gov.nasa.jpl.omf.scala.binding
 
 import java.nio.file.Path
 
-import gov.nasa.jpl.imce.oml.tables.{AnnotationProperty, UUID}
+import gov.nasa.jpl.imce.oml.resolver
+import gov.nasa.jpl.imce.oml.tables.{taggedTypes,AnnotationProperty}
+import gov.nasa.jpl.imce.oml.tables
 import gov.nasa.jpl.omf.scala.binding.owlapi.common.{ImmutableModule, MutableModule}
+import gov.nasa.jpl.omf.scala.core.generateUUIDFromString
 import gov.nasa.jpl.omf.scala.core.OMFError.Throwables
 import gov.nasa.jpl.omf.scala.core.builtin.BuiltInDatatypeMaps
-import gov.nasa.jpl.omf.scala.core.{Mutable2ImmutableModuleTable, OMFError, generateUUID}
+import gov.nasa.jpl.omf.scala.core.{Mutable2ImmutableModuleTable, OMFError}
 import org.apache.xml.resolver.{Catalog, CatalogManager}
 import org.apache.xml.resolver.tools.CatalogResolver
 import org.semanticweb.owlapi.apibinding.OWLManager
@@ -200,8 +203,8 @@ package object owlapi {
 
   def getAnnotationPropertyUUIDfromOWLAnnotationProperty
   (ap: OWLAnnotationProperty)
-  : UUID
-  = generateUUID(ap.getIRI.getIRIString).toString
+  : resolver.api.taggedTypes.AnnotationPropertyUUID
+  = resolver.api.taggedTypes.annotationPropertyUUID(generateUUIDFromString(ap.getIRI.getIRIString))
 
   val annotationNSPrefixes: Map[String, String] = Map(
     "http://purl.org/dc/terms/" -> "terms:",
@@ -229,6 +232,8 @@ package object owlapi {
   (ap: OWLAnnotationProperty)
   : Throwables \/ AnnotationProperty
   = {
+    import gov.nasa.jpl.imce.oml.resolver.toUUIDString
+
     val aIRI = ap.getIRI.getIRIString
     val shortIRI = ap.getIRI.getShortForm
     val abIRI = if (shortIRI.contains(":"))
@@ -240,7 +245,10 @@ package object owlapi {
         .getOrElse { getDefaultNSPrefix(aIRI) } + shortIRI
 
     if (abIRI.contains(":"))
-      AnnotationProperty(getAnnotationPropertyUUIDfromOWLAnnotationProperty(ap), aIRI, abIRI).right
+      AnnotationProperty(
+        getAnnotationPropertyUUIDfromOWLAnnotationProperty(ap),
+        taggedTypes.iri(aIRI),
+        taggedTypes.abbrevIRI(abIRI)).right
     else
       Set[java.lang.Throwable](new java.lang.IllegalArgumentException(
         s"Unknown abbreviated IRI for $aIRI (short form=$abIRI)")
@@ -249,8 +257,8 @@ package object owlapi {
 
   def getAnnotationPropertyUUIDfromOWLAnnotation
   (a: OWLAnnotation)
-  : UUID
-  = generateUUID(a.getProperty.getIRI.getIRIString).toString
+  : resolver.api.taggedTypes.AnnotationPropertyUUID
+  = resolver.api.taggedTypes.annotationPropertyUUID(generateUUIDFromString(a.getProperty.getIRI.getIRIString))
 
   def getAnnotationPropertyFromOWLAnnotation
   (a: OWLAnnotation)
@@ -259,16 +267,16 @@ package object owlapi {
 
   def getAnnotationValueFromOWLAnnotation
   (av: OWLAnnotationValue)
-  : Throwables \/ String
+  : Throwables \/ tables.taggedTypes.StringDataType
   = av match {
     case i: OWLAnonymousIndividual =>
       Set[java.lang.Throwable](OMFError.omfError(
         s"getAnnotationValueFromOWLAnnotation: an anonymous individual cannot be the value of an annotation in OML"
       )).left
     case i: IRI =>
-      i.getIRIString.right
+      tables.taggedTypes.stringDataType(i.getIRIString).right
     case l: OWLLiteral =>
-      l.getLiteral.right
+      tables.taggedTypes.stringDataType(l.getLiteral).right
   }
 
   def getRelevantOntologyAnnotations

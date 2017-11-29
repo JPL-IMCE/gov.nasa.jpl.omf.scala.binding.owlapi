@@ -18,9 +18,9 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.common
 
-import java.util.UUID
-
+import gov.nasa.jpl.imce.oml.covariantTag.@@
 import gov.nasa.jpl.imce.oml.tables.{AnnotationProperty, AnnotationPropertyValue}
+import gov.nasa.jpl.imce.oml.tables
 import gov.nasa.jpl.omf.scala.binding.owlapi.{OWLAPIOMF, OWLAPIOMFGraphStore}
 import gov.nasa.jpl.omf.scala.core.OMFError
 import org.semanticweb.owlapi.model.OWLAnnotation
@@ -38,36 +38,49 @@ trait MutableModule extends Module {
   def addAnnotation
   (subject: OWLAPIOMF#Element,
    property: AnnotationProperty,
-   value: String)
+   value: tables.taggedTypes.StringDataType)
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ AnnotationPropertyValue
 
-  def createOMLProvenanceAnnotation
-  (uuid: String)
-  (implicit store: OWLAPIOMFGraphStore)
-  : OWLAnnotation
-  = owlDataFactory.getOWLAnnotation(store.ANNOTATION_HAS_UUID, owlDataFactory.getOWLLiteral(uuid))
-
-  def createOMLProvenanceAnnotation
-  (uuid: UUID)
+  def createOMLProvenanceAnnotation[Tag]
+  (uuid: java.util.UUID @@ Tag)
   (implicit store: OWLAPIOMFGraphStore)
   : OWLAnnotation
   = owlDataFactory.getOWLAnnotation(store.ANNOTATION_HAS_UUID, owlDataFactory.getOWLLiteral(uuid.toString))
 
-  def createOMLProvenanceAnnotations
-  (uuid: String)
+  def createOMLProvenanceAnnotation[Tag]
+  (uuid: String @@ Tag)
+  (implicit store: OWLAPIOMFGraphStore)
+  : OWLAnnotation
+  = owlDataFactory.getOWLAnnotation(store.ANNOTATION_HAS_UUID, owlDataFactory.getOWLLiteral(uuid))
+
+  def createOMLProvenanceAnnotations[Tag]
+  (uuid: java.util.UUID @@ Tag)
   (implicit store: OWLAPIOMFGraphStore)
   : java.util.Collection[OWLAnnotation]
   = java.util.Collections.singleton(createOMLProvenanceAnnotation(uuid))
 
-  def createOMLProvenanceAnnotations
-  (uuid: UUID)
+  def createOMLProvenanceAnnotations[Tag]
+  (uuid: String @@ Tag)
   (implicit store: OWLAPIOMFGraphStore)
   : java.util.Collection[OWLAnnotation]
   = java.util.Collections.singleton(createOMLProvenanceAnnotation(uuid))
 
-  def createOMLProvenanceAnnotationsWithLabel
-  (name: String, uuid: UUID)
+  def createOMLProvenanceAnnotationsWithLabel[Tag]
+  (name: String, uuid: java.util.UUID @@ Tag)
+  (implicit store: OWLAPIOMFGraphStore)
+  : java.util.Collection[OWLAnnotation]
+  = {
+    val anns = new java.util.ArrayList[OWLAnnotation]()
+    anns.add(owlDataFactory.getOWLAnnotation(
+      owlDataFactory.getRDFSLabel(),
+      owlDataFactory.getOWLLiteral(name, owlDataFactory.getStringOWLDatatype)))
+    anns.add(createOMLProvenanceAnnotation(uuid))
+    anns
+  }
+
+  def createOMLProvenanceAnnotationsWithLabel[Tag]
+  (name: String, uuid: String @@ Tag)
   (implicit store: OWLAPIOMFGraphStore)
   : java.util.Collection[OWLAnnotation]
   = {

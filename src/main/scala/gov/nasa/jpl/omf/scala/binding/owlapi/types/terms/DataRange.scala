@@ -18,11 +18,14 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.types.terms
 
+import gov.nasa.jpl.imce.oml.resolver.api
 import org.semanticweb.owlapi.model.OWLDatatype
 
 import scala.{Any, Boolean}
 
 trait DataRange extends Datatype {
+
+  override val uuid: api.taggedTypes.DataRangeUUID
 
   override val e: OWLDatatype
 

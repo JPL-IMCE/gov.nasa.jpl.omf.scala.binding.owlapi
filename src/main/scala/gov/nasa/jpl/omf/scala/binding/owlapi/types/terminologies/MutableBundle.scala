@@ -18,9 +18,9 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies
 
-import java.util.UUID
-
+import gov.nasa.jpl.imce.oml.resolver.api.taggedTypes.{AnonymousConceptUnionAxiomUUID,BundleUUID,BundledTerminologyAxiomUUID,RootConceptTaxonomyAxiomUUID,SpecificDisjointConceptAxiomUUID}
 import gov.nasa.jpl.imce.oml.tables.{AnnotationProperty, AnnotationPropertyValue}
+import gov.nasa.jpl.imce.oml.tables.taggedTypes.LocalName
 import gov.nasa.jpl.omf.scala.binding.owlapi._
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.bundleStatements.{AnonymousConceptTaxonomyAxiom, ConceptTreeDisjunction, RootConceptTaxonomyAxiom, SpecificDisjointConceptAxiom}
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.{Axiom, RestrictionScalarDataPropertyValue, RestrictionStructuredDataPropertyTuple, duplicateTerminologyGraphAxiomException}
@@ -28,7 +28,6 @@ import gov.nasa.jpl.omf.scala.binding.owlapi.types.termAxioms.ScalarOneOfLiteral
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologyAxioms.{BundledTerminologyAxiom, ConceptDesignationTerminologyAxiom, TerminologyExtensionAxiom, TerminologyNestingAxiom}
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms._
 import gov.nasa.jpl.omf.scala.core.OMFError.Throwables
-import gov.nasa.jpl.omf.scala.core.OMLString.LocalName
 import gov.nasa.jpl.omf.scala.core.{MutableTerminologyBoxSignature, TerminologyBoxSignature, TerminologyKind}
 import org.semanticweb.owlapi.model._
 
@@ -82,7 +81,7 @@ case class MutableBundle
   } yield ax
 
   def createBundledTerminologyAxiom
-  (uuid: UUID,
+  (uuid: BundledTerminologyAxiomUUID,
    bundledTerminology: TerminologyBox)
   (implicit store: OWLAPIOMFGraphStore)
   : Set[java.lang.Throwable] \/ BundledTerminologyAxiom
@@ -103,7 +102,7 @@ case class MutableBundle
   }
 
   def addBundledTerminologyAxiom
-  (uuid: UUID,
+  (uuid: BundledTerminologyAxiomUUID,
    extendedG: TerminologyBox)
   (implicit store: OWLAPIOMFGraphStore)
   : Set[java.lang.Throwable] \/ BundledTerminologyAxiom
@@ -116,17 +115,17 @@ case class MutableBundle
   } yield axiom
 
   def addAnonymousConceptTaxonomyAxiom
-  (uuid: UUID, name: String, disjointTerminologyParent: ConceptTreeDisjunction)
+  (uuid: AnonymousConceptUnionAxiomUUID, name: String, disjointTerminologyParent: ConceptTreeDisjunction)
   : Set[java.lang.Throwable] \/ OWLAPIOMF#AnonymousConceptTaxonomyAxiom
   = ???
 
   def addRootConceptTaxonomyAxiom
-  (uuid: UUID, root: Concept)
+  (uuid: RootConceptTaxonomyAxiomUUID, root: Concept)
   : Set[java.lang.Throwable] \/ OWLAPIOMF#RootConceptTaxonomyAxiom
   = ???
 
   def addSpecificDisjointConceptAxiom
-  (uuid: UUID, disjointTerminologyParent: ConceptTreeDisjunction, disjointLeaf: Concept)
+  (uuid: SpecificDisjointConceptAxiomUUID, disjointTerminologyParent: ConceptTreeDisjunction, disjointLeaf: Concept)
   : Set[java.lang.Throwable] \/ OWLAPIOMF#SpecificDisjointConceptAxiom
   = ???
 
@@ -136,7 +135,7 @@ case class MutableBundle
 object MutableBundle {
 
   def initialize
-  (uuid: UUID,
+  (uuid: BundleUUID,
    name: LocalName,
    iri: IRI,
    kind: TerminologyKind,

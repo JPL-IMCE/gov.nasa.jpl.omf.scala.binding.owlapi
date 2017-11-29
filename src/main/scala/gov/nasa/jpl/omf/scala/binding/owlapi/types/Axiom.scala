@@ -18,9 +18,13 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.types
 
+import gov.nasa.jpl.imce.oml.resolver.api.taggedTypes.TerminologyBoxStatementUUID
+
 import scala.{Any, Boolean}
 
 trait Axiom extends TerminologyBoxStatement {
+
+  override val uuid: TerminologyBoxStatementUUID
 
   override def canEqual(other: Any)
   : Boolean

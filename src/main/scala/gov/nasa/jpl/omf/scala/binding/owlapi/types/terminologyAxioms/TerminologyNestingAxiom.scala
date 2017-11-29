@@ -18,8 +18,7 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologyAxioms
 
-import java.util.UUID
-
+import gov.nasa.jpl.imce.oml.resolver.api
 import gov.nasa.jpl.omf.scala.binding.owlapi.common.Module
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Concept
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox
@@ -34,8 +33,8 @@ import scala.Predef.require
   * @param nestingContext
   */
 case class TerminologyNestingAxiom
-(override val uuid: UUID,
- nestedTerminology: UUID,
+(override val uuid: api.taggedTypes.TerminologyNestingAxiomUUID,
+ nestedTerminology: api.taggedTypes.TerminologyBoxUUID,
  nestingTerminology: TerminologyBox,
  nestingContext: Concept)
 extends TerminologyBoxAxiom {
@@ -61,6 +60,6 @@ extends TerminologyBoxAxiom {
       false
   }
 
-  override val sourceModule: UUID = nestedTerminology
+  override val sourceModule: api.taggedTypes.TerminologyBoxUUID = nestedTerminology
   override val targetModule: Module = nestingTerminology
 }

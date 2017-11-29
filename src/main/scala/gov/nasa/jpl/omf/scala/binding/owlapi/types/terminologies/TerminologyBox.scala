@@ -20,13 +20,15 @@ package gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies
 
 import java.io.OutputStream
 
+import gov.nasa.jpl.imce.oml.resolver.api.taggedTypes.TerminologyBoxUUID
+import gov.nasa.jpl.imce.oml.tables
+
 import gov.nasa.jpl.omf.scala.binding.owlapi._
 import gov.nasa.jpl.omf.scala.binding.owlapi.common.Module
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms._
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologyAxioms._
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.{Axiom, Term}
 import gov.nasa.jpl.omf.scala.core.{OMFError, TerminologyBoxSignature, terminologyBoxImportClosure}
-import gov.nasa.jpl.omf.scala.core.OMLString.LocalName
 import org.semanticweb.owlapi.formats._
 import org.semanticweb.owlapi.model._
 
@@ -59,6 +61,8 @@ trait TerminologyBox extends Module {
   val isImmutable: Boolean
   val isGraph: Boolean
   val isBundle: Boolean
+
+  override val uuid: TerminologyBoxUUID = sig.uuid
 
   val rdfs_labelAP = owlDataFactory.getOWLAnnotationProperty(rdfs_label)
   val isAbstractAP = owlDataFactory.getOWLAnnotationProperty(AnnotationIsAbstract)
@@ -142,7 +146,7 @@ trait TerminologyBox extends Module {
   = ont.annotations.toScala[Set].find(_.getProperty.getIRI == ops.rdfs_label)
 
   def getTerminologyGraphLocalName
-  : LocalName
+  : tables.taggedTypes.LocalName
   = name
 
   def getTermLocalNameAnnotationAssertionAxiom

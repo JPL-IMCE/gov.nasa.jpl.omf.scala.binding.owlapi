@@ -18,12 +18,11 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.common
 
-import java.util.UUID
-
+import gov.nasa.jpl.imce.oml.resolver.api.taggedTypes.ModuleUUID
 import gov.nasa.jpl.imce.oml.tables.{AnnotationProperty, AnnotationPropertyValue}
+import gov.nasa.jpl.imce.oml.tables
 import gov.nasa.jpl.omf.scala.binding.owlapi.{OMFBackbone, OWLAPIOMF}
-import gov.nasa.jpl.omf.scala.core.OMLString.{LocalName, NamespacePrefix}
-import gov.nasa.jpl.omf.scala.core.{ModuleSignature, generateUUID}
+import gov.nasa.jpl.omf.scala.core.ModuleSignature
 import org.semanticweb.owlapi.model.{IRI, OWLOntology}
 
 import scala.collection.immutable.Set
@@ -60,11 +59,11 @@ trait Module
 
   val backbone: OMFBackbone
 
-  val nsPrefix: NamespacePrefix = NamespacePrefix.apply(iri.getShortForm)
+  val nsPrefix: tables.taggedTypes.NamespacePrefix = tables.taggedTypes.namespacePrefix(iri.getShortForm)
 
-  override val name: LocalName = LocalName.apply(NamespacePrefix.unwrap(nsPrefix))
+  override val name: tables.taggedTypes.LocalName = tables.taggedTypes.localName(nsPrefix)
 
-  override val uuid: UUID = generateUUID(iri.toString)
+  override val uuid: ModuleUUID
 
   override def canEqual(other: Any)
   : Boolean

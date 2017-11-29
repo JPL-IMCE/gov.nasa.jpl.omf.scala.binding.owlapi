@@ -18,14 +18,14 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.descriptions
 
-import java.util.UUID
+import gov.nasa.jpl.imce.oml.resolver.api
 
 import gov.nasa.jpl.imce.oml.tables.{AnnotationProperty, AnnotationPropertyValue}
+import gov.nasa.jpl.imce.oml.tables.taggedTypes.LocalName
 import gov.nasa.jpl.omf.scala.binding.owlapi.common.ImmutableModule
 import gov.nasa.jpl.omf.scala.binding.owlapi.{OMFBackbone, OWLAPIOMF, OWLAPIOMFGraphStore, OWLAPIOMFOps}
 import gov.nasa.jpl.omf.scala.core.OMFError.Throwables
 import gov.nasa.jpl.omf.scala.core.{DescriptionBoxSignature, DescriptionKind, ImmutableDescriptionBoxSignature}
-import gov.nasa.jpl.omf.scala.core.OMLString.LocalName
 import org.semanticweb.owlapi.model.{IRI, OWLOntology}
 
 import scala.collection.immutable._
@@ -35,7 +35,7 @@ import Scalaz._
 object ImmutableDescriptionBox {
 
   def initialize
-  (uuid: UUID,
+  (uuid: api.taggedTypes.DescriptionBoxUUID,
    name: LocalName,
    iri: IRI,
    kind: DescriptionKind,

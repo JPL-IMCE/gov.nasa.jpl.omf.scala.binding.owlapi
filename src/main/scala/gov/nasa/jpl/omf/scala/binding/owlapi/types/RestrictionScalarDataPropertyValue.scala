@@ -18,7 +18,7 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.types
 
-import java.util.UUID
+import gov.nasa.jpl.imce.oml.resolver.api
 
 import gov.nasa.jpl.imce.oml.tables.LiteralValue
 import gov.nasa.jpl.omf.scala.binding.owlapi.common.Element
@@ -27,7 +27,7 @@ import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.{DataRange, DataRelatio
 import scala.{Any,Boolean,Int,Option}
 
 case class RestrictionScalarDataPropertyValue
-(override val uuid: UUID,
+(override val uuid: api.taggedTypes.RestrictionScalarDataPropertyValueUUID,
  structuredDataPropertyContext: RestrictionStructuredDataPropertyContext,
  scalarProperty: DataRelationshipToScalar,
  literalValue: LiteralValue,

@@ -49,3 +49,7 @@ gov.nasa.jpl.omf.scala.binding.owlapi 9.0.0 is a major update
 - [#51 Handle dc:description for OML ReifiedRelationship](https://github.com/JPL-IMCE/gov.nasa.jpl.omf.scala.binding.owlapi/issues/51)
 
 - [#52 Missing entityStructuredDataPropertyParticularRestrictionAxioms in foldAxiom](https://github.com/JPL-IMCE/gov.nasa.jpl.omf.scala.binding.owlapi/issues/52)
+
+- [#55 Update for the tagged type resolver API](https://github.com/JPL-IMCE/gov.nasa.jpl.omf.scala.binding.owlapi/issues/55)
+
+- [#56 MutableTerminologyBox.addEntityReifiedRelationshipSubClassAxiom is missing object property specialization](https://github.com/JPL-IMCE/gov.nasa.jpl.omf.scala.binding.owlapi/issues/56)

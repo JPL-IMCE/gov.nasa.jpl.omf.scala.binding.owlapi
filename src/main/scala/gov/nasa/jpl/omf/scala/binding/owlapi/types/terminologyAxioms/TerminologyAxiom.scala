@@ -18,11 +18,14 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologyAxioms
 
+import gov.nasa.jpl.imce.oml.resolver.api.taggedTypes.TerminologyAxiomUUID
 import gov.nasa.jpl.omf.scala.binding.owlapi.common.ModuleEdge
 
 import scala.{Any, Boolean}
 
 abstract class TerminologyAxiom extends ModuleEdge {
+
+  override val uuid: TerminologyAxiomUUID
 
   override def canEqual(other: Any)
   : Boolean

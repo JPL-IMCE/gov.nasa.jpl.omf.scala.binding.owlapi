@@ -18,11 +18,14 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.types.bundleStatements
 
+import gov.nasa.jpl.imce.oml.resolver.api.taggedTypes.ConceptTreeDisjunctionUUID
 import gov.nasa.jpl.omf.scala.binding.owlapi.common.Element
 
 import scala.{Any, Boolean}
 
 trait ConceptTreeDisjunction extends Element {
+
+  override val uuid: ConceptTreeDisjunctionUUID
 
   override def canEqual(other: Any)
   : Boolean

@@ -18,14 +18,14 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.types.terms
 
-import java.util.UUID
+import gov.nasa.jpl.imce.oml.resolver.api
 
 import scala.{Any, Boolean, Int}
 
 case class AspectPredicate
 (override val bodySegment: RuleBodySegment,
  override val termPredicate: Aspect,
- override val uuid: UUID
+ override val uuid: api.taggedTypes.AspectPredicateUUID
 ) extends UnarySegmentPredicate {
 
   override def canEqual(other: Any)

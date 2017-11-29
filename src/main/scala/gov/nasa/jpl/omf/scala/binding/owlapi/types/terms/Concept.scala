@@ -18,9 +18,9 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.types.terms
 
-import java.util.UUID
+import gov.nasa.jpl.imce.oml.tables
+import gov.nasa.jpl.imce.oml.resolver
 
-import gov.nasa.jpl.omf.scala.core.OMLString.LocalName
 import org.semanticweb.owlapi.model.{IRI, OWLClass}
 
 import scala.{Any, Boolean, Int}
@@ -28,8 +28,8 @@ import scala.{Any, Boolean, Int}
 case class Concept
 (override val e: OWLClass,
  override val iri: IRI,
- override val name: LocalName,
- override val uuid: UUID )
+ override val name: tables.taggedTypes.LocalName,
+ override val uuid: resolver.api.taggedTypes.ConceptUUID )
   extends ConceptualEntity {
 
   override def canEqual(other: Any)

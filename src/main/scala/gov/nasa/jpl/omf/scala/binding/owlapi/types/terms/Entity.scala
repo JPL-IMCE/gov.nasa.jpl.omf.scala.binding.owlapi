@@ -18,12 +18,15 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.types.terms
 
+import gov.nasa.jpl.imce.oml.resolver.api.taggedTypes.EntityUUID
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.Term
 import org.semanticweb.owlapi.model.OWLClass
 
-import scala.{Any,Boolean}
+import scala.{Any, Boolean}
 
 trait Entity extends Term {
+
+  override val uuid: EntityUUID
 
   override val e: OWLClass
 

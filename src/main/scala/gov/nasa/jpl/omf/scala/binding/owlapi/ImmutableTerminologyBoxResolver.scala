@@ -75,17 +75,17 @@ case class ImmutableTerminologyBoxResolver(resolver: TerminologyBoxResolverHelpe
   = facets.find { f => facetPrefixedName == f.getFacet.getPrefixedName }.map(_.getFacetValue.getLiteral)
 
   private def getFacetIntValueIfAny(facets: List[OWLFacetRestriction], facetPrefixedName: String)
-  : Throwables \/ Option[tables.PositiveIntegerLiteral]
+  : Throwables \/ Option[tables.taggedTypes.PositiveIntegerLiteral]
   = facets
     .find { f => facetPrefixedName == f.getFacet.getPrefixedName }
     .map(_.getFacetValue.getLiteral)
-    .fold[Throwables \/ Option[tables.PositiveIntegerLiteral]](None.right) { v =>
-    nonFatalCatch[Throwables \/ Option[tables.PositiveIntegerLiteral]]
+    .fold[Throwables \/ Option[tables.taggedTypes.PositiveIntegerLiteral]](None.right) { v =>
+    nonFatalCatch[Throwables \/ Option[tables.taggedTypes.PositiveIntegerLiteral]]
       .withApply {
         (cause: java.lang.Throwable) =>
           Set[java.lang.Throwable](cause).left
       }
-      .apply(Some(v).right)
+      .apply(Some(tables.taggedTypes.positiveIntegerLiteral(v)).right)
   }
 
   private def resolveDataRanges
@@ -192,15 +192,21 @@ case class ImmutableTerminologyBoxResolver(resolver: TerminologyBoxResolverHelpe
 
                       val facets = r.facetRestrictions().toScala[List]
 
-                      val len: Throwables \/ Option[tables.PositiveIntegerLiteral] = getFacetIntValueIfAny(facets, "xsd:length")
-                      val minL: Throwables \/ Option[tables.PositiveIntegerLiteral] = getFacetIntValueIfAny(facets, "xsd:minLength")
-                      val maxL: Throwables \/ Option[tables.PositiveIntegerLiteral] = getFacetIntValueIfAny(facets, "xsd:maxLength")
-                      val patt: Option[String] = getFacetValueIfAny(facets, "xsd:pattern")
-                      val minI: Option[String] = getFacetValueIfAny(facets, "xsd:minInclusive")
-                      val maxI: Option[String] = getFacetValueIfAny(facets, "xsd:maxInclusive")
-                      val minE: Option[String] = getFacetValueIfAny(facets, "xsd:minExclusive")
-                      val maxE: Option[String] = getFacetValueIfAny(facets, "xsd:maxExclusive")
-                      val lang: Option[String] = getFacetValueIfAny(facets, "rdf:LangRange")
+                      val len: Throwables \/ Option[tables.taggedTypes.PositiveIntegerLiteral] = getFacetIntValueIfAny(facets, "xsd:length")
+                      val minL: Throwables \/ Option[tables.taggedTypes.PositiveIntegerLiteral] = getFacetIntValueIfAny(facets, "xsd:minLength")
+                      val maxL: Throwables \/ Option[tables.taggedTypes.PositiveIntegerLiteral] = getFacetIntValueIfAny(facets, "xsd:maxLength")
+                      val patt: Option[tables.taggedTypes.LiteralPattern]
+                      = getFacetValueIfAny(facets, "xsd:pattern").map(tables.taggedTypes.literalPattern)
+                      val minI: Option[tables.taggedTypes.PositiveIntegerLiteral]
+                      = getFacetValueIfAny(facets, "xsd:minInclusive").map(tables.taggedTypes.positiveIntegerLiteral)
+                      val maxI: Option[tables.taggedTypes.PositiveIntegerLiteral]
+                      = getFacetValueIfAny(facets, "xsd:maxInclusive").map(tables.taggedTypes.positiveIntegerLiteral)
+                      val minE: Option[tables.taggedTypes.PositiveIntegerLiteral]
+                      = getFacetValueIfAny(facets, "xsd:minExclusive").map(tables.taggedTypes.positiveIntegerLiteral)
+                      val maxE: Option[tables.taggedTypes.PositiveIntegerLiteral]
+                      = getFacetValueIfAny(facets, "xsd:maxExclusive").map(tables.taggedTypes.positiveIntegerLiteral)
+                      val lang: Option[tables.taggedTypes.LanguageTagDataType]
+                      = getFacetValueIfAny(facets, "rdf:LangRange").map(tables.taggedTypes.languageTagDataType)
 
                       if (resolver.omfStore.isBinaryKind(restrictedRange)) {
                         val added = for {
@@ -367,15 +373,21 @@ case class ImmutableTerminologyBoxResolver(resolver: TerminologyBoxResolverHelpe
                   case Some(restrictedRange) =>
                     val facets = drRestrictions.flatMap(_.facetRestrictions().toScala[List])
 
-                    val len: Throwables \/ Option[tables.PositiveIntegerLiteral] = getFacetIntValueIfAny(facets, "xsd:length")
-                    val minL: Throwables \/ Option[tables.PositiveIntegerLiteral] = getFacetIntValueIfAny(facets, "xsd:minLength")
-                    val maxL: Throwables \/ Option[tables.PositiveIntegerLiteral] = getFacetIntValueIfAny(facets, "xsd:maxLength")
-                    val patt: Option[String] = getFacetValueIfAny(facets, "xsd:pattern")
-                    val minI: Option[String] = getFacetValueIfAny(facets, "xsd:minInclusive")
-                    val maxI: Option[String] = getFacetValueIfAny(facets, "xsd:maxInclusive")
-                    val minE: Option[String] = getFacetValueIfAny(facets, "xsd:minExclusive")
-                    val maxE: Option[String] = getFacetValueIfAny(facets, "xsd:maxExclusive")
-                    val lang: Option[String] = getFacetValueIfAny(facets, "rdf:LangRange")
+                    val len: Throwables \/ Option[tables.taggedTypes.PositiveIntegerLiteral] = getFacetIntValueIfAny(facets, "xsd:length")
+                    val minL: Throwables \/ Option[tables.taggedTypes.PositiveIntegerLiteral] = getFacetIntValueIfAny(facets, "xsd:minLength")
+                    val maxL: Throwables \/ Option[tables.taggedTypes.PositiveIntegerLiteral] = getFacetIntValueIfAny(facets, "xsd:maxLength")
+                    val patt: Option[tables.taggedTypes.LiteralPattern]
+                    = getFacetValueIfAny(facets, "xsd:pattern").map(tables.taggedTypes.literalPattern)
+                    val minI: Option[tables.taggedTypes.PositiveIntegerLiteral]
+                    = getFacetValueIfAny(facets, "xsd:minInclusive").map(tables.taggedTypes.positiveIntegerLiteral)
+                    val maxI: Option[tables.taggedTypes.PositiveIntegerLiteral]
+                    = getFacetValueIfAny(facets, "xsd:maxInclusive").map(tables.taggedTypes.positiveIntegerLiteral)
+                    val minE: Option[tables.taggedTypes.PositiveIntegerLiteral]
+                    = getFacetValueIfAny(facets, "xsd:minExclusive").map(tables.taggedTypes.positiveIntegerLiteral)
+                    val maxE: Option[tables.taggedTypes.PositiveIntegerLiteral]
+                    = getFacetValueIfAny(facets, "xsd:maxExclusive").map(tables.taggedTypes.positiveIntegerLiteral)
+                    val lang: Option[tables.taggedTypes.LanguageTagDataType]
+                    = getFacetValueIfAny(facets, "rdf:LangRange").map(tables.taggedTypes.languageTagDataType)
 
                     if (resolver.omfStore.isBinaryKind(restrictedRange)) {
                       val added = for {

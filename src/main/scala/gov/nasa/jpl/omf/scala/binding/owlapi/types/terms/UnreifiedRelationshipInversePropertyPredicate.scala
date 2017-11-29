@@ -18,14 +18,13 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.types.terms
 
-import java.util.UUID
-
+import gov.nasa.jpl.imce.oml.resolver.api
 import scala.{Any,Boolean,Int}
 
 case class UnreifiedRelationshipInversePropertyPredicate
 (override val bodySegment: RuleBodySegment,
  override val termPredicate: UnreifiedRelationship,
- override val uuid: UUID
+ override val uuid: api.taggedTypes.UnreifiedRelationshipInversePropertyPredicateUUID
  ) extends BinarySegmentReversePropertyPredicate {
 
   override def canEqual(other: Any)

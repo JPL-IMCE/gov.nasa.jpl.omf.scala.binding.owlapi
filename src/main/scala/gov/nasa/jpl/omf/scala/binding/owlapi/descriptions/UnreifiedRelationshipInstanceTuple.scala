@@ -18,12 +18,11 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.descriptions
 
-import java.util.UUID
-
+import gov.nasa.jpl.imce.oml.resolver.api
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.UnreifiedRelationship
 
 case class UnreifiedRelationshipInstanceTuple
-(override val uuid: UUID,
+(override val uuid: api.taggedTypes.UnreifiedRelationshipInstanceTupleUUID,
  unreifiedRelationship: UnreifiedRelationship,
  domain: ConceptualEntitySingletonInstance,
  range: ConceptualEntitySingletonInstance)

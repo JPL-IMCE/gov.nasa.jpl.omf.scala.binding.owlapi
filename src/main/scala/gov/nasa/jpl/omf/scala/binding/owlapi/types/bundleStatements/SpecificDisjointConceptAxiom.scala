@@ -18,8 +18,7 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.types.bundleStatements
 
-import java.util.UUID
-
+import gov.nasa.jpl.imce.oml.resolver.api
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.Bundle
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Concept
 
@@ -27,7 +26,7 @@ import scala.{Any,Boolean,Int}
 import scala.Predef.require
 
 case class SpecificDisjointConceptAxiom
-(override val uuid: UUID,
+(override val uuid: api.taggedTypes.SpecificDisjointConceptAxiomUUID,
  terminologyBundle: Bundle,
  override val disjointTaxonomyParent: ConceptTreeDisjunction,
  disjointLeaf: Concept)

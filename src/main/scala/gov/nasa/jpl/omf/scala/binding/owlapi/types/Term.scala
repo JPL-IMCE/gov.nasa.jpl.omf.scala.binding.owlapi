@@ -18,12 +18,15 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.types
 
+import gov.nasa.jpl.imce.oml.resolver.api.taggedTypes.TermUUID
 import gov.nasa.jpl.omf.scala.binding.owlapi.common.Resource
 import org.semanticweb.owlapi.model.OWLObject
 
 import scala.{Any, Boolean}
 
 trait Term extends Resource with TerminologyBoxStatement {
+
+  override val uuid: TermUUID
 
   val e: OWLObject
 

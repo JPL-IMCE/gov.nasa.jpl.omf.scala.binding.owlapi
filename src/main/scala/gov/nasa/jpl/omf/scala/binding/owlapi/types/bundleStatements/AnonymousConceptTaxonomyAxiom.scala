@@ -18,16 +18,15 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.types.bundleStatements
 
-import java.util.UUID
-
+import gov.nasa.jpl.imce.oml.resolver.api
+import gov.nasa.jpl.imce.oml.tables.taggedTypes.LocalName
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.Bundle
-import gov.nasa.jpl.omf.scala.core.OMLString.LocalName
 
 import scala.{Any, Boolean, Int}
 import scala.Predef.require
 
 case class AnonymousConceptTaxonomyAxiom
-(override val uuid: UUID,
+(override val uuid: api.taggedTypes.AnonymousConceptUnionAxiomUUID,
  val name: LocalName,
  terminologyBundle: Bundle,
  override val disjointTaxonomyParent: ConceptTreeDisjunction)

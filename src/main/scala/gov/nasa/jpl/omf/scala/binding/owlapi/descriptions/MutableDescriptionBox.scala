@@ -18,30 +18,29 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.descriptions
 
-import java.util.UUID
-
+import gov.nasa.jpl.imce.oml.resolver.{api,toUUIDString}
 import gov.nasa.jpl.imce.oml.tables.{AnnotationProperty, AnnotationPropertyValue, LiteralValue}
+import gov.nasa.jpl.imce.oml.tables
 import gov.nasa.jpl.omf.scala.binding.owlapi.common.{MutableModule, Resource}
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms._
 import gov.nasa.jpl.omf.scala.binding.owlapi._
 import gov.nasa.jpl.omf.scala.core.{DescriptionBoxSignature, DescriptionKind, MutableDescriptionBoxSignature, OMFError, uuidG}
-import gov.nasa.jpl.omf.scala.core.OMLString.{LocalName}
 import org.semanticweb.owlapi.model._
 
 import scala.collection.immutable._
 import scala.collection.mutable.{HashMap, HashSet}
 import scala.compat.java8.StreamConverters._
 import scala.{Any, Boolean, Option, None, Some, StringContext}
-import scala.Predef.{ArrowAssoc, String}
+import scala.Predef.ArrowAssoc
 import scalaz._
 import Scalaz._
 
 object MutableDescriptionBox {
 
   def initialize
-  (uuid: UUID,
-   name: LocalName,
+  (uuid: api.taggedTypes.DescriptionBoxUUID,
+   name: tables.taggedTypes.LocalName,
    iri: IRI,
    kind: DescriptionKind,
    ont: OWLOntology,
@@ -99,20 +98,20 @@ case class MutableDescriptionBox
     _ <- applyOntologyChangeOrNoOp(ontManager,
       new AddAxiom(ont, owlDataFactory.getOWLDeclarationAxiom(
         ont_ap,
-        createOMLProvenanceAnnotations(ap.uuid))),
+        createOMLProvenanceAnnotations(api.taggedTypes.fromUUIDString(ap.uuid)))),
       "addAnnotationProperty error")
   } yield ap
 
   def addAnnotation
   (subject: OWLAPIOMF#Element,
    property: AnnotationProperty,
-   value: String)
+   value: tables.taggedTypes.StringDataType)
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ AnnotationPropertyValue
   = for {
     a <- new AnnotationPropertyValue(
       oug = uuidG,
-      subjectUUID = subject.uuid.toString,
+      subjectUUID = subject.uuid,
       propertyUUID = property.uuid,
       value = value).right[OMFError.Throwables]
     _ = sig.annotationPropertyValues.find { a => a.subjectUUID == subject.uuid.toString && a.propertyUUID == property.uuid } match {
@@ -177,7 +176,7 @@ case class MutableDescriptionBox
   } yield ae
 
   def addDescriptionBoxExtendsClosedWorldDefinitions
-  (uuid: UUID,
+  (uuid: api.taggedTypes.DescriptionBoxExtendsClosedWorldDefinitionsUUID,
    closedWorldDefinitions: TerminologyBox)
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ descriptions.DescriptionBoxExtendsClosedWorldDefinitions
@@ -193,7 +192,7 @@ case class MutableDescriptionBox
   } yield ax
 
   def addDescriptionBoxRefinement
-  (uuid: UUID,
+  (uuid: api.taggedTypes.DescriptionBoxRefinementUUID,
    refinedDescriptionBox: descriptions.DescriptionBox)
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ descriptions.DescriptionBoxRefinement
@@ -209,11 +208,11 @@ case class MutableDescriptionBox
   } yield ax
 
   def createConceptInstance
-  (uuid: UUID,
+  (uuid: api.taggedTypes.ConceptInstanceUUID,
    iri: IRI,
    ni: OWLNamedIndividual,
    conceptType: Concept,
-   fragment: LocalName)
+   fragment: tables.taggedTypes.LocalName)
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ descriptions.ConceptInstance
   = iri2namedIndividual
@@ -240,10 +239,10 @@ case class MutableDescriptionBox
   }
 
   def addConceptInstance
-  (uuid: UUID,
+  (uuid: api.taggedTypes.ConceptInstanceUUID,
    iri: IRI,
    conceptType: Concept,
-   fragment: LocalName)
+   fragment: tables.taggedTypes.LocalName)
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ descriptions.ConceptInstance
   = for {
@@ -262,11 +261,11 @@ case class MutableDescriptionBox
   } yield i
 
   def createReifiedRelationshipInstance
-  (uuid: UUID,
+  (uuid: api.taggedTypes.ReifiedRelationshipInstanceUUID,
    iri: IRI,
    ni: OWLNamedIndividual,
    relationshipType: ReifiedRelationship,
-   fragment: LocalName)
+   fragment: tables.taggedTypes.LocalName)
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ descriptions.ReifiedRelationshipInstance
   = iri2namedIndividual
@@ -293,10 +292,10 @@ case class MutableDescriptionBox
   }
 
   def addReifiedRelationshipInstance
-  (uuid: UUID,
+  (uuid: api.taggedTypes.ReifiedRelationshipInstanceUUID,
    iri: IRI,
    relationshipType: ReifiedRelationship,
-   fragment: LocalName)
+   fragment: tables.taggedTypes.LocalName)
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ descriptions.ReifiedRelationshipInstance
   = for {
@@ -315,7 +314,7 @@ case class MutableDescriptionBox
   } yield i
 
   def createReifiedRelationshipInstanceDomain
-  (uuid: UUID,
+  (uuid: api.taggedTypes.ReifiedRelationshipInstanceDomainUUID,
    rri: descriptions.ReifiedRelationshipInstance,
    source: descriptions.ConceptualEntitySingletonInstance)
   (implicit store: OWLAPIOMFGraphStore)
@@ -340,7 +339,7 @@ case class MutableDescriptionBox
   }
 
   def addReifiedRelationshipInstanceDomain
-  (uuid: UUID,
+  (uuid: api.taggedTypes.ReifiedRelationshipInstanceDomainUUID,
    rri: descriptions.ReifiedRelationshipInstance,
    source: descriptions.ConceptualEntitySingletonInstance)
   (implicit store: OWLAPIOMFGraphStore)
@@ -358,7 +357,7 @@ case class MutableDescriptionBox
   } yield i
 
   def createReifiedRelationshipInstanceRange
-  (uuid: UUID,
+  (uuid: api.taggedTypes.ReifiedRelationshipInstanceRangeUUID,
    rri: descriptions.ReifiedRelationshipInstance,
    target: descriptions.ConceptualEntitySingletonInstance)
   (implicit store: OWLAPIOMFGraphStore)
@@ -383,7 +382,7 @@ case class MutableDescriptionBox
   }
 
   def addReifiedRelationshipInstanceRange
-  (uuid: UUID,
+  (uuid: api.taggedTypes.ReifiedRelationshipInstanceRangeUUID,
    rri: descriptions.ReifiedRelationshipInstance,
    target: descriptions.ConceptualEntitySingletonInstance)
   (implicit store: OWLAPIOMFGraphStore)
@@ -403,7 +402,7 @@ case class MutableDescriptionBox
   } yield i
 
   def createUnreifiedRelationshipInstanceTuple
-  (uuid: UUID,
+  (uuid: api.taggedTypes.UnreifiedRelationshipInstanceTupleUUID,
    unreifiedRelationship: UnreifiedRelationship,
    source: descriptions.ConceptualEntitySingletonInstance,
    target: descriptions.ConceptualEntitySingletonInstance)
@@ -430,7 +429,7 @@ case class MutableDescriptionBox
   }
 
   def addUnreifiedRelationshipInstanceTuple
-  (uuid: UUID,
+  (uuid: api.taggedTypes.UnreifiedRelationshipInstanceTupleUUID,
    unreifiedRelationship: UnreifiedRelationship,
    source: descriptions.ConceptualEntitySingletonInstance,
    target: descriptions.ConceptualEntitySingletonInstance)
@@ -449,7 +448,7 @@ case class MutableDescriptionBox
   } yield i
 
   def createSingletonInstanceScalarDataPropertyValue
-  (uuid: UUID,
+  (uuid: api.taggedTypes.SingletonInstanceScalarDataPropertyValueUUID,
    ei: descriptions.ConceptualEntitySingletonInstance,
    e2sc: EntityScalarDataProperty,
    value: LiteralValue,
@@ -477,7 +476,7 @@ case class MutableDescriptionBox
   }
 
   def addSingletonInstanceScalarDataPropertyValue
-  (uuid: UUID,
+  (uuid: api.taggedTypes.SingletonInstanceScalarDataPropertyValueUUID,
    ei: descriptions.ConceptualEntitySingletonInstance,
    e2sc: EntityScalarDataProperty,
    value: LiteralValue,
@@ -496,7 +495,7 @@ case class MutableDescriptionBox
   } yield i
 
   def createSingletonInstanceStructuredDataPropertyValue
-  (uuid: UUID,
+  (uuid: api.taggedTypes.SingletonInstanceStructuredDataPropertyValueUUID,
    ni: OWLNamedIndividual,
    ei: descriptions.ConceptualEntitySingletonInstance,
    e2st: EntityStructuredDataProperty)
@@ -524,13 +523,13 @@ case class MutableDescriptionBox
   }
 
   def addSingletonInstanceStructuredDataPropertyValue
-  (uuid: UUID,
+  (uuid: api.taggedTypes.SingletonInstanceStructuredDataPropertyValueUUID,
    ei: descriptions.ConceptualEntitySingletonInstance,
    e2st: EntityStructuredDataProperty)
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ descriptions.SingletonInstanceStructuredDataPropertyValue
   = for {
-    ni_iri <- ops.withFragment(iri, LocalName(uuid.toString))
+    ni_iri <- ops.withFragment(iri, tables.taggedTypes.localName(uuid.toString))
     ni = owlDataFactory.getOWLNamedIndividual(ni_iri)
     i <- createSingletonInstanceStructuredDataPropertyValue(uuid, ni, ei, e2st)
     _ <- applyOntologyChanges(ontManager,
@@ -548,7 +547,7 @@ case class MutableDescriptionBox
   } yield i
 
   def createScalarDataPropertyValue
-  (uuid: UUID,
+  (uuid: api.taggedTypes.ScalarDataPropertyValueUUID,
    context: SingletonInstanceStructuredDataPropertyContext,
    s2sc: ScalarDataProperty,
    value: LiteralValue,
@@ -576,7 +575,7 @@ case class MutableDescriptionBox
   }
 
   def makeScalarDataPropertyValue
-  (uuid: UUID,
+  (uuid: api.taggedTypes.ScalarDataPropertyValueUUID,
    context: SingletonInstanceStructuredDataPropertyContext,
    s2sc: ScalarDataProperty,
    value: LiteralValue,
@@ -596,7 +595,7 @@ case class MutableDescriptionBox
   } yield i
 
   def createStructuredDataPropertyTuple
-  (uuid: UUID,
+  (uuid: api.taggedTypes.StructuredDataPropertyTupleUUID,
    ni: OWLNamedIndividual,
    context: SingletonInstanceStructuredDataPropertyContext,
    s2st: StructuredDataProperty)
@@ -623,13 +622,13 @@ case class MutableDescriptionBox
   }
 
   def makeStructuredDataPropertyTuple
-  (uuid: UUID,
+  (uuid: api.taggedTypes.StructuredDataPropertyTupleUUID,
    context: SingletonInstanceStructuredDataPropertyContext,
    s2st: StructuredDataProperty)
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ descriptions.StructuredDataPropertyTuple
   = for {
-    ni_iri <- ops.withFragment(iri, LocalName(uuid.toString))
+    ni_iri <- ops.withFragment(iri, tables.taggedTypes.localName(uuid.toString))
     ni = owlDataFactory.getOWLNamedIndividual(ni_iri)
     i <- createStructuredDataPropertyTuple(uuid, ni, context, s2st)
     _ <- applyOntologyChanges(ontManager,

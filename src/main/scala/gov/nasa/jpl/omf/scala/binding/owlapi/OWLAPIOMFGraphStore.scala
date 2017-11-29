@@ -20,9 +20,10 @@ package gov.nasa.jpl.omf.scala.binding.owlapi
 
 import java.io.File
 import java.lang.{IllegalArgumentException,System}
-import java.util.UUID
 import java.util.function.Predicate
 
+import gov.nasa.jpl.imce.oml.resolver.api
+import gov.nasa.jpl.imce.oml.tables
 import gov.nasa.jpl.imce.oml.tables.AnnotationProperty
 import gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader._
 import gov.nasa.jpl.omf.scala.binding.owlapi.common.{ImmutableModule, Module, MutableModule}
@@ -32,7 +33,6 @@ import gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies._
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.{terminologies, terminologyAxioms}
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologyAxioms._
 import gov.nasa.jpl.omf.scala.core.OMFError.Throwables
-import gov.nasa.jpl.omf.scala.core.OMLString.LocalName
 import gov.nasa.jpl.omf.scala.core.builtin.BuiltInDatatypeMaps
 import gov.nasa.jpl.omf.scala.core.TerminologyKind
 import gov.nasa.jpl.omf.scala.core._
@@ -287,7 +287,7 @@ case class OWLAPIOMFGraphStore
   // TerminologyNestingAxiom
 
   def createOMFTerminologyGraphDirectNestingAxiom
-  (uuid: UUID,
+  (uuid: api.taggedTypes.TerminologyNestingAxiomUUID,
    parentG: TerminologyBox,
    parentC: Concept,
    childG: TerminologyBox)
@@ -330,7 +330,7 @@ case class OWLAPIOMFGraphStore
     .toMap
 
   def createOMFTerminologyGraphDirectExtensionAxiom
-  (uuid: UUID,
+  (uuid: api.taggedTypes.TerminologyExtensionAxiomUUID,
    extendingG: TerminologyBox,
    extendedG: TerminologyBox)
   : Throwables \/ TerminologyExtensionAxiom
@@ -408,7 +408,7 @@ case class OWLAPIOMFGraphStore
     .toMap
 
   def createOMFBundledTerminologyAxiom
-  (uuid: UUID,
+  (uuid: api.taggedTypes.BundledTerminologyAxiomUUID,
    terminologyBundle: MutableBundle,
    bundledTerminology: TerminologyBox)
   : Throwables \/ BundledTerminologyAxiom
@@ -454,7 +454,7 @@ case class OWLAPIOMFGraphStore
   : Throwables \/ MutableTerminologyGraph
   = for {
     name <- ops.lastSegment(iri)
-    uuid = generateUUID(ops.fromIRI(iri))
+    uuid = api.taggedTypes.terminologyGraphUUID(generateUUIDFromString(ops.fromIRI(iri).toString))
     result <- Backbone
       .createBackbone(
         tboxOnt, kind,
@@ -474,7 +474,7 @@ case class OWLAPIOMFGraphStore
   : Throwables \/ MutableBundle
   = for {
     name <- ops.lastSegment(iri)
-    uuid = generateUUID(ops.fromIRI(iri))
+    uuid = api.taggedTypes.bundleUUID(generateUUIDFromString(ops.fromIRI(iri)))
     result <- Backbone
       .createBackbone(
         tboxOnt, kind,
@@ -494,7 +494,7 @@ case class OWLAPIOMFGraphStore
   : Throwables \/ MutableDescriptionBox
   = for {
     name <- ops.lastSegment(iri)
-    uuid = generateUUID(ops.fromIRI(iri))
+    uuid = api.taggedTypes.descriptionBoxUUID(generateUUIDFromString(ops.fromIRI(iri)))
     result <- Backbone
       .createBackbone(
         dboxOnt, kind,
@@ -914,7 +914,7 @@ case class OWLAPIOMFGraphStore
   }
 
   def makeTerminologyGraph
-  (name: LocalName,
+  (name: tables.taggedTypes.LocalName,
    iri: IRI,
    kind: TerminologyKind)
   (implicit ops: OWLAPIOMFOps)
@@ -931,7 +931,7 @@ case class OWLAPIOMFGraphStore
     createOMFTerminologyGraph(iri, ontManager.createOntology(iri), kind)
 
   def makeBundle
-  (name: LocalName,
+  (name: tables.taggedTypes.LocalName,
    iri: IRI,
    kind: TerminologyKind)
   (implicit ops: OWLAPIOMFOps)
@@ -953,7 +953,7 @@ case class OWLAPIOMFGraphStore
   = ???
 
   def makeDescriptionBox
-  (name: LocalName,
+  (name: tables.taggedTypes.LocalName,
    iri: IRI,
    k: DescriptionKind)
   : Throwables \/ descriptions.MutableDescriptionBox

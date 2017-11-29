@@ -18,15 +18,14 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.types.termAxioms
 
-import java.util.UUID
-
+import gov.nasa.jpl.imce.oml.resolver.api
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.{Aspect, Entity}
 
 import scala.{Any, Boolean, Int}
 import scala.Predef.require
 
 case class AspectSpecializationAxiom
-(override val uuid: UUID,
+(override val uuid: api.taggedTypes.AspectSpecializationAxiomUUID,
  sub: Entity,
  sup: Aspect)
   extends SpecializationAxiom {

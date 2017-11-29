@@ -18,9 +18,9 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies
 
-import java.util.UUID
-
+import gov.nasa.jpl.imce.oml.resolver.api
 import gov.nasa.jpl.imce.oml.tables.{AnnotationProperty, AnnotationPropertyValue}
+import gov.nasa.jpl.imce.oml.tables.taggedTypes.LocalName
 import gov.nasa.jpl.omf.scala.binding.owlapi._
 import gov.nasa.jpl.omf.scala.binding.owlapi.types._
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.bundleStatements._
@@ -29,7 +29,6 @@ import gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologyAxioms._
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms._
 import gov.nasa.jpl.omf.scala.core.OMFError.Throwables
 import gov.nasa.jpl.omf.scala.core.{MutableTerminologyBoxSignature, TerminologyBoxSignature, TerminologyKind}
-import gov.nasa.jpl.omf.scala.core.OMLString.LocalName
 import org.semanticweb.owlapi.model._
 
 import scala.collection.immutable._
@@ -42,7 +41,7 @@ import Scalaz._
 object MutableTerminologyGraph {
 
   def initialize
-  (uuid: UUID,
+  (uuid: api.taggedTypes.TerminologyGraphUUID,
    name: LocalName,
    iri: IRI,
    kind: TerminologyKind,
@@ -148,7 +147,7 @@ case class MutableTerminologyGraph
   } yield ax
 
   def createTerminologyNestingAxiom
-  (uuid: UUID,
+  (uuid: api.taggedTypes.TerminologyNestingAxiomUUID,
    parentG: TerminologyBox,
    parentC: Concept)
   (implicit store: OWLAPIOMFGraphStore)
@@ -169,7 +168,7 @@ case class MutableTerminologyGraph
   }
 
   def addNestedTerminologyGraph
-  (uuid: UUID,
+  (uuid: api.taggedTypes.TerminologyNestingAxiomUUID,
    parentGraph: TerminologyBox,
    parentContext: Concept)
   (implicit store: OWLAPIOMFGraphStore)

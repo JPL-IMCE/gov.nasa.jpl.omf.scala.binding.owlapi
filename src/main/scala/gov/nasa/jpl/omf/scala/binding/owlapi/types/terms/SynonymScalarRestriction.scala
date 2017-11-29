@@ -18,9 +18,8 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.types.terms
 
-import java.util.UUID
-
-import gov.nasa.jpl.omf.scala.core.OMLString.LocalName
+import gov.nasa.jpl.imce.oml.resolver.api
+import gov.nasa.jpl.imce.oml.tables.taggedTypes.LocalName
 import org.semanticweb.owlapi.model.{IRI, OWLDatatype}
 
 import scala.{Any, Boolean, Int}
@@ -28,7 +27,7 @@ import scala.{Any, Boolean, Int}
 case class SynonymScalarRestriction
 (override val e: OWLDatatype,
  override val iri: IRI,
- override val uuid: UUID,
+ override val uuid: api.taggedTypes.SynonymScalarRestrictionUUID,
  override val name: LocalName,
  override val restrictedDataRange: DataRange)
   extends RestrictedDataRange {

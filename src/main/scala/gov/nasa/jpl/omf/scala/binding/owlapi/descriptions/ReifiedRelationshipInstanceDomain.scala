@@ -18,10 +18,10 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.descriptions
 
-import java.util.UUID
+import gov.nasa.jpl.imce.oml.resolver.api
 
 case class ReifiedRelationshipInstanceDomain
-(override val uuid: UUID,
+(override val uuid: api.taggedTypes.ReifiedRelationshipInstanceDomainUUID,
  relationshipInstance: ReifiedRelationshipInstance,
  domain: ConceptualEntitySingletonInstance)
 extends TerminologyInstanceAssertion

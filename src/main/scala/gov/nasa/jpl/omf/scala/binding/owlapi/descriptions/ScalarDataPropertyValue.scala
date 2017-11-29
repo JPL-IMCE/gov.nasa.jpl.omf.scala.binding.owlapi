@@ -18,8 +18,7 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.descriptions
 
-import java.util.UUID
-
+import gov.nasa.jpl.imce.oml.resolver.api
 import gov.nasa.jpl.omf.scala.binding.owlapi.common.Element
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.{DataRange,ScalarDataProperty}
 import gov.nasa.jpl.imce.oml.tables.LiteralValue
@@ -27,7 +26,7 @@ import gov.nasa.jpl.imce.oml.tables.LiteralValue
 import scala.Option
 
 case class ScalarDataPropertyValue
-( override val uuid: UUID,
+( override val uuid: api.taggedTypes.ScalarDataPropertyValueUUID,
   context: SingletonInstanceStructuredDataPropertyContext,
   dataRelationship: ScalarDataProperty,
   value: LiteralValue,
