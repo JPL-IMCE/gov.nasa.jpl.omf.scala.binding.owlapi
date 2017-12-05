@@ -25,7 +25,7 @@ import gov.nasa.jpl.imce.oml.resolver.toUUIDString
 import gov.nasa.jpl.imce.oml.resolver.api
 import gov.nasa.jpl.imce.oml.tables
 import gov.nasa.jpl.imce.oml.tables.{AnnotationProperty, AnnotationPropertyValue, LiteralValue}
-import gov.nasa.jpl.imce.oml.tables.taggedTypes.{localName,LocalName,StringDataType}
+import gov.nasa.jpl.imce.oml.tables.taggedTypes.{LocalName, StringDataType, localName}
 import gov.nasa.jpl.omf.scala.binding.owlapi.AxiomExceptionKind
 import gov.nasa.jpl.omf.scala.binding.owlapi.ElementExceptionKind
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.{RestrictionScalarDataPropertyValue, RestrictionStructuredDataPropertyTuple, axiomScopeException, duplicateModelTermAxiomException, duplicateTerminologyGraphAxiomException, entityAlreadyDefinedException, entityConflictException, entityScopeException, terms}
@@ -93,7 +93,7 @@ trait MutableTerminologyBox
   } yield ap
 
   def addAnnotation
-  (subject: OWLAPIOMF#Element,
+  (subject: OWLAPIOMF#LogicalElement,
    property: AnnotationProperty,
    value: StringDataType)
   (implicit store: OWLAPIOMFGraphStore)
@@ -104,13 +104,7 @@ trait MutableTerminologyBox
       subjectUUID = subject.uuid,
       propertyUUID = property.uuid,
       value = value).right[OMFError.Throwables]
-    _ = sig.annotationPropertyValues.find { a => a.subjectUUID == subject.uuid && a.propertyUUID == property.uuid } match {
-      case Some(a0) =>
-        sig.annotationPropertyValues -= a0
-        sig.annotationPropertyValues += a
-      case None =>
-        sig.annotationPropertyValues += a
-    }
+    _ = sig.annotationPropertyValues += a
     ont_ap = owlDataFactory.getOWLAnnotationProperty(property.iri)
     ont_lit = owlDataFactory.getOWLLiteral(value)
     _ <- subject match {
@@ -143,7 +137,7 @@ trait MutableTerminologyBox
   } yield a
 
   def removeAnnotations
-  (subject: OWLAPIOMF#Element,
+  (subject: OWLAPIOMF#LogicalElement,
    property: AnnotationProperty)
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ Set[AnnotationPropertyValue]
@@ -1204,7 +1198,7 @@ trait MutableTerminologyBox
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#ScalarOneOfLiteralAxiom
   = for {
-    axiomUUID <- scalarOneOfLiteralAxiomUUID(this, scalarOneOfRestriction)
+    axiomUUID <- scalarOneOfLiteralAxiomUUID(this, scalarOneOfRestriction, value)
     ax <- createScalarOneOfLiteralAxiom(axiomUUID, scalarOneOfRestriction, value, valueType)
   } yield ax
 

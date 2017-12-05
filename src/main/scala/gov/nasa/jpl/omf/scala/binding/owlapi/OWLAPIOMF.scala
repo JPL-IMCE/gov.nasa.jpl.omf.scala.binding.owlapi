@@ -43,8 +43,8 @@ trait OWLAPIOMFiri extends OMFiri {
 
 trait OMLAPIOMFcbox extends OMFcbox {
 
-  override type Element =
-    common.Element
+  override type LogicalElement =
+    common.LogicalElement
 
   override type Resource =
     common.Resource

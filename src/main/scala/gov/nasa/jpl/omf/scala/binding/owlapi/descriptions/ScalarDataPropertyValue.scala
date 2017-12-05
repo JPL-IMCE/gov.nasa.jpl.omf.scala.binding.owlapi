@@ -19,7 +19,7 @@
 package gov.nasa.jpl.omf.scala.binding.owlapi.descriptions
 
 import gov.nasa.jpl.imce.oml.resolver.api
-import gov.nasa.jpl.omf.scala.binding.owlapi.common.Element
+import gov.nasa.jpl.omf.scala.binding.owlapi.common.LogicalElement
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.{DataRange,ScalarDataProperty}
 import gov.nasa.jpl.imce.oml.tables.LiteralValue
 
@@ -31,4 +31,4 @@ case class ScalarDataPropertyValue
   dataRelationship: ScalarDataProperty,
   value: LiteralValue,
   valueType: Option[DataRange])
-  extends Element
+  extends LogicalElement

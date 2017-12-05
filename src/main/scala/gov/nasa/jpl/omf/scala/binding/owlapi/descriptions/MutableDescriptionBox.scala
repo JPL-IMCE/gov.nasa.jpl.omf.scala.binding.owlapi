@@ -103,7 +103,7 @@ case class MutableDescriptionBox
   } yield ap
 
   def addAnnotation
-  (subject: OWLAPIOMF#Element,
+  (subject: OWLAPIOMF#LogicalElement,
    property: AnnotationProperty,
    value: tables.taggedTypes.StringDataType)
   (implicit store: OWLAPIOMFGraphStore)
@@ -114,13 +114,7 @@ case class MutableDescriptionBox
       subjectUUID = subject.uuid,
       propertyUUID = property.uuid,
       value = value).right[OMFError.Throwables]
-    _ = sig.annotationPropertyValues.find { a => a.subjectUUID == subject.uuid.toString && a.propertyUUID == property.uuid } match {
-      case Some(a0) =>
-        sig.annotationPropertyValues -= a0
-        sig.annotationPropertyValues += a
-      case None =>
-        sig.annotationPropertyValues += a
-    }
+    _ = sig.annotationPropertyValues += a
     ont_ap = owlDataFactory.getOWLAnnotationProperty(property.iri)
     ont_lit = owlDataFactory.getOWLLiteral(value)
     _ <- subject match {
@@ -142,7 +136,7 @@ case class MutableDescriptionBox
   } yield a
 
   def removeAnnotations
-  (subject: OWLAPIOMF#Element,
+  (subject: OWLAPIOMF#LogicalElement,
    property: AnnotationProperty)
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ Set[AnnotationPropertyValue]

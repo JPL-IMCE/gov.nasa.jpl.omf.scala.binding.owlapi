@@ -19,11 +19,11 @@
 package gov.nasa.jpl.omf.scala.binding.owlapi.types.bundleStatements
 
 import gov.nasa.jpl.imce.oml.resolver.api.taggedTypes.ConceptTreeDisjunctionUUID
-import gov.nasa.jpl.omf.scala.binding.owlapi.common.Element
+import gov.nasa.jpl.omf.scala.binding.owlapi.common.LogicalElement
 
 import scala.{Any, Boolean}
 
-trait ConceptTreeDisjunction extends Element {
+trait ConceptTreeDisjunction extends LogicalElement {
 
   override val uuid: ConceptTreeDisjunctionUUID
 

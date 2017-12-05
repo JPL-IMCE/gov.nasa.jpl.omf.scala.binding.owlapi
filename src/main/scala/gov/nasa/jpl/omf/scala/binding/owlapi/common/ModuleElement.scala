@@ -20,7 +20,7 @@ package gov.nasa.jpl.omf.scala.binding.owlapi.common
 
 import scala.{Any,Boolean}
 
-trait ModuleElement extends Element {
+trait ModuleElement extends LogicalElement {
 
   override def canEqual(other: Any)
   : Boolean

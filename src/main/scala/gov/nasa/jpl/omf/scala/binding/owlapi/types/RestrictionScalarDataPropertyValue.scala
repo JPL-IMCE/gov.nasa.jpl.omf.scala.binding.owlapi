@@ -21,7 +21,7 @@ package gov.nasa.jpl.omf.scala.binding.owlapi.types
 import gov.nasa.jpl.imce.oml.resolver.api
 
 import gov.nasa.jpl.imce.oml.tables.LiteralValue
-import gov.nasa.jpl.omf.scala.binding.owlapi.common.Element
+import gov.nasa.jpl.omf.scala.binding.owlapi.common.LogicalElement
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.{DataRange, DataRelationshipToScalar}
 
 import scala.{Any,Boolean,Int,Option}
@@ -32,7 +32,7 @@ case class RestrictionScalarDataPropertyValue
  scalarProperty: DataRelationshipToScalar,
  literalValue: LiteralValue,
  valueType: Option[DataRange])
- extends Element {
+ extends LogicalElement {
 
   override def canEqual(other: Any)
   : Boolean

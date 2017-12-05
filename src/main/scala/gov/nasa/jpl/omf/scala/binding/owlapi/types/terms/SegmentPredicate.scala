@@ -18,12 +18,12 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.types.terms
 
-import gov.nasa.jpl.omf.scala.binding.owlapi.common.Element
+import gov.nasa.jpl.omf.scala.binding.owlapi.common.LogicalElement
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.Term
 
 import scala.{Any, Boolean}
 
-trait SegmentPredicate extends Element {
+trait SegmentPredicate extends LogicalElement {
 
   val bodySegment: RuleBodySegment
   val termPredicate: Term

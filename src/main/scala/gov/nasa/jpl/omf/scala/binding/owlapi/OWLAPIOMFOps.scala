@@ -205,9 +205,9 @@ trait OWLAPIStoreOps
   implicit val bTag = ClassTag[OWLAPIOMF#ImmutableBundle](classOf[OWLAPIOMF#ImmutableBundle])
   implicit val dTag = ClassTag[OWLAPIOMF#ImmutableDescriptionBox](classOf[OWLAPIOMF#ImmutableDescriptionBox])
 
-  override def getElementUUID
-  (e: OWLAPIOMF#Element)
-  : api.taggedTypes.ElementUUID
+  override def getLogicalElementUUID
+  (e: OWLAPIOMF#LogicalElement)
+  : api.taggedTypes.LogicalElementUUID
   = e.uuid
 
   override def getModuleIRI
@@ -1277,7 +1277,7 @@ trait OWLAPIMutableTerminologyGraphOps
 
   override def addTerminologyAnnotation
   (tbox: MutableTerminologyBox,
-   subject: OWLAPIOMF#Element,
+   subject: OWLAPIOMF#LogicalElement,
    property: AnnotationProperty,
    value: tables.taggedTypes.StringDataType)
   (implicit store: OWLAPIOMFGraphStore)
@@ -1289,7 +1289,7 @@ trait OWLAPIMutableTerminologyGraphOps
 
   override def removeTerminologyAnnotations
   (tbox: OWLAPIOMF#MutableTerminologyBox,
-   subject: OWLAPIOMF#Element,
+   subject: OWLAPIOMF#LogicalElement,
    property: AnnotationProperty)
   (implicit store: OWLAPIOMFGraphStore)
   : Throwables \/ Set[AnnotationPropertyValue]
@@ -1297,7 +1297,7 @@ trait OWLAPIMutableTerminologyGraphOps
 
   def addAnnotationAssertions
   (tbox: MutableTerminologyBox,
-   subject: OWLAPIOMF#Element,
+   subject: OWLAPIOMF#LogicalElement,
    aas: Vector[OWLAnnotationAssertionAxiom])
   (implicit store: OWLAPIOMFGraphStore)
   : types.UnitNES
@@ -1967,7 +1967,7 @@ trait OWLAPIMutableDescriptionBoxOps
 
   override def addDescriptionAnnotation
   (dbox: MutableDescriptionBox,
-   subject: OWLAPIOMF#Element,
+   subject: OWLAPIOMF#LogicalElement,
    property: AnnotationProperty,
    value: tables.taggedTypes.StringDataType)
   (implicit store: OWLAPIOMFGraphStore)
@@ -1979,7 +1979,7 @@ trait OWLAPIMutableDescriptionBoxOps
 
   override def removeDescriptionAnnotations
   (dbox: MutableDescriptionBox,
-   subject: OWLAPIOMF#Element,
+   subject: OWLAPIOMF#LogicalElement,
    property: AnnotationProperty)
   (implicit store: OWLAPIOMFGraphStore)
   : Throwables \/ Set[AnnotationPropertyValue]

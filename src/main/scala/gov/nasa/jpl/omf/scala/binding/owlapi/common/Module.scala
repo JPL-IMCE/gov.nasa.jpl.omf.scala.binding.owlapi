@@ -30,7 +30,7 @@ import scala.{Any, Boolean}
 import scala.Predef.{require}
 
 trait Module
-  extends Element with Resource {
+  extends LogicalElement with Resource {
 
   type MS <: ModuleSignature[OWLAPIOMF]
 

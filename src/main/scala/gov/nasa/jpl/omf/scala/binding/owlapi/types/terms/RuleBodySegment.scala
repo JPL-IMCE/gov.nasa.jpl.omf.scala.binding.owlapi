@@ -19,7 +19,7 @@
 package gov.nasa.jpl.omf.scala.binding.owlapi.types.terms
 
 import gov.nasa.jpl.imce.oml.resolver.api
-import gov.nasa.jpl.omf.scala.binding.owlapi.common.Element
+import gov.nasa.jpl.omf.scala.binding.owlapi.common.LogicalElement
 
 import scala.{Any,Boolean,Int,Option,None,Some}
 
@@ -27,7 +27,7 @@ case class RuleBodySegment
 (override val uuid: api.taggedTypes.RuleBodySegmentUUID,
  chainRule: Option[ChainRule],
  previousSegment: Option[RuleBodySegment])
-  extends Element {
+  extends LogicalElement {
 
   val position: Int = previousSegment match {
     case None => 1

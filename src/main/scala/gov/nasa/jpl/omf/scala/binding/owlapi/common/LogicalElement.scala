@@ -18,12 +18,12 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.common
 
-import gov.nasa.jpl.imce.oml.resolver.api.taggedTypes.ElementUUID
+import gov.nasa.jpl.imce.oml.resolver.api.taggedTypes.LogicalElementUUID
 
 import scala.{Any,Boolean}
 
-trait Element {
-  val uuid: ElementUUID
+trait LogicalElement {
+  val uuid: LogicalElementUUID
 
   def canEqual(other: Any): Boolean
 }

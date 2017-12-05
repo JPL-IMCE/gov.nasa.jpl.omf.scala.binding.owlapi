@@ -23,7 +23,7 @@ import gov.nasa.jpl.imce.oml.resolver.api.taggedTypes.ModuleEdgeUUID
 
 import scala.{Any, Boolean}
 
-trait ModuleEdge extends Element {
+trait ModuleEdge extends LogicalElement {
 
   override val uuid: ModuleEdgeUUID
 

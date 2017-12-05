@@ -36,7 +36,7 @@ trait MutableModule extends Module {
   : OMFError.Throwables \/ AnnotationProperty
 
   def addAnnotation
-  (subject: OWLAPIOMF#Element,
+  (subject: OWLAPIOMF#LogicalElement,
    property: AnnotationProperty,
    value: tables.taggedTypes.StringDataType)
   (implicit store: OWLAPIOMFGraphStore)
