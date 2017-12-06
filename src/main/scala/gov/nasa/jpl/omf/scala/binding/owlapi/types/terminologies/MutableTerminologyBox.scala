@@ -98,6 +98,19 @@ trait MutableTerminologyBox
    value: StringDataType)
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ AnnotationPropertyValue
+  = subject match {
+    case rsubject: OWLAPIOMF#ReifiedRelationship =>
+      addReifiedRelationshipAnnotation(rsubject, property, value)
+    case _ =>
+      addLogicalElementAnnotation(subject, property, value)
+  }
+
+  def addLogicalElementAnnotation
+  (subject: OWLAPIOMF#LogicalElement,
+   property: AnnotationProperty,
+   value: StringDataType)
+  (implicit store: OWLAPIOMFGraphStore)
+  : OMFError.Throwables \/ AnnotationPropertyValue
   = for {
     a <- new AnnotationPropertyValue(
       oug = uuidG,
@@ -134,6 +147,60 @@ trait MutableTerminologyBox
           OMFError.omfError(s"addAnnotation is not supported for a non-resource subject: $subject")
         ).left
     }
+  } yield a
+
+  def addReifiedRelationshipAnnotation
+  (subject: OWLAPIOMF#ReifiedRelationship,
+   property: AnnotationProperty,
+   value: StringDataType)
+  (implicit store: OWLAPIOMFGraphStore)
+  : OMFError.Throwables \/ AnnotationPropertyValue
+  = for {
+    a <- new AnnotationPropertyValue(
+      oug = uuidG,
+      subjectUUID = subject.uuid,
+      propertyUUID = property.uuid,
+      value = value).right[OMFError.Throwables]
+    _ = sig.annotationPropertyValues += a
+    ont_lit = owlDataFactory.getOWLLiteral(value)
+    _ <- if (property.iri == store.ops.omlHasReificationLabelIRI)
+        applyOntologyChangeOrNoOp(
+          ontManager,
+          new AddAxiom(ont, owlDataFactory.getOWLAnnotationAssertionAxiom(
+            store.RDFS_LABEL,
+            subject.iri,
+            ont_lit)),
+          "addAnnotation error")
+      else if (property.iri == store.ops.omlHasPropertyLabelIRI)
+        applyOntologyChangeOrNoOp(
+          ontManager,
+          new AddAxiom(ont, owlDataFactory.getOWLAnnotationAssertionAxiom(
+            store.RDFS_LABEL,
+            subject.unreified.getIRI,
+            ont_lit)),
+          "addAnnotation error")
+      else if (property.iri == store.ops.omlHasInverseLabelIRI)
+        subject.inverse.fold[OMFError.Throwables \/ Unit] {
+          Set[java.lang.Throwable](
+            OMFError.omfError(s"addAnnotation oml:hasInverseLabel is not applicable to a ReifiedProperty without an inverse: $subject")
+          ).left
+        } { inv =>
+          applyOntologyChangeOrNoOp(
+            ontManager,
+            new AddAxiom(ont, owlDataFactory.getOWLAnnotationAssertionAxiom(
+              store.RDFS_LABEL,
+              inv.getIRI,
+              ont_lit)),
+            "addAnnotation error")
+        }
+      else
+        applyOntologyChangeOrNoOp(
+          ontManager,
+          new AddAxiom(ont, owlDataFactory.getOWLAnnotationAssertionAxiom(
+            owlDataFactory.getOWLAnnotationProperty(property.iri),
+            subject.iri,
+            ont_lit)),
+          "addAnnotation error")
   } yield a
 
   def removeAnnotations
@@ -397,8 +464,14 @@ trait MutableTerminologyBox
       r, rn, ru,
       un, u, in, ui,
       source, rSource, target, rTarget, characteristics)
-    aas = getRelevantSubjectAnnotationAssertions(ont, u.getIRI)
-    _ <- store.ops.addAnnotationAssertions(this, term, aas)
+    ras = getRelevantSubjectAnnotationAssertions(ont, r.getIRI)
+    pas = getRelevantSubjectAnnotationAssertions(ont, u.getIRI)
+    ias = ui.map(i => getRelevantSubjectAnnotationAssertions(ont, i.getIRI))
+    _ <- store.ops.addReificationAnnotationAssertions(this, term, ras)
+    _ <- store.ops.addReifiedPropertyAnnotationAssertions(this, term, pas)
+    _ <- ias.fold[OMFError.Throwables \/ Unit] { types.rightUnitNES }{ as =>
+      store.ops.addReifiedInverseAnnotationAssertions(this, term, as)
+    }
   } yield term
 
   def createEntityReifiedRelationship

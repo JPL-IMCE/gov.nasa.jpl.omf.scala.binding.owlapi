@@ -51,6 +51,15 @@ object OWLAPIOMFModule {
     rdfs_label <-
     OWLAPIIRIOps.makeIRI("http://www.w3.org/2000/01/rdf-schema#label")
 
+    AnnotationOMLHasReificationLabel <-
+    OWLAPIIRIOps.makeIRI("http://imce.jpl.nasa.gov/oml/oml#hasReificationLabel")
+
+    AnnotationOMLHasPropertyLabel <-
+    OWLAPIIRIOps.makeIRI("http://imce.jpl.nasa.gov/oml/oml#hasPropertyLabel")
+
+    AnnotationOMLHasInverseLabel <-
+    OWLAPIIRIOps.makeIRI("http://imce.jpl.nasa.gov/oml/oml#hasInverseLabel")
+
     AnnotationHasUUID <-
     OWLAPIIRIOps.makeIRI("http://imce.jpl.nasa.gov/oml/oml#omlElementUUID")
 
@@ -92,6 +101,9 @@ object OWLAPIOMFModule {
 
     ops = new OWLAPIOMFOps(
       rdfs_label,
+      AnnotationOMLHasReificationLabel,
+      AnnotationOMLHasPropertyLabel,
+      AnnotationOMLHasInverseLabel,
       AnnotationHasUUID,
       AnnotationIsAbstract,
       AnnotationIsDerived,

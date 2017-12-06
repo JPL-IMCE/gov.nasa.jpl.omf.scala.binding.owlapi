@@ -1311,6 +1311,75 @@ trait OWLAPIMutableTerminologyGraphOps
     } yield ()
   }
 
+  def addReificationAnnotationAssertions
+  (tbox: MutableTerminologyBox,
+   subject: OWLAPIOMF#ReifiedRelationship,
+   aas: Vector[OWLAnnotationAssertionAxiom])
+  (implicit store: OWLAPIOMFGraphStore)
+  : types.UnitNES
+  = aas.foldLeft[types.UnitNES](types.rightUnitNES) { case (acc, aa) =>
+    for {
+      _ <- acc
+      ap <- getAnnotationPropertyFromOWLAnnotation(aa.getAnnotation)
+      isRDFSLabel = store.RDFS_LABEL == aa.getAnnotation.getProperty
+      _ <- if (isRDFSLabel)
+        types.rightUnitNES
+      else
+        tbox.addAnnotationProperty(ap)
+      av <- getAnnotationValueFromOWLAnnotation(aa.getValue)
+      _ <- tbox.addAnnotation(
+        subject,
+        if (isRDFSLabel) store.ops.omlHasReificationLabelAP else ap,
+        av)
+    } yield ()
+  }
+
+  def addReifiedPropertyAnnotationAssertions
+  (tbox: MutableTerminologyBox,
+   subject: OWLAPIOMF#ReifiedRelationship,
+   aas: Vector[OWLAnnotationAssertionAxiom])
+  (implicit store: OWLAPIOMFGraphStore)
+  : types.UnitNES
+  = aas.foldLeft[types.UnitNES](types.rightUnitNES) { case (acc, aa) =>
+    for {
+      _ <- acc
+      ap <- getAnnotationPropertyFromOWLAnnotation(aa.getAnnotation)
+      isRDFSLabel = store.RDFS_LABEL == aa.getAnnotation.getProperty
+      _ <- if (isRDFSLabel)
+        types.rightUnitNES
+      else
+        tbox.addAnnotationProperty(ap)
+      av <- getAnnotationValueFromOWLAnnotation(aa.getValue)
+      _ <- tbox.addAnnotation(
+        subject,
+        if (isRDFSLabel) store.ops.omlHasPropertyLabelAP else ap,
+        av)
+    } yield ()
+  }
+
+  def addReifiedInverseAnnotationAssertions
+  (tbox: MutableTerminologyBox,
+   subject: OWLAPIOMF#ReifiedRelationship,
+   aas: Vector[OWLAnnotationAssertionAxiom])
+  (implicit store: OWLAPIOMFGraphStore)
+  : types.UnitNES
+  = aas.foldLeft[types.UnitNES](types.rightUnitNES) { case (acc, aa) =>
+    for {
+      _ <- acc
+      ap <- getAnnotationPropertyFromOWLAnnotation(aa.getAnnotation)
+      isRDFSLabel = store.RDFS_LABEL == aa.getAnnotation.getProperty
+      _ <- if (isRDFSLabel)
+        types.rightUnitNES
+      else
+        tbox.addAnnotationProperty(ap)
+      av <- getAnnotationValueFromOWLAnnotation(aa.getValue)
+      _ <- tbox.addAnnotation(
+        subject,
+        if (isRDFSLabel) store.ops.omlHasInverseLabelAP else ap,
+        av)
+    } yield ()
+  }
+
   override protected def addAspect
   (tbox: MutableTerminologyBox,
    uuid: api.taggedTypes.AspectUUID,
@@ -2097,6 +2166,9 @@ trait OWLAPIMutableDescriptionBoxOps
 
 class OWLAPIOMFOps
 (val rdfs_label: IRI,
+ val AnnotationOMLHasReificationLabel: IRI,
+ val AnnotationOMLHasPropertyLabel: IRI,
+ val AnnotationOMLHasInverseLabel: IRI,
  val AnnotationHasUUID: IRI,
  val AnnotationIsAbstract: IRI,
  val AnnotationIsDerived: IRI,
@@ -2114,6 +2186,30 @@ class OWLAPIOMFOps
           with OWLAPIMutableTerminologyGraphOps
           with OWLAPIMutableDescriptionBoxOps
           with OWLAPIStoreOps {
+
+  val omlHasReificationLabelIRI: tables.taggedTypes.IRI
+  = tables.taggedTypes.iri(AnnotationOMLHasReificationLabel.toString)
+  val omlHasReificationLabelAP: tables.AnnotationProperty
+  = tables.AnnotationProperty(
+    tables.taggedTypes.annotationPropertyUUID(generateUUIDFromString(omlHasReificationLabelIRI).toString),
+    omlHasReificationLabelIRI,
+    tables.taggedTypes.abbrevIRI("oml:hasReificationLabel"))
+
+  val omlHasPropertyLabelIRI: tables.taggedTypes.IRI
+  = tables.taggedTypes.iri(AnnotationOMLHasPropertyLabel.toString)
+  val omlHasPropertyLabelAP: tables.AnnotationProperty
+  = tables.AnnotationProperty(
+    tables.taggedTypes.annotationPropertyUUID(generateUUIDFromString(omlHasPropertyLabelIRI).toString),
+    omlHasPropertyLabelIRI,
+    tables.taggedTypes.abbrevIRI("oml:hasPropertyLabel"))
+
+  val omlHasInverseLabelIRI: tables.taggedTypes.IRI
+  = tables.taggedTypes.iri(AnnotationOMLHasInverseLabel.toString)
+  val omlHasInverseLabelAP: tables.AnnotationProperty
+  = tables.AnnotationProperty(
+    tables.taggedTypes.annotationPropertyUUID(generateUUIDFromString(omlHasInverseLabelIRI).toString),
+    omlHasInverseLabelIRI,
+    tables.taggedTypes.abbrevIRI("oml:hasInverseLabel"))
 
   def isAnnotatedAbstract
   (ont: OWLOntology,

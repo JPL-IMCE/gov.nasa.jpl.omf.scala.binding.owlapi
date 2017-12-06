@@ -21,7 +21,6 @@ package gov.nasa.jpl.omf.scala.binding
 import java.nio.file.Path
 
 import gov.nasa.jpl.imce.oml.resolver
-import gov.nasa.jpl.imce.oml.tables.{taggedTypes,AnnotationProperty}
 import gov.nasa.jpl.imce.oml.tables
 import gov.nasa.jpl.omf.scala.binding.owlapi.common.{ImmutableModule, MutableModule}
 import gov.nasa.jpl.omf.scala.core.generateUUIDFromString
@@ -210,7 +209,8 @@ package object owlapi {
     "http://purl.org/dc/terms/" -> "terms:",
     "http://purl.org/dc/elements/1.1/" -> "dc:",
     "http://www.w3.org/2000/01/rdf-schema#" -> "rdfs:",
-    "http://www.w3.org/1999/02/22-rdf-syntax-ns#" -> "rdf:"
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#" -> "rdf:",
+    "http://imce.jpl.nasa.gov/oml#" -> "oml:"
   )
 
   def getDefaultNSPrefix(aIRI: String)
@@ -230,7 +230,7 @@ package object owlapi {
 
   def getAnnotationPropertyFromOWLAnnotationProperty
   (ap: OWLAnnotationProperty)
-  : Throwables \/ AnnotationProperty
+  : Throwables \/ tables.AnnotationProperty
   = {
     import gov.nasa.jpl.imce.oml.resolver.toUUIDString
 
@@ -245,10 +245,10 @@ package object owlapi {
         .getOrElse { getDefaultNSPrefix(aIRI) } + shortIRI
 
     if (abIRI.contains(":"))
-      AnnotationProperty(
+      tables.AnnotationProperty(
         getAnnotationPropertyUUIDfromOWLAnnotationProperty(ap),
-        taggedTypes.iri(aIRI),
-        taggedTypes.abbrevIRI(abIRI)).right
+        tables.taggedTypes.iri(aIRI),
+        tables.taggedTypes.abbrevIRI(abIRI)).right
     else
       Set[java.lang.Throwable](new java.lang.IllegalArgumentException(
         s"Unknown abbreviated IRI for $aIRI (short form=$abIRI)")
@@ -262,7 +262,7 @@ package object owlapi {
 
   def getAnnotationPropertyFromOWLAnnotation
   (a: OWLAnnotation)
-  : Throwables \/ AnnotationProperty
+  : Throwables \/ tables.AnnotationProperty
   = getAnnotationPropertyFromOWLAnnotationProperty(a.getProperty)
 
   def getAnnotationValueFromOWLAnnotation
