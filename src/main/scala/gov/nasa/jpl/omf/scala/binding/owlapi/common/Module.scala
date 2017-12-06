@@ -43,7 +43,7 @@ trait Module
 
   val builtInVocabulary: Boolean = {
     val iriString = iri.toString
-    iriString.startsWith("http://www.w3.org/") || iriString.startsWith("http://purl.org")
+    iriString.startsWith("http://www.w3.org/")
   }
 
   /**
