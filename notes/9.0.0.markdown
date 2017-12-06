@@ -59,3 +59,5 @@ gov.nasa.jpl.omf.scala.binding.owlapi 9.0.0 is a major update
 - [#58 Add support for the 3 label-related OML annotation properties](https://github.com/JPL-IMCE/gov.nasa.jpl.omf.scala.binding.owlapi/issues/58)
 
   See [Annotations](../doc/Annotations.md)
+  
+- [#59 Serialization of the OML ontology requires importing DC](https://github.com/JPL-IMCE/gov.nasa.jpl.omf.scala.binding.owlapi/issues/59)
