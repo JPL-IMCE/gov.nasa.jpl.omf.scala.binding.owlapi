@@ -2276,6 +2276,8 @@ trait MutableTerminologyBox
     n <- getFragment(esc.getIRI)
     u = api.taggedTypes.entityScalarDataPropertyUUID(generateUUIDFromString(tboxUUID, "name" -> n))
     term <- createDataRelationshipFromEntityToScalar(esc, n, isIdentityCriteria, u, source, target)
+    aas = getRelevantSubjectAnnotationAssertions(ont, esc.getIRI)
+    _ <- store.ops.addAnnotationAssertions(this, term, aas)
   } yield term
 
   def createDataRelationshipFromEntityToScalar
