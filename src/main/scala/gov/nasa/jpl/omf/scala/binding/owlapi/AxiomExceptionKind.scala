@@ -26,6 +26,8 @@ object AxiomExceptionKind extends Enumeration {
   ConceptSubclassAxiomException,
   ConceptRestrictionAxiomException,
   ReifiedRelationshipSubclassAxiomException,
+  SubDataPropertyOfAxiomException,
+  SubObjectPropertyOfAxiomException,
   ReifiedRelationshipContextualizationAxiomException,
   ReifiedRelationshipRestrictionAxiomException,
   EntityDefinitionAspectSubClassAxiomException,

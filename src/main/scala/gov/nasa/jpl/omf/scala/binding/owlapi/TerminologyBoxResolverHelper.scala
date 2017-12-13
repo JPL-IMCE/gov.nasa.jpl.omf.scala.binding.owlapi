@@ -155,7 +155,7 @@ case class TerminologyBoxResolverHelper
   (entityDefinitions: Map[OWLClass, Entity],
    dataPropertyDPIRIs: Iterable[DOPInfo],
    DTs: Map[OWLDatatype, DataRange])
-  : Set[java.lang.Throwable] \/ Vector[EntityScalarDataProperty]
+  : Set[java.lang.Throwable] \/ Map[OWLDataProperty, EntityScalarDataProperty]
   = {
     type Acc = Set[java.lang.Throwable] \/ (Vector[DOPInfo], Vector[EntityScalarDataProperty])
 
@@ -205,7 +205,7 @@ case class TerminologyBoxResolverHelper
     }
       .flatMap { case (remainingDataPropertyDPIRIs, e2sc) =>
         if (remainingDataPropertyDPIRIs.isEmpty)
-          e2sc.right
+          e2sc.map(sc => sc.e -> sc).toMap.right
         else {
           val message =
             s"resolveDataRelationshipsFromEntity2Scalars: ${e2sc.size} resolved, "+
@@ -921,6 +921,74 @@ case class TerminologyBoxResolverHelper
           _ <- acc
           uuid <- aspectSpecializationAxiomUUID(tboxG, subM, supM)
           next <- tboxG.createEntityDefinitionAspectSubClassAxiom(uuid, sub = subM, sup = supM)(omfStore).map(_ => ())
+        } yield next
+    }
+  }
+
+  def owlObjectPropertyOfPE(oe: Option[OWLObjectPropertyExpression])
+  : Option[OWLObjectProperty]
+  = oe match {
+    case Some(op: OWLObjectProperty) =>
+      Some(op)
+    case _ =>
+      None
+  }
+
+  def resolveSubObjectPropertyOfAxioms
+  (allUnreifiedRelationships: Map[OWLObjectProperty, UnreifiedRelationship])
+  (implicit reasoner: OWLReasoner, backbone: OMFBackbone)
+  : Set[java.lang.Throwable] \/ Unit
+  = {
+    val subaxs = ont.axioms(AxiomType.SUB_OBJECT_PROPERTY, Imports.EXCLUDED).toScala[Set]
+
+    val sub_sup = for {
+      subax <- subaxs
+      subC <- owlObjectPropertyOfPE(Option.apply(subax.getSubProperty))
+      subM <- allUnreifiedRelationships.get(subC)
+      supC <- owlObjectPropertyOfPE(Option.apply(subax.getSuperProperty))
+      supM <- allUnreifiedRelationships.get(supC)
+    } yield (subM, supM)
+
+    ( ().right[Set[java.lang.Throwable]] /: sub_sup ) {
+      case (acc, (subM, supM)) =>
+        for {
+          _ <- acc
+          uuid <- subObjectPropertyOfAxiomUUID(tboxG, subM, supM)
+          next <- tboxG.createSubObjectPropertyOfAxiom(uuid, sub = subM, sup = supM)(omfStore).map(_ => ())
+        } yield next
+    }
+  }
+
+  def owlDataPropertyOfPE(de: Option[OWLDataPropertyExpression])
+  : Option[OWLDataProperty]
+  = de match {
+    case Some(dp: OWLDataProperty) =>
+      Some(dp)
+    case _ =>
+      None
+  }
+
+  def resolveSubDataPropertyOfAxioms
+  (allDataRelationshipsFromEntityToScalar: Map[OWLDataProperty, EntityScalarDataProperty])
+  (implicit reasoner: OWLReasoner, backbone: OMFBackbone)
+  : Set[java.lang.Throwable] \/ Unit
+  = {
+    val subaxs = ont.axioms(AxiomType.SUB_DATA_PROPERTY, Imports.EXCLUDED).toScala[Set]
+
+    val sub_sup = for {
+      subax <- subaxs
+      subC <- owlDataPropertyOfPE(Option.apply(subax.getSubProperty))
+      subM <- allDataRelationshipsFromEntityToScalar.get(subC)
+      supC <- owlDataPropertyOfPE(Option.apply(subax.getSuperProperty))
+      supM <- allDataRelationshipsFromEntityToScalar.get(supC)
+    } yield (subM, supM)
+
+    ( ().right[Set[java.lang.Throwable]] /: sub_sup ) {
+      case (acc, (subM, supM)) =>
+        for {
+          _ <- acc
+          uuid <- subDataPropertyOfAxiomUUID(tboxG, subM, supM)
+          next <- tboxG.createSubDataPropertyOfAxiom(uuid, sub = subM, sup = supM)(omfStore).map(_ => ())
         } yield next
     }
   }

@@ -950,6 +950,10 @@ trait OWLAPIImmutableTerminologyGraphOps
    : OWLAPIOMF#ConceptSpecializationAxiom => T,
    funEntityReifiedRelationshipSubClassAxiom
    : OWLAPIOMF#ReifiedRelationshipSpecializationAxiom => T,
+   funSubDataPropertyOfAxiom
+   : OWLAPIOMF#SubDataPropertyOfAxiom => T,
+   funSubObjectPropertyOfAxiom
+   : OWLAPIOMF#SubObjectPropertyOfAxiom => T,
    funEntityExistentialRestrictionAxiom
    : OWLAPIOMF#EntityExistentialRestrictionAxiom => T,
    funEntityUniversalRestrictionAxiom
@@ -973,6 +977,10 @@ trait OWLAPIImmutableTerminologyGraphOps
       funConceptSpecializationAxiom(ax)
     case ax: OWLAPIOMF#ReifiedRelationshipSpecializationAxiom =>
       funEntityReifiedRelationshipSubClassAxiom(ax)
+    case ax: OWLAPIOMF#SubDataPropertyOfAxiom =>
+      funSubDataPropertyOfAxiom(ax)
+    case ax: OWLAPIOMF#SubObjectPropertyOfAxiom =>
+      funSubObjectPropertyOfAxiom(ax)
     case ax: OWLAPIOMF#EntityExistentialRestrictionAxiom =>
       funEntityExistentialRestrictionAxiom(ax)
     case ax: OWLAPIOMF#EntityUniversalRestrictionAxiom =>
@@ -1031,6 +1039,16 @@ trait OWLAPIImmutableTerminologyGraphOps
   (ax: OWLAPIOMF#ReifiedRelationshipSpecializationAxiom)
   : ReifiedRelationshipSpecializationSignature[OWLAPIOMF]
   = ReifiedRelationshipSpecializationSignature[OWLAPIOMF](ax.uuid, ax.sub, ax.sup)
+
+  override def fromSubDataPropertyOfAxiom
+  (ax: OWLAPIOMF#SubDataPropertyOfAxiom)
+  : SubDataPropertyOfAxiomSignature[OWLAPIOMF]
+  = SubDataPropertyOfAxiomSignature[OWLAPIOMF](ax.uuid, ax.sub, ax.sup)
+
+  override def fromSubObjectPropertyOfAxiom
+  (ax: OWLAPIOMF#SubObjectPropertyOfAxiom)
+  : SubObjectPropertyOfAxiomSignature[OWLAPIOMF]
+  = SubObjectPropertyOfAxiomSignature[OWLAPIOMF](ax.uuid, ax.sub, ax.sup)
 
   override def fromEntityExistentialRestrictionAxiom
   (ax: OWLAPIOMF#EntityExistentialRestrictionAxiom)
@@ -1781,6 +1799,24 @@ trait OWLAPIMutableTerminologyGraphOps
   (implicit store: OWLAPIOMFGraphStore)
   : Throwables \/ ReifiedRelationshipSpecializationAxiom
   = tbox.addEntityReifiedRelationshipSubClassAxiom(uuid, sub, sup)
+
+  override protected def addSubDataPropertyOfAxiom
+  (tbox: MutableTerminologyBox,
+   uuid: api.taggedTypes.SubDataPropertyOfAxiomUUID,
+   sub: EntityScalarDataProperty,
+   sup: EntityScalarDataProperty)
+  (implicit store: OWLAPIOMFGraphStore)
+  : Throwables \/ SubDataPropertyOfAxiom
+  = tbox.addSubDataPropertyOfAxiom(uuid, sub, sup)
+
+  override protected def addSubObjectPropertyOfAxiom
+  (tbox: MutableTerminologyBox,
+   uuid: api.taggedTypes.SubObjectPropertyOfAxiomUUID,
+   sub: UnreifiedRelationship,
+   sup: UnreifiedRelationship)
+  (implicit store: OWLAPIOMFGraphStore)
+  : Throwables \/ SubObjectPropertyOfAxiom
+  = tbox.addSubObjectPropertyOfAxiom(uuid, sub, sup)
 
   override protected def addEntityUniversalRestrictionAxiom
   (tbox: MutableTerminologyBox,

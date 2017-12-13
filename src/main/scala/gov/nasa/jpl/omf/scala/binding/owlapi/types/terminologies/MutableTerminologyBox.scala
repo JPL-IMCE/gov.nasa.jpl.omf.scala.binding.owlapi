@@ -3955,4 +3955,137 @@ trait MutableTerminologyBox
       ).left
   }
 
+  def createSubDataPropertyOfAxiom
+  (uuid: api.taggedTypes.SubDataPropertyOfAxiomUUID,
+   sub: OWLAPIOMF#EntityScalarDataProperty,
+   sup: OWLAPIOMF#EntityScalarDataProperty)
+  (implicit store: OWLAPIOMFGraphStore)
+  : OMFError.Throwables \/ OWLAPIOMF#SubDataPropertyOfAxiom
+  = sig.axioms
+    .find {
+      case axiom: OWLAPIOMF#SubDataPropertyOfAxiom =>
+        axiom.sub == sub && axiom.sup == sup
+      case _ =>
+        false
+    }
+    .fold[OMFError.Throwables \/ OWLAPIOMF#SubDataPropertyOfAxiom] {
+    val axiom = SubDataPropertyOfAxiom(uuid, sub, sup)
+    sig.axioms += axiom
+    axiom.right
+  } { other =>
+    Set(
+      duplicateModelTermAxiomException(AxiomExceptionKind.SubDataPropertyOfAxiomException, other)
+    ).left
+  }
+
+  def addSubDataPropertyOfAxiom
+  (uuid: api.taggedTypes.SubDataPropertyOfAxiomUUID,
+   sub: OWLAPIOMF#EntityScalarDataProperty,
+   sup: OWLAPIOMF#EntityScalarDataProperty)
+  (implicit store: OWLAPIOMFGraphStore)
+  : OMFError.Throwables \/ OWLAPIOMF#SubDataPropertyOfAxiom
+  = (isTypeTermDefinedRecursively(sub), isTypeTermDefinedRecursively(sup)) match {
+    case (true, true) =>
+      for {
+        axiom <- createSubDataPropertyOfAxiom(uuid, sub, sup)
+        _ <- applyOntologyChanges(
+          ontManager,
+          Seq(
+            new AddAxiom(ont, owlDataFactory.getOWLSubDataPropertyOfAxiom(
+              sub.e,
+              sup.e,
+              createOMLProvenanceAnnotations(uuid)))
+          ),
+          s"addSubDataPropertyOfAxiom")
+      } yield axiom
+
+    case (false, true) =>
+      Set(
+        axiomScopeException(
+          AxiomExceptionKind.SubDataPropertyOfAxiomException,
+          Map(AxiomScopeAccessKind.Sub -> sub))
+      ).left
+
+    case (true, false) =>
+      Set(
+        axiomScopeException(
+          AxiomExceptionKind.SubDataPropertyOfAxiomException,
+          Map(AxiomScopeAccessKind.Sup -> sup))
+      ).left
+
+    case (false, false) =>
+      Set(
+        axiomScopeException(
+          AxiomExceptionKind.SubDataPropertyOfAxiomException,
+          Map(AxiomScopeAccessKind.Sub -> sub, AxiomScopeAccessKind.Sup -> sup))
+      ).left
+  }
+
+  def createSubObjectPropertyOfAxiom
+  (uuid: api.taggedTypes.SubObjectPropertyOfAxiomUUID,
+   sub: OWLAPIOMF#UnreifiedRelationship,
+   sup: OWLAPIOMF#UnreifiedRelationship)
+  (implicit store: OWLAPIOMFGraphStore)
+  : OMFError.Throwables \/ OWLAPIOMF#SubObjectPropertyOfAxiom
+  = sig.axioms
+    .find {
+      case axiom: OWLAPIOMF#SubObjectPropertyOfAxiom =>
+        axiom.sub == sub && axiom.sup == sup
+      case _ =>
+        false
+    }
+    .fold[OMFError.Throwables \/ OWLAPIOMF#SubObjectPropertyOfAxiom] {
+    val axiom = SubObjectPropertyOfAxiom(uuid, sub, sup)
+    sig.axioms += axiom
+    axiom.right
+  } { other =>
+    Set(
+      duplicateModelTermAxiomException(AxiomExceptionKind.SubObjectPropertyOfAxiomException, other)
+    ).left
+  }
+
+  def addSubObjectPropertyOfAxiom
+  (uuid: api.taggedTypes.SubObjectPropertyOfAxiomUUID,
+   sub: OWLAPIOMF#UnreifiedRelationship,
+   sup: OWLAPIOMF#UnreifiedRelationship)
+  (implicit store: OWLAPIOMFGraphStore)
+  : OMFError.Throwables \/ OWLAPIOMF#SubObjectPropertyOfAxiom
+  = (isTypeTermDefinedRecursively(sub), isTypeTermDefinedRecursively(sup)) match {
+    case (true, true) =>
+      for {
+        axiom <- createSubObjectPropertyOfAxiom(uuid, sub, sup)
+        _ <- applyOntologyChanges(
+          ontManager,
+          Seq(
+            new AddAxiom(ont, owlDataFactory.getOWLSubObjectPropertyOfAxiom(
+              sub.e,
+              sup.e,
+              createOMLProvenanceAnnotations(uuid)))
+          ),
+          s"addSubObjectPropertyOfAxiom")
+      } yield axiom
+
+    case (false, true) =>
+      Set(
+        axiomScopeException(
+          AxiomExceptionKind.SubObjectPropertyOfAxiomException,
+          Map(AxiomScopeAccessKind.Sub -> sub))
+      ).left
+
+    case (true, false) =>
+      Set(
+        axiomScopeException(
+          AxiomExceptionKind.SubObjectPropertyOfAxiomException,
+          Map(AxiomScopeAccessKind.Sup -> sup))
+      ).left
+
+    case (false, false) =>
+      Set(
+        axiomScopeException(
+          AxiomExceptionKind.SubObjectPropertyOfAxiomException,
+          Map(AxiomScopeAccessKind.Sub -> sub, AxiomScopeAccessKind.Sup -> sup))
+      ).left
+  }
+
+
 }

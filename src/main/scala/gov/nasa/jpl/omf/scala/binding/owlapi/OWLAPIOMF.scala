@@ -310,6 +310,12 @@ trait OWLAPIOMFtbox extends OMFtbox with OMLAPIOMFcbox {
   override type ReifiedRelationshipSpecializationAxiom =
     types.termAxioms.ReifiedRelationshipSpecializationAxiom
 
+  override type SubDataPropertyOfAxiom =
+    types.termAxioms.SubDataPropertyOfAxiom
+
+  override type SubObjectPropertyOfAxiom =
+    types.termAxioms.SubObjectPropertyOfAxiom
+
   override type TerminologyAxiom =
     types.terminologyAxioms.TerminologyAxiom
 
