@@ -386,15 +386,15 @@ case class TerminologyBoxResolverHelper
                           Map(
                             s_op -> ont.inverseFunctionalObjectPropertyAxioms(s_op).iterator().hasNext,
                             r_op -> ont.functionalObjectPropertyAxioms(r_op).iterator().hasNext),
-                          r_inv_op.map { ui => ui -> ont.functionalObjectPropertyAxioms(ui).iterator().hasNext })
+                          r_inv_op.map { ui => ui -> ont.inverseFunctionalObjectPropertyAxioms(ui).iterator().hasNext })
 
                         val maybeInverseFunctional
                         = hasRelationshipCharacteristic(
                           RelationshipCharacteristics.isInverseFunctional,
                           Map(
-                            t_op -> ont.functionalObjectPropertyAxioms(t_op).iterator().hasNext,
+                            t_op -> ont.inverseFunctionalObjectPropertyAxioms(t_op).iterator().hasNext,
                             r_op -> ont.inverseFunctionalObjectPropertyAxioms(r_op).iterator().hasNext),
-                          r_inv_op.map { ui => ui -> ont.inverseFunctionalObjectPropertyAxioms(ui).iterator().hasNext })
+                          r_inv_op.map { ui => ui -> ont.functionalObjectPropertyAxioms(ui).iterator().hasNext })
 
                         val maybeSymmetric
                         = hasRelationshipCharacteristic(
