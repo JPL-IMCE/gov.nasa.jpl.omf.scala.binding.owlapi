@@ -46,13 +46,17 @@ trait MutableModule extends Module {
   (uuid: java.util.UUID @@ Tag)
   (implicit store: OWLAPIOMFGraphStore)
   : OWLAnnotation
-  = owlDataFactory.getOWLAnnotation(store.ANNOTATION_HAS_UUID, owlDataFactory.getOWLLiteral(uuid.toString))
+  = owlDataFactory.getOWLAnnotation(
+    store.ANNOTATION_HAS_UUID,
+    owlDataFactory.getOWLLiteral(uuid.toString, owlDataFactory.getStringOWLDatatype))
 
   def createOMLProvenanceAnnotation[Tag]
   (uuid: String @@ Tag)
   (implicit store: OWLAPIOMFGraphStore)
   : OWLAnnotation
-  = owlDataFactory.getOWLAnnotation(store.ANNOTATION_HAS_UUID, owlDataFactory.getOWLLiteral(uuid))
+  = owlDataFactory.getOWLAnnotation(
+    store.ANNOTATION_HAS_UUID,
+    owlDataFactory.getOWLLiteral(uuid, owlDataFactory.getStringOWLDatatype))
 
   def createOMLProvenanceAnnotations[Tag]
   (uuid: java.util.UUID @@ Tag)

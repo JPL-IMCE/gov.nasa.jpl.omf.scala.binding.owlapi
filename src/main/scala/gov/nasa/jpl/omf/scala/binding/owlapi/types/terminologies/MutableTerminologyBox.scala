@@ -119,7 +119,7 @@ trait MutableTerminologyBox
       value = value).right[OMFError.Throwables]
     _ = sig.annotationPropertyValues += a
     ont_ap = owlDataFactory.getOWLAnnotationProperty(property.iri)
-    ont_lit = owlDataFactory.getOWLLiteral(value)
+    ont_lit = owlDataFactory.getOWLLiteral(value, owlDataFactory.getStringOWLDatatype)
     _ <- subject match {
       case m: MutableModule =>
         applyOntologyChangeOrNoOp(
@@ -162,7 +162,7 @@ trait MutableTerminologyBox
       propertyUUID = property.uuid,
       value = value).right[OMFError.Throwables]
     _ = sig.annotationPropertyValues += a
-    ont_lit = owlDataFactory.getOWLLiteral(value)
+    ont_lit = owlDataFactory.getOWLLiteral(value, owlDataFactory.getStringOWLDatatype)
     _ <- if (property.iri == store.ops.omlHasReificationLabelIRI)
         applyOntologyChangeOrNoOp(
           ontManager,
@@ -198,7 +198,7 @@ trait MutableTerminologyBox
           ontManager,
           new AddAxiom(ont, owlDataFactory.getOWLAnnotationAssertionAxiom(
             owlDataFactory.getOWLAnnotationProperty(property.iri),
-            subject.iri,
+            subject.unreified.getIRI,
             ont_lit)),
           "addAnnotation error")
   } yield a
@@ -1591,7 +1591,9 @@ trait MutableTerminologyBox
             restrictionDT,
             owlDataFactory.getOWLDatatypeRestriction(
               rdr.restrictedDataRange.e,
-              owlDataFactory.getOWLFacetRestriction(OWLFacet.PATTERN, owlDataFactory.getOWLLiteral(patt))),
+              owlDataFactory.getOWLFacetRestriction(
+                OWLFacet.PATTERN,
+                owlDataFactory.getOWLLiteral(patt, owlDataFactory.getStringOWLDatatype))),
             createOMLProvenanceAnnotations(uuid)))
         },
         s"addIRIScalarRestriction error: ${restrictionDT.getIRI}")
@@ -1881,7 +1883,7 @@ trait MutableTerminologyBox
               rdr.restrictedDataRange.e,
               owlDataFactory.getOWLFacetRestriction(
                 OWLFacet.PATTERN,
-                owlDataFactory.getOWLLiteral(patt))),
+                owlDataFactory.getOWLLiteral(patt, owlDataFactory.getStringOWLDatatype))),
             createOMLProvenanceAnnotations(uuid)))
         } ++ rdr.language.map { lang =>
           new AddAxiom(ont, owlDataFactory.getOWLDatatypeDefinitionAxiom(
@@ -2889,10 +2891,19 @@ trait MutableTerminologyBox
       sig.chainRules.add(cr)
       iri2typeTerm += iri -> cr
       \/-(cr)
-    } { t =>
-      Set(
-        entityAlreadyDefinedException(ElementExceptionKind.ChainRule, iri, t)
-      ).left
+    } {
+      case cr: OWLAPIOMF#ChainRule =>
+        if (cr.uuid == u)
+          \/-(cr)
+        else
+          Set(
+            entityAlreadyDefinedException(ElementExceptionKind.ChainRule, iri, cr)
+          ).left
+      case t =>
+        Set(
+          entityAlreadyDefinedException(ElementExceptionKind.ChainRule, iri, t)
+        ).left
+
     }
   } yield r
 

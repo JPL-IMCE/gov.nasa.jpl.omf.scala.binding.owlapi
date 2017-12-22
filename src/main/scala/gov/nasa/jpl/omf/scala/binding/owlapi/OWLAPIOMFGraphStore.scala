@@ -835,10 +835,15 @@ case class OWLAPIOMFGraphStore
     }
 
     // Add only the annotation properties used that are not imported.
+    val ontPrefix = ontIRI.getIRIString
+    val aps =
+      ont
+        .annotationPropertiesInSignature(Imports.EXCLUDED).toScala[Set]
+        .filter(_.getIRI.getIRIString.startsWith(ontPrefix))
 
     val annotationProperties
     : Throwables \/ Set[AnnotationProperty]
-    = ont.annotationPropertiesInSignature().toScala[Set]
+    = aps
       .foldLeft(Set.empty[AnnotationProperty].right[Throwables]) {
       case (acc, ont_ap) =>
         for {

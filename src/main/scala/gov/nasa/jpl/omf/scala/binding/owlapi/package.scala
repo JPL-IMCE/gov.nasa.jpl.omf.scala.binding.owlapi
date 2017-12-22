@@ -36,7 +36,7 @@ import org.semanticweb.owlapi.model._
 import scala.collection.immutable._
 import scala.compat.java8.StreamConverters._
 import scala.{None, Option, StringContext, Unit}
-import scala.Predef.{ArrowAssoc,String}
+import scala.Predef.{augmentString,require,ArrowAssoc,String}
 import scalaz._
 import Scalaz._
 
@@ -210,7 +210,7 @@ package object owlapi {
     "http://purl.org/dc/elements/1.1/" -> "dc:",
     "http://www.w3.org/2000/01/rdf-schema#" -> "rdfs:",
     "http://www.w3.org/1999/02/22-rdf-syntax-ns#" -> "rdf:",
-    "http://imce.jpl.nasa.gov/oml#" -> "oml:"
+    "http://imce.jpl.nasa.gov/oml/oml#" -> "oml:"
   )
 
   def getDefaultNSPrefix(aIRI: String)
@@ -244,9 +244,25 @@ package object owlapi {
         .map { case (_,prefix) => prefix }
         .getOrElse { getDefaultNSPrefix(aIRI) } + shortIRI
 
+    val abModuleIRI =
+      annotationNSPrefixes
+        .find { case (ns,_) => aIRI.startsWith(ns) }
+        .map { case (ns,_) =>
+          tables.taggedTypes.iri(ns.stripSuffix("#"))
+        }
+        .getOrElse {
+          require(aIRI.contains("#"))
+          val ontIRI = tables.taggedTypes.iri(aIRI.substring(0, aIRI.indexOf('#')))
+          ontIRI
+        }
+
+    val abModuleUUID =
+      tables.taggedTypes.moduleUUID(generateUUIDFromString(abModuleIRI).toString)
+
     if (abIRI.contains(":"))
       tables.AnnotationProperty(
         getAnnotationPropertyUUIDfromOWLAnnotationProperty(ap),
+        abModuleUUID,
         tables.taggedTypes.iri(aIRI),
         tables.taggedTypes.abbrevIRI(abIRI)).right
     else

@@ -116,7 +116,7 @@ case class MutableDescriptionBox
       value = value).right[OMFError.Throwables]
     _ = sig.annotationPropertyValues += a
     ont_ap = owlDataFactory.getOWLAnnotationProperty(property.iri)
-    ont_lit = owlDataFactory.getOWLLiteral(value)
+    ont_lit = owlDataFactory.getOWLLiteral(value, owlDataFactory.getStringOWLDatatype)
     _ <- subject match {
       case m: MutableModule =>
         applyOntologyChangeOrNoOp(

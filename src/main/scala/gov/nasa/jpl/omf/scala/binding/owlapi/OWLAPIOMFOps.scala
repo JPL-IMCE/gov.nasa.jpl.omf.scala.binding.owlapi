@@ -24,6 +24,7 @@ import java.net.URI
 import gov.nasa.jpl.imce.oml.resolver.api
 import gov.nasa.jpl.imce.oml.tables
 import gov.nasa.jpl.imce.oml.tables.{AnnotationProperty, AnnotationPropertyValue, LiteralValue}
+import gov.nasa.jpl.imce.oml.uuid.{JVMUUIDGenerator, OMLUUIDGenerator}
 import gov.nasa.jpl.omf.scala.binding.owlapi.common.{ImmutableModule, Module, MutableModule}
 import gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.{DescriptionBox, ImmutableDescriptionBox, MutableDescriptionBox, SingletonInstanceStructuredDataPropertyContext}
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.{RestrictionScalarDataPropertyValue, RestrictionStructuredDataPropertyContext, RestrictionStructuredDataPropertyTuple}
@@ -2223,11 +2224,20 @@ class OWLAPIOMFOps
           with OWLAPIMutableDescriptionBoxOps
           with OWLAPIStoreOps {
 
+  val omlIRI: tables.taggedTypes.IRI
+  = tables.taggedTypes.iri("http://imce.jpl.nasa.gov/oml/oml")
+
+  val omlUUIDG: OMLUUIDGenerator = new JVMUUIDGenerator()
+
+  val omlUUID: tables.taggedTypes.ModuleUUID
+  = tables.taggedTypes.moduleUUID(omlUUIDG.namespaceUUID(omlIRI).toString)
+
   val omlHasReificationLabelIRI: tables.taggedTypes.IRI
   = tables.taggedTypes.iri(AnnotationOMLHasReificationLabel.toString)
   val omlHasReificationLabelAP: tables.AnnotationProperty
   = tables.AnnotationProperty(
     tables.taggedTypes.annotationPropertyUUID(generateUUIDFromString(omlHasReificationLabelIRI).toString),
+    omlUUID,
     omlHasReificationLabelIRI,
     tables.taggedTypes.abbrevIRI("oml:hasReificationLabel"))
 
@@ -2236,6 +2246,7 @@ class OWLAPIOMFOps
   val omlHasPropertyLabelAP: tables.AnnotationProperty
   = tables.AnnotationProperty(
     tables.taggedTypes.annotationPropertyUUID(generateUUIDFromString(omlHasPropertyLabelIRI).toString),
+    omlUUID,
     omlHasPropertyLabelIRI,
     tables.taggedTypes.abbrevIRI("oml:hasPropertyLabel"))
 
@@ -2244,6 +2255,7 @@ class OWLAPIOMFOps
   val omlHasInverseLabelAP: tables.AnnotationProperty
   = tables.AnnotationProperty(
     tables.taggedTypes.annotationPropertyUUID(generateUUIDFromString(omlHasInverseLabelIRI).toString),
+    omlUUID,
     omlHasInverseLabelIRI,
     tables.taggedTypes.abbrevIRI("oml:hasInverseLabel"))
 
