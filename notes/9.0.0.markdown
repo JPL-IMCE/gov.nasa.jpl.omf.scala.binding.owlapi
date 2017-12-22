@@ -65,3 +65,7 @@ gov.nasa.jpl.omf.scala.binding.owlapi 9.0.0 is a major update
 - [#61 Add missing rules for annotations of data properties](https://github.com/JPL-IMCE/gov.nasa.jpl.omf.scala.binding.owlapi/issues/61)
 
 - [#62 Support for OML SubObjectPropertyOf and SubDataPropertyOf](https://github.com/JPL-IMCE/gov.nasa.jpl.omf.scala.binding.owlapi/issues/62)
+
+- [#65 Problems with the OML ReifiedRelationshipProperty pattern in OWL2](https://github.com/JPL-IMCE/gov.nasa.jpl.omf.scala.binding.owlapi/issues/65)
+
+- [#66 OML AnnotationProperty refactoring](https://github.com/JPL-IMCE/gov.nasa.jpl.omf.scala.binding.owlapi/issues/66)
