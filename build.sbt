@@ -202,6 +202,8 @@ lazy val core =
         case m => m
       }
     },
+    dependencyOverrides += "com.fasterxml.jackson.module" % "jackson-module-paranamer" % Versions.spark_jackson % "compile",
+    dependencyOverrides += "com.fasterxml.jackson.module" %% "jackson-module-scala" % Versions.spark_jackson % "compile",
 
     // Remove when
     libraryDependencies ~= {
