@@ -20,7 +20,7 @@ package gov.nasa.jpl.omf.scala.binding.owlapi
 
 import java.lang.{IllegalArgumentException,System}
 
-import gov.nasa.jpl.imce.oml.graphs.hierarchicalTopologicalSort
+import gov.nasa.jpl.imce.oml.resolver.GraphUtilities
 import gov.nasa.jpl.omf.scala.binding.owlapi.BackboneDeclaractions.BackboneDeclaractions
 import gov.nasa.jpl.omf.scala.core.OMFError.Throwables
 import gov.nasa.jpl.omf.scala.core._
@@ -367,7 +367,7 @@ object OWLAPIOMFLoader {
           gi + fIRI ~> tIRI
         }
 
-        lorder <- hierarchicalTopologicalSort(Seq(g2), Seq.empty).map(_.reverse)
+        lorder <- GraphUtilities.hierarchicalTopologicalSort(Seq(g2)).map(_.reverse)
 
         _ = {
           java.lang.System.out.println(s"loadModule(iri=$iri) ordered ${lorder.size} modules:")

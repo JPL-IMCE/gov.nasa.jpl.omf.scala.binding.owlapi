@@ -18,7 +18,8 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.descriptions
 
-import gov.nasa.jpl.imce.oml.resolver.{api,toUUIDString}
+import gov.nasa.jpl.imce.oml.resolver.api
+import gov.nasa.jpl.imce.oml.resolver.ResolverUtilities.toUUIDString
 import gov.nasa.jpl.imce.oml.tables.{AnnotationProperty, AnnotationPropertyValue, LiteralValue}
 import gov.nasa.jpl.imce.oml.tables
 import gov.nasa.jpl.omf.scala.binding.owlapi.common.{MutableModule, Resource}

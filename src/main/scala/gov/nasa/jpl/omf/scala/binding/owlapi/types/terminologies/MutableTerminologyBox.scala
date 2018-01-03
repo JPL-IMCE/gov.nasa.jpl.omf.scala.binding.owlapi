@@ -21,7 +21,7 @@ package gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies
 import java.lang.Integer
 import java.util.Collections
 
-import gov.nasa.jpl.imce.oml.resolver.toUUIDString
+import gov.nasa.jpl.imce.oml.resolver.ResolverUtilities.toUUIDString
 import gov.nasa.jpl.imce.oml.resolver.api
 import gov.nasa.jpl.imce.oml.tables
 import gov.nasa.jpl.imce.oml.tables.{AnnotationProperty, AnnotationPropertyValue, LiteralValue}
