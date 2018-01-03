@@ -11,11 +11,15 @@
  - [[gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore]]
  - [[gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader]]
 
-== 3. OMF Terminology Graph Adaptation ==
+== 3. OMF Adaptation ==
 
+ - [[gov.nasa.jpl.omf.scala.binding.owlapi.common]]
  - [[gov.nasa.jpl.omf.scala.binding.owlapi.types]]
+ - [[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms]]
+ - [[gov.nasa.jpl.omf.scala.binding.owlapi.types.termAxioms]]
 
-== 4. OMF DescriptionBox Adaptation ==
-
+ - [[gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies]]
+ - [[gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologyAxioms]]
+ - [[gov.nasa.jpl.omf.scala.binding.owlapi.types.bundleStatements]]
  - [[gov.nasa.jpl.omf.scala.binding.owlapi.descriptions]]
 

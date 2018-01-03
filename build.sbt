@@ -96,7 +96,14 @@ lazy val core =
     IMCEKeys.targetJDK := IMCEKeys.jdk18.value,
     git.baseVersion := Versions.version,
 
-    scalacOptions in (Compile,doc) ++= Seq("-diagrams"),
+    scalacOptions in (Compile,doc) ++= Seq(
+      "-diagrams",
+      "-doc-title", name.value,
+      "-doc-root-content", baseDirectory.value + "/rootdoc.txt"),
+
+    autoAPIMappings := true,
+
+    apiURL := Some(url("https://jpl-imce.github.io/gov.nasa.jpl.omf.scala.binding.owlapi/latest/api/")),
 
     // include all test artifacts
     publishArtifact in Test := true,
