@@ -28,7 +28,7 @@
         </head>
         <body class="type">
       <div id="definition">
-        <img alt="Trait" src="../../../../../../../../../lib/trait_big.png" />
+        <img alt="Class" src="../../../../../../../../../lib/class_big.png" />
         <p id="owner"><a href="../../../../../../../../package.html" class="extype" name="gov">gov</a>.<a href="../../../../../../../package.html" class="extype" name="gov.nasa">nasa</a>.<a href="../../../../../../package.html" class="extype" name="gov.nasa.jpl">jpl</a>.<a href="../../../../../package.html" class="extype" name="gov.nasa.jpl.omf">omf</a>.<a href="../../../../package.html" class="extype" name="gov.nasa.jpl.omf.scala">scala</a>.<a href="../../../package.html" class="extype" name="gov.nasa.jpl.omf.scala.binding">binding</a>.<a href="../../package.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi">owlapi</a>.<a href="../package.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types">types</a>.<a href="package.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms">terms</a></p>
         <h1>SegmentPredicate</h1><h3><span class="morelinks"><div>Related Doc:
             <a href="package.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms">package terms</a>
@@ -42,22 +42,19 @@
       <h4 id="signature" class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">trait</span>
+        <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <span class="name">SegmentPredicate</span><span class="result"> extends <a href="../../common/LogicalElement.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.common.LogicalElement">LogicalElement</a></span>
+        <span class="name">SegmentPredicate</span><span class="params">(<span name="uuid">uuid: <span class="extype" name="gov.nasa.jpl.imce.oml.resolver.api.taggedTypes.SegmentPredicateUUID">SegmentPredicateUUID</span></span>, <span name="bodySegment">bodySegment: <a href="RuleBodySegment.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.RuleBodySegment">RuleBodySegment</a></span>, <span name="predicate">predicate: <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.Option" class="extype" target="_top">Option</a>[<a href="../../common/Predicate.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.common.Predicate">Predicate</a>]</span>, <span name="reifiedRelationshipSource">reifiedRelationshipSource: <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.Option" class="extype" target="_top">Option</a>[<a href="ReifiedRelationship.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ReifiedRelationship">ReifiedRelationship</a>]</span>, <span name="reifiedRelationshipInverseSource">reifiedRelationshipInverseSource: <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.Option" class="extype" target="_top">Option</a>[<a href="ReifiedRelationship.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ReifiedRelationship">ReifiedRelationship</a>]</span>, <span name="reifiedRelationshipTarget">reifiedRelationshipTarget: <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.Option" class="extype" target="_top">Option</a>[<a href="ReifiedRelationship.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ReifiedRelationship">ReifiedRelationship</a>]</span>, <span name="reifiedRelationshipInverseTarget">reifiedRelationshipInverseTarget: <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.Option" class="extype" target="_top">Option</a>[<a href="ReifiedRelationship.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ReifiedRelationship">ReifiedRelationship</a>]</span>, <span name="unreifiedRelationshipInverse">unreifiedRelationshipInverse: <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.Option" class="extype" target="_top">Option</a>[<a href="UnreifiedRelationship.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.UnreifiedRelationship">UnreifiedRelationship</a>]</span>)</span><span class="result"> extends <a href="../../common/LogicalElement.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.common.LogicalElement">LogicalElement</a> with <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
       </span>
       </h4>
       
           <div id="comment" class="fullcommenttop"><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
-          <div class="superTypes hiddenContent"><a href="../../common/LogicalElement.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.common.LogicalElement">LogicalElement</a>, <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.Any" class="extype" target="_top">Any</a></div>
-        </div><div class="toggleContainer block">
-            <span class="toggle">Known Subclasses</span>
-            <div class="subClasses hiddenContent"><a href="AspectPredicate.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.AspectPredicate">AspectPredicate</a>, <a href="BinarySegmentForwardPropertyPredicate.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.BinarySegmentForwardPropertyPredicate">BinarySegmentForwardPropertyPredicate</a>, <a href="BinarySegmentPredicate.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.BinarySegmentPredicate">BinarySegmentPredicate</a>, <a href="BinarySegmentPropertyPredicate.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.BinarySegmentPropertyPredicate">BinarySegmentPropertyPredicate</a>, <a href="BinarySegmentReversePropertyPredicate.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.BinarySegmentReversePropertyPredicate">BinarySegmentReversePropertyPredicate</a>, <a href="ConceptPredicate.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ConceptPredicate">ConceptPredicate</a>, <a href="ReifiedRelationshipInversePropertyPredicate.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ReifiedRelationshipInversePropertyPredicate">ReifiedRelationshipInversePropertyPredicate</a>, <a href="ReifiedRelationshipPredicate.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ReifiedRelationshipPredicate">ReifiedRelationshipPredicate</a>, <a href="ReifiedRelationshipPropertyPredicate.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ReifiedRelationshipPropertyPredicate">ReifiedRelationshipPropertyPredicate</a>, <a href="ReifiedRelationshipSourceInversePropertyPredicate.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ReifiedRelationshipSourceInversePropertyPredicate">ReifiedRelationshipSourceInversePropertyPredicate</a>, <a href="ReifiedRelationshipSourcePropertyPredicate.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ReifiedRelationshipSourcePropertyPredicate">ReifiedRelationshipSourcePropertyPredicate</a>, <a href="ReifiedRelationshipTargetInversePropertyPredicate.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ReifiedRelationshipTargetInversePropertyPredicate">ReifiedRelationshipTargetInversePropertyPredicate</a>, <a href="ReifiedRelationshipTargetPropertyPredicate.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ReifiedRelationshipTargetPropertyPredicate">ReifiedRelationshipTargetPropertyPredicate</a>, <a href="UnarySegmentPredicate.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.UnarySegmentPredicate">UnarySegmentPredicate</a>, <a href="UnreifiedRelationshipInversePropertyPredicate.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.UnreifiedRelationshipInversePropertyPredicate">UnreifiedRelationshipInversePropertyPredicate</a>, <a href="UnreifiedRelationshipPropertyPredicate.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.UnreifiedRelationshipPropertyPredicate">UnreifiedRelationshipPropertyPredicate</a></div>
-          </div><div class="toggleContainer block diagram-container" id="inheritance-diagram-container">
+          <div class="superTypes hiddenContent"><a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.Serializable" class="extype" target="_top">Serializable</a>, <span class="extype" name="java.io.Serializable">Serializable</span>, <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.Product" class="extype" target="_top">Product</a>, <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.Equals" class="extype" target="_top">Equals</a>, <a href="../../common/LogicalElement.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.common.LogicalElement">LogicalElement</a>, <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.Any" class="extype" target="_top">Any</a></div>
+        </div><div class="toggleContainer block diagram-container" id="inheritance-diagram-container">
                 <span class="toggle diagram-link">Type Hierarchy</span>
-                <div class="diagram" id="inheritance-diagram"><svg class="class-diagram" id="graph1" viewBox="0.00 0.00 331.00 158.00" height="158pt" width="331pt" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg"><g transform="scale(1 1) rotate(0) translate(4 154)" class="graph" id="graph0"><polygon points="-4,4 -4,-154 327,-154 327,4 -4,4" stroke="none" fill="white"></polygon><g class="cluster" id="clust1"></g><g class="cluster" id="clust2"></g><!-- node0 --><g class="node this trait" id="graph1_0"><g id="a_this trait|graph1_0"><a xlink:title="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.SegmentPredicate (this trait)" xlink:href="#inheritance-diagram"><polygon points="225,-88 99,-88 99,-62 225,-62 225,-88" stroke="#37657d" fill="#498aad"></polygon><image xlink:href="../../../../../../../../../lib/trait_diagram.png" y="-81" x="111" preserveAspectRatio="xMinYMin meet" height="12px" width="12px"></image><text fill="#ffffff" font-size="10.00" font-family="Arial" y="-72.5" x="131" text-anchor="start">SegmentPredicate</text></a></g></g><!-- node1 --><g class="node trait" id="graph1_1"><g id="a_trait|graph1_1"><a xlink:title="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.BinarySegmentPredicate" xlink:href="BinarySegmentPredicate.html#inheritance-diagram"><polygon points="154,-26 0,-26 0,-0 154,-0 154,-26" stroke="#37657d" fill="#498aad"></polygon><image xlink:href="../../../../../../../../../lib/trait_diagram.png" y="-19" x="12" preserveAspectRatio="xMinYMin meet" height="12px" width="12px"></image><text fill="#ffffff" font-size="10.00" font-family="Arial" y="-10.5" x="32" text-anchor="start">BinarySegmentPredicate</text></a></g></g><!-- node0&#45;&gt;node1 --><g class="edge inheritance" id="graph1_0_1"><g id="a_inheritance|graph1_0_1"><a xlink:title="BinarySegmentPredicate is a subtype of SegmentPredicate"><path d="M140.493,-58.8189C126.145,-48.6906 107.533,-35.5529 94.1754,-26.1238" stroke="#d4d4d4" fill="none"></path><polygon points="139.705,-60.4043 144.799,-61.8581 141.723,-57.5449 139.705,-60.4043" stroke="#d4d4d4" fill="none"></polygon></a></g></g><!-- node2 --><g class="node trait" id="graph1_2"><g id="a_trait|graph1_2"><a xlink:title="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.UnarySegmentPredicate" xlink:href="UnarySegmentPredicate.html#inheritance-diagram"><polygon points="323.25,-26 172.75,-26 172.75,-0 323.25,-0 323.25,-26" stroke="#37657d" fill="#498aad"></polygon><image xlink:href="../../../../../../../../../lib/trait_diagram.png" y="-19" x="185" preserveAspectRatio="xMinYMin meet" height="12px" width="12px"></image><text fill="#ffffff" font-size="10.00" font-family="Arial" y="-10.5" x="205" text-anchor="start">UnarySegmentPredicate</text></a></g></g><!-- node0&#45;&gt;node2 --><g class="edge inheritance" id="graph1_0_2"><g id="a_inheritance|graph1_0_2"><a xlink:title="UnarySegmentPredicate is a subtype of SegmentPredicate"><path d="M183.76,-58.8189C198.277,-48.6906 217.107,-35.5529 230.622,-26.1238" stroke="#d4d4d4" fill="none"></path><polygon points="182.503,-57.5619 179.403,-61.8581 184.505,-60.4324 182.503,-57.5619" stroke="#d4d4d4" fill="none"></polygon></a></g></g><!-- node3 --><g class="node trait" id="graph1_3"><g id="a_trait|graph1_3"><a xlink:title="gov.nasa.jpl.omf.scala.binding.owlapi.common.LogicalElement" xlink:href="../../common/LogicalElement.html#inheritance-diagram"><polygon points="217.5,-150 106.5,-150 106.5,-124 217.5,-124 217.5,-150" stroke="#37657d" fill="#498aad"></polygon><image xlink:href="../../../../../../../../../lib/trait_diagram.png" y="-143" x="118" preserveAspectRatio="xMinYMin meet" height="12px" width="12px"></image><text fill="#ffffff" font-size="10.00" font-family="Arial" y="-134.5" x="138" text-anchor="start">LogicalElement</text></a></g></g><!-- node3&#45;&gt;node0 --><g class="edge inheritance" id="graph1_3_0"><g id="a_inheritance|graph1_3_0"><a xlink:title="SegmentPredicate is a subtype of LogicalElement"><path d="M162,-118.683C162,-108.896 162,-96.9026 162,-88.1238" stroke="#d4d4d4" fill="none"></path><polygon points="160.25,-118.858 162,-123.858 163.75,-118.858 160.25,-118.858" stroke="#d4d4d4" fill="none"></polygon></a></g></g></g></svg></div>
+                <div class="diagram" id="inheritance-diagram"><svg class="class-diagram" id="graph1" viewBox="0.00 0.00 331.00 120.00" height="120pt" width="331pt" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg"><g transform="scale(1 1) rotate(0) translate(4 116)" class="graph" id="graph0"><polygon points="-4,4 -4,-116 327,-116 327,4 -4,4" stroke="none" fill="white"></polygon><g class="cluster" id="clust1"></g><g class="cluster" id="clust2"></g><!-- node0 --><g class="node this class" id="graph1_0"><g id="a_this class|graph1_0"><a xlink:title="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.SegmentPredicate (this class)" xlink:href="#inheritance-diagram"><polygon points="232,-50 106,-50 106,-24 232,-24 232,-50" stroke="#115f3b" fill="#0a955b"></polygon><image xlink:href="../../../../../../../../../lib/class_diagram.png" y="-43" x="118" preserveAspectRatio="xMinYMin meet" height="12px" width="12px"></image><text fill="#ffffff" font-size="10.00" font-family="Arial" y="-34.5" x="138" text-anchor="start">SegmentPredicate</text></a></g></g><!-- node1 --><g class="node trait" id="graph1_1"><g id="a_trait|graph1_1"><a xlink:title="gov.nasa.jpl.omf.scala.binding.owlapi.common.LogicalElement" xlink:href="../../common/LogicalElement.html#inheritance-diagram"><polygon points="111.5,-112 0.5,-112 0.5,-86 111.5,-86 111.5,-112" stroke="#37657d" fill="#498aad"></polygon><image xlink:href="../../../../../../../../../lib/trait_diagram.png" y="-105" x="12" preserveAspectRatio="xMinYMin meet" height="12px" width="12px"></image><text fill="#ffffff" font-size="10.00" font-family="Arial" y="-96.5" x="32" text-anchor="start">LogicalElement</text></a></g></g><!-- node1&#45;&gt;node0 --><g class="edge inheritance" id="graph1_1_0"><g id="a_inheritance|graph1_1_0"><a xlink:title="SegmentPredicate is a subtype of LogicalElement"><path d="M83.6096,-83.34C102.811,-73.1447 128.102,-59.7155 146.167,-50.1238" stroke="#d4d4d4" fill="none"></path><polygon points="82.4626,-81.9676 78.8672,-85.8581 84.104,-85.0589 82.4626,-81.9676" stroke="#d4d4d4" fill="none"></polygon></a></g></g><!-- node2 --><g class="node trait" id="graph1_2"><g id="a_trait|graph1_2"><a xlink:title="scala.Product"><polygon points="208.25,-112 129.75,-112 129.75,-86 208.25,-86 208.25,-112" stroke="#37657d" fill="#498aad"></polygon><image xlink:href="../../../../../../../../../lib/trait_diagram.png" y="-105" x="142" preserveAspectRatio="xMinYMin meet" height="12px" width="12px"></image><text fill="#ffffff" font-size="10.00" font-family="Arial" y="-96.5" x="162" text-anchor="start">Product</text></a></g></g><!-- node2&#45;&gt;node0 --><g class="edge inheritance" id="graph1_2_0"><g id="a_inheritance|graph1_2_0"><a xlink:title="SegmentPredicate is a subtype of Product"><path d="M169,-80.6826C169,-70.8961 169,-58.9026 169,-50.1238" stroke="#d4d4d4" fill="none"></path><polygon points="167.25,-80.8581 169,-85.8581 170.75,-80.8581 167.25,-80.8581" stroke="#d4d4d4" fill="none"></polygon></a></g></g><!-- node3 --><g class="node trait" id="graph1_3"><g id="a_trait|graph1_3"><a xlink:title="scala.Serializable"><polygon points="323,-112 227,-112 227,-86 323,-86 323,-112" stroke="#37657d" fill="#498aad"></polygon><image xlink:href="../../../../../../../../../lib/trait_diagram.png" y="-105" x="239" preserveAspectRatio="xMinYMin meet" height="12px" width="12px"></image><text fill="#ffffff" font-size="10.00" font-family="Arial" y="-96.5" x="259" text-anchor="start">Serializable</text></a></g></g><!-- node3&#45;&gt;node0 --><g class="edge inheritance" id="graph1_3_0"><g id="a_inheritance|graph1_3_0"><a xlink:title="SegmentPredicate is a subtype of Serializable"><path d="M249.101,-83.34C231.089,-73.1447 207.364,-59.7155 190.419,-50.1238" stroke="#d4d4d4" fill="none"></path><polygon points="248.336,-84.918 253.549,-85.8581 250.06,-81.8721 248.336,-84.918" stroke="#d4d4d4" fill="none"></polygon></a></g></g></g></svg></div>
               </div></div>
         
 
@@ -75,7 +72,7 @@
                 <span class="filtertype">Inherited<br />
                 </span>
                 <ol id="linearization">
-                  <li class="in" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.SegmentPredicate"><span>SegmentPredicate</span></li><li class="in" name="gov.nasa.jpl.omf.scala.binding.owlapi.common.LogicalElement"><span>LogicalElement</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                  <li class="in" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.SegmentPredicate"><span>SegmentPredicate</span></li><li class="in" name="scala.Serializable"><span>Serializable</span></li><li class="in" name="java.io.Serializable"><span>Serializable</span></li><li class="in" name="scala.Product"><span>Product</span></li><li class="in" name="scala.Equals"><span>Equals</span></li><li class="in" name="gov.nasa.jpl.omf.scala.binding.owlapi.common.LogicalElement"><span>LogicalElement</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                 </ol>
               </div><div id="ancestors">
             <span class="filtertype"></span>
@@ -92,68 +89,34 @@
 
       <div id="template">
         <div id="allMembers">
-        
-
-        
-
-        <div id="values" class="values members">
-              <h3>Abstract Value Members</h3>
-              <ol><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.SegmentPredicate#bodySegment" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="bodySegment:gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.RuleBodySegment"></a>
-      <a id="bodySegment:RuleBodySegment"></a>
+        <div id="constructors" class="members">
+              <h3>Instance Constructors</h3>
+              <ol><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.SegmentPredicate#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="&lt;init&gt;(uuid:gov.nasa.jpl.imce.oml.resolver.api.taggedTypes.SegmentPredicateUUID,bodySegment:gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.RuleBodySegment,predicate:Option[gov.nasa.jpl.omf.scala.binding.owlapi.common.Predicate],reifiedRelationshipSource:Option[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ReifiedRelationship],reifiedRelationshipInverseSource:Option[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ReifiedRelationship],reifiedRelationshipTarget:Option[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ReifiedRelationship],reifiedRelationshipInverseTarget:Option[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ReifiedRelationship],unreifiedRelationshipInverse:Option[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.UnreifiedRelationship]):gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.SegmentPredicate"></a>
+      <a id="&lt;init&gt;:SegmentPredicate"></a>
       <h4 class="signature">
       <span class="modifier_kind">
-        <span class="modifier">abstract </span>
-        <span class="kind">val</span>
+        <span class="modifier"></span>
+        <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">bodySegment</span><span class="result">: <a href="RuleBodySegment.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.RuleBodySegment">RuleBodySegment</a></span>
+        <span class="name">SegmentPredicate</span><span class="params">(<span name="uuid">uuid: <span class="extype" name="gov.nasa.jpl.imce.oml.resolver.api.taggedTypes.SegmentPredicateUUID">SegmentPredicateUUID</span></span>, <span name="bodySegment">bodySegment: <a href="RuleBodySegment.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.RuleBodySegment">RuleBodySegment</a></span>, <span name="predicate">predicate: <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.Option" class="extype" target="_top">Option</a>[<a href="../../common/Predicate.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.common.Predicate">Predicate</a>]</span>, <span name="reifiedRelationshipSource">reifiedRelationshipSource: <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.Option" class="extype" target="_top">Option</a>[<a href="ReifiedRelationship.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ReifiedRelationship">ReifiedRelationship</a>]</span>, <span name="reifiedRelationshipInverseSource">reifiedRelationshipInverseSource: <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.Option" class="extype" target="_top">Option</a>[<a href="ReifiedRelationship.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ReifiedRelationship">ReifiedRelationship</a>]</span>, <span name="reifiedRelationshipTarget">reifiedRelationshipTarget: <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.Option" class="extype" target="_top">Option</a>[<a href="ReifiedRelationship.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ReifiedRelationship">ReifiedRelationship</a>]</span>, <span name="reifiedRelationshipInverseTarget">reifiedRelationshipInverseTarget: <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.Option" class="extype" target="_top">Option</a>[<a href="ReifiedRelationship.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ReifiedRelationship">ReifiedRelationship</a>]</span>, <span name="unreifiedRelationshipInverse">unreifiedRelationshipInverse: <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.Option" class="extype" target="_top">Option</a>[<a href="UnreifiedRelationship.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.UnreifiedRelationship">UnreifiedRelationship</a>]</span>)</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.SegmentPredicate@bodySegment:gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.RuleBodySegment" title="Permalink" target="_top">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.SegmentPredicate@&lt;init&gt;(uuid:gov.nasa.jpl.imce.oml.resolver.api.taggedTypes.SegmentPredicateUUID,bodySegment:gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.RuleBodySegment,predicate:Option[gov.nasa.jpl.omf.scala.binding.owlapi.common.Predicate],reifiedRelationshipSource:Option[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ReifiedRelationship],reifiedRelationshipInverseSource:Option[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ReifiedRelationship],reifiedRelationshipTarget:Option[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ReifiedRelationship],reifiedRelationshipInverseTarget:Option[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ReifiedRelationship],unreifiedRelationshipInverse:Option[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.UnreifiedRelationship]):gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.SegmentPredicate" title="Permalink" target="_top">
         <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       
-    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.SegmentPredicate#termPredicate" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="termPredicate:gov.nasa.jpl.omf.scala.binding.owlapi.types.Term"></a>
-      <a id="termPredicate:Term"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">abstract </span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">termPredicate</span><span class="result">: <a href="../Term.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.Term">Term</a></span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.SegmentPredicate@termPredicate:gov.nasa.jpl.omf.scala.binding.owlapi.types.Term" title="Permalink" target="_top">
-        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      
-    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.common.LogicalElement#uuid" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
-      <a id="uuid:gov.nasa.jpl.imce.oml.resolver.api.taggedTypes.LogicalElementUUID"></a>
-      <a id="uuid:LogicalElementUUID"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">abstract </span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">uuid</span><span class="result">: <span class="extype" name="gov.nasa.jpl.imce.oml.resolver.api.taggedTypes.LogicalElementUUID">LogicalElementUUID</span></span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.SegmentPredicate@uuid:gov.nasa.jpl.imce.oml.resolver.api.taggedTypes.LogicalElementUUID" title="Permalink" target="_top">
-        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../../common/LogicalElement.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.common.LogicalElement">LogicalElement</a></dd></dl></div>
     </li></ol>
             </div>
 
+        
+
+        
+
         <div id="values" class="values members">
-              <h3>Concrete Value Members</h3>
+              <h3>Value Members</h3>
               <ol><li name="scala.AnyRef#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="!=(x$1:Any):Boolean"></a>
       <a id="!=(Any):Boolean"></a>
@@ -222,6 +185,23 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.SegmentPredicate#bodySegment" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="bodySegment:gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.RuleBodySegment"></a>
+      <a id="bodySegment:RuleBodySegment"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">bodySegment</span><span class="result">: <a href="RuleBodySegment.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.RuleBodySegment">RuleBodySegment</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.SegmentPredicate@bodySegment:gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.RuleBodySegment" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
     </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.SegmentPredicate#canEqual" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="canEqual(other:Any):Boolean"></a>
       <a id="canEqual(Any):Boolean"></a>
@@ -238,7 +218,7 @@
         <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.SegmentPredicate">SegmentPredicate</a> → <a href="../../common/LogicalElement.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.common.LogicalElement">LogicalElement</a></dd></dl></div>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.SegmentPredicate">SegmentPredicate</a> → Equals → <a href="../../common/LogicalElement.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.common.LogicalElement">LogicalElement</a></dd></dl></div>
     </li><li name="scala.AnyRef#clone" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="clone():Object"></a>
       <a id="clone():AnyRef"></a>
@@ -279,8 +259,8 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scala.AnyRef#equals" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="equals(x$1:Any):Boolean"></a>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.SegmentPredicate#equals" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="equals(other:Any):Boolean"></a>
       <a id="equals(Any):Boolean"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -288,14 +268,14 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">equals</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.Any" class="extype" target="_top">Any</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
+        <span class="name">equals</span><span class="params">(<span name="other">other: <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.Any" class="extype" target="_top">Any</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.SegmentPredicate@equals(x$1:Any):Boolean" title="Permalink" target="_top">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.SegmentPredicate@equals(other:Any):Boolean" title="Permalink" target="_top">
         <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.SegmentPredicate">SegmentPredicate</a> → Equals → AnyRef → Any</dd></dl></div>
     </li><li name="scala.AnyRef#finalize" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="finalize():Unit"></a>
       <a id="finalize():Unit"></a>
@@ -336,23 +316,74 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="scala.AnyRef#hashCode" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="hashCode():Int"></a>
-      <a id="hashCode():Int"></a>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.SegmentPredicate#hashCode" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="hashCode:Int"></a>
+      <a id="hashCode:Int"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">def</span>
+        <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">hashCode</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.Int" class="extype" target="_top">Int</a></span>
+        <span class="name">hashCode</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.Int" class="extype" target="_top">Int</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.SegmentPredicate@hashCode():Int" title="Permalink" target="_top">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.SegmentPredicate@hashCode:Int" title="Permalink" target="_top">
         <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.SegmentPredicate">SegmentPredicate</a> → AnyRef → Any</dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.SegmentPredicate#isBinary" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="isBinary:Boolean"></a>
+      <a id="isBinary:Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">isBinary</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.SegmentPredicate@isBinary:Boolean" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.SegmentPredicate#isBinaryForward" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="isBinaryForward:Boolean"></a>
+      <a id="isBinaryForward:Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">isBinaryForward</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.SegmentPredicate@isBinaryForward:Boolean" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.SegmentPredicate#isBinaryInverse" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="isBinaryInverse:Boolean"></a>
+      <a id="isBinaryInverse:Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">isBinaryInverse</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.SegmentPredicate@isBinaryInverse:Boolean" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
     </li><li name="scala.Any#isInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="isInstanceOf[T0]:Boolean"></a>
       <a id="isInstanceOf[T0]:Boolean"></a>
@@ -370,6 +401,125 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.SegmentPredicate#isPredicate" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="isPredicate:Boolean"></a>
+      <a id="isPredicate:Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">isPredicate</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.SegmentPredicate@isPredicate:Boolean" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.SegmentPredicate#isReifiedRelationshipInverseSource" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="isReifiedRelationshipInverseSource:Boolean"></a>
+      <a id="isReifiedRelationshipInverseSource:Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">isReifiedRelationshipInverseSource</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.SegmentPredicate@isReifiedRelationshipInverseSource:Boolean" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.SegmentPredicate#isReifiedRelationshipInverseTarget" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="isReifiedRelationshipInverseTarget:Boolean"></a>
+      <a id="isReifiedRelationshipInverseTarget:Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">isReifiedRelationshipInverseTarget</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.SegmentPredicate@isReifiedRelationshipInverseTarget:Boolean" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.SegmentPredicate#isReifiedRelationshipSource" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="isReifiedRelationshipSource:Boolean"></a>
+      <a id="isReifiedRelationshipSource:Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">isReifiedRelationshipSource</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.SegmentPredicate@isReifiedRelationshipSource:Boolean" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.SegmentPredicate#isReifiedRelationshipTarget" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="isReifiedRelationshipTarget:Boolean"></a>
+      <a id="isReifiedRelationshipTarget:Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">isReifiedRelationshipTarget</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.SegmentPredicate@isReifiedRelationshipTarget:Boolean" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.SegmentPredicate#isUnary" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="isUnary:Boolean"></a>
+      <a id="isUnary:Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">isUnary</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.SegmentPredicate@isUnary:Boolean" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.SegmentPredicate#isUnreifiedRelationshipInverse" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="isUnreifiedRelationshipInverse:Boolean"></a>
+      <a id="isUnreifiedRelationshipInverse:Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">isUnreifiedRelationshipInverse</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.SegmentPredicate@isUnreifiedRelationshipInverse:Boolean" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
     </li><li name="scala.AnyRef#ne" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ne(x$1:AnyRef):Boolean"></a>
       <a id="ne(AnyRef):Boolean"></a>
@@ -421,6 +571,91 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.SegmentPredicate#predicate" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="predicate:Option[gov.nasa.jpl.omf.scala.binding.owlapi.common.Predicate]"></a>
+      <a id="predicate:Option[Predicate]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">predicate</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.Option" class="extype" target="_top">Option</a>[<a href="../../common/Predicate.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.common.Predicate">Predicate</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.SegmentPredicate@predicate:Option[gov.nasa.jpl.omf.scala.binding.owlapi.common.Predicate]" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.SegmentPredicate#reifiedRelationshipInverseSource" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="reifiedRelationshipInverseSource:Option[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ReifiedRelationship]"></a>
+      <a id="reifiedRelationshipInverseSource:Option[ReifiedRelationship]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">reifiedRelationshipInverseSource</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.Option" class="extype" target="_top">Option</a>[<a href="ReifiedRelationship.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ReifiedRelationship">ReifiedRelationship</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.SegmentPredicate@reifiedRelationshipInverseSource:Option[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ReifiedRelationship]" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.SegmentPredicate#reifiedRelationshipInverseTarget" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="reifiedRelationshipInverseTarget:Option[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ReifiedRelationship]"></a>
+      <a id="reifiedRelationshipInverseTarget:Option[ReifiedRelationship]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">reifiedRelationshipInverseTarget</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.Option" class="extype" target="_top">Option</a>[<a href="ReifiedRelationship.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ReifiedRelationship">ReifiedRelationship</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.SegmentPredicate@reifiedRelationshipInverseTarget:Option[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ReifiedRelationship]" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.SegmentPredicate#reifiedRelationshipSource" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="reifiedRelationshipSource:Option[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ReifiedRelationship]"></a>
+      <a id="reifiedRelationshipSource:Option[ReifiedRelationship]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">reifiedRelationshipSource</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.Option" class="extype" target="_top">Option</a>[<a href="ReifiedRelationship.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ReifiedRelationship">ReifiedRelationship</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.SegmentPredicate@reifiedRelationshipSource:Option[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ReifiedRelationship]" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.SegmentPredicate#reifiedRelationshipTarget" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="reifiedRelationshipTarget:Option[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ReifiedRelationship]"></a>
+      <a id="reifiedRelationshipTarget:Option[ReifiedRelationship]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">reifiedRelationshipTarget</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.Option" class="extype" target="_top">Option</a>[<a href="ReifiedRelationship.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ReifiedRelationship">ReifiedRelationship</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.SegmentPredicate@reifiedRelationshipTarget:Option[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ReifiedRelationship]" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
     </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
       <a id="synchronized[T0](⇒T0):T0"></a>
@@ -438,23 +673,40 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scala.AnyRef#toString" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="toString():String"></a>
-      <a id="toString():String"></a>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.SegmentPredicate#unreifiedRelationshipInverse" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="unreifiedRelationshipInverse:Option[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.UnreifiedRelationship]"></a>
+      <a id="unreifiedRelationshipInverse:Option[UnreifiedRelationship]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">def</span>
+        <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">toString</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.String">String</span></span>
+        <span class="name">unreifiedRelationshipInverse</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.Option" class="extype" target="_top">Option</a>[<a href="UnreifiedRelationship.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.UnreifiedRelationship">UnreifiedRelationship</a>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.SegmentPredicate@toString():String" title="Permalink" target="_top">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.SegmentPredicate@unreifiedRelationshipInverse:Option[gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.UnreifiedRelationship]" title="Permalink" target="_top">
         <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+      
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.SegmentPredicate#uuid" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="uuid:gov.nasa.jpl.imce.oml.resolver.api.taggedTypes.SegmentPredicateUUID"></a>
+      <a id="uuid:SegmentPredicateUUID"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">uuid</span><span class="result">: <span class="extype" name="gov.nasa.jpl.imce.oml.resolver.api.taggedTypes.SegmentPredicateUUID">SegmentPredicateUUID</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.SegmentPredicate@uuid:gov.nasa.jpl.imce.oml.resolver.api.taggedTypes.SegmentPredicateUUID" title="Permalink" target="_top">
+        <img src="../../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.SegmentPredicate">SegmentPredicate</a> → <a href="../../common/LogicalElement.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.common.LogicalElement">LogicalElement</a></dd></dl></div>
     </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait():Unit"></a>
       <a id="wait():Unit"></a>
@@ -533,7 +785,15 @@
         </div>
 
         <div id="inheritedMembers">
-        <div class="parent" name="gov.nasa.jpl.omf.scala.binding.owlapi.common.LogicalElement">
+        <div class="parent" name="scala.Serializable">
+              <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></h3>
+            </div><div class="parent" name="java.io.Serializable">
+              <h3>Inherited from <span class="extype" name="java.io.Serializable">Serializable</span></h3>
+            </div><div class="parent" name="scala.Product">
+              <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.Product" class="extype" target="_top">Product</a></h3>
+            </div><div class="parent" name="scala.Equals">
+              <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.Equals" class="extype" target="_top">Equals</a></h3>
+            </div><div class="parent" name="gov.nasa.jpl.omf.scala.binding.owlapi.common.LogicalElement">
               <h3>Inherited from <a href="../../common/LogicalElement.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.common.LogicalElement">LogicalElement</a></h3>
             </div><div class="parent" name="scala.AnyRef">
               <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></h3>
