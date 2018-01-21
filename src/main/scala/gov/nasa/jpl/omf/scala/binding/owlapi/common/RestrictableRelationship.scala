@@ -16,16 +16,20 @@
  * License Terms
  */
 
-package gov.nasa.jpl.omf.scala.binding.owlapi.types.terms
+package gov.nasa.jpl.omf.scala.binding.owlapi.common
 
-import scala.{Any,Boolean}
+import gov.nasa.jpl.imce.oml.resolver
 
-trait BinarySegmentPredicate extends SegmentPredicate {
+import scala.{Any, Boolean}
+
+trait RestrictableRelationship extends Predicate {
+
+  override val uuid: resolver.api.taggedTypes.RestrictableRelationshipUUID
 
   override def canEqual(other: Any)
   : Boolean
   = other match {
-    case _: BinarySegmentPredicate => true
+    case _: RestrictableRelationship => true
     case _ => false
   }
 }

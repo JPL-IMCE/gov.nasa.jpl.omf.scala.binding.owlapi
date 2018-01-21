@@ -232,7 +232,7 @@ package object owlapi {
   (ap: OWLAnnotationProperty)
   : Throwables \/ tables.AnnotationProperty
   = {
-    import gov.nasa.jpl.imce.oml.resolver.ResolverUtilities.toUUIDString
+    import gov.nasa.jpl.imce.oml.resolver.Extent2Tables.toUUIDString
 
     val aIRI = ap.getIRI.getIRIString
     val shortIRI = ap.getIRI.getShortForm

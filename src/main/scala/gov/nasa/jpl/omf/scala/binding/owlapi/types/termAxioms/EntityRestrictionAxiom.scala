@@ -18,18 +18,19 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.types.termAxioms
 
-import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.{Entity, EntityRelationship}
+import gov.nasa.jpl.omf.scala.binding.owlapi.common.RestrictableRelationship
+import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Entity
 
-import scala.{Any,Boolean}
+import scala.{Any, Boolean}
 import scala.Predef.require
 
 trait EntityRestrictionAxiom extends TermAxiom {
   val restrictedDomain: Entity
-  val restrictedRelation: EntityRelationship
+  val restrictedRelationship: RestrictableRelationship
   val restrictedRange: Entity
 
   require(null != restrictedDomain)
-  require(null != restrictedRelation)
+  require(null != restrictedRelationship)
   require(null != restrictedRange)
 
   override def canEqual(other: Any)

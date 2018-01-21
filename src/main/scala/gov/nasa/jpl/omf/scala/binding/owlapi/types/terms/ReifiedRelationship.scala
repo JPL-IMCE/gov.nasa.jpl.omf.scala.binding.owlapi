@@ -32,10 +32,8 @@ case class ReifiedRelationship
   override val iri: IRI,
   override val name: LocalName,
   override val uuid: api.taggedTypes.ReifiedRelationshipUUID,
-  unreifiedPropertyName: LocalName,
-  unreified: OWLObjectProperty,
-  inversePropertyName: Option[LocalName],
-  inverse: Option[OWLObjectProperty],
+  forwardProperty: ForwardProperty,
+  inverseProperty: Option[InverseProperty],
   override val source: Entity,
   rSource: OWLObjectProperty,
   override val target: Entity,
@@ -44,7 +42,8 @@ case class ReifiedRelationship
   extends EntityRelationship with ConceptualEntity {
 
   require(null != e)
-  require(null != inverse)
+  require(null != forwardProperty)
+  require(null != inverseProperty)
   require(null != source)
   require(null != target)
   require(null != characteristics)
@@ -59,7 +58,7 @@ case class ReifiedRelationship
   override val hashCode
   : Int
   = (uuid, name, source, target, e, rSource, rTarget,
-    unreifiedPropertyName, unreified, inversePropertyName, inverse, characteristics).##
+    forwardProperty, inverseProperty, characteristics).##
 
   override def equals(other: Any): Boolean = other match {
     case that: ReifiedRelationship =>
@@ -71,10 +70,8 @@ case class ReifiedRelationship
         (this.e == that.e) &&
         (this.rSource == that.rSource) &&
         (this.rTarget == that.rTarget) &&
-        (this.unreifiedPropertyName == that.unreifiedPropertyName) &&
-        (this.unreified == that.unreified) &&
-        (this.inversePropertyName == that.inversePropertyName) &&
-        (this.inverse == that.inverse) &&
+        (this.forwardProperty == that.forwardProperty) &&
+        (this.inverseProperty == that.inverseProperty) &&
         (this.characteristics.to[Set] == that.characteristics.to[Set])
     case _ =>
       false

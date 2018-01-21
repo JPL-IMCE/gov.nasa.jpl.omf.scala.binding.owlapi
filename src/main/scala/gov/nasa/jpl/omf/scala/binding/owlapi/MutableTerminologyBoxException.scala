@@ -22,8 +22,9 @@ import gov.nasa.jpl.omf.scala.binding.owlapi.AxiomExceptionKind._
 import gov.nasa.jpl.omf.scala.binding.owlapi.AxiomScopeAccessKind._
 import gov.nasa.jpl.omf.scala.binding.owlapi.ElementExceptionKind._
 import gov.nasa.jpl.omf.scala.binding.owlapi.RelationshipScopeAccessKind._
+import gov.nasa.jpl.omf.scala.binding.owlapi.common.Resource
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologyAxioms.TerminologyAxiom
-import gov.nasa.jpl.omf.scala.binding.owlapi.types.{Axiom, Term}
+import gov.nasa.jpl.omf.scala.binding.owlapi.types.Axiom
 import gov.nasa.jpl.omf.scala.core.OMFError
 import org.semanticweb.owlapi.model.IRI
 
@@ -43,44 +44,44 @@ sealed abstract class MutableTerminologyBoxException
   = this(s"Cannot create $kind because "+message)
 }
 
-case class EntityAlreadyDefinedException
+case class ResouceAlreadyDefinedException
 (kind: ElementExceptionKind,
  iri: IRI,
- term: Term)
-  extends MutableTerminologyBoxException(kind, iri, s"it is already defined as: $term") {
+ resource: Resource)
+  extends MutableTerminologyBoxException(kind, iri, s"it is already defined as: $resource") {
 
   require(null != kind)
   require(null != iri)
-  require(null != term)
+  require(null != resource)
 }
 
-case class EntityConflictException
+case class ResourceConflictException
 (kind: ElementExceptionKind,
  iri: IRI,
- conflictingTerm: Term)
-  extends MutableTerminologyBoxException(kind, iri, s"this IRI refers to: $conflictingTerm") {
+ conflictingResource: Resource)
+  extends MutableTerminologyBoxException(kind, iri, s"this IRI refers to: $conflictingResource") {
 
   require(null != kind)
   require(null != iri)
-  require(null != conflictingTerm)
+  require(null != conflictingResource)
 }
 
-case class EntityScopeException
+case class ResourceScopeException
 (kind: ElementExceptionKind,
  iri: IRI,
- unaccessibleTerms: Map[RelationshipScopeAccessKind, Term])
+ unaccessibleResources: Map[RelationshipScopeAccessKind, Resource])
   extends MutableTerminologyBoxException(kind, iri,
-    s"""|there are ${unaccessibleTerms.size} terms out of scope of
+    s"""|there are ${unaccessibleResources.size} resources out of scope of
         |the graph: """.stripMargin +
-      (unaccessibleTerms.map { case (k, t) => s"$k: $t" } mkString ", "))
+      (unaccessibleResources.map { case (k, t) => s"$k: $t" } mkString ", "))
 
 case class AxiomScopeException
 (kind: AxiomExceptionKind,
- unaccessibleTerms: Map[AxiomScopeAccessKind, Term])
+ unaccessibleResources: Map[AxiomScopeAccessKind, Resource])
   extends MutableTerminologyBoxException(kind,
-    s"""|there are ${unaccessibleTerms.size} terms out of scope of
+    s"""|there are ${unaccessibleResources.size} resources out of scope of
         |the graph: """.stripMargin +
-      (unaccessibleTerms.map { case (k, t) => s"$k: $t" } mkString ", "))
+      (unaccessibleResources.map { case (k, t) => s"$k: $t" } mkString ", "))
 
 case class DuplicateTermAxiomException
 (kind: AxiomExceptionKind,

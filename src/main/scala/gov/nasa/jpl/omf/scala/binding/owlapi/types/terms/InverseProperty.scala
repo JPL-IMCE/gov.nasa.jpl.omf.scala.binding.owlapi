@@ -18,30 +18,37 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.types.terms
 
-import gov.nasa.jpl.imce.oml.resolver.api
+import gov.nasa.jpl.imce.oml.{resolver, tables}
+import gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMF
+import gov.nasa.jpl.omf.scala.binding.owlapi.common.RestrictableRelationship
+import org.semanticweb.owlapi.model.OWLObjectProperty
+
 import scala.{Any,Boolean,Int}
 
-case class ReifiedRelationshipSourcePropertyPredicate
-(override val bodySegment: RuleBodySegment,
- override val termPredicate: ReifiedRelationship,
- override val uuid: api.taggedTypes.ReifiedRelationshipSourcePropertyPredicateUUID
- ) extends BinarySegmentForwardPropertyPredicate {
+case class InverseProperty
+(e: OWLObjectProperty,
+ override val uuid: resolver.api.taggedTypes.InversePropertyUUID,
+ override val iri: OWLAPIOMF#IRI,
+ override val name: tables.taggedTypes.LocalName)
+  extends RestrictableRelationship {
 
   override def canEqual(other: Any)
   : Boolean
   = other match {
-    case _: ReifiedRelationshipSourcePropertyPredicate => true
+    case _: InverseProperty => true
     case _ => false
   }
 
-  override val hashCode: Int = (uuid, termPredicate, bodySegment).##
+  override val hashCode
+  : Int
+  = (uuid, name, iri).##
 
   override def equals(other: Any): Boolean = other match {
-    case that: ReifiedRelationshipSourcePropertyPredicate =>
+    case that: InverseProperty =>
       (that canEqual this) &&
         (this.uuid == that.uuid) &&
-        (this.termPredicate == that.termPredicate) &&
-        (this.bodySegment == that.bodySegment)
+        (this.name == that.name) &&
+        (this.iri == that.iri)
     case _ =>
       false
   }

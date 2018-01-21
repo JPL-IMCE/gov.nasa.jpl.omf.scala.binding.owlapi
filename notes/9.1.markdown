@@ -1,0 +1,5 @@
+gov.nasa.jpl.omf.scala.binding.owlapi 9.1 is a major update
+
+## Issues Resolved
+
+- [#68 Update for OML distinction between forward and inverse properties of an OML ReifiedRelationship](https://github.com/JPL-IMCE/gov.nasa.jpl.omf.scala.binding.owlapi/issues/68)

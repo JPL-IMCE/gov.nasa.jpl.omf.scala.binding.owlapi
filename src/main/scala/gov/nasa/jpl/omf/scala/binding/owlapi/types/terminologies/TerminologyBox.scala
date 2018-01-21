@@ -22,9 +22,8 @@ import java.io.OutputStream
 
 import gov.nasa.jpl.imce.oml.resolver.api.taggedTypes.TerminologyBoxUUID
 import gov.nasa.jpl.imce.oml.tables
-
 import gov.nasa.jpl.omf.scala.binding.owlapi._
-import gov.nasa.jpl.omf.scala.binding.owlapi.common.Module
+import gov.nasa.jpl.omf.scala.binding.owlapi.common.{Module, RestrictableRelationship}
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms._
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologyAxioms._
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.{Axiom, Term}
@@ -69,6 +68,30 @@ trait TerminologyBox extends Module {
   val isDerivedAP = owlDataFactory.getOWLAnnotationProperty(AnnotationIsDerived)
 
   protected val iri2typeTerm: scala.collection.Map[IRI, Term]
+  protected val reifiedRelation2forwardProperty: scala.collection.Map[ReifiedRelationship, ForwardProperty]
+  protected val reifiedRelation2inverseProperty: scala.collection.Map[ReifiedRelationship, InverseProperty]
+
+  def isRestrictableRelationshipDefined
+  (rr: RestrictableRelationship)
+  : Boolean
+  = rr match {
+    case ur: UnreifiedRelationship =>
+      isTypeTermDefined(ur)
+    case fp: ForwardProperty =>
+      reifiedRelation2forwardProperty.values.exists(_ == fp)
+    case ip: InverseProperty =>
+      reifiedRelation2inverseProperty.values.exists(_ == ip)
+  }
+
+  def isRestrictableRelationshipDefinedRecursively
+  (rr: RestrictableRelationship)
+  (implicit store: OWLAPIOMFGraphStore)
+  : Boolean
+  = {
+    val closure = terminologyBoxImportClosure[OWLAPIOMF](this)
+    val found = closure.exists(_.isRestrictableRelationshipDefined(rr))
+    found
+  }
 
   def isTypeTermDefined
   (t: Term)

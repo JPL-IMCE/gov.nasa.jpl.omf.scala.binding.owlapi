@@ -19,14 +19,15 @@
 package gov.nasa.jpl.omf.scala.binding.owlapi.types.termAxioms
 
 import gov.nasa.jpl.imce.oml.resolver.api
-import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.{Entity, EntityRelationship}
+import gov.nasa.jpl.omf.scala.binding.owlapi.common.RestrictableRelationship
+import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Entity
 
-import scala.{Any,Boolean,Int}
+import scala.{Any, Boolean, Int}
 
 case class EntityExistentialRestrictionAxiom
 (override val uuid: api.taggedTypes.EntityExistentialRestrictionAxiomUUID,
  override val restrictedDomain: Entity,
- override val restrictedRelation: EntityRelationship,
+ override val restrictedRelationship: RestrictableRelationship,
  override val restrictedRange: Entity)
   extends EntityRestrictionAxiom {
 
@@ -37,14 +38,14 @@ case class EntityExistentialRestrictionAxiom
     case _ => false
   }
 
-  override val hashCode: Int = (uuid, restrictedDomain, restrictedRelation, restrictedRange).##
+  override val hashCode: Int = (uuid, restrictedDomain, restrictedRelationship, restrictedRange).##
 
   override def equals(other: Any): Boolean = other match {
     case that: EntityExistentialRestrictionAxiom =>
       (that canEqual this) &&
         (this.uuid == that.uuid) &&
         (this.restrictedDomain == that.restrictedDomain) &&
-        (this.restrictedRelation == that.restrictedRelation) &&
+        (this.restrictedRelationship == that.restrictedRelationship) &&
         (this.restrictedRange == that.restrictedRange)
     case _ =>
       false

@@ -25,7 +25,7 @@ import gov.nasa.jpl.imce.oml.resolver.api
 import gov.nasa.jpl.imce.oml.tables
 import gov.nasa.jpl.imce.oml.tables.{AnnotationProperty, AnnotationPropertyValue, LiteralValue}
 import gov.nasa.jpl.imce.oml.uuid.{JVMUUIDGenerator, OMLUUIDGenerator}
-import gov.nasa.jpl.omf.scala.binding.owlapi.common.{ImmutableModule, Module, MutableModule}
+import gov.nasa.jpl.omf.scala.binding.owlapi.common._
 import gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.{DescriptionBox, ImmutableDescriptionBox, MutableDescriptionBox, SingletonInstanceStructuredDataPropertyContext}
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.{RestrictionScalarDataPropertyValue, RestrictionStructuredDataPropertyContext, RestrictionStructuredDataPropertyTuple}
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.bundleStatements.ConceptTreeDisjunction
@@ -633,6 +633,11 @@ trait OWLAPIImmutableTerminologyGraphOps
 
   override def getConceptUUID(term: Concept): api.taggedTypes.ConceptUUID = term.uuid
 
+  override def getRestrictableRelationshipUUID
+  (term: OWLAPIOMF#RestrictableRelationship)
+  : api.taggedTypes.RestrictableRelationshipUUID
+  = term.uuid
+
   def lookupConcept
   (graph: OWLAPIOMF#TerminologyBox, iri: Option[gov.nasa.jpl.imce.oml.tables.taggedTypes.IRI], recursively: Boolean)
   (implicit store: OWLAPIOMFGraphStore)
@@ -907,6 +912,16 @@ trait OWLAPIImmutableTerminologyGraphOps
   : Set[OWLAPIOMF#TerminologyNestingAxiom]
   = store.lookupNestingAxiomsForNestingContext(nestingC)
 
+  override def fromEntity
+  (e: OWLAPIOMF#Entity)
+  : EntitySignature[OWLAPIOMF]
+  = EntitySignature[OWLAPIOMF](e.uuid, e.name, e.iri)
+
+  override def fromAspect
+  (a: OWLAPIOMF#Aspect)
+  : AspectSignature[OWLAPIOMF]
+  = AspectSignature[OWLAPIOMF](a.uuid, a.name, a.iri)
+
   override def fromConcept
   (c: OWLAPIOMF#Concept)
   : ConceptSignature[OWLAPIOMF]
@@ -916,13 +931,29 @@ trait OWLAPIImmutableTerminologyGraphOps
   (r: OWLAPIOMF#ReifiedRelationship)
   : ReifiedRelationshipSignature[OWLAPIOMF]
   = ReifiedRelationshipSignature[OWLAPIOMF](
-    r.uuid, r.name, r.unreifiedPropertyName, r.inversePropertyName,
-    r.iri, r.source, r.target, r.characteristics)
+    r.uuid, r.name, r.iri, r.source, r.target, r.characteristics,
+    r.forwardProperty,
+    ReifiedRelationshipSignature.ForwardPropertySignature[OWLAPIOMF](
+      r.forwardProperty.uuid, r.forwardProperty.iri, r.forwardProperty.name),
+    r.inverseProperty,
+    r.inverseProperty.map { inv =>
+      ReifiedRelationshipSignature.InversePropertySignature[OWLAPIOMF](inv.uuid, inv.iri, inv.name)
+    })
 
   override def fromUnreifiedRelationship
   (r: OWLAPIOMF#UnreifiedRelationship)
   : UnreifiedRelationshipSignature[OWLAPIOMF]
   = UnreifiedRelationshipSignature[OWLAPIOMF](r.uuid, r.name, r.iri, r.source, r.target, r.characteristics)
+
+  override def fromPredicate
+  (p: OWLAPIOMF#Predicate)
+  : PredicateSignature[OWLAPIOMF]
+  = PredicateSignature[OWLAPIOMF](p.uuid, p.name)
+
+  override def fromRestrictableRelationship
+  (r: OWLAPIOMF#RestrictableRelationship)
+  : RestrictableRelationshipSignature
+  = RestrictableRelationshipSignature(r.uuid, r.name)
 
   override def fromEntityScalarDataProperty
   (esc: OWLAPIOMF#EntityScalarDataProperty)
@@ -1057,7 +1088,7 @@ trait OWLAPIImmutableTerminologyGraphOps
   = EntityExistentialRestrictionSignature[OWLAPIOMF](
       ax.uuid,
       ax.restrictedDomain,
-      ax.restrictedRelation, ax.restrictedRange)
+      ax.restrictedRelationship, ax.restrictedRange)
 
   override def fromEntityUniversalRestrictionAxiom
   (ax: OWLAPIOMF#EntityUniversalRestrictionAxiom)
@@ -1065,7 +1096,7 @@ trait OWLAPIImmutableTerminologyGraphOps
   = EntityUniversalRestrictionSignature[OWLAPIOMF](
     ax.uuid,
     ax.restrictedDomain,
-    ax.restrictedRelation, ax.restrictedRange)
+    ax.restrictedRelationship, ax.restrictedRange)
 
   override def fromEntityScalarDataPropertyExistentialRestrictionAxiom
   (ax: OWLAPIOMF#EntityScalarDataPropertyExistentialRestrictionAxiom)
@@ -1225,60 +1256,17 @@ trait OWLAPIImmutableTerminologyGraphOps
   : RuleBodySegmentSignature[OWLAPIOMF]
   = RuleBodySegmentSignature[OWLAPIOMF](ax.uuid, ax.position, ax.chainRule, ax.previousSegment)
 
-  override def fromAspectPredicate
-  (ax: OWLAPIOMF#AspectPredicate)
-  : AspectPredicateSignature[OWLAPIOMF]
-  = AspectPredicateSignature[OWLAPIOMF](ax.uuid, ax.bodySegment, ax.termPredicate)
-
-  override def fromConceptPredicate
-  (ax: OWLAPIOMF#ConceptPredicate)
-  : ConceptPredicateSignature[OWLAPIOMF]
-  = ConceptPredicateSignature[OWLAPIOMF](ax.uuid, ax.bodySegment, ax.termPredicate)
-
-  override def fromReifiedRelationshipPredicate
-  (ax: OWLAPIOMF#ReifiedRelationshipPredicate)
-  : ReifiedRelationshipPredicateSignature[OWLAPIOMF]
-  = ReifiedRelationshipPredicateSignature[OWLAPIOMF](ax.uuid, ax.bodySegment, ax.termPredicate)
-
-  override def fromReifiedRelationshipPropertyPredicate
-  (ax: OWLAPIOMF#ReifiedRelationshipPropertyPredicate)
-  : ReifiedRelationshipPropertyPredicateSignature[OWLAPIOMF]
-  = ReifiedRelationshipPropertyPredicateSignature[OWLAPIOMF](ax.uuid, ax.bodySegment, ax.termPredicate)
-
-  override def fromReifiedRelationshipInversePropertyPredicate
-  (ax: OWLAPIOMF#ReifiedRelationshipInversePropertyPredicate)
-  : ReifiedRelationshipInversePropertyPredicateSignature[OWLAPIOMF]
-  = ReifiedRelationshipInversePropertyPredicateSignature[OWLAPIOMF](ax.uuid, ax.bodySegment, ax.termPredicate)
-
-  override def fromReifiedRelationshipSourcePropertyPredicate
-  (ax: OWLAPIOMF#ReifiedRelationshipSourcePropertyPredicate)
-  : ReifiedRelationshipSourcePropertyPredicateSignature[OWLAPIOMF]
-  = ReifiedRelationshipSourcePropertyPredicateSignature[OWLAPIOMF](ax.uuid, ax.bodySegment, ax.termPredicate)
-
-  override def fromReifiedRelationshipSourceInversePropertyPredicate
-  (ax: OWLAPIOMF#ReifiedRelationshipSourceInversePropertyPredicate)
-  : ReifiedRelationshipSourceInversePropertyPredicateSignature[OWLAPIOMF]
-  = ReifiedRelationshipSourceInversePropertyPredicateSignature[OWLAPIOMF](ax.uuid, ax.bodySegment, ax.termPredicate)
-
-  override def fromReifiedRelationshipTargetPropertyPredicate
-  (ax: OWLAPIOMF#ReifiedRelationshipTargetPropertyPredicate)
-  : ReifiedRelationshipTargetPropertyPredicateSignature[OWLAPIOMF]
-  = ReifiedRelationshipTargetPropertyPredicateSignature[OWLAPIOMF](ax.uuid, ax.bodySegment, ax.termPredicate)
-
-  override def fromReifiedRelationshipTargetInversePropertyPredicate
-  (ax: OWLAPIOMF#ReifiedRelationshipTargetInversePropertyPredicate)
-  : ReifiedRelationshipTargetInversePropertyPredicateSignature[OWLAPIOMF]
-  = ReifiedRelationshipTargetInversePropertyPredicateSignature[OWLAPIOMF](ax.uuid, ax.bodySegment, ax.termPredicate)
-
-  override def fromUnreifiedRelationshipPropertyPredicate
-  (ax: OWLAPIOMF#UnreifiedRelationshipPropertyPredicate)
-  : UnreifiedRelationshipPropertyPredicateSignature[OWLAPIOMF]
-  = UnreifiedRelationshipPropertyPredicateSignature[OWLAPIOMF](ax.uuid, ax.bodySegment, ax.termPredicate)
-
-  override def fromUnreifiedRelationshipInversePropertyPredicate
-  (ax: OWLAPIOMF#UnreifiedRelationshipInversePropertyPredicate)
-  : UnreifiedRelationshipInversePropertyPredicateSignature[OWLAPIOMF]
-  = UnreifiedRelationshipInversePropertyPredicateSignature[OWLAPIOMF](ax.uuid, ax.bodySegment, ax.termPredicate)
+  override def fromSegmentPredicate
+  (ax: OWLAPIOMF#SegmentPredicate)
+  : SegmentPredicateSignature[OWLAPIOMF]
+  = SegmentPredicateSignature[OWLAPIOMF](
+    ax.uuid, ax.bodySegment,
+    ax.predicate,
+    ax.reifiedRelationshipSource,
+    ax.reifiedRelationshipInverseSource,
+    ax.reifiedRelationshipTarget,
+    ax.reifiedRelationshipInverseTarget,
+    ax.unreifiedRelationshipInverse)
 
 }
 
@@ -1675,104 +1663,26 @@ trait OWLAPIMutableTerminologyGraphOps
   : Throwables \/ RuleBodySegment
   = tbox.addRuleBodySegment(uuid, chainRule, previousSegment)
 
-  override protected def addAspectPredicate
+  override protected def addSegmentPredicate
   (tbox: MutableTerminologyBox,
-   uuid: api.taggedTypes.AspectPredicateUUID,
+   uuid: api.taggedTypes.SegmentPredicateUUID,
    bodySegment: RuleBodySegment,
-   aspect: Aspect)
+   predicate: Option[Predicate],
+   reifiedRelationshipSource: Option[ReifiedRelationship],
+   reifiedRelationshipInverseSource: Option[ReifiedRelationship],
+   reifiedRelationshipTarget: Option[ReifiedRelationship],
+   reifiedRelationshipInverseTarget: Option[ReifiedRelationship],
+   unreifiedRelationshipInverse: Option[UnreifiedRelationship])
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ AspectPredicate
-  = tbox.addAspectPredicate(uuid, bodySegment, aspect)
-
-  override protected def addConceptPredicate
-  (tbox: MutableTerminologyBox,
-   uuid: api.taggedTypes.ConceptPredicateUUID,
-   bodySegment: RuleBodySegment,
-   concept: Concept)
-  (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ ConceptPredicate
-  = tbox.addConceptPredicate(uuid, bodySegment, concept)
-
-  override protected def addReifiedRelationshipPredicate
-  (tbox: MutableTerminologyBox,
-   uuid: api.taggedTypes.ReifiedRelationshipPredicateUUID,
-   bodySegment: RuleBodySegment,
-   reifiedRelationship: ReifiedRelationship)
-  (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ ReifiedRelationshipPredicate
-  = tbox.addReifiedRelationshipPredicate(uuid, bodySegment, reifiedRelationship)
-
-  override protected def addReifiedRelationshipPropertyPredicate
-  (tbox: MutableTerminologyBox,
-   uuid: api.taggedTypes.ReifiedRelationshipPropertyPredicateUUID,
-   bodySegment: RuleBodySegment,
-   reifiedRelationship: ReifiedRelationship)
-  (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ ReifiedRelationshipPropertyPredicate
-  = tbox.addReifiedRelationshipPropertyPredicate(uuid, bodySegment, reifiedRelationship)
-
-  override protected def addReifiedRelationshipInversePropertyPredicate
-  (tbox: MutableTerminologyBox,
-   uuid: api.taggedTypes.ReifiedRelationshipInversePropertyPredicateUUID,
-   bodySegment: RuleBodySegment,
-   reifiedRelationship: ReifiedRelationship)
-  (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ ReifiedRelationshipInversePropertyPredicate
-  = tbox.addReifiedRelationshipInversePropertyPredicate(uuid, bodySegment, reifiedRelationship)
-
-  override protected def addReifiedRelationshipSourcePropertyPredicate
-  (tbox: MutableTerminologyBox,
-   uuid: api.taggedTypes.ReifiedRelationshipSourcePropertyPredicateUUID,
-   bodySegment: RuleBodySegment,
-   reifiedRelationship: ReifiedRelationship)
-  (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ ReifiedRelationshipSourcePropertyPredicate
-  = tbox.addReifiedRelationshipSourcePropertyPredicate(uuid, bodySegment, reifiedRelationship)
-
-  override protected def addReifiedRelationshipSourceInversePropertyPredicate
-  (tbox: MutableTerminologyBox,
-   uuid: api.taggedTypes.ReifiedRelationshipSourceInversePropertyPredicateUUID,
-   bodySegment: RuleBodySegment,
-   reifiedRelationship: ReifiedRelationship)
-  (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ ReifiedRelationshipSourceInversePropertyPredicate
-  = tbox.addReifiedRelationshipSourceInversePropertyPredicate(uuid, bodySegment, reifiedRelationship)
-
-  override protected def addReifiedRelationshipTargetPropertyPredicate
-  (tbox: MutableTerminologyBox,
-   uuid: api.taggedTypes.ReifiedRelationshipTargetPropertyPredicateUUID,
-   bodySegment: RuleBodySegment,
-   reifiedRelationship: ReifiedRelationship)
-  (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ ReifiedRelationshipTargetPropertyPredicate
-  = tbox.addReifiedRelationshipTargetPropertyPredicate(uuid, bodySegment, reifiedRelationship)
-
-  override protected def addReifiedRelationshipTargetInversePropertyPredicate
-  (tbox: MutableTerminologyBox,
-   uuid: api.taggedTypes.ReifiedRelationshipTargetInversePropertyPredicateUUID,
-   bodySegment: RuleBodySegment,
-   reifiedRelationship: ReifiedRelationship)
-  (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ ReifiedRelationshipTargetInversePropertyPredicate
-  = tbox.addReifiedRelationshipTargetInversePropertyPredicate(uuid, bodySegment, reifiedRelationship)
-
-  override protected def addUnreifiedRelationshipPropertyPredicate
-  (tbox: MutableTerminologyBox,
-   uuid: api.taggedTypes.UnreifiedRelationshipPropertyPredicateUUID,
-   bodySegment: RuleBodySegment,
-   unreifiedRelationship: UnreifiedRelationship)
-  (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ UnreifiedRelationshipPropertyPredicate
-  = tbox.addUnreifiedRelationshipPropertyPredicate(uuid, bodySegment, unreifiedRelationship)
-
-  override protected def addUnreifiedRelationshipInversePropertyPredicate
-  (tbox: MutableTerminologyBox,
-   uuid: api.taggedTypes.UnreifiedRelationshipInversePropertyPredicateUUID,
-   bodySegment: RuleBodySegment,
-   unreifiedRelationship: UnreifiedRelationship)
-  (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ UnreifiedRelationshipInversePropertyPredicate
-  = tbox.addUnreifiedRelationshipInversePropertyPredicate(uuid, bodySegment, unreifiedRelationship)
+  : Throwables \/ SegmentPredicate
+  = tbox.addSegmentPredicate(
+    uuid, bodySegment,
+    predicate,
+    reifiedRelationshipSource,
+    reifiedRelationshipInverseSource,
+    reifiedRelationshipTarget,
+    reifiedRelationshipInverseTarget,
+    unreifiedRelationshipInverse)
 
   override protected def addAspectSpecializationAxiom
   (tbox: MutableTerminologyBox,
@@ -1823,7 +1733,7 @@ trait OWLAPIMutableTerminologyGraphOps
   (tbox: MutableTerminologyBox,
    uuid: api.taggedTypes.EntityUniversalRestrictionAxiomUUID,
    sub: Entity,
-   rel: EntityRelationship,
+   rel: RestrictableRelationship,
    range: Entity)
   (implicit store: OWLAPIOMFGraphStore)
   : Throwables \/ EntityUniversalRestrictionAxiom
@@ -1833,7 +1743,7 @@ trait OWLAPIMutableTerminologyGraphOps
   (tbox: MutableTerminologyBox,
    uuid: api.taggedTypes.EntityExistentialRestrictionAxiomUUID,
    sub: Entity,
-   rel: EntityRelationship,
+   rel: RestrictableRelationship,
    range: Entity)
   (implicit store: OWLAPIOMFGraphStore)
   : Throwables \/ EntityExistentialRestrictionAxiom

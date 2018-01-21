@@ -25,7 +25,7 @@ import AxiomScopeAccessKind._
 import ElementExceptionKind._
 import RelationshipScopeAccessKind._
 import gov.nasa.jpl.imce.oml.tables.AnnotationProperty
-import gov.nasa.jpl.omf.scala.binding.owlapi.common.{ImmutableModule, MutableModule}
+import gov.nasa.jpl.omf.scala.binding.owlapi.common.{ImmutableModule, MutableModule, Resource}
 import gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.{ImmutableDescriptionBox, MutableDescriptionBox}
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms._
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.{ImmutableTerminologyBox, ImmutableTerminologyGraph, MutableBundle, MutableTerminologyGraph}
@@ -63,25 +63,25 @@ package object types {
    iri: IRI,
    term: Term)
   : java.lang.Throwable
-  = EntityAlreadyDefinedException(kind, iri, term)
+  = ResouceAlreadyDefinedException(kind, iri, term)
 
   def entityConflictException
   (kind: ElementExceptionKind,
    iri: IRI,
    conflictingTerm: Term)
   : java.lang.Throwable
-  = EntityConflictException(kind, iri, conflictingTerm)
+  = ResourceConflictException(kind, iri, conflictingTerm)
 
   def entityScopeException
   (kind: ElementExceptionKind,
    iri: IRI,
    unaccessibleTerms: Map[RelationshipScopeAccessKind, Term])
   : java.lang.Throwable
-  = EntityScopeException(kind, iri, unaccessibleTerms)
+  = ResourceScopeException(kind, iri, unaccessibleTerms)
 
   def axiomScopeException
   (kind: AxiomExceptionKind,
-   unaccessibleTerms: Map[AxiomScopeAccessKind, Term])
+   unaccessibleTerms: Map[AxiomScopeAccessKind, Resource])
   : java.lang.Throwable
   = AxiomScopeException(kind, unaccessibleTerms)
 

@@ -23,7 +23,7 @@ import gov.nasa.jpl.imce.oml.tables
 
 import scala.{Any, Boolean}
 
-trait Resource {
+trait Resource extends LogicalElement {
   val iri: OWLAPIOMF#IRI
   val name: tables.taggedTypes.LocalName
   lazy val abbrevIRI: tables.taggedTypes.AbbrevIRI = tables.taggedTypes.abbrevIRI(iri.getShortForm)

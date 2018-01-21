@@ -19,21 +19,20 @@
 package gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies
 
 import java.lang.Integer
-import java.util.Collections
+import java.util.{Collections, UUID}
 
-import gov.nasa.jpl.imce.oml.resolver.ResolverUtilities.toUUIDString
+import gov.nasa.jpl.imce.oml.resolver.Extent2Tables.toUUIDString
 import gov.nasa.jpl.imce.oml.resolver.api
-import gov.nasa.jpl.imce.oml.tables
-import gov.nasa.jpl.imce.oml.tables.{AnnotationProperty, AnnotationPropertyValue, LiteralValue}
+import gov.nasa.jpl.imce.oml.{resolver, tables}
 import gov.nasa.jpl.imce.oml.tables.taggedTypes.{LocalName, StringDataType, localName}
 import gov.nasa.jpl.omf.scala.binding.owlapi.AxiomExceptionKind
 import gov.nasa.jpl.omf.scala.binding.owlapi.ElementExceptionKind
-import gov.nasa.jpl.omf.scala.binding.owlapi.types.{RestrictionScalarDataPropertyValue, RestrictionStructuredDataPropertyTuple, axiomScopeException, duplicateModelTermAxiomException, duplicateTerminologyGraphAxiomException, entityAlreadyDefinedException, entityConflictException, entityScopeException, terms}
+import gov.nasa.jpl.omf.scala.binding.owlapi.types.{axiomScopeException, duplicateModelTermAxiomException, duplicateTerminologyGraphAxiomException, entityAlreadyDefinedException, entityConflictException, entityScopeException, terms}
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologyAxioms._
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.termAxioms._
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms._
 import gov.nasa.jpl.omf.scala.binding.owlapi._
-import gov.nasa.jpl.omf.scala.binding.owlapi.common.{MutableModule, Resource}
+import gov.nasa.jpl.omf.scala.binding.owlapi.common.MutableModule
 import gov.nasa.jpl.omf.scala.core.OMFError
 import gov.nasa.jpl.omf.scala.core._
 import gov.nasa.jpl.omf.scala.core.RelationshipCharacteristics.RelationshipCharacteristics
@@ -44,7 +43,7 @@ import scala.collection.JavaConversions._
 import scala.compat.java8.StreamConverters._
 import scala.collection.immutable.{Iterable, Map, Seq, Set}
 import scala.{Any, Boolean, Int, None, Option, Some, StringContext, Unit}
-import scala.Predef.{ArrowAssoc, require}
+import scala.Predef.{ArrowAssoc, String, require}
 import scalaz._
 import Scalaz._
 
@@ -68,6 +67,8 @@ trait MutableTerminologyBox
   override val sig: MS
 
   override protected val iri2typeTerm = scala.collection.mutable.HashMap[IRI, OWLAPIOMF#Term]()
+  override protected val reifiedRelation2forwardProperty = scala.collection.mutable.HashMap[ReifiedRelationship, ForwardProperty]()
+  override protected val reifiedRelation2inverseProperty = scala.collection.mutable.HashMap[ReifiedRelationship, InverseProperty]()
 
   val LOG: Boolean = "true" equalsIgnoreCase java.lang.System.getProperty("gov.nasa.jpl.omf.scala.binding.owlapi.log.MutableTerminologyBox")
 
@@ -79,9 +80,9 @@ trait MutableTerminologyBox
   }
 
   def addAnnotationProperty
-  (ap: AnnotationProperty)
+  (ap: tables.AnnotationProperty)
   (implicit store: OWLAPIOMFGraphStore)
-  : OMFError.Throwables \/ AnnotationProperty
+  : OMFError.Throwables \/ tables.AnnotationProperty
   = for {
     _ <- (sig.annotationProperties += ap).right[OMFError.Throwables]
     ont_ap = owlDataFactory.getOWLAnnotationProperty(ap.iri)
@@ -94,10 +95,10 @@ trait MutableTerminologyBox
 
   def addAnnotation
   (subject: OWLAPIOMF#LogicalElement,
-   property: AnnotationProperty,
+   property: tables.AnnotationProperty,
    value: StringDataType)
   (implicit store: OWLAPIOMFGraphStore)
-  : OMFError.Throwables \/ AnnotationPropertyValue
+  : OMFError.Throwables \/ tables.AnnotationPropertyValue
   = subject match {
     case rsubject: OWLAPIOMF#ReifiedRelationship =>
       addReifiedRelationshipAnnotation(rsubject, property, value)
@@ -107,12 +108,12 @@ trait MutableTerminologyBox
 
   def addLogicalElementAnnotation
   (subject: OWLAPIOMF#LogicalElement,
-   property: AnnotationProperty,
+   property: tables.AnnotationProperty,
    value: StringDataType)
   (implicit store: OWLAPIOMFGraphStore)
-  : OMFError.Throwables \/ AnnotationPropertyValue
+  : OMFError.Throwables \/ tables.AnnotationPropertyValue
   = for {
-    a <- new AnnotationPropertyValue(
+    a <- new tables.AnnotationPropertyValue(
       oug = uuidG,
       subjectUUID = subject.uuid,
       propertyUUID = property.uuid,
@@ -126,15 +127,15 @@ trait MutableTerminologyBox
           ontManager,
           new AddOntologyAnnotation(ont, owlDataFactory.getOWLAnnotation(ont_ap, ont_lit)),
           "addAnnotation error")
-      case rr: ReifiedRelationship =>
+      case rr: OWLAPIOMF#ReifiedRelationship =>
         applyOntologyChangeOrNoOp(
           ontManager,
           new AddAxiom(ont, owlDataFactory.getOWLAnnotationAssertionAxiom(
             ont_ap,
-            rr.unreified.getIRI,
+            rr.forwardProperty.e.getIRI,
             ont_lit)),
           "addAnnotation error")
-      case r: Resource =>
+      case r: OWLAPIOMF#Resource =>
         applyOntologyChangeOrNoOp(
           ontManager,
           new AddAxiom(ont, owlDataFactory.getOWLAnnotationAssertionAxiom(
@@ -151,12 +152,12 @@ trait MutableTerminologyBox
 
   def addReifiedRelationshipAnnotation
   (subject: OWLAPIOMF#ReifiedRelationship,
-   property: AnnotationProperty,
+   property: tables.AnnotationProperty,
    value: StringDataType)
   (implicit store: OWLAPIOMFGraphStore)
-  : OMFError.Throwables \/ AnnotationPropertyValue
+  : OMFError.Throwables \/ tables.AnnotationPropertyValue
   = for {
-    a <- new AnnotationPropertyValue(
+    a <- new tables.AnnotationPropertyValue(
       oug = uuidG,
       subjectUUID = subject.uuid,
       propertyUUID = property.uuid,
@@ -176,11 +177,11 @@ trait MutableTerminologyBox
           ontManager,
           new AddAxiom(ont, owlDataFactory.getOWLAnnotationAssertionAxiom(
             store.RDFS_LABEL,
-            subject.unreified.getIRI,
+            subject.forwardProperty.e.getIRI,
             ont_lit)),
           "addAnnotation error")
       else if (property.iri == store.ops.omlHasInverseLabelIRI)
-        subject.inverse.fold[OMFError.Throwables \/ Unit] {
+        subject.inverseProperty.fold[OMFError.Throwables \/ Unit] {
           Set[java.lang.Throwable](
             OMFError.omfError(s"addAnnotation oml:hasInverseLabel is not applicable to a ReifiedProperty without an inverse: $subject")
           ).left
@@ -189,7 +190,7 @@ trait MutableTerminologyBox
             ontManager,
             new AddAxiom(ont, owlDataFactory.getOWLAnnotationAssertionAxiom(
               store.RDFS_LABEL,
-              inv.getIRI,
+              inv.e.getIRI,
               ont_lit)),
             "addAnnotation error")
         }
@@ -198,16 +199,16 @@ trait MutableTerminologyBox
           ontManager,
           new AddAxiom(ont, owlDataFactory.getOWLAnnotationAssertionAxiom(
             owlDataFactory.getOWLAnnotationProperty(property.iri),
-            subject.unreified.getIRI,
+            subject.forwardProperty.e.getIRI,
             ont_lit)),
           "addAnnotation error")
   } yield a
 
   def removeAnnotations
   (subject: OWLAPIOMF#LogicalElement,
-   property: AnnotationProperty)
+   property: tables.AnnotationProperty)
   (implicit store: OWLAPIOMFGraphStore)
-  : OMFError.Throwables \/ Set[AnnotationPropertyValue]
+  : OMFError.Throwables \/ Set[tables.AnnotationPropertyValue]
   = for {
     sUUID <- subject.uuid.toString.right[OMFError.Throwables]
     ae <- sig.annotationPropertyValues.find { a => a.subjectUUID == sUUID && a.propertyUUID == property.uuid } match {
@@ -215,11 +216,11 @@ trait MutableTerminologyBox
         sig.annotationPropertyValues -= a0
         Set(a0).right
       case None =>
-        Set.empty[AnnotationPropertyValue].right
+        Set.empty[tables.AnnotationPropertyValue].right
     }
     ont_ap = owlDataFactory.getOWLAnnotationProperty(property.iri)
     _ <- subject match {
-      case r: Resource =>
+      case r: OWLAPIOMF#Resource =>
         val aaas =
           ont
             .annotationAssertionAxioms(r.iri)
@@ -486,12 +487,39 @@ trait MutableTerminologyBox
   = iri2typeTerm
     .get(r.getIRI)
     .fold[OMFError.Throwables \/ OWLAPIOMF#ReifiedRelationship] {
-    val _r = terms.ReifiedRelationship(r, r.getIRI, name, uuid,
-      unreifiedPropertyName, u, inversePropertyName, ui,
-      source, rSource, target, rTarget, characteristics)
-    sig.reifiedRelationships += _r
-    iri2typeTerm += r.getIRI -> _r
-    \/-(_r)
+    for {
+      uName <- getFragment(u.getIRI)
+      fwdUUID = resolver.api.taggedTypes.forwardPropertyUUID(
+        generateUUIDFromString(
+          "ForwardProperty",
+          "name" -> uName,
+          "reifiedRelationship" -> uuid.toString))
+      fwd = ForwardProperty(u, fwdUUID, u.getIRI, uName)
+
+      inv <- ui.fold[OMFError.Throwables \/ Option[InverseProperty]](\/-(None)) { i =>
+        for {
+          iName <- getFragment(i.getIRI)
+          invUUID = resolver.api.taggedTypes.inversePropertyUUID(
+            generateUUIDFromString(
+              "InverseProperty",
+              "name" -> iName,
+              "reifiedRelationship" -> uuid.toString))
+          inv = InverseProperty(i, invUUID, i.getIRI, iName)
+        } yield Some(inv)
+      }
+
+      _r = terms.ReifiedRelationship(r, r.getIRI, name, uuid,
+        fwd, inv,
+        source, rSource,
+        target, rTarget,
+        characteristics)
+      _ = sig.reifiedRelationships += _r
+      _ = iri2typeTerm += r.getIRI -> _r
+      _ = reifiedRelation2forwardProperty += _r -> fwd
+      _ = inv.foreach { i =>
+        reifiedRelation2inverseProperty += _r -> i
+      }
+    } yield _r
   } {
     case t: OWLAPIOMF#ReifiedRelationship =>
       Set(
@@ -1266,7 +1294,7 @@ trait MutableTerminologyBox
     */
   def createScalarOneOfLiteralAxiom
   (scalarOneOfRestriction: OWLAPIOMF#ScalarOneOfRestriction,
-   value: LiteralValue,
+   value: tables.LiteralValue,
    valueType: Option[DataRange])
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#ScalarOneOfLiteralAxiom
@@ -1278,7 +1306,7 @@ trait MutableTerminologyBox
   def createScalarOneOfLiteralAxiom
   (axiomUUID: api.taggedTypes.ScalarOneOfLiteralAxiomUUID,
    scalarOneOfRestriction: OWLAPIOMF#ScalarOneOfRestriction,
-   value: LiteralValue,
+   value: tables.LiteralValue,
    valueType: Option[DataRange])
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#ScalarOneOfLiteralAxiom
@@ -1291,7 +1319,7 @@ trait MutableTerminologyBox
   def addScalarOneOfLiteralAxiom
   (axiomUUID: api.taggedTypes.ScalarOneOfLiteralAxiomUUID,
    scalarOneOfRestriction: OWLAPIOMF#ScalarOneOfRestriction,
-   value: LiteralValue,
+   value: tables.LiteralValue,
    valueType: Option[DataRange])
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#ScalarOneOfLiteralAxiom
@@ -2714,17 +2742,7 @@ trait MutableTerminologyBox
   protected def findSegmentPredicate
   (seg: OWLAPIOMF#RuleBodySegment)
   : OMFError.Throwables \/ OWLAPIOMF#SegmentPredicate
-  = sig.aspectPredicates.find(_.bodySegment == seg) orElse
-    sig.conceptPredicates.find(_.bodySegment == seg) orElse
-    sig.reifiedRelationshipPredicates.find(_.bodySegment == seg) orElse
-    sig.reifiedRelationshipPropertyPredicates.find(_.bodySegment == seg) orElse
-    sig.reifiedRelationshipInversePropertyPredicates.find(_.bodySegment == seg) orElse
-    sig.reifiedRelationshipSourcePropertyPredicates.find(_.bodySegment == seg) orElse
-    sig.reifiedRelationshipSourceInversePropertyPredicates.find(_.bodySegment == seg) orElse
-    sig.reifiedRelationshipTargetPropertyPredicates.find(_.bodySegment == seg) orElse
-    sig.reifiedRelationshipTargetInversePropertyPredicates.find(_.bodySegment == seg) orElse
-    sig.unreifiedRelationshipPropertyPredicates.find(_.bodySegment == seg) orElse
-    sig.unreifiedRelationshipInversePropertyPredicates.find(_.bodySegment == seg)  match {
+  = sig.segmentPredicates.find(_.bodySegment == seg) match {
     case Some(p) =>
       p.right
     case None =>
@@ -2774,82 +2792,90 @@ trait MutableTerminologyBox
   = if (predicates.isEmpty)
     atoms.right
   else {
+    val (phead, ptail) = (predicates.head, predicates.tail)
+
     val range
     : OMFError.Throwables \/ (SWRLIArgument, Int)
-    = predicates.head match {
-      case _: UnarySegmentPredicate =>
+    = if (phead.isUnary)
         (prevV -> vIndex).right
-      case _: BinarySegmentPredicate =>
-        if (predicates.tail.exists {
-          case _: UnarySegmentPredicate => false
-          case _: BinarySegmentPredicate => true
-        })
-          makeVariable(vIndex).map {
-            _ -> (1 + vIndex)
-          }
-        else
-          (nextV -> vIndex).right
-    }
+    else if (ptail.exists(_.isBinary))
+       makeVariable(vIndex).map {
+         _ -> (1 + vIndex)
+       }
+    else
+      (nextV -> vIndex).right
+
     range match {
       case \/-((rangeV, vNext)) =>
-        predicates.head match {
-          case p0: AspectPredicate =>
-            val p1 = owlDataFactory.getSWRLClassAtom(p0.termPredicate.e, prevV)
+        (phead.predicate,
+         phead.reifiedRelationshipSource,
+         phead.reifiedRelationshipInverseSource,
+         phead.reifiedRelationshipTarget,
+         phead.reifiedRelationshipInverseTarget,
+         phead.unreifiedRelationshipInverse) match {
+
+          case (Some(e: Entity), _, _, _, _, _) =>
+            val p1 = owlDataFactory.getSWRLClassAtom(e.e, prevV)
+            convertBodyPredicates2Atoms(vNext, rangeV, ptail, nextV, atoms :+ p1)
+
+          case (Some(f: ForwardProperty), _, _, _, _, _) =>
+            val p1 = owlDataFactory.getSWRLObjectPropertyAtom(f.e, prevV, rangeV)
             convertBodyPredicates2Atoms(vNext, rangeV, predicates.tail, nextV, atoms :+ p1)
 
-          case p0: ConceptPredicate =>
-            val p1 = owlDataFactory.getSWRLClassAtom(p0.termPredicate.e, prevV)
+          case (Some(i: InverseProperty), _, _, _, _, _) =>
+            val p1 = owlDataFactory.getSWRLObjectPropertyAtom(i.e, prevV, rangeV)
             convertBodyPredicates2Atoms(vNext, rangeV, predicates.tail, nextV, atoms :+ p1)
 
-          case p0: ReifiedRelationshipPredicate =>
-            val p1 = owlDataFactory.getSWRLClassAtom(p0.termPredicate.e, prevV)
+          case (Some(ur: UnreifiedRelationship), _, _, _, _, _) =>
+            val p1 = owlDataFactory.getSWRLObjectPropertyAtom(ur.e, prevV, rangeV)
             convertBodyPredicates2Atoms(vNext, rangeV, predicates.tail, nextV, atoms :+ p1)
 
-          case p0: ReifiedRelationshipPropertyPredicate =>
-            val p1 = owlDataFactory.getSWRLObjectPropertyAtom(p0.termPredicate.unreified, prevV, rangeV)
+          case (None, Some(rr), _, _, _, _) =>
+            val p1 = owlDataFactory.getSWRLObjectPropertyAtom(rr.rSource, prevV, rangeV)
             convertBodyPredicates2Atoms(vNext, rangeV, predicates.tail, nextV, atoms :+ p1)
 
-          case p0: ReifiedRelationshipInversePropertyPredicate =>
-            val p1 = p0.termPredicate.inverse match {
-              case Some(inv) =>
-                owlDataFactory.getSWRLObjectPropertyAtom(
-                  inv, prevV, rangeV)
-              case None =>
-                owlDataFactory.getSWRLObjectPropertyAtom(
-                  owlDataFactory.getOWLObjectInverseOf(p0.termPredicate.unreified), prevV, rangeV)
-            }
-            convertBodyPredicates2Atoms(vNext, rangeV, predicates.tail, nextV, atoms :+ p1)
-
-          case p0: ReifiedRelationshipSourcePropertyPredicate =>
+          case (None, _, Some(rr), _, _, _) =>
             val p1 = owlDataFactory.getSWRLObjectPropertyAtom(
-              p0.termPredicate.rSource, prevV, rangeV)
+              owlDataFactory.getOWLObjectInverseOf(rr.rSource), prevV, rangeV)
             convertBodyPredicates2Atoms(vNext, rangeV, predicates.tail, nextV, atoms :+ p1)
 
-          case p0: ReifiedRelationshipSourceInversePropertyPredicate =>
+          case (None, _, _, Some(rr), _, _) =>
+            val p1 = owlDataFactory.getSWRLObjectPropertyAtom(rr.rTarget, prevV, rangeV)
+            convertBodyPredicates2Atoms(vNext, rangeV, predicates.tail, nextV, atoms :+ p1)
+
+          case (None, _, _, _, Some(rr), _) =>
             val p1 = owlDataFactory.getSWRLObjectPropertyAtom(
-              owlDataFactory.getOWLObjectInverseOf(p0.termPredicate.rSource), prevV, rangeV)
+              owlDataFactory.getOWLObjectInverseOf(rr.rTarget), prevV, rangeV)
             convertBodyPredicates2Atoms(vNext, rangeV, predicates.tail, nextV, atoms :+ p1)
 
-          case p0: ReifiedRelationshipTargetPropertyPredicate =>
+          case (None, _, _, _, _, Some(ur)) =>
             val p1 = owlDataFactory.getSWRLObjectPropertyAtom(
-              p0.termPredicate.rTarget, prevV, rangeV)
+              owlDataFactory.getOWLObjectInverseOf(ur.e), prevV, rangeV)
             convertBodyPredicates2Atoms(vNext, rangeV, predicates.tail, nextV, atoms :+ p1)
 
-          case p0: ReifiedRelationshipTargetInversePropertyPredicate =>
-            val p1 = owlDataFactory.getSWRLObjectPropertyAtom(
-              owlDataFactory.getOWLObjectInverseOf(p0.termPredicate.rTarget), prevV, rangeV)
-            convertBodyPredicates2Atoms(vNext, rangeV, predicates.tail, nextV, atoms :+ p1)
-
-          case p0: UnreifiedRelationshipPropertyPredicate =>
-            val p1 = owlDataFactory.getSWRLObjectPropertyAtom(
-              p0.termPredicate.e, prevV, rangeV)
-            convertBodyPredicates2Atoms(vNext, rangeV, predicates.tail, nextV, atoms :+ p1)
-
-          case p0: UnreifiedRelationshipInversePropertyPredicate =>
-            val p1 = owlDataFactory.getSWRLObjectPropertyAtom(
-              owlDataFactory.getOWLObjectInverseOf(p0.termPredicate.e), prevV, rangeV)
-            convertBodyPredicates2Atoms(vNext, rangeV, predicates.tail, nextV, atoms :+ p1)
-
+          case (pred, rS, rIS, rT, rIT, ur) =>
+            Set(
+              OMFError.omfError(
+                s"convertBodyPredicates2Atoms failed:\n" +
+                  pred.fold[String]("- no predicate\n") { p =>
+                    s"- predicate: ${p.abbrevIRI}\n"
+                  } +
+                  rS.fold[String]("- no reifiedRelationshipSource\n") { x =>
+                    s"- reifiedRelationshipSource: ${x.abbrevIRI}\n"
+                  } +
+                  rIS.fold[String]("- no reifiedRelationshipInverseSource\n") { x =>
+                    s"- reifiedRelationshipInverseSource: ${x.abbrevIRI}\n"
+                  } +
+                  rT.fold[String]("- no reifiedRelationshipTarget\n") { x =>
+                    s"- reifiedRelationshipTarget: ${x.abbrevIRI}\n"
+                  } +
+                  rIS.fold[String]("- no reifiedRelationshipInverseTarget\n") { x =>
+                    s"- reifiedRelationshipInverseTarget: ${x.abbrevIRI}\n"
+                  } +
+                  ur.fold[String]("- no unreifiedRelationshipInverse\n") { x =>
+                    s"- unreifiedRelationshipInverse: ${x.abbrevIRI}\n"
+                  })
+            ).left
         }
       case -\/(errors) =>
         -\/(errors)
@@ -2965,311 +2991,57 @@ trait MutableTerminologyBox
     rbs.right
   }
 
-  def createAspectPredicate
-  (a: SWRLClassAtom,
-   bodySegment: OWLAPIOMF#RuleBodySegment,
-   aspect: OWLAPIOMF#Aspect)
+  def createSegmentPredicate
+  (bodySegment: OWLAPIOMF#RuleBodySegment,
+   predicate: Option[OWLAPIOMF#Predicate] = None,
+   reifiedRelationshipSource: Option[OWLAPIOMF#ReifiedRelationship] = None,
+   reifiedRelationshipInverseSource: Option[OWLAPIOMF#ReifiedRelationship] = None,
+   reifiedRelationshipTarget: Option[OWLAPIOMF#ReifiedRelationship] = None,
+   reifiedRelationshipInverseTarget: Option[OWLAPIOMF#ReifiedRelationship] = None,
+   unreifiedRelationshipInverse: Option[OWLAPIOMF#UnreifiedRelationship] = None)
   (implicit store: OWLAPIOMFGraphStore)
-  : OMFError.Throwables \/ OWLAPIOMF#AspectPredicate
+  : OMFError.Throwables \/ OWLAPIOMF#SegmentPredicate
   = {
-    val u = api.taggedTypes.aspectPredicateUUID(generateUUIDFromUUID(
-      "AspectPredicate",
-      "aspect" -> aspect.uuid,
-      "bodySegment" -> bodySegment.uuid))
-    val p = types.terms.AspectPredicate(bodySegment, aspect, u)
-    sig.aspectPredicates.add(p)
-    p.right
+    val u = api.taggedTypes.segmentPredicateUUID(generateUUIDFromUUID(
+      "SegmentPredicate",
+      Seq.empty[(String, UUID)] ++
+        Seq("bodySegment" -> bodySegment.uuid) ++
+        predicate.map { vt => "predicate" -> vt.uuid } ++
+        reifiedRelationshipSource.map { vt => "reifiedRelationshipSource" -> vt.uuid } ++
+        reifiedRelationshipInverseSource.map { vt => "reifiedRelationshipInverseSource" -> vt.uuid } ++
+        reifiedRelationshipTarget.map { vt => "reifiedRelationshipTarget" -> vt.uuid } ++
+        reifiedRelationshipInverseTarget.map { vt => "reifiedRelationshipInverseTarget" -> vt.uuid } ++
+        unreifiedRelationshipInverse.map { vt => "unreifiedRelationshipInverse" -> vt.uuid } : _*))
+    addSegmentPredicate(
+      u, bodySegment,
+      predicate,
+      reifiedRelationshipSource,
+      reifiedRelationshipInverseSource,
+      reifiedRelationshipTarget,
+      reifiedRelationshipInverseTarget,
+      unreifiedRelationshipInverse)
   }
 
-  def addAspectPredicate
-  (uuid: api.taggedTypes.AspectPredicateUUID,
+  def addSegmentPredicate
+  (uuid: api.taggedTypes.SegmentPredicateUUID,
    bodySegment: OWLAPIOMF#RuleBodySegment,
-   aspect: OWLAPIOMF#Aspect)
-  (implicit store: OWLAPIOMFGraphStore)
-  : OMFError.Throwables \/ OWLAPIOMF#AspectPredicate
+   predicate: Option[OWLAPIOMF#Predicate],
+   reifiedRelationshipSource: Option[OWLAPIOMF#ReifiedRelationship],
+   reifiedRelationshipInverseSource: Option[OWLAPIOMF#ReifiedRelationship],
+   reifiedRelationshipTarget: Option[OWLAPIOMF#ReifiedRelationship],
+   reifiedRelationshipInverseTarget: Option[OWLAPIOMF#ReifiedRelationship],
+   unreifiedRelationshipInverse: Option[OWLAPIOMF#UnreifiedRelationship])
+  : OMFError.Throwables \/ OWLAPIOMF#SegmentPredicate
   = {
-    val p = AspectPredicate(bodySegment, aspect, uuid)
-    sig.aspectPredicates.add(p)
-    p.right
-  }
-
-  def createConceptPredicate
-  (a: SWRLClassAtom,
-   bodySegment: OWLAPIOMF#RuleBodySegment,
-   concept: OWLAPIOMF#Concept)
-  (implicit store: OWLAPIOMFGraphStore)
-  : OMFError.Throwables \/ OWLAPIOMF#ConceptPredicate
-  = {
-    val u = api.taggedTypes.conceptPredicateUUID(generateUUIDFromUUID(
-      "ConceptPredicate",
-      "bodySegment" -> bodySegment.uuid,
-      "concept" -> concept.uuid))
-    val p = types.terms.ConceptPredicate(bodySegment, concept, u)
-    sig.conceptPredicates.add(p)
-    p.right
-  }
-
-  def addConceptPredicate
-  (uuid: api.taggedTypes.ConceptPredicateUUID,
-   bodySegment: OWLAPIOMF#RuleBodySegment,
-   concept: OWLAPIOMF#Concept)
-  (implicit store: OWLAPIOMFGraphStore)
-  : OMFError.Throwables \/ OWLAPIOMF#ConceptPredicate
-  = {
-    val p = ConceptPredicate(bodySegment, concept, uuid)
-    sig.conceptPredicates.add(p)
-    p.right
-  }
-
-  def createReifiedRelationshipPredicate
-  (a: SWRLClassAtom,
-   bodySegment: OWLAPIOMF#RuleBodySegment,
-   reifiedRelationship: OWLAPIOMF#ReifiedRelationship)
-  (implicit store: OWLAPIOMFGraphStore)
-  : OMFError.Throwables \/ OWLAPIOMF#ReifiedRelationshipPredicate
-  = {
-    val u = api.taggedTypes.reifiedRelationshipPredicateUUID(generateUUIDFromUUID(
-      "ReifiedRelationshipPredicate",
-      "bodySegment" -> bodySegment.uuid,
-      "reifiedRelationship" -> reifiedRelationship.uuid))
-    val p = types.terms.ReifiedRelationshipPredicate(bodySegment, reifiedRelationship, u)
-    sig.reifiedRelationshipPredicates.add(p)
-    p.right
-  }
-
-  def addReifiedRelationshipPredicate
-  (uuid: api.taggedTypes.ReifiedRelationshipPredicateUUID,
-   bodySegment: OWLAPIOMF#RuleBodySegment,
-   reifiedRelationship: OWLAPIOMF#ReifiedRelationship)
-  (implicit store: OWLAPIOMFGraphStore)
-  : OMFError.Throwables \/ OWLAPIOMF#ReifiedRelationshipPredicate
-  = {
-    val p = ReifiedRelationshipPredicate(bodySegment, reifiedRelationship, uuid)
-    sig.reifiedRelationshipPredicates.add(p)
-    p.right
-  }
-
-  def createReifiedRelationshipPropertyPredicate
-  (a: SWRLObjectPropertyAtom,
-   bodySegment: OWLAPIOMF#RuleBodySegment,
-   reifiedRelationship: OWLAPIOMF#ReifiedRelationship)
-  (implicit store: OWLAPIOMFGraphStore)
-  : OMFError.Throwables \/ OWLAPIOMF#ReifiedRelationshipPropertyPredicate
-  = {
-    val u = api.taggedTypes.reifiedRelationshipPropertyPredicateUUID(generateUUIDFromUUID(
-      "ReifiedRelationshipPropertyPredicate",
-      "bodySegment" -> bodySegment.uuid,
-      "reifiedRelationship" -> reifiedRelationship.uuid))
-    val p = types.terms.ReifiedRelationshipPropertyPredicate(bodySegment, reifiedRelationship, u)
-    sig.reifiedRelationshipPropertyPredicates.add(p)
-    p.right
-  }
-
-  def addReifiedRelationshipPropertyPredicate
-  (uuid: api.taggedTypes.ReifiedRelationshipPropertyPredicateUUID,
-   bodySegment: OWLAPIOMF#RuleBodySegment,
-   reifiedRelationship: OWLAPIOMF#ReifiedRelationship)
-  (implicit store: OWLAPIOMFGraphStore)
-  : OMFError.Throwables \/ OWLAPIOMF#ReifiedRelationshipPropertyPredicate
-  = {
-    val p = ReifiedRelationshipPropertyPredicate(bodySegment, reifiedRelationship, uuid)
-    sig.reifiedRelationshipPropertyPredicates.add(p)
-    p.right
-  }
-
-  def createReifiedRelationshipInversePropertyPredicate
-  (a: SWRLObjectPropertyAtom,
-   bodySegment: OWLAPIOMF#RuleBodySegment,
-   reifiedRelationship: OWLAPIOMF#ReifiedRelationship)
-  (implicit store: OWLAPIOMFGraphStore)
-  : OMFError.Throwables \/ OWLAPIOMF#ReifiedRelationshipInversePropertyPredicate
-  = {
-    val u = api.taggedTypes.reifiedRelationshipInversePropertyPredicateUUID(generateUUIDFromUUID(
-      "ReifiedRelationshipInversePropertyPredicate",
-      "bodySegment" -> bodySegment.uuid,
-      "reifiedRelationship" -> reifiedRelationship.uuid))
-    val p = types.terms.ReifiedRelationshipInversePropertyPredicate(bodySegment, reifiedRelationship, u)
-    sig.reifiedRelationshipInversePropertyPredicates.add(p)
-    p.right
-  }
-
-  def addReifiedRelationshipInversePropertyPredicate
-  (uuid: api.taggedTypes.ReifiedRelationshipInversePropertyPredicateUUID,
-   bodySegment: OWLAPIOMF#RuleBodySegment,
-   reifiedRelationship: OWLAPIOMF#ReifiedRelationship)
-  (implicit store: OWLAPIOMFGraphStore)
-  : OMFError.Throwables \/ OWLAPIOMF#ReifiedRelationshipInversePropertyPredicate
-  = {
-    val p = ReifiedRelationshipInversePropertyPredicate(bodySegment, reifiedRelationship, uuid)
-    sig.reifiedRelationshipInversePropertyPredicates.add(p)
-    p.right
-  }
-
-  def createReifiedRelationshipSourcePropertyPredicate
-  (a: SWRLObjectPropertyAtom,
-   bodySegment: OWLAPIOMF#RuleBodySegment,
-   reifiedRelationship: OWLAPIOMF#ReifiedRelationship)
-  (implicit store: OWLAPIOMFGraphStore)
-  : OMFError.Throwables \/ OWLAPIOMF#ReifiedRelationshipSourcePropertyPredicate
-  = {
-    val u = api.taggedTypes.reifiedRelationshipSourcePropertyPredicateUUID(generateUUIDFromUUID(
-      "ReifiedRelationshipSourcePropertyPredicate",
-      "bodySegment" -> bodySegment.uuid,
-      "reifiedRelationship" -> reifiedRelationship.uuid))
-    val p = types.terms.ReifiedRelationshipSourcePropertyPredicate(bodySegment, reifiedRelationship, u)
-    sig.reifiedRelationshipSourcePropertyPredicates.add(p)
-    p.right
-  }
-
-  def addReifiedRelationshipSourcePropertyPredicate
-  (uuid: api.taggedTypes.ReifiedRelationshipSourcePropertyPredicateUUID,
-   bodySegment: OWLAPIOMF#RuleBodySegment,
-   reifiedRelationship: OWLAPIOMF#ReifiedRelationship)
-  (implicit store: OWLAPIOMFGraphStore)
-  : OMFError.Throwables \/ OWLAPIOMF#ReifiedRelationshipSourcePropertyPredicate
-  = {
-    val p = ReifiedRelationshipSourcePropertyPredicate(bodySegment, reifiedRelationship, uuid)
-    sig.reifiedRelationshipSourcePropertyPredicates.add(p)
-    p.right
-  }
-
-  def createReifiedRelationshipSourceInversePropertyPredicate
-  (a: SWRLObjectPropertyAtom,
-   bodySegment: OWLAPIOMF#RuleBodySegment,
-   reifiedRelationship: OWLAPIOMF#ReifiedRelationship)
-  (implicit store: OWLAPIOMFGraphStore)
-  : OMFError.Throwables \/ OWLAPIOMF#ReifiedRelationshipSourceInversePropertyPredicate
-  = {
-    val u = api.taggedTypes.reifiedRelationshipSourceInversePropertyPredicateUUID(generateUUIDFromUUID(
-      "ReifiedRelationshipSourceInversePropertyPredicate",
-      "bodySegment" -> bodySegment.uuid,
-      "reifiedRelationship" -> reifiedRelationship.uuid))
-    val p = types.terms.ReifiedRelationshipSourceInversePropertyPredicate(bodySegment, reifiedRelationship, u)
-    sig.reifiedRelationshipSourceInversePropertyPredicates.add(p)
-    p.right
-  }
-
-  def addReifiedRelationshipSourceInversePropertyPredicate
-  (uuid: api.taggedTypes.ReifiedRelationshipSourceInversePropertyPredicateUUID,
-   bodySegment: OWLAPIOMF#RuleBodySegment,
-   reifiedRelationship: OWLAPIOMF#ReifiedRelationship)
-  (implicit store: OWLAPIOMFGraphStore)
-  : OMFError.Throwables \/ OWLAPIOMF#ReifiedRelationshipSourceInversePropertyPredicate
-  = {
-    val p = ReifiedRelationshipSourceInversePropertyPredicate(bodySegment, reifiedRelationship, uuid)
-    sig.reifiedRelationshipSourceInversePropertyPredicates.add(p)
-    p.right
-  }
-
-  def createReifiedRelationshipTargetPropertyPredicate
-  (a: SWRLObjectPropertyAtom,
-   bodySegment: OWLAPIOMF#RuleBodySegment,
-   reifiedRelationship: OWLAPIOMF#ReifiedRelationship)
-  (implicit store: OWLAPIOMFGraphStore)
-  : OMFError.Throwables \/ OWLAPIOMF#ReifiedRelationshipTargetPropertyPredicate
-  = {
-    val u = api.taggedTypes.reifiedRelationshipTargetPropertyPredicateUUID(generateUUIDFromUUID(
-      "ReifiedRelationshipTargetPropertyPredicate",
-      "bodySegment" -> bodySegment.uuid,
-      "reifiedRelationship" -> reifiedRelationship.uuid))
-    val p = types.terms.ReifiedRelationshipTargetPropertyPredicate(bodySegment, reifiedRelationship, u)
-    sig.reifiedRelationshipTargetPropertyPredicates.add(p)
-    p.right
-  }
-
-  def addReifiedRelationshipTargetPropertyPredicate
-  (uuid: api.taggedTypes.ReifiedRelationshipTargetPropertyPredicateUUID,
-   bodySegment: OWLAPIOMF#RuleBodySegment,
-   reifiedRelationship: OWLAPIOMF#ReifiedRelationship)
-  (implicit store: OWLAPIOMFGraphStore)
-  : OMFError.Throwables \/ OWLAPIOMF#ReifiedRelationshipTargetPropertyPredicate
-  = {
-    val p = ReifiedRelationshipTargetPropertyPredicate(bodySegment, reifiedRelationship, uuid)
-    sig.reifiedRelationshipTargetPropertyPredicates.add(p)
-    p.right
-  }
-
-  def createReifiedRelationshipTargetInversePropertyPredicate
-  (a: SWRLObjectPropertyAtom,
-   bodySegment: OWLAPIOMF#RuleBodySegment,
-   reifiedRelationship: OWLAPIOMF#ReifiedRelationship)
-  (implicit store: OWLAPIOMFGraphStore)
-  : OMFError.Throwables \/ OWLAPIOMF#ReifiedRelationshipTargetInversePropertyPredicate
-  = {
-    val u = api.taggedTypes.reifiedRelationshipTargetInversePropertyPredicateUUID(generateUUIDFromUUID(
-      "ReifiedRelationshipTargetInversePropertyPredicate",
-      "bodySegment" -> bodySegment.uuid,
-      "reifiedRelationship" -> reifiedRelationship.uuid))
-    val p = types.terms.ReifiedRelationshipTargetInversePropertyPredicate(bodySegment, reifiedRelationship, u)
-    sig.reifiedRelationshipTargetInversePropertyPredicates.add(p)
-    p.right
-  }
-
-  def addReifiedRelationshipTargetInversePropertyPredicate
-  (uuid: api.taggedTypes.ReifiedRelationshipTargetInversePropertyPredicateUUID,
-   bodySegment: OWLAPIOMF#RuleBodySegment,
-   reifiedRelationship: OWLAPIOMF#ReifiedRelationship)
-  (implicit store: OWLAPIOMFGraphStore)
-  : OMFError.Throwables \/ OWLAPIOMF#ReifiedRelationshipTargetInversePropertyPredicate
-  = {
-    val p = ReifiedRelationshipTargetInversePropertyPredicate(bodySegment, reifiedRelationship, uuid)
-    sig.reifiedRelationshipTargetInversePropertyPredicates.add(p)
-    p.right
-  }
-
-  def createUnreifiedRelationshipPropertyPredicate
-  (a: SWRLObjectPropertyAtom,
-   bodySegment: OWLAPIOMF#RuleBodySegment,
-   unreifiedRelationship: OWLAPIOMF#UnreifiedRelationship)
-  (implicit store: OWLAPIOMFGraphStore)
-  : OMFError.Throwables \/ OWLAPIOMF#UnreifiedRelationshipPropertyPredicate
-  = {
-    val u = api.taggedTypes.unreifiedRelationshipPropertyPredicateUUID(generateUUIDFromUUID(
-      "UnreifiedRelationshipPropertyPredicate",
-      "unreifiedRelationship" -> unreifiedRelationship.uuid,
-      "bodySegment" -> bodySegment.uuid))
-    val p = types.terms.UnreifiedRelationshipPropertyPredicate(bodySegment, unreifiedRelationship, u)
-    sig.unreifiedRelationshipPropertyPredicates.add(p)
-    p.right
-  }
-
-  def addUnreifiedRelationshipPropertyPredicate
-  (uuid: api.taggedTypes.UnreifiedRelationshipPropertyPredicateUUID,
-   bodySegment: OWLAPIOMF#RuleBodySegment,
-   unreifiedRelationship: OWLAPIOMF#UnreifiedRelationship)
-  (implicit store: OWLAPIOMFGraphStore)
-  : OMFError.Throwables \/ OWLAPIOMF#UnreifiedRelationshipPropertyPredicate
-  = {
-    val p = UnreifiedRelationshipPropertyPredicate(bodySegment, unreifiedRelationship, uuid)
-    sig.unreifiedRelationshipPropertyPredicates.add(p)
-    p.right
-  }
-
-  def createUnreifiedRelationshipInversePropertyPredicate
-  (a: SWRLObjectPropertyAtom,
-   bodySegment: OWLAPIOMF#RuleBodySegment,
-   unreifiedRelationship: OWLAPIOMF#UnreifiedRelationship)
-  (implicit store: OWLAPIOMFGraphStore)
-  : OMFError.Throwables \/ OWLAPIOMF#UnreifiedRelationshipInversePropertyPredicate
-  = {
-    val u = api.taggedTypes.unreifiedRelationshipInversePropertyPredicateUUID(generateUUIDFromUUID(
-      "UnreifiedRelationshipInversePropertyPredicate",
-      "bodySegment" -> bodySegment.uuid,
-      "unreifiedRelationship" -> unreifiedRelationship.uuid))
-    val p = types.terms.UnreifiedRelationshipInversePropertyPredicate(bodySegment, unreifiedRelationship, u)
-    sig.unreifiedRelationshipInversePropertyPredicates.add(p)
-    p.right
-  }
-
-  def addUnreifiedRelationshipInversePropertyPredicate
-  (uuid: api.taggedTypes.UnreifiedRelationshipInversePropertyPredicateUUID,
-   bodySegment: OWLAPIOMF#RuleBodySegment,
-   unreifiedRelationship: OWLAPIOMF#UnreifiedRelationship)
-  (implicit store: OWLAPIOMFGraphStore)
-  : OMFError.Throwables \/ OWLAPIOMF#UnreifiedRelationshipInversePropertyPredicate
-  = {
-    val p = UnreifiedRelationshipInversePropertyPredicate(bodySegment, unreifiedRelationship, uuid)
-    sig.unreifiedRelationshipInversePropertyPredicates.add(p)
+    val p = types.terms.SegmentPredicate(
+      uuid, bodySegment,
+      predicate,
+      reifiedRelationshipSource,
+      reifiedRelationshipInverseSource,
+      reifiedRelationshipTarget,
+      reifiedRelationshipInverseTarget,
+      unreifiedRelationshipInverse)
+    sig.segmentPredicates.add(p)
     p.right
   }
 
@@ -3344,7 +3116,7 @@ trait MutableTerminologyBox
 
   def addEntityDefinitionUniversalRestrictionAxiom
   (sub: OWLAPIOMF#Entity,
-   rel: OWLAPIOMF#EntityRelationship,
+   rel: OWLAPIOMF#RestrictableRelationship,
    range: Entity)
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#EntityUniversalRestrictionAxiom
@@ -3356,12 +3128,12 @@ trait MutableTerminologyBox
   def addEntityDefinitionUniversalRestrictionAxiom
   (uuid: api.taggedTypes.EntityUniversalRestrictionAxiomUUID,
    sub: OWLAPIOMF#Entity,
-   rel: OWLAPIOMF#EntityRelationship,
+   rel: OWLAPIOMF#RestrictableRelationship,
    range: Entity)
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#EntityUniversalRestrictionAxiom
   = (isTypeTermDefinedRecursively(sub),
-    isTypeTermDefinedRecursively(rel),
+    isRestrictableRelationshipDefinedRecursively(rel),
     isTypeTermDefinedRecursively(range)) match {
 
     case (true, true, true) =>
@@ -3370,8 +3142,10 @@ trait MutableTerminologyBox
       val rangeC = owlDataFactory.getOWLClass(range.iri)
       val axiom = EntityUniversalRestrictionAxiom(uuid, sub, rel, range)
       val op = rel match {
-        case rr: OWLAPIOMF#ReifiedRelationship =>
-          rr.unreified
+        case fwd: OWLAPIOMF#ForwardProperty =>
+          fwd.e
+        case inv: OWLAPIOMF#InverseProperty =>
+          inv.e
         case ur: OWLAPIOMF#UnreifiedRelationship =>
           ur.e
       }
@@ -3415,7 +3189,7 @@ trait MutableTerminologyBox
 
   def addEntityDefinitionExistentialRestrictionAxiom
   (sub: OWLAPIOMF#Entity,
-   rel: OWLAPIOMF#EntityRelationship,
+   rel: OWLAPIOMF#RestrictableRelationship,
    range: Entity)
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#EntityExistentialRestrictionAxiom
@@ -3427,20 +3201,22 @@ trait MutableTerminologyBox
   def addEntityDefinitionExistentialRestrictionAxiom
   (uuid: api.taggedTypes.EntityExistentialRestrictionAxiomUUID,
    sub: OWLAPIOMF#Entity,
-   rel: OWLAPIOMF#EntityRelationship,
+   rel: OWLAPIOMF#RestrictableRelationship,
    range: Entity)
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#EntityExistentialRestrictionAxiom
   = (isTypeTermDefinedRecursively(sub),
-    isTypeTermDefinedRecursively(rel),
-    isTypeTermDefinedRecursively(range)) match {
+     isRestrictableRelationshipDefinedRecursively(rel),
+     isTypeTermDefinedRecursively(range)) match {
     case (true, true, true) =>
       val subC = owlDataFactory.getOWLClass(sub.iri)
       val rangeC = owlDataFactory.getOWLClass(range.iri)
       val axiom = EntityExistentialRestrictionAxiom(uuid, sub, rel, range)
       val op = rel match {
-        case rr: OWLAPIOMF#ReifiedRelationship =>
-          rr.unreified
+        case fwd: OWLAPIOMF#ForwardProperty =>
+          fwd.e
+        case inv: OWLAPIOMF#InverseProperty =>
+          inv.e
         case ur: OWLAPIOMF#UnreifiedRelationship =>
           ur.e
       }
@@ -3588,7 +3364,7 @@ trait MutableTerminologyBox
   (uuid: api.taggedTypes.EntityScalarDataPropertyParticularRestrictionAxiomUUID,
    restrictedEntity: OWLAPIOMF#Entity,
    scalarProperty: OWLAPIOMF#EntityScalarDataProperty,
-   literalValue: LiteralValue,
+   literalValue: tables.LiteralValue,
    valueType: Option[DataRange])
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#EntityScalarDataPropertyParticularRestrictionAxiom
@@ -3709,7 +3485,7 @@ trait MutableTerminologyBox
     for {
       e_iri <- withFragment(iri, localName(uuid.toString))
       e_ni = owlDataFactory.getOWLNamedIndividual(e_iri)
-      tuple = RestrictionStructuredDataPropertyTuple(uuid, structuredDataPropertyContext, structuredProperty, e_ni)
+      tuple = types.RestrictionStructuredDataPropertyTuple(uuid, structuredDataPropertyContext, structuredProperty, e_ni)
       _ <- applyOntologyChangesOrNoOp(
         ontManager,
         Seq(
@@ -3741,12 +3517,12 @@ trait MutableTerminologyBox
   (uuid: api.taggedTypes.RestrictionScalarDataPropertyValueUUID,
    structuredDataPropertyContext: OWLAPIOMF#RestrictionStructuredDataPropertyContext,
    scalarProperty: OWLAPIOMF#DataRelationshipToScalar,
-   literalValue: LiteralValue,
+   literalValue: tables.LiteralValue,
    valueType: Option[DataRange])
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#RestrictionScalarDataPropertyValue
   = if (isTypeTermDefinedRecursively(scalarProperty)) {
-    val value = RestrictionScalarDataPropertyValue(uuid, structuredDataPropertyContext, scalarProperty, literalValue, valueType)
+    val value = types.RestrictionScalarDataPropertyValue(uuid, structuredDataPropertyContext, scalarProperty, literalValue, valueType)
     for {
       _ <- applyOntologyChangesOrNoOp(
         ontManager,
@@ -3929,14 +3705,14 @@ trait MutableTerminologyBox
               sup.rTarget,
               createOMLProvenanceAnnotations(uuid))),
             new AddAxiom(ont, owlDataFactory.getOWLSubObjectPropertyOfAxiom(
-              sub.unreified,
-              sup.unreified
+              sub.forwardProperty.e,
+              sup.forwardProperty.e
             ))
-          ) ++ sub.inverse.fold[Seq[OWLOntologyChange]](Seq.empty) { subi =>
-            sup.inverse.fold[Seq[OWLOntologyChange]](Seq.empty) { supi =>
+          ) ++ sub.inverseProperty.fold[Seq[OWLOntologyChange]](Seq.empty) { subi =>
+            sup.inverseProperty.fold[Seq[OWLOntologyChange]](Seq.empty) { supi =>
               Seq(
                 new AddAxiom(ont, owlDataFactory.getOWLSubObjectPropertyOfAxiom(
-                  subi, supi
+                  subi.e, supi.e
                 ))
               )
             }

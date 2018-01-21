@@ -20,6 +20,8 @@ package gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies
 
 import gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMF
 import gov.nasa.jpl.omf.scala.binding.owlapi.common.ImmutableModule
+import gov.nasa.jpl.omf.scala.binding.owlapi.types.Term
+import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms._
 import gov.nasa.jpl.omf.scala.core.ImmutableTerminologyBoxSignature
 import org.semanticweb.owlapi.model.{OWLClass, OWLDatatype}
 
@@ -34,7 +36,7 @@ trait ImmutableTerminologyBox
 
   override type MS = ImmutableTerminologyBoxSignature[OWLAPIOMF]
 
-  override val sig: MS
+  override val sig: ImmutableTerminologyBoxSignature[OWLAPIOMF]
 
   override def canEqual(other: Any)
   : Boolean
@@ -44,12 +46,12 @@ trait ImmutableTerminologyBox
   }
 
   val getEntityDefinitionMap
-  : Map[OWLClass, OWLAPIOMF#Entity]
-  = ( sig.aspects.map(a => a.e -> a) ++
+  : Map[OWLClass, Entity]
+  = (sig.aspects.map(a => a.e -> a) ++
     sig.concepts.map(c => c.e -> c) ++
     sig.reifiedRelationships.map(r => r.e -> r)).toMap
 
-  val getScalarDatatypeDefinitionMap: Map[OWLDatatype, OWLAPIOMF#DataRange]
+  val getScalarDatatypeDefinitionMap: Map[OWLDatatype, DataRange]
   = sig.scalarDataTypes.map(t => t.e -> t).toMap ++
     sig.scalarOneOfRestrictions.map(t => t.e -> t).toMap ++
     sig.binaryScalarRestrictions.map(t => t.e -> t).toMap ++
@@ -61,7 +63,7 @@ trait ImmutableTerminologyBox
     sig.timeScalarRestrictions.map(t => t.e -> t).toMap
 
   override protected val iri2typeTerm = {
-    def term2pair[T <: OWLAPIOMF#Term](t: T) = t.iri -> t
+    def term2pair[T <: Term](t: T) = t.iri -> t
 
     (sig.aspects map term2pair) ++
       (sig.concepts map term2pair) ++
@@ -82,5 +84,13 @@ trait ImmutableTerminologyBox
       (sig.scalarDataProperties map term2pair) ++
       (sig.structuredDataProperties map term2pair) toMap
   }
+
+  override protected val reifiedRelation2forwardProperty
+  : Map[ReifiedRelationship, ForwardProperty]
+  = sig.reifiedRelationships.map { rr => rr -> rr.forwardProperty }.toMap
+
+  override protected val reifiedRelation2inverseProperty
+    : Map[ReifiedRelationship, InverseProperty]
+  = sig.reifiedRelationships.flatMap { rr => rr.inverseProperty.map { inv => rr -> inv } }.toMap
 
 }

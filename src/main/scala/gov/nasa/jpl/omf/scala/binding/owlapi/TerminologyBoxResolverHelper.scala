@@ -1045,7 +1045,10 @@ case class TerminologyBoxResolverHelper
   def resolveImplicationRule
   (rl: Set[java.lang.Throwable] \/ SWRLRule,
    unreifiedRelationships: Map[OWLObjectProperty, UnreifiedRelationship],
-   reifiedRelationships: Map[OWLObjectProperty, ReifiedRelationship],
+   forwardProperties: Map[OWLObjectProperty, ReifiedRelationship],
+   inverseProperties: Map[OWLObjectProperty, ReifiedRelationship],
+   reifiedRelationshipSources: Map[OWLObjectProperty, ReifiedRelationship],
+   reifiedRelationshipTargets: Map[OWLObjectProperty, ReifiedRelationship],
    entities: Map[OWLClass, Entity])
   : Set[java.lang.Throwable] \/ Unit
   = for {
@@ -1110,14 +1113,16 @@ case class TerminologyBoxResolverHelper
 
     firstSegment = resolveBodyAtom(
       rbs.head, Some(chainRule), None,
-      unreifiedRelationships, reifiedRelationships, entities)
+      unreifiedRelationships, forwardProperties, inverseProperties,
+      reifiedRelationshipSources, reifiedRelationshipTargets, entities)
 
     _ <- rbs.tail.foldLeft[Set[java.lang.Throwable] \/ RuleBodySegment](firstSegment) { case (prev, atom) =>
       for {
         previousSegment <- prev
         nextSegment <- resolveBodyAtom(
           atom, None, Some(previousSegment),
-          unreifiedRelationships, reifiedRelationships, entities)
+          unreifiedRelationships, forwardProperties, inverseProperties,
+          reifiedRelationshipSources, reifiedRelationshipTargets, entities)
       } yield nextSegment
     }
 
@@ -1128,7 +1133,10 @@ case class TerminologyBoxResolverHelper
    rule: Option[ChainRule],
    previousSegment: Option[RuleBodySegment],
    unreifiedRelationships: Map[OWLObjectProperty, UnreifiedRelationship],
-   reifiedRelationships: Map[OWLObjectProperty, ReifiedRelationship],
+   forwardProperties: Map[OWLObjectProperty, ReifiedRelationship],
+   inverseProperties: Map[OWLObjectProperty, ReifiedRelationship],
+   reifiedRelationshipSources: Map[OWLObjectProperty, ReifiedRelationship],
+   reifiedRelationshipTargets: Map[OWLObjectProperty, ReifiedRelationship],
    entities: Map[OWLClass, Entity])
   : Set[java.lang.Throwable] \/ RuleBodySegment
   = for {
@@ -1139,11 +1147,11 @@ case class TerminologyBoxResolverHelper
           case cls: OWLClass =>
             entities.get(cls) match {
               case Some(oA: Aspect) =>
-                tboxG.createAspectPredicate(a, bodySegment, oA)
+                tboxG.createSegmentPredicate(bodySegment, predicate=Some(oA))
               case Some(oC: Concept) =>
-                tboxG.createConceptPredicate(a, bodySegment, oC)
+                tboxG.createSegmentPredicate(bodySegment, predicate=Some(oC))
               case Some(oRR: ReifiedRelationship) =>
-                tboxG.createReifiedRelationshipPredicate(a, bodySegment, oRR)
+                tboxG.createSegmentPredicate(bodySegment, predicate=Some(oRR))
               case other =>
                 -\/(Set[java.lang.Throwable](
                   OMFError.omfError(
@@ -1157,56 +1165,60 @@ case class TerminologyBoxResolverHelper
       case a: SWRLObjectPropertyAtom =>
         a.getPredicate match {
           case op: OWLObjectProperty =>
-            unreifiedRelationships.get(op) match {
-              case Some(ur) =>
-                tboxG.createUnreifiedRelationshipPropertyPredicate(a, bodySegment, ur)
-              case None =>
-                reifiedRelationships.get(op) match {
-                  case Some(rr) =>
-                    if (rr.unreified == op)
-                      tboxG.createReifiedRelationshipPropertyPredicate(a, bodySegment, rr)
-                    else if (rr.rSource == op)
-                      tboxG.createReifiedRelationshipSourcePropertyPredicate(a, bodySegment, rr)
-                    else if (rr.rTarget == op)
-                      tboxG.createReifiedRelationshipTargetPropertyPredicate(a, bodySegment, rr)
-                    else if (rr.inverse.contains(op))
-                      tboxG.createReifiedRelationshipInversePropertyPredicate(a, bodySegment, rr)
-                    else
-                      -\/(Set[java.lang.Throwable](
-                        OMFError.omfError(
-                          s"Unrecognized body object property atom predicate: $op from OML ReifiedRelatinship: $rr")))
-                  case None =>
-                    -\/(Set[java.lang.Throwable](
-                      OMFError.omfError(
-                        s"Unrecognized body object property atom predicate: $op")))
-                }
+            ( forwardProperties.get(op),
+              inverseProperties.get(op),
+              unreifiedRelationships.get(op),
+              reifiedRelationshipSources.get(op),
+              reifiedRelationshipTargets.get(op) ) match {
+              case (Some(fwd), _, _, _, _) =>
+                tboxG.createSegmentPredicate(bodySegment, predicate = Some(fwd.forwardProperty))
+              case (_, Some(inv), _, _, _) =>
+                require(inv.inverseProperty.isDefined)
+                tboxG.createSegmentPredicate(bodySegment, predicate = inv.inverseProperty)
+              case (_, _, Some(ur), _, _) =>
+                tboxG.createSegmentPredicate(bodySegment, predicate = Some(ur))
+              case (_, _, _, Some(rr), _) =>
+                tboxG.createSegmentPredicate(bodySegment, reifiedRelationshipSource = Some(rr))
+              case (_, _, _, _, Some(rr)) =>
+                tboxG.createSegmentPredicate(bodySegment, reifiedRelationshipTarget = Some(rr))
+              case _ =>
+                -\/(Set[java.lang.Throwable](
+                  OMFError.omfError(s"Unrecognized body object property atom predicate: $op")))
             }
-          case inv: OWLObjectInverseOf =>
-            inv.getInverseProperty match {
+          case oinv: OWLObjectInverseOf =>
+            oinv.getInverseProperty match {
               case op: OWLObjectProperty =>
-                unreifiedRelationships.get(op) match {
-                  case Some(ur) =>
-                    tboxG.createUnreifiedRelationshipInversePropertyPredicate(a, bodySegment, ur)
-                  case None =>
-                    reifiedRelationships.get(op) match {
-                      case Some(rr) =>
-                        if (rr.unreified == op)
-                          tboxG.createReifiedRelationshipInversePropertyPredicate(a, bodySegment, rr)
-                        else if (rr.rSource == op)
-                          tboxG.createReifiedRelationshipSourceInversePropertyPredicate(a, bodySegment, rr)
-                        else if (rr.rTarget == op)
-                          tboxG.createReifiedRelationshipTargetInversePropertyPredicate(a, bodySegment, rr)
-                        else if (rr.inverse.contains(op))
-                          tboxG.createReifiedRelationshipPropertyPredicate(a, bodySegment, rr)
-                        else
-                          -\/(Set[java.lang.Throwable](
-                            OMFError.omfError(
-                              s"Unrecognized body inverse object property atom predicate: $op from OML ReifiedRelatinship: $rr")))
-                      case None =>
+                ( forwardProperties.get(op),
+                  inverseProperties.get(op),
+                  unreifiedRelationships.get(op),
+                  reifiedRelationshipSources.get(op),
+                  reifiedRelationshipTargets.get(op) ) match {
+                  case (Some(fwd), _, _, _, _) =>
+                    inverseProperties.find(_._2 == fwd) match {
+                      case Some((_, inv)) =>
+                        require(inv.inverseProperty.isDefined)
+                        tboxG.createSegmentPredicate(bodySegment, predicate = inv.inverseProperty)
+                      case _ =>
                         -\/(Set[java.lang.Throwable](
-                          OMFError.omfError(
-                            s"Unrecognized body inverse object property atom predicate: $op")))
+                          OMFError.omfError(s"Unsupported rule refers to the inverse of the forward property of a ReifiedRelationship, ${fwd.abbrevIRI}, that does not define an inverse property! $oinv")))
                     }
+                  case (_, Some(inv), _, _, _) =>
+                    forwardProperties.find(_._2 == inv) match {
+                      case Some((_, fwd)) =>
+                        tboxG.createSegmentPredicate(bodySegment, predicate = Some(fwd.forwardProperty))
+                      case _ =>
+                        -\/(Set[java.lang.Throwable](
+                          OMFError.omfError(s"Unsupported rule refers to the inverse of the inverse property of a ReifiedRelationship, ${inv.abbrevIRI} that is ill-formed because it has no forward property! $oinv")))
+                    }
+                  case (_, _, Some(ur), _, _) =>
+                    tboxG.createSegmentPredicate(bodySegment, unreifiedRelationshipInverse = Some(ur))
+                  case (_, _, _, Some(rr), _) =>
+                    tboxG.createSegmentPredicate(bodySegment, reifiedRelationshipInverseSource = Some(rr))
+                  case (_, _, _, _, Some(rr)) =>
+                    tboxG.createSegmentPredicate(bodySegment, reifiedRelationshipInverseTarget = Some(rr))
+                  case _ =>
+                    -\/(Set[java.lang.Throwable](
+                      OMFError.omfError(s"Unrecognized body inverse object property atom predicate: $oinv")))
                 }
               case ope =>
                 -\/(Set[java.lang.Throwable](
@@ -1226,26 +1238,14 @@ case class TerminologyBoxResolverHelper
 
     _ = {
       val ns = tboxG.sig.ruleBodySegments.size
-      val pa = tboxG.sig.aspectPredicates.size
-      val pc = tboxG.sig.conceptPredicates.size
-      val prr = tboxG.sig.reifiedRelationshipPredicates.size
-      val prp = tboxG.sig.reifiedRelationshipPropertyPredicates.size
-      val pri = tboxG.sig.reifiedRelationshipInversePropertyPredicates.size
-      val psp = tboxG.sig.reifiedRelationshipSourcePropertyPredicates.size
-      val psi = tboxG.sig.reifiedRelationshipSourceInversePropertyPredicates.size
-      val ptp = tboxG.sig.reifiedRelationshipTargetPropertyPredicates.size
-      val pti = tboxG.sig.reifiedRelationshipTargetInversePropertyPredicates.size
-      val pup = tboxG.sig.unreifiedRelationshipPropertyPredicates.size
-      val pui = tboxG.sig.unreifiedRelationshipInversePropertyPredicates.size
-      val ps = pa + pc + prr + prp + pri + psp + psi + ptp + pti + pup + pui
+      val ps = tboxG.sig.segmentPredicates.size
       if (ns != ps)
         \/-(())
       else
         -\/(Set[java.lang.Throwable](
           OMFError.omfError(
             s"ChainRule construction problem for $bodySegment and $segmentPredicate:\n"+
-              s"$ns segments vs. $ps predicates\n"+
-              s"pa=$pa,pc=$pc,prr=$prr,prp=$prp,pri=$pri,psp=$psp,psi=$psi,ptp=$ptp,pti=$pti,pup=$pup,pui=$pui"
+              s"$ns segments vs. $ps predicates\n"
           )))
     }
   } yield bodySegment

@@ -18,32 +18,39 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.types.terms
 
-import gov.nasa.jpl.imce.oml.resolver.api
-import scala.{Any, Boolean, Int}
+import gov.nasa.jpl.imce.oml.resolver
+import gov.nasa.jpl.imce.oml.tables
+import gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMF
+import gov.nasa.jpl.omf.scala.binding.owlapi.common.RestrictableRelationship
+import org.semanticweb.owlapi.model.OWLObjectProperty
 
-case class ConceptPredicate
-(override val bodySegment: RuleBodySegment,
- override val termPredicate: Concept,
- override val uuid: api.taggedTypes.ConceptPredicateUUID
-) extends UnarySegmentPredicate {
+import scala.{Any,Boolean,Int}
+
+case class ForwardProperty
+(e: OWLObjectProperty,
+ override val uuid: resolver.api.taggedTypes.ForwardPropertyUUID,
+ override val iri: OWLAPIOMF#IRI,
+ override val name: tables.taggedTypes.LocalName)
+  extends RestrictableRelationship {
 
   override def canEqual(other: Any)
   : Boolean
   = other match {
-    case _: ConceptPredicate => true
+    case _: ForwardProperty => true
     case _ => false
   }
 
-  override val hashCode: Int = (uuid, termPredicate, bodySegment).##
+  override val hashCode
+  : Int
+  = (uuid, name, iri).##
 
   override def equals(other: Any): Boolean = other match {
-    case that: ConceptPredicate =>
+    case that: ForwardProperty =>
       (that canEqual this) &&
         (this.uuid == that.uuid) &&
-        (this.termPredicate == that.termPredicate) &&
-        (this.bodySegment == that.bodySegment)
+        (this.name == that.name) &&
+        (this.iri == that.iri)
     case _ =>
       false
   }
-
 }
