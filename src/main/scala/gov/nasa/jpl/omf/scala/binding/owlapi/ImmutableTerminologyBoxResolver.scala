@@ -990,7 +990,7 @@ case class ImmutableTerminologyBoxResolver(resolver: TerminologyBoxResolverHelpe
                           = {
                             val tuples =
                               for {
-                                dPair <- _allEntityDefinitions
+                                dPair <- _allEntityDefinitionsIncludingImported
                                 (d, domain) = dPair
 
                                 // the restriction could be for an entity definition or a structured datatype
