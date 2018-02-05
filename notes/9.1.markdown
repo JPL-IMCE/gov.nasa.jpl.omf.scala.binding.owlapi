@@ -5,3 +5,5 @@ gov.nasa.jpl.omf.scala.binding.owlapi 9.1 is a major update
 - [#68 Update for OML distinction between forward and inverse properties of an OML ReifiedRelationship](https://github.com/JPL-IMCE/gov.nasa.jpl.omf.scala.binding.owlapi/issues/68)
 
 - [#69 Parsing of OWL entity restriction axioms needs to include all entities including imported](https://github.com/JPL-IMCE/gov.nasa.jpl.omf.scala.binding.owlapi/issues/69)
+
+- [#70 http://purl.org/dc/elements/1.1](https://github.com/JPL-IMCE/gov.nasa.jpl.omf.scala.binding.owlapi/issues/70)

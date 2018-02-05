@@ -51,7 +51,7 @@ trait Module
     */
   val owlVocabularyNotToBeSerialized: Boolean = {
     val iriString = iri.toString
-    iriString.startsWith("http://www.w3.org/") || iriString.startsWith("http://purl.org")
+    iriString.startsWith("http://www.w3.org/")
   }
 
   require(ont.getOntologyID.getOntologyIRI.isPresent())
