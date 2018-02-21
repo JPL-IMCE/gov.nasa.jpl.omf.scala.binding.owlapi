@@ -47,11 +47,14 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <span class="name">OntologyLoadedState</span><span class="params">(<span name="ontologies">ontologies: <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.collection.immutable.Map" class="extype" target="_top">Map</a>[<span class="extype" name="org.semanticweb.owlapi.model.IRI">IRI</span>, <span class="extype" name="org.semanticweb.owlapi.model.OWLOntology">OWLOntology</span>]</span>, <span name="extensions">extensions: <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.collection.immutable.Set" class="extype" target="_top">Set</a>[<a href="OWLAPIOMFLoader$$ExtendingOntologyToExtendedModuleIRI.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader.ExtendingOntologyToExtendedModuleIRI">ExtendingOntologyToExtendedModuleIRI</a>]</span>, <span name="nested2context">nested2context: <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.collection.immutable.Set" class="extype" target="_top">Set</a>[<a href="OWLAPIOMFLoader$$NestedOntologyToNestingContextIRI.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader.NestedOntologyToNestingContextIRI">NestedOntologyToNestingContextIRI</a>]</span>)</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+        <span class="name">OntologyLoadedState</span><span class="params">(<span name="ontologies">ontologies: <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.collection.immutable.Map" class="extype" target="_top">Map</a>[<span class="extype" name="org.semanticweb.owlapi.model.IRI">IRI</span>, <span class="extype" name="org.semanticweb.owlapi.model.OWLOntology">OWLOntology</span>]</span>, <span name="extensions">extensions: <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.collection.immutable.Set" class="extype" target="_top">Set</a>[<a href="OWLAPIOMFLoader$$ExtendingOntologyToExtendedModuleIRI.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader.ExtendingOntologyToExtendedModuleIRI">ExtendingOntologyToExtendedModuleIRI</a>]</span>, <span name="nested2context">nested2context: <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.collection.immutable.Set" class="extype" target="_top">Set</a>[<a href="OWLAPIOMFLoader$$NestedOntologyToNestingContextIRI.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader.NestedOntologyToNestingContextIRI">NestedOntologyToNestingContextIRI</a>]</span>, <span name="om">om: <a href="OntologyMapping.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OntologyMapping">OntologyMapping</a></span>)</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
       </span>
       </h4>
       
-          <div id="comment" class="fullcommenttop"><div class="toggleContainer block">
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>TODO distinguish between:
+- BundledTerminologyAxioms
+- TerminologyExtensionAxioms</p><p>Both are owl imports.
+</p></div><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
           <div class="superTypes hiddenContent"><a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.Serializable" class="extype" target="_top">Serializable</a>, <span class="extype" name="java.io.Serializable">Serializable</span>, <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.Product" class="extype" target="_top">Product</a>, <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.Equals" class="extype" target="_top">Equals</a>, <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.Any" class="extype" target="_top">Any</a></div>
         </div><div class="toggleContainer block diagram-container" id="inheritance-diagram-container">
@@ -94,7 +97,7 @@
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader.OntologyLoadedState#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="&lt;init&gt;(ontologies:scala.collection.immutable.Map[org.semanticweb.owlapi.model.IRI,org.semanticweb.owlapi.model.OWLOntology],extensions:scala.collection.immutable.Set[gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader.ExtendingOntologyToExtendedModuleIRI],nested2context:scala.collection.immutable.Set[gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader.NestedOntologyToNestingContextIRI]):gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader.OntologyLoadedState"></a>
+      <a id="&lt;init&gt;(ontologies:scala.collection.immutable.Map[org.semanticweb.owlapi.model.IRI,org.semanticweb.owlapi.model.OWLOntology],extensions:scala.collection.immutable.Set[gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader.ExtendingOntologyToExtendedModuleIRI],nested2context:scala.collection.immutable.Set[gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader.NestedOntologyToNestingContextIRI],om:gov.nasa.jpl.omf.scala.binding.owlapi.OntologyMapping):gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader.OntologyLoadedState"></a>
       <a id="&lt;init&gt;:OntologyLoadedState"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -102,10 +105,10 @@
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">OntologyLoadedState</span><span class="params">(<span name="ontologies">ontologies: <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.collection.immutable.Map" class="extype" target="_top">Map</a>[<span class="extype" name="org.semanticweb.owlapi.model.IRI">IRI</span>, <span class="extype" name="org.semanticweb.owlapi.model.OWLOntology">OWLOntology</span>]</span>, <span name="extensions">extensions: <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.collection.immutable.Set" class="extype" target="_top">Set</a>[<a href="OWLAPIOMFLoader$$ExtendingOntologyToExtendedModuleIRI.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader.ExtendingOntologyToExtendedModuleIRI">ExtendingOntologyToExtendedModuleIRI</a>]</span>, <span name="nested2context">nested2context: <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.collection.immutable.Set" class="extype" target="_top">Set</a>[<a href="OWLAPIOMFLoader$$NestedOntologyToNestingContextIRI.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader.NestedOntologyToNestingContextIRI">NestedOntologyToNestingContextIRI</a>]</span>)</span>
+        <span class="name">OntologyLoadedState</span><span class="params">(<span name="ontologies">ontologies: <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.collection.immutable.Map" class="extype" target="_top">Map</a>[<span class="extype" name="org.semanticweb.owlapi.model.IRI">IRI</span>, <span class="extype" name="org.semanticweb.owlapi.model.OWLOntology">OWLOntology</span>]</span>, <span name="extensions">extensions: <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.collection.immutable.Set" class="extype" target="_top">Set</a>[<a href="OWLAPIOMFLoader$$ExtendingOntologyToExtendedModuleIRI.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader.ExtendingOntologyToExtendedModuleIRI">ExtendingOntologyToExtendedModuleIRI</a>]</span>, <span name="nested2context">nested2context: <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.collection.immutable.Set" class="extype" target="_top">Set</a>[<a href="OWLAPIOMFLoader$$NestedOntologyToNestingContextIRI.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader.NestedOntologyToNestingContextIRI">NestedOntologyToNestingContextIRI</a>]</span>, <span name="om">om: <a href="OntologyMapping.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OntologyMapping">OntologyMapping</a></span>)</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader$$OntologyLoadedState@&lt;init&gt;(ontologies:scala.collection.immutable.Map[org.semanticweb.owlapi.model.IRI,org.semanticweb.owlapi.model.OWLOntology],extensions:scala.collection.immutable.Set[gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader.ExtendingOntologyToExtendedModuleIRI],nested2context:scala.collection.immutable.Set[gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader.NestedOntologyToNestingContextIRI]):gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader.OntologyLoadedState" title="Permalink" target="_top">
+      <a href="../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader$$OntologyLoadedState@&lt;init&gt;(ontologies:scala.collection.immutable.Map[org.semanticweb.owlapi.model.IRI,org.semanticweb.owlapi.model.OWLOntology],extensions:scala.collection.immutable.Set[gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader.ExtendingOntologyToExtendedModuleIRI],nested2context:scala.collection.immutable.Set[gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader.NestedOntologyToNestingContextIRI],om:gov.nasa.jpl.omf.scala.binding.owlapi.OntologyMapping):gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader.OntologyLoadedState" title="Permalink" target="_top">
         <img src="../../../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -369,6 +372,23 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader.OntologyLoadedState#om" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="om:gov.nasa.jpl.omf.scala.binding.owlapi.OntologyMapping"></a>
+      <a id="om:OntologyMapping"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">om</span><span class="result">: <a href="OntologyMapping.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OntologyMapping">OntologyMapping</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader$$OntologyLoadedState@om:gov.nasa.jpl.omf.scala.binding.owlapi.OntologyMapping" title="Permalink" target="_top">
+        <img src="../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
     </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader.OntologyLoadedState#ontologies" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="ontologies:scala.collection.immutable.Map[org.semanticweb.owlapi.model.IRI,org.semanticweb.owlapi.model.OWLOntology]"></a>
       <a id="ontologies:Map[IRI,OWLOntology]"></a>

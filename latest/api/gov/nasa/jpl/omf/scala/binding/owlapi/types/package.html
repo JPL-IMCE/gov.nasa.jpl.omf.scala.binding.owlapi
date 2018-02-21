@@ -109,7 +109,7 @@
     </span>
       
     </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModuleLoadState" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="ModuleLoadState=(scala.collection.immutable.Set[gov.nasa.jpl.omf.scala.binding.owlapi.common.MutableModule],scala.collection.immutable.Set[gov.nasa.jpl.omf.scala.binding.owlapi.common.MutableModule],gov.nasa.jpl.omf.scala.binding.owlapi.Mutable2ImmutableModuleMap)"></a>
+      <a id="ModuleLoadState=(scala.collection.immutable.Set[gov.nasa.jpl.omf.scala.binding.owlapi.common.MutableModule],scala.collection.immutable.Set[gov.nasa.jpl.omf.scala.binding.owlapi.common.MutableModule],gov.nasa.jpl.omf.scala.binding.owlapi.OntologyMapping)"></a>
       <a id="ModuleLoadState:ModuleLoadState"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -117,10 +117,10 @@
         <span class="kind">type</span>
       </span>
       <span class="symbol">
-        <span class="name">ModuleLoadState</span><span class="result"> = (<a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.collection.immutable.Set" class="extype" target="_top">Set</a>[<a href="../common/MutableModule.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.common.MutableModule">MutableModule</a>], <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.collection.immutable.Set" class="extype" target="_top">Set</a>[<a href="../common/MutableModule.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.common.MutableModule">MutableModule</a>], <a href="../package.html#Mutable2ImmutableModuleMap=gov.nasa.jpl.omf.scala.core.Mutable2ImmutableModuleTable[gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMF]" class="extmbr" name="gov.nasa.jpl.omf.scala.binding.owlapi.Mutable2ImmutableModuleMap">Mutable2ImmutableModuleMap</a>)</span>
+        <span class="name">ModuleLoadState</span><span class="result"> = (<a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.collection.immutable.Set" class="extype" target="_top">Set</a>[<a href="../common/MutableModule.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.common.MutableModule">MutableModule</a>], <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.collection.immutable.Set" class="extype" target="_top">Set</a>[<a href="../common/MutableModule.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.common.MutableModule">MutableModule</a>], <a href="../OntologyMapping.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OntologyMapping">OntologyMapping</a>)</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.package@ModuleLoadState=(scala.collection.immutable.Set[gov.nasa.jpl.omf.scala.binding.owlapi.common.MutableModule],scala.collection.immutable.Set[gov.nasa.jpl.omf.scala.binding.owlapi.common.MutableModule],gov.nasa.jpl.omf.scala.binding.owlapi.Mutable2ImmutableModuleMap)" title="Permalink" target="_top">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.package@ModuleLoadState=(scala.collection.immutable.Set[gov.nasa.jpl.omf.scala.binding.owlapi.common.MutableModule],scala.collection.immutable.Set[gov.nasa.jpl.omf.scala.binding.owlapi.common.MutableModule],gov.nasa.jpl.omf.scala.binding.owlapi.OntologyMapping)" title="Permalink" target="_top">
         <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -540,40 +540,6 @@
       </a>
     </span>
       <p class="shortcomment cmt">Collects the object property restriction subclass axioms for a particular class in an ontology</p><div class="fullcomment"><div class="comment cmt"><p>Collects the object property restriction subclass axioms for a particular class in an ontology</p></div><dl class="paramcmts block"><dt>returns</dt><dd class="cmt"><p>A tuple of:</p><ul><li>a class that has an object property restriction subclass axiom</li><li>the object property involved in that restriction</li><li>true if the restriction is on the object property; false if it is on the inverse object property</li><li>the restricted range</li><li>the kind of restriction (existential or universal)</li></ul></dd></dl></div>
-    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types#immutableModuleResolver" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="immutableModuleResolver(s:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader.OntologyLoadedState,ont:org.semanticweb.owlapi.model.OWLOntology,as:scala.collection.immutable.Set[gov.nasa.jpl.imce.oml.tables.AnnotationProperty],extensions:scala.collection.immutable.Set[gov.nasa.jpl.omf.scala.binding.owlapi.common.ImmutableModule],nesting:Option[(gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Concept,gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyBox)],om:gov.nasa.jpl.omf.scala.binding.owlapi.OntologyMapping,omfStore:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore):scalaz.\/[gov.nasa.jpl.omf.scala.core.OMFError.Throwables,gov.nasa.jpl.omf.scala.binding.owlapi.ImmutableResolver]"></a>
-      <a id="immutableModuleResolver(OntologyLoadedState,OWLOntology,Set[AnnotationProperty],Set[ImmutableModule],Option[(Concept,ImmutableTerminologyBox)],OntologyMapping,OWLAPIOMFGraphStore):\/[Throwables,ImmutableResolver]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">immutableModuleResolver</span><span class="params">(<span name="s">s: <a href="../OWLAPIOMFLoader$$OntologyLoadedState.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader.OntologyLoadedState">OntologyLoadedState</a></span>, <span name="ont">ont: <span class="extype" name="org.semanticweb.owlapi.model.OWLOntology">OWLOntology</span></span>, <span name="as">as: <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.collection.immutable.Set" class="extype" target="_top">Set</a>[<a href="https://jpl-imce.github.io/gov.nasa.jpl.imce.oml.tables/latest/api/index.html#gov.nasa.jpl.imce.oml.tables.AnnotationProperty" class="extype" target="_top">AnnotationProperty</a>]</span>, <span name="extensions">extensions: <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.collection.immutable.Set" class="extype" target="_top">Set</a>[<a href="../common/ImmutableModule.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.common.ImmutableModule">ImmutableModule</a>]</span>, <span name="nesting">nesting: <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.Option" class="extype" target="_top">Option</a>[(<a href="terms/Concept.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Concept">Concept</a>, <a href="terminologies/ImmutableTerminologyBox.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyBox">ImmutableTerminologyBox</a>)]</span>, <span name="om">om: <a href="../OntologyMapping.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OntologyMapping">OntologyMapping</a></span>, <span name="omfStore">omfStore: <a href="../OWLAPIOMFGraphStore.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore">OWLAPIOMFGraphStore</a></span>)</span><span class="result">: <span class="extype" name="scalaz.\/">\/</span>[<span class="extype" name="gov.nasa.jpl.omf.scala.core.OMFError.Throwables">Throwables</span>, <a href="../ImmutableResolver.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.ImmutableResolver">ImmutableResolver</a>]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.package@immutableModuleResolver(s:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader.OntologyLoadedState,ont:org.semanticweb.owlapi.model.OWLOntology,as:scala.collection.immutable.Set[gov.nasa.jpl.imce.oml.tables.AnnotationProperty],extensions:scala.collection.immutable.Set[gov.nasa.jpl.omf.scala.binding.owlapi.common.ImmutableModule],nesting:Option[(gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Concept,gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyBox)],om:gov.nasa.jpl.omf.scala.binding.owlapi.OntologyMapping,omfStore:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore):scalaz.\/[gov.nasa.jpl.omf.scala.core.OMFError.Throwables,gov.nasa.jpl.omf.scala.binding.owlapi.ImmutableResolver]" title="Permalink" target="_top">
-        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      
-    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types#moduleInitialLoadState" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="moduleInitialLoadState(ms:scala.collection.immutable.Set[gov.nasa.jpl.omf.scala.binding.owlapi.common.MutableModule]):gov.nasa.jpl.omf.scala.binding.owlapi.types.package.ModuleLoadState"></a>
-      <a id="moduleInitialLoadState(Set[MutableModule]):ModuleLoadState"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">moduleInitialLoadState</span><span class="params">(<span name="ms">ms: <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.collection.immutable.Set" class="extype" target="_top">Set</a>[<a href="../common/MutableModule.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.common.MutableModule">MutableModule</a>]</span>)</span><span class="result">: <a href="#ModuleLoadState=(scala.collection.immutable.Set[gov.nasa.jpl.omf.scala.binding.owlapi.common.MutableModule],scala.collection.immutable.Set[gov.nasa.jpl.omf.scala.binding.owlapi.common.MutableModule],gov.nasa.jpl.omf.scala.binding.owlapi.Mutable2ImmutableModuleMap)" class="extmbr" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.ModuleLoadState">ModuleLoadState</a></span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.package@moduleInitialLoadState(ms:scala.collection.immutable.Set[gov.nasa.jpl.omf.scala.binding.owlapi.common.MutableModule]):gov.nasa.jpl.omf.scala.binding.owlapi.types.package.ModuleLoadState" title="Permalink" target="_top">
-        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      
     </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types#rightUnitNES" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="rightUnitNES:gov.nasa.jpl.omf.scala.binding.owlapi.types.package.UnitNES"></a>
       <a id="rightUnitNES:UnitNES"></a>
