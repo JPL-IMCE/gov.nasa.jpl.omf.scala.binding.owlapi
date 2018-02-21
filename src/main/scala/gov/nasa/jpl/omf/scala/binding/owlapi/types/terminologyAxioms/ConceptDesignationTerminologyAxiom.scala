@@ -19,22 +19,28 @@
 package gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologyAxioms
 
 import gov.nasa.jpl.imce.oml.resolver.api
-import gov.nasa.jpl.omf.scala.binding.owlapi.common.Module
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Concept
-import gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox
+import org.semanticweb.owlapi.model.IRI
 
 import scala.{Any, Boolean, Int}
 import scala.Predef.require
 
+/**
+  *
+  * @param uuid
+  * @param graph source designation TerminologyBox
+  * @param designatedConcept target designated Concept
+  * @param targetModuleIRI target designated TerminologyBox
+  */
 case class ConceptDesignationTerminologyAxiom
 (override val uuid: api.taggedTypes.ConceptDesignationTerminologyAxiomUUID,
  graph: api.taggedTypes.TerminologyBoxUUID,
  designatedConcept: Concept,
- designatedTerminology: TerminologyBox)
+ override val targetModuleIRI: IRI)
   extends TerminologyBoxAxiom {
 
   require( null != designatedConcept )
-  require( null != designatedTerminology )
+  require( null != targetModuleIRI )
 
   override def canEqual(other: Any)
   : Boolean
@@ -43,7 +49,7 @@ case class ConceptDesignationTerminologyAxiom
     case _ => false
   }
 
-  override val hashCode: Int = (uuid, graph, designatedConcept, designatedTerminology).##
+  override val hashCode: Int = (uuid, graph, designatedConcept, targetModuleIRI).##
 
   override def equals(other: Any): Boolean = other match {
     case that: ConceptDesignationTerminologyAxiom =>
@@ -51,11 +57,10 @@ case class ConceptDesignationTerminologyAxiom
         (this.uuid == that.uuid) &&
         (this.graph == that.graph) &&
         (this.designatedConcept == that.designatedConcept) &&
-        (this.designatedTerminology == that.designatedTerminology)
+        (this.targetModuleIRI == that.targetModuleIRI)
     case _ =>
       false
   }
 
   override val sourceModule: api.taggedTypes.TerminologyBoxUUID = graph
-  override val targetModule: Module = designatedTerminology
 }

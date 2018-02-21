@@ -1,0 +1,7 @@
+gov.nasa.jpl.omf.scala.binding.owlapi 9.2 is a major update
+
+## Issues Resolved
+
+- [#71 Update for bijective catalog mapping](https://github.com/JPL-IMCE/gov.nasa.jpl.omf.scala.binding.owlapi/issues/71)
+
+- [#72 Update for OML modules with circular relationships](https://github.com/JPL-IMCE/gov.nasa.jpl.omf.scala.binding.owlapi/issues/72)

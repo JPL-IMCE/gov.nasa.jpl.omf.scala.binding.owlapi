@@ -29,6 +29,7 @@ import gov.nasa.jpl.omf.scala.core.{DescriptionBoxSignature, DescriptionKind, Im
 import org.semanticweb.owlapi.model.{IRI, OWLOntology}
 
 import scala.collection.immutable._
+import scala.{Any,Boolean,Int}
 import scalaz._
 import Scalaz._
 
@@ -123,5 +124,24 @@ case class ImmutableDescriptionBox
     with ImmutableModule {
 
   override type MS = ImmutableDescriptionBoxSignature[OWLAPIOMF]
+
+  override def canEqual(other: Any)
+  : Boolean
+  = other match {
+    case _: ImmutableDescriptionBox => true
+    case _ => false
+  }
+
+  override val hashCode: Int = (sig, ont).##
+
+  override def equals(other: Any): Boolean = other match {
+    case that: ImmutableDescriptionBox =>
+      (that canEqual this) &&
+        (this.sig.uuid == that.sig.uuid) &&
+        (this.sig == that.sig) &&
+        (this.ont == that.ont)
+    case _ =>
+      false
+  }
 
 }

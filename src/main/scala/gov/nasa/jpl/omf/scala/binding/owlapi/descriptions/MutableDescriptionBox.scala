@@ -32,7 +32,7 @@ import org.semanticweb.owlapi.model._
 import scala.collection.immutable._
 import scala.collection.mutable.{HashMap, HashSet}
 import scala.compat.java8.StreamConverters._
-import scala.{Any, Boolean, Option, None, Some, StringContext}
+import scala.{Any, Boolean, Int, Option, None, Some, StringContext}
 import scala.Predef.ArrowAssoc
 import scalaz._
 import Scalaz._
@@ -87,6 +87,18 @@ case class MutableDescriptionBox
   = other match {
     case _: MutableDescriptionBox => true
     case _ => false
+  }
+
+  override val hashCode: Int = (sig, ont).##
+
+  override def equals(other: Any): Boolean = other match {
+    case that: MutableDescriptionBox =>
+      (that canEqual this) &&
+        (this.sig.uuid == that.sig.uuid) &&
+        (this.sig == that.sig) &&
+        (this.ont == that.ont)
+    case _ =>
+      false
   }
 
   def addAnnotationProperty
@@ -182,7 +194,7 @@ case class MutableDescriptionBox
     ax = descriptions.DescriptionBoxExtendsClosedWorldDefinitions(
       uuid,
       sourceModule = this.uuid,
-      targetModule = closedWorldDefinitions)
+      targetModuleIRI = closedWorldDefinitions.iri)
     _ = sig.closedWorldDefinitions += ax
   } yield ax
 
@@ -198,7 +210,7 @@ case class MutableDescriptionBox
     ax = descriptions.DescriptionBoxRefinement(
       uuid,
       sourceModule = this.uuid,
-      targetModule = refinedDescriptionBox)
+      targetModuleIRI = refinedDescriptionBox.iri)
     _ = sig.descriptionBoxRefinements += ax
   } yield ax
 

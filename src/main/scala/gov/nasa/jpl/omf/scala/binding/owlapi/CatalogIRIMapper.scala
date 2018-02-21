@@ -85,8 +85,6 @@ case class CatalogIRIMapper
     val f2 =
       if (normalizedPath.endsWith(".owl"))
         f1
-      else if (normalizedPath.endsWith("/"))
-        new URL(normalizedPath.stripSuffix("/")+".owl")
       else
         new URL(normalizedPath + ".owl")
     try {
@@ -123,7 +121,6 @@ case class CatalogIRIMapper
     val normalizedPath = normalized.toString
     val normalizedOwlPath =
       if (normalizedPath.endsWith(".owl")) normalizedPath
-      else if (normalizedPath.endsWith("/")) normalizedPath.stripSuffix("/")+".owl"
       else normalizedPath + ".owl"
 
     val f1 = new URL(normalizedOwlPath)
@@ -160,7 +157,9 @@ case class CatalogIRIMapper
         case null =>
           iri
         case resolved =>
-          resolutionStrategy(resolved) match {
+          val base = catalog.getCurrentBase
+          val fullyResolved = if (resolved.startsWith("file:./")) base.stripSuffix("oml.catalog.xml")+resolved.stripPrefix("file:./") else resolved
+          resolutionStrategy(fullyResolved) match {
             case None =>
               iri
             case Some(resolvedIRI) =>

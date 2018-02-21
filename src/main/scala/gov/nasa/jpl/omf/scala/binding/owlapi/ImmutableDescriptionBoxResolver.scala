@@ -18,17 +18,18 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi
 
-import gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyBox
+import gov.nasa.jpl.omf.scala.binding.owlapi.common.ImmutableModule
 import gov.nasa.jpl.omf.scala.core.OMFError
 
 import scala.collection.immutable._
-import scalaz._, Scalaz._
+import scalaz._
+import Scalaz._
 
 case class ImmutableDescriptionBoxResolver(resolver: DescriptionBoxResolverHelper)
   extends ImmutableResolver {
 
   def resolve()
-  : OMFError.Throwables \/ (ImmutableTerminologyBox, OntologyMapping)
+  : OMFError.Throwables \/ (ImmutableModule, OntologyMapping)
   = Set[java.lang.Throwable](OMFError.omfError("Not Implemented Yet")).left
 
 }

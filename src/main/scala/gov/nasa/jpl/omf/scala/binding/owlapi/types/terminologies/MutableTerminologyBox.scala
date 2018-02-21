@@ -255,7 +255,7 @@ trait MutableTerminologyBox
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ TerminologyExtensionAxiom
   = sig.extensions
-    .find { _.extendedTerminology == extendedG }
+    .find { _.targetModuleIRI == extendedG.iri }
     .fold[OMFError.Throwables \/ TerminologyExtensionAxiom](
     for {
       axiom <- store
@@ -265,9 +265,7 @@ trait MutableTerminologyBox
       axiom
     }
   ) { other =>
-    Set(
-      duplicateTerminologyGraphAxiomException(AxiomExceptionKind.TerminologyGraphDirectExtensionAxiomException, other)
-    ).left
+    other.right
   }
 
   def addTerminologyGraphExtension
@@ -316,9 +314,7 @@ trait MutableTerminologyBox
     \/-(_a)
   } {
     case t: OWLAPIOMF#Aspect =>
-      Set(
-        entityAlreadyDefinedException(ElementExceptionKind.EntityAspect, a.getIRI, t)
-      ).left
+      t.right
     case t =>
       Set(
         entityConflictException(ElementExceptionKind.EntityAspect, a.getIRI, t)
@@ -348,9 +344,7 @@ trait MutableTerminologyBox
     } yield result
   } {
     case t: OWLAPIOMF#Aspect =>
-      Set(
-        entityAlreadyDefinedException(ElementExceptionKind.EntityAspect, aspectIRI, t)
-      ).left
+      t.right
     case t =>
       Set(
         entityConflictException(ElementExceptionKind.EntityAspect, aspectIRI, t)
@@ -389,9 +383,7 @@ trait MutableTerminologyBox
     \/-(_c)
   } {
     case t: Concept =>
-      Set(
-        entityAlreadyDefinedException(ElementExceptionKind.EntityConcept, c.getIRI, t)
-      ).left
+      t.right
     case t =>
       Set(
         entityConflictException(ElementExceptionKind.EntityConcept, c.getIRI, t)
@@ -423,9 +415,7 @@ trait MutableTerminologyBox
     } yield result
   } {
     case t: OWLAPIOMF#Concept =>
-      Set(
-        entityAlreadyDefinedException(ElementExceptionKind.EntityConcept, conceptIRI, t)
-      ).left
+      t.right
     case t =>
       Set(
         entityConflictException(ElementExceptionKind.EntityConcept, conceptIRI, t)
@@ -522,9 +512,7 @@ trait MutableTerminologyBox
     } yield _r
   } {
     case t: OWLAPIOMF#ReifiedRelationship =>
-      Set(
-        entityAlreadyDefinedException(ElementExceptionKind.EntityReifiedRelationship, r.getIRI, t)
-      ).left
+      t.right
     case t =>
       Set(
         entityConflictException(ElementExceptionKind.EntityReifiedRelationship, r.getIRI, t)
@@ -814,6 +802,10 @@ trait MutableTerminologyBox
           ).left
 
         case (true, false) =>
+          val closure = terminologyBoxImportClosure(this).to[Seq].sortBy(_.iri.toString)
+          java.lang.System.out.println(s"from: ${this.iri} unresolvable target: ${target.iri}\nimport closure ${closure.size} graphs:")
+          java.lang.System.out.println(closure.map(_.iri).mkString("\n"))
+
           Set(
             entityScopeException(ElementExceptionKind.EntityReifiedRelationship, rIRI,
               Map(RelationshipScopeAccessKind.Target -> target))
@@ -895,9 +887,7 @@ trait MutableTerminologyBox
     \/-(_r)
   } {
     case t: OWLAPIOMF#UnreifiedRelationship =>
-      Set(
-        entityAlreadyDefinedException(ElementExceptionKind.EntityUnreifiedRelationship, r.getIRI, t)
-      ).left
+      t.right
     case t =>
       Set(
         entityConflictException(ElementExceptionKind.EntityUnreifiedRelationship, r.getIRI, t)
@@ -1089,9 +1079,7 @@ trait MutableTerminologyBox
     _dt.right
   } {
     case t: Scalar =>
-      Set(
-        entityAlreadyDefinedException(ElementExceptionKind.ScalarDataType, dt.getIRI, t)
-      ).left
+      t.right
     case t =>
       Set(
         entityConflictException(ElementExceptionKind.ScalarDataType, dt.getIRI, t)
@@ -1119,9 +1107,7 @@ trait MutableTerminologyBox
     } yield result
   } {
     case t: OWLAPIOMF#Scalar =>
-      Set(
-        entityAlreadyDefinedException(ElementExceptionKind.ScalarDataType, scalarIRI, t)
-      ).left
+      t.right
     case t =>
       Set(
         entityConflictException(ElementExceptionKind.ScalarDataType, scalarIRI, t)
@@ -1160,9 +1146,7 @@ trait MutableTerminologyBox
     \/-(_st)
   } {
     case t: Structure =>
-      Set(
-        entityAlreadyDefinedException(ElementExceptionKind.StructuredDataType, dt.getIRI, t)
-      ).left
+      t.right
     case t =>
       Set(
         entityConflictException(ElementExceptionKind.StructuredDataType, dt.getIRI, t)
@@ -1196,9 +1180,7 @@ trait MutableTerminologyBox
     } yield result
   } {
     case t: OWLAPIOMF#Structure =>
-      Set(
-        entityAlreadyDefinedException(ElementExceptionKind.StructuredDataType, structuredDataTypeIRI, t)
-      ).left
+      t.right
     case t =>
       Set(
         entityConflictException(ElementExceptionKind.StructuredDataType, structuredDataTypeIRI, t)
@@ -1242,9 +1224,7 @@ trait MutableTerminologyBox
     _rdt.right
   } {
     case t: OWLAPIOMF#ScalarOneOfRestriction =>
-      Set(
-        entityAlreadyDefinedException(ElementExceptionKind.ScalarOneOfRestriction, restrictionDT.getIRI, t)
-      ).left
+      t.right
     case t =>
       Set(
         entityConflictException(ElementExceptionKind.ScalarOneOfRestriction, restrictionDT.getIRI, t)
@@ -1276,9 +1256,7 @@ trait MutableTerminologyBox
     }
   } {
     case t: OWLAPIOMF#ScalarOneOfRestriction =>
-      Set(
-        entityAlreadyDefinedException(ElementExceptionKind.ScalarOneOfRestriction, dataTypeIRI, t)
-      ).left
+      t.right
     case t =>
       Set(
         entityConflictException(ElementExceptionKind.ScalarOneOfRestriction, dataTypeIRI, t)
@@ -1410,30 +1388,30 @@ trait MutableTerminologyBox
    maxLength: Option[tables.taggedTypes.PositiveIntegerLiteral])
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#BinaryScalarRestriction
-  = if (store.isBuiltInDatatypeMapConstructed || store.isBinaryKind(restrictedRange)) {
+  = {
     iri2typeTerm
       .get(restrictionDT.getIRI)
       .fold[OMFError.Throwables \/ OWLAPIOMF#BinaryScalarRestriction] {
-      val _rdt = terms.BinaryScalarRestriction(
-        restrictionDT, restrictionDT.getIRI, uuid, name, restrictedRange,
-        length, minLength, maxLength)
-      sig.binaryScalarRestrictions += _rdt
-      iri2typeTerm += restrictionDT.getIRI -> _rdt
-      _rdt.right
+      if (store.isBuiltInDatatypeMapConstructed || store.isBinaryKind(restrictedRange)) {
+        val _rdt = terms.BinaryScalarRestriction(
+          restrictionDT, restrictionDT.getIRI, uuid, name, restrictedRange,
+          length, minLength, maxLength)
+        sig.binaryScalarRestrictions += _rdt
+        iri2typeTerm += restrictionDT.getIRI -> _rdt
+        _rdt.right
+      } else
+        Set[java.lang.Throwable](OMFError.omfError(
+          s"createBinaryScalarRestriction: restricted data range must be binary per OWL2 section 4.5: $restrictedRange")
+        ).left
     } {
       case t: OWLAPIOMF#BinaryScalarRestriction =>
-        Set(
-          entityAlreadyDefinedException(ElementExceptionKind.BinaryScalarRestriction, restrictionDT.getIRI, t)
-        ).left
+        t.right
       case t =>
         Set(
           entityConflictException(ElementExceptionKind.BinaryScalarRestriction, restrictionDT.getIRI, t)
         ).left
     }
-  } else
-    Set[java.lang.Throwable](OMFError.omfError(
-      s"createBinaryScalarRestriction: restricted data range must be binary per OWL2 section 4.5: $restrictedRange")
-    ).left
+  }
 
   def addBinaryScalarRestriction
   (dataTypeIRI: IRI, name: LocalName,
@@ -1537,30 +1515,30 @@ trait MutableTerminologyBox
    pattern: Option[tables.taggedTypes.LiteralPattern])
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#IRIScalarRestriction
-  = if (store.isBuiltInDatatypeMapConstructed || store.isIRIKind(restrictedRange)) {
+  = {
     iri2typeTerm
       .get(restrictionDT.getIRI)
-      .fold[OMFError.Throwables \/ OWLAPIOMF#IRIScalarRestriction]{
-      val _rdt = terms.IRIScalarRestriction(
-        restrictionDT, restrictionDT.getIRI, uuid, name, restrictedRange,
-        length, minLength, maxLength, pattern)
-      sig.iriScalarRestrictions += _rdt
-      iri2typeTerm += restrictionDT.getIRI -> _rdt
-      _rdt.right
+      .fold[OMFError.Throwables \/ OWLAPIOMF#IRIScalarRestriction] {
+      if (store.isBuiltInDatatypeMapConstructed || store.isIRIKind(restrictedRange)) {
+        val _rdt = terms.IRIScalarRestriction(
+          restrictionDT, restrictionDT.getIRI, uuid, name, restrictedRange,
+          length, minLength, maxLength, pattern)
+        sig.iriScalarRestrictions += _rdt
+        iri2typeTerm += restrictionDT.getIRI -> _rdt
+        _rdt.right
+      } else
+        Set[java.lang.Throwable](OMFError.omfError(
+          s"createBinaryScalarRestriction: restricted data range must be IRI per OWL2 section 4.6: $restrictedRange")
+        ).left
     } {
       case t: OWLAPIOMF#IRIScalarRestriction =>
-        Set(
-          entityAlreadyDefinedException(ElementExceptionKind.IRIScalarRestriction, restrictionDT.getIRI, t)
-        ).left
+        t.right
       case t =>
         Set(
           entityConflictException(ElementExceptionKind.IRIScalarRestriction, restrictionDT.getIRI, t)
         ).left
     }
-  } else
-    Set[java.lang.Throwable](OMFError.omfError(
-      s"createBinaryScalarRestriction: restricted data range must be IRI per OWL2 section 4.6: $restrictedRange")
-    ).left
+  }
 
   def addIRIScalarRestriction
   (dataTypeIRI: IRI, name: LocalName,
@@ -1675,30 +1653,30 @@ trait MutableTerminologyBox
    maxExclusive: Option[tables.LiteralNumber])
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#NumericScalarRestriction
-  = if (store.isBuiltInDatatypeMapConstructed || store.isNumericKind(restrictedRange)) {
+  = {
     iri2typeTerm
       .get(restrictionDT.getIRI)
       .fold[OMFError.Throwables \/ OWLAPIOMF#NumericScalarRestriction] {
-      val _rdt = terms.NumericScalarRestriction(
-        restrictionDT, restrictionDT.getIRI, uuid, name, restrictedRange,
-        minInclusive, maxInclusive, minExclusive, maxExclusive)
-      sig.numericScalarRestrictions += _rdt
-      iri2typeTerm += restrictionDT.getIRI -> _rdt
-      _rdt.right
+      if (store.isBuiltInDatatypeMapConstructed || store.isNumericKind(restrictedRange)) {
+        val _rdt = terms.NumericScalarRestriction(
+          restrictionDT, restrictionDT.getIRI, uuid, name, restrictedRange,
+          minInclusive, maxInclusive, minExclusive, maxExclusive)
+        sig.numericScalarRestrictions += _rdt
+        iri2typeTerm += restrictionDT.getIRI -> _rdt
+        _rdt.right
+      } else
+        Set[java.lang.Throwable](OMFError.omfError(
+          s"createBinaryScalarRestriction: restricted data range must be numeric per OWL2 sections 4.1, 4.2: $restrictedRange")
+        ).left
     } {
       case t: OWLAPIOMF#NumericScalarRestriction =>
-        Set(
-          entityAlreadyDefinedException(ElementExceptionKind.NumericScalarRestriction, restrictionDT.getIRI, t)
-        ).left
+        t.right
       case t =>
         Set(
           entityConflictException(ElementExceptionKind.NumericScalarRestriction, restrictionDT.getIRI, t)
         ).left
     }
-  } else
-    Set[java.lang.Throwable](OMFError.omfError(
-      s"createBinaryScalarRestriction: restricted data range must be numeric per OWL2 sections 4.1, 4.2: $restrictedRange")
-    ).left
+  }
 
   def addNumericScalarRestriction
   (dataTypeIRI: IRI, name: LocalName,
@@ -1821,30 +1799,30 @@ trait MutableTerminologyBox
    language: Option[tables.taggedTypes.LanguageTagDataType])
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#PlainLiteralScalarRestriction
-  = if (store.isBuiltInDatatypeMapConstructed || store.isPlainLiteralKind(restrictedRange)) {
+  = {
     iri2typeTerm
       .get(restrictionDT.getIRI)
       .fold[OMFError.Throwables \/ OWLAPIOMF#PlainLiteralScalarRestriction] {
-      val _rdt = terms.PlainLiteralScalarRestriction(
-        restrictionDT, restrictionDT.getIRI, uuid, name, restrictedRange,
-        length, minLength, maxLength, pattern, language)
-      sig.plainLiteralScalarRestrictions += _rdt
-      iri2typeTerm += restrictionDT.getIRI -> _rdt
-      _rdt.right
+      if (store.isBuiltInDatatypeMapConstructed || store.isPlainLiteralKind(restrictedRange)) {
+        val _rdt = terms.PlainLiteralScalarRestriction(
+          restrictionDT, restrictionDT.getIRI, uuid, name, restrictedRange,
+          length, minLength, maxLength, pattern, language)
+        sig.plainLiteralScalarRestrictions += _rdt
+        iri2typeTerm += restrictionDT.getIRI -> _rdt
+        _rdt.right
+      } else
+        Set[java.lang.Throwable](OMFError.omfError(
+          s"createBinaryScalarRestriction: restricted data range must be plain literal per OWL2 section 4.3: $restrictedRange")
+        ).left
     } {
       case t: OWLAPIOMF#PlainLiteralScalarRestriction =>
-        Set(
-          entityAlreadyDefinedException(ElementExceptionKind.PlainLiteralScalarRestriction, restrictionDT.getIRI, t)
-        ).left
+        t.right
       case t =>
         Set(
           entityConflictException(ElementExceptionKind.PlainLiteralScalarRestriction, restrictionDT.getIRI, t)
         ).left
     }
-  } else
-    Set[java.lang.Throwable](OMFError.omfError(
-      s"createBinaryScalarRestriction: restricted data range must be plain literal per OWL2 section 4.3: $restrictedRange")
-    ).left
+  }
 
   def addPlainLiteralScalarRestriction
   (dataTypeIRI: IRI, name: LocalName,
@@ -1973,30 +1951,30 @@ trait MutableTerminologyBox
    pattern: Option[tables.taggedTypes.LiteralPattern])
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#StringScalarRestriction
-  = if (store.isBuiltInDatatypeMapConstructed || store.isStringKind(restrictedRange)) {
+  = {
     iri2typeTerm
       .get(restrictionDT.getIRI)
       .fold[OMFError.Throwables \/ OWLAPIOMF#StringScalarRestriction] {
-      val _rdt = terms.StringScalarRestriction(
-        restrictionDT, restrictionDT.getIRI, uuid, name, restrictedRange,
-        length, minLength, maxLength, pattern)
-      sig.stringScalarRestrictions += _rdt
-      iri2typeTerm += restrictionDT.getIRI -> _rdt
-      _rdt.right
+      if (store.isBuiltInDatatypeMapConstructed || store.isStringKind(restrictedRange)) {
+        val _rdt = terms.StringScalarRestriction(
+          restrictionDT, restrictionDT.getIRI, uuid, name, restrictedRange,
+          length, minLength, maxLength, pattern)
+        sig.stringScalarRestrictions += _rdt
+        iri2typeTerm += restrictionDT.getIRI -> _rdt
+        _rdt.right
+      } else
+        Set[java.lang.Throwable](OMFError.omfError(
+          s"createBinaryScalarRestriction: ${restrictionDT.getIRI} restricted data range must be string per OWL2 section 4.3: $restrictedRange")
+        ).left
     } {
       case t: OWLAPIOMF#StringScalarRestriction =>
-        Set(
-          entityAlreadyDefinedException(ElementExceptionKind.StringScalarRestriction, restrictionDT.getIRI, t)
-        ).left
+        t.right
       case t =>
         Set(
           entityConflictException(ElementExceptionKind.StringScalarRestriction, restrictionDT.getIRI, t)
         ).left
     }
-  } else
-    Set[java.lang.Throwable](OMFError.omfError(
-      s"createBinaryScalarRestriction: restricted data range must be string per OWL2 section 4.3: $restrictedRange")
-    ).left
+  }
 
   def addStringScalarRestriction
   (dataTypeIRI: IRI, name: LocalName,
@@ -2106,9 +2084,7 @@ trait MutableTerminologyBox
     _rdt.right
   } {
     case t: OWLAPIOMF#SynonymScalarRestriction =>
-      Set(
-        entityAlreadyDefinedException(ElementExceptionKind.SynonymScalarRestriction, restrictionDT.getIRI, t)
-      ).left
+      t.right
     case t =>
       Set(
         entityConflictException(ElementExceptionKind.SynonymScalarRestriction, restrictionDT.getIRI, t)
@@ -2196,30 +2172,30 @@ trait MutableTerminologyBox
    maxExclusive: Option[tables.LiteralDateTime])
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#TimeScalarRestriction
-  = if (store.isBuiltInDatatypeMapConstructed || store.isTimeKind(restrictedRange)) {
+  = {
     iri2typeTerm
       .get(restrictionDT.getIRI)
       .fold[OMFError.Throwables \/ OWLAPIOMF#TimeScalarRestriction] {
-      val _rdt = terms.TimeScalarRestriction(
-        restrictionDT, restrictionDT.getIRI, uuid, name, restrictedRange,
-        minInclusive, maxInclusive, minExclusive, maxExclusive)
-      sig.timeScalarRestrictions += _rdt
-      iri2typeTerm += restrictionDT.getIRI -> _rdt
-      _rdt.right
+      if (store.isBuiltInDatatypeMapConstructed || store.isTimeKind(restrictedRange)) {
+        val _rdt = terms.TimeScalarRestriction(
+          restrictionDT, restrictionDT.getIRI, uuid, name, restrictedRange,
+          minInclusive, maxInclusive, minExclusive, maxExclusive)
+        sig.timeScalarRestrictions += _rdt
+        iri2typeTerm += restrictionDT.getIRI -> _rdt
+        _rdt.right
+      } else
+        Set[java.lang.Throwable](OMFError.omfError(
+          s"createTimeScalarRestriction: restricted data range must be time per OWL2 section 4.7: $restrictedRange")
+        ).left
     } {
       case t: OWLAPIOMF#TimeScalarRestriction =>
-        Set(
-          entityAlreadyDefinedException(ElementExceptionKind.TimeScalarRestriction, restrictionDT.getIRI, t)
-        ).left
+        t.right
       case t =>
         Set(
           entityConflictException(ElementExceptionKind.TimeScalarRestriction, restrictionDT.getIRI, t)
         ).left
     }
-  } else
-    Set[java.lang.Throwable](OMFError.omfError(
-      s"createTimeScalarRestriction: restricted data range must be time per OWL2 section 4.7: $restrictedRange")
-    ).left
+  }
 
   def addTimeScalarRestriction
   (dataTypeIRI: IRI, name: LocalName,
@@ -2328,9 +2304,7 @@ trait MutableTerminologyBox
       _esc.right
     } {
       case t: OWLAPIOMF#EntityScalarDataProperty =>
-        Set(
-          entityAlreadyDefinedException(ElementExceptionKind.DataRelationshipFromEntityToScalar, escIRI, t)
-        ).left
+        t.right
       case t =>
         Set(
           entityConflictException(ElementExceptionKind.DataRelationshipFromEntityToScalar, escIRI, t)
@@ -2442,9 +2416,7 @@ trait MutableTerminologyBox
       _esc.right
     } {
       case t: OWLAPIOMF#EntityStructuredDataProperty =>
-        Set(
-          entityAlreadyDefinedException(ElementExceptionKind.DataRelationshipFromEntityToStructure, escIRI, t)
-        ).left
+        t.right
       case t =>
         Set(
           entityConflictException(ElementExceptionKind.DataRelationshipFromEntityToStructure, escIRI, t)
@@ -2555,9 +2527,7 @@ trait MutableTerminologyBox
       _esc.right
     } {
       case t: OWLAPIOMF#ScalarDataProperty =>
-        Set(
-          entityAlreadyDefinedException(ElementExceptionKind.DataRelationshipFromStructureToScalar, escIRI, t)
-        ).left
+        t.right
       case t =>
         Set(
           entityConflictException(ElementExceptionKind.DataRelationshipFromStructureToScalar, escIRI, t)
@@ -2662,9 +2632,7 @@ trait MutableTerminologyBox
       _esc.right
     } {
       case t: OWLAPIOMF#StructuredDataProperty =>
-        Set(
-          entityAlreadyDefinedException(ElementExceptionKind.DataRelationshipFromStructureToStructure, escIRI, t)
-        ).left
+        t.right
       case t =>
         Set(
           entityConflictException(ElementExceptionKind.DataRelationshipFromStructureToStructure, escIRI, t)
@@ -3626,13 +3594,13 @@ trait MutableTerminologyBox
     .find {
       case axiom: ConceptDesignationTerminologyAxiom =>
         axiom.designatedConcept == entityConceptDesignation &&
-          axiom.designatedTerminology == designationTerminologyGraph
+          axiom.targetModuleIRI == designationTerminologyGraph.iri
       case _ =>
         false
     }
     .fold[OMFError.Throwables \/ ConceptDesignationTerminologyAxiom] {
     val axiom = ConceptDesignationTerminologyAxiom(
-      uuid, graph.uuid, entityConceptDesignation, designationTerminologyGraph)
+      uuid, graph.uuid, entityConceptDesignation, designationTerminologyGraph.iri)
     sig.conceptDesignation += axiom
     axiom.right
   } { other =>
@@ -3689,7 +3657,7 @@ trait MutableTerminologyBox
     case (true, true) =>
       for {
         axiom <- createEntityReifiedRelationshipSubClassAxiom(uuid, sub, sup)
-        _ <- applyOntologyChanges(
+        _ <- applyOntologyChangesOrNoOp(
           ontManager,
           Seq(
             new AddAxiom(ont, owlDataFactory.getOWLSubClassOfAxiom(

@@ -19,9 +19,8 @@
 package gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologyAxioms
 
 import gov.nasa.jpl.imce.oml.resolver.api
-import gov.nasa.jpl.omf.scala.binding.owlapi.common.Module
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Concept
-import gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox
+import org.semanticweb.owlapi.model.IRI
 
 import scala.{Any, Boolean, Int}
 import scala.Predef.require
@@ -32,10 +31,18 @@ import scala.Predef.require
   *
   * @param nestingContext
   */
+
+/**
+  *
+  * @param uuid
+  * @param nestedTerminology source nested TerminologyBox
+  * @param targetModuleIRI target nesting TerminologyBox
+  * @param nestingContext target nesting context Concept
+  */
 case class TerminologyNestingAxiom
 (override val uuid: api.taggedTypes.TerminologyNestingAxiomUUID,
  nestedTerminology: api.taggedTypes.TerminologyBoxUUID,
- nestingTerminology: TerminologyBox,
+ override val targetModuleIRI: IRI,
  nestingContext: Concept)
 extends TerminologyBoxAxiom {
 
@@ -48,18 +55,18 @@ extends TerminologyBoxAxiom {
     case _ => false
   }
 
-  override val hashCode: Int = (uuid, nestedTerminology, nestingContext).##
+  override val hashCode: Int = (uuid, nestedTerminology, nestingContext, targetModuleIRI).##
 
   override def equals(other: Any): Boolean = other match {
     case that: TerminologyNestingAxiom =>
       (that canEqual this) &&
         (this.uuid == that.uuid) &&
         (this.nestedTerminology == that.nestedTerminology) &&
-        (this.nestingContext == that.nestingContext)
+        (this.nestingContext == that.nestingContext) &&
+        (this.targetModuleIRI == that.targetModuleIRI)
     case _ =>
       false
   }
 
   override val sourceModule: api.taggedTypes.TerminologyBoxUUID = nestedTerminology
-  override val targetModule: Module = nestingTerminology
 }

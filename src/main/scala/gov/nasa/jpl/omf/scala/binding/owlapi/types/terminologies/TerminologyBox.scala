@@ -27,7 +27,7 @@ import gov.nasa.jpl.omf.scala.binding.owlapi.common.{Module, RestrictableRelatio
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms._
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologyAxioms._
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.{Axiom, Term}
-import gov.nasa.jpl.omf.scala.core.{OMFError, TerminologyBoxSignature, terminologyBoxImportClosure}
+import gov.nasa.jpl.omf.scala.core.{OMFError, TerminologyBoxSignature}
 import org.semanticweb.owlapi.formats._
 import org.semanticweb.owlapi.model._
 
@@ -83,12 +83,18 @@ trait TerminologyBox extends Module {
       reifiedRelation2inverseProperty.values.exists(_ == ip)
   }
 
+  def importClosure
+  ()
+  (implicit store: OWLAPIOMFGraphStore)
+  : Set[TerminologyBox]
+  = terminologyBoxImportClosure(this)
+
   def isRestrictableRelationshipDefinedRecursively
   (rr: RestrictableRelationship)
   (implicit store: OWLAPIOMFGraphStore)
   : Boolean
   = {
-    val closure = terminologyBoxImportClosure[OWLAPIOMF](this)
+    val closure = importClosure()
     val found = closure.exists(_.isRestrictableRelationshipDefined(rr))
     found
   }
@@ -96,14 +102,14 @@ trait TerminologyBox extends Module {
   def isTypeTermDefined
   (t: Term)
   : Boolean
-  = iri2typeTerm.values.exists(_ == t)
+  = iri2typeTerm.contains(t.iri)
 
   def isTypeTermDefinedRecursively
   (t: Term)
   (implicit store: OWLAPIOMFGraphStore)
   : Boolean
   = {
-    val closure = terminologyBoxImportClosure[OWLAPIOMF](this)
+    val closure = importClosure()
     val found = closure.exists(_.isTypeTermDefined(t))
     found
   }
@@ -130,7 +136,7 @@ trait TerminologyBox extends Module {
   (iri: IRI)
   (implicit store: OWLAPIOMFGraphStore)
   : Option[Term]
-  = terminologyBoxImportClosure[OWLAPIOMF](this)
+  = terminologyBoxImportClosure(this)
     .flatMap(_.lookupTerm(iri, recursively = false)).headOption
 
   def lookupTypeTermRecursively

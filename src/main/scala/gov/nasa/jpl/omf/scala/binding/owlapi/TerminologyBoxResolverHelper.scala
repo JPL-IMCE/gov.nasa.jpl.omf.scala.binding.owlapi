@@ -39,13 +39,11 @@ import Scalaz._
 
 case class TerminologyBoxResolverHelper
 (tboxG: MutableTerminologyBox,
- imports: Iterable[ImmutableTerminologyBox],
  ont: OWLOntology,
  omfStore: OWLAPIOMFGraphStore,
  om: OntologyMapping,
  ontOps: OWLOntologyOps) {
 
-  require(null != imports)
   require(null != ont)
   require(null != omfStore)
 
@@ -65,7 +63,7 @@ case class TerminologyBoxResolverHelper
 
   val importClosure
   : Set[TerminologyBox]
-  = terminologyBoxImportClosure[OWLAPIOMF](tboxG)(omfStore.ops, omfStore)
+  = omfStore.terminologyClosureCache.get(tboxG)
 
   val provenance = s"load($getOntologyIRI)"
 

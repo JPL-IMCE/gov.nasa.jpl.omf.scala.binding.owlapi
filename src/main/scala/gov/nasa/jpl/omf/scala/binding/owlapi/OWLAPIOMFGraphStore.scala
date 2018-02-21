@@ -42,12 +42,15 @@ import org.semanticweb.owlapi.model._
 import org.semanticweb.owlapi.model.parameters._
 import org.semanticweb.owlapi.util.PriorityCollection
 
+import com.github.benmanes.caffeine.cache.{CacheLoader,Caffeine,LoadingCache}
+
 import scala.collection.immutable.{Set, _}
 import scala.collection.JavaConverters._
 import scala.compat.java8.OptionConverters.RichOptionalGeneric
 import scala.compat.java8.StreamConverters._
+import scala.util.Properties
 import scala.util.control.Exception._
-import scala.{Boolean, None, Option, Some, StringContext, Unit}
+import scala.{Boolean, Long, None, Option, Some, StringContext, Unit}
 import scala.Predef.{Map => _, Set => _, _}
 import scalaz._
 import Scalaz._
@@ -60,10 +63,46 @@ case class OWLAPIOMFGraphStore
   require(null != omfModule)
   require(null != ontManager)
 
+  implicit val ops = omfModule.ops
+
+  val MAXIMUM_IMPORTS: Long = Properties.propOrElse("omf.core.maxImports", "100000").toLong
+
+  val terminologyCacheLoader
+  : CacheLoader[_ >: OWLAPIOMF#Module, Set[OWLAPIOMF#TerminologyBox]]
+  = new CacheLoader[OWLAPIOMF#Module, Set[OWLAPIOMF#TerminologyBox]] {
+
+    override def load(key: OWLAPIOMF#Module)
+    : Set[OWLAPIOMF#TerminologyBox]
+    = computeTerminologyBoxImportClosure[OWLAPIOMF](key)(ops, OWLAPIOMFGraphStore.this)
+
+  }.asInstanceOf[CacheLoader[_ >: OWLAPIOMF#Module, Set[OWLAPIOMF#TerminologyBox]]]
+
+  val terminologyClosureCache
+  : LoadingCache[OWLAPIOMF#Module, Set[OWLAPIOMF#TerminologyBox]]
+  = Caffeine
+    .newBuilder()
+    .maximumSize(MAXIMUM_IMPORTS)
+    .build[OWLAPIOMF#Module, Set[OWLAPIOMF#TerminologyBox]](terminologyCacheLoader)
+
+  val descriptionCacheLoader
+  : CacheLoader[_ >: OWLAPIOMF#Module, Set[OWLAPIOMF#DescriptionBox]]
+  = new CacheLoader[OWLAPIOMF#Module, Set[OWLAPIOMF#DescriptionBox]] {
+
+    override def load(key: OWLAPIOMF#Module)
+    : Set[OWLAPIOMF#DescriptionBox]
+    = computeDescriptionBoxImportClosure[OWLAPIOMF](key)(ops, OWLAPIOMFGraphStore.this)
+
+  }.asInstanceOf[CacheLoader[_ >: OWLAPIOMF#Module, Set[OWLAPIOMF#DescriptionBox]]]
+
+  val descriptionClosureCache
+  : LoadingCache[OWLAPIOMF#Module, Set[OWLAPIOMF#DescriptionBox]]
+  = Caffeine
+    .newBuilder()
+    .maximumSize(MAXIMUM_IMPORTS)
+    .build[OWLAPIOMF#Module, Set[OWLAPIOMF#DescriptionBox]](descriptionCacheLoader)
+
   val LOG: Boolean =
     "true" equalsIgnoreCase java.lang.System.getProperty("gov.nasa.jpl.omf.scala.binding.owlapi.log.GraphStore")
-
-  implicit val ops = omfModule.ops
 
   lazy val RDFS_LABEL: OWLAnnotationProperty = ontManager.getOWLDataFactory.getRDFSLabel
 
@@ -92,9 +131,47 @@ case class OWLAPIOMFGraphStore
       .getOWLDataFactory
       .getOWLAnnotationProperty(omfModule.ops.AnnotationHasRestrictedTargetProperty)
 
+  private var modules = new scala.collection.mutable.HashMap[OWLAPIOMF#IRI, OWLAPIOMF#Module]()
+
+  def lookupModule
+  (iri: OWLAPIOMF#IRI)
+  : OMFError.Throwables \/ OWLAPIOMF#Module
+  = modules.get(iri) match {
+    case Some(m) =>
+      \/-(m)
+    case None =>
+      -\/(Set[java.lang.Throwable](OMFError.omfError(
+        s"lookupModule($iri): no such Module!"
+      )))
+  }
+
+  def lookupTerminologyBox
+  (iri: OWLAPIOMF#IRI)
+  : OMFError.Throwables \/ OWLAPIOMF#TerminologyBox
+  = modules.get(iri) match {
+    case Some(tbox: OWLAPIOMF#TerminologyBox) =>
+      \/-(tbox)
+    case _ =>
+      -\/(Set[java.lang.Throwable](OMFError.omfError(
+        s"lookupTerminologyBox($iri): no such TerminologyBox!"
+      )))
+  }
+
+  def lookupDescriptionBox
+  (iri: OWLAPIOMF#IRI)
+  : OMFError.Throwables \/ OWLAPIOMF#DescriptionBox
+  = modules.get(iri) match {
+    case Some(dbox: OWLAPIOMF#DescriptionBox) =>
+      \/-(dbox)
+    case _ =>
+      -\/(Set[java.lang.Throwable](OMFError.omfError(
+        s"lookupDescriptionBox($iri): no such DescriptionBox!"
+      )))
+  }
+
   @scala.volatile
   private var builtInDatatypeMap
-  : Option[BuiltInDatatypeMap]
+  : Option[BuiltInDatatypeMaps.DataRangeCategories[OWLAPIOMF]]
   = None
 
   def isBuiltInDatatypeMapConstructed
@@ -102,7 +179,7 @@ case class OWLAPIOMFGraphStore
   = builtInDatatypeMap.isEmpty
 
   def getBuildInDatatypeMap
-  : BuiltInDatatypeMap
+  : BuiltInDatatypeMaps.DataRangeCategories[OWLAPIOMF]
   = builtInDatatypeMap match {
     case Some(drc) =>
       drc
@@ -157,13 +234,29 @@ case class OWLAPIOMFGraphStore
 
   def loadBuiltinDatatypeMap
   ()
-  : Throwables \/ BuiltInDatatypeMap
+  : Throwables \/ BuiltInDatatypeMaps.DataRangeCategories[OWLAPIOMF]
   = builtInDatatypeMap.fold {
       BuiltInDatatypeMaps
         .createBuiltInDatatypeMaps[OWLAPIOMF](makeW3CTerminologyGraphDefinition)(ops, this)
         .map { drc =>
           require(builtInDatatypeMap.isEmpty)
           builtInDatatypeMap = Some(drc)
+          drc.builtInDatatypeModules.foreach { m =>
+            require(
+              modules.contains(m.iri),
+              s"built-in datatype module should have been registered: ${m.iri}")
+            require(
+              modules.get(m.iri).contains(m),
+              s"built-in datatype module ${m.iri} registration mismatch:\nexpected: $m\nactual: ${modules.get(m.iri)}")
+          }
+          drc.builtInImport.foreach { tbox =>
+            require(
+              modules.contains(tbox.iri),
+              s"built-in import module should have been registered: ${tbox.iri}")
+            require(
+              modules.get(tbox.iri).contains(tbox),
+              s"built-in import module ${tbox.iri} registration mismatch:\nexpected: $tbox\nactual: ${modules.get(tbox.iri)}")
+          }
           drc
         }
     } { drc =>
@@ -204,15 +297,15 @@ case class OWLAPIOMFGraphStore
     scala.collection.mutable.HashMap[TerminologyBox, TerminologyNestingAxiom]()
 
   protected val directNestedAxioms = scala.collection.mutable.HashMap[
-    TerminologyBox,
+    IRI,
     scala.collection.mutable.HashSet[TerminologyNestingAxiom]]()
     .withDefaultValue(scala.collection.mutable.HashSet[TerminologyNestingAxiom]())
 
   protected val extendingChild2ExtendedParents =
     scala.collection.mutable.HashMap[
       TerminologyBox,
-      scala.collection.mutable.HashSet[TerminologyBox]]()
-      .withDefaultValue(scala.collection.mutable.HashSet[TerminologyBox]())
+      scala.collection.mutable.HashSet[IRI]]()
+      .withDefaultValue(scala.collection.mutable.HashSet[IRI]())
 
   def applyModelTermAxiomChanges[AX <: types.Axiom]
   (ax: AX,
@@ -267,7 +360,7 @@ case class OWLAPIOMFGraphStore
   (nestingG: TerminologyBox)
   : Set[TerminologyNestingAxiom]
   = directNestedAxioms
-    .getOrElseUpdate(nestingG, scala.collection.mutable.HashSet[TerminologyNestingAxiom]())
+    .getOrElseUpdate(nestingG.iri, scala.collection.mutable.HashSet[TerminologyNestingAxiom]())
     .to[Set]
 
   def getNestingParentGraphOfAxiom
@@ -295,11 +388,11 @@ case class OWLAPIOMFGraphStore
   = lookupNestingAxiomForNestedChildIfAny(childG)
     .fold[Throwables \/ TerminologyNestingAxiom] {
 
-    val axiom = terminologyAxioms.TerminologyNestingAxiom(uuid, childG.uuid, parentG, parentC)
+    val axiom = terminologyAxioms.TerminologyNestingAxiom(uuid, childG.uuid, parentG.iri, parentC)
     directNestingAxioms += (childG -> axiom)
     directNestedAxioms
       .getOrElseUpdate(
-        axiom.nestingTerminology,
+        axiom.targetModuleIRI,
         scala.collection.mutable.HashSet[TerminologyNestingAxiom]()) += axiom
     axiom.right
   } { _ =>
@@ -324,7 +417,7 @@ case class OWLAPIOMFGraphStore
   = directExtensionAxioms
     .flatMap { case (g, axs) =>
       axs
-        .find { ax => ax.extendedTerminology == extendedParentG }
+        .find { ax => ax.targetModuleIRI == extendedParentG.iri }
         .map { ax => (g, ax) }
     }
     .toMap
@@ -337,25 +430,25 @@ case class OWLAPIOMFGraphStore
   = {
     val extendedParents =
       extendingChild2ExtendedParents
-        .getOrElseUpdate(extendingG, scala.collection.mutable.HashSet[TerminologyBox]())
+        .getOrElseUpdate(extendingG, scala.collection.mutable.HashSet[IRI]())
 
     val result
     : Throwables \/ TerminologyExtensionAxiom
-    = if (extendedParents.contains(extendedG)) {
+    = if (extendedParents.contains(extendedG.iri)) {
       directExtensionAxioms
         .getOrElseUpdate(extendingG, scala.collection.mutable.HashSet[TerminologyExtensionAxiom]())
-        .find { ax => ax.extendedTerminology.kindIRI == extendedG.kindIRI }
+        .find { ax => ax.targetModuleIRI == extendedG.iri }
         .fold[Throwables \/ TerminologyExtensionAxiom] {
         System.out.println(s"directExtensionAxioms: ${directExtensionAxioms.size}")
         directExtensionAxioms.foreach { case (g, axs) =>
           System.out.println(s"=> extending: ${g.kindIRI} extended: ${axs.size}")
-          System.out.println(axs.map(_.extendedTerminology.kindIRI.toString).mkString("\n  extended:", "\n  extended:", "\n"))
+          System.out.println(axs.map(_.targetModuleIRI.toString).mkString("\n  extended:", "\n  extended:", "\n"))
         }
         System.out.println(s"extendingChild2ExtendedParents: ${extendingChild2ExtendedParents.size}")
         extendingChild2ExtendedParents.foreach { case (child, parents) =>
           System.out.println(s"=> child: ${child.kindIRI} parents: ${parents.size}")
           parents.foreach { parent =>
-            System.out.println(s"==> parent: ${parent.kindIRI}")
+            System.out.println(s"==> parent: $parent")
           }
         }
         Set(
@@ -367,18 +460,20 @@ case class OWLAPIOMFGraphStore
       }
     } else {
 
-      val axiom = TerminologyExtensionAxiom(uuid, extendingG.uuid, extendedTerminology = extendedG)
+      val axiom = TerminologyExtensionAxiom(uuid, extendingG.uuid, extendedG.iri)
       val extendedParents =
         extendingChild2ExtendedParents
-          .getOrElseUpdate(extendingG, scala.collection.mutable.HashSet[TerminologyBox]())
+          .getOrElseUpdate(extendingG, scala.collection.mutable.HashSet[IRI]())
 
       for {
         added <- Seq(
           directExtensionAxioms
             .getOrElseUpdate(extendingG, scala.collection.mutable.HashSet[TerminologyExtensionAxiom]())
             .add(axiom),
-          extendedParents.add(axiom.extendedTerminology))
+          extendedParents.add(axiom.targetModuleIRI))
       } require(added)
+
+      terminologyClosureCache.invalidateAll()
 
       axiom.right
     }
@@ -402,7 +497,7 @@ case class OWLAPIOMFGraphStore
   = directBundlingAxioms
     .flatMap { case (g, axs) =>
       axs
-        .find { ax => ax.bundledTerminology == bundledTerminology }
+        .find { ax => ax.targetModuleIRI == bundledTerminology.iri }
         .map { ax => (g, ax) }
     }
     .toMap
@@ -413,17 +508,17 @@ case class OWLAPIOMFGraphStore
    bundledTerminology: TerminologyBox)
   : Throwables \/ BundledTerminologyAxiom
   = {
-    val bundledTerminologies = getBundlingAxioms(terminologyBundle).map(_.bundledTerminology)
+    val bundledTerminologies = getBundlingAxioms(terminologyBundle).map(_.targetModuleIRI)
 
     val result
     : Throwables \/ BundledTerminologyAxiom
-    = if (bundledTerminologies.contains(bundledTerminology)) {
+    = if (bundledTerminologies.contains(bundledTerminology.iri)) {
       Set(
         OMFError
           .omfOpsError(ops, "Duplicate BundledTerminologyAxiom")
       ).left
     } else {
-      val axiom = BundledTerminologyAxiom(uuid, terminologyBundle.uuid, bundledTerminology)
+      val axiom = BundledTerminologyAxiom(uuid, terminologyBundle.uuid, bundledTerminology.iri)
       directBundlingAxioms
           .getOrElseUpdate(terminologyBundle, scala.collection.mutable.HashSet[BundledTerminologyAxiom]())
           .add(axiom)
@@ -462,8 +557,11 @@ case class OWLAPIOMFGraphStore
         ops)
       .flatMap { backbone =>
         terminologies.MutableTerminologyGraph.initialize(
-            uuid, name, iri, kind = kind, ont = tboxOnt,
-            backbone = backbone)(this, ops)
+          uuid, name, iri, kind = kind, ont = tboxOnt,
+          backbone = backbone)(this, ops).map { tbox =>
+          modules += iri -> tbox
+          tbox
+        }
       }
   } yield result
 
@@ -482,8 +580,11 @@ case class OWLAPIOMFGraphStore
         ops)
       .flatMap { backbone =>
         terminologies.MutableBundle.initialize(
-            uuid, name, iri, kind, ont = tboxOnt,
-            backbone = backbone)(this, ops)
+          uuid, name, iri, kind, ont = tboxOnt,
+          backbone = backbone)(this, ops).map { bbox =>
+          modules += iri -> bbox
+          bbox
+        }
       }
   } yield result
 
@@ -502,21 +603,14 @@ case class OWLAPIOMFGraphStore
         ops)
       .flatMap { backbone =>
         MutableDescriptionBox.initialize(
-            uuid, name, iri, kind = kind, ont = dboxOnt, backbone = backbone)(this, ops)
+          uuid, name, iri, kind = kind, ont = dboxOnt, backbone = backbone)(this, ops).map { dbox =>
+          modules += iri -> dbox
+          dbox
+        }
       }
   } yield result
 
   object TBoxConversions {
-
-    def convert1
-    (acc: OntologyMapping,
-     mm: MutableModule)
-    (implicit store: OWLAPIOMFGraphStore)
-    : Throwables \/ OntologyMapping
-    = if (!acc.m2i.containsKey(mm))
-      convert1New(acc, mm)
-    else
-      acc.right
 
     def convert1New
     (acc: OntologyMapping,
@@ -524,23 +618,25 @@ case class OWLAPIOMFGraphStore
     (implicit store: OWLAPIOMFGraphStore)
     : Throwables \/ OntologyMapping
     = {
-      require(!acc.m2i.containsKey(mm), s"convert1: acc=${acc.m2i.size}, m=$mm")
+      require(
+        acc.lookupImmutableModule(mm.iri).isEmpty,
+        s"convert1: acc=${acc.size}, m=$mm")
 
       mm match {
         case mg: MutableTerminologyGraph =>
           for {
-            ig <- convert1NewTerminologyGraph(acc, mg)
-            next <- acc.addMappedModule(mg, ig)
+            pair <- convert1NewTerminologyGraph(acc, mg)
+            (_, next) = pair
           } yield next
         case mb: MutableBundle =>
           for {
-            ib <- convert1NewBundle(acc, mb)
-            next <- acc.addMappedModule(mb, ib)
+            pair <- convert1NewBundle(acc, mb)
+            (_, next) = pair
           } yield next
         case md: MutableDescriptionBox =>
           for {
-            id <- convert1NewDescriptionBox(acc, md)
-            next <- acc.addMappedModule(md, id)
+            pair <- convert1NewDescriptionBox(acc, md)
+            (_, next) = pair
           } yield next
       }
     }
@@ -551,89 +647,111 @@ case class OWLAPIOMFGraphStore
     (acc: OntologyMapping,
      mg: MutableTerminologyGraph)
     (implicit store: OWLAPIOMFGraphStore)
-    : Throwables \/ ImmutableTerminologyGraph
+    : Throwables \/ (ImmutableTerminologyGraph, OntologyMapping)
     = for {
       ig <- ImmutableTerminologyGraph.initialize(toImmutableTerminologyBoxSignature(mg.sig), mg.ont, mg.backbone)
       _ = ig.sig.nesting.foreach { ax =>
         directNestingAxioms += (ig -> ax)
+        modules += ig.iri -> ig
       }
-    } yield ig
+      next <- acc :+ (mg -> ig)
+    } yield ig -> next
 
     def convert1NewBundle
     (acc: OntologyMapping,
      mb: MutableBundle)
     (implicit store: OWLAPIOMFGraphStore)
-    : Throwables \/ ImmutableBundle
-    = ImmutableBundle.initialize(toImmutableTerminologyBoxSignature(mb.sig), mb.ont, mb.backbone)
+    : Throwables \/ (ImmutableBundle, OntologyMapping)
+    = ImmutableBundle.initialize(toImmutableTerminologyBoxSignature(mb.sig), mb.ont, mb.backbone).flatMap { ib =>
+      for {
+        next <- acc :+ (mb -> ib)
+        _ = modules += ib.iri -> ib
+      } yield ib -> next
+    }
 
     def convert1NewDescriptionBox
     (acc: OntologyMapping,
      md: MutableDescriptionBox)
     (implicit store: OWLAPIOMFGraphStore)
-    : Throwables \/ ImmutableDescriptionBox
-    = ImmutableDescriptionBox.initialize(toImmutableDescriptionBoxSignature(md.sig), md.ont, md.backbone)
+    : Throwables \/ (ImmutableDescriptionBox, OntologyMapping)
+    = ImmutableDescriptionBox.initialize(toImmutableDescriptionBoxSignature(md.sig), md.ont, md.backbone).flatMap { id =>
+      for {
+        next <- acc :+ (md -> id)
+        _ = modules += id.iri -> id
+      } yield id -> next
+    }
 
     @scala.annotation.tailrec
     final def convert
     (acc: OntologyMapping,
      queue: Seq[MutableModule],
-     visited: Seq[MutableModule])
+     visited: Set[MutableModule])
     (implicit store: OWLAPIOMFGraphStore)
     : Throwables \/ OntologyMapping
     = {
       if (queue.isEmpty) {
-        if (visited.isEmpty)
-          \/-(acc)
-        else {
-          val mg = visited.head
-
-          if (acc.m2i.containsKey(mg))
-            convert(acc, queue, visited.tail)
-          else
-            convert1(acc, mg) match {
-              case \/-(acc1) =>
-                convert(acc1, queue, visited.tail)
-              case -\/(nels) =>
-                -\/(nels)
-            }
-        }
+        \/-(acc)
       } else {
         val mg = queue.head
+        if (acc.lookupImmutableModule(mg.iri).isDefined)
+          convert(acc, queue.tail, visited + mg)
+        else
+          convert1New(acc, mg) match {
+            case \/-(acc1) =>
+              val q1
+              : Throwables \/ Seq[MutableModule]
+              = mg.sig.importedTerminologies.foldLeft[Throwables \/ Seq[MutableModule]] {
+                \/-(queue.tail)
+              } { case (qi, iri) =>
+                for {
+                  prev <- qi
+                  next <- acc1.lookupModule(iri) match {
+                    case Some(_: ImmutableModule) =>
+                      \/-(prev)
+                    case Some(m: MutableModule) =>
+                      \/-(prev :+ m)
+                    case x =>
+                      -\/(Set[java.lang.Throwable](OMFError.omfError(
+                        s"convert: Failed to find imported terminology for $iri from ${mg.iri}: $x"
+                      )))
+                  }
+                } yield next
+              }
 
-        val extendedTerminologyQueue =
-          mg.sig.importedTerminologies
-            .flatMap {
-              case _: ImmutableTerminologyBox =>
-                None
-              case me: MutableTerminologyBox =>
-                if (queue.contains(me))
-                  None
-                else if (acc.m2i.containsKey(me))
-                  None
-                else
-                  Some(me)
-            }
-            .to[Seq]
+              val q2
+              : Throwables \/ Seq[MutableModule]
+              = mg.sig.importedDescriptions.foldLeft[Throwables \/ Seq[MutableModule]] {
+                q1
+              } { case (qj, iri) =>
+                for {
+                  prev <- qj
+                  next <- acc1.lookupModule(iri) match {
+                    case Some(_: ImmutableDescriptionBox) =>
+                      \/-(prev)
+                    case Some(m: MutableDescriptionBox) =>
+                      \/-(prev :+ m)
+                    case _ =>
+                      -\/(Set[java.lang.Throwable](OMFError.omfError(
+                        s"convert: Failed to find imported descripiton for $iri from ${mg.iri}"
+                      )))
+                  }
+                } yield next
+              }
 
-        val extendedDescriptionQueue =
-          mg.sig.importedDescriptions
-            .flatMap {
-              case _: ImmutableDescriptionBox =>
-                None
-              case me: MutableDescriptionBox =>
-                if (queue.contains(me))
-                  None
-                else if (acc.m2i.containsKey(me))
-                  None
-                else
-                  Some(me)
-            }
-            .to[Seq]
+              q2 match {
+                case \/-(nextq) =>
 
-        convert(
-          acc,
-          extendedTerminologyQueue ++ extendedDescriptionQueue ++ queue.tail,
-          queue.head +: visited)
+                  convert(
+                    acc1,
+                    nextq,
+                    visited + mg)
+
+                case -\/(errors) =>
+                  -\/(errors)
+              }
+            case -\/(errors) =>
+              -\/(errors)
+          }
       }
     }
 
@@ -642,13 +760,11 @@ case class OWLAPIOMFGraphStore
   // OMF API
   def asImmutableModule
   (m: MutableModule,
-   m2i: Mutable2ImmutableModuleMap)
-  : Throwables \/ (ImmutableModule, Mutable2ImmutableModuleMap)
+   om: OntologyMapping)
+  : Throwables \/ (ImmutableModule, OntologyMapping)
   = for {
-    dcr <- loadBuiltinDatatypeMap()
-    om = OntologyMapping.initialize(m2i, dcr)
-    next <- TBoxConversions.convert(om, Seq(m), Seq())(this)
-    i <- next.m2i.get(m) match {
+    next <- TBoxConversions.convert(om, Seq(m), Set())(this)
+    i <- next.get(m) match {
       case Some(im) =>
         im.right[Throwables]
       case None =>
@@ -656,12 +772,12 @@ case class OWLAPIOMFGraphStore
           s"asImmutableModule: Failed to find converted immutable module for ${m.iri}"
         )).left[ImmutableModule]
     }
-  } yield i -> next.m2i
+  } yield i -> next
 
   def loadModule
-  (m2i: Mutable2ImmutableModuleMap,
+  (m2i: OntologyMapping,
    inputFile: File)
-  : Throwables \/ ImmutableModuleConversionMap
+  : Throwables \/ (Module, OntologyMapping)
   = for {
     iri <-
     nonFatalCatch[OMFError.Throwables \/ IRI]
@@ -711,83 +827,73 @@ case class OWLAPIOMFGraphStore
           \/-(cleanIRI)
         }
       }
-    loadResult <- loadModule(m2i, iri)
+    loadResult <- OWLAPIOMFLoader.loadModule(iri, m2i)(ops, this)
   } yield loadResult
 
-  def loadModule
-  (m2i: Mutable2ImmutableModuleMap,
-   iri: IRI)
-  : Throwables \/ ImmutableModuleConversionMap
-  = m2i.lookupValue(iri) match {
-    case Some(im) =>
-      (im -> m2i).right
-    case None =>
-      loadBuiltinDatatypeMap().flatMap { mdrc =>
-        for {
-          builtin_m2i <-
-          mdrc.builtInDatatypeModules.foldLeft {
-            Map.empty[MutableTerminologyGraph, ImmutableTerminologyGraph].right[Throwables]
-          } {
-            case (acc, mg: MutableTerminologyGraph) =>
-              for {
-                prev <- acc
-                ig <- ImmutableTerminologyGraph.initialize(toImmutableTerminologyBoxSignature(mg.sig), mg.ont, mg.backbone)(this)
-                next = prev + (mg -> ig)
-              } yield next
-            case (acc, _: ImmutableTerminologyGraph) =>
-              acc
-            case (_, other) =>
-              -\/(Set(OMFError.omfError(
-                s"loadModule($iri) failed to convert builtin datatype map graph: $other")))
-          }
-          idrc = BuiltInDatatypeMaps.DataRangeCategories[OWLAPIOMF](
-            builtInImport = mdrc.builtInImport.flatMap {
-              case mi: MutableTerminologyGraph =>
-                builtin_m2i.get(mi).map(_.asInstanceOf[OWLAPIOMF#TerminologyBox])
-              case ig: ImmutableTerminologyGraph =>
-                Some(ig.asInstanceOf[OWLAPIOMF#TerminologyBox])
-            },
-            builtInDatatypeModules =
-              builtin_m2i.values.map(_.asInstanceOf[OWLAPIOMF#Module]).to[Set] ++
-                mdrc.builtInDatatypeModules.filter {
-                  case _: ImmutableTerminologyGraph =>
-                    true
-                  case _ =>
-                    false
-                },
-            anyAtomicType = mdrc.anyAtomicType,
-            boolean = mdrc.boolean,
-            numeric = mdrc.numeric,
-            string = mdrc.string,
-            plainLiteral = mdrc.plainLiteral,
-            xmlLiteral = mdrc.xmlLiteral,
-            binary = mdrc.binary,
-            iri = mdrc.iri,
-            time = mdrc.time,
-            nonNormative = mdrc.nonNormative)
-          _ = builtInDatatypeMap = Some(idrc)
-          m2i_withBuiltin <- builtin_m2i.foldLeft(m2i.right[Throwables]) { case (acc, (m, i)) =>
-            for {
-              prev <- acc
-              next <- prev :+ (m -> i)
-            } yield next
-          }
-          result <- OWLAPIOMFLoader.loadModule(iri, m2i_withBuiltin, idrc)(ops, this)
-        } yield result
+  def initializeOntologyMapping(mdrc: builtin.BuiltInDatatypeMaps.DataRangeCategories[OWLAPIOMF])
+  : Throwables \/ OntologyMapping
+  = for {
+    builtin_m2i <-
+      mdrc.builtInDatatypeModules.foldLeft {
+        Map.empty[MutableTerminologyGraph, ImmutableTerminologyGraph].right[Throwables]
+      } {
+        case (acc, mg: MutableTerminologyGraph) =>
+          for {
+            prev <- acc
+            ig <- ImmutableTerminologyGraph.initialize(toImmutableTerminologyBoxSignature(mg.sig), mg.ont, mg.backbone)(this)
+            next = prev + (mg -> ig)
+          } yield next
+        case (acc, _: ImmutableTerminologyGraph) =>
+          acc
+        case (_, other) =>
+          -\/(Set(OMFError.omfError(
+            s"initializeOntologyMapping() failed to convert builtin datatype map graph: $other")))
       }
-  }
+    idrc = BuiltInDatatypeMaps.DataRangeCategories[OWLAPIOMF](
+      builtInImport = mdrc.builtInImport.flatMap {
+        case mi: MutableTerminologyGraph =>
+          builtin_m2i.get(mi).map(_.asInstanceOf[OWLAPIOMF#TerminologyBox])
+        case ig: ImmutableTerminologyGraph =>
+          Some(ig.asInstanceOf[OWLAPIOMF#TerminologyBox])
+      },
+      builtInDatatypeModules =
+        builtin_m2i.values.map(_.asInstanceOf[OWLAPIOMF#Module]).to[Set] ++
+          mdrc.builtInDatatypeModules.filter {
+            case _: ImmutableTerminologyGraph =>
+              true
+            case _ =>
+              false
+          },
+      anyAtomicType = mdrc.anyAtomicType,
+      boolean = mdrc.boolean,
+      numeric = mdrc.numeric,
+      string = mdrc.string,
+      plainLiteral = mdrc.plainLiteral,
+      xmlLiteral = mdrc.xmlLiteral,
+      binary = mdrc.binary,
+      iri = mdrc.iri,
+      time = mdrc.time,
+      nonNormative = mdrc.nonNormative)
+    om <- builtin_m2i.foldLeft(OntologyMapping.initialize(idrc).right[Throwables]) { case (acc, (m, i)) =>
+      for {
+        prev <- acc
+        next <- prev :+ (m -> i)
+      } yield next
+    }
+  } yield om
 
   type ResolverTupleState =
-    (Set[ImmutableModule], Set[MutableModule], Set[MutableModule], Mutable2ImmutableModuleMap)
+    (Set[ImmutableModule], Set[MutableModule], Set[MutableModule], OntologyMapping)
 
   def convertModuleFromOntologyDocument
   (s: OntologyLoadedState,
    om: OntologyMapping,
-   ontIRI: IRI,
-   ont: OWLOntology)
-  (implicit ops: OWLAPIOMFOps)
-  : Throwables \/ OntologyMapping
+   mm: MutableModule)
+  : Throwables \/ (ImmutableModule, OntologyMapping)
   = {
+    val ontIRI: IRI = mm.iri
+    val ont: OWLOntology = mm.ont
+    val ontOps = new OWLOntologyOps(ont)
 
     val builtInImports
     : Set[ImmutableModule]
@@ -798,40 +904,6 @@ case class OWLAPIOMFGraphStore
         Set(ioml)
       case _ =>
         Set.empty
-    }
-
-    val extendedGraphs
-    : Throwables \/ Set[ImmutableModule]
-    = s
-      .extensions
-      .filter(_.extending == ontIRI)
-      .foldLeft(Set.empty[ImmutableModule].right[Throwables]) {
-        (acc,
-         ext: ExtendingOntologyToExtendedModuleIRI) =>
-          acc +++
-            om.m2i.getImmutableModule(ext.extended)(this, ops).map(i => Set(i))
-      }
-
-    val nestingContextAndGraphIfAny
-    : types.NestingConceptAndGraphOptionNES
-    = s
-      .nested2context
-      .find(_.nestedG == ontIRI)
-      .fold[types.NestingConceptAndGraphOptionNES](types.emptyNestingConceptAndGraphNES) { n2n =>
-      om
-        .m2i
-        .terminologyBoxValues(this, ops)
-        .flatMap { nestingParent =>
-          ops
-            .lookupConcept(nestingParent, n2n.nestingC, recursively = false)(this)
-            .map { nestingC => (nestingC, nestingParent) }
-        }
-        .headOption
-        .fold[types.NestingConceptAndGraphOptionNES] {
-        -\/(Set(OMFError.omfError(s"Failed to resolve immutable OMF Terminology Graph for $n2n")))
-      } { pair =>
-        \/-(Some(pair))
-      }
     }
 
     // Add only the annotation properties used that are not imported.
@@ -845,26 +917,142 @@ case class OWLAPIOMFGraphStore
     : Throwables \/ Set[AnnotationProperty]
     = aps
       .foldLeft(Set.empty[AnnotationProperty].right[Throwables]) {
-      case (acc, ont_ap) =>
-        for {
-          as <- acc
-          ap <- getAnnotationPropertyFromOWLAnnotationProperty(ont_ap)
-        } yield as + ap
-    }
+        case (acc, ont_ap) =>
+          for {
+            as <- acc
+            ap <- getAnnotationPropertyFromOWLAnnotationProperty(ont_ap)
+          } yield as + ap
+      }
 
-    val result
-    : Throwables \/ OntologyMapping
+    val addedAnnotations
+    : Throwables \/ Unit
     = for {
-      as <- annotationProperties
-      extensions <- extendedGraphs
-      nesting <- nestingContextAndGraphIfAny
-      resolver <- types.immutableModuleResolver(s, ont, as, extensions ++ builtInImports, nesting, om, this)
-      resolved <- resolver.resolve()
-    } yield {
-      resolved._2
+      aps <- annotationProperties
+      _ <- aps.foldLeft(types.rightUnitNES) { case (acc, ap) =>
+        for {
+          _ <- acc
+          _ <- mm.addAnnotationProperty(ap)(this)
+        } yield ()
+      }
+
+      _ <- getRelevantOntologyAnnotations(ont).foldLeft(types.rightUnitNES) { case (acc, a) =>
+        for {
+          _ <- acc
+          av <- getAnnotationValueFromOWLAnnotation(a.getValue)
+          ap <- getAnnotationPropertyFromOWLAnnotation(a)
+          _ <- mm.addAnnotation(mm, ap, av)(this)
+        } yield ()
+      }
+    } yield ()
+
+    val extensionsFromOnt =
+      s
+        .extensions
+        .filter(_.extending == ontIRI)
+
+    val nestingsFromOnt =
+      s
+        .nested2context
+        .find(_.nestedG == ontIRI)
+
+    val resolver
+    : Throwables \/ ImmutableResolver
+    = mm match {
+      case mb: MutableBundle =>
+        for {
+          _ <- extensionsFromOnt
+            .foldLeft[Throwables \/ Unit](().right[Throwables]) { case (acc, ext) =>
+            for {
+              _ <- acc
+              extTbox <- om.lookupModule(ext.extended) match {
+                case Some(b: Bundle) =>
+                  mb.createBundledTerminologyAxiom(b)(this)
+
+                case Some(t: TerminologyBox) =>
+                  mb.createTerminologyExtensionAxiom(t)(this)
+
+                case _ =>
+                  Set[java.lang.Throwable](OMFError.omfError(
+                    s"convertModuleFromOntologyDocument($ontIRI) Bundle cannot extend a non-terminology module: ${ext.extended}"
+                  )).left
+              }
+            } yield ()
+          }
+          h = TerminologyBoxResolverHelper(mb, ont, this, om, ontOps)
+          r = ImmutableTerminologyBoxResolver(h)
+        } yield r
+
+      case mg: MutableTerminologyGraph =>
+        for {
+          _ <- extensionsFromOnt
+            .foldLeft[Throwables \/ Unit](().right[Throwables]) { case (acc, ext) =>
+            for {
+              _ <- acc
+              _ <- om.lookupModule(ext.extended) match {
+                case Some(t: TerminologyBox) =>
+                  mg.createTerminologyExtensionAxiom(t)(this)
+
+                case _ =>
+                  Set[java.lang.Throwable](OMFError.omfError(
+                    s"convertModuleFromOntologyDocument($ontIRI) TerminologyGraph cannot extend a non-terminology module: ${ext.extended}"
+                  )).left
+              }
+            } yield ()
+          }
+          _ <- nestingsFromOnt.foldLeft[Throwables \/ Unit](().right[Throwables]) { case (acc, n2c) =>
+            for {
+              _ <- acc
+              _ <- ops.lookupConcept(mg, n2c.nestingC, recursively = true)(this) match {
+                case Some(c) =>
+                  om.terminologyBoxValues.find { tbox =>
+                    ops.lookupConcept(tbox, n2c.nestingC, recursively = false)(this).isDefined
+                  } match {
+                    case Some(tbox) =>
+                      mg.createTerminologyNestingAxiom(parentG = tbox, parentC = c)(this)
+
+                    case None =>
+                      Set[java.lang.Throwable](OMFError.omfError(
+                        s"convertModuleFromOntologyDocument($ontIRI) Failed to resolve nesting concept: ${n2c.nestingC}"
+                      )).left
+                  }
+                case None =>
+                  Set[java.lang.Throwable](OMFError.omfError(
+                    s"convertModuleFromOntologyDocument($ontIRI) Failed to resolve nesting concept: ${n2c.nestingC}"
+                  )).left
+              }
+            } yield ()
+          }
+
+          h = TerminologyBoxResolverHelper(mg, ont, this, om, ontOps)
+          r = ImmutableTerminologyBoxResolver(h)
+        } yield r
+      case md: MutableDescriptionBox =>
+        for {
+          _ <- extensionsFromOnt
+            .foldLeft[Throwables \/ Unit](().right[Throwables]) { case (acc, ext) =>
+            for {
+              _ <- acc
+              _ <- om.lookupModule(ext.extended) match {
+                case Some(t: TerminologyBox) =>
+                  // TODO add API...
+                  \/-(())
+
+                case _ =>
+                  Set[java.lang.Throwable](OMFError.omfError(
+                    s"convertModuleFromOntologyDocument($ontIRI) TerminologyGraph cannot extend a non-terminology module: ${ext.extended}"
+                  )).left
+              }
+            } yield ()
+          }
+
+          h = DescriptionBoxResolverHelper(md, ont, this, om, ontOps)
+          r = ImmutableDescriptionBoxResolver(h)
+        } yield r
     }
 
-    result
+    resolver.flatMap { r =>
+      r.resolve()
+    }
   }
 
   def saveDescription

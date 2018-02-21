@@ -19,10 +19,16 @@
 package gov.nasa.jpl.omf.scala.binding.owlapi.descriptions
 
 import gov.nasa.jpl.imce.oml.resolver.api
-import gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox
+import org.semanticweb.owlapi.model.IRI
 
+/**
+  *
+  * @param uuid
+  * @param sourceModule source extending DescriptionBox
+  * @param targetModuleIRI target closed-world definitions TerminologyBox
+  */
 case class DescriptionBoxExtendsClosedWorldDefinitions
 ( override val uuid: api.taggedTypes.DescriptionBoxExtendsClosedWorldDefinitionsUUID,
   override val sourceModule: api.taggedTypes.DescriptionBoxUUID,
-  override val targetModule: TerminologyBox)
+  override val targetModuleIRI: IRI)
   extends DescriptionBoxRelationship

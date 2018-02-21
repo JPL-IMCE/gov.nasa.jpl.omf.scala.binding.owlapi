@@ -25,8 +25,7 @@ import gov.nasa.jpl.imce.oml.tables
 import gov.nasa.jpl.omf.scala.binding.owlapi.common.{ImmutableModule, MutableModule}
 import gov.nasa.jpl.omf.scala.core.generateUUIDFromString
 import gov.nasa.jpl.omf.scala.core.OMFError.Throwables
-import gov.nasa.jpl.omf.scala.core.builtin.BuiltInDatatypeMaps
-import gov.nasa.jpl.omf.scala.core.{Mutable2ImmutableModuleTable, OMFError}
+import gov.nasa.jpl.omf.scala.core.OMFError
 import org.apache.xml.resolver.{Catalog, CatalogManager}
 import org.apache.xml.resolver.tools.CatalogResolver
 import org.semanticweb.owlapi.apibinding.OWLManager
@@ -41,19 +40,6 @@ import scalaz._
 import Scalaz._
 
 package object owlapi {
-
-  type BuiltInDatatypeMap
-  = BuiltInDatatypeMaps.DataRangeCategories[OWLAPIOMF]
-
-  type Mutable2ImmutableModuleMap
-  = Mutable2ImmutableModuleTable[OWLAPIOMF]
-
-  val emptyMutable2ImmutableModuleMap
-  : Mutable2ImmutableModuleMap
-  = Mutable2ImmutableModuleTable.empty[OWLAPIOMF]
-
-  type ImmutableModuleConversionMap =
-    (ImmutableModule, Mutable2ImmutableModuleMap)
 
   type MutableModulesNES
   = Throwables \/ Set[MutableModule]

@@ -37,6 +37,7 @@ import gov.nasa.jpl.omf.scala.core.OMFError.Throwables
 import gov.nasa.jpl.omf.scala.core._
 import gov.nasa.jpl.omf.scala.core.RelationshipCharacteristics._
 import gov.nasa.jpl.omf.scala.core.TerminologyKind
+import gov.nasa.jpl.omf.scala.core.builtin.BuiltInDatatypeMaps
 import org.apache.commons.codec.binary.Hex
 import org.apache.commons.codec.digest.DigestUtils
 import org.semanticweb.owlapi.model._
@@ -206,6 +207,36 @@ trait OWLAPIStoreOps
   implicit val bTag = ClassTag[OWLAPIOMF#ImmutableBundle](classOf[OWLAPIOMF#ImmutableBundle])
   implicit val dTag = ClassTag[OWLAPIOMF#ImmutableDescriptionBox](classOf[OWLAPIOMF#ImmutableDescriptionBox])
 
+  override def terminologyBoxImportClosure
+  (m: OWLAPIOMF#Module)
+  (implicit store: OWLAPIOMF#Store)
+  : Set[OWLAPIOMF#TerminologyBox]
+  = store.terminologyClosureCache.get(m)
+
+  override def descriptionBoxImportClosure
+  (m: OWLAPIOMF#Module)
+  (implicit store: OWLAPIOMF#Store)
+  : Set[OWLAPIOMF#DescriptionBox]
+  = store.descriptionClosureCache.get(m)
+
+  override def lookupModule
+  (iri: OWLAPIOMF#IRI)
+  (implicit store: OWLAPIOMF#Store)
+  : OMFError.Throwables \/ OWLAPIOMF#Module
+  = store.lookupModule(iri)
+
+  override def lookupTerminologyBox
+  (iri: OWLAPIOMF#IRI)
+  (implicit store: OWLAPIOMF#Store)
+  : OMFError.Throwables \/ OWLAPIOMF#TerminologyBox
+  = store.lookupTerminologyBox(iri)
+
+  override def lookupDescriptionBox
+  (iri: OWLAPIOMF#IRI)
+  (implicit store: OWLAPIOMF#Store)
+  : OMFError.Throwables \/ OWLAPIOMF#DescriptionBox
+  = store.lookupDescriptionBox(iri)
+
   override def getLogicalElementUUID
   (e: OWLAPIOMF#LogicalElement)
   : api.taggedTypes.LogicalElementUUID
@@ -325,15 +356,15 @@ trait OWLAPIStoreOps
   override def loadBuiltinDatatypeMap
   ()
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ BuiltInDatatypeMap
+  : Throwables \/ BuiltInDatatypeMaps.DataRangeCategories[OWLAPIOMF]
   = store.loadBuiltinDatatypeMap()
 
   override def loadModule
-  (m2i: Mutable2ImmutableModuleMap,
+  (m2i: OntologyMapping,
    iri: IRI)
   (implicit store: OWLAPIOMFGraphStore)
-  : Throwables \/ ImmutableModuleConversionMap
-  = store.loadModule(m2i, iri)
+  : Throwables \/ (Module, OntologyMapping)
+  = OWLAPIOMFLoader.loadModule(iri, m2i)(this, store)
 
   override def isMutable
   ( m: Module )
@@ -347,10 +378,11 @@ trait OWLAPIStoreOps
   }
 
   override def asImmutableModule
-  (m: MutableModule, m2i: Mutable2ImmutableModuleMap)
+  (m: MutableModule,
+   m2i: OntologyMapping)
   (implicit store: OWLAPIOMFGraphStore)
   : Throwables \/
-    (ImmutableModule, Mutable2ImmutableModuleMap)
+    (ImmutableModule, OntologyMapping)
   = store.asImmutableModule(m, m2i)
 
   override def toMutableModule
@@ -1194,22 +1226,22 @@ trait OWLAPIImmutableTerminologyGraphOps
   override def fromConceptDesignationTerminologyAxiom
   (ax: OWLAPIOMF#ConceptDesignationTerminologyAxiom)
   : ConceptDesignationTerminologySignature[OWLAPIOMF]
-  = ConceptDesignationTerminologySignature[OWLAPIOMF](ax.uuid, ax.graph, ax.designatedConcept, ax.designatedTerminology)
+  = ConceptDesignationTerminologySignature[OWLAPIOMF](ax.uuid, ax.graph, ax.designatedConcept, ax.targetModuleIRI)
 
   override def fromTerminologyExtensionAxiom
   (ax: OWLAPIOMF#TerminologyExtensionAxiom)
   : TerminologyExtensionSignature[OWLAPIOMF]
-  = TerminologyExtensionSignature[OWLAPIOMF](ax.uuid, ax.extendedTerminology)
+  = TerminologyExtensionSignature[OWLAPIOMF](ax.uuid, ax.targetModuleIRI)
 
   def fromTerminologyNestingAxiom
   (ax: OWLAPIOMF#TerminologyNestingAxiom)
   : TerminologyNestingSignature[OWLAPIOMF]
-  = TerminologyNestingSignature[OWLAPIOMF](ax.uuid, ax.nestingContext, ax.nestingTerminology)
+  = TerminologyNestingSignature[OWLAPIOMF](ax.uuid, ax.nestingContext, ax.targetModuleIRI)
 
   override def fromBundledTerminologyAxiom
   (ax: OWLAPIOMF#BundledTerminologyAxiom)
   : BundledTerminologySignature[OWLAPIOMF]
-  = BundledTerminologySignature[OWLAPIOMF](ax.uuid, ax.terminologyBundle, ax.bundledTerminology)
+  = BundledTerminologySignature[OWLAPIOMF](ax.uuid, ax.terminologyBundle, ax.targetModuleIRI)
 
   override def fromAnonymousConceptTaxonomyAxiom
   (ax: OWLAPIOMF#AnonymousConceptTaxonomyAxiom)
@@ -1959,13 +1991,13 @@ trait OWLAPIImmutableDescriptionBoxOps
   (ax: descriptions.DescriptionBoxRefinement)
   : DescriptionBoxRefinementSignature[OWLAPIOMF]
   = DescriptionBoxRefinementSignature[OWLAPIOMF](
-    ax.uuid, ax.sourceModule, ax.targetModule)
+    ax.uuid, ax.sourceModule, ax.targetModuleIRI)
 
   override def fromClosedWorldDefinitionsAxiom
   (ax: descriptions.DescriptionBoxExtendsClosedWorldDefinitions)
   : DescriptionBoxExtendsClosedWorldDefinitionsSignature[OWLAPIOMF]
   = DescriptionBoxExtendsClosedWorldDefinitionsSignature[OWLAPIOMF](
-    ax.uuid, ax.sourceModule, ax.targetModule)
+    ax.uuid, ax.sourceModule, ax.targetModuleIRI)
 
 }
 
@@ -2133,6 +2165,13 @@ class OWLAPIOMFOps
           with OWLAPIMutableTerminologyGraphOps
           with OWLAPIMutableDescriptionBoxOps
           with OWLAPIStoreOps {
+
+  override
+  def initializeOntologyMapping
+  (drc: builtin.BuiltInDatatypeMaps.DataRangeCategories[OWLAPIOMF])
+  (implicit store: OWLAPIOMFGraphStore)
+  : Throwables \/ OntologyMapping
+  = store.initializeOntologyMapping(drc)
 
   val omlIRI: tables.taggedTypes.IRI
   = tables.taggedTypes.iri("http://imce.jpl.nasa.gov/oml/oml")

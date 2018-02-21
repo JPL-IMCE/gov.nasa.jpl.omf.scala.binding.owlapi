@@ -19,24 +19,27 @@
 package gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologyAxioms
 
 import gov.nasa.jpl.imce.oml.resolver.api
-import gov.nasa.jpl.omf.scala.binding.owlapi.common.Module
-import gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.TerminologyBox
+import org.semanticweb.owlapi.model.IRI
 
 import scala.{Any, Boolean, Int}
 import scala.Predef.require
 
+/**
+  *
+  * @param uuid
+  * @param terminologyBundle source Bundle
+  * @param targetModuleIRI target bundled TerminologyBox
+  */
 case class BundledTerminologyAxiom
 (override val uuid: api.taggedTypes.BundledTerminologyAxiomUUID,
  terminologyBundle: api.taggedTypes.BundleUUID,
- bundledTerminology: TerminologyBox)
+ override val targetModuleIRI: IRI)
 extends TerminologyBundleAxiom {
 
   require( null != terminologyBundle )
-  require( null != bundledTerminology )
+  require( null != targetModuleIRI )
 
   override val sourceModule: api.taggedTypes.BundleUUID = terminologyBundle
-
-  override val targetModule: Module = bundledTerminology
 
   override def canEqual(other: Any)
   : Boolean
@@ -45,14 +48,14 @@ extends TerminologyBundleAxiom {
     case _ => false
   }
 
-  override val hashCode: Int = (uuid, terminologyBundle, bundledTerminology).##
+  override val hashCode: Int = (uuid, terminologyBundle, targetModuleIRI).##
 
   override def equals(other: Any): Boolean = other match {
     case that: BundledTerminologyAxiom =>
       (that canEqual this) &&
         (this.uuid == that.uuid) &&
         (this.terminologyBundle == that.terminologyBundle) &&
-        (this.bundledTerminology == that.bundledTerminology)
+        (this.targetModuleIRI == that.targetModuleIRI)
     case _ =>
       false
   }

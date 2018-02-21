@@ -18,7 +18,7 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi
 
-import gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyBox
+import gov.nasa.jpl.omf.scala.binding.owlapi.common.ImmutableModule
 import gov.nasa.jpl.omf.scala.core.OMFError.Throwables
 
 import scalaz.\/
@@ -26,5 +26,5 @@ import scalaz.\/
 trait ImmutableResolver {
 
   def resolve()
-  : Throwables \/ (ImmutableTerminologyBox, OntologyMapping)
+  : Throwables \/ (ImmutableModule, OntologyMapping)
 }

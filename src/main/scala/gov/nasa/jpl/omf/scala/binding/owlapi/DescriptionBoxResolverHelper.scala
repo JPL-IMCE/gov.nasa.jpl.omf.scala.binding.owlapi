@@ -18,19 +18,15 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi
 
-import gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.{ImmutableDescriptionBox, MutableDescriptionBox}
-import gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyBox
+import gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.MutableDescriptionBox
 import org.semanticweb.owlapi.model.OWLOntology
-
-import scala.collection.immutable._
 
 case class DescriptionBoxResolverHelper
 (dbox: MutableDescriptionBox,
- tboxImports: Iterable[ImmutableTerminologyBox],
- dboxImports: Iterable[ImmutableDescriptionBox],
  ont: OWLOntology,
  omfStore: OWLAPIOMFGraphStore,
  om: OntologyMapping,
  ontOps: OWLOntologyOps) {
 
+  // TODO...
 }

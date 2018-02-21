@@ -20,16 +20,15 @@ package gov.nasa.jpl.omf.scala.binding.owlapi.common
 
 import gov.nasa.jpl.imce.oml.resolver.api
 import gov.nasa.jpl.imce.oml.resolver.api.taggedTypes.ModuleEdgeUUID
-
+import org.semanticweb.owlapi.model.IRI
 import scala.{Any, Boolean}
 
 trait ModuleEdge extends LogicalElement {
 
   override val uuid: ModuleEdgeUUID
 
-
   val sourceModule: api.taggedTypes.ModuleUUID
-  val targetModule: Module
+  val targetModuleIRI: IRI
 
   override def canEqual(other: Any)
   : Boolean

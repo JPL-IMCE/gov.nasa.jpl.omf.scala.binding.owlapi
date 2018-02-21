@@ -19,91 +19,106 @@
 package gov.nasa.jpl.omf.scala.binding.owlapi
 
 import gov.nasa.jpl.imce.oml.resolver.api
-
-import org.semanticweb.owlapi.model.{IRI, OWLOntology}
-import gov.nasa.jpl.omf.scala.binding.owlapi.common.{ImmutableModule, Module, MutableModule}
+import org.semanticweb.owlapi.model.OWLOntology
+import gov.nasa.jpl.omf.scala.binding.owlapi.common.{ImmutableModule, MutableModule}
 import gov.nasa.jpl.omf.scala.core.builtin.BuiltInDatatypeMaps.DataRangeCategories
-import gov.nasa.jpl.omf.scala.core.{Mutable2ImmutableModuleTable, OMFError}
+import gov.nasa.jpl.omf.scala.core.{Mutable2ImmutableModuleTable, OMFError, OMFOps}
 
 import scala.collection.immutable._
-import scala.{Option,StringContext}
+import scala.{Int, None, Some, StringContext}
 import scala.Predef.ArrowAssoc
 import scalaz._
 import Scalaz._
 
 case class OntologyMapping
-( ont2m: Map[OWLOntology, MutableModule] = Map.empty,
-  ont2i: Map[OWLOntology, ImmutableModule] = Map.empty,
-  m2i: Mutable2ImmutableModuleMap = Mutable2ImmutableModuleTable.empty[OWLAPIOMF],
-  drc: DataRangeCategories[OWLAPIOMF]) {
+( override val drc: DataRangeCategories[OWLAPIOMF],
 
-  def addLoadedOntologyModule
-  (ont: OWLOntology, m: MutableModule)
+  private val ont2m: Map[OWLOntology, MutableModule] = Map.empty,
+  private val ont2i: Map[OWLOntology, ImmutableModule] = Map.empty,
+
+  override protected val pairs
+  : Seq[(MutableModule, ImmutableModule)]
+  = Seq.empty[(MutableModule, ImmutableModule)],
+
+  override protected val ms
+  : Map[api.taggedTypes.ModuleUUID, MutableModule]
+  = Map.empty[api.taggedTypes.ModuleUUID, MutableModule],
+
+  override protected val is
+  : Map[api.taggedTypes.ModuleUUID, ImmutableModule]
+  = Map.empty[api.taggedTypes.ModuleUUID, ImmutableModule])
+  extends Mutable2ImmutableModuleTable[OWLAPIOMF] {
+
+  def addMutableModule
+  (m: MutableModule)
   (implicit ops: OWLAPIOMFOps)
   : OMFError.Throwables \/ OntologyMapping
-  = if (!ont2m.contains(ont) && !m2i.containsKey(m))
-    copy(ont2m = ont2m + (ont -> m)).right
+  = if (!ont2m.contains(m.ont) && !ont2i.contains(m.ont) && !containsKey(m))
+    copy(
+      ont2m = ont2m + (m.ont -> m),
+      ms = ms + (m.uuid -> m)
+    ).right
   else
     Set[java.lang.Throwable](OMFError.omfError(
-      s"Cannot add ontology/mutable entry for ${m.iri} because there is already an entry!"
+      s"Cannot add ontology/immutable entry for ${m.iri}"
     )).left
 
-  def addMappedModule
-  (m: MutableModule, i: ImmutableModule)
-  (implicit ops: OWLAPIOMFOps)
+  override def size()
+  : Int
+  = scala.math.max(super.size(), ont2m.size)
+
+  override def `:+`
+  (pair: (MutableModule, ImmutableModule))
+  (implicit ops: OMFOps[OWLAPIOMF])
   : OMFError.Throwables \/ OntologyMapping
-  = if (m.ont == i.ont && !ont2m.contains(m.ont) && !ont2i.contains(m.ont) && !m2i.containsKey(m) && !m2i.containsValue(i))
-    for {
-      updated <- m2i :+ (m -> i)
-    } yield copy(ont2i = ont2i + (m.ont -> i), ont2m = ont2m + (m.ont -> m), m2i = updated)
-    else
-      Set[java.lang.Throwable](OMFError.omfError(
-        s"Cannot add ontology/immutable entry for ${m.iri}"
-      )).left
+  = pairs.find(_._1 == pair._1) match {
+    case Some((_, im)) =>
+      if (im == pair._2)
+        this.right
+      else
+        Set[java.lang.Throwable](
+          OMFError.omfError(
+            s"Mutable2ImmutableModuleTable: key conflict: ${pair._1} is already mapped to a different value"
+          )).left
+    case None =>
+      val uuid = ops.getModuleUUID(pair._1)
+      val (m, i) = (pair._1, pair._2)
+      val (mo, io) = (m.ont, i.ont)
 
-  def lookupImmutableModule
-  (iri: IRI)
-  (implicit ops: OWLAPIOMFOps)
-  : Option[ImmutableModule]
-  = m2i.lookupValue(iri)
+      val c1 = mo == io
+      val c3 = !ont2i.contains(io)
+      val c5 = !containsValue(i)
 
-  def lookupMutableModule
-  (iri: IRI)
-  (implicit ops: OWLAPIOMFOps)
-  : Option[MutableModule]
-  = m2i.lookupKey(iri)
+      if (c1 && c3 && c5) {
 
-  def lookupModule
-  (iri: IRI)
-  (implicit ops: OWLAPIOMFOps)
-  : Option[Module]
-  = lookupImmutableModule(iri) orElse lookupMutableModule(iri)
+        val c2 = !ont2m.contains(mo)
+        val c4 = !containsKey(m)
 
-  def lookupImmutableModule
-  (uuid: api.taggedTypes.ModuleUUID)
-  : Option[ImmutableModule]
-  = m2i.is.get(uuid)
+        val omm = if (c2 && c4)
+          copy(
+            ont2m = ont2m + (mo -> m),
+            ms = ms + (m.uuid -> m))
+        else
+          this
 
-  def lookupMutableModule
-  (uuid: api.taggedTypes.ModuleUUID)
-  : Option[MutableModule]
-  = m2i.ms.get(uuid)
+        val omi = omm.copy(
+          ont2i = ont2i + (mo -> i),
+          is = is + (i.uuid -> i),
+          pairs = pairs :+ (m -> i))
 
-  def lookupModule
-  (uuid: api.taggedTypes.ModuleUUID)
-  : Option[Module]
-  = lookupImmutableModule(uuid) orElse lookupMutableModule(uuid)
+        omi.right
+      } else
+        Set[java.lang.Throwable](OMFError.omfError(
+          s"Cannot add ontology/immutable entry for ${m.iri}"
+        )).left
+  }
 
 }
 
 object OntologyMapping {
 
-  def initialize(m2i: Mutable2ImmutableModuleMap, drc: DataRangeCategories[OWLAPIOMF])
+  def initialize(drc: DataRangeCategories[OWLAPIOMF])
   : OntologyMapping
-  = OntologyMapping(
-    ont2m = m2i.keys.map { m => m.ont -> m }.toMap,
-    ont2i = m2i.values.map { i => i.ont -> i }.toMap,
-    m2i,
-    drc)
+  = OntologyMapping(drc)
 
 }

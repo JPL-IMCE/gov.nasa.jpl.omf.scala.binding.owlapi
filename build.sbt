@@ -114,6 +114,10 @@ lazy val core =
     classpathTypes += "zip",
 
     libraryDependencies ++= Seq(
+      // https://github.com/ben-manes/caffeine
+      "com.github.ben-manes.caffeine" % "caffeine" % "2.6.1",
+      "com.github.ben-manes.caffeine" % "guava" % "2.6.1",
+      "com.github.ben-manes.caffeine" % "jcache" % "2.6.1",
 
       "gov.nasa.jpl.imce" %% "imce.third_party.owlapi_libraries"
         % Versions_owlapi_libraries.version artifacts

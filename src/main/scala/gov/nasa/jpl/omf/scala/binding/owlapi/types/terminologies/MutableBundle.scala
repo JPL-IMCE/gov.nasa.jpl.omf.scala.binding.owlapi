@@ -65,6 +65,7 @@ case class MutableBundle
   override def equals(other: Any): Boolean = other match {
     case that: MutableBundle =>
       (that canEqual this) &&
+        (this.sig.uuid == that.sig.uuid) &&
         (this.sig == that.sig) &&
         (this.ont == that.ont)
     case _ =>
@@ -86,7 +87,7 @@ case class MutableBundle
   (implicit store: OWLAPIOMFGraphStore)
   : Set[java.lang.Throwable] \/ BundledTerminologyAxiom
   = sig.bAxioms
-    .find { _.bundledTerminology == bundledTerminology }
+    .find { _.targetModuleIRI == bundledTerminology.iri }
     .fold[Set[java.lang.Throwable] \/ BundledTerminologyAxiom](
     for {
       axiom <- store

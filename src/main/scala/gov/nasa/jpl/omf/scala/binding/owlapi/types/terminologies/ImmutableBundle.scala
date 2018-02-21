@@ -51,6 +51,7 @@ extends Bundle
   override def equals(other: Any): Boolean = other match {
     case that: ImmutableBundle =>
       (that canEqual this) &&
+        (this.sig.uuid == that.sig.uuid) &&
         (this.sig == that.sig) &&
         (this.ont == that.ont)
     case _ =>

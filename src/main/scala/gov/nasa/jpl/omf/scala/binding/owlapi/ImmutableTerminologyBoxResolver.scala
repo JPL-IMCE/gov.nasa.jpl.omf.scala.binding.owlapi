@@ -38,6 +38,7 @@ package gov.nasa.jpl.omf.scala.binding.owlapi
 import java.lang.System
 
 import gov.nasa.jpl.imce.oml.tables
+import gov.nasa.jpl.omf.scala.binding.owlapi.common.ImmutableModule
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms._
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologies.ImmutableTerminologyBox
 import gov.nasa.jpl.omf.scala.core.OMFError.Throwables
@@ -514,7 +515,7 @@ case class ImmutableTerminologyBoxResolver(resolver: TerminologyBoxResolverHelpe
   }
 
   def resolve()
-  : Throwables \/ (ImmutableTerminologyBox, OntologyMapping)
+  : Throwables \/ (ImmutableModule, OntologyMapping)
   = {
     val builtInDatatypeMap = resolver.omfStore.getBuildInDatatypeMap.dataRanges.map { dr => dr.e -> dr }.toMap
 
@@ -574,13 +575,10 @@ case class ImmutableTerminologyBoxResolver(resolver: TerminologyBoxResolverHelpe
           resolve(backbone, dataRanges, importedScalarDatatypeDefinitionMaps, tCs, tOPs, tDPs)
 
         case _: NoBackbone =>
-          asImmutableTerminologyBox(tboxG, om.m2i)
+          asImmutableTerminologyBox(tboxG, om)
       }
 
-      (i, m2i) = resolved
-
-      result = i -> OntologyMapping.initialize(m2i, om.drc)
-    } yield result
+    } yield resolved
   }
 
   type RemainingAndMatchedRestrictions =
@@ -588,7 +586,7 @@ case class ImmutableTerminologyBoxResolver(resolver: TerminologyBoxResolverHelpe
       Set[(Entity, EntityRelationship, OWLObjectProperty, Entity, ObjectRestrictionKind)] )
 
   type ResolverResult =
-    Throwables \/ (ImmutableTerminologyBox, Mutable2ImmutableModuleMap)
+    Throwables \/ (ImmutableTerminologyBox, OntologyMapping)
 
   def resolve
   (backbone: OMFBackbone,
@@ -1240,7 +1238,7 @@ case class ImmutableTerminologyBoxResolver(resolver: TerminologyBoxResolverHelpe
                                   }
 
                                   withRestrictions.flatMap { _ =>
-                                    asImmutableTerminologyBox(tboxG, resolver.om.m2i)
+                                    asImmutableTerminologyBox(tboxG, resolver.om)
                                   }
                                 }
                               }

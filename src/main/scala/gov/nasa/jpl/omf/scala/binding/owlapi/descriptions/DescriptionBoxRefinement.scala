@@ -19,9 +19,16 @@
 package gov.nasa.jpl.omf.scala.binding.owlapi.descriptions
 
 import gov.nasa.jpl.imce.oml.resolver.api
+import org.semanticweb.owlapi.model.IRI
 
+/**
+  *
+  * @param uuid
+  * @param sourceModule source refining DescriptionBox
+  * @param targetModuleIRI targetrefined DescriptionBox
+  */
 case class DescriptionBoxRefinement
 ( override val uuid: api.taggedTypes.DescriptionBoxRefinementUUID,
   override val sourceModule: api.taggedTypes.DescriptionBoxUUID,
-  override val targetModule: DescriptionBox)
+  override val targetModuleIRI: IRI)
 extends DescriptionBoxRelationship

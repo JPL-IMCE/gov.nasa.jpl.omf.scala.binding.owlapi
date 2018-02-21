@@ -21,12 +21,13 @@ package gov.nasa.jpl.omf.scala.binding.owlapi
 import gov.nasa.jpl.omf.scala.core._
 
 trait OWLAPIOMF
-  extends OMF
+  extends OMF[OWLAPIOMF]
   with OWLAPIOMFstore
   with OWLAPIOMFiri
   with OWLAPIOMFtbox
   with OWLAPIOMFdbox {
 
+  override type OntologyMapping = gov.nasa.jpl.omf.scala.binding.owlapi.OntologyMapping
 }
 
 trait OWLAPIOMFstore extends OMFstore {
