@@ -125,8 +125,17 @@ trait OWLAPIOMFtbox extends OMFtbox with OMLAPIOMFcbox {
   override type EntityRelationship =
     types.terms.EntityRelationship
 
+  override type CharacterizedEntityRelationship =
+    types.terms.CharacterizedEntityRelationship
+
+  override type ConceptualRelationship =
+    types.terms.ConceptualRelationship
+
   override type UnreifiedRelationship =
     types.terms.UnreifiedRelationship
+
+  override type ReifiedRelationshipRestriction =
+    types.terms.ReifiedRelationshipRestriction
 
   override type ReifiedRelationship =
     types.terms.ReifiedRelationship

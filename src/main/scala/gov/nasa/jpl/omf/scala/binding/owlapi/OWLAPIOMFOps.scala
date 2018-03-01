@@ -22,6 +22,7 @@ import java.io.File
 import java.net.URI
 
 import gov.nasa.jpl.imce.oml.resolver.api
+import gov.nasa.jpl.imce.oml.resolver.api.taggedTypes.ReifiedRelationshipRestrictionUUID
 import gov.nasa.jpl.imce.oml.tables
 import gov.nasa.jpl.imce.oml.tables.{AnnotationProperty, AnnotationPropertyValue, LiteralValue}
 import gov.nasa.jpl.imce.oml.uuid.{JVMUUIDGenerator, OMLUUIDGenerator}
@@ -622,6 +623,14 @@ trait OWLAPIImmutableTerminologyGraphOps
 
   override def getEntityUUID(term: OWLAPIOMF#Entity): api.taggedTypes.EntityUUID = term.uuid
 
+  override def getConceptualEntityUUID(term: OWLAPIOMF#ConceptualEntity)
+  : api.taggedTypes.ConceptualEntityUUID
+  = term.uuid
+
+  override def getConceptualRelationshipUUID(term: OWLAPIOMF#ConceptualRelationship)
+  : api.taggedTypes.ConceptualRelationshipUUID
+  = term.uuid
+
   override def lookupEntity
   (tbox: OWLAPIOMF#TerminologyBox, iri: IRI, recursively: Boolean)
   (implicit store: OWLAPIOMFGraphStore)
@@ -676,9 +685,29 @@ trait OWLAPIImmutableTerminologyGraphOps
   : Option[OWLAPIOMF#Concept]
   = iri.map(IRI.create).flatMap(lookupConcept(graph, _, recursively))
 
+  override def getReifiedRelationshipRestrictionUUID(term: ReifiedRelationshipRestriction): ReifiedRelationshipRestrictionUUID = term.uuid
+
   override def getEntityRelationshipUUID(term: EntityRelationship): api.taggedTypes.EntityRelationshipUUID = term.uuid
 
   override def getReifiedRelationshipUUID(term: ReifiedRelationship): api.taggedTypes.ReifiedRelationshipUUID = term.uuid
+
+  override def lookupConceptualRelationship
+  (tbox: OWLAPIOMF#TerminologyBox, iri: IRI, recursively: Boolean)
+  (implicit store: OWLAPIOMFGraphStore)
+  : Option[OWLAPIOMF#ConceptualRelationship]
+  = lookupTerm(tbox, iri, recursively) match {
+    case Some(t: OWLAPIOMF#ConceptualRelationship) => Some(t)
+    case _ => None
+  }
+
+  override def lookupReifiedRelationshipRestriction
+  (tbox: OWLAPIOMF#TerminologyBox, iri: IRI, recursively: Boolean)
+  (implicit store: OWLAPIOMFGraphStore)
+  : Option[OWLAPIOMF#ReifiedRelationshipRestriction]
+  = lookupTerm(tbox, iri, recursively) match {
+    case Some(t: OWLAPIOMF#ReifiedRelationshipRestriction) => Some(t)
+    case _ => None
+  }
 
   override def lookupReifiedRelationship
   (tbox: OWLAPIOMF#TerminologyBox, iri: IRI, recursively: Boolean)
@@ -845,6 +874,7 @@ trait OWLAPIImmutableTerminologyGraphOps
   def foldTerm[T]
   (funAspect: OWLAPIOMF#Aspect => T,
    funConcept: OWLAPIOMF#Concept => T,
+   funReifiedRelationshipRestriction: OWLAPIOMF#ReifiedRelationshipRestriction => T,
    funReifiedRelationship: OWLAPIOMF#ReifiedRelationship => T,
    funUnreifiedRelationship: OWLAPIOMF#UnreifiedRelationship => T,
    funScalar: OWLAPIOMF#Scalar => T,
@@ -867,6 +897,8 @@ trait OWLAPIImmutableTerminologyGraphOps
       funAspect(et)
     case et: OWLAPIOMF#Concept =>
       funConcept(et)
+    case ep: OWLAPIOMF#ReifiedRelationshipRestriction =>
+      funReifiedRelationshipRestriction(ep)
     case et: OWLAPIOMF#ReifiedRelationship =>
       funReifiedRelationship(et)
     case et: OWLAPIOMF#UnreifiedRelationship =>
@@ -959,6 +991,11 @@ trait OWLAPIImmutableTerminologyGraphOps
   : ConceptSignature[OWLAPIOMF]
   = ConceptSignature[OWLAPIOMF](c.uuid, c.name, c.iri)
 
+  override def fromReifiedRelationshipRestriction
+  (ax: OWLAPIOMF#ReifiedRelationshipRestriction)
+  : ReifiedRelationshipRestrictionSignature[OWLAPIOMF]
+  = ReifiedRelationshipRestrictionSignature[OWLAPIOMF](ax.uuid, ax.name, ax.iri, ax.source, ax.target)
+
   override def fromReifiedRelationship
   (r: OWLAPIOMF#ReifiedRelationship)
   : ReifiedRelationshipSignature[OWLAPIOMF]
@@ -1012,7 +1049,7 @@ trait OWLAPIImmutableTerminologyGraphOps
    : OWLAPIOMF#AspectSpecializationAxiom => T,
    funConceptSpecializationAxiom
    : OWLAPIOMF#ConceptSpecializationAxiom => T,
-   funEntityReifiedRelationshipSubClassAxiom
+   funReifiedRelationshipSpecializationAxiom
    : OWLAPIOMF#ReifiedRelationshipSpecializationAxiom => T,
    funSubDataPropertyOfAxiom
    : OWLAPIOMF#SubDataPropertyOfAxiom => T,
@@ -1040,7 +1077,7 @@ trait OWLAPIImmutableTerminologyGraphOps
     case ax: OWLAPIOMF#ConceptSpecializationAxiom =>
       funConceptSpecializationAxiom(ax)
     case ax: OWLAPIOMF#ReifiedRelationshipSpecializationAxiom =>
-      funEntityReifiedRelationshipSubClassAxiom(ax)
+      funReifiedRelationshipSpecializationAxiom(ax)
     case ax: OWLAPIOMF#SubDataPropertyOfAxiom =>
       funSubDataPropertyOfAxiom(ax)
     case ax: OWLAPIOMF#SubObjectPropertyOfAxiom =>
@@ -1437,6 +1474,17 @@ trait OWLAPIMutableTerminologyGraphOps
   : Throwables \/ Concept
   = tbox.addEntityConcept(conceptIRI, conceptName, uuid)
 
+  override protected def addReifiedRelationshipRestriction
+  (tbox: MutableTerminologyBox,
+   uuid: api.taggedTypes.ReifiedRelationshipRestrictionUUID,
+   iri: IRI,
+   name: tables.taggedTypes.LocalName,
+   source: Entity,
+   target: Entity)
+  (implicit store: OWLAPIOMFGraphStore)
+  : Throwables \/ ReifiedRelationshipRestriction
+  = tbox.addReifiedRelationshipRestriction(uuid, iri, name, source, target)
+
   override protected def addReifiedRelationship
   (tbox: MutableTerminologyBox,
    uuid: api.taggedTypes.ReifiedRelationshipUUID,
@@ -1737,11 +1785,11 @@ trait OWLAPIMutableTerminologyGraphOps
   override protected def addReifiedRelationshipSpecializationAxiom
   (tbox: MutableTerminologyBox,
    uuid: api.taggedTypes.ReifiedRelationshipSpecializationAxiomUUID,
-   sub: ReifiedRelationship,
-   sup: ReifiedRelationship)
+   sub: ConceptualRelationship,
+   sup: ConceptualRelationship)
   (implicit store: OWLAPIOMFGraphStore)
   : Throwables \/ ReifiedRelationshipSpecializationAxiom
-  = tbox.addEntityReifiedRelationshipSubClassAxiom(uuid, sub, sup)
+  = tbox.addReifiedRelationshipSpecializationAxiom(uuid, sub, sup)
 
   override protected def addSubDataPropertyOfAxiom
   (tbox: MutableTerminologyBox,
@@ -2067,7 +2115,7 @@ trait OWLAPIMutableDescriptionBoxOps
   (uuid: api.taggedTypes.ReifiedRelationshipInstanceUUID,
    dbox: descriptions.MutableDescriptionBox,
    iri: IRI,
-   relationshipType: ReifiedRelationship,
+   relationshipType: ConceptualRelationship,
    fragment: tables.taggedTypes.LocalName)
   (implicit store: OWLAPIOMFGraphStore)
   : Throwables \/ descriptions.ReifiedRelationshipInstance

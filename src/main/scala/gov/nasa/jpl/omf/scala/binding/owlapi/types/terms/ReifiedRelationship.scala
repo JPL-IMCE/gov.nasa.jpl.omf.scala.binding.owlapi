@@ -20,6 +20,7 @@ package gov.nasa.jpl.omf.scala.binding.owlapi.types.terms
 
 import gov.nasa.jpl.imce.oml.resolver.api
 import gov.nasa.jpl.imce.oml.tables.taggedTypes.LocalName
+import gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore
 import gov.nasa.jpl.omf.scala.core.RelationshipCharacteristics._
 import org.semanticweb.owlapi.model.{IRI, OWLClass, OWLObjectProperty}
 
@@ -39,7 +40,7 @@ case class ReifiedRelationship
   override val target: Entity,
   rTarget: OWLObjectProperty,
   override val characteristics: Iterable[RelationshipCharacteristics])
-  extends EntityRelationship with ConceptualEntity {
+  extends CharacterizedEntityRelationship with ConceptualRelationship {
 
   require(null != e)
   require(null != forwardProperty)
@@ -47,6 +48,10 @@ case class ReifiedRelationship
   require(null != source)
   require(null != target)
   require(null != characteristics)
+
+  override def rootReifiedRelationships()(implicit store: OWLAPIOMFGraphStore)
+  : Set[ReifiedRelationship]
+  = Set(this)
 
   override def canEqual(other: Any)
   : Boolean

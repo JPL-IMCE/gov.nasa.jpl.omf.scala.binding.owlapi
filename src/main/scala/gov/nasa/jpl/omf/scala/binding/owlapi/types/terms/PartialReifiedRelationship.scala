@@ -20,48 +20,49 @@ package gov.nasa.jpl.omf.scala.binding.owlapi.types.terms
 
 import gov.nasa.jpl.imce.oml.resolver.api
 import gov.nasa.jpl.imce.oml.tables.taggedTypes.LocalName
-import gov.nasa.jpl.omf.scala.binding.owlapi.common.RestrictableRelationship
-import gov.nasa.jpl.omf.scala.core.RelationshipCharacteristics._
-import org.semanticweb.owlapi.model.{IRI, OWLObjectProperty}
+import gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore
+import org.semanticweb.owlapi.model.{IRI, OWLClass}
 
+import scala.collection.immutable.Set
 import scala.{Any, Boolean, Int}
 import scala.Predef.require
-import scala.collection.immutable._
 
-case class UnreifiedRelationship
-( override val e: OWLObjectProperty,
+case class ReifiedRelationshipRestriction
+( override val e: OWLClass,
   override val iri: IRI,
   override val name: LocalName,
-  override val uuid: api.taggedTypes.UnreifiedRelationshipUUID,
+  override val uuid: api.taggedTypes.ReifiedRelationshipRestrictionUUID,
   override val source: Entity,
-  override val target: Entity,
-  override val characteristics: Iterable[RelationshipCharacteristics] )
-  extends CharacterizedEntityRelationship with RestrictableRelationship {
+  override val target: Entity)
+  extends ConceptualRelationship {
 
+  require(null != e)
   require(null != source)
   require(null != target)
-  require(null != characteristics)
+
+  override def rootReifiedRelationships()(implicit store: OWLAPIOMFGraphStore)
+  : Set[ReifiedRelationship]
+  = store.rootReifiedRelationships(this)
 
   override def canEqual(other: Any)
   : Boolean
   = other match {
-    case _: UnreifiedRelationship => true
+    case _: ReifiedRelationshipRestriction => true
     case _ => false
   }
 
   override val hashCode
   : Int
-  = (uuid, name, source, target, e, characteristics).##
+  = (uuid, name, source, target, e).##
 
   override def equals(other: Any): Boolean = other match {
-    case that: UnreifiedRelationship =>
+    case that: ReifiedRelationshipRestriction =>
       (that canEqual this) &&
         (this.uuid == that.uuid) &&
         (this.name == that.name) &&
         (this.source == that.source) &&
         (this.target == that.target) &&
-        (this.e == that.e) &&
-        (this.characteristics.to[Set] == that.characteristics.to[Set])
+        (this.e == that.e)
     case _ =>
       false
   }

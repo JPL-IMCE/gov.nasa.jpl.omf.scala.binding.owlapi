@@ -620,6 +620,14 @@ case class ImmutableTerminologyBoxResolver(resolver: TerminologyBoxResolverHelpe
     val allImportedDataRelationshipsFromEntityToScalar: Map[OWLDataProperty, EntityScalarDataProperty]
     = resolver.importClosure.flatMap(_.getDataRelationshipsFromEntityToScalar).map(sc => sc.e -> sc).toMap
 
+    val allImportedReifiedRelationshipRestrictions: Map[OWLClass, ReifiedRelationshipRestriction]
+    = importedEntityDefinitionMaps flatMap {
+      case (rrC, prE: ReifiedRelationshipRestriction) =>
+        Some(rrC -> prE)
+      case _ =>
+        None
+    }
+
     val allImportedReifiedRelationships: Map[OWLClass, ReifiedRelationship]
     = importedEntityDefinitionMaps flatMap {
       case (rrC, rrE: ReifiedRelationship) =>
@@ -896,12 +904,30 @@ case class ImmutableTerminologyBoxResolver(resolver: TerminologyBoxResolverHelpe
         aspectCMs.map(_.toMap[OWLClass, Entity]) +++
         conceptCMs.map(_.toMap[OWLClass, Entity])
 
+    val subaxs0 =
+      ont
+        .axioms(AxiomType.SUBCLASS_OF, Imports.EXCLUDED)
+        .toScala[Set]
+        .filter { ax =>
+          (owlclassOfCE(Option.apply(ax.getSubClass)), owlclassOfCE(Option.apply(ax.getSuperClass))) match {
+            case (Some(sub), Some(sup)) =>
+              ! backbone.isBackboneClass(sub) && ! backbone.isBackboneClass(sup)
+            case (None, Some(sup)) =>
+              ! backbone.isBackboneClass(sup)
+            case (Some(sub), None) =>
+              ! backbone.isBackboneClass(sub)
+            case (None, None) =>
+              require(false, s"Invalid complex subclass axiom: $ax")
+              false
+          }
+        }
+
     allEntityDefinitionsExceptRelationships.flatMap { _allEntityDefinitionsExceptRelationships =>
       allAspectsIncludingImported.flatMap { _allAspectsIncludingImported =>
         allConceptsIncludingImported.flatMap { _allConceptsIncludingImported =>
           aspectCMs.flatMap { _aspectCMs =>
             conceptCMs.flatMap { _conceptCMs =>
-              resolveConceptSubClassAxioms(_allConceptsIncludingImported).flatMap { _ =>
+              resolveConceptSubClassAxioms(subaxs0, _allConceptsIncludingImported).flatMap { subaxs1 =>
                 resolveEntityDefinitionsForRelationships(
                   _allEntityDefinitionsExceptRelationships,
                   reifiedObjectPropertyCIRIs,
@@ -910,7 +936,7 @@ case class ImmutableTerminologyBoxResolver(resolver: TerminologyBoxResolverHelpe
                   reifiedObjectPropertyTargetOPIRIs,
                   chains,
                   Map()
-                ).flatMap { _entityReifiedRelationshipCMs =>
+                ).flatMap { case (_entityReifiedRelationshipCMs, _remainingCs) =>
 
                   val _allEntityDefinitions: Map[OWLClass, Entity] =
                     Map[OWLClass, Entity]() ++
@@ -948,300 +974,305 @@ case class ImmutableTerminologyBoxResolver(resolver: TerminologyBoxResolverHelpe
                   }
 
                   val _allEntityDefinitionsIncludingImported =
-                    _allEntityDefinitions ++ importedEntityDefinitionMaps ++ _allEntityReifiedRelationshipsIncludingImported
+                    _allEntityDefinitions ++
+                      importedEntityDefinitionMaps ++
+                      _allEntityReifiedRelationshipsIncludingImported
 
-                  (resolveDefinitionAspectSubClassAxioms(_allEntityDefinitionsIncludingImported, _allAspectsIncludingImported) +++
-                    resolveReifiedRelationshipSubClassAxioms(_allEntityReifiedRelationshipsIncludingImported)
-                    ).flatMap { _ =>
+                  require((_allAspectsIncludingImported.keySet -- _allEntityDefinitionsIncludingImported.keySet).isEmpty)
+                  require((_allConceptsIncludingImported.keySet -- _allEntityDefinitionsIncludingImported.keySet).isEmpty)
 
-                    resolveUnreifiedRelationships(
-                      topUnreifiedObjectPropertySubOPs,
-                      _allEntityDefinitionsIncludingImported
-                    ).flatMap { resolvedUnreifiedRelationships: Map[OWLObjectProperty, UnreifiedRelationship] =>
+                  resolveDefinitionAspectSubClassAxioms(subaxs1, _allEntityDefinitionsIncludingImported, _allAspectsIncludingImported).flatMap { subaxs2 =>
+                    resolveSpecializedReifiedRelationships(subaxs2, _allEntityDefinitionsIncludingImported, _allEntityReifiedRelationshipsIncludingImported, allImportedReifiedRelationshipRestrictions, _remainingCs).flatMap { _ =>
 
-                      val _allUnreifiedRelationships
-                      : Map[OWLObjectProperty, UnreifiedRelationship]
-                      = resolvedUnreifiedRelationships ++ allImportedUnreifiedRelationships
+                      resolveUnreifiedRelationships(
+                        topUnreifiedObjectPropertySubOPs,
+                        _allEntityDefinitionsIncludingImported
+                      ).flatMap { resolvedUnreifiedRelationships: Map[OWLObjectProperty, UnreifiedRelationship] =>
 
-                      resolveSubObjectPropertyOfAxioms(_allUnreifiedRelationships).flatMap { _ =>
+                        val _allUnreifiedRelationships
+                        : Map[OWLObjectProperty, UnreifiedRelationship]
+                        = resolvedUnreifiedRelationships ++ allImportedUnreifiedRelationships
 
-                        val rulesAdded
-                        : Throwables \/ Unit
-                        = otherRules.foldLeft[Throwables \/ Unit](\/-(())) { case (acc, r) =>
-                          for {
-                            _ <- acc
-                            _ <- resolveImplicationRule(
-                              \/-(r),
-                              _allUnreifiedRelationships,
-                              _allForwardPropertiesIncludingImported,
-                              _allInversePropertiesIncludingImported,
-                              _allReifiedRelationshipSources,
-                              _allReifiedRelationshipTargets,
-                              _allEntityDefinitionsIncludingImported)
-                          } yield ()
-                        }
+                        resolveSubObjectPropertyOfAxioms(_allUnreifiedRelationships).flatMap { _ =>
 
-                        rulesAdded.flatMap { _ =>
-
-                          val _allEntityObjectRestrictions
-                          : Set[(Entity, EntityRelationship, OWLObjectProperty, Entity, Boolean, ObjectRestrictionKind)]
-                          = {
-                            val tuples =
-                              for {
-                                dPair <- _allEntityDefinitionsIncludingImported
-                                (d, domain) = dPair
-
-                                // the restriction could be for an entity definition or a structured datatype
-                                restriction <- types.getObjectPropertyRestrictionsIfAny(resolver.tboxG.ont, d)
-                                (_, op, isInverse, r, k) = restriction
-
-                                // filter restrictions to an entity definition range only
-                                range <- _allEntityDefinitionsIncludingImported.get(r)
-
-                                rr <- _allUnreifiedRelationships.get(op) orElse
-                                  _allForwardPropertiesIncludingImported.get(op) orElse
-                                  _allInversePropertiesIncludingImported.get(op)
-
-                                // TODO: Report an error if rr is empty.
-
-                              } yield
-                                Tuple6(domain, rr, op, range, isInverse, k)
-                            tuples.toSet
-                          }
-
-                          val inverseRestrictions
-                          : Set[(Entity, EntityRelationship, OWLObjectProperty, Entity, ObjectRestrictionKind)]
-                          = _allEntityObjectRestrictions.flatMap {
-                            case (domain, rel, op, range, true, kind) =>
-                              Some(Tuple5(domain, rel, op, range, kind))
-                            case _ =>
-                              None
-                          }
-
-                          val forwardRestrictions
-                          : Set[(Entity, EntityRelationship, OWLObjectProperty, Entity, ObjectRestrictionKind)]
-                          = _allEntityObjectRestrictions.flatMap {
-                            case (domain, rel, op, range, false, kind) =>
-                              Some(Tuple5(domain, rel, op, range, kind))
-                            case _ =>
-                              None
-                          }
-
-                          val relRestrictions0
-                          : RemainingAndMatchedRestrictions
-                          = Tuple2(forwardRestrictions, Set.empty)
-
-                          val relRestrictionsN
-                          : RemainingAndMatchedRestrictions
-                          = inverseRestrictions.foldLeft(relRestrictions0) {
-                            case ((fremaining, restrictions), (idomain, irel, iop, irange, ikind)) =>
-
-                              val fi = fremaining.find { case (fdomain, frel, _, frange, fkind) =>
-                                fdomain == irange && frel == irel && frange == idomain && fkind == ikind
-                              }
-
-                              fi match {
-                                case None =>
-                                  Tuple2(fremaining, restrictions + Tuple5(idomain, irel, iop, irange, ikind))
-                                case Some(forward_inverse) =>
-                                  Tuple2(fremaining - forward_inverse, restrictions + forward_inverse)
-
-                              }
-                          }
-
-                          val forwardRestrictionsAdded
+                          val rulesAdded
                           : Throwables \/ Unit
-                          = relRestrictionsN._1.foldLeft[Throwables \/ Unit](\/-(())) {
-                            case (acc, (domain, rel, op, range, kind)) =>
-                            acc.flatMap { _ =>
-                              kind match {
-                                case ExistentialObjectRestrictionKind =>
-                                  rel match {
-                                    case rr: ReifiedRelationship =>
-                                      if (op == rr.forwardProperty.e)
-                                        tboxG.addEntityDefinitionExistentialRestrictionAxiom(domain, rr.forwardProperty, range).map { _ => () }
-                                      else rr.inverseProperty match {
-                                        case Some(inv) =>
-                                          if (op == inv.e)
-                                            tboxG.addEntityDefinitionExistentialRestrictionAxiom(domain, inv, range).map { _ => () }
-                                          else
-                                            -\/(Set(OMFError.omfError(
-                                              s"Unresolved existential restriction of forward object property $op " +
-                                                s"for domain ${domain.abbrevIRI}, reified relation ${rr.abbrevIRI}, restricted range ${range.abbrevIRI}")))
-                                        case None =>
-                                          -\/(Set(OMFError.omfError(
-                                            s"Unresolved existential restriction of forward object property $op " +
-                                              s"for domain ${domain.abbrevIRI}, reified relation ${rr.abbrevIRI}, restricted range ${range.abbrevIRI}")))
-                                      }
-                                    case ur: UnreifiedRelationship =>
-                                      require(ur.e == op)
-                                      tboxG.addEntityDefinitionExistentialRestrictionAxiom(domain, ur, range).map { _ => () }
-                                  }
-                                case UniversalObjectRestrictionKind =>
-                                  rel match {
-                                    case rr: ReifiedRelationship =>
-                                      if (op == rr.forwardProperty.e)
-                                        tboxG.addEntityDefinitionUniversalRestrictionAxiom(domain, rr.forwardProperty, range).map { _ => () }
-                                      else rr.inverseProperty match {
-                                        case Some(inv) =>
-                                          if (op == inv.e)
-                                            tboxG.addEntityDefinitionUniversalRestrictionAxiom(domain, inv, range).map { _ => () }
-                                          else
-                                            -\/(Set(OMFError.omfError(
-                                              s"Unresolved universal restriction of forward object property $op " +
-                                                s"for domain ${domain.abbrevIRI}, reified relation ${rr.abbrevIRI}, restricted range ${range.abbrevIRI}")))
-                                        case None =>
-                                          -\/(Set(OMFError.omfError(
-                                            s"Unresolved universal restriction of forward object property $op " +
-                                              s"for domain ${domain.abbrevIRI}, reified relation ${rr.abbrevIRI}, restricted range ${range.abbrevIRI}")))
-                                      }
-                                    case ur: UnreifiedRelationship =>
-                                      require(ur.e == op)
-                                      tboxG.addEntityDefinitionUniversalRestrictionAxiom(domain, ur, range).map { _ => () }
-                                  }
-                              }
+                          = otherRules.foldLeft[Throwables \/ Unit](\/-(())) { case (acc, r) =>
+                            for {
+                              _ <- acc
+                              _ <- resolveImplicationRule(
+                                \/-(r),
+                                _allUnreifiedRelationships,
+                                _allForwardPropertiesIncludingImported,
+                                _allInversePropertiesIncludingImported,
+                                _allReifiedRelationshipSources,
+                                _allReifiedRelationshipTargets,
+                                _allEntityDefinitionsIncludingImported)
+                            } yield ()
+                          }
+
+                          rulesAdded.flatMap { _ =>
+
+                            val _allEntityObjectRestrictions
+                            : Set[(Entity, EntityRelationship, OWLObjectProperty, Entity, Boolean, ObjectRestrictionKind)]
+                            = {
+                              val tuples =
+                                for {
+                                  dPair <- _allEntityDefinitionsIncludingImported
+                                  (d, domain) = dPair
+
+                                  // the restriction could be for an entity definition or a structured datatype
+                                  restriction <- types.getObjectPropertyRestrictionsIfAny(resolver.tboxG.ont, d)
+                                  (_, op, isInverse, r, k) = restriction
+
+                                  // filter restrictions to an entity definition range only
+                                  range <- _allEntityDefinitionsIncludingImported.get(r)
+
+                                  rr <- _allUnreifiedRelationships.get(op) orElse
+                                    _allForwardPropertiesIncludingImported.get(op) orElse
+                                    _allInversePropertiesIncludingImported.get(op)
+
+                                  // TODO: Report an error if rr is empty.
+
+                                } yield
+                                  Tuple6(domain, rr, op, range, isInverse, k)
+                              tuples.toSet
                             }
-                          }
 
-                          val allRestrictionsAdded
-                          : Throwables \/ Unit
-                          = relRestrictionsN._2.foldLeft[Throwables \/ Unit](forwardRestrictionsAdded) {
-                            case (acc, (domain, rel, op, range, kind)) =>
-                              acc.flatMap { _ =>
-                                kind match {
-                                  case ExistentialObjectRestrictionKind =>
-                                    rel match {
-                                      case rr: ReifiedRelationship =>
-                                        if (rr.inverseProperty.exists(_.e == op))
-                                          tboxG.addEntityDefinitionExistentialRestrictionAxiom(domain, rr.forwardProperty, range).map { _ => () }
-                                        else
-                                          -\/(Set(OMFError.omfError(
-                                            s"Unresolved existential restriction of inverse object property $op " +
-                                              s"for domain ${domain.abbrevIRI}, reified relation ${rr.abbrevIRI}, restricted range ${range.abbrevIRI}")))
-                                      case ur: UnreifiedRelationship =>
-                                        require(ur.e == op)
-                                        -\/(Set(OMFError.omfError(
-                                          s"Unsupported existential restriction of inverse unreified property $op " +
-                                            s"for domain ${domain.abbrevIRI}, unreified relation ${ur.abbrevIRI}, restricted range ${range.abbrevIRI}")))
-                                    }
-                                  case UniversalObjectRestrictionKind =>
-                                    rel match {
-                                      case rr: ReifiedRelationship =>
-                                        if (rr.inverseProperty.exists(_.e == op))
-                                          tboxG.addEntityDefinitionUniversalRestrictionAxiom(domain, rr.forwardProperty, range).map { _ => () }
-                                        else
-                                          -\/(Set(OMFError.omfError(
-                                            s"Unresolved universal restriction of inverse object property $op " +
-                                              s"for domain ${domain.abbrevIRI}, reified relation ${rr.abbrevIRI}, restricted range ${range.abbrevIRI}")))
-                                      case ur: UnreifiedRelationship =>
-                                        require(ur.e == op)
-                                        -\/(Set(OMFError.omfError(
-                                          s"Unsupported universal restriction of inverse unreified property $op " +
-                                            s"for domain ${domain.abbrevIRI}, unreified relation ${ur.abbrevIRI}, restricted range ${range.abbrevIRI}")))
-                                    }
+                            val inverseRestrictions
+                            : Set[(Entity, EntityRelationship, OWLObjectProperty, Entity, ObjectRestrictionKind)]
+                            = _allEntityObjectRestrictions.flatMap {
+                              case (domain, rel, op, range, true, kind) =>
+                                Some(Tuple5(domain, rel, op, range, kind))
+                              case _ =>
+                                None
+                            }
+
+                            val forwardRestrictions
+                            : Set[(Entity, EntityRelationship, OWLObjectProperty, Entity, ObjectRestrictionKind)]
+                            = _allEntityObjectRestrictions.flatMap {
+                              case (domain, rel, op, range, false, kind) =>
+                                Some(Tuple5(domain, rel, op, range, kind))
+                              case _ =>
+                                None
+                            }
+
+                            val relRestrictions0
+                            : RemainingAndMatchedRestrictions
+                            = Tuple2(forwardRestrictions, Set.empty)
+
+                            val relRestrictionsN
+                            : RemainingAndMatchedRestrictions
+                            = inverseRestrictions.foldLeft(relRestrictions0) {
+                              case ((fremaining, restrictions), (idomain, irel, iop, irange, ikind)) =>
+
+                                val fi = fremaining.find { case (fdomain, frel, _, frange, fkind) =>
+                                  fdomain == irange && frel == irel && frange == idomain && fkind == ikind
                                 }
-                              }
-                          }
 
-                          allRestrictionsAdded.flatMap { _ =>
+                                fi match {
+                                  case None =>
+                                    Tuple2(fremaining, restrictions + Tuple5(idomain, irel, iop, irange, ikind))
+                                  case Some(forward_inverse) =>
+                                    Tuple2(fremaining - forward_inverse, restrictions + forward_inverse)
 
-                            val _allScalarDefinitions: Map[OWLDatatype, DataRange] =
-                              importedScalarDatatypeDefinitionMaps ++ dataRanges
+                                }
+                            }
 
-                            resolveDataRelationshipsFromEntity2Scalars(_allEntityDefinitions, dataPropertyDPIRIs, _allScalarDefinitions)
-                              .flatMap { dataRelationshipsFromEntity2Scalar =>
+                            val forwardRestrictionsAdded
+                            : Throwables \/ Unit
+                            = relRestrictionsN._1.foldLeft[Throwables \/ Unit](\/-(())) {
+                              case (acc, (domain, rel, op, range, kind)) =>
+                                acc.flatMap { _ =>
+                                  kind match {
+                                    case ExistentialObjectRestrictionKind =>
+                                      rel match {
+                                        case rr: ReifiedRelationship =>
+                                          if (op == rr.forwardProperty.e)
+                                            tboxG.addEntityDefinitionExistentialRestrictionAxiom(domain, rr.forwardProperty, range).map { _ => () }
+                                          else rr.inverseProperty match {
+                                            case Some(inv) =>
+                                              if (op == inv.e)
+                                                tboxG.addEntityDefinitionExistentialRestrictionAxiom(domain, inv, range).map { _ => () }
+                                              else
+                                                -\/(Set(OMFError.omfError(
+                                                  s"Unresolved existential restriction of forward object property $op " +
+                                                    s"for domain ${domain.abbrevIRI}, reified relation ${rr.abbrevIRI}, restricted range ${range.abbrevIRI}")))
+                                            case None =>
+                                              -\/(Set(OMFError.omfError(
+                                                s"Unresolved existential restriction of forward object property $op " +
+                                                  s"for domain ${domain.abbrevIRI}, reified relation ${rr.abbrevIRI}, restricted range ${range.abbrevIRI}")))
+                                          }
+                                        case ur: UnreifiedRelationship =>
+                                          require(ur.e == op)
+                                          tboxG.addEntityDefinitionExistentialRestrictionAxiom(domain, ur, range).map { _ => () }
+                                      }
+                                    case UniversalObjectRestrictionKind =>
+                                      rel match {
+                                        case rr: ReifiedRelationship =>
+                                          if (op == rr.forwardProperty.e)
+                                            tboxG.addEntityDefinitionUniversalRestrictionAxiom(domain, rr.forwardProperty, range).map { _ => () }
+                                          else rr.inverseProperty match {
+                                            case Some(inv) =>
+                                              if (op == inv.e)
+                                                tboxG.addEntityDefinitionUniversalRestrictionAxiom(domain, inv, range).map { _ => () }
+                                              else
+                                                -\/(Set(OMFError.omfError(
+                                                  s"Unresolved universal restriction of forward object property $op " +
+                                                    s"for domain ${domain.abbrevIRI}, reified relation ${rr.abbrevIRI}, restricted range ${range.abbrevIRI}")))
+                                            case None =>
+                                              -\/(Set(OMFError.omfError(
+                                                s"Unresolved universal restriction of forward object property $op " +
+                                                  s"for domain ${domain.abbrevIRI}, reified relation ${rr.abbrevIRI}, restricted range ${range.abbrevIRI}")))
+                                          }
+                                        case ur: UnreifiedRelationship =>
+                                          require(ur.e == op)
+                                          tboxG.addEntityDefinitionUniversalRestrictionAxiom(domain, ur, range).map { _ => () }
+                                      }
+                                  }
+                                }
+                            }
 
-                                val allDataRelationshipsFromEntityToScalar =
-                                  dataRelationshipsFromEntity2Scalar ++ allImportedDataRelationshipsFromEntityToScalar
-
-                                resolveSubDataPropertyOfAxioms(allDataRelationshipsFromEntityToScalar).flatMap { _ =>
-                                  type RestrictionInfoValidation
-                                  = Throwables \/ Unit
-
-                                  val withRestrictions
-                                  : Throwables \/ Unit
-                                  = _allEntityDefinitions.foldLeft[Throwables \/ Unit](
-                                    ().right
-                                  ) { case (acc, (entityO, entityC)) =>
-
-                                    val restrictions
-                                    = types.getDataPropertyRestrictionsIfAny(resolver.tboxG.ont, entityO)
-
-                                    restrictions.foldLeft[RestrictionInfoValidation](acc) {
-                                      case (acc, (restrictedDP, kind)) =>
-                                        allDataRelationshipsFromEntityToScalar
-                                          .get(restrictedDP)
-                                          .fold[RestrictionInfoValidation](
+                            val allRestrictionsAdded
+                            : Throwables \/ Unit
+                            = relRestrictionsN._2.foldLeft[Throwables \/ Unit](forwardRestrictionsAdded) {
+                              case (acc, (domain, rel, op, range, kind)) =>
+                                acc.flatMap { _ =>
+                                  kind match {
+                                    case ExistentialObjectRestrictionKind =>
+                                      rel match {
+                                        case rr: ReifiedRelationship =>
+                                          if (rr.inverseProperty.exists(_.e == op))
+                                            tboxG.addEntityDefinitionExistentialRestrictionAxiom(domain, rr.forwardProperty, range).map { _ => () }
+                                          else
+                                            -\/(Set(OMFError.omfError(
+                                              s"Unresolved existential restriction of inverse object property $op " +
+                                                s"for domain ${domain.abbrevIRI}, reified relation ${rr.abbrevIRI}, restricted range ${range.abbrevIRI}")))
+                                        case ur: UnreifiedRelationship =>
+                                          require(ur.e == op)
                                           -\/(Set(OMFError.omfError(
-                                            s"Unresolved restricting data property $restrictedDP " +
-                                              s"for entity $entityC with kind=$kind")))
-                                        ) { restrictingSC =>
+                                            s"Unsupported existential restriction of inverse unreified property $op " +
+                                              s"for domain ${domain.abbrevIRI}, unreified relation ${ur.abbrevIRI}, restricted range ${range.abbrevIRI}")))
+                                      }
+                                    case UniversalObjectRestrictionKind =>
+                                      rel match {
+                                        case rr: ReifiedRelationship =>
+                                          if (rr.inverseProperty.exists(_.e == op))
+                                            tboxG.addEntityDefinitionUniversalRestrictionAxiom(domain, rr.forwardProperty, range).map { _ => () }
+                                          else
+                                            -\/(Set(OMFError.omfError(
+                                              s"Unresolved universal restriction of inverse object property $op " +
+                                                s"for domain ${domain.abbrevIRI}, reified relation ${rr.abbrevIRI}, restricted range ${range.abbrevIRI}")))
+                                        case ur: UnreifiedRelationship =>
+                                          require(ur.e == op)
+                                          -\/(Set(OMFError.omfError(
+                                            s"Unsupported universal restriction of inverse unreified property $op " +
+                                              s"for domain ${domain.abbrevIRI}, unreified relation ${ur.abbrevIRI}, restricted range ${range.abbrevIRI}")))
+                                      }
+                                  }
+                                }
+                            }
 
-                                          kind match {
-                                            case ExistentialOWLDataRestrictionKind(rangeDT) =>
-                                              dataRanges
-                                                .get(rangeDT)
-                                                .fold[RestrictionInfoValidation](
-                                                -\/(Set(OMFError.omfError(
-                                                  s"Unresolved restricted data range $rangeDT " +
-                                                    s"for entity $entityC and " +
-                                                    s"restricting data property $restrictedDP with kind=$kind")))
-                                              ) { rangeSC =>
-                                                acc +++
-                                                  addEntityScalarDataPropertyExistentialRestrictionAxiom(
-                                                    tboxG, entityC, restrictingSC, rangeSC
-                                                  ).map(_ => ())
-                                              }
+                            allRestrictionsAdded.flatMap { _ =>
 
-                                            case UniversalOWLDataRestrictionKind(rangeDT) =>
-                                              dataRanges
-                                                .get(rangeDT)
-                                                .fold[RestrictionInfoValidation](
-                                                -\/(Set(OMFError.omfError(
-                                                  s"Unresolved restricted data range $rangeDT " +
-                                                    s"for entity $entityC and " +
-                                                    s"restricting data property $restrictedDP with kind=$kind")))
-                                              ) { rangeSC =>
-                                                acc +++
-                                                  addEntityScalarDataPropertyUniversalRestrictionAxiom(
-                                                    tboxG, entityC, restrictingSC, rangeSC
-                                                  ).map(_ => ())
-                                              }
+                              val _allScalarDefinitions: Map[OWLDatatype, DataRange] =
+                                importedScalarDatatypeDefinitionMaps ++ dataRanges
 
-                                            case ParticularOWLDataRestrictionKind(value, Some(valueTypeDT)) =>
-                                              dataRanges
-                                                .get(valueTypeDT)
-                                                .fold[RestrictionInfoValidation](
-                                                -\/(Set(OMFError.omfError(
-                                                  s"Unresolved restricted data range $valueTypeDT " +
-                                                    s"for entity $entityC and " +
-                                                    s"restricting data property $restrictedDP with kind=$kind")))
-                                              ) { valueType =>
+                              resolveDataRelationshipsFromEntity2Scalars(_allEntityDefinitions, dataPropertyDPIRIs, _allScalarDefinitions)
+                                .flatMap { dataRelationshipsFromEntity2Scalar =>
+
+                                  val allDataRelationshipsFromEntityToScalar =
+                                    dataRelationshipsFromEntity2Scalar ++ allImportedDataRelationshipsFromEntityToScalar
+
+                                  resolveSubDataPropertyOfAxioms(allDataRelationshipsFromEntityToScalar).flatMap { _ =>
+                                    type RestrictionInfoValidation
+                                    = Throwables \/ Unit
+
+                                    val withRestrictions
+                                    : Throwables \/ Unit
+                                    = _allEntityDefinitions.foldLeft[Throwables \/ Unit](
+                                      ().right
+                                    ) { case (acc, (entityO, entityC)) =>
+
+                                      val restrictions
+                                      = types.getDataPropertyRestrictionsIfAny(resolver.tboxG.ont, entityO)
+
+                                      restrictions.foldLeft[RestrictionInfoValidation](acc) {
+                                        case (acc, (restrictedDP, kind)) =>
+                                          allDataRelationshipsFromEntityToScalar
+                                            .get(restrictedDP)
+                                            .fold[RestrictionInfoValidation](
+                                            -\/(Set(OMFError.omfError(
+                                              s"Unresolved restricting data property $restrictedDP " +
+                                                s"for entity $entityC with kind=$kind")))
+                                          ) { restrictingSC =>
+
+                                            kind match {
+                                              case ExistentialOWLDataRestrictionKind(rangeDT) =>
+                                                dataRanges
+                                                  .get(rangeDT)
+                                                  .fold[RestrictionInfoValidation](
+                                                  -\/(Set(OMFError.omfError(
+                                                    s"Unresolved restricted data range $rangeDT " +
+                                                      s"for entity $entityC and " +
+                                                      s"restricting data property $restrictedDP with kind=$kind")))
+                                                ) { rangeSC =>
+                                                  acc +++
+                                                    addEntityScalarDataPropertyExistentialRestrictionAxiom(
+                                                      tboxG, entityC, restrictingSC, rangeSC
+                                                    ).map(_ => ())
+                                                }
+
+                                              case UniversalOWLDataRestrictionKind(rangeDT) =>
+                                                dataRanges
+                                                  .get(rangeDT)
+                                                  .fold[RestrictionInfoValidation](
+                                                  -\/(Set(OMFError.omfError(
+                                                    s"Unresolved restricted data range $rangeDT " +
+                                                      s"for entity $entityC and " +
+                                                      s"restricting data property $restrictedDP with kind=$kind")))
+                                                ) { rangeSC =>
+                                                  acc +++
+                                                    addEntityScalarDataPropertyUniversalRestrictionAxiom(
+                                                      tboxG, entityC, restrictingSC, rangeSC
+                                                    ).map(_ => ())
+                                                }
+
+                                              case ParticularOWLDataRestrictionKind(value, Some(valueTypeDT)) =>
+                                                dataRanges
+                                                  .get(valueTypeDT)
+                                                  .fold[RestrictionInfoValidation](
+                                                  -\/(Set(OMFError.omfError(
+                                                    s"Unresolved restricted data range $valueTypeDT " +
+                                                      s"for entity $entityC and " +
+                                                      s"restricting data property $restrictedDP with kind=$kind")))
+                                                ) { valueType =>
+                                                  acc +++
+                                                    addEntityScalarDataPropertyParticularRestrictionAxiom(
+                                                      tboxG, entityC, restrictingSC,
+                                                      tables.LiteralValue(tables.LiteralStringType, value),
+                                                      Some(valueType)
+                                                    ).map(_ => ())
+                                                }
+
+                                              case ParticularOWLDataRestrictionKind(value, None) =>
                                                 acc +++
                                                   addEntityScalarDataPropertyParticularRestrictionAxiom(
                                                     tboxG, entityC, restrictingSC,
                                                     tables.LiteralValue(tables.LiteralStringType, value),
-                                                    Some(valueType)
+                                                    None
                                                   ).map(_ => ())
-                                              }
-
-                                            case ParticularOWLDataRestrictionKind(value, None) =>
-                                              acc +++
-                                                addEntityScalarDataPropertyParticularRestrictionAxiom(
-                                                  tboxG, entityC, restrictingSC,
-                                                  tables.LiteralValue(tables.LiteralStringType, value),
-                                                  None
-                                                ).map(_ => ())
+                                            }
                                           }
-                                        }
+                                      }
+                                    }
+
+                                    withRestrictions.flatMap { _ =>
+                                      asImmutableTerminologyBox(tboxG, resolver.om)
                                     }
                                   }
-
-                                  withRestrictions.flatMap { _ =>
-                                    asImmutableTerminologyBox(tboxG, resolver.om)
-                                  }
                                 }
-                              }
+                            }
                           }
                         }
                       }

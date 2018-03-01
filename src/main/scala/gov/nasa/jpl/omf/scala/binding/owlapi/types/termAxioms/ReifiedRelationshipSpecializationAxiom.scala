@@ -19,40 +19,40 @@
 package gov.nasa.jpl.omf.scala.binding.owlapi.types.termAxioms
 
 import gov.nasa.jpl.imce.oml.resolver.api
-import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ReifiedRelationship
+import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ConceptualRelationship
 
 import scala.{Any,Boolean,Int}
 import scala.Predef.require
 
 case class ReifiedRelationshipSpecializationAxiom
 (override val uuid: api.taggedTypes.ReifiedRelationshipSpecializationAxiomUUID,
- sub: ReifiedRelationship,
- sup: ReifiedRelationship)
+ sub: ConceptualRelationship,
+ sup: ConceptualRelationship)
   extends SpecializationAxiom {
 
-    require( null != sub )
-    require( null != sup )
+  require( null != sub )
+  require( null != sup )
 
-    override val parent = sup
-    override val child = sub
+  override val parent = sup
+  override val child = sub
 
-    override def canEqual(other: Any)
-    : Boolean
-    = other match {
-        case _: ReifiedRelationshipSpecializationAxiom => true
-        case _ => false
-    }
+  override def canEqual(other: Any)
+  : Boolean
+  = other match {
+    case _: ReifiedRelationshipSpecializationAxiom => true
+    case _ => false
+  }
 
-    override val hashCode: Int = (uuid, sub, sup).##
+  override val hashCode: Int = (uuid, sub, sup).##
 
-    override def equals(other: Any): Boolean = other match {
-        case that: ReifiedRelationshipSpecializationAxiom =>
-            (that canEqual this) &&
-              (this.uuid == that.uuid) &&
-              (this.sub == that.sub) &&
-              (this.sup == that.sup)
-        case _ =>
-            false
-    }
+  override def equals(other: Any): Boolean = other match {
+    case that: ReifiedRelationshipSpecializationAxiom =>
+      (that canEqual this) &&
+        (this.uuid == that.uuid) &&
+        (this.sub == that.sub) &&
+        (this.sup == that.sup)
+    case _ =>
+      false
+  }
 
 }

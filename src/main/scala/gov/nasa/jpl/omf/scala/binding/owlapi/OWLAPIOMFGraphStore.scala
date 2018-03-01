@@ -481,6 +481,9 @@ case class OWLAPIOMFGraphStore
     result
   }
 
+  def rootReifiedRelationships(pr: ReifiedRelationshipRestriction)
+  : Set[ReifiedRelationship]
+  = Set.empty
 
   // BundledTerminologyAxiom
 

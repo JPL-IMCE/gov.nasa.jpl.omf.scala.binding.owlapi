@@ -24,8 +24,9 @@ object AxiomExceptionKind extends Enumeration {
   type AxiomExceptionKind = Value
   val AspectSubclassAxiomException,
   ConceptSubclassAxiomException,
+  ReifiedRelationshipSpecializationAxiomException,
   ConceptRestrictionAxiomException,
-  ReifiedRelationshipSubclassAxiomException,
+  ReifiedRelationshipRestrictionException,
   SubDataPropertyOfAxiomException,
   SubObjectPropertyOfAxiomException,
   ReifiedRelationshipContextualizationAxiomException,

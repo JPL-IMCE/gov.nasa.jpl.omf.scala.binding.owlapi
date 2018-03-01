@@ -21,7 +21,7 @@ package gov.nasa.jpl.omf.scala.binding.owlapi.descriptions
 import gov.nasa.jpl.imce.oml.resolver.api
 import gov.nasa.jpl.imce.oml.tables.taggedTypes.LocalName
 import gov.nasa.jpl.omf.scala.binding.owlapi._
-import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ReifiedRelationship
+import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ConceptualRelationship
 import org.semanticweb.owlapi.model.OWLNamedIndividual
 
 case class ReifiedRelationshipInstance
@@ -29,5 +29,5 @@ case class ReifiedRelationshipInstance
  override val uuid: api.taggedTypes.ReifiedRelationshipInstanceUUID,
  override val name: LocalName,
  override val ni: OWLNamedIndividual,
- relationshipType: ReifiedRelationship)
+ relationshipType: ConceptualRelationship)
   extends ConceptualEntitySingletonInstance

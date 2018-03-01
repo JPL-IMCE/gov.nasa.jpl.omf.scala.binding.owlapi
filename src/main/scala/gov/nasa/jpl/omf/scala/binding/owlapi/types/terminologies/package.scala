@@ -42,6 +42,7 @@ package object terminologies {
     bundledTerminologies = Set.empty[BundledTerminologyAxiom] ++ sig.bundledTerminologies,
     aspects = Set.empty[Aspect] ++ sig.aspects,
     concepts = Set.empty[Concept] ++ sig.concepts,
+    reifiedRelationshipRestrictions = Set.empty[ReifiedRelationshipRestriction] ++ sig.reifiedRelationshipRestrictions,
     reifiedRelationships = Set.empty[ReifiedRelationship] ++ sig.reifiedRelationships,
     forwardProperties = Set.empty[ForwardProperty] ++ sig.forwardProperties,
     inverseProperties = Set.empty[InverseProperty] ++ sig.inverseProperties,

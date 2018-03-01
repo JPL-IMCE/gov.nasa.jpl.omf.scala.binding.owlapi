@@ -297,7 +297,7 @@ case class TerminologyBoxResolverHelper
    targetROPs: Iterable[ROPInfo],
    chains: Chains,
    entityReifiedRelationships: Map[OWLClass, ReifiedRelationship])
-  : Set[java.lang.Throwable] \/ Map[OWLClass, ReifiedRelationship]
+  : Set[java.lang.Throwable] \/ (Map[OWLClass, ReifiedRelationship], Set[OWLClass])
   = {
 
     val rcs = RCs.values.toSet
@@ -516,27 +516,36 @@ case class TerminologyBoxResolverHelper
       val srops = remainingSourceROPs.toList.sortBy(_._1.toString).map(ropInfoToString).mkString("\n")
       val trops = remainingTargetROPs.toList.sortBy(_._1.toString).map(ropInfoToString).mkString("\n")
 
-      m +++
-        Set(
-          OMFError
-            .omfOpsError(
-              omfStore.ops,
-              s"""|Unresolved Reified Object Properties, ROPs:
-                  |
+      val errors = Set(
+        OMFError
+          .omfOpsError(
+            omfStore.ops,
+            s"""|Unresolved Reified Object Properties, ROPs:
+                |
               |*** ${remainingROPs.size} remaining ROPs ***
-                  |$rops
-                  |
+                |$rops
+                |
               |*** ${remainingSourceROPs.size} remaining source ROPs ***
-                  |$srops
-                  |
+                |$srops
+                |
               |*** ${remainingTargetROPs.size} remaining target ROPs ***
-                  |$trops
-                  |""".stripMargin('|'))
-        ).left
+                |$trops
+                |""".stripMargin('|'))
+      )
+
+      m match {
+        case \/-(_) =>
+          errors.left
+        case -\/(errors1) =>
+          -\/(errors1 ++ errors)
+      }
+
     } else if (remainingROPs.isEmpty && remainingSourceROPs.isEmpty && remainingTargetROPs.isEmpty &&
       unresolvedROPs.isEmpty && unresolvableSourceROPs.isEmpty && unresolvableTargetROPs.isEmpty)
 
-      m +++ entityReifiedRelationships.right
+      (m +++ entityReifiedRelationships.right).map { rrs =>
+        rrs -> (rcs -- rrs.keySet)
+      }
 
     else
     //      System.out.println(s"\n#resolveEntityDefinitionsForRelationships no more matches")
@@ -585,9 +594,10 @@ case class TerminologyBoxResolverHelper
 
       m match {
         case \/-(_m) =>
-          if (_m.isEmpty)
-            entityReifiedRelationships.right
-          else {
+          if (_m.isEmpty) {
+            val remainingCs = rcs -- entityReifiedRelationships.keySet
+            (entityReifiedRelationships -> remainingCs).right
+          } else {
             //      System.out.println(s"\n#resolveEntityDefinitionsForRelationships with ${m.size}")
             resolveEntityDefinitionsForRelationships(
               entityDefinitions ++ _m,
@@ -848,77 +858,529 @@ case class TerminologyBoxResolverHelper
     }
 
   def resolveConceptSubClassAxioms
-  (allConceptsIncludingImported: Map[OWLClass, Concept])
+  ( subaxs: Set[OWLSubClassOfAxiom],
+    allConceptsIncludingImported: Map[OWLClass, Concept])
   (implicit reasoner: OWLReasoner, backbone: OMFBackbone)
-  : Set[java.lang.Throwable] \/ Unit
+  : Set[java.lang.Throwable] \/ Set[OWLSubClassOfAxiom]
   = {
-    val subaxs = ont.axioms(AxiomType.SUBCLASS_OF, Imports.EXCLUDED).toScala[Set]
-
-    val sub_sup = for {
+    val ax_sub_sup = for {
       subax <- subaxs
       subC <- owlclassOfCE(Option.apply(subax.getSubClass))
       subM <- allConceptsIncludingImported.get(subC)
       supC <- owlclassOfCE(Option.apply(subax.getSuperClass))
       supM <- allConceptsIncludingImported.get(supC)
-    } yield (subM, supM)
+    } yield (subax, subM, supM)
 
-    ( ().right[Set[java.lang.Throwable]] /: sub_sup ) {
-      case (acc, (subM, supM)) =>
+    ( subaxs.right[Set[java.lang.Throwable]] /: ax_sub_sup ) {
+      case (acc, (ax, subM, supM)) =>
         for {
-          _ <- acc
+          prev <- acc
           uuid <- conceptSpecializationAxiomUUID(tboxG, subM, supM)
-          next <- tboxG.createEntityConceptSubClassAxiom(uuid, sub = subM, sup = supM)(omfStore).map(_ => ())
+          _ <- tboxG.createEntityConceptSubClassAxiom(uuid, sub = subM, sup = supM)(omfStore).map(_ => ())
+          next = prev - ax
         } yield next
     }
   }
 
-  def resolveReifiedRelationshipSubClassAxioms
-  (allReifiedRelationshipsIncludingImported: Map[OWLClass, ReifiedRelationship])
+  def resolveSpecializedReifiedRelationships
+  (subcAxioms: Set[OWLSubClassOfAxiom],
+   allEntitiesIncludingImported: Map[OWLClass, Entity],
+   allReifiedRelationshipsIncludingImported: Map[OWLClass, ReifiedRelationship],
+   allImportedReifiedRelationshipRestrictions: Map[OWLClass, ReifiedRelationshipRestriction],
+   remainingCs: Set[OWLClass])
   (implicit reasoner: OWLReasoner, backbone: OMFBackbone)
-  : Set[java.lang.Throwable] \/ Unit
+  : Set[java.lang.Throwable] \/ Set[OWLSubClassOfAxiom]
   = {
-    val subaxs = ont.axioms(AxiomType.SUBCLASS_OF, Imports.EXCLUDED).toScala[Set]
 
-    val sub_sup = for {
-      subax <- subaxs
-      subC <- owlclassOfCE(Option.apply(subax.getSubClass))
-      subM <- allReifiedRelationshipsIncludingImported.get(subC)
-      supC <- owlclassOfCE(Option.apply(subax.getSuperClass))
-      supM <- allReifiedRelationshipsIncludingImported.get(supC)
-    } yield (subM, supM)
+    val partialRelationshipRoots: Map[ReifiedRelationshipRestriction, Set[ReifiedRelationship]]
+    = allImportedReifiedRelationshipRestrictions.map { case (_, pr) => pr -> pr.rootReifiedRelationships()(omfStore) }
 
-    ( ().right[Set[java.lang.Throwable]] /: sub_sup ) {
-      case (acc, (subM, supM)) =>
-        for {
-          _ <- acc
-          uuid <- reifiedRelationshipSpecializationAxiomUUID(tboxG, subM, supM)
-          next <- tboxG.createEntityReifiedRelationshipSubClassAxiom(uuid, sub = subM, sup = supM)(omfStore).map(_ => ())
-        } yield next
+    val sourceProperties
+    : Map[OWLObjectProperty, ReifiedRelationship]
+    = allReifiedRelationshipsIncludingImported.values.map { rr =>
+      rr.rSource -> rr
+    }.toMap
+
+    val targetProperties
+    : Map[OWLObjectProperty, ReifiedRelationship]
+    = allReifiedRelationshipsIncludingImported.values.map { rr =>
+      rr.rTarget -> rr
+    }.toMap
+
+    @scala.annotation.tailrec
+    def internalResolve
+    (candidates: Map[OWLClass, List[OWLSubClassOfAxiom]],
+     reifiedRelationshipRestrictions: Map[OWLClass, ReifiedRelationshipRestriction],
+     reifiedRelationshipRestrictionRoots: Map[ReifiedRelationshipRestriction, Set[ReifiedRelationship]])
+    (implicit reasoner: OWLReasoner, backbone: OMFBackbone)
+    : Set[java.lang.Throwable] \/ Unit
+    = if (candidates.isEmpty) \/-(())
+    else {
+
+      type Candidate
+      = (OWLClass, List[OWLSubClassOfAxiom])
+
+      type ConceptualRelationshipSubclassOfAxiom
+      = (OWLSubClassOfAxiom, ConceptualRelationship)
+
+      type SuperReifiedRelationshipConstraintAxiom
+      = Map[ReifiedRelationship, List[(OWLSubClassOfAxiom, Entity)]]
+
+      type ResolvedConceptualRelationshipCandidate
+      = (Candidate, List[ConceptualRelationshipSubclassOfAxiom], SuperReifiedRelationshipConstraintAxiom, SuperReifiedRelationshipConstraintAxiom)
+
+      type ReifiedRelationshipRestrictionAndRoots
+      = (Set[OWLClass], Map[OWLClass, ReifiedRelationshipRestriction], Map[ReifiedRelationshipRestriction, Set[ReifiedRelationship]])
+
+      val resolvedReifiedRelationshipRestrictionSpecializations
+      : Iterable[ResolvedConceptualRelationshipCandidate]
+      = for {
+        candidate <- candidates
+        (subC, axs) = candidate
+
+        supCax
+        : List[ConceptualRelationshipSubclassOfAxiom]
+        = axs.flatMap { ax =>
+          owlclassOfCE(Option.apply(ax.getSuperClass)).flatMap { supC =>
+            ( allReifiedRelationshipsIncludingImported.get(supC) orElse reifiedRelationshipRestrictions.get(supC) )
+              .map { cr: ConceptualRelationship => ax -> cr }
+          }
+        }
+
+        sourceRestrictions
+        : SuperReifiedRelationshipConstraintAxiom
+        = axs.foldLeft[SuperReifiedRelationshipConstraintAxiom] {
+          Map.empty[ReifiedRelationship, List[(OWLSubClassOfAxiom, Entity)]]
+        } { case (prev, ax) =>
+          Option.apply(ax.getSuperClass) match {
+            case Some(r: OWLObjectSomeValuesFrom) =>
+              (Option.apply(r.getProperty), Option.apply(r.getFiller)) match {
+                case (Some(op: OWLObjectProperty), Some(c: OWLClass)) =>
+                  ( sourceProperties.get(op),
+                    allEntitiesIncludingImported.get(c) orElse reifiedRelationshipRestrictions.get(c)
+                  ) match {
+                    case (Some(sourceRR), Some(e: Entity)) =>
+                      prev.updated(
+                        sourceRR,
+                        (ax -> e) :: prev.getOrElse(sourceRR, List.empty[(OWLSubClassOfAxiom, Entity)]))
+                    case _ =>
+                      prev
+                  }
+                case _ =>
+                  prev
+              }
+            case _ =>
+              prev
+          }
+        }
+
+        targetRestrictions
+        : SuperReifiedRelationshipConstraintAxiom
+        = axs.foldLeft[SuperReifiedRelationshipConstraintAxiom] {
+          Map.empty[ReifiedRelationship, List[(OWLSubClassOfAxiom, Entity)]]
+        } { case (prev, ax) =>
+          Option.apply(ax.getSuperClass) match {
+            case Some(r: OWLObjectSomeValuesFrom) =>
+              (Option.apply(r.getProperty), Option.apply(r.getFiller)) match {
+                case (Some(op: OWLObjectProperty), Some(c: OWLClass)) =>
+                  ( targetProperties.get(op),
+                    allEntitiesIncludingImported.get(c) orElse reifiedRelationshipRestrictions.get(c)
+                  ) match {
+                    case (Some(targetRR), Some(e: Entity)) =>
+                      prev.updated(
+                        targetRR,
+                        (ax -> e) :: prev.getOrElse(targetRR, List.empty[(OWLSubClassOfAxiom, Entity)]))
+                    case _ =>
+                      prev
+                  }
+                case _ =>
+                  prev
+              }
+            case _ =>
+              prev
+          }
+        }
+
+      } yield (candidate, supCax, sourceRestrictions, targetRestrictions)
+
+      if (resolvedReifiedRelationshipRestrictionSpecializations.nonEmpty) {
+
+        val inc
+        : Set[java.lang.Throwable] \/ ReifiedRelationshipRestrictionAndRoots
+        = resolvedReifiedRelationshipRestrictionSpecializations
+          .foldLeft[Set[java.lang.Throwable] \/ ReifiedRelationshipRestrictionAndRoots] {
+          (Set.empty[OWLClass], Map.empty[OWLClass, ReifiedRelationshipRestriction], Map.empty[ReifiedRelationshipRestriction, Set[ReifiedRelationship]]).right
+        } {
+          case (\/-((prevCs, prev, prevRoots)), ((owlSubc, axs), supCaxs, sourceRestrictions, targetRestrictions)) =>
+
+            import gov.nasa.jpl.imce.oml.resolver.Filterable.filterable
+
+            val sups = supCaxs.map(_._2).to[Set]
+            val supRRs = sups.selectByKindOf { case rr: ReifiedRelationship => rr }
+            val supPRs = sups.selectByKindOf { case pr: ReifiedRelationshipRestriction => pr }
+            val rootRRs = supPRs.flatMap { pr => reifiedRelationshipRestrictionRoots.getOrElse(pr, Set.empty) }
+            val sup_or_rootRRs = supRRs ++ rootRRs
+
+            if (supCaxs.nonEmpty) {
+              allReifiedRelationshipsIncludingImported.get(owlSubc) match {
+                case Some(subRR) =>
+                  // subclass is a ReifiedRelationship
+
+                  if (sourceRestrictions.isEmpty && targetRestrictions.isEmpty) {
+
+                    val (invalidSourceRestrictions, validSourceRestrictions)
+                    = ont
+                      .objectSubPropertyAxiomsForSubProperty(subRR.rSource)
+                      .toScala[Set]
+                      .map(_.getSuperProperty)
+                      .filterNot { ope => backbone.isBackboneObjectProperty(ope) }
+                      .partition { ope => sourceProperties.contains(ope) }
+
+                    val (invalidTargetRestrictions, validTargetRestrictions)
+                    = ont
+                      .objectSubPropertyAxiomsForSubProperty(subRR.rTarget)
+                      .toScala[Set]
+                      .map(_.getSuperProperty)
+                      .filterNot { ope => backbone.isBackboneObjectProperty(ope) }
+                      .partition { ope => targetProperties.contains(ope) }
+
+                    if (invalidSourceRestrictions.isEmpty && invalidTargetRestrictions.isEmpty) {
+
+                      val sup_or_rootRRsources = sup_or_rootRRs.map(_.rSource)
+                      val remainingSourceRestrictions = validSourceRestrictions -- sup_or_rootRRsources
+
+                      val sup_or_rootRRtargets = sup_or_rootRRs.map(_.rTarget)
+                      val remainingTargetRestrictions = validTargetRestrictions -- sup_or_rootRRtargets
+
+                      if (remainingSourceRestrictions.isEmpty && remainingTargetRestrictions.isEmpty) {
+                        for {
+
+                          _ <- supRRs.foldLeft[Set[java.lang.Throwable] \/ Unit](\/-(())) { case (acc, supRR) =>
+                            for {
+                              _ <- acc
+                              uuid <- reifiedRelationshipSpecializationAxiomUUID(tboxG, subRR, supRR)
+                              _ <- tboxG.createReifiedRelationshipSpecializationAxiom(uuid, subRR, supRR)
+                            } yield ()
+                          }
+
+                          _ <- supPRs.foldLeft[Set[java.lang.Throwable] \/ Unit](\/-(())) { case (acc, supPR) =>
+                            for {
+                              _ <- acc
+                              uuid <- reifiedRelationshipSpecializationAxiomUUID(tboxG, subRR, supPR)
+                              _ <- tboxG.createReifiedRelationshipSpecializationAxiom(uuid, subRR, supPR)
+                            } yield ()
+                          }
+
+                          nextCs = prevCs + owlSubc
+                        } yield (nextCs, prev, prevRoots)
+
+                      } else
+                        Set(OMFError.omfError(
+                          s"""|resolveSpecializedReifiedRelationships: remaining source/target object property restrictions!
+                              |ReifiedRelationship: ${subRR.iri}
+                              |
+                              |*** found ${remainingSourceRestrictions.size} remaining source restrictions (there should be none!) ****
+                              |${remainingSourceRestrictions.map(_.toString).mkString("\n")}
+                              |
+                              |*** found ${remainingTargetRestrictions.size} remaining target restrictions (there should be none!) ****
+                              |${remainingTargetRestrictions.map(_.toString).mkString("\n")}
+                              |
+                              |""".stripMargin('|'))).left
+
+                    } else
+                      Set(OMFError.omfError(
+                        s"""|resolveSpecializedReifiedRelationships: invalid source/target object property restrictions!
+                            |ReifiedRelationship: ${subRR.iri}
+                            |
+                            |*** found ${invalidSourceRestrictions.size} invalid source restrictions (there should be none!) ****
+                            |${sourceRestrictions.map(_.toString).mkString("\n")}
+                            |
+                            |*** found ${invalidTargetRestrictions.size} invalid target restrictions (there should be none!) ****
+                            |${targetRestrictions.map(_.toString).mkString("\n")}
+                            |
+                            |""".stripMargin('|'))).left
+
+                  } else
+                    Set(OMFError.omfError(
+                      s"""|resolveSpecializedReifiedRelationships: spurious source/target tuples!
+                          |ReifiedRelationship: ${subRR.iri}
+                          |
+                          |*** found ${sourceRestrictions.size} source tuples (there should be none!) ****
+                          |${sourceRestrictions.map { case (rr, ax_es) => s"rr=${rr.iri}, es=${ax_es.map(_._2.iri).mkString("; ")}" }.mkString("\n")}
+                          |
+                          |*** found ${targetRestrictions.size} target tuples (there should be none!) ****
+                          |${targetRestrictions.map { case (rr, ax_es) => s"rr=${rr.iri}, es=${ax_es.map(_._2.iri).mkString("; ")}" }.mkString("\n")}
+                          |
+                          |""".stripMargin('|'))).left
+
+                case None =>
+                  // subclass must be a new ReifiedRelationshipRestriction
+                  val parents = reasoner.getSuperClasses(owlSubc, true)
+                  if (!parents.containsEntity(backbone.ReifiedObjectPropertyC))
+                    Set(OMFError.omfError(
+                    s"Expected ReifiedRelationshipRestriction: ${owlSubc.getIRI}; "+
+                      s"instead it is: ${parents.entities().toScala[Seq].map(_.getIRI).mkString("\n","\n","\n")}"
+                    )).left
+
+                  else {
+                    // sourceKeys = supRRs + rootRRs in MutableTerminologyBox.addReifiedRelationshipSpecializationAxiom
+                    val sourceKeys = sourceRestrictions.keySet
+                    val targetKeys = targetRestrictions.keySet
+
+                    if (sourceKeys.isEmpty || targetKeys.isEmpty || sourceKeys.diff(targetKeys).nonEmpty)
+                      Set(OMFError.omfError(
+                        s"""|resolveSpecializedReifiedRelationships: mismatched source/target tuples!
+                            |ReifiedRelationshipRestriction: ${owlSubc.getIRI}
+                            |
+                            |*** found ${sourceRestrictions.size} source tuples ****
+                            |${sourceRestrictions.map { case (rr, ax_es) => s"rr=${rr.iri}, es=${ax_es.map(_._2.iri).mkString("; ")}" }.mkString("\n")}
+                            |
+                            |*** found ${targetRestrictions.size} target tuples ****
+                            |${targetRestrictions.map { case (rr, ax_es) => s"rr=${rr.iri}, es=${ax_es.map(_._2.iri).mkString("; ")}" }.mkString("\n")}
+                            |
+                            |""".stripMargin('|'))).left
+                    else {
+                      for {
+                        domain_range <- sourceKeys.foldLeft[Set[java.lang.Throwable] \/ Option[(Entity, Entity)]] {
+                          \/-(None)
+                        } { case (acc, sup_or_rootRR) =>
+                          // match number of source/target restrictions.
+                          for {
+                            prev <- acc
+                            sources = sourceRestrictions.getOrElse(sup_or_rootRR, List.empty[(OWLSubClassOfAxiom, Entity)])
+                            targets = targetRestrictions.getOrElse(sup_or_rootRR, List.empty[(OWLSubClassOfAxiom, Entity)])
+                            next <- (sources, targets) match {
+                              case ((_, sourceE) :: Nil, (_, targetE) :: Nil) =>
+                                prev match {
+                                  case None =>
+                                    \/-(Some(sourceE -> targetE))
+                                  case Some((domainE, rangeE)) =>
+                                    if (sourceE == domainE && targetE == rangeE)
+                                      acc
+                                    else
+                                      Set(OMFError.omfError(
+                                        s"""|resolveSpecializedReifiedRelationships: mismatched source/target tuples!
+                                            |ReifiedRelationshipRestriction: ${owlSubc.getIRI}
+                                            | super ReifiedRelationship: ${sup_or_rootRR.iri}
+                                            |*** mismatched source/target vs. domain/range ****
+                                            |restricted source: ${sourceE.iri}
+                                            |  expected domain: ${domainE.iri}
+                                            |
+                                          |restricted target: ${sourceE.iri}
+                                            |   expected range: ${domainE.iri}
+                                            |
+                                          |""".stripMargin('|'))).left
+                                }
+
+                              case (sourcePairs, targetPairs) =>
+                                Set(OMFError.omfError(
+                                  s"""|resolveSpecializedReifiedRelationships: mismatched source/target tuples!
+                                      |ReifiedRelationshipRestriction: ${owlSubc.getIRI}
+                                      | super ReifiedRelationship: ${sup_or_rootRR.iri}
+                                      |*** found ${sourcePairs.size} source tuples ****
+                                      |${sourcePairs.map { case (_, e) => s"source restriction: ${e.iri}" }.mkString("\n")}
+                                      |
+                                      |*** found ${targetPairs.size} target tuples ****
+                                      |${targetPairs.map { case (_, e) => s"target restriction: ${e.iri}" }.mkString("\n")}
+                                      |
+                                      |""".stripMargin('|'))).left
+                            }
+                          } yield next
+                        } match {
+                          case \/-(Some((domain, range))) =>
+                            \/-(domain -> range)
+                          case \/-(None) =>
+                            Set(OMFError.omfError(
+                              s"""|resolveSpecializedReifiedRelationships: mismatched source/target tuples!
+                                  |ReifiedRelationshipRestriction: ${owlSubc.getIRI}
+                                  |
+                                  |*** found ${sourceRestrictions.size} source tuples ****
+                                  |${sourceRestrictions.map { case (rr, ax_es) => s"rr=${rr.iri}, es=${ax_es.map(_._2.iri).mkString("; ")}" }.mkString("\n")}
+                                  |
+                                  |*** found ${targetRestrictions.size} target tuples ****
+                                  |${targetRestrictions.map { case (rr, ax_es) => s"rr=${rr.iri}, es=${ax_es.map(_._2.iri).mkString("; ")}" }.mkString("\n")}
+                                  |
+                                  |""".stripMargin('|'))).left
+                          case -\/(errors) =>
+                            -\/(errors)
+                        }
+                        (domainE, rangeE) = domain_range
+                        subPR <- tboxG.createReifiedRelationshipRestriction(
+                          tboxUUID = tboxG.uuid,
+                          e = owlSubc,
+                          source = domainE,
+                          target = rangeE)
+                        next = prev + (owlSubc -> subPR)
+
+                        otherRRs = sourceKeys -- sup_or_rootRRs
+                        _ <- if (otherRRs.isEmpty)
+                          \/-(())
+                        else
+                          Set(
+                            OMFError
+                              .omfOpsError(
+                                omfStore.ops,
+                                s"""|resolveSpecializedReifiedRelationships: unmatched otherRRs!
+                                    |ReifiedRelationshipRestriction: ${owlSubc.getIRI}
+                                    |
+                                    |*** found ${otherRRs.size} restricted source/target RRs ***
+                                    |${otherRRs.map(_.iri).mkString("\n")}
+                                    |
+                                    |*** found ${sourceRestrictions.size} source tuples ****
+                                    |${sourceRestrictions.map { case (rr, ax_es) => s"rr=${rr.iri}, es=${ax_es.map(_._2.iri).mkString("; ")}" }.mkString("\n")}
+                                    |
+                                    |*** found ${targetRestrictions.size} target tuples ****
+                                    |${targetRestrictions.map { case (rr, ax_es) => s"rr=${rr.iri}, es=${ax_es.map(_._2.iri).mkString("; ")}" }.mkString("\n")}
+                                    |
+                                    |""".stripMargin('|'))).left
+
+                        _ <- supRRs.foldLeft[Set[java.lang.Throwable] \/ Unit](\/-(())) { case (acc, supRR) =>
+                          for {
+                            _ <- acc
+                            uuid <- reifiedRelationshipSpecializationAxiomUUID(tboxG, subPR, supRR)
+                            _ <- tboxG.createReifiedRelationshipSpecializationAxiom(uuid, subPR, supRR)
+                          } yield ()
+                        }
+
+                        _ <- supPRs.foldLeft[Set[java.lang.Throwable] \/ Unit](\/-(())) { case (acc, supPR) =>
+                          for {
+                            _ <- acc
+                            uuid <- reifiedRelationshipSpecializationAxiomUUID(tboxG, subPR, supPR)
+                            _ <- tboxG.createReifiedRelationshipSpecializationAxiom(uuid, subPR, supPR)
+                          } yield ()
+                        }
+
+                        nextCs = prevCs + owlSubc
+                        nextRoots = prevRoots + (subPR -> sup_or_rootRRs)
+                      } yield (nextCs, next, nextRoots)
+                    }
+                  }
+              }
+            } else
+              Set(
+                OMFError
+                  .omfOpsError(
+                    omfStore.ops,
+                    s"""|resolveSpecializedReifiedRelationships: unmatched subclass axioms!
+                        |
+                        |*** found ${axs.size} subclass axioms without a superclass entity! ***
+                        |${axs.map(_.toString).mkString("\n")}
+                        |
+                        |*** found ${sourceRestrictions.size} source tuples ****
+                        |${sourceRestrictions.map { case (rr, ax_es) => s"rr=${rr.iri}, es=${ax_es.map(_._2.iri).mkString("; ")}" }.mkString("\n")}
+                        |
+                        |*** found ${targetRestrictions.size} target tuples ****
+                        |${targetRestrictions.map { case (rr, ax_es) => s"rr=${rr.iri}, es=${ax_es.map(_._2.iri).mkString("; ")}" }.mkString("\n")}
+                        |
+                        |""".stripMargin('|'))).left
+
+          case (-\/(errors), _) =>
+            -\/(errors)
+        }
+
+        inc match {
+          case \/-((processed, additions, additionalRoots)) =>
+            val remaining = candidates -- processed
+            val specializedWithAdditions = reifiedRelationshipRestrictions ++ additions
+            val specializedWithAdditionalRoots = reifiedRelationshipRestrictionRoots ++ additionalRoots
+
+            if (remaining.size < candidates.size)
+              internalResolve(
+                remaining,
+                specializedWithAdditions,
+                specializedWithAdditionalRoots)
+            else
+              Set(
+                OMFError
+                  .omfOpsError(
+                    omfStore.ops,
+                    s"""|resolveSpecializedReifiedRelationships: no progress!
+                        |
+                        |*** found ${remaining.size} remaining candidates ***
+                        |${remaining.map(_._1.getIRI.toString).mkString("\n")}
+                        |
+                        |""".stripMargin('|'))).left
+
+          case -\/(errors) =>
+            -\/(errors)
+        }
+
+      } else
+        Set(
+          OMFError
+            .omfOpsError(
+              omfStore.ops,
+              s"""|resolveSpecializedReifiedRelationships:
+                  |
+                  |*** ${candidates.size} remaining OWLClasses (not ReifiedRelationships) ***
+                  |${candidates.keys.map(_.getIRI.toString).mkString("\n")}
+                  |""".stripMargin('|'))).left
     }
+
+    val subcAxiomsBySub = subcAxioms.groupBy {
+      ax => owlclassOfCE(Option.apply(ax.getSubClass))
+    }
+
+    val (otherSubcAxioms, specializedReifiedRelationshipSubcAxioms)
+    : (Set[OWLSubClassOfAxiom], Map[OWLClass, Set[OWLSubClassOfAxiom]])
+    = subcAxiomsBySub.foldLeft[(Set[OWLSubClassOfAxiom], Map[OWLClass, Set[OWLSubClassOfAxiom]])] {
+      Set.empty[OWLSubClassOfAxiom] -> Map.empty[OWLClass, Set[OWLSubClassOfAxiom]]
+    } {
+      case ((left, right), (None, axs)) =>
+        (left ++ axs) -> right
+
+      case ((left, right), (Some(c), axs)) =>
+        if (remainingCs.contains(c) || allReifiedRelationshipsIncludingImported.contains(c))
+          left -> right.updated(c, right.getOrElse(c, Set.empty[OWLSubClassOfAxiom]) ++ axs)
+        else
+          (left ++ axs) -> right
+    }
+
+    val unconstrainedCs = remainingCs -- specializedReifiedRelationshipSubcAxioms.keySet
+
+    if (unconstrainedCs.isEmpty) {
+      internalResolve(
+        candidates = specializedReifiedRelationshipSubcAxioms.map { case (c, axs) => c -> axs.to[List] },
+        reifiedRelationshipRestrictions = allImportedReifiedRelationshipRestrictions,
+        reifiedRelationshipRestrictionRoots = partialRelationshipRoots
+      ).map { _ =>
+        otherSubcAxioms
+      }
+
+    } else
+      Set(
+        OMFError
+          .omfOpsError(
+            omfStore.ops,
+            s"""|resolveSpecializedReifiedRelationships:
+                |
+                |*** ${unconstrainedCs.size} unconstrained OWL Classes ***
+                |${unconstrainedCs.map(_.getIRI.toString).mkString("\n")}
+                |""".stripMargin('|'))).left
   }
 
   def resolveDefinitionAspectSubClassAxioms
-  (allEntityDefinitions: Map[OWLClass, Entity],
+  (subaxs: Set[OWLSubClassOfAxiom],
+   allEntityDefinitions: Map[OWLClass, Entity],
    allAspectsIncludingImported: Map[OWLClass, Aspect])
   (implicit reasoner: OWLReasoner, backbone: OMFBackbone)
-  : Set[java.lang.Throwable] \/ Unit
+  : Set[java.lang.Throwable] \/ Set[OWLSubClassOfAxiom]
   = {
-    val subaxs = ont.axioms(AxiomType.SUBCLASS_OF, Imports.EXCLUDED).toScala[Set]
-
-    val sub_sup = for {
+    val ax_sub_sup = for {
       subax <- subaxs
       subC <- owlclassOfCE(Option.apply(subax.getSubClass))
       subM <- allEntityDefinitions.get(subC)
       supC <- owlclassOfCE(Option.apply(subax.getSuperClass))
       supM <- allAspectsIncludingImported.get(supC)
-    } yield (subM, supM)
+    } yield (subax, subM, supM)
 
-    ( ().right[Set[java.lang.Throwable]] /: sub_sup ) {
-      case (acc, (subM, supM)) =>
+    ( subaxs.right[Set[java.lang.Throwable]] /: ax_sub_sup ) {
+      case (acc, (ax, subM, supM)) =>
         for {
-          _ <- acc
+          prev <- acc
           uuid <- aspectSpecializationAxiomUUID(tboxG, subM, supM)
-          next <- tboxG.createEntityDefinitionAspectSubClassAxiom(uuid, sub = subM, sup = supM)(omfStore).map(_ => ())
+          _ <- tboxG.createEntityDefinitionAspectSubClassAxiom(uuid, sub = subM, sup = supM)(omfStore).map(_ => ())
+          next = prev - ax
         } yield next
     }
   }

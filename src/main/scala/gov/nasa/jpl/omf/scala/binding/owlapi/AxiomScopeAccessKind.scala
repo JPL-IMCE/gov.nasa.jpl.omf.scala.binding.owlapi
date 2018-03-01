@@ -22,6 +22,6 @@ import scala.Enumeration
 
 object AxiomScopeAccessKind extends Enumeration {
   type AxiomScopeAccessKind = Value
-  val Sub, Sup, Domain, Rel, Range = Value
+  val Sub, Sup, Domain, Rel, Range, General = Value
 }
 

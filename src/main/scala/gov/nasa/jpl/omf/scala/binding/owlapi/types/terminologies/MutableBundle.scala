@@ -154,6 +154,7 @@ object MutableBundle {
       bundledTerminologies = HashSet.empty[BundledTerminologyAxiom],
       aspects = HashSet.empty[Aspect],
       concepts = HashSet.empty[Concept],
+      reifiedRelationshipRestrictions = HashSet.empty[ReifiedRelationshipRestriction],
       reifiedRelationships = HashSet.empty[ReifiedRelationship],
       forwardProperties = HashSet.empty[ForwardProperty],
       inverseProperties = HashSet.empty[InverseProperty],

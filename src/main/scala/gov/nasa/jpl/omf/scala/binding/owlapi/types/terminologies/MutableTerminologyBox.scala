@@ -26,13 +26,14 @@ import gov.nasa.jpl.imce.oml.resolver.api
 import gov.nasa.jpl.imce.oml.{resolver, tables}
 import gov.nasa.jpl.imce.oml.tables.taggedTypes.{LocalName, StringDataType, localName}
 import gov.nasa.jpl.omf.scala.binding.owlapi.AxiomExceptionKind
+import gov.nasa.jpl.omf.scala.binding.owlapi.AxiomScopeAccessKind.AxiomScopeAccessKind
 import gov.nasa.jpl.omf.scala.binding.owlapi.ElementExceptionKind
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.{axiomScopeException, duplicateModelTermAxiomException, duplicateTerminologyGraphAxiomException, entityAlreadyDefinedException, entityConflictException, entityScopeException, terms}
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologyAxioms._
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.termAxioms._
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms._
 import gov.nasa.jpl.omf.scala.binding.owlapi._
-import gov.nasa.jpl.omf.scala.binding.owlapi.common.MutableModule
+import gov.nasa.jpl.omf.scala.binding.owlapi.common.{MutableModule, Resource}
 import gov.nasa.jpl.omf.scala.core.OMFError
 import gov.nasa.jpl.omf.scala.core._
 import gov.nasa.jpl.omf.scala.core.RelationshipCharacteristics.RelationshipCharacteristics
@@ -420,6 +421,116 @@ trait MutableTerminologyBox
       Set(
         entityConflictException(ElementExceptionKind.EntityConcept, conceptIRI, t)
       ).left
+  }
+
+
+  def createReifiedRelationshipRestriction
+  (tboxUUID: api.taggedTypes.TerminologyBoxUUID,
+   e: OWLClass,
+   source: OWLAPIOMF#Entity,
+   target: OWLAPIOMF#Entity)
+  (implicit store: OWLAPIOMFGraphStore)
+  : OMFError.Throwables \/ OWLAPIOMF#ReifiedRelationshipRestriction
+  = for {
+    name <- getFragment(e.getIRI)
+    uuid = api.taggedTypes.reifiedRelationshipRestrictionUUID(generateUUIDFromString(tboxUUID, "name" -> name))
+    term <- createReifiedRelationshipRestriction(e, uuid, e.getIRI, name, source, target)
+    aas = getRelevantSubjectAnnotationAssertions(ont, e.getIRI)
+    _ <- store.ops.addAnnotationAssertions(this, term, aas)
+  } yield term
+
+  def createReifiedRelationshipRestriction
+  (e: OWLClass,
+   uuid: api.taggedTypes.ReifiedRelationshipRestrictionUUID,
+   iri: IRI,
+   name: LocalName,
+   source: OWLAPIOMF#Entity,
+   target: OWLAPIOMF#Entity)
+  (implicit store: OWLAPIOMFGraphStore)
+  : OMFError.Throwables \/ OWLAPIOMF#ReifiedRelationshipRestriction
+  = iri2typeTerm
+    .get(iri)
+    .fold[OMFError.Throwables \/ OWLAPIOMF#ReifiedRelationshipRestriction] {
+    val _pr = ReifiedRelationshipRestriction(e, iri, name, uuid,source, target)
+    sig.reifiedRelationshipRestrictions += _pr
+    iri2typeTerm += _pr.iri -> _pr
+    _pr.right
+  } {
+    case srr: OWLAPIOMF#ReifiedRelationshipRestriction =>
+      srr.right
+    case t =>
+      Set(
+        entityConflictException(ElementExceptionKind.ReifiedRelationshipRestriction, iri, t)
+      ).left
+  }
+
+  def makeReifiedRelationshipRestriction
+  (uuid: api.taggedTypes.ReifiedRelationshipRestrictionUUID,
+   iri: IRI,
+   name: LocalName,
+   source: OWLAPIOMF#Entity,
+   target: OWLAPIOMF#Entity)
+  (implicit store: OWLAPIOMFGraphStore)
+  : OMFError.Throwables \/ OWLAPIOMF#ReifiedRelationshipRestriction
+  = sig.axioms
+    .find {
+      case axiom: ReifiedRelationshipRestriction =>
+        axiom.iri == iri && axiom.source == source && axiom.target == target
+      case _ =>
+        false
+    }
+    .fold[OMFError.Throwables \/ ReifiedRelationshipRestriction] {
+    val e = owlDataFactory.getOWLClass(iri)
+    for {
+      result <- createReifiedRelationshipRestriction(e, uuid, iri, name, source, target)
+      _ <- applyOntologyChangesOrNoOp(ontManager,
+        Seq(
+          new AddAxiom(ont, owlDataFactory.getOWLDeclarationAxiom(
+            e,
+            createOMLProvenanceAnnotations(uuid))),
+          new AddAxiom(ont, owlDataFactory.getOWLSubClassOfAxiom(
+            e,
+            backbone.ReifiedObjectPropertyC,
+            createOMLProvenanceAnnotations(uuid)))
+        ),
+        "makeReifiedRelationshipRestriction error")
+    } yield result
+  } {
+    case term: OWLAPIOMF#ReifiedRelationshipRestriction =>
+      term.right
+
+    case other =>
+      Set(
+        duplicateModelTermAxiomException(AxiomExceptionKind.ReifiedRelationshipRestrictionException, other)
+      ).left
+  }
+
+  def addReifiedRelationshipRestriction
+  (uuid: api.taggedTypes.ReifiedRelationshipRestrictionUUID,
+   iri: IRI,
+   name: LocalName,
+   source: OWLAPIOMF#Entity,
+   target: OWLAPIOMF#Entity)
+  (implicit store: OWLAPIOMFGraphStore)
+  : OMFError.Throwables \/ OWLAPIOMF#ReifiedRelationshipRestriction
+  = (isTypeTermDefinedRecursively(source), isTypeTermDefinedRecursively(target)) match {
+    case (true, true) =>
+      makeReifiedRelationshipRestriction(uuid, iri, name, source, target)
+
+    case (s, t) =>
+      Set(
+        axiomScopeException(
+          AxiomExceptionKind.ReifiedRelationshipRestrictionException,
+          Map.empty[AxiomScopeAccessKind, Resource] ++
+            (if (s)
+              Map.empty[AxiomScopeAccessKind, Resource]
+            else
+              Map(AxiomScopeAccessKind.Domain -> source)) ++
+            (if (t)
+              Map.empty[AxiomScopeAccessKind, Resource]
+            else
+              Map(AxiomScopeAccessKind.Range -> target))
+        )).left
   }
 
   /**
@@ -3030,10 +3141,14 @@ trait MutableTerminologyBox
       val axiom = ConceptSpecializationAxiom(uuid, sub, sup)
       sig.axioms += axiom
       axiom.right
-    } { other =>
-    Set(
-      duplicateModelTermAxiomException(AxiomExceptionKind.EntityConceptSubClassAxiomException, other)
-    ).left
+    } {
+    case ax: OWLAPIOMF#ConceptSpecializationAxiom =>
+      ax.right
+
+    case other =>
+      Set(
+        duplicateModelTermAxiomException(AxiomExceptionKind.EntityConceptSubClassAxiomException, other)
+      ).left
   }
 
   def addEntityConceptSubClassAxiom
@@ -3078,6 +3193,191 @@ trait MutableTerminologyBox
       Set(
         axiomScopeException(
           AxiomExceptionKind.ConceptSubclassAxiomException,
+          Map(AxiomScopeAccessKind.Sub -> sub, AxiomScopeAccessKind.Sup -> sup))
+      ).left
+  }
+
+  def createReifiedRelationshipSpecializationAxiom
+  (uuid: api.taggedTypes.ReifiedRelationshipSpecializationAxiomUUID,
+   sub: OWLAPIOMF#ConceptualRelationship,
+   sup: OWLAPIOMF#ConceptualRelationship)
+  (implicit store: OWLAPIOMFGraphStore)
+  : OMFError.Throwables \/ OWLAPIOMF#ReifiedRelationshipSpecializationAxiom
+  = sig.axioms
+    .find {
+      case axiom: ReifiedRelationshipSpecializationAxiom =>
+        axiom.sub == sub && axiom.sup == sup
+      case _ =>
+        false
+    }
+    .fold[OMFError.Throwables \/ ReifiedRelationshipSpecializationAxiom] {
+    val axiom = ReifiedRelationshipSpecializationAxiom(uuid, sub, sup)
+    sig.axioms += axiom
+    axiom.right
+  } {
+    case ax: OWLAPIOMF#ReifiedRelationshipSpecializationAxiom =>
+      ax.right
+
+    case other =>
+      Set(
+        duplicateModelTermAxiomException(AxiomExceptionKind.EntityReifiedRelationshipSubClassAxiomException, other)
+      ).left
+  }
+
+  def addReifiedRelationshipSpecializationAxiom
+  (uuid: api.taggedTypes.ReifiedRelationshipSpecializationAxiomUUID,
+   sub: OWLAPIOMF#ConceptualRelationship,
+   sup: OWLAPIOMF#ConceptualRelationship)
+  (implicit store: OWLAPIOMFGraphStore)
+  : OMFError.Throwables \/ OWLAPIOMF#ReifiedRelationshipSpecializationAxiom
+  = (isTypeTermDefinedRecursively(sub), isTypeTermDefinedRecursively(sup)) match {
+    case (true, true) =>
+      (sub, sup) match {
+        case (subRR: OWLAPIOMF#ReifiedRelationship, supRR: OWLAPIOMF#ReifiedRelationship) =>
+          for {
+            axiom <- createReifiedRelationshipSpecializationAxiom(uuid, subRR, supRR)
+            _ <- applyOntologyChanges(
+              ontManager,
+              Seq(
+                new AddAxiom(ont, owlDataFactory.getOWLSubClassOfAxiom(
+                  subRR.e,
+                  supRR.e,
+                  createOMLProvenanceAnnotations(uuid))),
+                new AddAxiom(ont, owlDataFactory.getOWLSubObjectPropertyOfAxiom(
+                  subRR.rSource,
+                  supRR.rSource,
+                  createOMLProvenanceAnnotations(uuid))),
+                new AddAxiom(ont, owlDataFactory.getOWLSubObjectPropertyOfAxiom(
+                  subRR.rTarget,
+                  supRR.rTarget,
+                  createOMLProvenanceAnnotations(uuid))),
+                new AddAxiom(ont, owlDataFactory.getOWLSubObjectPropertyOfAxiom(
+                  subRR.forwardProperty.e,
+                  supRR.forwardProperty.e
+                ))
+              ) ++ subRR.inverseProperty.fold[Seq[OWLOntologyChange]](Seq.empty) { subi =>
+                supRR.inverseProperty.fold[Seq[OWLOntologyChange]](Seq.empty) { supi =>
+                  Seq(
+                    new AddAxiom(ont, owlDataFactory.getOWLSubObjectPropertyOfAxiom(
+                      subi.e, supi.e
+                    ))
+                  )
+                }
+              },
+              s"addReifiedRelationshipSpecializationAxiom")
+          } yield axiom
+
+        case (subRR: OWLAPIOMF#ReifiedRelationship, supPR: OWLAPIOMF#ReifiedRelationshipRestriction) =>
+          for {
+            axiom <- createReifiedRelationshipSpecializationAxiom(uuid, subRR, supPR)
+            rootRRs = supPR.rootReifiedRelationships()
+            _ <- applyOntologyChanges(
+              ontManager,
+              Seq(
+                new AddAxiom(ont, owlDataFactory.getOWLSubClassOfAxiom(
+                  subRR.e,
+                  supPR.e,
+                  createOMLProvenanceAnnotations(uuid)))
+              ) ++ rootRRs.foldLeft[Seq[OWLOntologyChange]](Seq.empty) { case (acc, rootRR) =>
+                acc ++
+                Seq(
+                  new AddAxiom(ont, owlDataFactory.getOWLSubObjectPropertyOfAxiom(
+                    subRR.rSource,
+                    rootRR.rSource,
+                    createOMLProvenanceAnnotations(uuid))),
+                  new AddAxiom(ont, owlDataFactory.getOWLSubObjectPropertyOfAxiom(
+                    subRR.rTarget,
+                    rootRR.rTarget,
+                    createOMLProvenanceAnnotations(uuid))),
+                  new AddAxiom(ont, owlDataFactory.getOWLSubObjectPropertyOfAxiom(
+                    subRR.forwardProperty.e,
+                    rootRR.forwardProperty.e
+                  ))
+                )
+              } ++ subRR.inverseProperty.fold[Seq[OWLOntologyChange]](Seq.empty) { subi =>
+                rootRRs.foldLeft[Seq[OWLOntologyChange]](Seq.empty) { case (acc, rootRR) =>
+                  rootRR.inverseProperty.fold[Seq[OWLOntologyChange]](acc) { supi =>
+                    acc ++
+                    Seq(
+                      new AddAxiom(ont, owlDataFactory.getOWLSubObjectPropertyOfAxiom(
+                        subi.e, supi.e
+                      ))
+                    )
+                  }
+                }
+              },
+              s"addReifiedRelationshipSpecializationAxiom")
+          } yield axiom
+
+        case (subPR: OWLAPIOMF#ReifiedRelationshipRestriction, supRR: OWLAPIOMF#ReifiedRelationship) =>
+          for {
+            axiom <- createReifiedRelationshipSpecializationAxiom(uuid, subPR, supRR)
+            _ <- applyOntologyChanges(
+              ontManager,
+              Seq(
+                new AddAxiom(ont, owlDataFactory.getOWLSubClassOfAxiom(
+                  subPR.e,
+                  supRR.e,
+                  createOMLProvenanceAnnotations(uuid))),
+                new AddAxiom(ont, owlDataFactory.getOWLSubClassOfAxiom(
+                  subPR.e,
+                  owlDataFactory.getOWLObjectSomeValuesFrom(supRR.rSource, subPR.source.e),
+                  createOMLProvenanceAnnotations(uuid))),
+                new AddAxiom(ont, owlDataFactory.getOWLSubClassOfAxiom(
+                  subPR.e,
+                  owlDataFactory.getOWLObjectSomeValuesFrom(supRR.rTarget, subPR.target.e),
+                  createOMLProvenanceAnnotations(uuid)))
+              ),
+              s"addReifiedRelationshipSpecializationAxiom")
+          } yield axiom
+
+        case (subPR: OWLAPIOMF#ReifiedRelationshipRestriction, supPR: OWLAPIOMF#ReifiedRelationshipRestriction) =>
+          for {
+            axiom <- createReifiedRelationshipSpecializationAxiom(uuid, subPR, supPR)
+            rootRRs = supPR.rootReifiedRelationships()
+            _ <- applyOntologyChanges(
+              ontManager,
+              Seq(
+                new AddAxiom(ont, owlDataFactory.getOWLSubClassOfAxiom(
+                  subPR.e,
+                  supPR.e,
+                  createOMLProvenanceAnnotations(uuid)))
+              ) ++ rootRRs.foldLeft[Seq[OWLOntologyChange]](Seq.empty) { case (acc, rootRR) =>
+                acc ++
+                  Seq(
+                    new AddAxiom(ont, owlDataFactory.getOWLSubClassOfAxiom(
+                      subPR.e,
+                      owlDataFactory.getOWLObjectSomeValuesFrom(rootRR.rSource, subPR.source.e),
+                      createOMLProvenanceAnnotations(uuid))),
+                    new AddAxiom(ont, owlDataFactory.getOWLSubClassOfAxiom(
+                      subPR.e,
+                      owlDataFactory.getOWLObjectSomeValuesFrom(rootRR.rTarget, subPR.target.e),
+                      createOMLProvenanceAnnotations(uuid)))
+                  )
+              },
+              s"addReifiedRelationshipSpecializationAxiom")
+          } yield axiom
+
+      }
+
+    case (false, true) =>
+      Set(
+        axiomScopeException(
+          AxiomExceptionKind.ReifiedRelationshipSpecializationAxiomException,
+          Map(AxiomScopeAccessKind.Sub -> sub))
+      ).left
+
+    case (true, false) =>
+      Set(
+        axiomScopeException(
+          AxiomExceptionKind.ReifiedRelationshipSpecializationAxiomException,
+          Map(AxiomScopeAccessKind.Sup -> sup))
+      ).left
+
+    case (false, false) =>
+      Set(
+        axiomScopeException(
+          AxiomExceptionKind.ReifiedRelationshipSpecializationAxiomException,
           Map(AxiomScopeAccessKind.Sub -> sub, AxiomScopeAccessKind.Sup -> sup))
       ).left
   }
@@ -3622,92 +3922,6 @@ trait MutableTerminologyBox
   } yield {
     sig.conceptDesignation += axiom
     axiom
-  }
-
-  def createEntityReifiedRelationshipSubClassAxiom
-  (uuid: api.taggedTypes.ReifiedRelationshipSpecializationAxiomUUID,
-   sub: OWLAPIOMF#ReifiedRelationship,
-   sup: OWLAPIOMF#ReifiedRelationship)
-  (implicit store: OWLAPIOMFGraphStore)
-  : OMFError.Throwables \/ OWLAPIOMF#ReifiedRelationshipSpecializationAxiom
-  = sig.axioms
-    .find {
-      case axiom: ReifiedRelationshipSpecializationAxiom =>
-        axiom.sub == sub && axiom.sup == sup
-      case _ =>
-        false
-    }
-    .fold[OMFError.Throwables \/ ReifiedRelationshipSpecializationAxiom] {
-    val axiom = ReifiedRelationshipSpecializationAxiom(uuid, sub, sup)
-    sig.axioms += axiom
-    axiom.right
-  } { other =>
-    Set(
-      duplicateModelTermAxiomException(AxiomExceptionKind.EntityReifiedRelationshipSubClassAxiomException, other)
-    ).left
-  }
-
-  def addEntityReifiedRelationshipSubClassAxiom
-  (uuid: api.taggedTypes.ReifiedRelationshipSpecializationAxiomUUID,
-   sub: OWLAPIOMF#ReifiedRelationship,
-   sup: OWLAPIOMF#ReifiedRelationship)
-  (implicit store: OWLAPIOMFGraphStore)
-  : OMFError.Throwables \/ OWLAPIOMF#ReifiedRelationshipSpecializationAxiom
-  = (isTypeTermDefinedRecursively(sub), isTypeTermDefinedRecursively(sup)) match {
-    case (true, true) =>
-      for {
-        axiom <- createEntityReifiedRelationshipSubClassAxiom(uuid, sub, sup)
-        _ <- applyOntologyChangesOrNoOp(
-          ontManager,
-          Seq(
-            new AddAxiom(ont, owlDataFactory.getOWLSubClassOfAxiom(
-              sub.e,
-              sup.e,
-              createOMLProvenanceAnnotations(uuid))),
-            new AddAxiom(ont, owlDataFactory.getOWLSubObjectPropertyOfAxiom(
-              sub.rSource,
-              sup.rSource,
-              createOMLProvenanceAnnotations(uuid))),
-            new AddAxiom(ont, owlDataFactory.getOWLSubObjectPropertyOfAxiom(
-              sub.rTarget,
-              sup.rTarget,
-              createOMLProvenanceAnnotations(uuid))),
-            new AddAxiom(ont, owlDataFactory.getOWLSubObjectPropertyOfAxiom(
-              sub.forwardProperty.e,
-              sup.forwardProperty.e
-            ))
-          ) ++ sub.inverseProperty.fold[Seq[OWLOntologyChange]](Seq.empty) { subi =>
-            sup.inverseProperty.fold[Seq[OWLOntologyChange]](Seq.empty) { supi =>
-              Seq(
-                new AddAxiom(ont, owlDataFactory.getOWLSubObjectPropertyOfAxiom(
-                  subi.e, supi.e
-                ))
-              )
-            }
-          },
-          s"addEntityReifiedRelationshipSubClassAxiom")
-      } yield axiom
-
-    case (false, true) =>
-      Set(
-        axiomScopeException(
-          AxiomExceptionKind.ReifiedRelationshipSubclassAxiomException,
-          Map(AxiomScopeAccessKind.Sub -> sub))
-      ).left
-
-    case (true, false) =>
-      Set(
-        axiomScopeException(
-          AxiomExceptionKind.ReifiedRelationshipSubclassAxiomException,
-          Map(AxiomScopeAccessKind.Sup -> sup))
-      ).left
-
-    case (false, false) =>
-      Set(
-        axiomScopeException(
-          AxiomExceptionKind.ReifiedRelationshipSubclassAxiomException,
-          Map(AxiomScopeAccessKind.Sub -> sub, AxiomScopeAccessKind.Sup -> sup))
-      ).left
   }
 
   def createSubDataPropertyOfAxiom

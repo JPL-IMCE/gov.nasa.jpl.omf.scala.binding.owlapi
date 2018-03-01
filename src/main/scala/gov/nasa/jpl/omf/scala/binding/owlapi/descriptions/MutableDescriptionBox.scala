@@ -271,7 +271,7 @@ case class MutableDescriptionBox
   (uuid: api.taggedTypes.ReifiedRelationshipInstanceUUID,
    iri: IRI,
    ni: OWLNamedIndividual,
-   relationshipType: ReifiedRelationship,
+   relationshipType: ConceptualRelationship,
    fragment: tables.taggedTypes.LocalName)
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ descriptions.ReifiedRelationshipInstance
@@ -301,7 +301,7 @@ case class MutableDescriptionBox
   def addReifiedRelationshipInstance
   (uuid: api.taggedTypes.ReifiedRelationshipInstanceUUID,
    iri: IRI,
-   relationshipType: ReifiedRelationship,
+   relationshipType: ConceptualRelationship,
    fragment: tables.taggedTypes.LocalName)
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ descriptions.ReifiedRelationshipInstance
@@ -354,12 +354,15 @@ case class MutableDescriptionBox
   = for {
     i <- createReifiedRelationshipInstanceDomain(uuid, rri, source)
     _ <- applyOntologyChanges(ontManager,
-      Seq(
-        new AddAxiom(ont, owlDataFactory.getOWLObjectPropertyAssertionAxiom(
-          rri.relationshipType.rSource,
+      rri.relationshipType.rootReifiedRelationships().foldLeft[Seq[AddAxiom]] {
+        Seq.empty
+      } { case (acc, rr) =>
+        acc :+ new AddAxiom(ont, owlDataFactory.getOWLObjectPropertyAssertionAxiom(
+          rr.rSource,
           rri.ni,
           source.ni,
-          createOMLProvenanceAnnotations(uuid)))),
+          createOMLProvenanceAnnotations(uuid)))
+      },
       "addReifiedRelationshipInstanceDomain Error")
   } yield i
 
@@ -397,14 +400,15 @@ case class MutableDescriptionBox
   = for {
     i <- createReifiedRelationshipInstanceRange(uuid, rri, target)
     _ <- applyOntologyChanges(ontManager,
-      Seq(
-        new AddAxiom(ont,
-          owlDataFactory
-            .getOWLObjectPropertyAssertionAxiom(
-              rri.relationshipType.rTarget,
-              rri.ni,
-              target.ni,
-              createOMLProvenanceAnnotations(uuid)))),
+      rri.relationshipType.rootReifiedRelationships().foldLeft[Seq[AddAxiom]] {
+        Seq.empty
+      } { case (acc, rr) =>
+        acc :+ new AddAxiom(ont, owlDataFactory.getOWLObjectPropertyAssertionAxiom(
+          rr.rTarget,
+          rri.ni,
+          target.ni,
+          createOMLProvenanceAnnotations(uuid)))
+      },
       "addReifiedRelationshipInstanceRange Error")
   } yield i
 

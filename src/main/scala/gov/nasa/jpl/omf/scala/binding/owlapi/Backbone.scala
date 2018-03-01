@@ -24,7 +24,7 @@ import gov.nasa.jpl.omf.scala.core._
 import gov.nasa.jpl.omf.scala.core.TerminologyKind
 
 import scala.collection.immutable._
-import scala.{Enumeration, Option}
+import scala.{Boolean, Enumeration, Option}
 import scala.Predef.{Map => _, Set => _, _}
 import scalaz._
 import Scalaz._
@@ -143,6 +143,20 @@ class OMFBackbone
    */
   lazy val ReifiedStructuredDataPropertyC = df.getOWLClass( ReifiedStructuredDataProperty )
 
+
+  def isBackboneClass(ce: OWLClassExpression): Boolean
+  = ce match {
+    case c: OWLClass =>
+      c == ThingC ||
+        c == AspectC ||
+        c == EntityC ||
+        c == StructuredDatatypeC ||
+        c == ReifiedObjectPropertyC ||
+        c == ReifiedStructuredDataPropertyC
+    case _ =>
+      false
+  }
+
   /**
    * The IRI of the OWL ObjectProperty that is the parent of
    * any category of OMF type represented as an OWL ObjectProperty
@@ -211,6 +225,23 @@ class OMFBackbone
     * @see gov.nasa.jpl.omf.scala.core.OMF#ModelStructuredDataRelationship
    */
   lazy val topReifiedStructuredDataPropertyTargetOP = df.getOWLObjectProperty( topReifiedStructuredDataPropertyTarget )
+
+  def isBackboneObjectProperty(ope: OWLObjectPropertyExpression): Boolean
+  = ope match {
+    case op: OWLObjectProperty =>
+      op == topObjectPropertyOP ||
+        op == topUnreifiedObjectPropertyOP ||
+        op == topReifiedObjectPropertyOP ||
+        op == topReifiedObjectPropertySourceOP ||
+        op == topReifiedObjectPropertyTargetOP ||
+        op == topReifiedStructuredDataPropertyOP ||
+        op == topReifiedStructuredDataPropertySourceOP ||
+        op == topReifiedStructuredDataPropertyTargetOP ||
+        op == df.getOWLTopObjectProperty
+
+    case _ =>
+      false
+  }
 
   /**
    * The IRI of the OWL DataProperty that is the parent of

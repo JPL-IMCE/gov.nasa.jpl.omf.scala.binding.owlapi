@@ -25,6 +25,7 @@ object ElementExceptionKind extends Enumeration {
   val EntityAspect,
   EntityConcept,
   EntityReifiedRelationship,
+  ReifiedRelationshipRestriction,
   EntityUnreifiedRelationship,
   DataRelationshipFromEntityToScalar,
   DataRelationshipFromEntityToStructure,

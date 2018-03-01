@@ -18,18 +18,24 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.types.terms
 
-import gov.nasa.jpl.imce.oml.resolver.api.taggedTypes.ConceptualEntityUUID
+import gov.nasa.jpl.imce.oml.resolver.api.taggedTypes.ConceptualRelationshipUUID
+import gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore
+import org.semanticweb.owlapi.model.OWLClass
 
-import scala.{Any,Boolean}
+import scala.collection.immutable.Set
+import scala.{Any, Boolean}
 
-trait ConceptualEntity extends Entity {
+trait ConceptualRelationship extends ConceptualEntity with EntityRelationship {
+  override val e: OWLClass
 
-  override val uuid: ConceptualEntityUUID
+  def rootReifiedRelationships()(implicit store: OWLAPIOMFGraphStore): Set[ReifiedRelationship]
+
+  override val uuid: ConceptualRelationshipUUID
 
   override def canEqual(other: Any)
   : Boolean
   = other match {
-    case _: ConceptualEntity => true
+    case _: ConceptualRelationship => true
     case _ => false
   }
 }

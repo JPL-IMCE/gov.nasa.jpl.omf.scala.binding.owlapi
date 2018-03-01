@@ -18,18 +18,22 @@
 
 package gov.nasa.jpl.omf.scala.binding.owlapi.types.terms
 
-import gov.nasa.jpl.imce.oml.resolver.api.taggedTypes.ConceptualEntityUUID
+import gov.nasa.jpl.imce.oml.resolver.api.taggedTypes.CharacterizedEntityRelationshipUUID
+import gov.nasa.jpl.omf.scala.core.RelationshipCharacteristics.RelationshipCharacteristics
 
+import scala.collection.immutable.Iterable
 import scala.{Any,Boolean}
 
-trait ConceptualEntity extends Entity {
+trait CharacterizedEntityRelationship extends EntityRelationship {
 
-  override val uuid: ConceptualEntityUUID
+  override val uuid: CharacterizedEntityRelationshipUUID
+
+  val characteristics: Iterable[RelationshipCharacteristics]
 
   override def canEqual(other: Any)
   : Boolean
   = other match {
-    case _: ConceptualEntity => true
+    case _: CharacterizedEntityRelationship => true
     case _ => false
   }
 }
