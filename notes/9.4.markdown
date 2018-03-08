@@ -1,0 +1,7 @@
+gov.nasa.jpl.omf.scala.binding.owlapi 9.4 is an dependency update of 9.3
+
+## Issues Resolved
+
+- [#74 Prepare for parsing OML Bundles from OWL](https://github.com/JPL-IMCE/gov.nasa.jpl.omf.scala.binding.owlapi/issues/74)
+
+- [#75 Reuse caching library from OML tables](https://github.com/JPL-IMCE/gov.nasa.jpl.omf.scala.binding.owlapi/issues/75)
