@@ -981,8 +981,8 @@ case class OWLAPIOMFGraphStore
               }
             } yield ()
           }
-          h = TerminologyBoxResolverHelper(mb, ont, this, om, ontOps)
-          r = ImmutableTerminologyBoxResolver(h)
+          h = new BundleResolverHelper(mb, ont, this, om, ontOps)
+          r = new ImmutableBundleResolver(h)
         } yield r
 
       case mg: MutableTerminologyGraph =>
@@ -1026,8 +1026,8 @@ case class OWLAPIOMFGraphStore
             } yield ()
           }
 
-          h = TerminologyBoxResolverHelper(mg, ont, this, om, ontOps)
-          r = ImmutableTerminologyBoxResolver(h)
+          h = new TerminologyBoxResolverHelper(mg, ont, this, om, ontOps)
+          r = new ImmutableTerminologyBoxResolver(h)
         } yield r
       case md: MutableDescriptionBox =>
         for {

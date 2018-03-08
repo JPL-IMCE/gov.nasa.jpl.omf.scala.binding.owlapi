@@ -56,7 +56,7 @@ import scala.Predef.{ArrowAssoc, String, require}
 import scalaz._
 import Scalaz._
 
-case class ImmutableTerminologyBoxResolver(resolver: TerminologyBoxResolverHelper)
+class ImmutableTerminologyBoxResolver(resolver: TerminologyBoxResolverHelper)
   extends ImmutableResolver {
 
   val LOG: Boolean = "true" equalsIgnoreCase
@@ -982,7 +982,10 @@ case class ImmutableTerminologyBoxResolver(resolver: TerminologyBoxResolverHelpe
                   require((_allConceptsIncludingImported.keySet -- _allEntityDefinitionsIncludingImported.keySet).isEmpty)
 
                   resolveDefinitionAspectSubClassAxioms(subaxs1, _allEntityDefinitionsIncludingImported, _allAspectsIncludingImported).flatMap { subaxs2 =>
-                    resolveSpecializedReifiedRelationships(subaxs2, _allEntityDefinitionsIncludingImported, _allEntityReifiedRelationshipsIncludingImported, allImportedReifiedRelationshipRestrictions, _remainingCs).flatMap { _ =>
+                    resolveSpecializedReifiedRelationships(subaxs2, _allEntityDefinitionsIncludingImported, _allEntityReifiedRelationshipsIncludingImported, allImportedReifiedRelationshipRestrictions, _remainingCs).flatMap { subaxs3 =>
+
+                      // TODO: update types.getObjectPropertyRestrictionsIfAny
+                      // to scan for axioms from subax3 instead of globally.
 
                       resolveUnreifiedRelationships(
                         topUnreifiedObjectPropertySubOPs,

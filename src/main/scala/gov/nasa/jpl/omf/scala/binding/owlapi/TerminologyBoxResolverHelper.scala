@@ -37,12 +37,12 @@ import scala.language.postfixOps
 import scalaz._
 import Scalaz._
 
-case class TerminologyBoxResolverHelper
-(tboxG: MutableTerminologyBox,
- ont: OWLOntology,
- omfStore: OWLAPIOMFGraphStore,
- om: OntologyMapping,
- ontOps: OWLOntologyOps) {
+class TerminologyBoxResolverHelper
+(val tboxG: MutableTerminologyBox,
+ val ont: OWLOntology,
+ val omfStore: OWLAPIOMFGraphStore,
+ val om: OntologyMapping,
+ val ontOps: OWLOntologyOps) {
 
   require(null != ont)
   require(null != omfStore)
