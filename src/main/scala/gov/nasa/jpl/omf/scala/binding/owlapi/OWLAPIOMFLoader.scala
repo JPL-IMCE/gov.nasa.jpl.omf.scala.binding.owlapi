@@ -479,6 +479,17 @@ object OWLAPIOMFLoader {
       ).left
   }
 
+  /**
+    * TODO: The current strategy converts one module at a time.
+    *       This strategy implicitly assumes that there are no circular imports.
+    *       Convert all modules in phases to allow resolving cross references among circular imports.
+    *
+    * @param queue
+    * @param s
+    * @param ops
+    * @param store
+    * @return
+    */
   def loadAllModuleContentsFromOntologies
   (queue: Seq[Module],
    s: OntologyLoadedState)

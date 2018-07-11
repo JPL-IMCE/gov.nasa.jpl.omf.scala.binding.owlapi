@@ -23,7 +23,7 @@ import java.io.OutputStream
 import gov.nasa.jpl.imce.oml.resolver.api.taggedTypes.TerminologyBoxUUID
 import gov.nasa.jpl.imce.oml.tables
 import gov.nasa.jpl.omf.scala.binding.owlapi._
-import gov.nasa.jpl.omf.scala.binding.owlapi.common.{Module, RestrictableRelationship}
+import gov.nasa.jpl.omf.scala.binding.owlapi.common.Module
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms._
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologyAxioms._
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.{Axiom, Term}
@@ -69,7 +69,16 @@ trait TerminologyBox extends Module {
 
   protected val iri2typeTerm: scala.collection.Map[IRI, Term]
   protected val reifiedRelation2forwardProperty: scala.collection.Map[ReifiedRelationship, ForwardProperty]
+
+  def lookupReifiedRelationship(fp: ForwardProperty)
+  : Option[ReifiedRelationship]
+  = reifiedRelation2forwardProperty.find { _._2 == fp }.map(_._1)
+
   protected val reifiedRelation2inverseProperty: scala.collection.Map[ReifiedRelationship, InverseProperty]
+
+  def lookupReifiedRelationship(ip: InverseProperty)
+  : Option[ReifiedRelationship]
+  = reifiedRelation2inverseProperty.find { _._2 == ip }.map(_._1)
 
   def isRestrictableRelationshipDefined
   (rr: RestrictableRelationship)
@@ -155,6 +164,8 @@ trait TerminologyBox extends Module {
   = iri.resolve(iri.getRemainder.orElse("") + "?kind=" + kind)
 
   def getEntityDefinitionMap: Map[OWLClass, Entity]
+
+  def getRestrictableRelationshipMap: Map[OWLObjectProperty, RestrictableRelationship]
 
   def getDataRelationshipsFromEntityToScalar
   : Seq[EntityScalarDataProperty]

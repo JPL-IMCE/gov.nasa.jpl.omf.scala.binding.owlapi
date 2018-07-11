@@ -20,6 +20,7 @@ package gov.nasa.jpl.omf.scala.binding.owlapi.descriptions
 
 import gov.nasa.jpl.imce.oml.resolver.api
 import gov.nasa.jpl.imce.oml.resolver.Extent2Tables.toUUIDString
+import gov.nasa.jpl.imce.oml.resolver.Filterable.filterable
 import gov.nasa.jpl.imce.oml.tables.{AnnotationProperty, AnnotationPropertyValue, LiteralValue}
 import gov.nasa.jpl.imce.oml.tables
 import gov.nasa.jpl.omf.scala.binding.owlapi.common.{MutableModule, Resource}
@@ -353,8 +354,9 @@ case class MutableDescriptionBox
   : OMFError.Throwables \/ descriptions.ReifiedRelationshipInstanceDomain
   = for {
     i <- createReifiedRelationshipInstanceDomain(uuid, rri, source)
+    rootRRs = rri.relationshipType.rootCharacterizedEntityRelationships().selectByKindOf { case rr: ReifiedRelationship => rr }
     _ <- applyOntologyChanges(ontManager,
-      rri.relationshipType.rootReifiedRelationships().foldLeft[Seq[AddAxiom]] {
+      rootRRs.foldLeft[Seq[AddAxiom]] {
         Seq.empty
       } { case (acc, rr) =>
         acc :+ new AddAxiom(ont, owlDataFactory.getOWLObjectPropertyAssertionAxiom(
@@ -399,8 +401,9 @@ case class MutableDescriptionBox
   : OMFError.Throwables \/ descriptions.ReifiedRelationshipInstanceRange
   = for {
     i <- createReifiedRelationshipInstanceRange(uuid, rri, target)
+    rootRRs = rri.relationshipType.rootCharacterizedEntityRelationships().selectByKindOf { case rr: ReifiedRelationship => rr }
     _ <- applyOntologyChanges(ontManager,
-      rri.relationshipType.rootReifiedRelationships().foldLeft[Seq[AddAxiom]] {
+      rootRRs.foldLeft[Seq[AddAxiom]] {
         Seq.empty
       } { case (acc, rr) =>
         acc :+ new AddAxiom(ont, owlDataFactory.getOWLObjectPropertyAssertionAxiom(

@@ -23,12 +23,24 @@ import gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore
 import org.semanticweb.owlapi.model.OWLClass
 
 import scala.collection.immutable.Set
-import scala.{Any, Boolean}
+import scala.{Any, Boolean, None, Some}
 
 trait ConceptualRelationship extends ConceptualEntity with EntityRelationship {
   override val e: OWLClass
 
-  def rootReifiedRelationships()(implicit store: OWLAPIOMFGraphStore): Set[ReifiedRelationship]
+  def rootCharacterizedEntityRelationships
+  ()(implicit store: OWLAPIOMFGraphStore)
+  : Set[_ <: CharacterizedEntityRelationship]
+
+  def rootReifiedRelationships
+  ()(implicit store: OWLAPIOMFGraphStore)
+  : Set[ReifiedRelationship]
+  = rootCharacterizedEntityRelationships().flatMap {
+    case rr: ReifiedRelationship =>
+      Some(rr)
+    case _ =>
+      None
+  }
 
   override val uuid: ConceptualRelationshipUUID
 

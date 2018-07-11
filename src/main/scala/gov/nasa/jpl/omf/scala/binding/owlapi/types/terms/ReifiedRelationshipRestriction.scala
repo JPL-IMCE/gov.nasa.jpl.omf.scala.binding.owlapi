@@ -40,9 +40,10 @@ case class ReifiedRelationshipRestriction
   require(null != source)
   require(null != target)
 
-  override def rootReifiedRelationships()(implicit store: OWLAPIOMFGraphStore)
-  : Set[ReifiedRelationship]
-  = store.rootReifiedRelationships(this)
+  override def rootCharacterizedEntityRelationships
+  ()(implicit store: OWLAPIOMFGraphStore)
+  : Set[_ <: CharacterizedEntityRelationship]
+  = store.rootCharacterizedEntityRelationships(this)
 
   override def canEqual(other: Any)
   : Boolean

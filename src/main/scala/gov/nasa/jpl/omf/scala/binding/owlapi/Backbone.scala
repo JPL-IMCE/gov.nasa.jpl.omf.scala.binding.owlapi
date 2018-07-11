@@ -104,36 +104,37 @@ class OMFBackbone
   lazy val ThingC = df.getOWLClass( Thing )
 
   /**
-   * The IRI of the OWL Class that is the parent of any OMF `Aspect` defined
-   * in the ontology representing an OMF modeling domain
+    * The IRI of the OWL Class that is the parent of any OML `AspectKind` defined
+    * in the ontology representing an OMF modeling domain.
     *
-    * @see gov.nasa.jpl.omf.scala.core.OMF#ModelEntityAspect
-   */
-  lazy val AspectC = df.getOWLClass( Aspect )
+    * An OML `AspectKind` can be either an OML `Aspect` or an OML `CardinalityRestrictionAspect`.
+    */
+  lazy val AspectKindC = df.getOWLClass( Aspect )
 
   /**
-   * The IRI of the OWL Class that is the parent of any OMF `Concept` defined
-   * in the ontology representing an OMF modeling domain
+    * The IRI of the OWL Class that is the parent of any OML `ConceptKind` defined
+    * in the ontology representing an OMF modeling domain.
     *
-    * @see gov.nasa.jpl.omf.scala.core.OMF#ModelEntityConcept
-   */
-  lazy val EntityC = df.getOWLClass( Entity )
+    * An OML `ConceptKind` can be either an OML `Concept` or an OML `CardinalityRestrictionConcept`.
+    */
+  lazy val ConceptKindC = df.getOWLClass( Entity )
 
   /**
-   * The IRI of the OWL Class that is the parent of any OMF `Structure` defined
-   * in the ontology representing an OMF modeling domain
-    *
-    * @see gov.nasa.jpl.omf.scala.core.OMF#ModelStructuredDataType
-   */
+    * The IRI of the OWL Class that is the parent of any OML `Structure` defined
+    * in the ontology representing an OMF modeling domain.
+    */
   lazy val StructuredDatatypeC = df.getOWLClass( StructuredDatatype )
 
   /**
-   * The IRI of the OWL Class that is the parent of any OMF `ReifiedRelationship` defined
-   * in the ontology representing an OMF modeling domain
+    * The IRI of the OWL Class that is the parent of any OML `ConceptualRelationship` defined
+    * in the ontology representing an OMF modeling domain.
     *
-    * @see gov.nasa.jpl.omf.scala.core.OMF#ModelEntityReifiedRelationship
-   */
-  lazy val ReifiedObjectPropertyC = df.getOWLClass( ReifiedObjectProperty )
+    * An OML `ConceptualRelationship` can be one of the following:
+    * - an OML `ReifiedRelationship`
+    * - an OML `ReifiedRelationshipRestriction`
+    * - an OML `CardinalityRestrictedReifiedRelationship`
+    */
+  lazy val ConceptualRelationshipKindC = df.getOWLClass( ReifiedObjectProperty )
 
   /**
    * The IRI of the OWL Class that is the parent of any OMF `StructuredDataProperty` defined
@@ -148,10 +149,10 @@ class OMFBackbone
   = ce match {
     case c: OWLClass =>
       c == ThingC ||
-        c == AspectC ||
-        c == EntityC ||
+        c == AspectKindC ||
+        c == ConceptKindC ||
         c == StructuredDatatypeC ||
-        c == ReifiedObjectPropertyC ||
+        c == ConceptualRelationshipKindC ||
         c == ReifiedStructuredDataPropertyC
     case _ =>
       false
@@ -249,6 +250,16 @@ class OMFBackbone
    * in the ontology representation of an OMF modeling domain
    */
   lazy val topDataPropertyDP = df.getOWLDataProperty( topDataProperty )
+
+  def isBackboneDataProperty(dpe: OWLDataPropertyExpression): Boolean
+  = dpe match {
+    case dp: OWLDataProperty =>
+      dp == topDataPropertyDP ||
+        dp == df.getOWLTopDataProperty
+
+    case _ =>
+      false
+  }
 
 }
 
@@ -356,9 +367,9 @@ object Backbone {
       )
       changes2 =
       Seq(
-        b.AspectC,
-        b.EntityC,
-        b.ReifiedObjectPropertyC,
+        b.AspectKindC,
+        b.ConceptKindC,
+        b.ConceptualRelationshipKindC,
         b.ReifiedStructuredDataPropertyC,
         b.StructuredDatatypeC
       ).flatMap { bc =>

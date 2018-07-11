@@ -19,9 +19,10 @@
 package gov.nasa.jpl.omf.scala.binding.owlapi
 
 import java.io.File
-import java.lang.{IllegalArgumentException,System}
+import java.lang.{IllegalArgumentException, System}
 import java.util.function.Predicate
 
+import gov.nasa.jpl.imce.oml.resolver.Filterable.filterable
 import gov.nasa.jpl.imce.oml.resolver.api
 import gov.nasa.jpl.imce.oml.tables
 import gov.nasa.jpl.imce.oml.tables.AnnotationProperty
@@ -41,8 +42,7 @@ import org.apache.xml.resolver.Catalog
 import org.semanticweb.owlapi.model._
 import org.semanticweb.owlapi.model.parameters._
 import org.semanticweb.owlapi.util.PriorityCollection
-
-import com.github.benmanes.caffeine.cache.{CacheLoader,Caffeine,LoadingCache}
+import com.github.benmanes.caffeine.cache.{CacheLoader, Caffeine, LoadingCache}
 
 import scala.collection.immutable.{Set, _}
 import scala.collection.JavaConverters._
@@ -54,6 +54,8 @@ import scala.{Boolean, Long, None, Option, Some, StringContext, Unit}
 import scala.Predef.{Map => _, Set => _, _}
 import scalaz._
 import Scalaz._
+import gov.nasa.jpl.omf.scala.binding.owlapi.types.termAxioms.ReifiedRelationshipSpecializationAxiom
+
 
 case class OWLAPIOMFGraphStore
 (omfModule: OWLAPIOMFModule,
@@ -481,9 +483,130 @@ case class OWLAPIOMFGraphStore
     result
   }
 
-  def rootReifiedRelationships(pr: ReifiedRelationshipRestriction)
-  : Set[ReifiedRelationship]
-  = Set.empty
+  def reifiedRelationshipOf(p: ForwardProperty)
+  : Option[ReifiedRelationship]
+  = modules
+    .values
+    .flatMap {
+      case tbox: TerminologyBox =>
+        tbox.lookupReifiedRelationship(p)
+      case _ =>
+        None
+    }
+    .headOption
+
+  def reifiedRelationshipOf(p: InverseProperty)
+  : Option[ReifiedRelationship]
+  = modules
+    .values
+    .flatMap {
+      case tbox: TerminologyBox =>
+        tbox.lookupReifiedRelationship(p)
+      case _ =>
+        None
+    }
+    .headOption
+
+  def relation(r: RestrictableRelationship)
+  : EntityRelationship
+  = r match {
+    case ur: UnreifiedRelationship =>
+      ur
+    case p: ForwardProperty =>
+      val r = modules
+        .values
+        .flatMap {
+          case tbox: TerminologyBox =>
+            tbox.lookupReifiedRelationship(p)
+          case _ =>
+            None
+        }
+        .headOption
+
+      r match {
+        case Some(rr) =>
+          rr
+        case None =>
+          throw new IllegalArgumentException(s"relation($r : ForwardProperty) should have a ReifiedRelationship!")
+      }
+    case p: InverseProperty =>
+      val r = modules
+        .values
+        .flatMap {
+          case tbox: TerminologyBox =>
+            tbox.lookupReifiedRelationship(p)
+          case _ =>
+            None
+        }
+        .headOption
+
+      r match {
+        case Some(rr) =>
+          rr
+        case None =>
+          throw new IllegalArgumentException(s"relation($r : InverseProperty) should have a ReifiedRelationship!")
+      }
+  }
+
+  @scala.annotation.tailrec
+  final def rootCharacterizedEntityRelationships
+  (crr: CardinalityRestrictedReifiedRelationship)
+  : Set[CharacterizedEntityRelationship]
+  = relation(crr.restrictedRelationship) match {
+    case x: CharacterizedEntityRelationship =>
+      Set(x)
+    case x: ReifiedRelationshipRestriction =>
+      rootCharacterizedEntityRelationships(x)
+    case x: CardinalityRestrictedReifiedRelationship =>
+      rootCharacterizedEntityRelationships(x)
+  }
+
+  def rootCharacterizedEntityRelationships
+  (rrr: ReifiedRelationshipRestriction)
+  : Set[CharacterizedEntityRelationship]
+  = {
+    val r = modules
+      .values
+      .flatMap {
+        case tbox: TerminologyBox if tbox.isTypeTermDefined(rrr) =>
+          Some(tbox)
+        case _ =>
+          None
+      }
+      .headOption
+
+    r match {
+      case Some(tbox) =>
+        val allSpecializationAxioms
+        : Set[ReifiedRelationshipSpecializationAxiom]
+        = tbox.importClosure()(this).flatMap { t =>
+          t.getTermAxioms._2.selectByKindOf { case ax: ReifiedRelationshipSpecializationAxiom => ax }
+        }
+        rootCharacterizedEntityRelationships(Set(rrr), allSpecializationAxioms, Set.empty)
+
+      case None =>
+        throw new IllegalArgumentException(s"rootCharacterizedEntityRelationships($rrr) -- There should be a defining tbox!")
+    }
+    Set.empty
+  }
+
+  @scala.annotation.tailrec
+  final def rootCharacterizedEntityRelationships
+  (horizon: Set[ConceptualRelationship],
+   candidates: Set[ReifiedRelationshipSpecializationAxiom],
+   results: Set[CharacterizedEntityRelationship])
+  : Set[CharacterizedEntityRelationship]
+  = {
+    val axioms = candidates.filter { ax => horizon.contains(ax.sub) }
+    if (axioms.isEmpty)
+      results
+    else {
+      val parents = axioms.map(_.sup)
+      val moreResults = parents.selectByKindOf { case rr: ReifiedRelationship => rr }
+      val nextHorizon = parents.selectByKindOf { case cr: ConceptualRelationship => cr }
+      rootCharacterizedEntityRelationships(nextHorizon, candidates, results ++ moreResults)
+    }
+  }
 
   // BundledTerminologyAxiom
 

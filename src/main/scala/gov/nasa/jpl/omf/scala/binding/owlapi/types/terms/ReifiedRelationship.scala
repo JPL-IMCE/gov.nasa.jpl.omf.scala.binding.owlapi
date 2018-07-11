@@ -46,11 +46,14 @@ case class ReifiedRelationship
   require(null != forwardProperty)
   require(null != inverseProperty)
   require(null != source)
+  require(null != rSource)
   require(null != target)
+  require(null != rTarget)
   require(null != characteristics)
 
-  override def rootReifiedRelationships()(implicit store: OWLAPIOMFGraphStore)
-  : Set[ReifiedRelationship]
+  override def rootCharacterizedEntityRelationships
+  ()(implicit store: OWLAPIOMFGraphStore)
+  : Set[_ <: CharacterizedEntityRelationship]
   = Set(this)
 
   override def canEqual(other: Any)

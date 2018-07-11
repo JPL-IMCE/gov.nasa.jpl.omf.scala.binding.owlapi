@@ -29,7 +29,7 @@ case class Aspect
  override val iri: IRI,
  override val name: LocalName,
  override val uuid: api.taggedTypes.AspectUUID)
-  extends Entity {
+  extends AspectKind {
 
   override def canEqual(other: Any)
   : Boolean

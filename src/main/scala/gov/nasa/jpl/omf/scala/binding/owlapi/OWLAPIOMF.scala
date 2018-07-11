@@ -17,7 +17,6 @@
  */
 
 package gov.nasa.jpl.omf.scala.binding.owlapi
-
 import gov.nasa.jpl.omf.scala.core._
 
 trait OWLAPIOMF
@@ -54,7 +53,7 @@ trait OMLAPIOMFcbox extends OMFcbox {
     common.Predicate
 
   override type RestrictableRelationship =
-    common.RestrictableRelationship
+    types.terms.RestrictableRelationship
 
   override type ModuleElement =
     common.ModuleElement
@@ -113,14 +112,26 @@ trait OWLAPIOMFtbox extends OMFtbox with OMLAPIOMFcbox {
   override type Entity =
     types.terms.Entity
 
+  override type AspectKind =
+    types.terms.AspectKind
+
   override type Aspect =
     types.terms.Aspect
+
+  override type CardinalityRestrictedAspect =
+    types.terms.CardinalityRestrictedAspect
 
   override type ConceptualEntity =
     types.terms.ConceptualEntity
 
+  override type ConceptKind =
+    types.terms.ConceptKind
+
   override type Concept =
     types.terms.Concept
+
+  override type CardinalityRestrictedConcept =
+    types.terms.CardinalityRestrictedConcept
 
   override type EntityRelationship =
     types.terms.EntityRelationship
@@ -139,6 +150,9 @@ trait OWLAPIOMFtbox extends OMFtbox with OMLAPIOMFcbox {
 
   override type ReifiedRelationship =
     types.terms.ReifiedRelationship
+
+  override type CardinalityRestrictedReifiedRelationship =
+    types.terms.CardinalityRestrictedReifiedRelationship
 
   override type ForwardProperty =
     types.terms.ForwardProperty
