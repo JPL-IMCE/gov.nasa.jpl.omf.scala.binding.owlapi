@@ -121,12 +121,12 @@ case class MutableBundle
   = ???
 
   def addRootConceptTaxonomyAxiom
-  (uuid: RootConceptTaxonomyAxiomUUID, root: Concept)
+  (uuid: RootConceptTaxonomyAxiomUUID, root: ConceptKind)
   : Set[java.lang.Throwable] \/ OWLAPIOMF#RootConceptTaxonomyAxiom
   = ???
 
   def addSpecificDisjointConceptAxiom
-  (uuid: SpecificDisjointConceptAxiomUUID, disjointTerminologyParent: ConceptTreeDisjunction, disjointLeaf: Concept)
+  (uuid: SpecificDisjointConceptAxiomUUID, disjointTerminologyParent: ConceptTreeDisjunction, disjointLeaf: ConceptKind)
   : Set[java.lang.Throwable] \/ OWLAPIOMF#SpecificDisjointConceptAxiom
   = ???
 

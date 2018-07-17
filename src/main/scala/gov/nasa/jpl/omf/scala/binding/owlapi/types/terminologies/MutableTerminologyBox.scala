@@ -4482,7 +4482,7 @@ trait MutableTerminologyBox
   def createOMFEntityConceptDesignationTerminologyGraphAxiom
   (uuid: api.taggedTypes.ConceptDesignationTerminologyAxiomUUID,
    graph: OWLAPIOMF#MutableTerminologyBox,
-   entityConceptDesignation: OWLAPIOMF#Concept,
+   entityConceptDesignation: OWLAPIOMF#ConceptKind,
    designationTerminologyGraph: OWLAPIOMF#TerminologyBox)
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#ConceptDesignationTerminologyAxiom
@@ -4508,7 +4508,7 @@ trait MutableTerminologyBox
   def addEntityConceptDesignationTerminologyGraphAxiom
   (uuid: api.taggedTypes.ConceptDesignationTerminologyAxiomUUID,
    graph: OWLAPIOMF#MutableTerminologyBox,
-   entityConceptDesignation: OWLAPIOMF#Concept,
+   entityConceptDesignation: OWLAPIOMF#ConceptKind,
    designationTerminologyGraph: OWLAPIOMF#TerminologyBox)
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#ConceptDesignationTerminologyAxiom

@@ -135,7 +135,7 @@ case class MutableTerminologyGraph
 
   def createTerminologyNestingAxiom
   (parentG: TerminologyBox,
-   parentC: Concept)
+   parentC: ConceptKind)
   (implicit store: OWLAPIOMFGraphStore)
   : Set[java.lang.Throwable] \/ TerminologyNestingAxiom
   = for {
@@ -146,7 +146,7 @@ case class MutableTerminologyGraph
   def createTerminologyNestingAxiom
   (uuid: api.taggedTypes.TerminologyNestingAxiomUUID,
    parentG: TerminologyBox,
-   parentC: Concept)
+   parentC: ConceptKind)
   (implicit store: OWLAPIOMFGraphStore)
   : Set[java.lang.Throwable] \/ TerminologyNestingAxiom
   = sig.nesting.headOption match {
@@ -167,7 +167,7 @@ case class MutableTerminologyGraph
   def addNestedTerminologyGraph
   (uuid: api.taggedTypes.TerminologyNestingAxiomUUID,
    parentGraph: TerminologyBox,
-   parentContext: Concept)
+   parentContext: ConceptKind)
   (implicit store: OWLAPIOMFGraphStore)
   : Set[java.lang.Throwable] \/ TerminologyNestingAxiom
   = for {

@@ -523,7 +523,7 @@ trait OWLAPIStoreOps
   = store.lookupNestingAxiomForNestedChildIfAny(nestedG)
 
   override def lookupNestingAxiomsForNestingContext
-  (nestingC: Concept)
+  (nestingC: ConceptKind)
   (implicit store: OWLAPIOMFGraphStore)
   : Set[TerminologyNestingAxiom]
   = store.lookupNestingAxiomsForNestingContext(nestingC)
@@ -915,7 +915,10 @@ trait OWLAPIImmutableTerminologyGraphOps
 
   def foldTerm[T]
   (funAspect: OWLAPIOMF#Aspect => T,
+   funCardinalityRestrictedAspect: OWLAPIOMF#CardinalityRestrictedAspect => T,
    funConcept: OWLAPIOMF#Concept => T,
+   funCardinalityRestrictedConcept: OWLAPIOMF#CardinalityRestrictedConcept => T,
+   funCardinalityRestrictedReifiedRelationship: OWLAPIOMF#CardinalityRestrictedReifiedRelationship => T,
    funReifiedRelationshipRestriction: OWLAPIOMF#ReifiedRelationshipRestriction => T,
    funReifiedRelationship: OWLAPIOMF#ReifiedRelationship => T,
    funUnreifiedRelationship: OWLAPIOMF#UnreifiedRelationship => T,
@@ -937,8 +940,14 @@ trait OWLAPIImmutableTerminologyGraphOps
   : T = t match {
     case et: OWLAPIOMF#Aspect =>
       funAspect(et)
+    case et: OWLAPIOMF#CardinalityRestrictedAspect =>
+      funCardinalityRestrictedAspect(et)
     case et: OWLAPIOMF#Concept =>
       funConcept(et)
+    case et: OWLAPIOMF#CardinalityRestrictedConcept =>
+      funCardinalityRestrictedConcept(et)
+    case et: OWLAPIOMF#CardinalityRestrictedReifiedRelationship =>
+      funCardinalityRestrictedReifiedRelationship(et)
     case ep: OWLAPIOMF#ReifiedRelationshipRestriction =>
       funReifiedRelationshipRestriction(ep)
     case et: OWLAPIOMF#ReifiedRelationship =>
@@ -1013,7 +1022,7 @@ trait OWLAPIImmutableTerminologyGraphOps
   = store.lookupNestingAxiomForNestedChildIfAny(nestedG)
 
   override def lookupNestingAxiomsForNestingContext
-  (nestingC: OWLAPIOMF#Concept)
+  (nestingC: OWLAPIOMF#ConceptKind)
   (implicit store: OWLAPIOMFGraphStore)
   : Set[OWLAPIOMF#TerminologyNestingAxiom]
   = store.lookupNestingAxiomsForNestingContext(nestingC)
@@ -2019,7 +2028,7 @@ trait OWLAPIMutableTerminologyGraphOps
   override protected def addNestedTerminology
   (uuid: api.taggedTypes.TerminologyNestingAxiomUUID,
    nestingTerminology: TerminologyBox,
-   nestingContext: Concept,
+   nestingContext: ConceptKind,
    nestedTerminology: MutableTerminologyGraph )
   (implicit store: OWLAPIOMFGraphStore)
   : Throwables \/ TerminologyNestingAxiom
@@ -2028,7 +2037,7 @@ trait OWLAPIMutableTerminologyGraphOps
   override protected def addEntityConceptDesignationTerminologyAxiom
   (tbox: OWLAPIOMF#MutableTerminologyBox,
    uuid: api.taggedTypes.ConceptDesignationTerminologyAxiomUUID,
-   designatedConcept: OWLAPIOMF#Concept,
+   designatedConcept: OWLAPIOMF#ConceptKind,
    designatedTerminology: OWLAPIOMF#TerminologyBox)
   (implicit store: OWLAPIOMFGraphStore)
   : Throwables \/ OWLAPIOMF#ConceptDesignationTerminologyAxiom
@@ -2046,7 +2055,7 @@ trait OWLAPIMutableTerminologyGraphOps
   override protected def addRootConceptTaxonomyAxiom
   (uuid: api.taggedTypes.RootConceptTaxonomyAxiomUUID,
    terminologyBundle: OWLAPIOMF#MutableBundle,
-   root: OWLAPIOMF#Concept)
+   root: OWLAPIOMF#ConceptKind)
   (implicit store: OWLAPIOMFGraphStore)
   : Throwables \/ OWLAPIOMF#RootConceptTaxonomyAxiom
   = terminologyBundle.addRootConceptTaxonomyAxiom(uuid, root)
@@ -2055,7 +2064,7 @@ trait OWLAPIMutableTerminologyGraphOps
   (uuid: api.taggedTypes.SpecificDisjointConceptAxiomUUID,
    terminologyBundle: OWLAPIOMF#MutableBundle,
    disjointTerminologyParent: OWLAPIOMF#ConceptTreeDisjunction,
-   disjointLeaf: OWLAPIOMF#Concept)
+   disjointLeaf: OWLAPIOMF#ConceptKind)
   (implicit store: OWLAPIOMFGraphStore)
   : Throwables \/ OWLAPIOMF#SpecificDisjointConceptAxiom
   = terminologyBundle.addSpecificDisjointConceptAxiom(uuid, disjointTerminologyParent, disjointLeaf)
@@ -2216,7 +2225,7 @@ trait OWLAPIMutableDescriptionBoxOps
   (uuid: api.taggedTypes.ConceptInstanceUUID,
    dbox: descriptions.MutableDescriptionBox,
    iri: IRI,
-   conceptType: Concept,
+   conceptType: ConceptKind,
    fragment: tables.taggedTypes.LocalName)
   (implicit store: OWLAPIOMFGraphStore)
   : Throwables \/ descriptions.ConceptInstance

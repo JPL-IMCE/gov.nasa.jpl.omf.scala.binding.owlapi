@@ -351,7 +351,7 @@ case class OWLAPIOMFGraphStore
     * Find the axioms TerminologyGraphDirectNestingAxiom(nestingContext=nestingC)
     */
   def lookupNestingAxiomsForNestingContext
-  (nestingC: Concept)
+  (nestingC: ConceptKind)
   : Set[TerminologyNestingAxiom]
   = directNestingAxioms.values.filter(_.nestingContext == nestingC).to[Set]
 
@@ -376,7 +376,7 @@ case class OWLAPIOMFGraphStore
 
   def getNestingContextConceptOfAxiom
   (axiom: TerminologyNestingAxiom)
-  : Concept
+  : ConceptKind
   = axiom.nestingContext
 
   // TerminologyNestingAxiom
@@ -384,7 +384,7 @@ case class OWLAPIOMFGraphStore
   def createOMFTerminologyGraphDirectNestingAxiom
   (uuid: api.taggedTypes.TerminologyNestingAxiomUUID,
    parentG: TerminologyBox,
-   parentC: Concept,
+   parentC: ConceptKind,
    childG: TerminologyBox)
   : Throwables \/ TerminologyNestingAxiom
   = lookupNestingAxiomForNestedChildIfAny(childG)

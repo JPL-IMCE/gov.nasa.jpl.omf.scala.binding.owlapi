@@ -219,7 +219,7 @@ case class MutableDescriptionBox
   (uuid: api.taggedTypes.ConceptInstanceUUID,
    iri: IRI,
    ni: OWLNamedIndividual,
-   conceptType: Concept,
+   conceptType: ConceptKind,
    fragment: tables.taggedTypes.LocalName)
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ descriptions.ConceptInstance
@@ -249,7 +249,7 @@ case class MutableDescriptionBox
   def addConceptInstance
   (uuid: api.taggedTypes.ConceptInstanceUUID,
    iri: IRI,
-   conceptType: Concept,
+   conceptType: ConceptKind,
    fragment: tables.taggedTypes.LocalName)
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ descriptions.ConceptInstance
