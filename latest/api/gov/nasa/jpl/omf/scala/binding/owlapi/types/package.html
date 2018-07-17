@@ -268,7 +268,24 @@
 
         <div id="values" class="values members">
               <h3>Value Members</h3>
-              <ol><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types#OWLClass2ModelEntityAspectSemigroup" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+              <ol><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types#OWLClass2ModelEntityAspectKindSemigroup" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="OWLClass2ModelEntityAspectKindSemigroup:scalaz.Semigroup[scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLClass,gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.AspectKind]]"></a>
+      <a id="OWLClass2ModelEntityAspectKindSemigroup:Semigroup[Map[OWLClass,AspectKind]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">OWLClass2ModelEntityAspectKindSemigroup</span><span class="result">: <span class="extype" name="scalaz.Semigroup">Semigroup</span>[<a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.collection.immutable.Map" class="extype" target="_top">Map</a>[<span class="extype" name="org.semanticweb.owlapi.model.OWLClass">OWLClass</span>, <a href="terms/AspectKind.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.AspectKind">AspectKind</a>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.package@OWLClass2ModelEntityAspectKindSemigroup:scalaz.Semigroup[scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLClass,gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.AspectKind]]" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types#OWLClass2ModelEntityAspectSemigroup" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="OWLClass2ModelEntityAspectSemigroup:scalaz.Semigroup[scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLClass,gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Aspect]]"></a>
       <a id="OWLClass2ModelEntityAspectSemigroup:Semigroup[Map[OWLClass,Aspect]]"></a>
       <h4 class="signature">
@@ -281,6 +298,23 @@
       </span>
       </h4><span class="permalink">
       <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.package@OWLClass2ModelEntityAspectSemigroup:scalaz.Semigroup[scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLClass,gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Aspect]]" title="Permalink" target="_top">
+        <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types#OWLClass2ModelEntityConceptKindSemigroup" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="OWLClass2ModelEntityConceptKindSemigroup:scalaz.Semigroup[scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLClass,gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ConceptKind]]"></a>
+      <a id="OWLClass2ModelEntityConceptKindSemigroup:Semigroup[Map[OWLClass,ConceptKind]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">OWLClass2ModelEntityConceptKindSemigroup</span><span class="result">: <span class="extype" name="scalaz.Semigroup">Semigroup</span>[<a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.collection.immutable.Map" class="extype" target="_top">Map</a>[<span class="extype" name="org.semanticweb.owlapi.model.OWLClass">OWLClass</span>, <a href="terms/ConceptKind.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ConceptKind">ConceptKind</a>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.package@OWLClass2ModelEntityConceptKindSemigroup:scalaz.Semigroup[scala.collection.immutable.Map[org.semanticweb.owlapi.model.OWLClass,gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ConceptKind]]" title="Permalink" target="_top">
         <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -524,22 +558,22 @@
     </span>
       <p class="shortcomment cmt">Collects the data property restriction subclass axioms for a particular class in an ontology</p><div class="fullcomment"><div class="comment cmt"><p>Collects the data property restriction subclass axioms for a particular class in an ontology</p></div><dl class="paramcmts block"><dt>returns</dt><dd class="cmt"><p>A tuple of:</p><ul><li>the data property involved in that restriction</li><li>the data type involved in the universal or existensial restriction or none for a particular restriction</li><li>the kind of restriction (existential or universal)</li></ul></dd></dl></div>
     </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types#getObjectPropertyRestrictionsIfAny" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="getObjectPropertyRestrictionsIfAny(ont:org.semanticweb.owlapi.model.OWLOntology,entity:org.semanticweb.owlapi.model.OWLClass):scala.collection.immutable.Set[(org.semanticweb.owlapi.model.OWLClass,org.semanticweb.owlapi.model.OWLObjectProperty,Boolean,org.semanticweb.owlapi.model.OWLClass,gov.nasa.jpl.omf.scala.core.ObjectRestrictionKind)]"></a>
-      <a id="getObjectPropertyRestrictionsIfAny(OWLOntology,OWLClass):Set[(OWLClass,OWLObjectProperty,Boolean,OWLClass,ObjectRestrictionKind)]"></a>
+      <a id="getObjectPropertyRestrictionsIfAny(ont:org.semanticweb.owlapi.model.OWLOntology,entity:org.semanticweb.owlapi.model.OWLClass):scala.collection.immutable.Set[(org.semanticweb.owlapi.model.OWLObjectProperty,Boolean,org.semanticweb.owlapi.model.OWLClass,gov.nasa.jpl.omf.scala.core.ObjectRestrictionKind)]"></a>
+      <a id="getObjectPropertyRestrictionsIfAny(OWLOntology,OWLClass):Set[(OWLObjectProperty,Boolean,OWLClass,ObjectRestrictionKind)]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">getObjectPropertyRestrictionsIfAny</span><span class="params">(<span name="ont">ont: <span class="extype" name="org.semanticweb.owlapi.model.OWLOntology">OWLOntology</span></span>, <span name="entity">entity: <span class="extype" name="org.semanticweb.owlapi.model.OWLClass">OWLClass</span></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.collection.immutable.Set" class="extype" target="_top">Set</a>[(<span class="extype" name="org.semanticweb.owlapi.model.OWLClass">OWLClass</span>, <span class="extype" name="org.semanticweb.owlapi.model.OWLObjectProperty">OWLObjectProperty</span>, <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.Boolean" class="extype" target="_top">Boolean</a>, <span class="extype" name="org.semanticweb.owlapi.model.OWLClass">OWLClass</span>, <a href="https://jpl-imce.github.io/gov.nasa.jpl.omf.scala.core/latest/api/index.html#gov.nasa.jpl.omf.scala.core.ObjectRestrictionKind" class="extype" target="_top">ObjectRestrictionKind</a>)]</span>
+        <span class="name">getObjectPropertyRestrictionsIfAny</span><span class="params">(<span name="ont">ont: <span class="extype" name="org.semanticweb.owlapi.model.OWLOntology">OWLOntology</span></span>, <span name="entity">entity: <span class="extype" name="org.semanticweb.owlapi.model.OWLClass">OWLClass</span></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.collection.immutable.Set" class="extype" target="_top">Set</a>[(<span class="extype" name="org.semanticweb.owlapi.model.OWLObjectProperty">OWLObjectProperty</span>, <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.Boolean" class="extype" target="_top">Boolean</a>, <span class="extype" name="org.semanticweb.owlapi.model.OWLClass">OWLClass</span>, <a href="https://jpl-imce.github.io/gov.nasa.jpl.omf.scala.core/latest/api/index.html#gov.nasa.jpl.omf.scala.core.ObjectRestrictionKind" class="extype" target="_top">ObjectRestrictionKind</a>)]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.package@getObjectPropertyRestrictionsIfAny(ont:org.semanticweb.owlapi.model.OWLOntology,entity:org.semanticweb.owlapi.model.OWLClass):scala.collection.immutable.Set[(org.semanticweb.owlapi.model.OWLClass,org.semanticweb.owlapi.model.OWLObjectProperty,Boolean,org.semanticweb.owlapi.model.OWLClass,gov.nasa.jpl.omf.scala.core.ObjectRestrictionKind)]" title="Permalink" target="_top">
+      <a href="../../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.types.package@getObjectPropertyRestrictionsIfAny(ont:org.semanticweb.owlapi.model.OWLOntology,entity:org.semanticweb.owlapi.model.OWLClass):scala.collection.immutable.Set[(org.semanticweb.owlapi.model.OWLObjectProperty,Boolean,org.semanticweb.owlapi.model.OWLClass,gov.nasa.jpl.omf.scala.core.ObjectRestrictionKind)]" title="Permalink" target="_top">
         <img src="../../../../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">Collects the object property restriction subclass axioms for a particular class in an ontology</p><div class="fullcomment"><div class="comment cmt"><p>Collects the object property restriction subclass axioms for a particular class in an ontology</p></div><dl class="paramcmts block"><dt>returns</dt><dd class="cmt"><p>A tuple of:</p><ul><li>a class that has an object property restriction subclass axiom</li><li>the object property involved in that restriction</li><li>true if the restriction is on the object property; false if it is on the inverse object property</li><li>the restricted range</li><li>the kind of restriction (existential or universal)</li></ul></dd></dl></div>
+      <p class="shortcomment cmt">Collects the object property restriction subclass axioms for a particular class in an ontology</p><div class="fullcomment"><div class="comment cmt"><p>Collects the object property restriction subclass axioms for a particular class in an ontology</p></div><dl class="paramcmts block"><dt>returns</dt><dd class="cmt"><p>A tuple of:</p><ul><li>the object property involved in that restriction</li><li>true if the restriction is on the object property; false if it is on the inverse object property</li><li>the restricted range</li><li>the kind of restriction (existential or universal)</li></ul></dd></dl></div>
     </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.types#rightUnitNES" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="rightUnitNES:gov.nasa.jpl.omf.scala.binding.owlapi.types.package.UnitNES"></a>
       <a id="rightUnitNES:UnitNES"></a>

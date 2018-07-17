@@ -542,7 +542,7 @@ A directed edge corresponds to a relationship among OMF documents (extension or 
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader#loadAllModuleContentsFromOntologies" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+    </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader#loadAllModuleContentsFromOntologies" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="loadAllModuleContentsFromOntologies(queue:scala.collection.immutable.Seq[gov.nasa.jpl.omf.scala.binding.owlapi.common.Module],s:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader.OntologyLoadedState)(implicitops:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFOps,implicitstore:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore):scalaz.\/[gov.nasa.jpl.omf.scala.core.OMFError.Throwables,gov.nasa.jpl.omf.scala.binding.owlapi.OntologyMapping]"></a>
       <a id="loadAllModuleContentsFromOntologies(Seq[Module],OntologyLoadedState)(OWLAPIOMFOps,OWLAPIOMFGraphStore):\/[Throwables,OntologyMapping]"></a>
       <h4 class="signature">
@@ -558,7 +558,10 @@ A directed edge corresponds to a relationship among OMF documents (extension or 
         <img src="../../../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      
+      <p class="shortcomment cmt">TODO: The current strategy converts one module at a time.</p><div class="fullcomment"><div class="comment cmt"><p>TODO: The current strategy converts one module at a time.
+      This strategy implicitly assumes that there are no circular imports.
+      Convert all modules in phases to allow resolving cross references among circular imports.
+</p></div></div>
     </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFLoader#loadModule" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="loadModule(iri:org.semanticweb.owlapi.model.IRI,m2i:gov.nasa.jpl.omf.scala.binding.owlapi.OntologyMapping)(implicitops:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFOps,implicitstore:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore):scalaz.\/[gov.nasa.jpl.omf.scala.core.OMFError.Throwables,(gov.nasa.jpl.omf.scala.binding.owlapi.common.Module,gov.nasa.jpl.omf.scala.binding.owlapi.OntologyMapping)]"></a>
       <a id="loadModule(IRI,OntologyMapping)(OWLAPIOMFOps,OWLAPIOMFGraphStore):\/[Throwables,(Module,OntologyMapping)]"></a>
