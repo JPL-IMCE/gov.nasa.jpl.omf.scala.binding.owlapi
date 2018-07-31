@@ -1547,17 +1547,19 @@ trait OWLAPIMutableTerminologyGraphOps
   = tbox.addEntityAspect(aspectIRI, aspectName, uuid)
 
   override protected def addCardinalityRestrictedAspectInternal
-  (graph: MutableTerminologyBox,
+  (tbox: MutableTerminologyBox,
    uuid: api.taggedTypes.CardinalityRestrictedAspectUUID,
-   iri: IRI,
-   conceptName: tables.taggedTypes.LocalName,
+   aspectIRI: IRI,
+   aspectName: tables.taggedTypes.LocalName,
    restrictionKind: CardinalityRestrictionKind,
    restrictedRelationship: RestrictableRelationship,
    restrictedRange: Option[Entity],
    restrictedCardinality: tables.taggedTypes.PositiveIntegerLiteral)
   (implicit store: OWLAPIOMFGraphStore)
   : Throwables \/ CardinalityRestrictedAspect
-  = scala.Predef.???
+  = tbox.addCardinalityRestrictedAspect(
+    aspectIRI, aspectName, uuid,
+    restrictionKind, restrictedRelationship, restrictedRange, restrictedCardinality)
 
   override protected def addConcept
   (tbox: MutableTerminologyBox,
@@ -1569,9 +1571,9 @@ trait OWLAPIMutableTerminologyGraphOps
   = tbox.addEntityConcept(conceptIRI, conceptName, uuid)
 
   override protected def addCardinalityRestrictedConceptInternal
-  (graph: MutableTerminologyBox,
+  (tbox: MutableTerminologyBox,
    uuid: api.taggedTypes.CardinalityRestrictedConceptUUID,
-   iri: IRI,
+   conceptIRI: IRI,
    conceptName: tables.taggedTypes.LocalName,
    restrictionKind: CardinalityRestrictionKind,
    restrictedRelationship: RestrictableRelationship,
@@ -1579,7 +1581,10 @@ trait OWLAPIMutableTerminologyGraphOps
    restrictedCardinality: tables.taggedTypes.PositiveIntegerLiteral)
   (implicit store: OWLAPIOMFGraphStore)
   : Throwables \/ CardinalityRestrictedConcept
-  = scala.Predef.???
+  = tbox.addCardinalityRestrictedConcept(
+    conceptIRI, conceptName, uuid,
+    restrictionKind, restrictedRelationship, restrictedRange, restrictedCardinality)
+
 
   override protected def addReifiedRelationshipRestriction
   (tbox: MutableTerminologyBox,
@@ -1620,9 +1625,9 @@ trait OWLAPIMutableTerminologyGraphOps
   } yield result
 
   override protected def addCardinalityRestrictedReifiedRelationshipInternal
-  (graph: MutableTerminologyBox,
+  (tbox: MutableTerminologyBox,
    uuid: api.taggedTypes.CardinalityRestrictedReifiedRelationshipUUID,
-   iri: IRI,
+   rIRI: IRI,
    reifiedRelationshipName: tables.taggedTypes.LocalName,
    restrictionKind: CardinalityRestrictionKind,
    restrictedRelationship: RestrictableRelationship,
@@ -1630,7 +1635,9 @@ trait OWLAPIMutableTerminologyGraphOps
    restrictedCardinality: tables.taggedTypes.PositiveIntegerLiteral)
   (implicit store: OWLAPIOMFGraphStore)
   : Throwables \/ CardinalityRestrictedReifiedRelationship
-  = scala.Predef.???
+  = tbox.addCardinalityRestrictedReifiedRelationship(
+    rIRI, reifiedRelationshipName, uuid,
+    restrictionKind, restrictedRelationship, restrictedRange, restrictedCardinality)
 
   override protected def addUnreifiedRelationship
   (tbox: MutableTerminologyBox,
