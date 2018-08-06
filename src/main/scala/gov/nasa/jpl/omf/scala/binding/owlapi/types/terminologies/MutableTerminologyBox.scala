@@ -4236,15 +4236,6 @@ trait MutableTerminologyBox
   = (isTypeTermDefinedRecursively(restrictedEntity),
     isTypeTermDefinedRecursively(scalarProperty)) match {
     case (true, true) =>
-      // TODO: Key axiom should have been defined on the scalar data property, not the restriction!
-      val key = if (sig.kind == TerminologyKind.isClosedWorld)
-        Option(new AddAxiom(ont, owlDataFactory.getOWLHasKeyAxiom(
-          restrictedEntity.e,
-          Collections.singleton(scalarProperty.e),
-          createOMLProvenanceAnnotations(uuid)))
-        )
-      else
-        Option.empty
       for {
         ax <- createEntityScalarDataPropertyParticularRestrictionAxiom(uuid, restrictedEntity, scalarProperty, literalValue, valueType)
         _ <- applyOntologyChangesOrNoOp(
@@ -4256,7 +4247,7 @@ trait MutableTerminologyBox
                 LiteralConversions.toOWLLiteral(literalValue, owlDataFactory,
                   valueType.map(_.e).orElse(Option.apply(scalarProperty.range.e)))),
               createOMLProvenanceAnnotations(uuid)))
-          ) ++ key,
+          ),
           ifError = {
             "addEntityScalarDataPropertyParticularRestrictionAxiom Error"
           })
@@ -4291,15 +4282,6 @@ trait MutableTerminologyBox
         e_iri <- withFragment(iri, localName(uuid.toString))
         e_ni = owlDataFactory.getOWLNamedIndividual(e_iri)
         axiom = EntityStructuredDataPropertyParticularRestrictionAxiom(uuid, restrictedEntity, structuredProperty, e_ni)
-        // TODO: Key axiom should have been defined on the scalar data property, not the restriction!
-        key = if (sig.kind == TerminologyKind.isClosedWorld)
-          Option(new AddAxiom(ont, owlDataFactory.getOWLHasKeyAxiom(
-            restrictedEntity.e,
-            Collections.singleton(structuredProperty.e),
-            createOMLProvenanceAnnotations(uuid)))
-          )
-        else
-          Option.empty
         _ <- applyOntologyChangesOrNoOp(
           ontManager,
           Seq(
@@ -4314,7 +4296,7 @@ trait MutableTerminologyBox
               restrictedEntity.e,
               owlDataFactory.getOWLObjectHasValue(structuredProperty.e, e_ni),
               createOMLProvenanceAnnotations(uuid)))
-          ) ++ key,
+          ),
           ifError = {
             "addEntityStructuredDataPropertyParticularRestrictionAxiom Error"
           })

@@ -35,4 +35,20 @@ extends testFunctionalAPI.IRITests[OWLAPIOMF]()({
       throw new scala.IllegalArgumentException(message)
     }
   om.ops
-})
+}) {
+
+  val uriConfig = com.netaporter.uri.config.UriConfig.conservative
+  val decoder = uriConfig.fragmentDecoder
+  val encoder = uriConfig.fragmentEncoder
+
+  "fragment roundtrip test" when {
+    "fragment^2 is identity" in {
+      val id = "'0123-???-Component'"
+      val v1 = encoder.encode(id, uriConfig.charset)
+      java.lang.System.out.println(s"v1=$v1")
+      val v2 = encoder.encode(v1, uriConfig.charset)
+      java.lang.System.out.println(s"v2=$v2")
+      v1 shouldNot(equal(v2))
+    }
+  }
+}
