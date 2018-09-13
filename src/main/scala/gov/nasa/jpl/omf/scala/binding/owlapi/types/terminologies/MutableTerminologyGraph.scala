@@ -58,11 +58,14 @@ object MutableTerminologyGraph {
       conceptDesignation = HashSet.empty[ConceptDesignationTerminologyAxiom],
       bundledTerminologies = HashSet.empty[BundledTerminologyAxiom],
       aspects = HashSet.empty[Aspect],
+      cardinalityRestrictedAspects = HashSet.empty[CardinalityRestrictedAspect],
       concepts = HashSet.empty[Concept],
+      cardinalityRestrictedConcepts = HashSet.empty[CardinalityRestrictedConcept],
       reifiedRelationshipRestrictions = HashSet.empty[ReifiedRelationshipRestriction],
       reifiedRelationships = HashSet.empty[ReifiedRelationship],
       forwardProperties = HashSet.empty[ForwardProperty],
       inverseProperties = HashSet.empty[InverseProperty],
+      cardinalityRestrictedReifiedRelationships = HashSet.empty[CardinalityRestrictedReifiedRelationship],
       unreifiedRelationships = HashSet.empty[UnreifiedRelationship],
       scalarDataTypes = HashSet.empty[Scalar],
       structuredDataTypes = HashSet.empty[Structure],
@@ -132,7 +135,7 @@ case class MutableTerminologyGraph
 
   def createTerminologyNestingAxiom
   (parentG: TerminologyBox,
-   parentC: Concept)
+   parentC: ConceptKind)
   (implicit store: OWLAPIOMFGraphStore)
   : Set[java.lang.Throwable] \/ TerminologyNestingAxiom
   = for {
@@ -143,7 +146,7 @@ case class MutableTerminologyGraph
   def createTerminologyNestingAxiom
   (uuid: api.taggedTypes.TerminologyNestingAxiomUUID,
    parentG: TerminologyBox,
-   parentC: Concept)
+   parentC: ConceptKind)
   (implicit store: OWLAPIOMFGraphStore)
   : Set[java.lang.Throwable] \/ TerminologyNestingAxiom
   = sig.nesting.headOption match {
@@ -164,7 +167,7 @@ case class MutableTerminologyGraph
   def addNestedTerminologyGraph
   (uuid: api.taggedTypes.TerminologyNestingAxiomUUID,
    parentGraph: TerminologyBox,
-   parentContext: Concept)
+   parentContext: ConceptKind)
   (implicit store: OWLAPIOMFGraphStore)
   : Set[java.lang.Throwable] \/ TerminologyNestingAxiom
   = for {

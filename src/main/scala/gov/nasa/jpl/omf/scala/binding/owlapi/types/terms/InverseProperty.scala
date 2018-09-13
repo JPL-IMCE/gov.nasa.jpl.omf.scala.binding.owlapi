@@ -19,18 +19,27 @@
 package gov.nasa.jpl.omf.scala.binding.owlapi.types.terms
 
 import gov.nasa.jpl.imce.oml.{resolver, tables}
-import gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMF
-import gov.nasa.jpl.omf.scala.binding.owlapi.common.RestrictableRelationship
+import gov.nasa.jpl.omf.scala.binding.owlapi.{OWLAPIOMF, OWLAPIOMFGraphStore}
 import org.semanticweb.owlapi.model.OWLObjectProperty
 
-import scala.{Any,Boolean,Int}
+import scala.{Any, Boolean, Int}
 
 case class InverseProperty
-(e: OWLObjectProperty,
+(override val e: OWLObjectProperty,
  override val uuid: resolver.api.taggedTypes.InversePropertyUUID,
  override val iri: OWLAPIOMF#IRI,
  override val name: tables.taggedTypes.LocalName)
   extends RestrictableRelationship {
+
+  override def domain
+  ()(implicit store: OWLAPIOMFGraphStore)
+  : Entity
+  = store.relation(this).source
+
+  override def range
+  ()(implicit store: OWLAPIOMFGraphStore)
+  : Entity
+  = store.relation(this).target
 
   override def canEqual(other: Any)
   : Boolean

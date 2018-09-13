@@ -188,9 +188,12 @@ lazy val core =
     scalacOptions in (Test, doc) += "-Xplugin-disable:artima-supersafe",
 
     // If it is necessary to disable unit tests.
-//    testOptions in Test := Seq(Tests.Filter(s =>
-//      !s.endsWith("IMCEFoundationLoadTestFromOWLAPILocalCatalog")
-//    )),
+
+    // disable circularity test
+    // see https://github.com/JPL-IMCE/gov.nasa.jpl.omf.scala.binding.owlapi/issues/77
+    testOptions in Test := Seq(Tests.Filter(s =>
+      !s.endsWith("OWLAPIOWFCircularityExampleTestLocalCatalog")
+    )),
 
     compile in Test := {
       val _ = extractArchives.value

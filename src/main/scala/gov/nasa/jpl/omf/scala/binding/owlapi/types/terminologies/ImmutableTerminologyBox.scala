@@ -23,7 +23,7 @@ import gov.nasa.jpl.omf.scala.binding.owlapi.common.ImmutableModule
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.Term
 import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms._
 import gov.nasa.jpl.omf.scala.core.ImmutableTerminologyBoxSignature
-import org.semanticweb.owlapi.model.{OWLClass, OWLDatatype}
+import org.semanticweb.owlapi.model.{OWLClass, OWLDatatype, OWLObjectProperty}
 
 import scala.collection.immutable._
 import scala.language.postfixOps
@@ -50,6 +50,12 @@ trait ImmutableTerminologyBox
   = (sig.aspects.map(a => a.e -> a) ++
     sig.concepts.map(c => c.e -> c) ++
     sig.reifiedRelationships.map(r => r.e -> r)).toMap
+
+  val getRestrictableRelationshipMap: Map[OWLObjectProperty, RestrictableRelationship] =
+    sig.forwardProperties.map(p => p.e -> p).toMap ++
+      sig.inverseProperties.map(p => p.e -> p).toMap ++
+      sig.unreifiedRelationships.map(p => p.e -> p).toMap
+
 
   val getScalarDatatypeDefinitionMap: Map[OWLDatatype, DataRange]
   = sig.scalarDataTypes.map(t => t.e -> t).toMap ++

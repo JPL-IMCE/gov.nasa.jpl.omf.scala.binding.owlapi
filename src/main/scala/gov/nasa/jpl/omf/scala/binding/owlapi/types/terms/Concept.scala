@@ -30,7 +30,7 @@ case class Concept
  override val iri: IRI,
  override val name: tables.taggedTypes.LocalName,
  override val uuid: resolver.api.taggedTypes.ConceptUUID )
-  extends ConceptualEntity {
+  extends ConceptKind {
 
   override def canEqual(other: Any)
   : Boolean

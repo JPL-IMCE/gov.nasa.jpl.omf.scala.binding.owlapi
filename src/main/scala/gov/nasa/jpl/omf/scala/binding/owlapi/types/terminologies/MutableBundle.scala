@@ -121,12 +121,12 @@ case class MutableBundle
   = ???
 
   def addRootConceptTaxonomyAxiom
-  (uuid: RootConceptTaxonomyAxiomUUID, root: Concept)
+  (uuid: RootConceptTaxonomyAxiomUUID, root: ConceptKind)
   : Set[java.lang.Throwable] \/ OWLAPIOMF#RootConceptTaxonomyAxiom
   = ???
 
   def addSpecificDisjointConceptAxiom
-  (uuid: SpecificDisjointConceptAxiomUUID, disjointTerminologyParent: ConceptTreeDisjunction, disjointLeaf: Concept)
+  (uuid: SpecificDisjointConceptAxiomUUID, disjointTerminologyParent: ConceptTreeDisjunction, disjointLeaf: ConceptKind)
   : Set[java.lang.Throwable] \/ OWLAPIOMF#SpecificDisjointConceptAxiom
   = ???
 
@@ -153,11 +153,14 @@ object MutableBundle {
       conceptDesignation = HashSet.empty[ConceptDesignationTerminologyAxiom],
       bundledTerminologies = HashSet.empty[BundledTerminologyAxiom],
       aspects = HashSet.empty[Aspect],
+      cardinalityRestrictedAspects = HashSet.empty[CardinalityRestrictedAspect],
       concepts = HashSet.empty[Concept],
+      cardinalityRestrictedConcepts = HashSet.empty[CardinalityRestrictedConcept],
       reifiedRelationshipRestrictions = HashSet.empty[ReifiedRelationshipRestriction],
       reifiedRelationships = HashSet.empty[ReifiedRelationship],
       forwardProperties = HashSet.empty[ForwardProperty],
       inverseProperties = HashSet.empty[InverseProperty],
+      cardinalityRestrictedReifiedRelationships = HashSet.empty[CardinalityRestrictedReifiedRelationship],
       unreifiedRelationships = HashSet.empty[UnreifiedRelationship],
       scalarDataTypes = HashSet.empty[Scalar],
       structuredDataTypes = HashSet.empty[Structure],

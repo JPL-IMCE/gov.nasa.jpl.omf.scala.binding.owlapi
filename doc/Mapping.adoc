@@ -1,0 +1,472 @@
+= Mapping between OML and OWL2-DL + SWRL.
+:sectnums:
+
+The Ontological Modeling Language, OML, is designed
+as a carefully restricted subset of OWL2-DL with SWRL rules
+to ensure a structural correspondence between OML and OWL2-DL + SWRL.
+
+This means that:
+
+* given an OML document structure, all serializations of its OWL2-DL+SWRL mapping
+  are structurally equivalent per OWL2-DL;
+* structurally different OML documents map to structurally different OWL2-DL+SWRL documents;
+* if two OWL2-DL+SWRL documents are structurally different per OWL2-DL and
+  each maps to a well-formed OML document, then these two OML documents are structurally different per OML.
+
+In other words, the mapping between OML and OWL2-DL+SWRL must establish a structurally unambiguous
+correspondence between OML constructs and corresponding patterns of OWL2-DL+SWRL structures.
+
+== Taxonomy of OML Definitions
+
+.Entity Taxonomy
+* [[Entity]]Entity
+** <<AspectKind,Aspect Kind>>
+*** <<Aspect,Aspect>>
+*** <<CardinalityRestrictedAspect,Cardinality Restricted Aspect>>
+** <<ConceptualEntity,Conceptual Entity>>
+*** <<ConceptKind,Concept Kind>>
+**** <<Concept,Concept>>
+**** <<CardinalityRestrictedConcept,Cardinality Restricted Concept>>
+*** <<ConceptualRelationship,Conceptual Relationship>>
+**** <<ReifiedRelationship,Reified Relationship>>
+**** <<ReifiedRelationshipRestriction,Reified Relationship Restriction>>
+**** <<CardinalityRestrictedReifiedRelationship,Cardinality Restricted Reified Relationship>>
+
+.Entity Relationship Taxonomy
+* [[EntityRelationship]]Entity Relationship
+** [[CharacterizedEntityRelationship]]Characterized Entity Relationship
+*** <<ReifiedRelationship,Reified Relationship>>
+*** [[UnreifiedRelationship]]Uneified Relationship
+** <<ConceptualRelationship,Conceptual Relationship>>
+
+[cols="1,1,3",options="header"]
+.Queries
+|===
+|Context
+|Query
+|Description
+
+a|<<ConceptualRelationship,Conceptual Relationship>>
+|`rootRRs()`
+|At least 1 <<CharacterizedEntityRelationship,Characterized Entity Relationship>>
+
+a|<<ReifiedRelationship,Reified Relationship>>
+|`rootRRs()`
+|`{self}`
+
+a|<<ReifiedRelationshipRestriction,Reified Relationship Restriction>>
+|`rootRRs()`
+a|[source]
+----
+self.super.rootRRs() - self.parents.rootRRs().sub* <1>
+----
+<1> where:
+* `x.super` refers to the super classes of `x`
+* `x.sub` refers to the sub classes of `x`
+* `x.sub*` refers to the reflexive transitive closure of `x.sub`
+
+a|<<CardinalityRestrictedReifiedRelationship,Cardinality Restricted Reified Relationship>>
+|`rootRRs()`
+|`{source(rRel)}`
+|===
+
+.Specialization Axiom Taxonomy
+* SpecializationAxiom
+** <<AspectSpecializationAxiom,Aspect Specialization Axiom>>
+** <<ConceptSpecializationAxiom,Concept Specialization Axiom>>
+** <<ConceptualRelationshipSpecializationAxiom,Conceptual Relationship Specialization Axiom>>
+
+== Mapping of OML Entities
+
+[cols="1,3,3",options="header"]
+.[[AspectKind]]Aspect Kinds
+|===
+|Subkind
+|Arguments
+|OWL2 Manchester Syntax + SWRL
+
+a|* [[Aspect]]Aspect
+a|[source]
+----
+a: LocalName
+----
+a|[source]
+----
+Class: a
+  SubClassOf: backbone:AspectKind
+----
+
+a|* [[CardinalityRestrictedAspect]]Cardinality Restricted Aspect
+a|[source]
+----
+a: LocalName
+kind: Min \| Max \| Exact
+rRel: RestrictableRelationship
+rRange: Option[Entity]
+rCard: PositiveIntegerLiteral
+
+where:
+
+domain(rRel) in backbone:AspectKind
+----
+a|[source]
+----
+Class: a
+  SubClassOf: backbone:AspectKind
+  SubClassOf: rRel kind rCard [rRange]
+----
+|===
+
+[cols="1,3,3",options="header"]
+.[[ConceptKind]]Concept Kinds
+|===
+|Subkind
+|Arguments
+|OWL2 Manchester Syntax + SWRL
+
+a|* [[Concept]]Concept
+a|[source]
+----
+c: LocalName
+----
+a|[source]
+----
+Class: c
+  SubClassOf: backbone:ConceptKind
+----
+
+a|* [[CardinalityRestrictedConcept]]Cardinality Restricted Concept
+a|[source]
+----
+c: LocalName
+kind: Min \| Max \| Exact
+rRel: RestrictableRelationship
+rRange: Option[Entity]
+rCard: PositiveIntegerLiteral
+
+where:
+
+domain(rRel) in backbone:ConceptKind
+----
+a|[source]
+----
+Class: c
+  SubClassOf: backbone:ConceptKind
+  SubClassOf: rRel kind rCard [rRange]
+----
+|===
+
+
+[cols="1,4,4",options="header"]
+.[[ConceptualRelationship]]Conceptual Relationships
+|===
+|Kind
+|Arguments
+|OWL2 Manchester Syntax + SWRL
+
+a|* [[ReifiedRelationship]]Reified Relationship
+a|[source]
+----
+rr: LocalName
+ri: Option[LocalName]
+source: Entity
+target: Entity
+----
+a|[source]
+----
+Class: rr
+  SubClassOf: backbone:ConceptualRelationship
+
+ObjectProperty: rSource
+  Domain: rr
+  Range: source
+  Characteristics: Functional
+  SubPropertyOf: backbone:ConceptualRelationshipSource
+
+ObjectProperty: rTarget
+  Domain: rr
+  Range: target
+  Characteristics: Functional
+  SubPropertyOf: backbone:ConceptualRelationshipTarget
+
+ObjectProperty: rU
+  Domain: source
+  Range: target
+  Characteristics: Functional
+  SubPropertyOf: backbone:ConceptualRelationshipProperty
+  InverseOf: rI <1>
+
+ObjectProperty: rI <1>
+  Domain: target
+  Range: source
+  Characteristics: Functional
+  SubPropertyOf: backbone:ConceptualRelationshipProperty
+
+rSource(?rr,?x) ^ rTarget(?rr,?y) -> rU(?x,?y)
+----
+<1> if `rI` is defined
+
+a|* [[ReifiedRelationshipRestriction]]Reified Relationship Restriction
+
+*Note*: `rs` must be the subclass of
+at least 1 <<ConceptualRelationshipSpecializationAxiom,Conceptual Relationship Specialization Axiom>>.
+a|[source]
+----
+rs: LocalName
+source: Entity
+target: Entity
+----
+a|[source]
+----
+Class: rs
+  SubClassOf: backbone:ConceptualRelationship
+----
+
+a|* [[CardinalityRestrictedReifiedRelationship]]Cardinality Restricted ReifiedRelationship
+a|[source]
+----
+rs: LocalName
+kind: Min \| Max \| Exact
+rRel: RestrictableRelationship
+rRange: Option[Entity]
+rCard: PositiveIntegerLiteral
+
+where:
+
+domain(rRel) in ConceptualRelationship
+source = domain(rRel).source
+target = domain(rRel).target
+----
+a|[source]
+----
+Class: rs
+  SubClassOf: backbone:ConceptualRelationship
+  SubClassOf: rRel kind rCard [rRange]
+----
+|===
+
+[cols="1,1,3",options="header"]
+.[[AspectSpecializationAxiom]]Aspect Specialization Axioms
+|===
+|Sub (one of)
+|Sup (one of)
+|OWL2 Manchester Syntax + SWRL
+
+a|
+* <<Aspect,Aspect>>
+* <<CardinalityRestrictedAspect,Cardinality Restricted Aspect>>
+* <<Concept,Concept>>
+* <<CardinalityRestrictedConcept,Cardinality Restricted Concept>>
+* <<ReifiedRelationship,Reified Relationship>>
+* <<ReifiedRelationshipRestriction,Reified Relationship Restriction>>
+* <<CardinalityRestrictedReifiedRelationship,Cardinality Restricted Reified Relationship>>
+
+a|
+* <<Aspect,Aspect>>
+* <<CardinalityRestrictedAspect,Cardinality Restricted Aspect>>
+
+a|[source]
+----
+Class: sub
+  SubClassOf: sup
+----
+|===
+
+[cols="1,1,3",options="header"]
+.[[ConceptSpecializationAxiom]]Concept Specialization Axioms
+|===
+|Sub (one of)
+|Sup (one of)
+|OWL2 Manchester Syntax + SWRL
+
+a|
+* <<Concept,Concept>>
+* <<CardinalityRestrictedConcept,Cardinality Restricted Concept>>
+
+a|
+* <<Concept,Concept>>
+* <<CardinalityRestrictedConcept,Cardinality Restricted Concept>>
+
+a|[source]
+----
+Class: sub
+  SubClassOf: sup
+----
+|===
+
+[cols="1,1,3",options="header"]
+.[[ConceptualRelationshipSpecializationAxiom]]Conceptual Relationship Specialization Axioms
+|===
+|Sub
+|Sup
+|OWL2 Manchester Syntax + SWRL
+
+a|
+* <<ReifiedRelationship,Reified Relationship>>
+
+a|
+* <<ReifiedRelationship,Reified Relationship>>
+
+a|[source]
+----
+Class: sub
+  SubClassOf: sup
+
+ObjectProperty: sub.rSource
+  SubPropertyOf: sup.rSource
+
+ObjectProperty: sub.rTarget
+  SubPropertyOf: sup.rTarget
+
+ObjectProperty: sub.rU
+  SubPropertyOf: sup.rU
+
+ObjectProperty: sub.rI <1>
+  SubPropertyOf: sup.rI
+----
+<1> if `sub.rI` and `sup.rI` are defined.
+
+a|
+* <<ReifiedRelationship,Reified Relationship>>
+
+a|
+* <<ReifiedRelationshipRestriction,Reified Relationship Restriction>>
+
+a|[source]
+----
+Class: sub
+  SubClassOf: sup
+
+ObjectProperty: sub.rSource
+  SubPropertyOf: root.rSource <1>
+
+ObjectProperty: sub.rTarget
+  SubPropertyOf: root.rTarget <1>
+
+ObjectProperty: sub.rU
+  SubPropertyOf: root.rU <1>
+
+ObjectProperty: sub.rI <2>
+  SubPropertyOf: root.rI <1>
+----
+<1> for each `root: ReifiedRelationship in sup.rootCharacterizedEntityRelationships()`
+<2> if `sub.rI` and `root.rI` are defined.
+
+a|
+* <<ReifiedRelationship,Reified Relationship>>
+
+a|
+* <<CardinalityRestrictedReifiedRelationship,Cardinality Restricted Reified Relationship>>
+
+a|[source]
+----
+Class: sub
+  SubClassOf: sup
+
+ObjectProperty: sub.rSource
+  SubPropertyOf: root.rSource <1>
+
+ObjectProperty: sub.rTarget
+  SubPropertyOf: root.rTarget <1>
+
+ObjectProperty: sub.rU
+  SubPropertyOf: root.rU <1>
+
+ObjectProperty: sub.rI <2>
+  SubPropertyOf: root.rI <1>
+----
+<1> for each `root: ReifiedRelationship in sup.rootCharacterizedEntityRelationships()`
+<2> if `sub.rI` and `root.rI` are defined.
+
+a|
+* <<ReifiedRelationshipRestriction,Reified Relationship Restriction>>
+
+a|
+* <<ReifiedRelationship,Reified Relationship>>
+
+a|[source]
+----
+Class: sub
+  SubClassOf: sup
+  SubClassOf: sup.rSource some sub.source
+  SubClassOf: sup.rTarget some sub.target
+----
+
+a|
+* <<ReifiedRelationshipRestriction,Reified Relationship Restriction>>
+
+a|
+* <<ReifiedRelationshipRestriction,Reified Relationship Restriction>>
+
+a|[source]
+----
+Class: sub
+  SubClassOf: sup
+  SubClassOf: root.rSource some sub.source <1>
+  SubClassOf: root.rTarget some sub.target <1>
+----
+<1> for each `root: ReifiedRelationship in sup.rootCharacterizedEntityRelationships()`
+
+a|
+* <<ReifiedRelationshipRestriction,Reified Relationship Restriction>>
+
+a|
+* <<CardinalityRestrictedReifiedRelationship,Cardinality Restricted Reified Relationship>>
+
+a|[source]
+----
+Class: sub
+  SubClassOf: sup
+  SubClassOf: root.rSource some sub.source <1>
+  SubClassOf: root.rTarget some sub.target <1>
+----
+<1> for each `root: ReifiedRelationship in sup.rootCharacterizedEntityRelationships()`
+
+
+a|
+* <<CardinalityRestrictedReifiedRelationship,Cardinality Restricted Reified Relationship>>
+
+a|
+* <<ReifiedRelationship,Reified Relationship>>
+
+a|[source]
+----
+Class: sub
+  SubClassOf: sup
+  SubClassOf: sup.rSource some domain(sub)
+  SubClassOf: sup.rTarget some range(sub)
+----
+
+a|
+* <<CardinalityRestrictedReifiedRelationship,Cardinality Restricted Reified Relationship>>
+
+a|
+* <<ReifiedRelationshipRestriction,Reified Relationship Restriction>>
+
+a|[source]
+----
+Class: sub
+  SubClassOf: sup
+  SubClassOf: root.rSource some sub.source <1>
+  SubClassOf: root.rTarget some sub.target <1>
+----
+<1> for each `root: ReifiedRelationship in sup.rootCharacterizedEntityRelationships()`
+
+
+a|
+* <<CardinalityRestrictedReifiedRelationship,Cardinality Restricted Reified Relationship>>
+
+a|
+* <<CardinalityRestrictedReifiedRelationship,Cardinality Restricted Reified Relationship>>
+
+a|[source]
+----
+Class: sub
+  SubClassOf: sup
+  SubClassOf: root.rSource some sub.source <1>
+  SubClassOf: root.rTarget some sub.target <1>
+----
+<1> for each `root: ReifiedRelationship in sup.rootCharacterizedEntityRelationships()`
+
+
+|===

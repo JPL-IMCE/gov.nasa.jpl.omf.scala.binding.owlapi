@@ -24,7 +24,7 @@ import java.net.URI
 import gov.nasa.jpl.imce.oml.resolver.api
 import gov.nasa.jpl.imce.oml.resolver.api.taggedTypes.ReifiedRelationshipRestrictionUUID
 import gov.nasa.jpl.imce.oml.tables
-import gov.nasa.jpl.imce.oml.tables.{AnnotationProperty, AnnotationPropertyValue, LiteralValue}
+import gov.nasa.jpl.imce.oml.tables.{AnnotationProperty, AnnotationPropertyValue, CardinalityRestrictionKind, LiteralValue}
 import gov.nasa.jpl.imce.oml.uuid.{JVMUUIDGenerator, OMLUUIDGenerator}
 import gov.nasa.jpl.omf.scala.binding.owlapi.common._
 import gov.nasa.jpl.omf.scala.binding.owlapi.descriptions.{DescriptionBox, ImmutableDescriptionBox, MutableDescriptionBox, SingletonInstanceStructuredDataPropertyContext}
@@ -50,6 +50,7 @@ import scala.util.control.Exception._
 import scala.Predef.{Map => _, Set => _, _}
 import scalaz._
 import Scalaz._
+
 import scala.reflect.ClassTag
 
 object OWLAPIIRIOps {
@@ -522,7 +523,7 @@ trait OWLAPIStoreOps
   = store.lookupNestingAxiomForNestedChildIfAny(nestedG)
 
   override def lookupNestingAxiomsForNestingContext
-  (nestingC: Concept)
+  (nestingC: ConceptKind)
   (implicit store: OWLAPIOMFGraphStore)
   : Set[TerminologyNestingAxiom]
   = store.lookupNestingAxiomsForNestingContext(nestingC)
@@ -646,7 +647,23 @@ trait OWLAPIImmutableTerminologyGraphOps
   : Option[OWLAPIOMF#Entity]
   = iri.map(IRI.create).flatMap(lookupEntity(tbox, _, recursively))
 
+  override def getAspectKindUUID(term: AspectKind): api.taggedTypes.AspectKindUUID = term.uuid
+
   override def getAspectUUID(term: Aspect): api.taggedTypes.AspectUUID = term.uuid
+
+  override def getCardinalityRestrictedAspectUUID
+  (term: CardinalityRestrictedAspect)
+  : api.taggedTypes.CardinalityRestrictedAspectUUID
+  = term.uuid
+
+  override def lookupAspectKind
+  (tbox: OWLAPIOMF#TerminologyBox, iri: IRI, recursively: Boolean)
+  (implicit store: OWLAPIOMFGraphStore)
+  : Option[OWLAPIOMF#AspectKind]
+  = lookupTerm(tbox, iri, recursively) match {
+    case Some(t: OWLAPIOMF#AspectKind) => Some(t)
+    case _ => None
+  }
 
   override def lookupAspect
   (tbox: OWLAPIOMF#TerminologyBox, iri: IRI, recursively: Boolean)
@@ -663,6 +680,15 @@ trait OWLAPIImmutableTerminologyGraphOps
   : Option[OWLAPIOMF#Aspect]
   = iri.map(IRI.create).flatMap(lookupAspect(tbox, _, recursively))
 
+  override def lookupConceptKind
+  (tbox: OWLAPIOMF#TerminologyBox, iri: IRI, recursively: Boolean)
+  (implicit store: OWLAPIOMFGraphStore)
+  : Option[OWLAPIOMF#ConceptKind]
+  = lookupTerm(tbox, iri, recursively) match {
+    case Some(t: OWLAPIOMF#ConceptKind) => Some(t)
+    case _ => None
+  }
+
   override def lookupConcept
   (tbox: OWLAPIOMF#TerminologyBox, iri: IRI, recursively: Boolean)
   (implicit store: OWLAPIOMFGraphStore)
@@ -672,7 +698,18 @@ trait OWLAPIImmutableTerminologyGraphOps
     case _ => None
   }
 
-  override def getConceptUUID(term: Concept): api.taggedTypes.ConceptUUID = term.uuid
+  override def getConceptKindUUID(term: ConceptKind)
+  : api.taggedTypes.ConceptKindUUID
+  = term.uuid
+
+  override def getConceptUUID(term: Concept)
+  : api.taggedTypes.ConceptUUID
+  = term.uuid
+
+  override def getCardinalityRestrictedConceptUUID
+  (term: CardinalityRestrictedConcept)
+  : api.taggedTypes.CardinalityRestrictedConceptUUID
+  = term.uuid
 
   override def getRestrictableRelationshipUUID
   (term: OWLAPIOMF#RestrictableRelationship)
@@ -690,6 +727,11 @@ trait OWLAPIImmutableTerminologyGraphOps
   override def getEntityRelationshipUUID(term: EntityRelationship): api.taggedTypes.EntityRelationshipUUID = term.uuid
 
   override def getReifiedRelationshipUUID(term: ReifiedRelationship): api.taggedTypes.ReifiedRelationshipUUID = term.uuid
+
+  override def getCardinalityRestrictedReifiedRelationshipUUID
+  (term: CardinalityRestrictedReifiedRelationship)
+  : api.taggedTypes.CardinalityRestrictedReifiedRelationshipUUID
+  = term.uuid
 
   override def lookupConceptualRelationship
   (tbox: OWLAPIOMF#TerminologyBox, iri: IRI, recursively: Boolean)
@@ -873,7 +915,10 @@ trait OWLAPIImmutableTerminologyGraphOps
 
   def foldTerm[T]
   (funAspect: OWLAPIOMF#Aspect => T,
+   funCardinalityRestrictedAspect: OWLAPIOMF#CardinalityRestrictedAspect => T,
    funConcept: OWLAPIOMF#Concept => T,
+   funCardinalityRestrictedConcept: OWLAPIOMF#CardinalityRestrictedConcept => T,
+   funCardinalityRestrictedReifiedRelationship: OWLAPIOMF#CardinalityRestrictedReifiedRelationship => T,
    funReifiedRelationshipRestriction: OWLAPIOMF#ReifiedRelationshipRestriction => T,
    funReifiedRelationship: OWLAPIOMF#ReifiedRelationship => T,
    funUnreifiedRelationship: OWLAPIOMF#UnreifiedRelationship => T,
@@ -895,8 +940,14 @@ trait OWLAPIImmutableTerminologyGraphOps
   : T = t match {
     case et: OWLAPIOMF#Aspect =>
       funAspect(et)
+    case et: OWLAPIOMF#CardinalityRestrictedAspect =>
+      funCardinalityRestrictedAspect(et)
     case et: OWLAPIOMF#Concept =>
       funConcept(et)
+    case et: OWLAPIOMF#CardinalityRestrictedConcept =>
+      funCardinalityRestrictedConcept(et)
+    case et: OWLAPIOMF#CardinalityRestrictedReifiedRelationship =>
+      funCardinalityRestrictedReifiedRelationship(et)
     case ep: OWLAPIOMF#ReifiedRelationshipRestriction =>
       funReifiedRelationshipRestriction(ep)
     case et: OWLAPIOMF#ReifiedRelationship =>
@@ -971,7 +1022,7 @@ trait OWLAPIImmutableTerminologyGraphOps
   = store.lookupNestingAxiomForNestedChildIfAny(nestedG)
 
   override def lookupNestingAxiomsForNestingContext
-  (nestingC: OWLAPIOMF#Concept)
+  (nestingC: OWLAPIOMF#ConceptKind)
   (implicit store: OWLAPIOMFGraphStore)
   : Set[OWLAPIOMF#TerminologyNestingAxiom]
   = store.lookupNestingAxiomsForNestingContext(nestingC)
@@ -986,10 +1037,30 @@ trait OWLAPIImmutableTerminologyGraphOps
   : AspectSignature[OWLAPIOMF]
   = AspectSignature[OWLAPIOMF](a.uuid, a.name, a.iri)
 
+  override def fromCardinalityRestrictedAspect
+  (ca: OWLAPIOMF#CardinalityRestrictedAspect)
+  : CardinalityRestrictedAspectSignature[OWLAPIOMF]
+  = CardinalityRestrictedAspectSignature[OWLAPIOMF](
+    ca.uuid, ca.name, ca.iri,
+    ca.restrictionKind,
+    ca.restrictedRelationship,
+    ca.restrictedRange,
+    ca.restrictedCardinality)
+
   override def fromConcept
   (c: OWLAPIOMF#Concept)
   : ConceptSignature[OWLAPIOMF]
   = ConceptSignature[OWLAPIOMF](c.uuid, c.name, c.iri)
+
+  override def fromCardinalityRestrictedConcept
+  (cc: OWLAPIOMF#CardinalityRestrictedConcept)
+  : CardinalityRestrictedConceptSignature[OWLAPIOMF]
+  = CardinalityRestrictedConceptSignature[OWLAPIOMF](
+    cc.uuid, cc.name, cc.iri,
+    cc.restrictionKind,
+    cc.restrictedRelationship,
+    cc.restrictedRange,
+    cc.restrictedCardinality)
 
   override def fromReifiedRelationshipRestriction
   (ax: OWLAPIOMF#ReifiedRelationshipRestriction)
@@ -1008,6 +1079,16 @@ trait OWLAPIImmutableTerminologyGraphOps
     r.inverseProperty.map { inv =>
       ReifiedRelationshipSignature.InversePropertySignature[OWLAPIOMF](inv.uuid, inv.iri, inv.name)
     })
+
+  override def fromCardinalityRestrictedReifiedRelationship
+  (crr: OWLAPIOMF#CardinalityRestrictedReifiedRelationship)
+  : CardinalityRestrictedReifiedRelationshipSignature[OWLAPIOMF]
+  = CardinalityRestrictedReifiedRelationshipSignature[OWLAPIOMF](
+    crr.uuid, crr.name, crr.iri,
+    crr.restrictionKind,
+    crr.restrictedRelationship,
+    crr.restrictedRange,
+    crr.restrictedCardinality)
 
   override def fromUnreifiedRelationship
   (r: OWLAPIOMF#UnreifiedRelationship)
@@ -1465,6 +1546,21 @@ trait OWLAPIMutableTerminologyGraphOps
   : Throwables \/ Aspect
   = tbox.addEntityAspect(aspectIRI, aspectName, uuid)
 
+  override protected def addCardinalityRestrictedAspectInternal
+  (tbox: MutableTerminologyBox,
+   uuid: api.taggedTypes.CardinalityRestrictedAspectUUID,
+   aspectIRI: IRI,
+   aspectName: tables.taggedTypes.LocalName,
+   restrictionKind: CardinalityRestrictionKind,
+   restrictedRelationship: RestrictableRelationship,
+   restrictedRange: Option[Entity],
+   restrictedCardinality: tables.taggedTypes.PositiveIntegerLiteral)
+  (implicit store: OWLAPIOMFGraphStore)
+  : Throwables \/ CardinalityRestrictedAspect
+  = tbox.addCardinalityRestrictedAspect(
+    aspectIRI, aspectName, uuid,
+    restrictionKind, restrictedRelationship, restrictedRange, restrictedCardinality)
+
   override protected def addConcept
   (tbox: MutableTerminologyBox,
    uuid: api.taggedTypes.ConceptUUID,
@@ -1473,6 +1569,22 @@ trait OWLAPIMutableTerminologyGraphOps
   (implicit store: OWLAPIOMFGraphStore)
   : Throwables \/ Concept
   = tbox.addEntityConcept(conceptIRI, conceptName, uuid)
+
+  override protected def addCardinalityRestrictedConceptInternal
+  (tbox: MutableTerminologyBox,
+   uuid: api.taggedTypes.CardinalityRestrictedConceptUUID,
+   conceptIRI: IRI,
+   conceptName: tables.taggedTypes.LocalName,
+   restrictionKind: CardinalityRestrictionKind,
+   restrictedRelationship: RestrictableRelationship,
+   restrictedRange: Option[Entity],
+   restrictedCardinality: tables.taggedTypes.PositiveIntegerLiteral)
+  (implicit store: OWLAPIOMFGraphStore)
+  : Throwables \/ CardinalityRestrictedConcept
+  = tbox.addCardinalityRestrictedConcept(
+    conceptIRI, conceptName, uuid,
+    restrictionKind, restrictedRelationship, restrictedRange, restrictedCardinality)
+
 
   override protected def addReifiedRelationshipRestriction
   (tbox: MutableTerminologyBox,
@@ -1511,6 +1623,21 @@ trait OWLAPIMutableTerminologyGraphOps
       source, target,
       characteristics)
   } yield result
+
+  override protected def addCardinalityRestrictedReifiedRelationshipInternal
+  (tbox: MutableTerminologyBox,
+   uuid: api.taggedTypes.CardinalityRestrictedReifiedRelationshipUUID,
+   rIRI: IRI,
+   reifiedRelationshipName: tables.taggedTypes.LocalName,
+   restrictionKind: CardinalityRestrictionKind,
+   restrictedRelationship: RestrictableRelationship,
+   restrictedRange: Option[Entity],
+   restrictedCardinality: tables.taggedTypes.PositiveIntegerLiteral)
+  (implicit store: OWLAPIOMFGraphStore)
+  : Throwables \/ CardinalityRestrictedReifiedRelationship
+  = tbox.addCardinalityRestrictedReifiedRelationship(
+    rIRI, reifiedRelationshipName, uuid,
+    restrictionKind, restrictedRelationship, restrictedRange, restrictedCardinality)
 
   override protected def addUnreifiedRelationship
   (tbox: MutableTerminologyBox,
@@ -1768,7 +1895,7 @@ trait OWLAPIMutableTerminologyGraphOps
   (tbox: MutableTerminologyBox,
    uuid: api.taggedTypes.AspectSpecializationAxiomUUID,
    sub: Entity,
-   sup: Aspect)
+   sup: AspectKind)
   (implicit store: OWLAPIOMFGraphStore)
   : Throwables \/ AspectSpecializationAxiom
   = tbox.addEntityDefinitionAspectSubClassAxiom(uuid, sub, sup)
@@ -1776,8 +1903,8 @@ trait OWLAPIMutableTerminologyGraphOps
   override protected def addConceptSpecializationAxiom
   (tbox: MutableTerminologyBox,
    uuid: api.taggedTypes.ConceptSpecializationAxiomUUID,
-   sub: Concept,
-   sup: Concept)
+   sub: ConceptKind,
+   sup: ConceptKind)
   (implicit store: OWLAPIOMFGraphStore)
   : Throwables \/ ConceptSpecializationAxiom
   = tbox.addEntityConceptSubClassAxiom(uuid, sub, sup)
@@ -1908,7 +2035,7 @@ trait OWLAPIMutableTerminologyGraphOps
   override protected def addNestedTerminology
   (uuid: api.taggedTypes.TerminologyNestingAxiomUUID,
    nestingTerminology: TerminologyBox,
-   nestingContext: Concept,
+   nestingContext: ConceptKind,
    nestedTerminology: MutableTerminologyGraph )
   (implicit store: OWLAPIOMFGraphStore)
   : Throwables \/ TerminologyNestingAxiom
@@ -1917,7 +2044,7 @@ trait OWLAPIMutableTerminologyGraphOps
   override protected def addEntityConceptDesignationTerminologyAxiom
   (tbox: OWLAPIOMF#MutableTerminologyBox,
    uuid: api.taggedTypes.ConceptDesignationTerminologyAxiomUUID,
-   designatedConcept: OWLAPIOMF#Concept,
+   designatedConcept: OWLAPIOMF#ConceptKind,
    designatedTerminology: OWLAPIOMF#TerminologyBox)
   (implicit store: OWLAPIOMFGraphStore)
   : Throwables \/ OWLAPIOMF#ConceptDesignationTerminologyAxiom
@@ -1935,7 +2062,7 @@ trait OWLAPIMutableTerminologyGraphOps
   override protected def addRootConceptTaxonomyAxiom
   (uuid: api.taggedTypes.RootConceptTaxonomyAxiomUUID,
    terminologyBundle: OWLAPIOMF#MutableBundle,
-   root: OWLAPIOMF#Concept)
+   root: OWLAPIOMF#ConceptKind)
   (implicit store: OWLAPIOMFGraphStore)
   : Throwables \/ OWLAPIOMF#RootConceptTaxonomyAxiom
   = terminologyBundle.addRootConceptTaxonomyAxiom(uuid, root)
@@ -1944,7 +2071,7 @@ trait OWLAPIMutableTerminologyGraphOps
   (uuid: api.taggedTypes.SpecificDisjointConceptAxiomUUID,
    terminologyBundle: OWLAPIOMF#MutableBundle,
    disjointTerminologyParent: OWLAPIOMF#ConceptTreeDisjunction,
-   disjointLeaf: OWLAPIOMF#Concept)
+   disjointLeaf: OWLAPIOMF#ConceptKind)
   (implicit store: OWLAPIOMFGraphStore)
   : Throwables \/ OWLAPIOMF#SpecificDisjointConceptAxiom
   = terminologyBundle.addSpecificDisjointConceptAxiom(uuid, disjointTerminologyParent, disjointLeaf)
@@ -2105,7 +2232,7 @@ trait OWLAPIMutableDescriptionBoxOps
   (uuid: api.taggedTypes.ConceptInstanceUUID,
    dbox: descriptions.MutableDescriptionBox,
    iri: IRI,
-   conceptType: Concept,
+   conceptType: ConceptKind,
    fragment: tables.taggedTypes.LocalName)
   (implicit store: OWLAPIOMFGraphStore)
   : Throwables \/ descriptions.ConceptInstance

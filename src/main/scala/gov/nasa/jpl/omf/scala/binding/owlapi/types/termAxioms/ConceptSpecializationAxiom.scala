@@ -19,15 +19,15 @@
 package gov.nasa.jpl.omf.scala.binding.owlapi.types.termAxioms
 
 import gov.nasa.jpl.imce.oml.resolver.api
-import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Concept
+import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ConceptKind
 
 import scala.{Any,Boolean,Int}
 import scala.Predef.require
 
 case class ConceptSpecializationAxiom
 (override val uuid: api.taggedTypes.ConceptSpecializationAxiomUUID,
- sub: Concept,
- sup: Concept)
+ sub: ConceptKind,
+ sup: ConceptKind)
   extends SpecializationAxiom {
 
     require(null != sub)

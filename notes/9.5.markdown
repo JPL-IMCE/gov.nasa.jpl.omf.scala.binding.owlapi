@@ -1,0 +1,9 @@
+gov.nasa.jpl.omf.scala.binding.owlapi 9.5 is a significant update of 9.4
+
+## Issues Resolved
+
+- [#76 Add support for CardinalityRestrictions](https://github.com/JPL-IMCE/gov.nasa.jpl.omf.scala.binding.owlapi/issues/76)
+
+- [#77 object property cardinality restriction support & circular dependencies](https://github.com/JPL-IMCE/gov.nasa.jpl.omf.scala.binding.owlapi/issues/77)
+
+- [#78 Incorrect owl:hasKey axioms](https://github.com/JPL-IMCE/gov.nasa.jpl.omf.scala.binding.owlapi/issues/78)

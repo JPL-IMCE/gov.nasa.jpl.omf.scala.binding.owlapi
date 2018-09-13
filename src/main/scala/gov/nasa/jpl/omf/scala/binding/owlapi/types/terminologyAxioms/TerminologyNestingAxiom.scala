@@ -19,7 +19,7 @@
 package gov.nasa.jpl.omf.scala.binding.owlapi.types.terminologyAxioms
 
 import gov.nasa.jpl.imce.oml.resolver.api
-import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Concept
+import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.ConceptKind
 import org.semanticweb.owlapi.model.IRI
 
 import scala.{Any, Boolean, Int}
@@ -43,7 +43,7 @@ case class TerminologyNestingAxiom
 (override val uuid: api.taggedTypes.TerminologyNestingAxiomUUID,
  nestedTerminology: api.taggedTypes.TerminologyBoxUUID,
  override val targetModuleIRI: IRI,
- nestingContext: Concept)
+ nestingContext: ConceptKind)
 extends TerminologyBoxAxiom {
 
   require(null != nestingContext)

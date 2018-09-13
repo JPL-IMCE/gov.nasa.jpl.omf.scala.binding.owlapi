@@ -20,7 +20,7 @@ package gov.nasa.jpl.omf.scala.binding.owlapi.types.terms
 
 import gov.nasa.jpl.imce.oml.resolver.api
 import gov.nasa.jpl.imce.oml.tables.taggedTypes.LocalName
-import gov.nasa.jpl.omf.scala.binding.owlapi.common.RestrictableRelationship
+import gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore
 import gov.nasa.jpl.omf.scala.core.RelationshipCharacteristics._
 import org.semanticweb.owlapi.model.{IRI, OWLObjectProperty}
 
@@ -41,6 +41,16 @@ case class UnreifiedRelationship
   require(null != source)
   require(null != target)
   require(null != characteristics)
+
+  override def domain
+  ()(implicit store: OWLAPIOMFGraphStore)
+  : Entity
+  = source
+
+  override def range
+  ()(implicit store: OWLAPIOMFGraphStore)
+  : Entity
+  = target
 
   override def canEqual(other: Any)
   : Boolean

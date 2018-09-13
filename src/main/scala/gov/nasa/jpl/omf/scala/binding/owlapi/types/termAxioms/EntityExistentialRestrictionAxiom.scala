@@ -19,8 +19,7 @@
 package gov.nasa.jpl.omf.scala.binding.owlapi.types.termAxioms
 
 import gov.nasa.jpl.imce.oml.resolver.api
-import gov.nasa.jpl.omf.scala.binding.owlapi.common.RestrictableRelationship
-import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.Entity
+import gov.nasa.jpl.omf.scala.binding.owlapi.types.terms.{Entity, RestrictableRelationship}
 
 import scala.{Any, Boolean, Int}
 

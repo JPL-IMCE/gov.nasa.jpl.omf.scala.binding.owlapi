@@ -31,7 +31,7 @@ import gov.nasa.jpl.omf.scala.core.OMFError.Throwables
 import org.semanticweb.owlapi.model.parameters.{Imports, Navigation}
 import org.semanticweb.owlapi.model._
 
-import scala.{Boolean, None, Option, Some, Tuple2, Tuple5, Unit}
+import scala.{Boolean, None, Option, Some, Tuple2, Unit}
 import scala.collection.immutable._
 import scala.compat.java8.StreamConverters._
 import scala.Predef.classOf
@@ -105,8 +105,16 @@ package object types {
   : Semigroup[Map[OWLClass, Aspect]]
   = Semigroup.instance(_ ++ _)
 
+  implicit def OWLClass2ModelEntityAspectKindSemigroup
+  : Semigroup[Map[OWLClass, AspectKind]]
+  = Semigroup.instance(_ ++ _)
+
   implicit def OWLClass2ModelEntityConceptSemigroup
   : Semigroup[Map[OWLClass, Concept]]
+  = Semigroup.instance(_ ++ _)
+
+  implicit def OWLClass2ModelEntityConceptKindSemigroup
+  : Semigroup[Map[OWLClass, ConceptKind]]
   = Semigroup.instance(_ ++ _)
 
   implicit def OWLClass2ModelEntityReifiedRelationshipSemigroup
@@ -126,7 +134,6 @@ package object types {
     * @param ont
     * @param entity
     * @return A tuple of:
-    *         - a class that has an object property restriction subclass axiom
     *         - the object property involved in that restriction
     *         - true if the restriction is on the object property; false if it is on the inverse object property
     *         - the restricted range
@@ -134,7 +141,7 @@ package object types {
     */
   def getObjectPropertyRestrictionsIfAny
   ( ont: OWLOntology, entity: OWLClass )
-  : Set[(OWLClass, OWLObjectProperty, Boolean, OWLClass, ObjectRestrictionKind)]
+  : Set[(OWLObjectProperty, Boolean, OWLClass, ObjectRestrictionKind)]
   = ont
     .axioms[OWLSubClassOfAxiom](classOf[OWLSubClassOfAxiom], entity, Imports.EXCLUDED, Navigation.IN_SUB_POSITION)
     .toScala[Set]
@@ -180,7 +187,7 @@ package object types {
 
             (restrictingProperty, rangeRestriction) match {
               case (Some(Tuple2(op, isInverse)), Some(range)) =>
-                Some(Tuple5(entity, op, isInverse, range, ExistentialObjectRestrictionKind))
+                Some((op, isInverse, range, ExistentialObjectRestrictionKind))
 
               case _ =>
                 None
@@ -218,7 +225,7 @@ package object types {
 
             (restrictingProperty, rangeRestriction) match {
               case (Some(Tuple2(op, isInverse)), Some(range)) =>
-                Some(Tuple5(entity, op, isInverse, range, UniversalObjectRestrictionKind))
+                Some((op, isInverse, range, UniversalObjectRestrictionKind))
 
               case _ =>
                 None
