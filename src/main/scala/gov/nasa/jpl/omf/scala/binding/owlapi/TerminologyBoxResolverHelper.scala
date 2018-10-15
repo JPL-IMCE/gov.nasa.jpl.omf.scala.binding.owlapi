@@ -74,10 +74,27 @@ object TerminologyBoxResolverHelper {
 
   type DOPInfo = (OWLDataProperty, OWLClass, OWLDatatype)
 
+  def isDOPWarning(dop: DOPInfo)(implicit ops: OWLAPIOMFOps): Boolean
+  = ops.isBackboneIRI(dop._1.getIRI) ||
+    ops.isBackboneIRI(dop._2.getIRI) ||
+    ops.isBackboneIRI(dop._3.getIRI)
+
   type ROPInfo = (IRI, OWLObjectProperty, OWLClass, OWLClass, Option[OWLObjectProperty])
+
+  def isROPWarning(rop: ROPInfo)(implicit ops: OWLAPIOMFOps): Boolean
+  = ops.isBackboneIRI(rop._1) ||
+    ops.isBackboneIRI(rop._2.getIRI) ||
+    ops.isBackboneIRI(rop._3.getIRI) ||
+    ops.isBackboneIRI(rop._4.getIRI) ||
+    rop._5.fold[Boolean](false) { inv => ops.isBackboneIRI(inv.getIRI) }
 
   type Chain = (OWLObjectProperty, OWLObjectProperty, OWLObjectProperty)
   type Chains = Set[Chain]
+
+  def isChainWarning(chain: Chain)(implicit ops: OWLAPIOMFOps): Boolean
+  = ops.isBackboneIRI(chain._1.getIRI) ||
+    ops.isBackboneIRI(chain._2.getIRI) ||
+    ops.isBackboneIRI(chain._3.getIRI)
 
   case class ResolvableUOPTuple
   (domain: Entity,
@@ -217,7 +234,23 @@ object TerminologyBoxResolverHelper {
    override val oxs: Set[(OWLObjectProperty, OWLObjectProperty)],
    override val sub: ReifiedRelationship,
    override val sup: ReifiedRelationship)
-  extends ResolvableConceptualRelationshipSpecialization {}
+  extends ResolvableConceptualRelationshipSpecialization
+
+  object Resolvable_RR_RR_Specialization {
+    def make
+    (rr_sub: ReifiedRelationship,
+     rr_sup: ReifiedRelationship,
+     ax: OWLSubClassOfAxiom)
+    (op_rSources: (OWLObjectProperty, OWLObjectProperty),
+     op_rTargets: (OWLObjectProperty, OWLObjectProperty),
+     op_rUs: (OWLObjectProperty, OWLObjectProperty),
+     op_rIs: Option[(OWLObjectProperty, OWLObjectProperty)])
+    : Resolvable_RR_RR_Specialization
+    = {
+      val op_axs = Set(op_rSources, op_rTargets, op_rUs) ++ op_rIs
+      Resolvable_RR_RR_Specialization(rr_sub.e, Set(ax), op_axs, rr_sub, rr_sup)
+    }
+  }
 
   case class Resolvable_RR_RRR_Specialization
   (override val c: OWLClass,
@@ -225,7 +258,23 @@ object TerminologyBoxResolverHelper {
    override val oxs: Set[(OWLObjectProperty, OWLObjectProperty)],
    override val sub: ReifiedRelationship,
    override val sup: ReifiedRelationshipRestriction)
-    extends ResolvableConceptualRelationshipSpecialization {}
+    extends ResolvableConceptualRelationshipSpecialization
+
+  object Resolvable_RR_RRR_Specialization {
+    def make
+    (rr_sub: ReifiedRelationship,
+     rr_sup: ReifiedRelationshipRestriction,
+     ax: OWLSubClassOfAxiom)
+    (op_rSources: Set[(OWLObjectProperty, OWLObjectProperty)],
+     op_rTargets: Set[(OWLObjectProperty, OWLObjectProperty)],
+     op_rUs: Set[(OWLObjectProperty, OWLObjectProperty)],
+     op_rIs: Set[(OWLObjectProperty, OWLObjectProperty)])
+    : Resolvable_RR_RRR_Specialization
+    = {
+      val op_axs = op_rSources ++ op_rTargets ++ op_rUs ++ op_rIs
+      Resolvable_RR_RRR_Specialization(rr_sub.e, Set(ax), op_axs, rr_sub, rr_sup)
+    }
+  }
 
   case class Resolvable_RR_CRRR_Specialization
   (override val c: OWLClass,
@@ -233,7 +282,23 @@ object TerminologyBoxResolverHelper {
    override val oxs: Set[(OWLObjectProperty, OWLObjectProperty)],
    override val sub: ReifiedRelationship,
    override val sup: CardinalityRestrictedReifiedRelationship)
-    extends ResolvableConceptualRelationshipSpecialization {}
+    extends ResolvableConceptualRelationshipSpecialization
+
+  object Resolvable_RR_CRRR_Specialization {
+    def make
+    (rr_sub: ReifiedRelationship,
+     rr_sup: CardinalityRestrictedReifiedRelationship,
+     ax: OWLSubClassOfAxiom)
+    (op_rSources: Set[(OWLObjectProperty, OWLObjectProperty)],
+     op_rTargets: Set[(OWLObjectProperty, OWLObjectProperty)],
+     op_rUs: Set[(OWLObjectProperty, OWLObjectProperty)],
+     op_rIs: Set[(OWLObjectProperty, OWLObjectProperty)])
+    : Resolvable_RR_CRRR_Specialization
+    = {
+      val op_axs = op_rSources ++ op_rTargets ++ op_rUs ++ op_rIs
+      Resolvable_RR_CRRR_Specialization(rr_sub.e, Set(ax), op_axs, rr_sub, rr_sup)
+    }
+  }
 
   case class Resolvable_RRR_RR_Specialization
   (override val c: OWLClass,
@@ -241,7 +306,22 @@ object TerminologyBoxResolverHelper {
    override val oxs: Set[(OWLObjectProperty, OWLObjectProperty)],
    override val sub: ReifiedRelationshipRestriction,
    override val sup: ReifiedRelationship)
-    extends ResolvableConceptualRelationshipSpecialization {}
+    extends ResolvableConceptualRelationshipSpecialization
+
+  object Resolvable_RRR_RR_Specialization {
+
+    def make
+    (rr_sub: ReifiedRelationshipRestriction,
+     rr_sup: ReifiedRelationship,
+     ax: OWLSubClassOfAxiom)
+    (s_ax: OWLSubClassOfAxiom,
+     t_ax: OWLSubClassOfAxiom)
+    : Resolvable_RRR_RR_Specialization
+    = {
+      val op_axs = Set(ax, s_ax, t_ax)
+      Resolvable_RRR_RR_Specialization(rr_sub.e, op_axs, Set.empty, rr_sub, rr_sup)
+    }
+  }
 
   case class Resolvable_RRR_RRR_Specialization
   (override val c: OWLClass,
@@ -249,7 +329,22 @@ object TerminologyBoxResolverHelper {
    override val oxs: Set[(OWLObjectProperty, OWLObjectProperty)],
    override val sub: ReifiedRelationshipRestriction,
    override val sup: ReifiedRelationshipRestriction)
-    extends ResolvableConceptualRelationshipSpecialization {}
+    extends ResolvableConceptualRelationshipSpecialization
+
+  object Resolvable_RRR_RRR_Specialization {
+
+    def make
+    (rr_sub: ReifiedRelationshipRestriction,
+     rr_sup: ReifiedRelationshipRestriction,
+     ax: OWLSubClassOfAxiom)
+    (s_ax: Set[OWLSubClassOfAxiom],
+     t_ax: Set[OWLSubClassOfAxiom])
+    : Resolvable_RRR_RRR_Specialization
+    = {
+      val op_axs = Set(ax) ++ s_ax ++ t_ax
+      Resolvable_RRR_RRR_Specialization(rr_sub.e, op_axs, Set.empty, rr_sub, rr_sup)
+    }
+  }
 
   case class Resolvable_RRR_CRRR_Specialization
   (override val c: OWLClass,
@@ -257,7 +352,22 @@ object TerminologyBoxResolverHelper {
    override val oxs: Set[(OWLObjectProperty, OWLObjectProperty)],
    override val sub: ReifiedRelationshipRestriction,
    override val sup: CardinalityRestrictedReifiedRelationship)
-    extends ResolvableConceptualRelationshipSpecialization {}
+    extends ResolvableConceptualRelationshipSpecialization
+
+  object Resolvable_RRR_CRRR_Specialization {
+
+    def make
+    (rr_sub: ReifiedRelationshipRestriction,
+     rr_sup: CardinalityRestrictedReifiedRelationship,
+     ax: OWLSubClassOfAxiom)
+    (s_ax: Set[OWLSubClassOfAxiom],
+     t_ax: Set[OWLSubClassOfAxiom])
+    : Resolvable_RRR_CRRR_Specialization
+    = {
+      val op_axs = Set(ax) ++ s_ax ++ t_ax
+      Resolvable_RRR_CRRR_Specialization(rr_sub.e, op_axs, Set.empty, rr_sub, rr_sup)
+    }
+  }
 
   case class Resolvable_CRRR_RR_Specialization
   (override val c: OWLClass,
@@ -265,7 +375,23 @@ object TerminologyBoxResolverHelper {
    override val oxs: Set[(OWLObjectProperty, OWLObjectProperty)],
    override val sub: CardinalityRestrictedReifiedRelationship,
    override val sup: ReifiedRelationship)
-    extends ResolvableConceptualRelationshipSpecialization {}
+    extends ResolvableConceptualRelationshipSpecialization
+
+  object Resolvable_CRRR_RR_Specialization {
+
+    def make
+    (rr_sub: CardinalityRestrictedReifiedRelationship,
+     rr_sup: ReifiedRelationship,
+     ax: OWLSubClassOfAxiom)
+    (s_ax: Set[OWLSubClassOfAxiom],
+     t_ax: Set[OWLSubClassOfAxiom])
+    : Resolvable_CRRR_RR_Specialization
+    = {
+      val op_axs = Set(ax) ++ s_ax ++ t_ax
+      Resolvable_CRRR_RR_Specialization(rr_sub.e, op_axs, Set.empty, rr_sub, rr_sup)
+    }
+  }
+
 
   case class Resolvable_CRRR_RRR_Specialization
   (override val c: OWLClass,
@@ -273,7 +399,22 @@ object TerminologyBoxResolverHelper {
    override val oxs: Set[(OWLObjectProperty, OWLObjectProperty)],
    override val sub: CardinalityRestrictedReifiedRelationship,
    override val sup: ReifiedRelationshipRestriction)
-    extends ResolvableConceptualRelationshipSpecialization {}
+    extends ResolvableConceptualRelationshipSpecialization
+
+  object Resolvable_CRRR_RRR_Specialization {
+
+    def make
+    (rr_sub: CardinalityRestrictedReifiedRelationship,
+     rr_sup: ReifiedRelationshipRestriction,
+     ax: OWLSubClassOfAxiom)
+    (s_ax: Set[OWLSubClassOfAxiom],
+     t_ax: Set[OWLSubClassOfAxiom])
+    : Resolvable_CRRR_RRR_Specialization
+    = {
+      val op_axs = Set(ax) ++ s_ax ++ t_ax
+      Resolvable_CRRR_RRR_Specialization(rr_sub.e, op_axs, Set.empty, rr_sub, rr_sup)
+    }
+  }
 
   case class Resolvable_CRRR_CRRR_Specialization
   (override val c: OWLClass,
@@ -281,7 +422,22 @@ object TerminologyBoxResolverHelper {
    override val oxs: Set[(OWLObjectProperty, OWLObjectProperty)],
    override val sub: CardinalityRestrictedReifiedRelationship,
    override val sup: CardinalityRestrictedReifiedRelationship)
-    extends ResolvableConceptualRelationshipSpecialization {}
+    extends ResolvableConceptualRelationshipSpecialization
+
+  object Resolvable_CRRR_CRRR_Specialization {
+
+    def make
+    (rr_sub: CardinalityRestrictedReifiedRelationship,
+     rr_sup: CardinalityRestrictedReifiedRelationship,
+     ax: OWLSubClassOfAxiom)
+    (s_ax: Set[OWLSubClassOfAxiom],
+     t_ax: Set[OWLSubClassOfAxiom])
+    : Resolvable_CRRR_CRRR_Specialization
+    = {
+      val op_axs = Set(ax) ++ s_ax ++ t_ax
+      Resolvable_CRRR_CRRR_Specialization(rr_sub.e, op_axs, Set.empty, rr_sub, rr_sup)
+    }
+  }
 
   case class ResolvableUnreifiedRelationshipSpecialization
   (sub: UnreifiedRelationship,
@@ -361,7 +517,7 @@ object TerminologyBoxResolverHelper {
     * @param subEntityScalarDataProperties                        Result
     */
   case class IncrementalResolverState(
-      entityDefinitions: Map[OWLClass, Entity],
+      entityDefinitions: SortedMap[IRI, Entity],
       restrictableRelationships: Map[OWLObjectProperty, RestrictableRelationship],
       dataRanges: Map[OWLDataRange, DataRange],
       dataRelationshipsFromEntityToScalar: Map[OWLDataProperty, EntityScalarDataProperty],
@@ -376,7 +532,7 @@ object TerminologyBoxResolverHelper {
       cardinalityRestrictedConceptCIRIs: Map[IRI, OWLClass],
       cardinalityRestrictedReifiedRelationshipCIRIs: Map[IRI, OWLClass],
       subClassAxioms: Map[OWLClass, Set[OWLSubClassOfAxiom]],
-      subObjectPropertyAxioms: Set[(OWLObjectProperty, OWLObjectProperty)],
+      subObjectPropertyAxioms: SortedSet[(OWLObjectProperty, OWLObjectProperty)],
       subDataPropertyAxioms: Set[(OWLDataProperty, OWLDataProperty)],
       dataPropertyDPIRIs: Set[DOPInfo],
 
@@ -426,7 +582,7 @@ object TerminologyBoxResolverHelper {
         dataPropertyDPIRIs.isEmpty
 
     def allEntities: Map[OWLClass, Entity]
-    = entityDefinitions ++
+    = entityDefinitions.map { case (_, e) => e.e -> e } ++
       reifiedRelationships ++
       cardinalityRestrictedAspects ++
       cardinalityRestrictedConcepts ++
@@ -434,7 +590,7 @@ object TerminologyBoxResolverHelper {
       reifiedRelationshipRestrictions
 
     def lookup(c: OWLClass): Option[Entity] =
-      entityDefinitions.get(c) orElse
+      entityDefinitions.get(c.getIRI) orElse
         reifiedRelationships.get(c) orElse
         cardinalityRestrictedAspects.get(c) orElse
         cardinalityRestrictedConcepts.get(c) orElse
@@ -449,7 +605,7 @@ object TerminologyBoxResolverHelper {
 
     def lookupConceptualRelationship(c: OWLClass)
     : Option[ConceptualRelationship]
-    = entityDefinitions.get(c).selectByKindOf { case cr: ConceptualRelationship => cr} orElse
+    = entityDefinitions.get(c.getIRI).selectByKindOf { case cr: ConceptualRelationship => cr } orElse
       reifiedRelationships.get(c) orElse
       reifiedRelationshipRestrictions.get(c) orElse
       cardinalityRestrictedReifiedRelationships.get(c)
@@ -561,13 +717,13 @@ object TerminologyBoxResolverHelper {
         maybeFunctional = hasRelationshipCharacteristic(
           RelationshipCharacteristics.isFunctional,
           Map(s_op -> ont
-                .inverseFunctionalObjectPropertyAxioms(s_op)
-                .iterator()
-                .hasNext,
-              r_op -> ont
-                .functionalObjectPropertyAxioms(r_op)
-                .iterator()
-                .hasNext),
+            .inverseFunctionalObjectPropertyAxioms(s_op)
+            .iterator()
+            .hasNext,
+            r_op -> ont
+              .functionalObjectPropertyAxioms(r_op)
+              .iterator()
+              .hasNext),
           r_inv_op.map { ui =>
             ui -> ont
               .inverseFunctionalObjectPropertyAxioms(ui)
@@ -579,13 +735,13 @@ object TerminologyBoxResolverHelper {
         maybeInverseFunctional = hasRelationshipCharacteristic(
           RelationshipCharacteristics.isInverseFunctional,
           Map(t_op -> ont
-                .inverseFunctionalObjectPropertyAxioms(t_op)
-                .iterator()
-                .hasNext,
-              r_op -> ont
-                .inverseFunctionalObjectPropertyAxioms(r_op)
-                .iterator()
-                .hasNext),
+            .inverseFunctionalObjectPropertyAxioms(t_op)
+            .iterator()
+            .hasNext,
+            r_op -> ont
+              .inverseFunctionalObjectPropertyAxioms(r_op)
+              .iterator()
+              .hasNext),
           r_inv_op.map { ui =>
             ui -> ont.functionalObjectPropertyAxioms(ui).iterator().hasNext
           }
@@ -639,9 +795,9 @@ object TerminologyBoxResolverHelper {
           .flatMap { ax =>
             ax.getSuperClass match {
               case oex: OWLObjectExactCardinality
-                  if 1 == oex.getCardinality &&
-                    r_op == oex.getProperty &&
-                    r_target == oex.getFiller =>
+                if 1 == oex.getCardinality &&
+                  r_op == oex.getProperty &&
+                  r_target == oex.getFiller =>
                 Some(RelationshipCharacteristics.isEssential)
               case _ =>
                 None
@@ -656,9 +812,9 @@ object TerminologyBoxResolverHelper {
             .flatMap { ax =>
               ax.getSuperClass match {
                 case oex: OWLObjectExactCardinality
-                    if 1 == oex.getCardinality &&
-                      ui == oex.getProperty &&
-                      r_source == oex.getFiller =>
+                  if 1 == oex.getCardinality &&
+                    ui == oex.getProperty &&
+                    r_source == oex.getFiller =>
                   Some(RelationshipCharacteristics.isEssential)
                 case _ =>
                   None
@@ -674,13 +830,13 @@ object TerminologyBoxResolverHelper {
           maybeEssential ++ maybeInverseEssential
 
         tuple = ResolvableROPTuple(rc,
-                                   resolvedROP,
-                                   r_sourceDef,
-                                   resolvedSourceROP,
-                                   r_targetDef,
-                                   resolvedTargetROP,
-                                   chain,
-                                   characteristics)
+          resolvedROP,
+          r_sourceDef,
+          resolvedSourceROP,
+          r_targetDef,
+          resolvedTargetROP,
+          chain,
+          characteristics)
       } yield tuple
 
       result
@@ -695,35 +851,35 @@ object TerminologyBoxResolverHelper {
     (implicit store: OWLAPIOMFGraphStore)
     : Option[ResolvableCardinalityRestriction[D]]
     = ocr.getProperty match {
-        case op: OWLObjectProperty =>
-          val card = tables.taggedTypes.positiveIntegerLiteral(ocr.getCardinality.toString)
-          restrictableRelationships.get(op).flatMap { rr: RestrictableRelationship =>
-            domainLookup(rr.domain()).flatMap { domain: D =>
-              Option.apply(ocr.getFiller) match {
-                case Some(rc: OWLClass) =>
-                  lookup(rc).map { range =>
-                    ResolvableCardinalityRestriction[D](sub,
-                      ax, domain,
-                      restrictionKind,
-                      rr,
-                      Some(range),
-                      card)
-                  }
-                case _ =>
-                  Some(
-                    ResolvableCardinalityRestriction[D](sub,
-                      ax,
-                      domain,
-                      restrictionKind,
-                      rr,
-                      None,
-                      card))
-              }
+      case op: OWLObjectProperty =>
+        val card = tables.taggedTypes.positiveIntegerLiteral(ocr.getCardinality.toString)
+        restrictableRelationships.get(op).flatMap { rr: RestrictableRelationship =>
+          domainLookup(rr.domain()).flatMap { domain: D =>
+            Option.apply(ocr.getFiller) match {
+              case Some(rc: OWLClass) =>
+                lookup(rc).map { range =>
+                  ResolvableCardinalityRestriction[D](sub,
+                    ax, domain,
+                    restrictionKind,
+                    rr,
+                    Some(range),
+                    card)
+                }
+              case _ =>
+                Some(
+                  ResolvableCardinalityRestriction[D](sub,
+                    ax,
+                    domain,
+                    restrictionKind,
+                    rr,
+                    None,
+                    card))
             }
           }
-        case _ =>
-          None
-      }
+        }
+      case _ =>
+        None
+    }
 
     def resolvableCardinalityRestrictedAspects
     (ont: OWLOntology)
@@ -878,9 +1034,9 @@ object TerminologyBoxResolverHelper {
      f: ConceptualRelationship => OWLObjectProperty)
     : Option[ConceptualRelationship]
     = {
-      reifiedRelationships.values.find { rr => f(rr) == op} orElse
-        reifiedRelationshipRestrictions.values.find { rr => f(rr) == op} orElse
-        cardinalityRestrictedReifiedRelationships.values.find { rr => f(rr) == op}
+      reifiedRelationships.values.find { rr => f(rr) == op } orElse
+        reifiedRelationshipRestrictions.values.find { rr => f(rr) == op } orElse
+        cardinalityRestrictedReifiedRelationships.values.find { rr => f(rr) == op }
     }
 
     def lookupRestrictionBy
@@ -963,315 +1119,548 @@ object TerminologyBoxResolverHelper {
       if o_rrr == o_sub
       tuples = lookupReifiedRelationshipRestrictionSpecializationAxioms(o_rrr, axs)
       if tuples.nonEmpty
-      bySourceTarget = tuples.groupBy(_._1).map { case (k,vs) => k -> vs.map { v => v._2 -> v._3 } }
+      bySourceTarget = tuples.groupBy(_._1).map { case (k, vs) => k -> vs.map { v => v._2 -> v._3 } }
       if bySourceTarget.size == 1
       ((source, target), specializations) = bySourceTarget.head
     } yield ResolvableReifiedRelationshipRestrictionSpecialization(iri_rrr, o_rrr, source, target, specializations)
 
-    def lookupSubSupConceptualRelationshipAxioms()
-    : Iterable[(OWLClass, ConceptualRelationship, ConceptualRelationship, OWLSubClassOfAxiom, Set[OWLSubClassOfAxiom])]
-    = for {
-      tuple <- subClassAxioms
-      (o_sub, axs) = tuple
-      cr_sub <- lookupConceptualRelationship(o_sub).to[Iterable]
-      (ax, cr_sup) <- lookupSupConceptualRelationship(axs)
-    } yield (o_sub, cr_sub, cr_sup, ax, axs - ax)
+    def resolvableConceptualRelationshipSubClassAxiom1
+    (ax: OWLSubClassOfAxiom,
+     rr_sub: ReifiedRelationship,
+     rr_sup: ReifiedRelationship)
+    : ValidationNel[String, ResolvableConceptualRelationshipSpecialization]
+    = {
+      val op_rSources: ValidationNel[String, (OWLObjectProperty, OWLObjectProperty)] = subObjectPropertyAxioms.find { case (op_sub, op_sup) =>
+        op_sub == rr_sub.rSource && op_sup == rr_sup.rSource
+      }.fold[ValidationNel[String, (OWLObjectProperty, OWLObjectProperty)]](
+        Validation.failureNel(s"ReifiedRelationship(${rr_sub.abbrevIRI}) < ReifiedRelationship(${rr_sup.abbrevIRI}): Missing subObjectPropertyAxiom for the 'source' properties.")
+      )(Success(_))
+      val op_rTargets: ValidationNel[String, (OWLObjectProperty, OWLObjectProperty)] = subObjectPropertyAxioms.find { case (op_sub, op_sup) =>
+        op_sub == rr_sub.rTarget && op_sup == rr_sup.rTarget
+      }.fold[ValidationNel[String, (OWLObjectProperty, OWLObjectProperty)]](
+        Validation.failureNel(s"ReifiedRelationship(${rr_sub.abbrevIRI}) < ReifiedRelationship(${rr_sup.abbrevIRI}): Missing subObjectPropertyAxiom for the 'target' properties.")
+      )(Success(_))
+      val op_rUs: ValidationNel[String, (OWLObjectProperty, OWLObjectProperty)] = subObjectPropertyAxioms.find { case (op_sub, op_sup) =>
+        op_sub == rr_sub.forwardProperty.e && op_sup == rr_sup.forwardProperty.e
+      }.fold[ValidationNel[String, (OWLObjectProperty, OWLObjectProperty)]](
+        Validation.failureNel(s"ReifiedRelationship(${rr_sub.abbrevIRI}) < ReifiedRelationship(${rr_sup.abbrevIRI}): Missing subObjectPropertyAxiom for the 'forward' properties.")
+      )(Success(_))
+      val with_inverses = rr_sub.inverseProperty.isDefined && rr_sup.inverseProperty.isDefined
+      val op_rIs: ValidationNel[String, Option[(OWLObjectProperty, OWLObjectProperty)]]
+      = if (with_inverses)
+        rr_sub.inverseProperty.flatMap { sub_i =>
+          rr_sup.inverseProperty.flatMap { sup_i =>
+            subObjectPropertyAxioms.find { case (op_sub, op_sup) =>
+              op_sub == sub_i.e && op_sup == sup_i.e
+            }
+          }
+        }.fold[ValidationNel[String, Option[(OWLObjectProperty, OWLObjectProperty)]]](
+          Validation.failureNel(s"ReifiedRelationship(${rr_sub.abbrevIRI}) < ReifiedRelationship(${rr_sup.abbrevIRI}): Missing subObjectPropertyAxiom for the 'inverse' properties.")
+        )(pair => Success(Some(pair)))
+      else
+        Success(None)
+
+      ( op_rSources |@| op_rTargets |@| op_rUs |@| op_rIs)(Resolvable_RR_RR_Specialization.make(rr_sub, rr_sup, ax))
+    }
+
+    def resolvableConceptualRelationshipSubClassAxiom2
+    (ax: OWLSubClassOfAxiom,
+     rr_sub: ReifiedRelationship,
+     rr_sup: ReifiedRelationshipRestriction)
+    (implicit store: OWLAPIOMFGraphStore)
+    : ValidationNel[String, ResolvableConceptualRelationshipSpecialization]
+    = {
+      val roots = rr_sup.rootReifiedRelationships()
+
+      val op_rSources = {
+        val tuples = roots.flatMap { root =>
+          subObjectPropertyAxioms.find { case (op_sub, op_sup) =>
+            op_sub == rr_sub.rSource && op_sup == root.rSource
+          }
+        }
+        if (tuples.size == roots.size)
+          Success(tuples)
+        else
+          Validation.failureNel(s"ReifiedRelationship(${rr_sub.abbrevIRI}) < ReifiedRelationshipRestriction(${rr_sup.abbrevIRI}): Missing 'source' sub-object property axioms: found ${tuples.size}, but ${roots.size} required, one for each root.")
+      }
+
+      val op_rTargets = {
+        val tuples = roots.flatMap { root =>
+          subObjectPropertyAxioms.find { case (op_sub, op_sup) =>
+            op_sub == rr_sub.rTarget && op_sup == root.rTarget
+          }
+        }
+        if (tuples.size == roots.size)
+          Success(tuples)
+        else
+          Validation.failureNel(s"ReifiedRelationship(${rr_sub.abbrevIRI}) < ReifiedRelationshipRestriction(${rr_sup.abbrevIRI}): Missing 'target' sub-object property axioms: found ${tuples.size}, but ${roots.size} required, one for each root.")
+
+      }
+      val op_rUs = {
+        val tuples = roots.flatMap { root =>
+          subObjectPropertyAxioms.find { case (op_sub, op_sup) =>
+            op_sub == rr_sub.forwardProperty.e && op_sup == root.forwardProperty.e
+          }
+        }
+        if (tuples.size == roots.size)
+          Success(tuples)
+        else
+          Validation.failureNel(s"ReifiedRelationship(${rr_sub.abbrevIRI}) < ReifiedRelationshipRestriction(${rr_sup.abbrevIRI}): Missing 'forward' sub-object property axioms: found ${tuples.size}, but ${roots.size} required, one for each root.")
+      }
+
+      val with_inverses = rr_sub.inverseProperty.isDefined && roots.all(_.inverseProperty.isDefined)
+
+      val op_rIs = rr_sub.inverseProperty match {
+        case Some(sub_i) =>
+          val tuples = roots.flatMap { root =>
+            root.inverseProperty.flatMap { sup_i =>
+              subObjectPropertyAxioms.find { case (op_sub, op_sup) =>
+                op_sub == sub_i.e && op_sup == sup_i.e
+              }
+            }
+          }
+          if (tuples.size == roots.size)
+            Success(tuples)
+          else
+            Validation.failureNel(s"ReifiedRelationship(${rr_sub.abbrevIRI}) < ReifiedRelationshipRestriction(${rr_sup.abbrevIRI}): Missing 'inverse' sub-object property axioms: found ${tuples.size}, but ${roots.size} required, one for each root.")
+        case _ =>
+          Success(Set.empty[(OWLObjectProperty, OWLObjectProperty)])
+      }
+
+      ( op_rSources |@| op_rTargets |@| op_rUs |@| op_rIs)(Resolvable_RR_RRR_Specialization.make(rr_sub, rr_sup, ax))
+    }
+
+    def resolvableConceptualRelationshipSubClassAxiom3
+    (ax: OWLSubClassOfAxiom,
+     rr_sub: ReifiedRelationship,
+     rr_sup: CardinalityRestrictedReifiedRelationship)
+    (implicit store: OWLAPIOMFGraphStore)
+    : ValidationNel[String, ResolvableConceptualRelationshipSpecialization]
+    = {
+      val roots = rr_sup.rootReifiedRelationships()
+
+      val op_rSources = {
+        val tuples = roots.flatMap { root =>
+          subObjectPropertyAxioms.find { case (op_sub, op_sup) =>
+            op_sub == rr_sub.rSource && op_sup == root.rSource
+          }
+        }
+        if (tuples.size == roots.size)
+          Success(tuples)
+        else
+          Validation.failureNel(s"ReifiedRelationship(${rr_sub.abbrevIRI}) < CardinalityRestrictedReifiedRelationship(${rr_sup.abbrevIRI}): Missing 'source' sub-object property axioms: found ${tuples.size}, but ${roots.size} required, one for each root.")
+      }
+
+      val op_rTargets = {
+        val tuples = roots.flatMap { root =>
+          subObjectPropertyAxioms.find { case (op_sub, op_sup) =>
+            op_sub == rr_sub.rTarget && op_sup == root.rTarget
+          }
+        }
+        if (tuples.size == roots.size)
+          Success(tuples)
+        else
+          Validation.failureNel(s"ReifiedRelationship(${rr_sub.abbrevIRI}) < CardinalityRestrictedReifiedRelationship(${rr_sup.abbrevIRI}): Missing 'target' sub-object property axioms: found ${tuples.size}, but ${roots.size} required, one for each root.")
+
+      }
+      val op_rUs = {
+        val tuples = roots.flatMap { root =>
+          subObjectPropertyAxioms.find { case (op_sub, op_sup) =>
+            op_sub == rr_sub.forwardProperty.e && op_sup == root.forwardProperty.e
+          }
+        }
+        if (tuples.size == roots.size)
+          Success(tuples)
+        else
+          Validation.failureNel(s"ReifiedRelationship(${rr_sub.abbrevIRI}) < CardinalityRestrictedReifiedRelationship(${rr_sup.abbrevIRI}): Missing 'forward' sub-object property axioms: found ${tuples.size}, but ${roots.size} required, one for each root.")
+      }
+
+      val with_inverses = rr_sub.inverseProperty.isDefined && roots.all(_.inverseProperty.isDefined)
+
+      val op_rIs = rr_sub.inverseProperty match {
+        case Some(sub_i) =>
+          val tuples = roots.flatMap { root =>
+            root.inverseProperty.flatMap { sup_i =>
+              subObjectPropertyAxioms.find { case (op_sub, op_sup) =>
+                op_sub == sub_i.e && op_sup == sup_i.e
+              }
+            }
+          }
+          if (tuples.size == roots.size)
+            Success(tuples)
+          else
+            Validation.failureNel(s"ReifiedRelationship(${rr_sub.abbrevIRI}) < CardinalityRestrictedReifiedRelationship(${rr_sup.abbrevIRI}): Missing 'inverse' sub-object property axioms: found ${tuples.size}, but ${roots.size} required, one for each root.")
+        case _ =>
+          Success(Set.empty[(OWLObjectProperty, OWLObjectProperty)])
+      }
+
+      ( op_rSources |@| op_rTargets |@| op_rUs |@| op_rIs)(Resolvable_RR_CRRR_Specialization.make(rr_sub, rr_sup, ax))
+    }
+
+    def resolvableConceptualRelationshipSubClassAxiom4
+    (axs: Set[OWLSubClassOfAxiom],
+     ax: OWLSubClassOfAxiom,
+     rr_sub: ReifiedRelationshipRestriction,
+     rr_sup: ReifiedRelationship)
+    (implicit store: OWLAPIOMFGraphStore)
+    : ValidationNel[String, ResolvableConceptualRelationshipSpecialization]
+    = {
+      val s_ax = lookupRestrictionBy(axs, rr_sup.rSource == _, rr_sub.source.e == _).fold[ValidationNel[String, OWLSubClassOfAxiom]](
+        Validation.failureNel(s"ReifiedRelationshipRestriction(${rr_sub.abbrevIRI}) < ReifiedRelationship(${rr_sup.abbrevIRI}): Missing restriction for the 'source' property")
+      )(Success(_))
+
+      val t_ax = lookupRestrictionBy(axs, rr_sup.rTarget == _, rr_sub.target.e == _).fold[ValidationNel[String, OWLSubClassOfAxiom]](
+        Validation.failureNel(s"ReifiedRelationshipRestriction(${rr_sub.abbrevIRI}) < ReifiedRelationship(${rr_sup.abbrevIRI}): Missing restriction for the 'target' property")
+      )(Success(_))
+
+      (s_ax |@| t_ax)(Resolvable_RRR_RR_Specialization.make(rr_sub, rr_sup, ax))
+    }
+
+    def resolvableConceptualRelationshipSubClassAxiom5
+    (axs: Set[OWLSubClassOfAxiom],
+     ax: OWLSubClassOfAxiom,
+     rr_sub: ReifiedRelationshipRestriction,
+     rr_sup: ReifiedRelationshipRestriction)
+    (implicit store: OWLAPIOMFGraphStore)
+    : ValidationNel[String, ResolvableConceptualRelationshipSpecialization]
+    = {
+      val roots = rr_sup.rootReifiedRelationships()
+      val s_ax = {
+        val tuples = roots.flatMap { root => lookupRestrictionBy(axs, root.rSource == _, rr_sub.source.e == _) }
+        if (tuples.size == roots.size)
+          Success(tuples)
+        else
+          Validation.failureNel(s"ReifiedRelationshipRestriction(${rr_sub.abbrevIRI}) < ReifiedRelationshipRestriction(${rr_sup.abbrevIRI}): Missing 'source' sub-object property axioms: found ${tuples.size}, but ${roots.size} are required, one for each root.")
+      }
+      val t_ax = {
+        val tuples = roots.flatMap { root => lookupRestrictionBy(axs, root.rTarget == _, rr_sub.target.e == _) }
+        if (tuples.size == roots.size)
+          Success(tuples)
+        else
+          Validation.failureNel(s"ReifiedRelationshipRestriction(${rr_sub.abbrevIRI}) < ReifiedRelationshipRestriction(${rr_sup.abbrevIRI}): Missing 'target' sub-object property axioms: found ${tuples.size}, but ${roots.size} are required, one for each root.")
+      }
+      (s_ax |@| t_ax) (Resolvable_RRR_RRR_Specialization.make(rr_sub, rr_sup, ax))
+    }
+
+    def resolvableConceptualRelationshipSubClassAxiom6
+    (axs: Set[OWLSubClassOfAxiom],
+     ax: OWLSubClassOfAxiom,
+     rr_sub: ReifiedRelationshipRestriction,
+     rr_sup: CardinalityRestrictedReifiedRelationship)
+    (implicit store: OWLAPIOMFGraphStore)
+    : ValidationNel[String, ResolvableConceptualRelationshipSpecialization]
+    = {
+      val roots = rr_sup.rootReifiedRelationships()
+      val s_ax = {
+        val tuples = roots.flatMap { root => lookupRestrictionBy(axs, root.rSource == _, rr_sub.source.e == _) }
+        if (tuples.size == roots.size)
+          Success(tuples)
+        else
+          Validation.failureNel(s"ReifiedRelationshipRestriction(${rr_sub.abbrevIRI}) < CardinalityRestrictedReifiedRelationship(${rr_sup.abbrevIRI}): Missing 'source' sub-object property axioms: found ${tuples.size}, but ${roots.size} are required, one for each root.")
+      }
+      val t_ax = {
+        val tuples = roots.flatMap { root => lookupRestrictionBy(axs, root.rTarget == _, rr_sub.target.e == _) }
+        if (tuples.size == roots.size)
+          Success(tuples)
+        else
+          Validation.failureNel(s"ReifiedRelationshipRestriction(${rr_sub.abbrevIRI}) < CardinalityRestrictedReifiedRelationship(${rr_sup.abbrevIRI}): Missing 'target' sub-object property axioms: found ${tuples.size}, but ${roots.size} are required, one for each root.")
+      }
+      (s_ax |@| t_ax) (Resolvable_RRR_CRRR_Specialization.make(rr_sub, rr_sup, ax))
+    }
+
+    def resolvableConceptualRelationshipSubClassAxiom7
+    (axs: Set[OWLSubClassOfAxiom],
+     ax: OWLSubClassOfAxiom,
+     rr_sub: CardinalityRestrictedReifiedRelationship,
+     rr_sup: ReifiedRelationship)
+    (implicit store: OWLAPIOMFGraphStore)
+    : ValidationNel[String, ResolvableConceptualRelationshipSpecialization]
+    = {
+      val roots = rr_sup.rootReifiedRelationships()
+      val s_ax = {
+        val tuples = roots.flatMap { root => lookupRestrictionBy(axs, root.rSource == _, rr_sub.source.e == _) }
+        if (tuples.size == roots.size)
+          Success(tuples)
+        else
+          Validation.failureNel(s"CardinalityRestrictedReifiedRelationship(${rr_sub.abbrevIRI}) < ReifiedRelationship(${rr_sup.abbrevIRI}): Missing 'source' sub-object property axioms: found ${tuples.size}, but ${roots.size} are required, one for each root.")
+      }
+      val t_ax = {
+        val tuples = roots.flatMap { root => lookupRestrictionBy(axs, root.rTarget == _, rr_sub.target.e == _) }
+        if (tuples.size == roots.size)
+          Success(tuples)
+        else
+          Validation.failureNel(s"CardinalityRestrictedReifiedRelationship(${rr_sub.abbrevIRI}) < ReifiedRelationship(${rr_sup.abbrevIRI}): Missing 'target' sub-object property axioms: found ${tuples.size}, but ${roots.size} are required, one for each root.")
+      }
+      (s_ax |@| t_ax) (Resolvable_CRRR_RR_Specialization.make(rr_sub, rr_sup, ax))
+    }
+
+    def resolvableConceptualRelationshipSubClassAxiom8
+    (axs: Set[OWLSubClassOfAxiom],
+     ax: OWLSubClassOfAxiom,
+     rr_sub: CardinalityRestrictedReifiedRelationship,
+     rr_sup: ReifiedRelationshipRestriction)
+    (implicit store: OWLAPIOMFGraphStore)
+    : ValidationNel[String, ResolvableConceptualRelationshipSpecialization]
+    = {
+      val roots = rr_sup.rootReifiedRelationships()
+      val s_ax = {
+        val tuples = roots.flatMap { root => lookupRestrictionBy(axs, root.rSource == _, rr_sub.source.e == _) }
+        if (tuples.size == roots.size)
+          Success(tuples)
+        else
+          Validation.failureNel(s"CardinalityRestrictedReifiedRelationship(${rr_sub.abbrevIRI}) < ReifiedRelationshipRestriction(${rr_sup.abbrevIRI}): Missing 'source' sub-object property axioms: found ${tuples.size}, but ${roots.size} are required, one for each root.")
+      }
+      val t_ax = {
+        val tuples = roots.flatMap { root => lookupRestrictionBy(axs, root.rTarget == _, rr_sub.target.e == _) }
+        if (tuples.size == roots.size)
+          Success(tuples)
+        else
+          Validation.failureNel(s"CardinalityRestrictedReifiedRelationship(${rr_sub.abbrevIRI}) < ReifiedRelationshipRestriction(${rr_sup.abbrevIRI}): Missing 'target' sub-object property axioms: found ${tuples.size}, but ${roots.size} are required, one for each root.")
+      }
+      (s_ax |@| t_ax) (Resolvable_CRRR_RRR_Specialization.make(rr_sub, rr_sup, ax))
+    }
+
+    def resolvableConceptualRelationshipSubClassAxiom9
+    (axs: Set[OWLSubClassOfAxiom],
+     ax: OWLSubClassOfAxiom,
+     rr_sub: CardinalityRestrictedReifiedRelationship,
+     rr_sup: CardinalityRestrictedReifiedRelationship)
+    (implicit store: OWLAPIOMFGraphStore)
+    : ValidationNel[String, ResolvableConceptualRelationshipSpecialization]
+    = {
+      val roots = rr_sup.rootReifiedRelationships()
+      val s_ax = {
+        val tuples = roots.flatMap { root => lookupRestrictionBy(axs, root.rSource == _, rr_sub.source.e == _) }
+        if (tuples.size == roots.size)
+          Success(tuples)
+        else
+          Validation.failureNel(s"CardinalityRestrictedReifiedRelationship(${rr_sub.abbrevIRI}) < CardinalityRestrictedReifiedRelationship(${rr_sup.abbrevIRI}): Missing 'source' sub-object property axioms: found ${tuples.size}, but ${roots.size} are required, one for each root.")
+      }
+      val t_ax = {
+        val tuples = roots.flatMap { root => lookupRestrictionBy(axs, root.rTarget == _, rr_sub.target.e == _) }
+        if (tuples.size == roots.size)
+          Success(tuples)
+        else
+          Validation.failureNel(s"CardinalityRestrictedReifiedRelationship(${rr_sub.abbrevIRI}) < CardinalityRestrictedReifiedRelationship(${rr_sup.abbrevIRI}): Missing 'target' sub-object property axioms: found ${tuples.size}, but ${roots.size} are required, one for each root.")
+      }
+      (s_ax |@| t_ax) (Resolvable_CRRR_CRRR_Specialization.make(rr_sub, rr_sup, ax))
+    }
+
+    def resolvableConceptualRelationshipSubClassAxiom
+    (ont: OWLOntology,
+     cr_sub: ConceptualRelationship,
+     cr_sup: ConceptualRelationship,
+     ax: OWLSubClassOfAxiom,
+     axs: Set[OWLSubClassOfAxiom])
+    (implicit store: OWLAPIOMFGraphStore)
+    : ValidationNel[String, ResolvableConceptualRelationshipSpecialization]
+    = (cr_sub, cr_sup) match {
+      case (rr_sub: ReifiedRelationship, rr_sup: ReifiedRelationship) =>
+        /*
+a|[source]
+----
+Class: sub
+SubClassOf: sup
+
+ObjectProperty: sub.rSource
+SubPropertyOf: sup.rSource
+
+ObjectProperty: sub.rTarget
+SubPropertyOf: sup.rTarget
+
+ObjectProperty: sub.rU
+SubPropertyOf: sup.rU
+
+ObjectProperty: sub.rI <1>
+SubPropertyOf: sup.rI
+----
+<1> if `sub.rI` and `sup.rI` are defined.
+           */
+        resolvableConceptualRelationshipSubClassAxiom1(ax, rr_sub, rr_sup)
+
+      case (rr_sub: ReifiedRelationship, rr_sup: ReifiedRelationshipRestriction) =>
+        /*
+a|[source]
+----
+Class: sub
+SubClassOf: sup
+
+ObjectProperty: sub.rSource
+SubPropertyOf: root.rSource <1>
+
+ObjectProperty: sub.rTarget
+SubPropertyOf: root.rTarget <1>
+
+ObjectProperty: sub.rU
+SubPropertyOf: root.rU <1>
+
+ObjectProperty: sub.rI <2>
+SubPropertyOf: root.rI <1>
+----
+<1> for each `root: ReifiedRelationship in sup.rootCharacterizedEntityRelationships()`
+<2> if `sub.rI` and `root.rI` are defined.
+
+           */
+        resolvableConceptualRelationshipSubClassAxiom2(ax, rr_sub, rr_sup)
+
+      case (rr_sub: ReifiedRelationship, rr_sup: CardinalityRestrictedReifiedRelationship) =>
+        /*
+a|[source]
+----
+Class: sub
+SubClassOf: sup
+
+ObjectProperty: sub.rSource
+SubPropertyOf: root.rSource <1>
+
+ObjectProperty: sub.rTarget
+SubPropertyOf: root.rTarget <1>
+
+ObjectProperty: sub.rU
+SubPropertyOf: root.rU <1>
+
+ObjectProperty: sub.rI <2>
+SubPropertyOf: root.rI <1>
+----
+<1> for each `root: ReifiedRelationship in sup.rootCharacterizedEntityRelationships()`
+<2> if `sub.rI` and `root.rI` are defined.
+
+           */
+        resolvableConceptualRelationshipSubClassAxiom3(ax, rr_sub, rr_sup)
+
+      case (rr_sub: ReifiedRelationshipRestriction, rr_sup: ReifiedRelationship) =>
+        /*
+a|[source]
+----
+Class: sub
+SubClassOf: sup
+SubClassOf: sup.rSource some sub.source
+SubClassOf: sup.rTarget some sub.target
+----
+           */
+        resolvableConceptualRelationshipSubClassAxiom4(axs, ax, rr_sub, rr_sup)
+
+      case (rr_sub: ReifiedRelationshipRestriction, rr_sup: ReifiedRelationshipRestriction) =>
+        /*
+a|[source]
+----
+Class: sub
+SubClassOf: sup
+SubClassOf: root.rSource some sub.source <1>
+SubClassOf: root.rTarget some sub.target <1>
+----
+<1> for each `root: ReifiedRelationship in sup.rootCharacterizedEntityRelationships()`
+
+           */
+        resolvableConceptualRelationshipSubClassAxiom5(axs, ax, rr_sub, rr_sup)
+
+      case (rr_sub: ReifiedRelationshipRestriction, rr_sup: CardinalityRestrictedReifiedRelationship) =>
+        /*
+a|[source]
+----
+Class: sub
+SubClassOf: sup
+SubClassOf: root.rSource some sub.source <1>
+SubClassOf: root.rTarget some sub.target <1>
+----
+<1> for each `root: ReifiedRelationship in sup.rootCharacterizedEntityRelationships()`
+
+           */
+        resolvableConceptualRelationshipSubClassAxiom6(axs, ax, rr_sub, rr_sup)
+      case (rr_sub: CardinalityRestrictedReifiedRelationship, rr_sup: ReifiedRelationship) =>
+        /*
+a|[source]
+----
+Class: sub
+SubClassOf: sup
+SubClassOf: sup.rSource some domain(sub)
+SubClassOf: sup.rTarget some range(sub)
+----
+           */
+        resolvableConceptualRelationshipSubClassAxiom7(axs, ax, rr_sub, rr_sup)
+      case (rr_sub: CardinalityRestrictedReifiedRelationship, rr_sup: ReifiedRelationshipRestriction) =>
+        /*
+a|[source]
+----
+Class: sub
+SubClassOf: sup
+SubClassOf: root.rSource some sub.source <1>
+SubClassOf: root.rTarget some sub.target <1>
+----
+<1> for each `root: ReifiedRelationship in sup.rootCharacterizedEntityRelationships()`
+
+           */
+        resolvableConceptualRelationshipSubClassAxiom8(axs, ax, rr_sub, rr_sup)
+      case (rr_sub: CardinalityRestrictedReifiedRelationship, rr_sup: CardinalityRestrictedReifiedRelationship) =>
+        /*
+a|[source]
+----
+Class: sub
+SubClassOf: sup
+SubClassOf: root.rSource some sub.source <1>
+SubClassOf: root.rTarget some sub.target <1>
+----
+<1> for each `root: ReifiedRelationship in sup.rootCharacterizedEntityRelationships()`
+
+           */
+        resolvableConceptualRelationshipSubClassAxiom9(axs, ax, rr_sub, rr_sup)
+    }
+
+    def lookupSupConceptualRelationshipTriples
+    (o_sub: OWLClass, axs: Set[OWLSubClassOfAxiom])
+    : Option[Vector[(ConceptualRelationship, OWLSubClassOfAxiom, ConceptualRelationship)]]
+    = lookupConceptualRelationship(o_sub).map { cr_sub =>
+      val triples = for {
+        ax <- axs
+        o_sup <- TerminologyBoxResolverHelper.owlclassOfCE(
+          Option.apply(ax.getSuperClass))
+        cr_sup <- lookupConceptualRelationship(o_sup)
+      } yield (cr_sub, ax, cr_sup)
+      triples.to[Vector].sortBy(_._1.iri.toString)
+    }
+
+    /**
+      *
+      * @param ont
+      * @param store
+      * @return A triple: Resolved, Unresolved, Remaining
+      */
+    def partitionResolvableConceptualRelationshipSubClassAxioms
+    (ont: OWLOntology)
+    (implicit store: OWLAPIOMFGraphStore)
+    : ValidationNel[String, Vector[ResolvableConceptualRelationshipSpecialization]]
+    = subClassAxioms.foldLeft[ValidationNel[String, Vector[ResolvableConceptualRelationshipSpecialization]]] {
+      Success(Vector.empty[ResolvableConceptualRelationshipSpecialization])
+    } { case (acc1, (o_sub, axs)) =>
+      lookupSupConceptualRelationshipTriples(o_sub, axs) match {
+        case Some(triples) =>
+          triples.foldLeft[ValidationNel[String, Vector[ResolvableConceptualRelationshipSpecialization]]](acc1) {
+            case (acc2, (cr_sub, ax, cr_sup)) =>
+              acc2 +++ resolvableConceptualRelationshipSubClassAxiom(ont, cr_sub, cr_sup, ax, axs).map(Vector(_))
+          }
+        case None =>
+          acc1
+      }
+    }
 
     def resolvableConceptualRelationshipSubClassAxioms
     (ont: OWLOntology)
     (implicit store: OWLAPIOMFGraphStore)
-    : Iterable[ResolvableConceptualRelationshipSpecialization]
-    = {
-      val result = for {
-        (o_sub, cr_sub, cr_sup, ax, axs) <- lookupSubSupConceptualRelationshipAxioms()
-        resolvable <- (cr_sub, cr_sup) match {
-          case (rr_sub: ReifiedRelationship, rr_sup: ReifiedRelationship) =>
-            /*
-a|[source]
-----
-Class: sub
-  SubClassOf: sup
-
-ObjectProperty: sub.rSource
-  SubPropertyOf: sup.rSource
-
-ObjectProperty: sub.rTarget
-  SubPropertyOf: sup.rTarget
-
-ObjectProperty: sub.rU
-  SubPropertyOf: sup.rU
-
-ObjectProperty: sub.rI <1>
-  SubPropertyOf: sup.rI
-----
-<1> if `sub.rI` and `sup.rI` are defined.
-             */
-            for {
-              op_rSources <- subObjectPropertyAxioms.find { case (op_sub, op_sup) =>
-                op_sub == rr_sub.rSource && op_sup == rr_sup.rSource
-              }
-              op_rTargets <- subObjectPropertyAxioms.find { case (op_sub, op_sup) =>
-                op_sub == rr_sub.rTarget && op_sup == rr_sup.rTarget
-              }
-              op_rUs <- subObjectPropertyAxioms.find { case (op_sub, op_sup) =>
-                op_sub == rr_sub.forwardProperty.e && op_sup == rr_sup.forwardProperty.e
-              }
-              with_inverses = rr_sub.inverseProperty.isDefined && rr_sup.inverseProperty.isDefined
-              op_rIs = rr_sub.inverseProperty.flatMap { sub_i =>
-                rr_sup.inverseProperty.flatMap { sup_i =>
-                  subObjectPropertyAxioms.find { case (op_sub, op_sup) =>
-                    op_sub == sub_i.e && op_sup == sup_i.e
-                  }
-                }
-              }
-              if !with_inverses || op_rIs.isDefined
-              op_axs = Set(op_rSources, op_rTargets, op_rUs) ++ op_rIs
-              r = Resolvable_RR_RR_Specialization(o_sub, Set(ax), op_axs, rr_sub, rr_sup)
-            } yield r
-          case (rr_sub: ReifiedRelationship, rr_sup: ReifiedRelationshipRestriction) => {
-            /*
-a|[source]
-----
-Class: sub
-  SubClassOf: sup
-
-ObjectProperty: sub.rSource
-  SubPropertyOf: root.rSource <1>
-
-ObjectProperty: sub.rTarget
-  SubPropertyOf: root.rTarget <1>
-
-ObjectProperty: sub.rU
-  SubPropertyOf: root.rU <1>
-
-ObjectProperty: sub.rI <2>
-  SubPropertyOf: root.rI <1>
-----
-<1> for each `root: ReifiedRelationship in sup.rootCharacterizedEntityRelationships()`
-<2> if `sub.rI` and `root.rI` are defined.
-
-             */
-            val roots = rr_sup.rootReifiedRelationships()
-
-            val op_rSources = roots.flatMap { root =>
-              subObjectPropertyAxioms.find { case (op_sub, op_sup) =>
-                op_sub == rr_sub.rSource && op_sup == root.rSource
-              }
-            }
-            val op_rTargets = roots.flatMap { root =>
-              subObjectPropertyAxioms.find { case (op_sub, op_sup) =>
-                op_sub == rr_sub.rTarget && op_sup == root.rTarget
-              }
-            }
-            val op_rUs = roots.flatMap { root =>
-              subObjectPropertyAxioms.find { case (op_sub, op_sup) =>
-                op_sub == rr_sub.forwardProperty.e && op_sup == root.forwardProperty.e
-              }
-            }
-            val with_inverses = rr_sub.inverseProperty.isDefined && roots.all(_.inverseProperty.isDefined)
-
-            val op_rIs = rr_sub.inverseProperty match {
-              case Some(sub_i) =>
-                roots.flatMap { root =>
-                  root.inverseProperty.flatMap { sup_i =>
-                    subObjectPropertyAxioms.find { case (op_sub, op_sup) =>
-                      op_sub == sub_i.e && op_sup == sup_i.e
-                    }
-                  }
-                }
-              case _ =>
-                Set.empty[(OWLObjectProperty, OWLObjectProperty)]
-            }
-
-            if (op_rSources.size == roots.size &&
-              op_rTargets.size == roots.size &&
-              op_rUs.size == roots.size &&
-              (!with_inverses || op_rIs.size == roots.size)) {
-
-              val op_axs =op_rSources ++ op_rTargets ++ op_rUs ++ op_rIs
-              Some(Resolvable_RR_RRR_Specialization(o_sub, Set(ax), op_axs, rr_sub, rr_sup))
-            } else
-              None
-          }
-          case (rr_sub: ReifiedRelationship, rr_sup: CardinalityRestrictedReifiedRelationship) => {
-            /*
-a|[source]
-----
-Class: sub
-  SubClassOf: sup
-
-ObjectProperty: sub.rSource
-  SubPropertyOf: root.rSource <1>
-
-ObjectProperty: sub.rTarget
-  SubPropertyOf: root.rTarget <1>
-
-ObjectProperty: sub.rU
-  SubPropertyOf: root.rU <1>
-
-ObjectProperty: sub.rI <2>
-  SubPropertyOf: root.rI <1>
-----
-<1> for each `root: ReifiedRelationship in sup.rootCharacterizedEntityRelationships()`
-<2> if `sub.rI` and `root.rI` are defined.
-
-             */
-            val roots = rr_sup.rootReifiedRelationships()
-
-            val op_rSources = roots.flatMap { root =>
-              subObjectPropertyAxioms.find { case (op_sub, op_sup) =>
-                op_sub == rr_sub.rSource && op_sup == root.rSource
-              }
-            }
-            val op_rTargets = roots.flatMap { root =>
-              subObjectPropertyAxioms.find { case (op_sub, op_sup) =>
-                op_sub == rr_sub.rTarget && op_sup == root.rTarget
-              }
-            }
-            val op_rUs = roots.flatMap { root =>
-              subObjectPropertyAxioms.find { case (op_sub, op_sup) =>
-                op_sub == rr_sub.forwardProperty.e && op_sup == root.forwardProperty.e
-              }
-            }
-            val with_inverses = rr_sub.inverseProperty.isDefined && roots.all(_.inverseProperty.isDefined)
-
-            val op_rIs = rr_sub.inverseProperty match {
-              case Some(sub_i) =>
-                roots.flatMap { root =>
-                  root.inverseProperty.flatMap { sup_i =>
-                    subObjectPropertyAxioms.find { case (op_sub, op_sup) =>
-                      op_sub == sub_i.e && op_sup == sup_i.e
-                    }
-                  }
-                }
-              case _ =>
-                Set.empty[(OWLObjectProperty, OWLObjectProperty)]
-            }
-
-            if (op_rSources.size == roots.size &&
-              op_rTargets.size == roots.size &&
-              op_rUs.size == roots.size &&
-              (!with_inverses || op_rIs.size == roots.size)) {
-
-              val op_axs = op_rSources ++ op_rTargets ++ op_rUs ++ op_rIs
-              Some(Resolvable_RR_CRRR_Specialization(o_sub, Set(ax), op_axs, rr_sub, rr_sup))
-            } else
-              None
-          }
-          case (rr_sub: ReifiedRelationshipRestriction, rr_sup: ReifiedRelationship) =>
-            /*
-a|[source]
-----
-Class: sub
-  SubClassOf: sup
-  SubClassOf: sup.rSource some sub.source
-  SubClassOf: sup.rTarget some sub.target
-----
-             */
-            for {
-              s_ax <- lookupRestrictionBy(axs, rr_sup.rSource == _, rr_sub.source.e == _)
-              t_ax <- lookupRestrictionBy(axs, rr_sup.rTarget == _, rr_sub.target.e == _)
-              r = Resolvable_RRR_RR_Specialization(o_sub, Set(ax, s_ax, t_ax), Set.empty, rr_sub, rr_sup)
-            } yield r
-          case (rr_sub: ReifiedRelationshipRestriction, rr_sup: ReifiedRelationshipRestriction) => {
-            /*
-a|[source]
-----
-Class: sub
-  SubClassOf: sup
-  SubClassOf: root.rSource some sub.source <1>
-  SubClassOf: root.rTarget some sub.target <1>
-----
-<1> for each `root: ReifiedRelationship in sup.rootCharacterizedEntityRelationships()`
-
-             */
-            val roots = rr_sup.rootReifiedRelationships()
-            val s_ax = roots.flatMap { root => lookupRestrictionBy(axs, root.rSource == _, rr_sub.source.e == _) }
-            val t_ax = roots.flatMap { root => lookupRestrictionBy(axs, root.rTarget == _, rr_sub.target.e == _) }
-            if (s_ax.size == roots.size && t_ax.size == roots.size)
-              Some(Resolvable_RRR_RRR_Specialization(o_sub, Set(ax) ++ s_ax ++ t_ax, Set.empty, rr_sub, rr_sup))
-            else
-              None
-          }
-          case (rr_sub: ReifiedRelationshipRestriction, rr_sup: CardinalityRestrictedReifiedRelationship) => {
-            /*
-a|[source]
-----
-Class: sub
-  SubClassOf: sup
-  SubClassOf: root.rSource some sub.source <1>
-  SubClassOf: root.rTarget some sub.target <1>
-----
-<1> for each `root: ReifiedRelationship in sup.rootCharacterizedEntityRelationships()`
-
-             */
-            val roots = rr_sup.rootReifiedRelationships()
-            val s_ax = roots.flatMap { root => lookupRestrictionBy(axs, root.rSource == _, rr_sub.source.e == _) }
-            val t_ax = roots.flatMap { root => lookupRestrictionBy(axs, root.rTarget == _, rr_sub.target.e == _) }
-            if (s_ax.size == roots.size && t_ax.size == roots.size)
-              Some(Resolvable_RRR_CRRR_Specialization(o_sub, Set(ax) ++ s_ax ++ t_ax, Set.empty, rr_sub, rr_sup))
-            else
-              None
-          }
-          case (rr_sub: CardinalityRestrictedReifiedRelationship, rr_sup: ReifiedRelationship) =>
-            /*
-a|[source]
-----
-Class: sub
-  SubClassOf: sup
-  SubClassOf: sup.rSource some domain(sub)
-  SubClassOf: sup.rTarget some range(sub)
-----
-             */
-            for {
-              s_ax <- lookupRestrictionBy(axs, rr_sup.rSource == _, rr_sub.source.e == _)
-              t_ax <- lookupRestrictionBy(axs, rr_sup.rTarget == _, rr_sub.target.e == _)
-              r = Resolvable_CRRR_RR_Specialization(o_sub, Set(ax, s_ax, t_ax), Set.empty, rr_sub, rr_sup)
-            } yield r
-          case (rr_sub: CardinalityRestrictedReifiedRelationship, rr_sup: ReifiedRelationshipRestriction) => {
-            /*
-a|[source]
-----
-Class: sub
-  SubClassOf: sup
-  SubClassOf: root.rSource some sub.source <1>
-  SubClassOf: root.rTarget some sub.target <1>
-----
-<1> for each `root: ReifiedRelationship in sup.rootCharacterizedEntityRelationships()`
-
-             */
-            val roots = rr_sup.rootReifiedRelationships()
-            val s_ax = roots.flatMap { root => lookupRestrictionBy(axs, root.rSource == _, rr_sub.source.e == _) }
-            val t_ax = roots.flatMap { root => lookupRestrictionBy(axs, root.rTarget == _, rr_sub.target.e == _) }
-            if (s_ax.size == roots.size && t_ax.size == roots.size)
-              Some(Resolvable_CRRR_RRR_Specialization(o_sub, Set(ax) ++ s_ax ++ t_ax, Set.empty, rr_sub, rr_sup))
-            else
-              None
-          }
-          case (rr_sub: CardinalityRestrictedReifiedRelationship, rr_sup: CardinalityRestrictedReifiedRelationship) => {
-            /*
-a|[source]
-----
-Class: sub
-  SubClassOf: sup
-  SubClassOf: root.rSource some sub.source <1>
-  SubClassOf: root.rTarget some sub.target <1>
-----
-<1> for each `root: ReifiedRelationship in sup.rootCharacterizedEntityRelationships()`
-
-             */
-            val roots = rr_sup.rootReifiedRelationships()
-            val s_ax = roots.flatMap { root => lookupRestrictionBy(axs, root.rSource == _, rr_sub.source.e == _) }
-            val t_ax = roots.flatMap { root => lookupRestrictionBy(axs, root.rTarget == _, rr_sub.target.e == _) }
-            if (s_ax.size == roots.size && t_ax.size == roots.size)
-              Some(Resolvable_CRRR_CRRR_Specialization(o_sub, Set(ax) ++ s_ax ++ t_ax, Set.empty, rr_sub, rr_sup))
-            else
-              None
-          }
+    : Vector[ResolvableConceptualRelationshipSpecialization]
+    = partitionResolvableConceptualRelationshipSubClassAxioms(ont)
+      .fold[Vector[ResolvableConceptualRelationshipSpecialization]](
+      (errors: NonEmptyList[String]) => {
+        val buff = new scala.collection.mutable.StringBuilder
+        buff ++= s"resolvableConceptualRelationshipSubClassAxioms: ${ont.getOntologyID.getOntologyIRI} has ${errors.size} resolution errors.\n"
+        errors.foreach { e =>
+          buff ++= e
+          buff ++= "\n"
+          ()
         }
-      } yield resolvable
-      result
-    }
+        System.out.println(buff.toString)
+        Vector.empty
+      },
+      identity)
 
     def resolvableUnreifiedRelationshipSpecializationAxioms
     : Iterable[ResolvableUnreifiedRelationshipSpecialization]
@@ -1366,7 +1755,7 @@ Class: sub
       tuple <- subDataPropertyAxioms
       sub <- dataRelationshipsFromEntityToScalar.get(tuple._1)
       sup <- dataRelationshipsFromEntityToScalar.get(tuple._2)
-    } yield ResolvableEntityScaladSubDataPropertyAxiom(sup, sup, tuple)
+    } yield ResolvableEntityScaladSubDataPropertyAxiom(sub, sup, tuple)
 
     def lookupEntityScalarDataPropertyParticularRestriction
     (ax: OWLSubClassOfAxiom)
@@ -1441,32 +1830,115 @@ Class: sub
     def lookupEntityScalarDataPropertyExistentialRestriction
     (ax: OWLSubClassOfAxiom)
     : Option[ResolvableEntityScalarDataPropertyDataRangeRestrictionAxiom]
-    = ax.getSuperClass match {
-      case uax: OWLDataSomeValuesFrom =>
-        (TerminologyBoxResolverHelper
-          .owlclassOfCE(Option.apply(ax.getSubClass))
-          .flatMap(lookup),
-          TerminologyBoxResolverHelper
-            .owlDataPropertyOfPE(Option.apply(uax.getProperty))
-            .flatMap(dataRelationshipsFromEntityToScalar.get),
-          Option.apply(uax.getFiller).flatMap(dataRanges.get)) match {
-          case (Some(e), Some(dp), Some(dr)) =>
-            Some(ResolvableEntityScalarDataPropertyDataRangeRestrictionAxiom(ax, e, dp, dr))
-          case _ =>
-            None
-        }
-      case _ =>
-        None
+    = {
+      ax.getSuperClass match {
+        case uax: OWLDataSomeValuesFrom =>
+          (TerminologyBoxResolverHelper
+            .owlclassOfCE(Option.apply(ax.getSubClass))
+            .flatMap(lookup),
+            TerminologyBoxResolverHelper
+              .owlDataPropertyOfPE(Option.apply(uax.getProperty))
+              .flatMap(dataRelationshipsFromEntityToScalar.get),
+            Option.apply(uax.getFiller).flatMap(dataRanges.get)) match {
+            case (Some(e), Some(dp), Some(dr)) =>
+              Some(ResolvableEntityScalarDataPropertyDataRangeRestrictionAxiom(ax, e, dp, dr))
+            case _ =>
+              None
+          }
+        case _ =>
+          None
+      }
     }
 
     def resolvableEntityScalarDataPropertyExistentialRestrictionAxioms
     : Iterable[ResolvableEntityScalarDataPropertyDataRangeRestrictionAxiom]
-    = for {
-      tuple <- subClassAxioms
-      (_, axs) = tuple
-      tuple <- axs.flatMap(lookupEntityScalarDataPropertyExistentialRestriction)
-    } yield tuple
-    
+    = {
+      for {
+        tuple <- subClassAxioms
+        (_, axs) = tuple
+        tuple <- axs.flatMap(lookupEntityScalarDataPropertyExistentialRestriction)
+      } yield tuple
+    }
+
+    def splitWarningsAndErrors()(implicit ops: OWLAPIOMFOps)
+    : (IncrementalResolverState, IncrementalResolverState)
+    = {
+      val (wRCs, eRCs) = RCs.partition { case (iri, owlC) =>
+        ops.isBackboneIRI(iri) || ops.isBackboneIRI(owlC.getIRI)
+      }
+
+      val (wROPs, eROPs) = ROPs.partition(isROPWarning)
+      val (wSourceROPs, eSourceROPs) = sourceROPs.partition(isROPWarning)
+      val (wTargetROPs, eTargetROPs) = targetROPs.partition(isROPWarning)
+      val (wChains, eChains) = chains.partition(isChainWarning)
+      val (wUROPs, eUROPs) = unreifiedObjectPropertyOPs.partition { case (owlCd, owlOP, owlCr) =>
+        ops.isBackboneIRI(owlCd.getIRI) ||
+          ops.isBackboneIRI(owlOP.getIRI) ||
+          ops.isBackboneIRI(owlCr.getIRI)
+      }
+      val (wcra, ecra) = cardinalityRestrictedAspectCIRIs.partition { case (iri, owlC) =>
+        ops.isBackboneIRI(iri) || ops.isBackboneIRI(owlC.getIRI)
+      }
+      val (wcrc, ecrc) = cardinalityRestrictedConceptCIRIs.partition { case (iri, owlC) =>
+        ops.isBackboneIRI(iri) || ops.isBackboneIRI(owlC.getIRI)
+      }
+      val (wcrr, ecrr) = cardinalityRestrictedReifiedRelationshipCIRIs.partition { case (iri, owlC) =>
+        ops.isBackboneIRI(iri) || ops.isBackboneIRI(owlC.getIRI)
+      }
+      val (wSubC, eSubC) = subClassAxioms.partition { case (owlC, axs) =>
+        ops.isBackboneIRI(owlC.getIRI) ||
+          axs.exists { ax =>
+            ax.getSuperClass match {
+              case sup: OWLClass =>
+                ops.isBackboneIRI(sup.getIRI)
+              case _ =>
+                false
+            }
+          }
+      }
+      val (wSubOP, eSubOP) = subObjectPropertyAxioms.partition { case (sub, sup) =>
+        ops.isBackboneIRI(sub.getIRI) || ops.isBackboneIRI(sup.getIRI)
+      }
+      val (wSubDP, eSubDP) = subDataPropertyAxioms.partition { case (sub, sup) =>
+        ops.isBackboneIRI(sub.getIRI) || ops.isBackboneIRI(sup.getIRI)
+      }
+      val (wDP, eDP) = dataPropertyDPIRIs.partition(isDOPWarning)
+
+      val w = copy(
+        RCs = wRCs,
+        ROPs = wROPs,
+        sourceROPs = wSourceROPs,
+        targetROPs = wTargetROPs,
+        chains = wChains,
+        unreifiedObjectPropertyOPs = wUROPs,
+        cardinalityRestrictedAspectCIRIs = wcra,
+        cardinalityRestrictedConceptCIRIs = wcrc,
+        cardinalityRestrictedReifiedRelationshipCIRIs = wcrr,
+        subClassAxioms = wSubC,
+        subObjectPropertyAxioms = wSubOP,
+        subDataPropertyAxioms = wSubDP,
+        dataPropertyDPIRIs = wDP
+      )
+
+      val e = copy(
+        RCs = eRCs,
+        ROPs = eROPs,
+        sourceROPs = eSourceROPs,
+        targetROPs = eTargetROPs,
+        chains = eChains,
+        unreifiedObjectPropertyOPs = eUROPs,
+        cardinalityRestrictedAspectCIRIs = ecra,
+        cardinalityRestrictedConceptCIRIs = ecrc,
+        cardinalityRestrictedReifiedRelationshipCIRIs = ecrr,
+        subClassAxioms = eSubC,
+        subObjectPropertyAxioms = eSubOP,
+        subDataPropertyAxioms = eSubDP,
+        dataPropertyDPIRIs = eDP
+      )
+
+      w -> e
+    }
+
     override def toString: String = {
       val buff = new scala.collection.mutable.StringBuilder
       buff ++= s"IncrementalResolverState: {\n"
@@ -1474,18 +1946,60 @@ Class: sub
       buff ++= s" restrictableRelationships: ${restrictableRelationships.size}\n"
       buff ++= s" // queues (empty when complete)\n"
       buff ++= s" RCs: ${RCs.size}\n"
+      RCs.to[Seq].sortBy(_._1.toString).foreach { case (iri, owlC) =>
+        buff ++= s" RC: $iri\n"
+      }
       buff ++= s" ROPs: ${ROPs.size}\n"
+      ROPs.to[Seq].sortBy(_._1.toString).foreach { case (iri, owlOP, owlC_domain, owlC_rage, owlOP_inv) =>
+        buff ++= s" ROPs: $iri\n"
+      }
       buff ++= s" sourceROPs: ${sourceROPs.size}\n"
+      sourceROPs.to[Seq].sortBy(_._1.toString).foreach { case (iri, owlOP, owlC_domain, owlC_rage, owlOP_inv) =>
+        buff ++= s" sourceROP: $iri\n"
+      }
       buff ++= s" targetROPs: ${targetROPs.size}\n"
+      targetROPs.to[Seq].sortBy(_._1.toString).foreach { case (iri, owlOP, owlC_domain, owlC_rage, owlOP_inv) =>
+        buff ++= s" targetROP: $iri\n"
+      }
       buff ++= s" chains: ${chains.size}\n"
+      chains.to[Seq].sortBy(_._1.getIRI.toString).foreach { case (op1, op2, op3) =>
+        buff ++= s" chain: op=${op1.getIRI} source=${op2.getIRI} target=${op3.getIRI}\n"
+      }
       buff ++= s" unreifiedObjectPropertyOPs: ${unreifiedObjectPropertyOPs.size}\n"
+      unreifiedObjectPropertyOPs.to[Seq].sortBy(_._2.getIRI.toString).foreach { case (owlC_domain, owlOP, owlC_range) =>
+        buff ++= s" unreifiedObjectPropertyOP: op:${owlOP.getIRI} domain:${owlC_domain.getIRI} range:${owlC_range.getIRI}\n"
+      }
       buff ++= s" cardinalityRestrictedAspectCIRIs: ${cardinalityRestrictedAspectCIRIs.size}\n"
+      cardinalityRestrictedAspectCIRIs.to[Seq].sortBy(_._1.toString).foreach { case (iri, owlC) =>
+        buff ++= s" cardinalityRestrictedAspectCIRI: $iri\n"
+      }
       buff ++= s" cardinalityRestrictedConceptCIRIs: ${cardinalityRestrictedConceptCIRIs.size}\n"
+      cardinalityRestrictedConceptCIRIs.to[Seq].sortBy(_._1.toString).foreach { case (iri, owlC) =>
+        buff ++= s" cardinalityRestrictedConceptCIRI: $iri\n"
+      }
       buff ++= s" cardinalityRestrictedReifiedRelationshipCIRIs: ${cardinalityRestrictedReifiedRelationshipCIRIs.size}\n"
+      cardinalityRestrictedReifiedRelationshipCIRIs.to[Seq].sortBy(_._1.toString).foreach { case (iri, owlC) =>
+        buff ++= s" cardinalityRestrictedReifiedRelationshipCIRI: $iri\n"
+      }
       buff ++= s" subClassAxioms: ${subClassAxioms.size}\n"
+      subClassAxioms.to[Seq].sortBy(_._1.getIRI.toString).foreach { case (iri, axs) =>
+        buff ++= s" subClassAxiom: $iri = ${axs.size} axioms\n"
+        axs.to[Seq].sortBy(_.getSuperClass.toString).foreach { ax =>
+          buff ++= s" subClassAxiom: ... <= ${ax.getSuperClass}\n"
+        }
+      }
       buff ++= s" subObjectPropertyAxioms: ${subObjectPropertyAxioms.size}\n"
+      subObjectPropertyAxioms.to[Seq].sortBy(_._1.getIRI.toString).foreach { case (sub, sup) =>
+        buff ++= s" subObjectPropertyAxiom: ${sub.getIRI} <= ${sup.getIRI}\n"
+      }
       buff ++= s" subDataPropertyAxioms: ${subDataPropertyAxioms.size}\n"
+      subDataPropertyAxioms.to[Seq].sortBy(_._1.getIRI.toString).foreach { case (sub, sup) =>
+        buff ++= s" subDataPropertyAxiom: ${sub.getIRI} <= ${sup.getIRI}\n"
+      }
       buff ++= s" dataPropertyDPIRIs: ${dataPropertyDPIRIs.size}\n"
+      dataPropertyDPIRIs.to[Seq].sortBy(_._1.getIRI.toString).foreach { case (owlDP, owlC, owlDT) =>
+        buff ++= s" dataPropertyDPIRI: dp:${owlDP.getIRI}, C:${owlC.getIRI}, DT:${owlDT.getIRI}\n"
+      }
       buff ++= s" // resolved\n"
       buff ++= s" reifiedRelationships: ${reifiedRelationships.size}\n"
       buff ++= s" reifiedRelationshipSources: ${reifiedRelationshipSources.size}\n"
@@ -1512,7 +2026,6 @@ Class: sub
       buff.toString()
     }
   }
-
 }
 
 class TerminologyBoxResolverHelper(val tboxG: MutableTerminologyBox,
@@ -1951,14 +2464,34 @@ class TerminologyBoxResolverHelper(val tboxG: MutableTerminologyBox,
           rD.nonEmpty || rE.nonEmpty || rF.nonEmpty ||
           rG.nonEmpty || rH.nonEmpty
 
-        if (more)
-          resolveEntityDefinitionsForRelationshipsRestrictionsAndSpecializations(sH)
-        else {
-          val message =
-            s"resolveEntityDefinitionsForRelationshipsRestrictionsAndSpecializations: Incomplete resolution!\n$s0"
-          Set(
-            OMFError.omfOpsError(omfStore.ops, message)
-          ).left
+        if (more) {
+          sH match {
+            case \/-(h) =>
+              val (sW, sE) = h.splitWarningsAndErrors()(omfStore.ops)
+              if (!sW.isResolved) {
+                val message =
+                  s"resolveEntityDefinitionsForRelationshipsRestrictionsAndSpecializations: Warning: ignoring unresolved backbone statements!\n$sW"
+                System.out.println(message)
+              }
+              resolveEntityDefinitionsForRelationshipsRestrictionsAndSpecializations(sE.right)
+            case -\/(errors) =>
+              errors.left
+          }
+        } else {
+          val (sW, sE) = s0.splitWarningsAndErrors()(omfStore.ops)
+          if (sE.isResolved) {
+            val message =
+              s"resolveEntityDefinitionsForRelationshipsRestrictionsAndSpecializations: Warning: ignoring unresolved backbone statements!\n$sW"
+            System.out.println(message)
+            resolveEntityDefinitionsForRelationshipsRestrictionsAndSpecializations(sE.right)
+
+          } else {
+            val message =
+              s"resolveEntityDefinitionsForRelationshipsRestrictionsAndSpecializations: Incomplete resolution!\n$s0"
+            Set(
+              OMFError.omfOpsError(omfStore.ops, message)
+            ).left
+          }
         }
       }
     case -\/(errors) =>
@@ -2279,20 +2812,23 @@ class TerminologyBoxResolverHelper(val tboxG: MutableTerminologyBox,
         case a: SWRLObjectPropertyAtom =>
           a.getPredicate match {
             case op: OWLObjectProperty =>
-              (s.forwardProperties.get(op),
-               s.inverseProperties.get(op),
-               s.unreifiedRelationships.get(op),
-               s.reifiedRelationshipSources.get(op),
-               s.reifiedRelationshipTargets.get(op)) match {
-                case (Some(fwd), _, _, _, _) =>
+              ( s.lookupRestrictableRelationship(op),
+                s.forwardProperties.get(op),
+                s.inverseProperties.get(op),
+                s.unreifiedRelationships.get(op),
+                s.reifiedRelationshipSources.get(op),
+                s.reifiedRelationshipTargets.get(op)) match {
+                case (Some(rrp), _, _, _, _, _) =>
+                  tboxG.createSegmentPredicate(bodySegment, predicate = Some(rrp))
+                case (_, Some(fwd), _, _, _, _) =>
                   tboxG.createSegmentPredicate(bodySegment, predicate = Some(fwd))
-                case (_, Some(inv), _, _, _) =>
+                case (_, _, Some(inv), _, _, _) =>
                   tboxG.createSegmentPredicate(bodySegment, predicate = Some(inv))
-                case (_, _, Some(ur), _, _) =>
+                case (_, _, _, Some(ur), _, _) =>
                   tboxG.createSegmentPredicate(bodySegment, predicate = Some(ur))
-                case (_, _, _, Some(rr), _) =>
+                case (_, _, _, _, Some(rr), _) =>
                   tboxG.createSegmentPredicate(bodySegment, reifiedRelationshipSource = Some(rr))
-                case (_, _, _, _, Some(rr)) =>
+                case (_, _, _, _, _, Some(rr)) =>
                   tboxG.createSegmentPredicate(bodySegment, reifiedRelationshipTarget = Some(rr))
                 case _ =>
                   -\/(Set[java.lang.Throwable](OMFError.omfError(

@@ -59,6 +59,10 @@ object MutableDescriptionBox {
       reifiedRelationshipInstanceDomains = HashSet.empty[ReifiedRelationshipInstanceDomain],
       reifiedRelationshipInstanceRanges = HashSet.empty[ReifiedRelationshipInstanceRange],
       unreifiedRelationshipInstanceTuples = HashSet.empty[UnreifiedRelationshipInstanceTuple],
+      instanceRelationshipEnumerationRestrictions = HashSet.empty[InstanceRelationshipEnumerationRestriction],
+      instanceRelationshipValueRestrictions = HashSet.empty[InstanceRelationshipValueRestriction],
+      instanceRelationshipExistentialRangeRestrictions = HashSet.empty[InstanceRelationshipExistentialRangeRestriction],
+      instanceRelationshipUniversalRangeRestrictions = HashSet.empty[InstanceRelationshipUniversalRangeRestriction],
       singletonScalarDataPropertyValues = HashSet.empty[SingletonInstanceScalarDataPropertyValue],
       singletonStructuredDataPropertyValues = HashSet.empty[SingletonInstanceStructuredDataPropertyValue],
       scalarDataPropertyValues = HashSet.empty[ScalarDataPropertyValue],
@@ -460,6 +464,208 @@ case class MutableDescriptionBox
           createOMLProvenanceAnnotations(uuid)))),
       "addUnreifiedRelationshipInstanceTuple Error")
   } yield i
+
+  ///
+
+  def createInstanceRelationshipEnumerationRestriction
+  (uuid: api.taggedTypes.InstanceRelationshipEnumerationRestrictionUUID,
+   restrictedRelationship: RestrictableRelationship,
+   domain: descriptions.ConceptualEntitySingletonInstance,
+   references: Vector[descriptions.ConceptualEntitySingletonInstance])
+  (implicit store: OWLAPIOMFGraphStore)
+  : OMFError.Throwables \/ descriptions.InstanceRelationshipEnumerationRestriction
+  = sig
+    .instanceRelationshipEnumerationRestrictions
+    .find {
+      case axiom: descriptions.InstanceRelationshipEnumerationRestriction =>
+        axiom.restrictedRelationship == restrictedRelationship &&
+          axiom.domain == domain &&
+          axiom.references == references
+      case _ =>
+        false
+    }
+    .fold[OMFError.Throwables \/ descriptions.InstanceRelationshipEnumerationRestriction] {
+    val i = descriptions.InstanceRelationshipEnumerationRestriction(uuid, restrictedRelationship, domain, references)
+    sig.instanceRelationshipEnumerationRestrictions += i
+    i.right
+  } { other =>
+    Set[java.lang.Throwable](
+      InstanceRelationshipEnumerationRestrictionAlreadyDefinedException(AxiomExceptionKind.InstanceRelationshipEnumerationRestriction, other)
+    ).left
+  }
+
+  def addInstanceRelationshipEnumerationRestriction
+  (uuid: api.taggedTypes.InstanceRelationshipEnumerationRestrictionUUID,
+   restrictedRelationship: RestrictableRelationship,
+   domain: descriptions.ConceptualEntitySingletonInstance,
+   references: Vector[descriptions.ConceptualEntitySingletonInstance])
+  (implicit store: OWLAPIOMFGraphStore)
+  : OMFError.Throwables \/ descriptions.InstanceRelationshipEnumerationRestriction
+  = for {
+    i <- createInstanceRelationshipEnumerationRestriction(uuid, restrictedRelationship, domain, references)
+    _ <- applyOntologyChanges(ontManager,
+      Seq(
+        new AddAxiom(ont,
+          owlDataFactory.getOWLClassAssertionAxiom(
+            owlDataFactory.getOWLObjectAllValuesFrom(
+              restrictedRelationship.e,
+               owlDataFactory.getOWLObjectOneOf(references.map(_.ni): _*)),
+            domain.ni,
+            createOMLProvenanceAnnotations(uuid)))),
+      "addInstanceRelationshipEnumerationRestriction Error")
+  } yield i
+
+  ///
+
+  def createInstanceRelationshipValueRestriction
+  (uuid: api.taggedTypes.InstanceRelationshipValueRestrictionUUID,
+   restrictedRelationship: RestrictableRelationship,
+   domain: descriptions.ConceptualEntitySingletonInstance,
+   range: descriptions.ConceptualEntitySingletonInstance)
+  (implicit store: OWLAPIOMFGraphStore)
+  : OMFError.Throwables \/ descriptions.InstanceRelationshipValueRestriction
+  = sig
+    .instanceRelationshipValueRestrictions
+    .find {
+      case axiom: descriptions.InstanceRelationshipValueRestriction =>
+        axiom.restrictedRelationship == restrictedRelationship &&
+          axiom.domain == domain &&
+          axiom.range == range
+      case _ =>
+        false
+    }
+    .fold[OMFError.Throwables \/ descriptions.InstanceRelationshipValueRestriction] {
+    val i = descriptions.InstanceRelationshipValueRestriction(uuid, restrictedRelationship, domain, range)
+    sig.instanceRelationshipValueRestrictions += i
+    i.right
+  } { other =>
+    Set[java.lang.Throwable](
+      InstanceRelationshipValueRestrictionAlreadyDefinedException(AxiomExceptionKind.InstanceRelationshipValueRestriction, other)
+    ).left
+  }
+
+  def addInstanceRelationshipValueRestriction
+  (uuid: api.taggedTypes.InstanceRelationshipValueRestrictionUUID,
+   restrictedRelationship: RestrictableRelationship,
+   domain: descriptions.ConceptualEntitySingletonInstance,
+   range: descriptions.ConceptualEntitySingletonInstance)
+  (implicit store: OWLAPIOMFGraphStore)
+  : OMFError.Throwables \/ descriptions.InstanceRelationshipValueRestriction
+  = for {
+    i <- createInstanceRelationshipValueRestriction(uuid, restrictedRelationship, domain, range)
+    _ <- applyOntologyChanges(ontManager,
+      Seq(
+        new AddAxiom(ont,
+          owlDataFactory.getOWLClassAssertionAxiom(
+            owlDataFactory.getOWLObjectHasValue(
+              restrictedRelationship.e,
+              range.ni),
+            domain.ni,
+            createOMLProvenanceAnnotations(uuid)))),
+      "addInstanceRelationshipValueRestriction Error")
+  } yield i
+
+  ///
+
+  def createInstanceRelationshipExistentialRangeRestriction
+  (uuid: api.taggedTypes.InstanceRelationshipExistentialRangeRestrictionUUID,
+   restrictedRelationship: RestrictableRelationship,
+   domain: descriptions.ConceptualEntitySingletonInstance,
+   range: Entity)
+  (implicit store: OWLAPIOMFGraphStore)
+  : OMFError.Throwables \/ descriptions.InstanceRelationshipExistentialRangeRestriction
+  = sig
+    .instanceRelationshipExistentialRangeRestrictions
+    .find {
+      case axiom: descriptions.InstanceRelationshipExistentialRangeRestriction =>
+        axiom.restrictedRelationship == restrictedRelationship &&
+          axiom.domain == domain &&
+          axiom.range == range
+      case _ =>
+        false
+    }
+    .fold[OMFError.Throwables \/ descriptions.InstanceRelationshipExistentialRangeRestriction] {
+    val i = descriptions.InstanceRelationshipExistentialRangeRestriction(uuid, restrictedRelationship, domain, range)
+    sig.instanceRelationshipExistentialRangeRestrictions += i
+    i.right
+  } { other =>
+    Set[java.lang.Throwable](
+      InstanceRelationshipExistentialRangeRestrictionAlreadyDefinedException(AxiomExceptionKind.InstanceRelationshipExistentialRangeRestriction, other)
+    ).left
+  }
+
+  def addInstanceRelationshipExistentialRangeRestriction
+  (uuid: api.taggedTypes.InstanceRelationshipExistentialRangeRestrictionUUID,
+   restrictedRelationship: RestrictableRelationship,
+   domain: descriptions.ConceptualEntitySingletonInstance,
+   range: Entity)
+  (implicit store: OWLAPIOMFGraphStore)
+  : OMFError.Throwables \/ descriptions.InstanceRelationshipExistentialRangeRestriction
+  = for {
+    i <- createInstanceRelationshipExistentialRangeRestriction(uuid, restrictedRelationship, domain, range)
+    _ <- applyOntologyChanges(ontManager,
+      Seq(
+        new AddAxiom(ont,
+          owlDataFactory.getOWLClassAssertionAxiom(
+            owlDataFactory.getOWLObjectSomeValuesFrom(
+              restrictedRelationship.e,
+              range.e),
+            domain.ni,
+            createOMLProvenanceAnnotations(uuid)))),
+      "addInstanceRelationshipExistentialRangeRestriction Error")
+  } yield i
+
+  ///
+
+  def createInstanceRelationshipUniversalRangeRestriction
+  (uuid: api.taggedTypes.InstanceRelationshipUniversalRangeRestrictionUUID,
+   restrictedRelationship: RestrictableRelationship,
+   domain: descriptions.ConceptualEntitySingletonInstance,
+   range: Entity)
+  (implicit store: OWLAPIOMFGraphStore)
+  : OMFError.Throwables \/ descriptions.InstanceRelationshipUniversalRangeRestriction
+  = sig
+    .instanceRelationshipUniversalRangeRestrictions
+    .find {
+      case axiom: descriptions.InstanceRelationshipUniversalRangeRestriction =>
+        axiom.restrictedRelationship == restrictedRelationship &&
+          axiom.domain == domain &&
+          axiom.range == range
+      case _ =>
+        false
+    }
+    .fold[OMFError.Throwables \/ descriptions.InstanceRelationshipUniversalRangeRestriction] {
+    val i = descriptions.InstanceRelationshipUniversalRangeRestriction(uuid, restrictedRelationship, domain, range)
+    sig.instanceRelationshipUniversalRangeRestrictions += i
+    i.right
+  } { other =>
+    Set[java.lang.Throwable](
+      InstanceRelationshipUniversalRangeRestrictionAlreadyDefinedException(AxiomExceptionKind.InstanceRelationshipUniversalRangeRestriction, other)
+    ).left
+  }
+
+  def addInstanceRelationshipUniversalRangeRestriction
+  (uuid: api.taggedTypes.InstanceRelationshipUniversalRangeRestrictionUUID,
+   restrictedRelationship: RestrictableRelationship,
+   domain: descriptions.ConceptualEntitySingletonInstance,
+   range: Entity)
+  (implicit store: OWLAPIOMFGraphStore)
+  : OMFError.Throwables \/ descriptions.InstanceRelationshipUniversalRangeRestriction
+  = for {
+    i <- createInstanceRelationshipUniversalRangeRestriction(uuid, restrictedRelationship, domain, range)
+    _ <- applyOntologyChanges(ontManager,
+      Seq(
+        new AddAxiom(ont,
+          owlDataFactory.getOWLClassAssertionAxiom(
+            owlDataFactory.getOWLObjectSomeValuesFrom(
+              restrictedRelationship.e,
+              range.e),
+            domain.ni,
+            createOMLProvenanceAnnotations(uuid)))),
+      "addInstanceRelationshipUniversalRangeRestriction Error")
+  } yield i
+
+  ///
 
   def createSingletonInstanceScalarDataPropertyValue
   (uuid: api.taggedTypes.SingletonInstanceScalarDataPropertyValueUUID,

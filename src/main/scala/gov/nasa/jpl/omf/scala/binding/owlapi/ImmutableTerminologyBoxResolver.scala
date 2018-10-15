@@ -1307,8 +1307,12 @@ class ImmutableTerminologyBoxResolver(resolver: TerminologyBoxResolverHelper)
     : ResolverResult
     = allEntityDefinitionsExceptRelationships.flatMap {
       _allEntityDefinitionsExceptRelationships =>
+        import gov.nasa.jpl.omf.scala.binding.owlapi.{iriOrdering,owlObjectProperty}
+
+        val entityDefinitions = SortedMap.empty[IRI, Entity] ++ _allEntityDefinitionsExceptRelationships.map { case (owlC,e) => owlC.getIRI -> e }
+        val subOPs = SortedSet.empty[(OWLObjectProperty, OWLObjectProperty)] ++ subObjectPropertyAxioms
         val s0 = TerminologyBoxResolverHelper.IncrementalResolverState(
-          _allEntityDefinitionsExceptRelationships,
+          entityDefinitions,
           importedRestrictableRelationshipMaps,
           importedScalarDatatypeDefinitionMaps ++ dataRanges,
           allImportedDataRelationshipsFromEntityToScalar,
@@ -1322,7 +1326,7 @@ class ImmutableTerminologyBoxResolver(resolver: TerminologyBoxResolverHelper)
           cardinalityRestrictedConceptCIRIs,
           cardinalityRestrictedReifiedRelationshipCIRIs,
           subClassAxioms,
-          subObjectPropertyAxioms,
+          subOPs,
           subDataPropertyAxioms,
           dataPropertyDPIRIs)
 

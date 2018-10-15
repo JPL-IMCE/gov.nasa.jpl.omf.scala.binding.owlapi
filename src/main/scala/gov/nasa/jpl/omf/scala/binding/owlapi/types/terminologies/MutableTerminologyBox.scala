@@ -3323,7 +3323,7 @@ trait MutableTerminologyBox
   def addChainRule
   (iri: IRI,
    uuid: api.taggedTypes.ChainRuleUUID,
-   head: OWLAPIOMF#UnreifiedRelationship)
+   head: OWLAPIOMF#RestrictableRelationship)
   (implicit store: OWLAPIOMFGraphStore)
   : OMFError.Throwables \/ OWLAPIOMF#ChainRule
   = for {
@@ -3858,12 +3858,12 @@ trait MutableTerminologyBox
       case axiom: EntityUniversalRestrictionAxiom =>
         axiom.restrictedDomain == restrictedDomain &&
         axiom.restrictedRelationship == restrictedRelationship &&
-        axiom.restrictedDomain == restrictedDomain
+        axiom.restrictedRange == restrictedRange
       case _ =>
         false
     }
     .fold[OMFError.Throwables \/ EntityUniversalRestrictionAxiom] {
-    val axiom = EntityUniversalRestrictionAxiom(uuid, restrictedDomain, restrictedRelationship, restrictedDomain)
+    val axiom = EntityUniversalRestrictionAxiom(uuid, restrictedDomain, restrictedRelationship, restrictedRange)
     sig.axioms += axiom
     axiom.right
   } {
@@ -3961,12 +3961,12 @@ trait MutableTerminologyBox
       case axiom: EntityExistentialRestrictionAxiom =>
         axiom.restrictedDomain == restrictedDomain &&
           axiom.restrictedRelationship == restrictedRelationship &&
-          axiom.restrictedDomain == restrictedDomain
+          axiom.restrictedRange == restrictedRange
       case _ =>
         false
     }
     .fold[OMFError.Throwables \/ EntityExistentialRestrictionAxiom] {
-    val axiom = EntityExistentialRestrictionAxiom(uuid, restrictedDomain, restrictedRelationship, restrictedDomain)
+    val axiom = EntityExistentialRestrictionAxiom(uuid, restrictedDomain, restrictedRelationship, restrictedRange)
     sig.axioms += axiom
     axiom.right
   } {

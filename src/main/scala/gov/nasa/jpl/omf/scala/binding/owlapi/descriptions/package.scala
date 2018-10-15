@@ -47,6 +47,14 @@ package object descriptions {
       Set.empty[ReifiedRelationshipInstanceRange] ++ sig.reifiedRelationshipInstanceRanges,
     unreifiedRelationshipInstanceTuples =
       Set.empty[UnreifiedRelationshipInstanceTuple] ++ sig.unreifiedRelationshipInstanceTuples,
+    instanceRelationshipEnumerationRestrictions =
+      Set.empty[InstanceRelationshipEnumerationRestriction] ++ sig.instanceRelationshipEnumerationRestrictions,
+    instanceRelationshipValueRestrictions =
+      Set.empty[InstanceRelationshipValueRestriction] ++ sig.instanceRelationshipValueRestrictions,
+    instanceRelationshipExistentialRangeRestrictions =
+      Set.empty[InstanceRelationshipExistentialRangeRestriction] ++ sig.instanceRelationshipExistentialRangeRestrictions,
+    instanceRelationshipUniversalRangeRestrictions =
+      Set.empty[InstanceRelationshipUniversalRangeRestriction] ++ sig.instanceRelationshipUniversalRangeRestrictions,
     singletonScalarDataPropertyValues =
       Set.empty[SingletonInstanceScalarDataPropertyValue] ++ sig.singletonScalarDataPropertyValues,
     singletonStructuredDataPropertyValues =

@@ -61,6 +61,14 @@ object ImmutableDescriptionBox {
         Set.empty[ReifiedRelationshipInstanceRange],
       unreifiedRelationshipInstanceTuples =
         Set.empty[UnreifiedRelationshipInstanceTuple],
+      instanceRelationshipEnumerationRestrictions =
+        Set.empty[InstanceRelationshipEnumerationRestriction],
+      instanceRelationshipValueRestrictions =
+        Set.empty[InstanceRelationshipValueRestriction],
+      instanceRelationshipExistentialRangeRestrictions =
+        Set.empty[InstanceRelationshipExistentialRangeRestriction],
+      instanceRelationshipUniversalRangeRestrictions =
+        Set.empty[InstanceRelationshipUniversalRangeRestriction],
       singletonScalarDataPropertyValues =
         Set.empty[SingletonInstanceScalarDataPropertyValue],
       singletonStructuredDataPropertyValues =
@@ -99,6 +107,14 @@ object ImmutableDescriptionBox {
         Set.empty[ReifiedRelationshipInstanceRange] ++ s.reifiedRelationshipInstanceRanges,
       unreifiedRelationshipInstanceTuples =
         Set.empty[UnreifiedRelationshipInstanceTuple] ++ s.unreifiedRelationshipInstanceTuples,
+      instanceRelationshipEnumerationRestrictions =
+        Set.empty[InstanceRelationshipEnumerationRestriction] ++ s.instanceRelationshipEnumerationRestrictions,
+      instanceRelationshipValueRestrictions =
+        Set.empty[InstanceRelationshipValueRestriction] ++ s.instanceRelationshipValueRestrictions,
+      instanceRelationshipExistentialRangeRestrictions =
+        Set.empty[InstanceRelationshipExistentialRangeRestriction] ++ s.instanceRelationshipExistentialRangeRestrictions,
+      instanceRelationshipUniversalRangeRestrictions =
+        Set.empty[InstanceRelationshipUniversalRangeRestriction] ++ s.instanceRelationshipUniversalRangeRestrictions,
       singletonScalarDataPropertyValues =
         Set.empty[SingletonInstanceScalarDataPropertyValue] ++ s.singletonScalarDataPropertyValues,
       singletonStructuredDataPropertyValues =

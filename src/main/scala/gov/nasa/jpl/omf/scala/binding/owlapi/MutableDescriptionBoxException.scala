@@ -83,6 +83,38 @@ case class UnreifiedRelationshipInstanceTupleAlreadyDefinedException
   require (null != rri)
 }
 
+case class InstanceRelationshipValueRestrictionAlreadyDefinedException
+(kind: AxiomExceptionKind,
+ rri: descriptions.InstanceRelationshipValueRestriction)
+  extends MutableDescriptionBoxException(kind, s"it is already defined as: $rri") {
+  require (null != kind)
+  require (null != rri)
+}
+
+case class InstanceRelationshipEnumerationRestrictionAlreadyDefinedException
+(kind: AxiomExceptionKind,
+ rri: descriptions.InstanceRelationshipEnumerationRestriction)
+  extends MutableDescriptionBoxException(kind, s"it is already defined as: $rri") {
+  require (null != kind)
+  require (null != rri)
+}
+
+case class InstanceRelationshipExistentialRangeRestrictionAlreadyDefinedException
+(kind: AxiomExceptionKind,
+ rri: descriptions.InstanceRelationshipExistentialRangeRestriction)
+  extends MutableDescriptionBoxException(kind, s"it is already defined as: $rri") {
+  require (null != kind)
+  require (null != rri)
+}
+
+case class InstanceRelationshipUniversalRangeRestrictionAlreadyDefinedException
+(kind: AxiomExceptionKind,
+ rri: descriptions.InstanceRelationshipUniversalRangeRestriction)
+  extends MutableDescriptionBoxException(kind, s"it is already defined as: $rri") {
+  require (null != kind)
+  require (null != rri)
+}
+
 case class SingletonInstanceScalarDataPropertyValueAlreadyDefinedException
 (kind: AxiomExceptionKind,
  axv: descriptions.SingletonInstanceScalarDataPropertyValue)
