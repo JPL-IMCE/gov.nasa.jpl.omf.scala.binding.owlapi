@@ -20,6 +20,7 @@ package gov.nasa.jpl.omf.scala.binding.owlapi.types.terms
 
 import gov.nasa.jpl.imce.oml.resolver
 import gov.nasa.jpl.imce.oml.tables
+import gov.nasa.jpl.omf.scala.binding.owlapi.common.LogicalElement
 import gov.nasa.jpl.omf.scala.binding.owlapi.{OWLAPIOMF, OWLAPIOMFGraphStore}
 import org.semanticweb.owlapi.model.OWLObjectProperty
 
@@ -30,7 +31,7 @@ case class ForwardProperty
  override val uuid: resolver.api.taggedTypes.ForwardPropertyUUID,
  override val iri: OWLAPIOMF#IRI,
  override val name: tables.taggedTypes.LocalName)
-  extends RestrictableRelationship {
+  extends RestrictableRelationship with LogicalElement{
 
   override def domain
   ()(implicit store: OWLAPIOMFGraphStore)

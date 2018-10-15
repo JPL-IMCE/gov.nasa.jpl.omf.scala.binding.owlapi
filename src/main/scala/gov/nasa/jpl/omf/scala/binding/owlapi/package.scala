@@ -32,14 +32,28 @@ import org.semanticweb.owlapi.apibinding.OWLManager
 import org.semanticweb.owlapi.model.parameters.ChangeApplied
 import org.semanticweb.owlapi.model._
 
+import scala.Ordering
 import scala.collection.immutable._
 import scala.compat.java8.StreamConverters._
-import scala.{None, Option, StringContext, Unit}
+import scala.{Int, None, Option, StringContext, Unit}
 import scala.Predef.{augmentString,require,ArrowAssoc,String}
 import scalaz._
 import Scalaz._
 
 package object owlapi {
+
+  implicit val iriOrdering: Ordering[IRI] = new Ordering[IRI] {
+    override def compare(x: IRI, y: IRI): Int
+    = x.toString.compareTo(y.toString)
+  }
+  implicit val owlObjectProperty: Ordering[OWLObjectProperty] = new Ordering[OWLObjectProperty] {
+    override def compare(x: OWLObjectProperty, y: OWLObjectProperty): Int
+    = x.getIRI.toString.compareTo(y.getIRI.toString)
+  }
+  implicit val owlClassOrdering: Ordering[OWLClass] = new Ordering[OWLClass] {
+    override def compare(x: OWLClass, y: OWLClass): Int
+    = x.getIRI.toString.compareTo(y.getIRI.toString)
+  }
 
   type MutableModulesNES
   = Throwables \/ Set[MutableModule]

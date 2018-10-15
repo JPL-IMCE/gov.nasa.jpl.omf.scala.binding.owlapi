@@ -28,7 +28,7 @@ case class ChainRule
 (override val iri: IRI,
  override val name: LocalName,
  override val uuid: api.taggedTypes.ChainRuleUUID,
- head: UnreifiedRelationship) extends Rule {
+ head: RestrictableRelationship) extends Rule {
 
   override val e: OWLObject = null
 

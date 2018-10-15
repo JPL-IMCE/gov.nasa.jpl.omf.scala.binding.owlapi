@@ -1856,7 +1856,7 @@ trait OWLAPIMutableTerminologyGraphOps
   (tbox: MutableTerminologyBox,
    uuid: api.taggedTypes.ChainRuleUUID,
    iri: IRI,
-   head: UnreifiedRelationship)
+   head: RestrictableRelationship)
   (implicit store: OWLAPIOMFGraphStore)
   : Throwables \/ ChainRule
   = tbox.addChainRule(iri, uuid, head)
@@ -2107,7 +2107,15 @@ trait OWLAPIImmutableDescriptionBoxOps
   : api.taggedTypes.StructuredDataPropertyTupleUUID = i.uuid
   override def getUnreifiedRelationshipInstanceTupleUUID(i:OWLAPIOMF#UnreifiedRelationshipInstanceTuple)
   : api.taggedTypes.UnreifiedRelationshipInstanceTupleUUID = i.uuid
-  
+  override def getInstanceRelationshipEnumerationRestrictionUUID(i:OWLAPIOMF#InstanceRelationshipEnumerationRestriction)
+  : api.taggedTypes.InstanceRelationshipEnumerationRestrictionUUID = i.uuid
+  override def getInstanceRelationshipValueRestrictionUUID(i:OWLAPIOMF#InstanceRelationshipValueRestriction)
+  : api.taggedTypes.InstanceRelationshipValueRestrictionUUID = i.uuid
+  override def getInstanceRelationshipExistentialRangeRestrictionUUID(i:OWLAPIOMF#InstanceRelationshipExistentialRangeRestriction)
+  : api.taggedTypes.InstanceRelationshipExistentialRangeRestrictionUUID = i.uuid
+  override def getInstanceRelationshipUniversalRangeRestrictionUUID(i:OWLAPIOMF#InstanceRelationshipUniversalRangeRestriction)
+  : api.taggedTypes.InstanceRelationshipUniversalRangeRestrictionUUID = i.uuid
+
   override def getImmutableDescriptionBoxIRI
   (graph: descriptions.ImmutableDescriptionBox) =
     graph.iri
@@ -2137,6 +2145,30 @@ trait OWLAPIImmutableDescriptionBoxOps
   : UnreifiedRelationshipInstanceTupleSignature[OWLAPIOMF]
   = UnreifiedRelationshipInstanceTupleSignature[OWLAPIOMF](
     ur.uuid, ur.unreifiedRelationship, ur.domain, ur.range)
+
+  override def fromInstanceRelationshipEnumerationRestriction
+  (er: descriptions.InstanceRelationshipEnumerationRestriction)
+  : InstanceRelationshipEnumerationRestrictionSignature[OWLAPIOMF]
+  = InstanceRelationshipEnumerationRestrictionSignature[OWLAPIOMF](
+    er.uuid, er.restrictedRelationship, er.domain, er.references)
+  
+  override def fromInstanceRelationshipValueRestriction
+  (ur: descriptions.InstanceRelationshipValueRestriction)
+  : InstanceRelationshipValueRestrictionSignature[OWLAPIOMF]
+  = InstanceRelationshipValueRestrictionSignature[OWLAPIOMF](
+    ur.uuid, ur.restrictedRelationship, ur.domain, ur.range)
+
+  override def fromInstanceRelationshipExistentialRangeRestriction
+  (ur: descriptions.InstanceRelationshipExistentialRangeRestriction)
+  : InstanceRelationshipExistentialRangeRestrictionSignature[OWLAPIOMF]
+  = InstanceRelationshipExistentialRangeRestrictionSignature[OWLAPIOMF](
+    ur.uuid, ur.restrictedRelationship, ur.domain, ur.range)
+
+  override def fromInstanceRelationshipUniversalRangeRestriction
+  (ur: descriptions.InstanceRelationshipUniversalRangeRestriction)
+  : InstanceRelationshipUniversalRangeRestrictionSignature[OWLAPIOMF]
+  = InstanceRelationshipUniversalRangeRestrictionSignature[OWLAPIOMF](
+    ur.uuid, ur.restrictedRelationship, ur.domain, ur.range)
 
   override def fromSingletonInstanceScalarDataPropertyValue
   (e2sc: descriptions.SingletonInstanceScalarDataPropertyValue)
@@ -2275,6 +2307,46 @@ trait OWLAPIMutableDescriptionBoxOps
   (implicit store: OWLAPIOMFGraphStore)
   : Throwables \/ descriptions.UnreifiedRelationshipInstanceTuple
   = dbox.addUnreifiedRelationshipInstanceTuple(uuid, unreifiedRelationship, source, target)
+
+  override protected def addInstanceRelationshipEnumerationRestriction
+  (uuid: api.taggedTypes.InstanceRelationshipEnumerationRestrictionUUID,
+   dbox: descriptions.MutableDescriptionBox,
+   restrictedRelationship: RestrictableRelationship with LogicalElement,
+   domain: descriptions.ConceptualEntitySingletonInstance,
+   references: Vector[descriptions.ConceptualEntitySingletonInstance])
+  (implicit store: OWLAPIOMFGraphStore)
+  : Throwables \/ descriptions.InstanceRelationshipEnumerationRestriction
+  = dbox.addInstanceRelationshipEnumerationRestriction(uuid, restrictedRelationship, domain, references)
+
+  override protected def addInstanceRelationshipValueRestriction
+  (uuid: api.taggedTypes.InstanceRelationshipValueRestrictionUUID,
+   dbox: descriptions.MutableDescriptionBox,
+   restrictedRelationship: RestrictableRelationship with LogicalElement,
+   domain: descriptions.ConceptualEntitySingletonInstance,
+   range: descriptions.ConceptualEntitySingletonInstance)
+  (implicit store: OWLAPIOMFGraphStore)
+  : Throwables \/ descriptions.InstanceRelationshipValueRestriction
+  = dbox.addInstanceRelationshipValueRestriction(uuid, restrictedRelationship, domain, range)
+
+  override protected def addInstanceRelationshipExistentialRangeRestriction
+  (uuid: api.taggedTypes.InstanceRelationshipExistentialRangeRestrictionUUID,
+   dbox: descriptions.MutableDescriptionBox,
+   restrictedRelationship: RestrictableRelationship with LogicalElement,
+   domain: descriptions.ConceptualEntitySingletonInstance,
+   range: Entity)
+  (implicit store: OWLAPIOMFGraphStore)
+  : Throwables \/ descriptions.InstanceRelationshipExistentialRangeRestriction
+  = dbox.addInstanceRelationshipExistentialRangeRestriction(uuid, restrictedRelationship, domain, range)
+
+  override protected def addInstanceRelationshipUniversalRangeRestriction
+  (uuid: api.taggedTypes.InstanceRelationshipUniversalRangeRestrictionUUID,
+   dbox: descriptions.MutableDescriptionBox,
+   restrictedRelationship: RestrictableRelationship with LogicalElement,
+   domain: descriptions.ConceptualEntitySingletonInstance,
+   range: Entity)
+  (implicit store: OWLAPIOMFGraphStore)
+  : Throwables \/ descriptions.InstanceRelationshipUniversalRangeRestriction
+  = dbox.addInstanceRelationshipUniversalRangeRestriction(uuid, restrictedRelationship, domain, range)
 
   override protected def addSingletonInstanceScalarDataPropertyValue
   (uuid: api.taggedTypes.SingletonInstanceScalarDataPropertyValueUUID,

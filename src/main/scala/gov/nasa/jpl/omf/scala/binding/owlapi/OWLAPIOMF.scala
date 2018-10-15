@@ -386,6 +386,18 @@ trait OWLAPIOMFdbox extends OMFdbox with OMLAPIOMFcbox {
   type ReifiedRelationshipInstanceRange =
     descriptions.ReifiedRelationshipInstanceRange
 
+  type InstanceRelationshipEnumerationRestriction =
+    descriptions.InstanceRelationshipEnumerationRestriction
+
+  type InstanceRelationshipValueRestriction =
+    descriptions.InstanceRelationshipValueRestriction
+
+  type InstanceRelationshipExistentialRangeRestriction =
+    descriptions.InstanceRelationshipExistentialRangeRestriction
+
+  type InstanceRelationshipUniversalRangeRestriction =
+    descriptions.InstanceRelationshipUniversalRangeRestriction
+
   type UnreifiedRelationshipInstanceTuple =
     descriptions.UnreifiedRelationshipInstanceTuple
 
