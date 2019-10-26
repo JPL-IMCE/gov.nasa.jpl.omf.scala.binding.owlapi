@@ -1,0 +1,5 @@
+gov.nasa.jpl.omf.scala.binding.owlapi 9.7 is a significant update of 9.6
+
+## Issues Resolved
+
+## [oml.resolver 0.97 update](https://github.com/JPL-IMCE/gov.nasa.jpl.imce.oml.resolver/blob/master/notes/0.97.markdown)

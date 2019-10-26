@@ -1,0 +1,5 @@
+gov.nasa.jpl.omf.scala.binding.owlapi 9.6 is a significant update of 9.5
+
+## Issues Resolved
+
+- [#80 Add support for OWL HasValue restriction on OML individuals](https://github.com/JPL-IMCE/gov.nasa.jpl.omf.scala.binding.owlapi/issues/80)
