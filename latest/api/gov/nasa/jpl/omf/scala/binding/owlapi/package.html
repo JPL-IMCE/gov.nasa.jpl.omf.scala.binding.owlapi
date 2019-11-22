@@ -749,7 +749,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="OWLAPIOMFGraphStore.html"><span class="name">OWLAPIOMFGraphStore</span></a><span class="params">(<span name="omfModule">omfModule: <a href="OWLAPIOMFModule.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFModule">OWLAPIOMFModule</a></span>, <span name="ontManager">ontManager: <span class="extype" name="org.semanticweb.owlapi.model.OWLOntologyManager">OWLOntologyManager</span></span>, <span name="catalogIRIMapper">catalogIRIMapper: <a href="CatalogIRIMapper.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.CatalogIRIMapper">CatalogIRIMapper</a></span>)</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+        <a href="OWLAPIOMFGraphStore.html"><span class="name">OWLAPIOMFGraphStore</span></a><span class="params">(<span name="omfModule">omfModule: <a href="OWLAPIOMFModule.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFModule">OWLAPIOMFModule</a></span>, <span name="ontManager">ontManager: <span class="extype" name="org.semanticweb.owlapi.model.OWLOntologyManager">OWLOntologyManager</span></span>, <span name="catalogIRIMapper">catalogIRIMapper: <a href="CatalogIRIMapper.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.CatalogIRIMapper">CatalogIRIMapper</a></span>, <span name="excludeOMLImports">excludeOMLImports: <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.Boolean" class="extype" target="_top">Boolean</a> = <span class="symbol">false</span></span>, <span name="excludeOMLContent">excludeOMLContent: <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.Boolean" class="extype" target="_top">Boolean</a> = <span class="symbol">false</span></span>, <span name="excludePurlImports">excludePurlImports: <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.Boolean" class="extype" target="_top">Boolean</a> = <span class="symbol">false</span></span>)</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.package@OWLAPIOMFGraphStoreextendsProductwithSerializable" title="Permalink" target="_top">
@@ -1583,18 +1583,18 @@ backbone declarations.</p>
     </span>
       
     </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi#createOMFGraphStore" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="createOMFGraphStore(catalogManager:org.apache.xml.resolver.CatalogManager,catalogResolver:org.apache.xml.resolver.tools.CatalogResolver,catalog:org.apache.xml.resolver.Catalog,ontManager:org.semanticweb.owlapi.model.OWLOntologyManager):scalaz.\/[gov.nasa.jpl.omf.scala.core.OMFError.Throwables,gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore]"></a>
-      <a id="createOMFGraphStore(CatalogManager,CatalogResolver,Catalog,OWLOntologyManager):\/[Throwables,OWLAPIOMFGraphStore]"></a>
+      <a id="createOMFGraphStore(catalogManager:org.apache.xml.resolver.CatalogManager,catalogResolver:org.apache.xml.resolver.tools.CatalogResolver,catalog:org.apache.xml.resolver.Catalog,ontManager:org.semanticweb.owlapi.model.OWLOntologyManager,excludeOMLImports:Boolean,excludeOMLContent:Boolean,excludePurlImports:Boolean):scalaz.\/[gov.nasa.jpl.omf.scala.core.OMFError.Throwables,gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore]"></a>
+      <a id="createOMFGraphStore(CatalogManager,CatalogResolver,Catalog,OWLOntologyManager,Boolean,Boolean,Boolean):\/[Throwables,OWLAPIOMFGraphStore]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">createOMFGraphStore</span><span class="params">(<span name="catalogManager">catalogManager: <span class="extype" name="org.apache.xml.resolver.CatalogManager">CatalogManager</span></span>, <span name="catalogResolver">catalogResolver: <span class="extype" name="org.apache.xml.resolver.tools.CatalogResolver">CatalogResolver</span></span>, <span name="catalog">catalog: <span class="extype" name="org.apache.xml.resolver.Catalog">Catalog</span></span>, <span name="ontManager">ontManager: <span class="extype" name="org.semanticweb.owlapi.model.OWLOntologyManager">OWLOntologyManager</span> = <span class="defval" name="OWLManager.createOWLOntologyManager()">...</span></span>)</span><span class="result">: <span class="extype" name="scalaz.\/">\/</span>[<span class="extype" name="gov.nasa.jpl.omf.scala.core.OMFError.Throwables">Throwables</span>, <a href="OWLAPIOMFGraphStore.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore">OWLAPIOMFGraphStore</a>]</span>
+        <span class="name">createOMFGraphStore</span><span class="params">(<span name="catalogManager">catalogManager: <span class="extype" name="org.apache.xml.resolver.CatalogManager">CatalogManager</span></span>, <span name="catalogResolver">catalogResolver: <span class="extype" name="org.apache.xml.resolver.tools.CatalogResolver">CatalogResolver</span></span>, <span name="catalog">catalog: <span class="extype" name="org.apache.xml.resolver.Catalog">Catalog</span></span>, <span name="ontManager">ontManager: <span class="extype" name="org.semanticweb.owlapi.model.OWLOntologyManager">OWLOntologyManager</span> = <span class="defval" name="OWLManager.createOWLOntologyManager()">...</span></span>, <span name="excludeOMLImports">excludeOMLImports: <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>, <span name="excludeOMLContent">excludeOMLContent: <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>, <span name="excludePurlImports">excludePurlImports: <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>)</span><span class="result">: <span class="extype" name="scalaz.\/">\/</span>[<span class="extype" name="gov.nasa.jpl.omf.scala.core.OMFError.Throwables">Throwables</span>, <a href="OWLAPIOMFGraphStore.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore">OWLAPIOMFGraphStore</a>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.package@createOMFGraphStore(catalogManager:org.apache.xml.resolver.CatalogManager,catalogResolver:org.apache.xml.resolver.tools.CatalogResolver,catalog:org.apache.xml.resolver.Catalog,ontManager:org.semanticweb.owlapi.model.OWLOntologyManager):scalaz.\/[gov.nasa.jpl.omf.scala.core.OMFError.Throwables,gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore]" title="Permalink" target="_top">
+      <a href="../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.package@createOMFGraphStore(catalogManager:org.apache.xml.resolver.CatalogManager,catalogResolver:org.apache.xml.resolver.tools.CatalogResolver,catalog:org.apache.xml.resolver.Catalog,ontManager:org.semanticweb.owlapi.model.OWLOntologyManager,excludeOMLImports:Boolean,excludeOMLContent:Boolean,excludePurlImports:Boolean):scalaz.\/[gov.nasa.jpl.omf.scala.core.OMFError.Throwables,gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore]" title="Permalink" target="_top">
         <img src="../../../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -1770,35 +1770,35 @@ backbone declarations.</p>
     </span>
       
     </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi#getRelevantOntologyAnnotations" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="getRelevantOntologyAnnotations(ont:org.semanticweb.owlapi.model.OWLOntology):scala.collection.immutable.Vector[org.semanticweb.owlapi.model.OWLAnnotation]"></a>
-      <a id="getRelevantOntologyAnnotations(OWLOntology):Vector[OWLAnnotation]"></a>
+      <a id="getRelevantOntologyAnnotations(ont:org.semanticweb.owlapi.model.OWLOntology)(implicitstore:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore):scala.collection.immutable.Vector[org.semanticweb.owlapi.model.OWLAnnotation]"></a>
+      <a id="getRelevantOntologyAnnotations(OWLOntology)(OWLAPIOMFGraphStore):Vector[OWLAnnotation]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">getRelevantOntologyAnnotations</span><span class="params">(<span name="ont">ont: <span class="extype" name="org.semanticweb.owlapi.model.OWLOntology">OWLOntology</span></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.collection.immutable.Vector" class="extype" target="_top">Vector</a>[<span class="extype" name="org.semanticweb.owlapi.model.OWLAnnotation">OWLAnnotation</span>]</span>
+        <span class="name">getRelevantOntologyAnnotations</span><span class="params">(<span name="ont">ont: <span class="extype" name="org.semanticweb.owlapi.model.OWLOntology">OWLOntology</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="store">store: <a href="OWLAPIOMFGraphStore.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore">OWLAPIOMFGraphStore</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.collection.immutable.Vector" class="extype" target="_top">Vector</a>[<span class="extype" name="org.semanticweb.owlapi.model.OWLAnnotation">OWLAnnotation</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.package@getRelevantOntologyAnnotations(ont:org.semanticweb.owlapi.model.OWLOntology):scala.collection.immutable.Vector[org.semanticweb.owlapi.model.OWLAnnotation]" title="Permalink" target="_top">
+      <a href="../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.package@getRelevantOntologyAnnotations(ont:org.semanticweb.owlapi.model.OWLOntology)(implicitstore:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore):scala.collection.immutable.Vector[org.semanticweb.owlapi.model.OWLAnnotation]" title="Permalink" target="_top">
         <img src="../../../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       
     </li><li name="gov.nasa.jpl.omf.scala.binding.owlapi#getRelevantSubjectAnnotationAssertions" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="getRelevantSubjectAnnotationAssertions(ont:org.semanticweb.owlapi.model.OWLOntology,iri:org.semanticweb.owlapi.model.IRI):scala.collection.immutable.Vector[org.semanticweb.owlapi.model.OWLAnnotationAssertionAxiom]"></a>
-      <a id="getRelevantSubjectAnnotationAssertions(OWLOntology,IRI):Vector[OWLAnnotationAssertionAxiom]"></a>
+      <a id="getRelevantSubjectAnnotationAssertions(ont:org.semanticweb.owlapi.model.OWLOntology,iri:org.semanticweb.owlapi.model.IRI)(implicitstore:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore):scala.collection.immutable.Vector[org.semanticweb.owlapi.model.OWLAnnotationAssertionAxiom]"></a>
+      <a id="getRelevantSubjectAnnotationAssertions(OWLOntology,IRI)(OWLAPIOMFGraphStore):Vector[OWLAnnotationAssertionAxiom]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">getRelevantSubjectAnnotationAssertions</span><span class="params">(<span name="ont">ont: <span class="extype" name="org.semanticweb.owlapi.model.OWLOntology">OWLOntology</span></span>, <span name="iri">iri: <span class="extype" name="org.semanticweb.owlapi.model.IRI">IRI</span></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.collection.immutable.Vector" class="extype" target="_top">Vector</a>[<span class="extype" name="org.semanticweb.owlapi.model.OWLAnnotationAssertionAxiom">OWLAnnotationAssertionAxiom</span>]</span>
+        <span class="name">getRelevantSubjectAnnotationAssertions</span><span class="params">(<span name="ont">ont: <span class="extype" name="org.semanticweb.owlapi.model.OWLOntology">OWLOntology</span></span>, <span name="iri">iri: <span class="extype" name="org.semanticweb.owlapi.model.IRI">IRI</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="store">store: <a href="OWLAPIOMFGraphStore.html" class="extype" name="gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore">OWLAPIOMFGraphStore</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.11/index.html#scala.collection.immutable.Vector" class="extype" target="_top">Vector</a>[<span class="extype" name="org.semanticweb.owlapi.model.OWLAnnotationAssertionAxiom">OWLAnnotationAssertionAxiom</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.package@getRelevantSubjectAnnotationAssertions(ont:org.semanticweb.owlapi.model.OWLOntology,iri:org.semanticweb.owlapi.model.IRI):scala.collection.immutable.Vector[org.semanticweb.owlapi.model.OWLAnnotationAssertionAxiom]" title="Permalink" target="_top">
+      <a href="../../../../../../../index.html#gov.nasa.jpl.omf.scala.binding.owlapi.package@getRelevantSubjectAnnotationAssertions(ont:org.semanticweb.owlapi.model.OWLOntology,iri:org.semanticweb.owlapi.model.IRI)(implicitstore:gov.nasa.jpl.omf.scala.binding.owlapi.OWLAPIOMFGraphStore):scala.collection.immutable.Vector[org.semanticweb.owlapi.model.OWLAnnotationAssertionAxiom]" title="Permalink" target="_top">
         <img src="../../../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
