@@ -35,7 +35,7 @@ import org.semanticweb.owlapi.model._
 import scala.Ordering
 import scala.collection.immutable._
 import scala.compat.java8.StreamConverters._
-import scala.{Int, None, Option, StringContext, Unit}
+import scala.{Boolean, Int, None, Option, StringContext, Unit}
 import scala.Predef.{augmentString,require,ArrowAssoc,String}
 import scalaz._
 import Scalaz._
@@ -179,11 +179,14 @@ package object owlapi {
   (catalogManager: CatalogManager,
    catalogResolver: CatalogResolver,
    catalog: Catalog,
-   ontManager: OWLOntologyManager = OWLManager.createOWLOntologyManager())
+   ontManager: OWLOntologyManager = OWLManager.createOWLOntologyManager(),
+   excludeOMLImports: Boolean,
+   excludeOMLContent: Boolean,
+   excludePurlImports: Boolean)
   : Throwables \/ OWLAPIOMFGraphStore
   = for {
     module <- OWLAPIOMFModule.owlAPIOMFModule(catalogManager)
-    store = OWLAPIOMFGraphStore.initGraphStore(module, ontManager, catalogResolver, catalog)
+    store = OWLAPIOMFGraphStore.initGraphStore(module, ontManager, catalogResolver, catalog, excludeOMLImports = excludeOMLImports, excludeOMLContent = excludeOMLContent, excludePurlImports = excludePurlImports)
   } yield store
 
   def loadCatalog(s: OWLAPIOMFGraphStore, cls: java.lang.Class[_], catalogPath: String)
@@ -297,26 +300,46 @@ package object owlapi {
 
   def getRelevantOntologyAnnotations
   (ont: OWLOntology)
+  (implicit store: OWLAPIOMFGraphStore)
   : Vector[OWLAnnotation]
-  = ont
+  = if (store.excludeOMLContent)
+    ont
     .annotations()
     .toScala[Vector]
     .filterNot { a =>
       val apIRI = a.getProperty.getIRI.getIRIString
-      apIRI.startsWith("http://imce.jpl.nasa.gov/foundation") ||
-        apIRI.startsWith("http://imce.jpl.nasa.gov/oml")
+      apIRI.startsWith("http://imce.jpl.nasa.gov/foundation")
     }
+  else
+    ont
+      .annotations()
+      .toScala[Vector]
+      .filterNot { a =>
+        val apIRI = a.getProperty.getIRI.getIRIString
+        apIRI.startsWith("http://imce.jpl.nasa.gov/foundation") ||
+          apIRI.startsWith("http://imce.jpl.nasa.gov/oml")
+      }
 
   def getRelevantSubjectAnnotationAssertions
   (ont: OWLOntology, iri: IRI)
+  (implicit store: OWLAPIOMFGraphStore)
   : Vector[OWLAnnotationAssertionAxiom]
-  = ont
+  = if (store.excludeOMLContent)
+    ont
     .annotationAssertionAxioms(iri)
     .toScala[Vector]
     .filterNot { a =>
       val apIRI = a.getProperty.getIRI.getIRIString
-      apIRI.startsWith("http://imce.jpl.nasa.gov/foundation") ||
-        apIRI.startsWith("http://imce.jpl.nasa.gov/oml")
+      apIRI.startsWith("http://imce.jpl.nasa.gov/foundation")
     }
+  else
+    ont
+      .annotationAssertionAxioms(iri)
+      .toScala[Vector]
+      .filterNot { a =>
+        val apIRI = a.getProperty.getIRI.getIRIString
+        apIRI.startsWith("http://imce.jpl.nasa.gov/foundation") ||
+          apIRI.startsWith("http://imce.jpl.nasa.gov/oml")
+      }
 
 }

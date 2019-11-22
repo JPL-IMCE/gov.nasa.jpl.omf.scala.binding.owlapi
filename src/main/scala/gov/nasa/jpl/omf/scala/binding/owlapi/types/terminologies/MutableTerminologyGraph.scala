@@ -173,15 +173,21 @@ case class MutableTerminologyGraph
   = for {
     axiom <- createTerminologyNestingAxiom(uuid, parentGraph, parentContext)
     _ <- applyOntologyChangesOrNoOp(ontManager,
-      Seq(
-        new AddImport(ont, owlDataFactory
-          .getOWLImportsDeclaration(parentGraph.iri)),
-        new AddOntologyAnnotation(ont, owlDataFactory
-          .getOWLAnnotation(
-            store.ANNOTATION_HAS_CONTEXT,
-            parentContext.iri,
-            createOMLProvenanceAnnotations(uuid)))
-      ),
+      if (store.excludeOMLContent)
+        Seq(
+          new AddImport(ont, owlDataFactory
+            .getOWLImportsDeclaration(parentGraph.iri))
+        )
+      else
+        Seq(
+          new AddImport(ont, owlDataFactory
+            .getOWLImportsDeclaration(parentGraph.iri)),
+          new AddOntologyAnnotation(ont, owlDataFactory
+            .getOWLAnnotation(
+              store.ANNOTATION_HAS_CONTEXT,
+              parentContext.iri,
+              createOMLProvenanceAnnotations(uuid)))
+        ),
       "addNestedTerminologyGraph error")
   } yield axiom
 

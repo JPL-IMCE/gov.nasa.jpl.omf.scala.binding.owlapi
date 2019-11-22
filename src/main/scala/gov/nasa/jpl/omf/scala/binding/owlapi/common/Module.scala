@@ -21,13 +21,13 @@ package gov.nasa.jpl.omf.scala.binding.owlapi.common
 import gov.nasa.jpl.imce.oml.resolver.api.taggedTypes.ModuleUUID
 import gov.nasa.jpl.imce.oml.tables.{AnnotationProperty, AnnotationPropertyValue}
 import gov.nasa.jpl.imce.oml.tables
-import gov.nasa.jpl.omf.scala.binding.owlapi.{OMFBackbone, OWLAPIOMF}
+import gov.nasa.jpl.omf.scala.binding.owlapi.{OMFBackbone, OWLAPIOMF, OWLAPIOMFGraphStore}
 import gov.nasa.jpl.omf.scala.core.ModuleSignature
 import org.semanticweb.owlapi.model.{IRI, OWLOntology}
 
 import scala.collection.immutable.Set
 import scala.{Any, Boolean}
-import scala.Predef.{require}
+import scala.Predef.require
 
 trait Module
   extends LogicalElement with Resource {
@@ -41,17 +41,21 @@ trait Module
 
   override val iri: IRI = sig.iri
 
-  val builtInVocabulary: Boolean = {
+  def builtInVocabulary()(implicit store: OWLAPIOMFGraphStore): Boolean = {
     val iriString = iri.toString
-    iriString.startsWith("http://www.w3.org/")
+    iriString.startsWith("http://www.w3.org/") ||
+      (store.excludeOMLImports && iriString.startsWith("http://imce.jpl.nasa.gov/oml")) ||
+      (store.excludePurlImports && iriString.startsWith("http://purl.org"))
   }
 
   /**
     * If true, this means that this Module is a representation of a vocabulary that should not be serialized to OWL.
     */
-  val owlVocabularyNotToBeSerialized: Boolean = {
+  def owlVocabularyNotToBeSerialized()(implicit store: OWLAPIOMFGraphStore): Boolean = {
     val iriString = iri.toString
-    iriString.startsWith("http://www.w3.org/")
+    iriString.startsWith("http://www.w3.org/") ||
+      (store.excludeOMLImports && iriString.startsWith("http://imce.jpl.nasa.gov/oml")) ||
+      (store.excludePurlImports && iriString.startsWith("http://purl.org"))
   }
 
   require(ont.getOntologyID.getOntologyIRI.isPresent())

@@ -278,7 +278,7 @@ trait MutableTerminologyBox
   : OMFError.Throwables \/ TerminologyExtensionAxiom
   = for {
     axiom <- createTerminologyExtensionAxiom(uuid, extendedG)
-    _ <- if (extendedG.builtInVocabulary)
+    _ <- if (extendedG.builtInVocabulary())
       ().right[OMFError.Throwables]
     else applyOntologyChangeOrNoOp(ontManager,
       new AddImport(ont, owlDataFactory

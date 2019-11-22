@@ -47,7 +47,10 @@ abstract class OWLAPIOMFVocabularyImmutabilityCatalogTest( @transient val catalo
         },
         OWLManager.createOWLOntologyManager(),
         new CatalogResolver(catalogManager),
-        catalogManager.getPrivateCatalog),
+        catalogManager.getPrivateCatalog,
+        excludeOMLContent = false,
+        excludeOMLImports = false,
+        excludePurlImports = false),
       loadStore = OWLAPIOMFGraphStore.initGraphStore(
         OWLAPIOMFModule.owlAPIOMFModule(catalogManager).valueOr { (errors: Set[java.lang.Throwable]) =>
           val message = s"${errors.size} errors" + errors.map(_.getMessage).toList.mkString("\n => ","\n => ","\n")
@@ -55,7 +58,10 @@ abstract class OWLAPIOMFVocabularyImmutabilityCatalogTest( @transient val catalo
         },
         OWLManager.createOWLOntologyManager(),
         new CatalogResolver(catalogManager),
-        catalogManager.getPrivateCatalog) )
+        catalogManager.getPrivateCatalog,
+        excludeOMLContent = false,
+        excludeOMLImports = false,
+        excludePurlImports = false) )
 
 class OWLAPIOWFVocabularyImmutabilityTestLocalCatalog
   extends OWLAPIOMFVocabularyImmutabilityCatalogTest( catalogManager = new CatalogManager() ) {

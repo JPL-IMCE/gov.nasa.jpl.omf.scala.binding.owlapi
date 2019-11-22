@@ -46,7 +46,10 @@ abstract class OWLAPIOMFCircularityExampleCatalogTest(@transient val catalogMana
         },
         OWLManager.createOWLOntologyManager(),
         new CatalogResolver(catalogManager),
-        catalogManager.getPrivateCatalog),
+        catalogManager.getPrivateCatalog,
+        excludeOMLContent = false,
+        excludeOMLImports = false,
+        excludePurlImports = false),
       loadStore = OWLAPIOMFGraphStore.initGraphStore(
         OWLAPIOMFModule.owlAPIOMFModule(catalogManager).valueOr { (errors: Set[java.lang.Throwable]) =>
           val message = s"${errors.size} errors" + errors.map(_.getMessage).toList.mkString("\n => ","\n => ","\n")
@@ -54,7 +57,10 @@ abstract class OWLAPIOMFCircularityExampleCatalogTest(@transient val catalogMana
         },
         OWLManager.createOWLOntologyManager(),
         new CatalogResolver(catalogManager),
-        catalogManager.getPrivateCatalog) )
+        catalogManager.getPrivateCatalog,
+        excludeOMLContent = false,
+        excludeOMLImports = false,
+        excludePurlImports = false) )
 
 class OWLAPIOWFCircularityExampleTestLocalCatalog
   extends OWLAPIOMFCircularityExampleCatalogTest( catalogManager = new CatalogManager() ) {

@@ -44,7 +44,10 @@ abstract class IMCE_OWL2_MOF2_LoadTestFromOWLAPICatalog( @transient val catalogM
         },
         OWLManager.createOWLOntologyManager(),
         new CatalogResolver(catalogManager),
-        catalogManager.getCatalog))
+        catalogManager.getCatalog,
+        excludeOMLContent = false,
+        excludeOMLImports = false,
+        excludePurlImports = false))
 
 class IMCE_OWL2_MOF2_LoadTestFromOWLAPILocalCatalog
   extends IMCE_OWL2_MOF2_LoadTestFromOWLAPICatalog( catalogManager = new CatalogManager() ) {
