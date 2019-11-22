@@ -43,7 +43,10 @@ abstract class IMCEMissionDomainTBoxOWLAPIExampleCatalogTest(@transient val cata
       },
       OWLManager.createOWLOntologyManager(),
       new CatalogResolver(catalogManager),
-      catalogManager.getCatalog))
+      catalogManager.getCatalog,
+      excludeOMLContent = false,
+      excludeOMLImports = false,
+      excludePurlImports = false))
 
 class IMCEMissionDomainTBoxOWLAPIExampleLocalCatalog
   extends IMCEMissionDomainTBoxOWLAPIExampleCatalogTest(catalogManager = new CatalogManager()) {

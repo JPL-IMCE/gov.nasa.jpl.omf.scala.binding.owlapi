@@ -62,13 +62,19 @@ trait MutableModule extends Module {
   (uuid: java.util.UUID @@ Tag)
   (implicit store: OWLAPIOMFGraphStore)
   : java.util.Collection[OWLAnnotation]
-  = java.util.Collections.singleton(createOMLProvenanceAnnotation(uuid))
+  = if (store.excludeOMLContent)
+    java.util.Collections.emptyList[OWLAnnotation]()
+  else
+    java.util.Collections.singleton(createOMLProvenanceAnnotation(uuid))
 
   def createOMLProvenanceAnnotations[Tag]
   (uuid: String @@ Tag)
   (implicit store: OWLAPIOMFGraphStore)
   : java.util.Collection[OWLAnnotation]
-  = java.util.Collections.singleton(createOMLProvenanceAnnotation(uuid))
+  = if (store.excludeOMLContent)
+    java.util.Collections.emptyList[OWLAnnotation]()
+  else
+    java.util.Collections.singleton(createOMLProvenanceAnnotation(uuid))
 
   def createOMLProvenanceAnnotationsWithLabel[Tag]
   (name: String, uuid: java.util.UUID @@ Tag)
@@ -79,7 +85,9 @@ trait MutableModule extends Module {
     anns.add(owlDataFactory.getOWLAnnotation(
       owlDataFactory.getRDFSLabel(),
       owlDataFactory.getOWLLiteral(name, owlDataFactory.getStringOWLDatatype)))
-    anns.add(createOMLProvenanceAnnotation(uuid))
+    if (!store.excludeOMLContent) {
+      anns.add(createOMLProvenanceAnnotation(uuid))
+    }
     anns
   }
 
@@ -92,7 +100,9 @@ trait MutableModule extends Module {
     anns.add(owlDataFactory.getOWLAnnotation(
       owlDataFactory.getRDFSLabel(),
       owlDataFactory.getOWLLiteral(name, owlDataFactory.getStringOWLDatatype)))
-    anns.add(createOMLProvenanceAnnotation(uuid))
+    if (!store.excludeOMLContent) {
+      anns.add(createOMLProvenanceAnnotation(uuid))
+    }
     anns
   }
 }

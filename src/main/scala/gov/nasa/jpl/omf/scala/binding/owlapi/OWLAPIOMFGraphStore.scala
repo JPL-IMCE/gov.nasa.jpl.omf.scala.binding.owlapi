@@ -60,7 +60,10 @@ import gov.nasa.jpl.omf.scala.binding.owlapi.types.termAxioms.ReifiedRelationshi
 case class OWLAPIOMFGraphStore
 (omfModule: OWLAPIOMFModule,
  ontManager: OWLOntologyManager,
- catalogIRIMapper: CatalogIRIMapper) {
+ catalogIRIMapper: CatalogIRIMapper,
+ excludeOMLImports: Boolean = false,
+ excludeOMLContent: Boolean = false,
+ excludePurlImports: Boolean = false) {
 
   require(null != omfModule)
   require(null != ontManager)
@@ -118,20 +121,20 @@ case class OWLAPIOMFGraphStore
       .getOWLDataFactory
       .getOWLAnnotationProperty(omfModule.ops.AnnotationHasContext)
 
-  lazy val ANNOTATION_HAS_GRAPH: OWLAnnotationProperty =
-    ontManager
-      .getOWLDataFactory
-      .getOWLAnnotationProperty(omfModule.ops.AnnotationHasGraph)
+//  lazy val ANNOTATION_HAS_GRAPH: OWLAnnotationProperty =
+//    ontManager
+//      .getOWLDataFactory
+//      .getOWLAnnotationProperty(omfModule.ops.AnnotationHasGraph)
 
-  lazy val ANNOTATION_HAS_RESTRICTED_SOURCE_PROPERTY: OWLAnnotationProperty =
-    ontManager
-      .getOWLDataFactory
-      .getOWLAnnotationProperty(omfModule.ops.AnnotationHasRestrictedSourceProperty)
+//  lazy val ANNOTATION_HAS_RESTRICTED_SOURCE_PROPERTY: OWLAnnotationProperty =
+//    ontManager
+//      .getOWLDataFactory
+//      .getOWLAnnotationProperty(omfModule.ops.AnnotationHasRestrictedSourceProperty)
 
-  lazy val ANNOTATION_HAS_RESTRICTED_TARGET_PROPERTY: OWLAnnotationProperty =
-    ontManager
-      .getOWLDataFactory
-      .getOWLAnnotationProperty(omfModule.ops.AnnotationHasRestrictedTargetProperty)
+//  lazy val ANNOTATION_HAS_RESTRICTED_TARGET_PROPERTY: OWLAnnotationProperty =
+//    ontManager
+//      .getOWLDataFactory
+//      .getOWLAnnotationProperty(omfModule.ops.AnnotationHasRestrictedTargetProperty)
 
   private var modules = new scala.collection.mutable.HashMap[OWLAPIOMF#IRI, OWLAPIOMF#Module]()
 
@@ -680,7 +683,8 @@ case class OWLAPIOMFGraphStore
       .createBackbone(
         tboxOnt, kind,
         tboxOnt.getOWLOntologyManager.getOWLDataFactory.getOWLAnnotationProperty(ops.AnnotationIsTerminologyGraph),
-        ops)
+        ops,
+        excludeOMLContent || excludeOMLImports)
       .flatMap { backbone =>
         terminologies.MutableTerminologyGraph.initialize(
           uuid, name, iri, kind = kind, ont = tboxOnt,
@@ -703,7 +707,8 @@ case class OWLAPIOMFGraphStore
       .createBackbone(
         tboxOnt, kind,
         tboxOnt.getOWLOntologyManager.getOWLDataFactory.getOWLAnnotationProperty(ops.AnnotationIsBundle),
-        ops)
+        ops,
+        excludeOMLContent || excludeOMLImports)
       .flatMap { backbone =>
         terminologies.MutableBundle.initialize(
           uuid, name, iri, kind, ont = tboxOnt,
@@ -726,7 +731,8 @@ case class OWLAPIOMFGraphStore
       .createBackbone(
         dboxOnt, kind,
         dboxOnt.getOWLOntologyManager.getOWLDataFactory.getOWLAnnotationProperty(ops.AnnotationIsDescriptionBox),
-        ops)
+        ops,
+        excludeOMLContent || excludeOMLImports)
       .flatMap { backbone =>
         MutableDescriptionBox.initialize(
           uuid, name, iri, kind = kind, ont = dboxOnt, backbone = backbone)(this, ops).map { dbox =>
@@ -1061,7 +1067,7 @@ case class OWLAPIOMFGraphStore
         } yield ()
       }
 
-      _ <- getRelevantOntologyAnnotations(ont).foldLeft(types.rightUnitNES) { case (acc, a) =>
+      _ <- getRelevantOntologyAnnotations(ont)(this).foldLeft(types.rightUnitNES) { case (acc, a) =>
         for {
           _ <- acc
           av <- getAnnotationValueFromOWLAnnotation(a.getValue)
@@ -1297,7 +1303,11 @@ object OWLAPIOMFGraphStore {
   (omfModule: OWLAPIOMFModule,
    ontManager: OWLOntologyManager,
    catalogResolver: CatalogResolver,
-   catalog: Catalog)
+   catalog: Catalog,
+   excludeOMLImports: Boolean,
+   excludeOMLContent: Boolean,
+   excludePurlImports: Boolean
+  )
   : OWLAPIOMFGraphStore
   = {
     val catalogIRIMapper: CatalogIRIMapper = {
@@ -1306,7 +1316,7 @@ object OWLAPIOMFGraphStore {
       mappers.add(Iterable[OWLOntologyIRIMapper](mapper).asJava)
       mapper
     }
-    OWLAPIOMFGraphStore(omfModule, ontManager, catalogIRIMapper)
+    OWLAPIOMFGraphStore(omfModule, ontManager, catalogIRIMapper, excludeOMLImports = excludeOMLImports, excludeOMLContent = excludeOMLContent, excludePurlImports = excludePurlImports)
   }
 
 }

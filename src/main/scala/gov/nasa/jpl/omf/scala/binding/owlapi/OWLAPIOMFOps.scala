@@ -554,7 +554,7 @@ trait OWLAPIStoreOps
   (g: TerminologyBox)
   (implicit store: OWLAPIOMFGraphStore)
   : Throwables \/ Unit
-  = if (g.owlVocabularyNotToBeSerialized)
+  = if (g.owlVocabularyNotToBeSerialized())
       ().right
     else
       store.saveTerminology(g)(this)
@@ -564,7 +564,7 @@ trait OWLAPIStoreOps
    os: java.io.OutputStream)
   (implicit store: OWLAPIOMFGraphStore)
   : Throwables \/ Unit
-  = if (g.owlVocabularyNotToBeSerialized)
+  = if (g.owlVocabularyNotToBeSerialized())
     ().right
   else
     store.saveTerminology(g, os)(this)
